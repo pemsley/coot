@@ -1365,8 +1365,9 @@ public:        //                      public
    short int contour_by_sigma_flag;
    float contour_sigma_step;
    //
-   double  **map_colour;
-   std::vector<double> previous_map_colour;
+   GdkRGBA map_colour;
+   GdkRGBA map_colour_negative_level;
+   GdkRGBA previous_map_colour;
    void save_previous_map_colour();
    void restore_previous_map_colour();
 
@@ -1458,9 +1459,9 @@ public:        //                      public
 
    //
    void update_map_colour_menu_maybe(int imol);
-   void handle_map_colour_change(gdouble *map_col,
-				 short int swap_difference_map_colours_flag,
-				 short int main_or_secondary);
+   void handle_map_colour_change(GdkRGBA map_col,
+				                     bool swap_difference_map_colours_flag,
+				                     bool main_or_secondary);
 
    int next_free_map();
 
@@ -1996,12 +1997,9 @@ public:        //                      public
       return save_state_command_strings_;
    }
 
+   void set_map_colour(GdkRGBA col) { map_colour = col; update_map(); }
    std::vector<std::string> set_map_colour_strings() const;
-   std::vector<float> map_colours() const; // return an empty vector
-					   // if closed or is a coords
-					   // mol, 3 elements and 6
-					   // elements for a
-					   // difference map.
+   std::pair<GdkRGBA, GdkRGBA> map_colours() const;
 
    // save yourself and update have_unsaved_changes_flag status
    //

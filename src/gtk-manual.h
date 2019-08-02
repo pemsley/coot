@@ -1,19 +1,19 @@
 /* src/gtk-manual.hh
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005 by The University of York
  * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -47,7 +47,7 @@ BEGIN_C_DECLS
 #endif
 
 
-void 
+void
 on_map_color_changed(GtkWidget *w,   gpointer *tmd);
 /* 		 GtkColorSelection *cs); */
 
@@ -62,18 +62,17 @@ on_map_col_sel_cancel_button_clicked        (GtkButton       *button,
 
 /* Map Colour */
 
-struct map_colour_data_type { 
-   int imol; 
-   int imap;
-   GtkColorSelection* colorsel;
+struct map_colour_data_type {
+   int imol;
+   GtkColorChooser* color_chooser;
 };
 
-GtkWidget* create_map_colour_selection_window(struct map_colour_data_type *mcdt); 
+GtkWidget* create_map_colour_selection_window(struct map_colour_data_type *mcdt);
 
 
 /* Symmetry Colour */
 
-void 
+void
 on_symmetry_color_changed(GtkWidget *w,
 		 GtkColorSelection *cs);
 
@@ -89,37 +88,37 @@ GtkWidget *
 create_symmetry_colour_selection_window();
 
 
-void 
-create_initial_map_color_submenu(GtkWidget *widget); 
+void
+create_initial_map_color_submenu(GtkWidget *widget);
 
 void
-update_map_colour_menu_manual(int imol, const char *label); 
+update_map_colour_menu_manual(int imol, const char *label);
 
 void
 my_map_colour_activate (GtkMenuItem     *menuitem,
                         gpointer         user_data);
 
 /* similar stuff for the scroll wheel */
-void 
-create_initial_map_scroll_wheel_submenu(GtkWidget *widget); 
+void
+create_initial_map_scroll_wheel_submenu(GtkWidget *widget);
 
 
 void
-update_map_scroll_wheel_menu_manual(int imol, const char *name); 
+update_map_scroll_wheel_menu_manual(int imol, const char *name);
 
 void
 my_map_scroll_wheel_activate(GtkMenuItem     *menuitem,
-			     gpointer         user_data); 
+			     gpointer         user_data);
 
 /* And similar for ramachandran plot: */
 void create_initial_ramachandran_mol_submenu(GtkWidget *widget);
-void update_ramachandran_plot_menu_manual(int imol, const char *name); 
+void update_ramachandran_plot_menu_manual(int imol, const char *name);
 void rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 				      gpointer         user_data);
 
 /* And similar for sequence view: */
 void create_initial_sequence_view_mol_submenu(GtkWidget *widget);
-void update_sequence_view_menu_manual(int imol, const char *name); 
+void update_sequence_view_menu_manual(int imol, const char *name);
 void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 					  gpointer         user_data);
 
@@ -133,10 +132,10 @@ void on_skeleton_color_changed(GtkWidget *w,
 			       GtkColorSelection *colorsel);
 
 void on_skeleton_col_sel_ok_button_clicked (GtkButton       *button,
-					    gpointer         user_data); 
+					    gpointer         user_data);
 
 void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
-						gpointer         user_data); 
+						gpointer         user_data);
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
@@ -148,8 +147,8 @@ void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 
 GtkWidget *get_radio_button_in_scroll_group(GtkWidget *d, int imol_this);
 
-void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
-						       const gchar *name, 
+void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
+						       const gchar *name,
 						       int n);
 
 void simple_display_control_mol_menu_item(GtkWidget *model_menu,
@@ -169,9 +168,9 @@ void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPosition
 void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos);
 void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos);
 void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositionType pos);
-GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade, 
-					 const gchar *name, 
-					 int n); 
+GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade,
+					 const gchar *name,
+					 int n);
 
 /* void */
 /* on_display_control_map_displayed_button_clicked   (GtkButton       *button, */
@@ -180,17 +179,17 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 /* map */
 void
 on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button,
-						   gpointer         user_data); 
+						   gpointer         user_data);
 void
 on_display_control_map_properties_button_clicked   (GtkButton       *button,
-						   gpointer         user_data); 
+						   gpointer         user_data);
 
-void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32, 
+void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
 						short int is_map_molecule);
 
 void
 on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
-						   gpointer         user_data); 
+						   gpointer         user_data);
 
 /* molecule */
 void
@@ -198,20 +197,20 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
 						   gpointer         user_data);
 void
 on_display_control_mol_active_button_toggled   (GtkToggleButton       *button,
-						gpointer         user_data); 
+						gpointer         user_data);
 void
 on_display_control_mol_properties_button_toggled   (GtkButton       *button,
-						    gpointer         user_data); 
+						    gpointer         user_data);
 void
 on_display_control_map_scroll_radio_button_toggled (GtkToggleButton    *button,
-						    gpointer         user_data); 
+						    gpointer         user_data);
 
 void
 on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button,
 							  gpointer         user_data);
 
 
-void fill_map_colour_patch(GtkWidget *patch_frame, int imol); 
+void fill_map_colour_patch(GtkWidget *patch_frame, int imol);
 
 
 
@@ -221,11 +220,11 @@ void fill_map_colour_patch(GtkWidget *patch_frame, int imol);
 /* ------------------------------------------------------------------------------ */
 
 
-GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,  
+GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 			      GSList *phs_cell_group, int n);
 
-void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window, 
-				   GSList *phs_cell_group); 
+void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
+				   GSList *phs_cell_group);
 
 
 void
@@ -239,7 +238,7 @@ on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
 /* ------------------------------------------------------------------------------ */
 
 GtkWidget* create_splash_screen_window_for_file(const char *file_name);
-   
+
 
 /* ------------------------------------------------------------------------------ */
 /*  get the imol from a combobox.                                                 */

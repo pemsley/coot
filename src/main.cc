@@ -678,6 +678,7 @@ void setup_application_icon(GtkWindow *window) {
 	 error = NULL;
       } else {
 	 if (pixbuf) {
+            std::cout << "Repalce gtk_icon_set_new_from_pixbuf()\n";
 	    iconset = gtk_icon_set_new_from_pixbuf(pixbuf);
 	    g_object_unref(pixbuf);
 	    // may have to be adjusted for Windows!!
@@ -687,6 +688,7 @@ void setup_application_icon(GtkWindow *window) {
 	    if (strcmp(stock_id, "") !=0) { // if they don't match..
 	       gtk_icon_factory_add(iconfactory, stock_id, iconset);
 	       gtk_icon_factory_add_default(iconfactory);
+               std::cout << "Replace these deprecated icon factory functions\n";
 	    }
 	 }
       }

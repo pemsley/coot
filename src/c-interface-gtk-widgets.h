@@ -244,7 +244,7 @@ void execute_recover_session(GtkWidget *w);
 
 void add_on_map_colour_choices(GtkWidget *w);
 
-GdkRGBA get_map_gdk_colour(int imol);
+GdkRGBA get_map_colour(int imol);
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
@@ -260,7 +260,7 @@ void add_on_map_scroll_wheel_choices(GtkWidget *menu);
 void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
 					     gpointer         user_data);
 
-void handle_map_colour_change     (int map_no, gdouble[4]);
+void handle_map_colour_change     (int map_no, GdkRGBA col);
 void handle_symmetry_colour_change(int mol,    gdouble[4]);
 void fill_single_map_properties_dialog(GtkWidget *window, int imol);
 void set_contour_sigma_button_and_entry(GtkWidget *window, int imol);

@@ -1,18 +1,18 @@
 /* src/molecule-class-info-widget-work.cc
- * 
+ *
  * Copyright 2005, 2006 by The University of York
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA.
@@ -24,7 +24,7 @@
 #endif
 
 #include <vector>
-#include <mmdb2/mmdb_manager.h> 
+#include <mmdb2/mmdb_manager.h>
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
@@ -42,46 +42,46 @@ extern "C" {
 // That is bizzare.
 //
 // Actually, I think that they do now.
-// 
+//
 void
 molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 {
    // or maybe not.
 }
 
-void 
-molecule_class_info_t::handle_map_colour_change(gdouble *map_col,
-						short int swap_difference_map_colours_flag,
-						short int main_or_secondary) {
+void
+molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
+						                              bool swap_difference_map_colours_flag,
+						                              bool main_or_secondary) {
 
-   map_colour[0][0] = map_col[0];
-   map_colour[0][1] = map_col[1];
-   map_colour[0][2] = map_col[2];
 
-   if (xmap_is_diff_map) { 
+
+   map_colour = map_col_in;
+
+   if (xmap_is_diff_map) {
       std::vector<float> orig_colours(3);
-      orig_colours[0] = map_colour[0][0];
-      orig_colours[1] = map_colour[0][1];
-      orig_colours[2] = map_colour[0][2];
+      orig_colours[0] = map_colour.red;
+      orig_colours[1] = map_colour.green;
+      orig_colours[2] = map_colour.blue;
       // Usually (by default) the colours for the difference map are
       // green and red.  Some people like red and
       // green. set_last_map_colour() calls this function and it is
       // here that we decide on the second (negative level) colour.
       float rotation_size = rotate_colour_map_for_difference_map/360.0;
       if (swap_difference_map_colours_flag)
-	 rotation_size = (360.0 - rotate_colour_map_for_difference_map)/360.0;
+ 	      rotation_size = (360.0 - rotate_colour_map_for_difference_map)/360.0;
       std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-      map_colour[1][0] = rgb_new[0];
-      map_colour[1][1] = rgb_new[1];
-      map_colour[1][2] = rgb_new[2];
+      map_colour.red= rgb_new[0];
+      map_colour.green = rgb_new[1];
+      map_colour.blue = rgb_new[2];
    }
 
    // main 0: secondary: 1
    compile_density_map_display_list(main_or_secondary);
-} 
+}
 
 // symmetry control
-// 
+//
 // We create a frame and add it to the viewport that's passed.  It is used to fill the
 // symmetry control widget (requested by Frank von Delft)
 //
@@ -96,7 +96,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
    s          += imol_str;
    s          += " ";
    s          += name_for_display_manager();
-   
+
    GtkWidget *molecule_0_frame;
    GtkWidget *vbox168;
    GtkWidget *molecule_0_checkbutton;
@@ -114,7 +114,7 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 
    symmetry_control_vbox = lookup_widget(symmetry_controller_dialog,
 					 "symmetry_controller_vbox");
-   
+
    molecule_0_frame = gtk_frame_new (s.c_str());
    // gtk_widget_ref (molecule_0_frame);
    std::string t = molecule_n + "_frame";
@@ -282,11 +282,11 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 void
 molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) const {
 
-   
+
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
 	 fill_ncs_control_frame_internal(ncs_control_dialog);
-      } 
+      }
    }
 }
 
@@ -318,7 +318,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    m += " ";
    m += dotted_chopped_name();
    // tooltips = gtk_tooltips_new ();
-   
+
    frame_molecule_N = gtk_frame_new (m.c_str());
    // gtk_widget_ref (frame_molecule_N);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog),
@@ -351,7 +351,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_controller_molecule_n_display_ncs_checkbutton), TRUE);
 
 
-   // 
+   //
    hseparator11 = gtk_hseparator_new ();
    // gtk_widget_ref (hseparator11);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hseparator11", hseparator11, NULL);
@@ -393,7 +393,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    int ighost = 0;
 
    // is ncs_ghosts filled right now?
-   
+
    std::string master = ncs_ghosts[ighost].target_chain_id;
    for (int ich=0; ich<n_chains; ich++) {
       std::string label = "Chain ";
@@ -405,7 +405,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
       name += imol_str;
       name += "_display_chain_";
       name += coot::util::int_to_string(ich);
-      name += "_checkbutton"; 
+      name += "_checkbutton";
       g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 				name.c_str(),
 				ncs_controller_molecule_n_display_chain_ich_checkbutton, NULL);
@@ -431,12 +431,12 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
       //
       // e.g. conside the case: B matches A, D matches C.  If A is the
       // master, then we should not be seeing C or D ghosts.
-      // 
+      //
       if (v[ich] == master) {
 	 gtk_widget_set_sensitive(ncs_controller_molecule_n_display_chain_ich_checkbutton, FALSE);
       }
 
-      
+
       ighost = -1;
       for (unsigned int jghost=0; jghost<ncs_ghosts.size(); jghost++) {
 	 if ( v[ich] == ncs_ghosts[jghost].chain_id) {
@@ -448,7 +448,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 	 // 	 if (ncs_ghosts[ighost].display_it_flag)
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_controller_molecule_n_display_chain_ich_checkbutton), TRUE);
    }
-      
+
    vbox174 = gtk_vbox_new (FALSE, 0);
    // gtk_widget_ref (vbox174);
    g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox174", vbox174, NULL);
@@ -473,15 +473,15 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
    for (int ich=0; ich<n_chains; ich++) {
       std::string chain_str = v[ich];
       std::string label = "Chain ";
-      label += chain_str; 
+      label += chain_str;
       ncs_controller_ncs_master_chain_ich_radiobutton =
 	 gtk_radio_button_new_with_label (molecule_n_ncs_master_chain_gr_group, label.c_str());
-      molecule_n_ncs_master_chain_gr_group = 
+      molecule_n_ncs_master_chain_gr_group =
 	 gtk_radio_button_get_group (GTK_RADIO_BUTTON (ncs_controller_ncs_master_chain_ich_radiobutton));
       // gtk_widget_ref (ncs_controller_ncs_master_chain_ich_radiobutton);
       std::string name = "ncs_controller_ncs_master_chain_";
       name += imol_str;
-      name += "_radiobutton"; 
+      name += "_radiobutton";
       g_object_set_data_full (G_OBJECT (ncs_control_dialog),
 				name.c_str(),
 				ncs_controller_ncs_master_chain_ich_radiobutton, NULL);
@@ -497,7 +497,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 			  GINT_TO_POINTER(imol_no*1000 + ich));
 
       if (chain_str == master) {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_controller_ncs_master_chain_ich_radiobutton), TRUE); 
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_controller_ncs_master_chain_ich_radiobutton), TRUE);
       }
    }
 
@@ -508,7 +508,7 @@ molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_di
 
    gtk_widget_show(frame_molecule_N);
 
-} 
+}
 
 
 void
@@ -516,14 +516,14 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
 
    // Now we want to update the widget.  We need to change the sensitivity of
    // all the Chain check boxes in the dispaly ncs chain vbox.
-   // 
+   //
    // We need to change to desensitve the chain that matches ichain.
    //
 
    // First find imaster
    std::vector<std::string> chain_ids = coot::util::chains_in_molecule(atom_sel.mol);
 
-   if (w) { 
+   if (w) {
       if (imaster != -1) {
 	 GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
 	 std::string imol_str = coot::util::int_to_string(imol_no);
@@ -538,7 +538,7 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
 	       if (int(i) == imaster) {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
 		  gtk_widget_set_sensitive(checkbutton, FALSE);
-	       } else { 
+	       } else {
 		  gtk_widget_set_sensitive(checkbutton, TRUE);
 		  // ncs control turns on all chains when we change the master
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);

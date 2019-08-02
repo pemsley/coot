@@ -4327,30 +4327,30 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
       if (draw_it_for_map) {
 	 // if (draw_it_for_map_standard_lines) // let's see something
                                                 // at least, if we are displaying a volume surface....
-	 if (1) {
-	    if (lev == 1) {
-	       if (! draw_vector_sets.empty()) {
+	if (1) {
+	   if (lev == 1) {
+	      if (! draw_vector_sets.empty()) {
 
-		  rtmi.density_colour.col.resize(3);
-		  rtmi.density_colour.col[0] = map_colour[0][0];
-		  rtmi.density_colour.col[1] = map_colour[0][1];
-		  rtmi.density_colour.col[2] = map_colour[0][2];
+	         rtmi.density_colour.col.resize(3);
+            rtmi.density_colour.col[0] = map_colour.red;
+            rtmi.density_colour.col[1] = map_colour.green;
+            rtmi.density_colour.col[2] = map_colour.blue;
 
-		  for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-		     for (int j=0; j<draw_vector_sets[i].size; j++) {
-			std::pair<coot::Cartesian, coot::Cartesian> p(draw_vector_sets[i].data[j].getStart(),
-								      draw_vector_sets[i].data[j].getFinish());
-			rtmi.density_lines.push_back(p);
-		     }
-		  }
-	       }
+            for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+               for (int j=0; j<draw_vector_sets[i].size; j++) {
+                  std::pair<coot::Cartesian, coot::Cartesian> p(draw_vector_sets[i].data[j].getStart(),
+				       	                  			            draw_vector_sets[i].data[j].getFinish());
+			         rtmi.density_lines.push_back(p);
+               }
+            }
+         }
 	    } else {
 	       if (n_diff_map_draw_vectors > 0) {
 
-		  rtmi.density_colour.col.resize(3);
-		  rtmi.density_colour.col[0] = map_colour[1][0];
-		  rtmi.density_colour.col[1] = map_colour[1][1];
-		  rtmi.density_colour.col[2] = map_colour[1][2];
+             rtmi.density_colour.col.resize(3);
+             rtmi.density_colour.col[0] = map_colour_negative_level.red;
+             rtmi.density_colour.col[1] = map_colour_negative_level.green;
+             rtmi.density_colour.col[2] = map_colour_negative_level.blue;
 
 		  for(int i=0; i<n_diff_map_draw_vectors; i++) {
 		     rtmi.density_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(diff_map_draw_vectors[i].getStart(), diff_map_draw_vectors[i].getFinish()));

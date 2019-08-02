@@ -5017,9 +5017,9 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    float r         = g.box_radius_xray;
 	    // first create a colour
 	    map_colour_stream << "   coot_mapcolour" << imol << " = ["<<
-	       graphics_info_t::molecules[imol].map_colour[0][0] << ", " <<
-	       graphics_info_t::molecules[imol].map_colour[0][1] << ", " <<
-	       graphics_info_t::molecules[imol].map_colour[0][2] << ", " <<
+	       graphics_info_t::molecules[imol].map_colour.red   << ", " <<
+	       graphics_info_t::molecules[imol].map_colour.green << ", " <<
+	       graphics_info_t::molecules[imol].map_colour.blue  << ", " <<
 	       "1.0],\n";
 	    //colour_definitions.push_back(map_colour);
 	    // int use_weights_flag = g.molecules[imol].save_use_weights;
@@ -5051,9 +5051,9 @@ void write_ccp4mg_picture_description(const char *filename) {
 		   mg_stream << "\n";
 		   // and a color
 		   map_colour_stream << "   coot_mapcolour" << imol << "_2 = ["<<
-		      graphics_info_t::molecules[imol].map_colour[0][1] << ", " <<
-		      graphics_info_t::molecules[imol].map_colour[0][0] << ", " <<
-		      graphics_info_t::molecules[imol].map_colour[0][2] << ", " <<
+		      graphics_info_t::molecules[imol].map_colour.red   << ", " <<
+		      graphics_info_t::molecules[imol].map_colour.green << ", " <<
+		      graphics_info_t::molecules[imol].map_colour.blue  << ", " <<
 		      "1.0],\n";
 		}
 	 }

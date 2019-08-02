@@ -3714,12 +3714,13 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
 
    if (is_valid_map_molecule(imol)) {
 
+      col_chooser = gtk_color_chooser_dialog_new("Select Map Colour", parent_w);
       map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
       map_colour_data->imol = imol;
-      map_colour_data->imap = 0; /* historical cruft */
-      col_chooser = gtk_color_chooser_dialog_new("Select Map Colour", parent_w);
-      g_signal_connect(col_chooser, "response", G_CALLBACK(on_single_map_properties_colour_dialog_response), NULL);
-      map_colour = get_map_gdk_colour(imol);
+      map_colour_data->color_chooser = col_chooser;
+      g_signal_connect(col_chooser, "response", G_CALLBACK(on_single_map_properties_colour_dialog_response),
+                       map_colour_data);
+      map_colour = get_map_colour(imol);
       gtk_color_chooser_set_rgba(col_chooser, &map_colour);
       gtk_widget_show(col_chooser);
 

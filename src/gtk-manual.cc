@@ -1,19 +1,19 @@
 /* src/gtk-manual.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005 by The University of York
  * Copyright 2008, 2009 by The University of Oxford
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -54,11 +54,11 @@
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void 
+void
 on_map_color_changed(GtkWidget *w,
 /* 		 GtkColorSelection *colorsel)  */
 		     gpointer *tmd)
-{ 
+{
 
    std::cout << "GTK-FIXME the colour stuff" << std::endl;
    gdouble color[4];
@@ -86,7 +86,7 @@ void
 on_map_col_sel_cancel_button_clicked (GtkButton       *button,
 				      gpointer         *tmd)
 {
-   
+
   struct map_colour_data_type* t = (struct map_colour_data_type*) tmd;
   int imol = t->imol;
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "map_color_selection_dialog");
@@ -98,58 +98,6 @@ on_map_col_sel_cancel_button_clicked (GtkButton       *button,
 }
 
 
-GtkWidget *create_map_colour_selection_window(struct map_colour_data_type *mcdt) { 
-
-
-/*    GtkColorSelectionDialog *colorseldialog;  */
-   GtkWidget  *colorseldialog = 0;
-
-   GtkButton *cancel_button;
-   GtkButton *help_button;
-   GtkWidget *colorsel = 0;
-   struct map_colour_data_type *t;
-
-   t = (struct map_colour_data_type*) malloc(100);
-
-   /*
-   colorseldialog = gtk_color_selection_dialog_new("Map Colour Selection"); 
-   gtk_object_set_data(GTK_OBJECT(colorseldialog), "map_color_selection_dialog",
-		       colorseldialog);
-
-   colorsel = GTK_COLOR_SELECTION_DIALOG(colorseldialog)->colorsel;
-   */
-
-   t->imol = mcdt->imol; 
-   t->colorsel = (GtkColorSelection*)colorsel;
-   save_previous_map_colour(t->imol);
-
-  /* Capture "color_changed" events in col_sel_window */
-
-  g_signal_connect (G_OBJECT (colorsel), "color_changed",
-		    G_CALLBACK(on_map_color_changed),
-		    /* 		      (gpointer)colorsel); */
-		    (gpointer)t);
-
-  /*
-  g_signal_connect(G_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->ok_button),
-		   "clicked",
-		   G_CALLBACK(on_map_col_sel_ok_button_clicked),
-		   colorseldialog);
-
-  g_signal_connect(G_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
-				cancel_button), "clicked",
-		     G_CALLBACK(on_map_col_sel_cancel_button_clicked), 
-		     (gpointer)t);
-  */
-
-  g_object_set_data (G_OBJECT (colorseldialog), "map_colour_selection",
-		     colorseldialog);
-                      
-
-  return GTK_WIDGET(colorseldialog);
-
-}
-
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 /*                               symmetry                                   */
@@ -157,7 +105,7 @@ GtkWidget *create_map_colour_selection_window(struct map_colour_data_type *mcdt)
 /* ------------------------------------------------------------------------ */
 
 GtkWidget *
-create_symmetry_colour_selection_window() { 
+create_symmetry_colour_selection_window() {
 
 
 /*    GtkColorSelectionDialog *colorseldialog;  */
@@ -168,8 +116,9 @@ create_symmetry_colour_selection_window() {
    GtkButton *help_button;
    GtkWidget *colorsel;
 
-   colorseldialog = 
-      gtk_color_selection_dialog_new("Symmetry Colour Selection"); 
+   // colorseldialog = gtk_color_selection_dialog_new("Symmetry Colour Selection");
+   GtkWindow *parent_window = NULL; // FIXME
+   colorseldialog = gtk_color_chooser_dialog_new("Symmetry Colour Selection", parent_window);
 
 
 /* How do we get to the buttons? */
@@ -182,7 +131,7 @@ create_symmetry_colour_selection_window() {
   g_signal_connect (G_OBJECT (colorsel), "color_changed",
 		    G_CALLBACK(on_symmetry_color_changed),
 		    (gpointer)colorsel);
-  
+
   g_signal_connect(GOBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
 			   ok_button), "clicked",
 		   G_CALLBACK(on_symm_col_sel_cancel_button_clicked),
@@ -190,10 +139,10 @@ create_symmetry_colour_selection_window() {
 
   g_signal_connect(G_OBJECT(GTK_COLOR_SELECTION_DIALOG(colorseldialog)->
 			    cancel_button), "clicked",
-		     G_CALLBACK(on_symm_col_sel_cancel_button_clicked), 
+		     G_CALLBACK(on_symm_col_sel_cancel_button_clicked),
 		     colorseldialog);
    */
-		     
+
   /* give this widget a name so that we can look it up? */
   g_object_set_data (G_OBJECT (colorseldialog), "symmetry_bonds_colour_selection",
 		     colorseldialog);
@@ -203,9 +152,9 @@ create_symmetry_colour_selection_window() {
 }
 
 
-void 
+void
 on_symmetry_color_changed(GtkWidget *w,
-			  GtkColorSelection *colorsel) { 
+			  GtkColorSelection *colorsel) {
    gdouble color[4];
 
    // gtk_color_selection_get_color(colorsel,color);
@@ -238,48 +187,48 @@ on_symm_col_sel_cancel_button_clicked (GtkButton       *button,
 /* dynamic map color menu */
 /* ----------------------------------------------------------------- */
 
-void 
-create_initial_map_color_submenu(GtkWidget *widget) { 
+void
+create_initial_map_color_submenu(GtkWidget *widget) {
 
-   GtkWidget *map_colour1_menu; 
-   GtkWidget *window1; 
-   GtkWidget *map_colour1; 
-  
+   GtkWidget *map_colour1_menu;
+   GtkWidget *window1;
+   GtkWidget *map_colour1;
+
  /* We need to get to window1 */
-   window1 = widget; 
+   window1 = widget;
 
    map_colour1 = GTK_WIDGET(lookup_widget(window1, "map_colour1"));
 
    map_colour1_menu = gtk_menu_new ();
    // gtk_widget_ref (map_colour1_menu);
-   g_object_set_data_full (G_OBJECT (window1), "map_colour1_menu", 
+   g_object_set_data_full (G_OBJECT (window1), "map_colour1_menu",
 			   map_colour1_menu, NULL);
 
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (map_colour1), 
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM (map_colour1),
 			      map_colour1_menu);
 }
 
 
 
-void 
-create_initial_ramachandran_mol_submenu(GtkWidget *widget) { 
+void
+create_initial_ramachandran_mol_submenu(GtkWidget *widget) {
 
-   GtkWidget *rama_draw_menu; 
-   GtkWidget *window1; 
-   GtkWidget *rama_draw; 
-  
+   GtkWidget *rama_draw_menu;
+   GtkWidget *window1;
+   GtkWidget *rama_draw;
+
  /* We need to get to window1 */
 
-   window1 = widget; 
+   window1 = widget;
 
    rama_draw = GTK_WIDGET(lookup_widget(window1, "ramachandran_plot1"));
-			
+
    rama_draw_menu = gtk_menu_new ();
    // gtk_widget_ref (rama_draw_menu);
-   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu", 
+   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu",
 			   rama_draw_menu, NULL);
 
-   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_draw), 
+   gtk_menu_item_set_submenu (GTK_MENU_ITEM (rama_draw),
 			      rama_draw_menu);
 }
 
@@ -288,25 +237,25 @@ void
 update_ramachandran_plot_menu_manual(int imol, const char *name) {
 
    GtkWidget *menu_item;
-   GtkWidget *window1; 
-   GtkWidget *rama_plot_menu; 
-   char *text; 
+   GtkWidget *window1;
+   GtkWidget *rama_plot_menu;
+   char *text;
 
-   window1 = GTK_WIDGET(lookup_widget(main_window(), "window1")); 
+   window1 = GTK_WIDGET(lookup_widget(main_window(), "window1"));
 
    menu_item = gtk_menu_item_new_with_label (name);
 
-   rama_plot_menu = GTK_WIDGET(lookup_widget(window1, "rama_plot_menu")); 
+   rama_plot_menu = GTK_WIDGET(lookup_widget(window1, "rama_plot_menu"));
 
    // gtk_widget_ref (menu_item);
-   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu_item", 
+   g_object_set_data_full (G_OBJECT (window1), "rama_plot_menu_item",
 			   menu_item, NULL);
 
   gtk_widget_show (menu_item);
   gtk_container_add (GTK_CONTAINER (rama_plot_menu), menu_item);
 
-  g_signal_connect (G_OBJECT (menu_item), "activate",  
-		    G_CALLBACK (rama_plot_mol_selector_activate),  
+  g_signal_connect (G_OBJECT (menu_item), "activate",
+		    G_CALLBACK (rama_plot_mol_selector_activate),
 		    GINT_TO_POINTER(imol));
 }
 
@@ -316,7 +265,7 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 				 gpointer         user_data)
 {
   int imol = GPOINTER_TO_INT(user_data);
-  GtkWidget *rama_widget = 0; 
+  GtkWidget *rama_widget = 0;
 /*   printf("selector activate: do rama plot for molecule: %d\n", *imol); */
 
 /* We should come here and be given imol.  New molecules should insert
@@ -325,22 +274,22 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 #if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
 
   rama_widget = dynarama_is_displayed_state(imol);
-  if (rama_widget == NULL) { 
-    do_ramachandran_plot(imol); 
-  } else { 
+  if (rama_widget == NULL) {
+    do_ramachandran_plot(imol);
+  } else {
     if (!GTK_WIDGET_MAPPED(rama_widget))
       gtk_widget_show(rama_widget);
-    else 
+    else
       gdk_window_raise(rama_widget->window);
   }
-#else 
-  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#else
+  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
 
 /* And similar for sequence view: */
-void create_initial_sequence_view_mol_submenu(GtkWidget *widget) { 
+void create_initial_sequence_view_mol_submenu(GtkWidget *widget) {
 
    GtkWidget *seq_view_draw = lookup_widget(widget, "sequence_view1");
    GtkWidget *seq_view_menu = gtk_menu_new();
@@ -352,17 +301,17 @@ void create_initial_sequence_view_mol_submenu(GtkWidget *widget) {
 			      seq_view_menu);
 }
 
-void update_sequence_view_menu_manual(int imol, const char *name) { 
+void update_sequence_view_menu_manual(int imol, const char *name) {
 
-   char *text; 
+   char *text;
    GtkWidget *window1 = lookup_widget(main_window(), "window1");
    GtkWidget *seq_view_menu = lookup_widget(window1, "seq_view_menu");
    GtkWidget *menu_item;
-   
+
    menu_item = gtk_menu_item_new_with_label (name);
    // gtk_widget_ref (menu_item);
    g_object_set_data_full (G_OBJECT(window1), "seq_view_menu_item",
-			   menu_item, 
+			   menu_item,
 			   NULL);
    gtk_widget_show(menu_item);
    gtk_container_add(GTK_CONTAINER(seq_view_menu), menu_item);
@@ -372,13 +321,13 @@ void update_sequence_view_menu_manual(int imol, const char *name) {
 }
 
 void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
-					  gpointer         user_data) { 
+					  gpointer         user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
 #if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
    do_sequence_view(imol);
-#else    
-  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#else
+  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -389,9 +338,9 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void 
+void
 on_skeleton_color_changed(GtkWidget *w,
-			  GtkColorSelection *colorsel) { 
+			  GtkColorSelection *colorsel) {
    gdouble color[4];
    for (int i=0; i<4; i++) color[i] = 0.0;
 
@@ -439,61 +388,61 @@ on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 /* Coordinates  */
 /* n is the molecule number (not necessarily the nth element in the
    molecule display VBox) */
-void display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
-					const gchar *name, 
+void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
+					const gchar *name,
 					int n, bool show_add_reps_frame_flag) {
 
-  GtkWidget *display_molecule_vbox; 
+  GtkWidget *display_molecule_vbox;
 /*   GtkWidget *display_control_window_glade; passed parameter */
 
-  GtkWidget *display_mol_frame_1; 
-  GtkWidget *hbox31; 
-  GtkWidget *hbox32; 
-  GtkWidget *entry2; 
-  GtkWidget *displayed_button_1; 
-  GtkWidget *active_button_1; 
-  GtkWidget *render_optionmenu_1; 
-  GtkWidget *render_optionmenu_1_menu; 
-  GtkWidget *glade_menuitem; 
+  GtkWidget *display_mol_frame_1;
+  GtkWidget *hbox31;
+  GtkWidget *hbox32;
+  GtkWidget *entry2;
+  GtkWidget *displayed_button_1;
+  GtkWidget *active_button_1;
+  GtkWidget *render_optionmenu_1;
+  GtkWidget *render_optionmenu_1_menu;
+  GtkWidget *glade_menuitem;
   GtkWidget *menu;
-  int bond_type; 
+  int bond_type;
   GtkWidget *active_item;
   GtkWidget *mol_label;
 
 /* messing about with string variables for unique lookup values/name of the widgets */
-  gchar *widget_name; 
-  gchar *tmp_name; 
+  gchar *widget_name;
+  gchar *tmp_name;
 
   /* we need to find references to objects that contain this widget */
 
-  display_molecule_vbox = lookup_widget(display_control_window_glade, 
-					"display_molecule_vbox"); 
+  display_molecule_vbox = lookup_widget(display_control_window_glade,
+					"display_molecule_vbox");
 
 
   display_mol_frame_1 = gtk_frame_new (NULL);
   // gtk_widget_ref (display_mol_frame_1);
-  
+
   widget_name = (gchar *) malloc(100); /* should be enough */
 
-  strcpy(widget_name, "display_mol_frame_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "display_mol_frame_");
+  tmp_name = widget_name + strlen(widget_name);
 
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), 
-			  widget_name, 
+  snprintf(tmp_name, 4, "%-d", n);
+
+  g_object_set_data_full (G_OBJECT (display_control_window_glade),
+			  widget_name,
 			  display_mol_frame_1,
                           NULL);
   gtk_widget_show (display_mol_frame_1);
-  gtk_box_pack_start (GTK_BOX (display_molecule_vbox), display_mol_frame_1, 
+  gtk_box_pack_start (GTK_BOX (display_molecule_vbox), display_mol_frame_1,
 		      FALSE, FALSE, 0);
 
-  hbox31 = gtk_hbox_new (FALSE, 0);
+  hbox31 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox31);
   g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox31", hbox31, NULL);
   gtk_widget_show (hbox31);
 
-  GtkWidget *vbox_single_molecule_all_attribs = gtk_vbox_new(FALSE, 0);
+  GtkWidget *vbox_single_molecule_all_attribs = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   gtk_widget_show(vbox_single_molecule_all_attribs);
   gtk_container_add (GTK_CONTAINER (display_mol_frame_1), vbox_single_molecule_all_attribs);
   gtk_box_pack_start(GTK_BOX(vbox_single_molecule_all_attribs), hbox31, FALSE, FALSE, 2);
@@ -501,14 +450,14 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
 /* -- molecule number label */
 
-  strcpy(widget_name, "display_mol_number_"); 
-  tmp_name = widget_name + strlen(widget_name); 
+  strcpy(widget_name, "display_mol_number_");
+  tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
   mol_label = gtk_label_new (_(tmp_name));
   // gtk_widget_ref (mol_label);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), 
-			  widget_name, 
+  g_object_set_data_full (G_OBJECT (display_control_window_glade),
+			  widget_name,
 			  mol_label,
 			  NULL);
 
@@ -517,20 +466,20 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
 /* -- done molecule number label */
 
-  strcpy(widget_name, "display_mol_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "display_mol_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
   entry2 = gtk_entry_new ();
   // gtk_widget_ref (entry2);
   g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name, entry2,
 			  NULL);
-  if (name) { 
-    gtk_entry_set_text(GTK_ENTRY(entry2), name); 
+  if (name) {
+    gtk_entry_set_text(GTK_ENTRY(entry2), name);
     /* these 2 seem not to do what I want :-( */
     // gtk_entry_set_position(GTK_ENTRY(entry2), strlen(name)-1);
     // gtk_entry_append_text(GTK_ENTRY(entry2), "");
-  } 
+  }
   std::cout << "set entry not editable" << std::endl;
   //gtk_entry_set_editable(GTK_ENTRY (entry2), FALSE);
 
@@ -538,39 +487,39 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_widget_show (entry2);
   gtk_box_pack_start (GTK_BOX (hbox31), entry2, TRUE, TRUE, 3);
 
-  hbox32 = gtk_hbox_new (FALSE, 0);
+  hbox32 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox32);
   g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox32", hbox32,
                             NULL);
   gtk_widget_show (hbox32);
   gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
 
-  strcpy(widget_name, "displayed_button_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "displayed_button_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
   displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
   // gtk_widget_ref (displayed_button_1);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1), 
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1),
 			       mol_is_displayed(n));
 
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), 
-			    widget_name, 
+  g_object_set_data_full (G_OBJECT (display_control_window_glade),
+			    widget_name,
 			  displayed_button_1, NULL);
 
   gtk_widget_show (displayed_button_1);
   gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
 
-  strcpy(widget_name, "active_button_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "active_button_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
   active_button_1 = gtk_check_button_new_with_label (_("Active"));
   // gtk_widget_ref (active_button_1);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_button_1), mol_is_active(n));
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), 
-			    widget_name, 
+  g_object_set_data_full (G_OBJECT (display_control_window_glade),
+			    widget_name,
 			  active_button_1, NULL);
   gtk_widget_show (active_button_1);
   gtk_box_pack_start (GTK_BOX (hbox32), active_button_1, FALSE, FALSE, 0);
@@ -578,13 +527,13 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
 
 
-  strcpy(widget_name, "render_optionmenu_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "render_optionmenu_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
   render_optionmenu_1 = NULL; // gtk_option_menu_new ();
   // gtk_widget_ref (render_optionmenu_1);
-  // g_object_set_data_full (G_OBJECT (display_control_window_glade), 
+  // g_object_set_data_full (G_OBJECT (display_control_window_glade),
   // "render_optionmenu_1", render_optionmenu_1,
   // NULL);
 
@@ -726,11 +675,11 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 		     GINT_TO_POINTER(n));
 
 
-/* Set User Data, the molecule which this button(s) is attached to 
+/* Set User Data, the molecule which this button(s) is attached to
    (casting (int *) to (char *)).
 */
-  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(n)); 
-  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(n)); 
+  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(n));
+  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(n));
 
 /* Add signals for the Active and Display toggle buttons */
 
@@ -744,11 +693,11 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
 
 
-/* Set User Data, the molecule which this button(s) is attached to 
+/* Set User Data, the molecule which this button(s) is attached to
    (casting (int *) to (char *)).
 */
-  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(n)); 
-  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(n)); 
+  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(n));
+  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(n));
 
 
 
@@ -766,46 +715,46 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
      /*  The conversion between menu item order and bond type (enum) order */
      if (bond_type == 1) { /* atom type bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 0); 
+       gtk_menu_set_active(GTK_MENU(menu), 0);
      }
      if (bond_type == 2) { /* CA bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 4); 
+       gtk_menu_set_active(GTK_MENU(menu), 4);
      }
      if (bond_type == 3) { /* segid-coloured bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 2); 
+       gtk_menu_set_active(GTK_MENU(menu), 2);
      }
      if (bond_type == 4) { /* CA_BONDS_PLUS_LIGANDS */
-       gtk_menu_set_active(GTK_MENU(menu), 5); 
+       gtk_menu_set_active(GTK_MENU(menu), 5);
      }
      if (bond_type == 5) { /* BONDS_NO_WATERS */
-       gtk_menu_set_active(GTK_MENU(menu), 8); 
+       gtk_menu_set_active(GTK_MENU(menu), 8);
      }
      if (bond_type == 6) { /* BONDS_SEC_STRUCT_COLOUR */
-       gtk_menu_set_active(GTK_MENU(menu), 3); 
+       gtk_menu_set_active(GTK_MENU(menu), 3);
      }
      if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
-       gtk_menu_set_active(GTK_MENU(menu), 6); 
+       gtk_menu_set_active(GTK_MENU(menu), 6);
      }
      if (bond_type == 8) { /* COLOUR_BY_MOLECULE_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 1); 
+       gtk_menu_set_active(GTK_MENU(menu), 1);
      }
      if (bond_type == 9) { /* COLOUR_BY_RAINBOW_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 7); 
+       gtk_menu_set_active(GTK_MENU(menu), 7);
      }
      if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 10); 
+       gtk_menu_set_active(GTK_MENU(menu), 10);
      }
      if (bond_type == 11) { /* COLOUR_BY_OCCUPANCY_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 11); 
+       gtk_menu_set_active(GTK_MENU(menu), 11);
      }
      if (bond_type == 14) { /* CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR */
-       gtk_menu_set_active(GTK_MENU(menu), 9); 
+       gtk_menu_set_active(GTK_MENU(menu), 9);
      }
      /* c.f molecule-class-info.h:30 enum */
   }
 
 /* And finally connect the menu to the optionmenu */
-  // gtk_option_menu_set_menu (GTK_OPTION_MENU (render_optionmenu_1), 
+  // gtk_option_menu_set_menu (GTK_OPTION_MENU (render_optionmenu_1),
   // render_optionmenu_1_menu);
 
   // A delete molecule button
@@ -815,7 +764,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   // Now add the additional representations frame and vbox
   add_add_reps_frame_and_vbox(display_control_window_glade,
 			      vbox_single_molecule_all_attribs, n, show_add_reps_frame_flag);
-  
+
 }
 
 void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
@@ -834,17 +783,17 @@ void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
 		      G_CALLBACK(on_display_control_delete_molecule_button_clicked),
 		      GINT_TO_POINTER(imol));
 
-} 
+}
 
 // Create a "All On" check button that acts on all add reps of this molecule.
 // Underneath that, create a frame and in it put a vbox.
-// 
+//
 void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 				 GtkWidget *hbox_for_single_molecule, int imol_no,
 				 bool show_add_reps_frame_flag) {
 
    GtkWidget *frame = gtk_frame_new("Additional Representations");
-   GtkWidget *v = gtk_vbox_new(FALSE, 0);
+   GtkWidget *v = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
    // show the frame if there were additional representations
    if (show_add_reps_frame_flag)
       gtk_widget_show(frame);
@@ -859,7 +808,7 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_on_check_button), TRUE);
    std::string widget_name = "add_rep_all_on_check_button_";
    widget_name += coot::util::int_to_string(imol_no);
-   g_object_set_data_full (G_OBJECT (display_control_window_glade), 
+   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			     widget_name.c_str(),
 			     all_on_check_button, NULL);
    g_signal_connect(G_OBJECT (all_on_check_button),  "toggled",
@@ -869,20 +818,20 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
    // set the name so that it can be looked up.
    widget_name = "add_rep_display_control_frame_vbox_";
    widget_name += coot::util::int_to_string(imol_no);
-   g_object_set_data_full (G_OBJECT (display_control_window_glade), 
+   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			     widget_name.c_str(),
 			   v, NULL);
-   
+
    widget_name = "add_rep_display_control_frame_";
    widget_name += coot::util::int_to_string(imol_no);
-   g_object_set_data_full (G_OBJECT (display_control_window_glade), 
+   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			     widget_name.c_str(),
 			   frame, NULL);
-   
+
    gtk_container_add(GTK_CONTAINER(hbox_for_single_molecule), frame);
    gtk_container_add(GTK_CONTAINER(frame), v);
-   
-} 
+
+}
 
 
 void
@@ -900,34 +849,34 @@ on_add_rep_all_on_check_button_toggled   (GtkToggleButton       *button,
 }
 
 
-void 
-update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, 
+void
+update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 						  const gchar *display_name,
 						  int n) {
   int i;
   char entry_name[1024];
   GtkWidget *entry;
-  gchar *tmp_name; 
+  gchar *tmp_name;
   int imol = n;
 
   for (i=0; i<1024; i++)
     entry_name[i]= 0;
-  if (is_valid_map_molecule(imol)) {        
+  if (is_valid_map_molecule(imol)) {
     memcpy(entry_name, "display_map_entry_", 18);
       } else {
     memcpy(entry_name, "display_mol_entry_", 18);
       }
-  tmp_name = entry_name + strlen(entry_name); 
-  snprintf(tmp_name, 4, "%-d", imol); 
+  tmp_name = entry_name + strlen(entry_name);
+  snprintf(tmp_name, 4, "%-d", imol);
 
 /*   printf("debug:: molecule number (dereferenced): %d\n", *n); */
 /*   printf("debug:: pointer string: %s\n", tmp_name); */
 /*   printf("debug:: searching for entry name %s\n", entry_name); */
   entry = lookup_widget(display_control_window_glade, entry_name);
 
-  if (entry) 
+  if (entry)
     gtk_entry_set_text(GTK_ENTRY(entry), display_name);
-  else 
+  else
     printf("oops no entry found with name %s\n", entry_name);
 }
 
@@ -964,31 +913,31 @@ render_as_ca_bonds_button_select(GtkWidget *item, GtkPositionType mol) {
    graphics_to_ca_representation(mol);
 }
 
-void 
-render_as_ca_plus_ligands_bonds_button_select(GtkWidget *item, GtkPositionType pos) { 
+void
+render_as_ca_plus_ligands_bonds_button_select(GtkWidget *item, GtkPositionType pos) {
    graphics_to_ca_plus_ligands_representation(pos);
 }
 
-void 
-render_as_ca_plus_ligands_sec_str_bonds_button_select(GtkWidget *item, GtkPositionType pos) { 
+void
+render_as_ca_plus_ligands_sec_str_bonds_button_select(GtkWidget *item, GtkPositionType pos) {
    graphics_to_ca_plus_ligands_sec_struct_representation(pos);
 }
 
-void 
-render_as_sec_struct_bonds_button_select(GtkWidget *item, GtkPositionType pos) { 
+void
+render_as_sec_struct_bonds_button_select(GtkWidget *item, GtkPositionType pos) {
    graphics_to_sec_struct_bonds_representation(pos);
 }
 
-void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPositionType pos) { 
+void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPositionType pos) {
    graphics_to_rainbow_representation(pos);
 }
 
-void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos) { 
+void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos) {
    graphics_to_b_factor_representation(pos);
 
 }
 
-void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos) { 
+void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos) {
    graphics_to_b_factor_cas_representation(pos);
 
 }
@@ -1000,45 +949,45 @@ void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositi
 
 
 /* n is the nth element in the molecule display VBox */
-GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade, 
-					 const gchar *name, 
+GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade,
+					 const gchar *name,
 					 int n) {
 
   GtkWidget *my_combo_box = 0;
 
-  GtkWidget *display_map_vbox; 
+  GtkWidget *display_map_vbox;
 /*   GtkWidget *display_control_window_glade; passed parameter */
 
-  GtkWidget *display_map_frame_1; 
-  GtkWidget *hbox31; 
-  GtkWidget *hbox32; 
-  GtkWidget *entry2; 
-  GtkWidget *displayed_button_1; 
+  GtkWidget *display_map_frame_1;
+  GtkWidget *hbox31;
+  GtkWidget *hbox32;
+  GtkWidget *entry2;
+  GtkWidget *displayed_button_1;
   GtkWidget *mol_label;
 
 /* messing about with string variables */
-  gchar *widget_name; 
-  gchar *tmp_name; 
+  gchar *widget_name;
+  gchar *tmp_name;
 
   GtkWidget *scroll_radio_button_1;
 
   /* we need to find references to objects that contain this widget */
 
-  display_map_vbox = lookup_widget(display_control_window_glade, 
-				   "display_map_vbox"); 
+  display_map_vbox = lookup_widget(display_control_window_glade,
+				   "display_map_vbox");
 
   display_map_frame_1 = gtk_frame_new (NULL);
   // gtk_widget_ref (display_map_frame_1);
-  
+
   widget_name = (gchar *) malloc(100); /* should be enough */
 
-  strcpy(widget_name, "display_map_frame_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "display_map_frame_");
+  tmp_name = widget_name + strlen(widget_name);
+
+  snprintf(tmp_name, 4, "%-d", n);
 
 /*   printf("display_map_frame_{thing} name constructed as: :%s:\n", widget_name);  */
-  
+
 
   g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name,
 			  display_map_frame_1, NULL);
@@ -1047,7 +996,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
      vertically to fill the box  */
   gtk_box_pack_start (GTK_BOX (display_map_vbox), display_map_frame_1, FALSE, FALSE, 0);
 
-  hbox31 = gtk_hbox_new (FALSE, 0);
+  hbox31 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox31);
   g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox31", hbox31, NULL);
 
@@ -1056,8 +1005,8 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
 /* -- molecule number label */
 
-  strcpy(widget_name, "display_map_number_"); 
-  tmp_name = widget_name + strlen(widget_name); 
+  strcpy(widget_name, "display_map_number_");
+  tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
   mol_label = gtk_label_new (_(tmp_name));
@@ -1072,17 +1021,17 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
 /* -- */
 
-  strcpy(widget_name, "display_map_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
+  strcpy(widget_name, "display_map_entry_");
+  tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
   entry2 = gtk_entry_new ();
   // gtk_widget_ref (entry2);
   g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name, entry2,
 			  NULL);
-  if (name) { 
-    gtk_entry_set_text(GTK_ENTRY(entry2), name); 
-  } 
+  if (name) {
+    gtk_entry_set_text(GTK_ENTRY(entry2), name);
+  }
 
   std::cout << "set entry not editable" << std::endl;
   // gtk_entry_set_editable(GTK_ENTRY (entry2), FALSE);
@@ -1090,7 +1039,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   gtk_widget_show (entry2);
   gtk_box_pack_start (GTK_BOX (hbox31), entry2, TRUE, TRUE, 0);
 
-  hbox32 = gtk_hbox_new (FALSE, 0);
+  hbox32 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox32);
   g_object_set_data_full (G_OBJECT (display_control_window_glade), "hbox32", hbox32,
 			  NULL);
@@ -1099,15 +1048,15 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 
 /* -- */
 
-  strcpy(widget_name, "displayed_button_"); 
-  tmp_name = widget_name + strlen(widget_name); 
+  strcpy(widget_name, "displayed_button_");
+  tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
   displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1), map_is_displayed(n));
   // gtk_widget_ref (displayed_button_1);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), 
-			    widget_name, 
+  g_object_set_data_full (G_OBJECT (display_control_window_glade),
+			    widget_name,
 			    displayed_button_1,
 			  NULL);
   gtk_widget_show (displayed_button_1);
@@ -1123,30 +1072,30 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
 /*   //  */
 /*   // we cast as a (char *) to make the compiler happy. */
 /*   //  */
-    g_object_set_data (G_OBJECT (displayed_button_1), "imol", GINT_TO_POINTER(n)); 
+    g_object_set_data (G_OBJECT (displayed_button_1), "imol", GINT_TO_POINTER(n));
 
 /* -- */
   /* 20050316 Today I add scroll check-button, as Charlie asked for ages ago. */
 
-  strcpy(widget_name, "map_scroll_button_"); 
-  tmp_name = widget_name + strlen(widget_name); 
+  strcpy(widget_name, "map_scroll_button_");
+  tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
   GtkWidget *previous_radio_button =
      get_radio_button_in_scroll_group(display_control_window_glade, n);
 
-  if (previous_radio_button) 
+  if (previous_radio_button)
      scroll_radio_button_1 =
 	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(previous_radio_button),
 						    _("Scroll"));
-  else 
+  else
      scroll_radio_button_1 = gtk_radio_button_new_with_label(NULL, _("Scroll"));
-  
+
   g_object_set_data_full(G_OBJECT(display_control_window_glade),
 			   widget_name,
  			   scroll_radio_button_1,
  			   NULL);
-  
+
 
   gtk_widget_show(scroll_radio_button_1);
   gtk_box_pack_start(GTK_BOX(hbox32), scroll_radio_button_1, FALSE,FALSE, 2);
@@ -1156,26 +1105,26 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   g_signal_connect(G_OBJECT(scroll_radio_button_1), "group_changed",
 		     G_CALLBACK (on_display_control_map_scroll_radio_button_group_changed),
 		     GINT_TO_POINTER(n));
-  
+
   if (scroll_wheel_map() == n) {
      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), TRUE);
   } else {
-     if (previous_radio_button) { 
+     if (previous_radio_button) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(scroll_radio_button_1), FALSE);
-     } 
-  } 
+     }
+  }
 
-  
+
 /* -- */
 
-  strcpy(widget_name, "properties_button_"); 
-  tmp_name = widget_name + strlen(widget_name); 
+  strcpy(widget_name, "properties_button_");
+  tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
   displayed_button_1 = gtk_button_new_with_label (_("Properties"));
   // gtk_widget_ref (displayed_button_1);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), 
-			  widget_name, 
+  g_object_set_data_full (G_OBJECT (display_control_window_glade),
+			  widget_name,
 			  displayed_button_1,
 			  NULL);
   gtk_widget_show (displayed_button_1);
@@ -1196,8 +1145,8 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
   // A delete molecule button
   display_control_add_delete_molecule_button(n, hbox32, true);
 
-  free(widget_name); 
-  return my_combo_box; 
+  free(widget_name);
+  return my_combo_box;
 }
 
 
@@ -1210,7 +1159,7 @@ on_display_control_map_displayed_button_toggled   (GtkToggleButton       *button
 
    if (gtk_toggle_button_get_active(button))
       set_map_displayed(imol, 1);
-   else 
+   else
       set_map_displayed(imol, 0);
 }
 
@@ -1234,7 +1183,7 @@ on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button
 
 // return NULL when there are no radio buttons found that have a group
 // (i.e. there are no maps displayed in the Display Manager.
-// 
+//
 GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
 					    int imol_this) {
 
@@ -1243,17 +1192,17 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
    // maps (say 1 and 3) when we are rendering the first combo_box the
    // combo_box for map 3 doesn't exist - so we get a widget not found
    // warning (ugly).
-   // 
+   //
    // This is only called from one place, (in the combo_box renderer)
    // so let's only look for map molecule with a molecule number less
    // than imol_this.  (if not found, return null of course).
 
-   // 
-   // 
+   //
+   //
    GtkWidget *w = NULL;
    if (display_manager_dialog) {
       // for (int i=0; i<graphics_n_molecules(); i++) {
-      // 
+      //
       // 20120124 but surely when we are creating a new dialog and we
       // are here from the first map, we don't want to check all the
       // next maps // for previous scroll buttons!?  - Those widgets
@@ -1280,7 +1229,7 @@ on_display_control_delete_molecule_button_clicked   (GtkButton       *button,
 {
 
    int imol = GPOINTER_TO_INT(user_data);
-   if (0) 
+   if (0)
       std::cout << "DEBUG:: calling close_molecule() for " << imol << " from "
 		<< "on_display_control_delete_molecule_button_clicked"
 		<< std::endl;
@@ -1296,9 +1245,9 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
   int imol = GPOINTER_TO_INT(user_data);
   GtkWidget *frame;
   GtkWidget *window = create_single_map_properties_dialog();
-//   GtkWidget *patch_frame = lookup_widget(window, 
+//   GtkWidget *patch_frame = lookup_widget(window,
 // 					 "single_map_colour_button_frame");
-  GtkWidget *single_map_properties_colour_button = 
+  GtkWidget *single_map_properties_colour_button =
     lookup_widget(window, "single_map_properties_colour_button");
   GtkWidget *label = lookup_widget(window, "label114");
 
@@ -1325,28 +1274,27 @@ on_display_control_map_properties_button_clicked   (GtkButton       *button,
 }
 
 void
-fill_map_colour_patch(GtkWidget *patch_frame, int imol){ 
+fill_map_colour_patch(GtkWidget *patch_frame, int imol){
 
-   GdkColor *color;
+  GdkRGBA color;
   int width, height;
   GtkWidget *widget;
-  // GdkGC *gc;
-  double *mol_colour = get_map_colour(imol);
+  GdkRGBA mol_colour = get_map_colour(imol);
   gushort red, green, blue;
   GtkWidget *widget_thing;
 
-  red   =  gushort (mol_colour[0] * 254.0);
-  green =  gushort (mol_colour[1] * 254.0);
-  blue  =  gushort (mol_colour[2] * 254.0);
+  red   =  gushort (mol_colour.red   * 254.0);
+  green =  gushort (mol_colour.green * 254.0);
+  blue  =  gushort (mol_colour.blue  * 254.0);
 
-  widget = patch_frame; 
+  widget = patch_frame;
 
 
-  widget = gtk_drawing_area_new();  
+  widget = gtk_drawing_area_new();
   widget_thing = lookup_widget(GTK_WIDGET(patch_frame), "single_map_colour_hbox");
   widget_thing = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-  
+
   printf("adding widget to patch_frame\n");
   gtk_container_add(GTK_CONTAINER(widget_thing), widget);
 
@@ -1359,21 +1307,21 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   // gtk_window_get_size(window, &width, &height);
 
   /* the color we want to use */
-  color = (GdkColor *)malloc(sizeof(GdkColor));
-  
+  color = mol_colour;
+
   /* red, green, and blue are passed values, indicating the RGB triple
    * of the color we want to draw. Note that the values of the RGB components
    * within the GdkColor are taken from 0 to 65535, not 0 to 255.
    */
-  color->red = red * (65535/255);
-  color->green = green * (65535/255);
-  color->blue = blue * (65535/255);
+  color.red = red * (65535/255);
+  color.green = green * (65535/255);
+  color.blue = blue * (65535/255);
 
-  
+
   /* the pixel value indicates the index in the colormap of the color.
    * it is simply a combination of the RGB values we set earlier
    */
-  color->pixel = (gulong)(red*65536 + green*256 + blue);
+  // color.pixel = (gulong)(red*65536 + green*256 + blue);
 
   /* However, the pixel valule is only truly valid on 24-bit (TrueColor)
    * displays. Therefore, this call is required so that GDK and X can
@@ -1387,12 +1335,12 @@ fill_map_colour_patch(GtkWidget *patch_frame, int imol){
   printf("set background\n");
 
   // gdk_gc_set_background(gc, color);
-  
+
   /* draw the rectangle */
   printf("draw rectangle:\n");
 
   // gdk_draw_rectangle(window, gc, 1, 0, 0, width, height);
-} 
+}
 
 
 
@@ -1400,16 +1348,16 @@ void
 on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button,
 						   gpointer         user_data)
 {
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol")); 
-   int idisplay; 
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+   int idisplay;
    GtkWidget *active_toggle_button;
    char *widget_name = (char *) malloc(100);
    char *tmp_name;
 
 /*   printf("DEBUG::  display toggle of molecule: %d\n", imol); */
 
-   strcpy(widget_name, "active_button_"); 
-   tmp_name = widget_name + strlen(widget_name); 
+   strcpy(widget_name, "active_button_");
+   tmp_name = widget_name + strlen(widget_name);
    snprintf(tmp_name, 4, "%-d", imol);
 
 /*   printf("mol display button clicked %d, active: %d\n", *imol, button->active); */
@@ -1417,12 +1365,12 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
   if (imol >= 0 && imol < graphics_n_molecules()) {
      if (gtk_toggle_button_get_active(button))
       set_mol_displayed(imol, 1);
-    else 
+    else
       set_mol_displayed(imol, 0);
-      
+
 /*     printf("looking up widget name %s\n", widget_name); */
     active_toggle_button = lookup_widget(GTK_WIDGET(button), widget_name);
-    if (active_toggle_button) { 
+    if (active_toggle_button) {
       /*  printf("INFO:: Got active_toggle_button from name: %s\n", widget_name); */
 
       if (mol_is_displayed(imol)) {
@@ -1438,7 +1386,7 @@ on_display_control_mol_displayed_button_toggled   (GtkToggleButton       *button
     } else {
       printf("ERROR:: Failed to find active_toggle_button from name: %s\n", widget_name);
     }
-  } else { 
+  } else {
     printf("ERROR:: (ignoring) display toggle of bogus molecule: %d\n", imol);
   }
   free(widget_name);
@@ -1449,9 +1397,9 @@ void
 on_display_control_mol_active_button_toggled   (GtkToggleButton  *toggle_button,
 						gpointer         user_data)
 {
-   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle_button), "imol")); 
-   int iactive; 
-   if (gtk_toggle_button_get_active(toggle_button)) { 
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(toggle_button), "imol"));
+   int iactive;
+   if (gtk_toggle_button_get_active(toggle_button)) {
       set_mol_active(imol, 1);
 /*     iactive = toggle_active_mol(*imol);  */
    } else {
@@ -1465,7 +1413,7 @@ on_display_control_mol_active_button_toggled   (GtkToggleButton  *toggle_button,
 /* ------------------------------------------------------------------------------ */
 
 GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
-				 GSList *phs_cell_group, 
+				 GSList *phs_cell_group,
 				 int n) {
 
   GtkWidget *vbox39;
@@ -1493,14 +1441,14 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   GtkWidget *phs_cell_choice_cancel_button;
 
 /* messing about with string variables */
-  gchar *widget_name; 
-  gchar *tmp_name; 
+  gchar *widget_name;
+  gchar *tmp_name;
 
   widget_name = (gchar *) malloc(100);
 
-  phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox"); 
+  phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox");
 
-  hbox33 = gtk_hbox_new (FALSE, 0);
+  hbox33 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox33);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "hbox33", hbox33,
 			  NULL);
@@ -1508,18 +1456,18 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (phs_cell_chooser_vbox), hbox33, TRUE, TRUE, 4);
   gtk_container_set_border_width (GTK_CONTAINER (hbox33), 6);
 
-  strcpy(widget_name, "phs_cell_radiobutton_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_radiobutton_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_radiobutton_1 = gtk_radio_button_new_with_label (phs_cell_group, "");
   phs_cell_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (phs_cell_radiobutton_1));
   // gtk_widget_ref (phs_cell_radiobutton_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_radiobutton_1,
 			  NULL);
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_radiobutton_1), FALSE); 
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_radiobutton_1), FALSE);
 
   gtk_widget_show (phs_cell_radiobutton_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_radiobutton_1, FALSE, FALSE, 4);
@@ -1532,14 +1480,14 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label53, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_symm_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_symm_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_symm_entry_1 = gtk_entry_new ();
   // gtk_widget_ref (phs_cell_symm_entry_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_symm_entry_1,
 			  NULL);
   gtk_widget_show (phs_cell_symm_entry_1);
@@ -1555,14 +1503,14 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label54, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_a_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_a_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_a_entry_1 = gtk_entry_new ();
   // gtk_widget_ref (phs_cell_a_entry_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_a_entry_1, NULL);
 
   gtk_widget_show (phs_cell_a_entry_1);
@@ -1577,14 +1525,14 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label55, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_b_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_b_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_b_entry_1 = gtk_entry_new ();
   // gtk_widget_ref (phs_cell_b_entry_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_b_entry_1, NULL);
   gtk_widget_show (phs_cell_b_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_b_entry_1, TRUE, TRUE, 0);
@@ -1598,14 +1546,14 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label56, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_c_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_c_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_c_entry_1 = gtk_entry_new ();
   // gtk_widget_ref (phs_cell_c_entry_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_c_entry_1, NULL);
   gtk_widget_show (phs_cell_c_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_c_entry_1, TRUE, TRUE, 0);
@@ -1619,14 +1567,14 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label57, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_alpha_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_alpha_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_alpha_entry_1 = gtk_entry_new ();
   // gtk_widget_ref (phs_cell_alpha_entry_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_alpha_entry_1,
 			  NULL);
   gtk_widget_show (phs_cell_alpha_entry_1);
@@ -1641,9 +1589,9 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label58, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_beta_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_beta_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_beta_entry_1 = gtk_entry_new ();
@@ -1662,20 +1610,20 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   gtk_box_pack_start (GTK_BOX (hbox33), label59, FALSE, FALSE, 2);
 
 
-  strcpy(widget_name, "phs_cell_gamma_entry_"); 
-  tmp_name = widget_name + strlen(widget_name); 
-  snprintf(tmp_name, 4, "%-d", n); 
+  strcpy(widget_name, "phs_cell_gamma_entry_");
+  tmp_name = widget_name + strlen(widget_name);
+  snprintf(tmp_name, 4, "%-d", n);
 
 
   phs_cell_gamma_entry_1 = gtk_entry_new ();
   // gtk_widget_ref (phs_cell_gamma_entry_1);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name, 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), widget_name,
 			  phs_cell_gamma_entry_1, NULL);
   gtk_widget_show (phs_cell_gamma_entry_1);
   gtk_box_pack_start (GTK_BOX (hbox33), phs_cell_gamma_entry_1, TRUE, TRUE, 0);
   gtk_widget_set_size_request (phs_cell_gamma_entry_1, 60, -2);
 
-  return phs_cell_group; 
+  return phs_cell_group;
 
 }
 
@@ -1684,7 +1632,7 @@ GSList *display_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 /*     None of the above cell chooser for phs                                     */
 /* ------------------------------------------------------------------------------ */
 
-void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window, 
+void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 				   GSList *phs_cell_group) {
 
   GtkWidget *hbox34;
@@ -1692,9 +1640,9 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   GtkWidget *phs_cell_none_radiobutton;
 
 
-  phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox"); 
+  phs_cell_chooser_vbox = lookup_widget(phs_cell_choice_window, "phs_cell_chooser_vbox");
 
-  hbox34 = gtk_hbox_new (FALSE, 0);
+  hbox34 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   // gtk_widget_ref (hbox34);
   g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "hbox34", hbox34, NULL);
   gtk_widget_show (hbox34);
@@ -1704,11 +1652,11 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
   phs_cell_none_radiobutton = gtk_radio_button_new_with_label (phs_cell_group, _("None of the Above"));
   phs_cell_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (phs_cell_none_radiobutton));
   // gtk_widget_ref (phs_cell_none_radiobutton);
-  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "phs_cell_none_radiobutton", 
+  g_object_set_data_full (G_OBJECT (phs_cell_choice_window), "phs_cell_none_radiobutton",
 			  phs_cell_none_radiobutton,
 			  NULL);
-  
-  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_none_radiobutton), TRUE); 
+
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (phs_cell_none_radiobutton), TRUE);
 
   gtk_widget_show (phs_cell_none_radiobutton);
   gtk_box_pack_start (GTK_BOX (hbox34), phs_cell_none_radiobutton, FALSE, FALSE, 4);
@@ -1732,7 +1680,7 @@ void display_none_cell_chooser_box(GtkWidget *phs_cell_choice_window,
 //
 // Function no longer needed, frame is made by
 // display_control_molecule_combo_box().
-// 
+//
 GtkWidget *
 display_control_add_reps_container(GtkWidget *display_control_window_glade,
 				   int imol_no) {
@@ -1767,7 +1715,7 @@ display_control_add_reps_frame(GtkWidget *display_control_window_glade,
       else
 	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
 		   << name << " widget" << std::endl;
-   } 
+   }
    return w;
 }
 
@@ -1793,49 +1741,49 @@ void display_control_add_reps(GtkWidget *display_control_window_glade,
 			      bool show_it,
 			      int bonds_box_type, const std::string &name) {
 
-   if (display_control_window_glade) { 
+   if (display_control_window_glade) {
       GtkWidget *add_rep_vbox  = display_control_add_reps_container(display_control_window_glade, imol_no);
       GtkWidget *add_rep_frame = display_control_add_reps_frame(    display_control_window_glade, imol_no);
       GtkWidget *add_rep_all_on_checkbutton =
 	 display_control_add_reps_all_on_check_button(display_control_window_glade, imol_no);
-	 
+
 //       std::cout <<  "DEBUG::  add_rep_vbox is " << add_rep_vbox  << std::endl;
 //       std::cout <<  "DEBUG:: add_rep_frame is " << add_rep_frame << std::endl;
 
-      GtkWidget *hbox = gtk_hbox_new(FALSE, 2);
+      GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
       // gtk_widget_ref (hbox);
       gtk_box_pack_start(GTK_BOX(add_rep_vbox), hbox, FALSE, FALSE, 0);
       std::string label = name;
       GtkWidget *toggle_button_show_it = gtk_check_button_new_with_label(label.c_str());
       // gtk_widget_ref (toggle_button_show_it);
-      if (show_it) { 
+      if (show_it) {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button_show_it), TRUE);
 	 gtk_widget_show(add_rep_all_on_checkbutton);
       } else {
 	 gtk_widget_hide(add_rep_all_on_checkbutton);
-      } 
+      }
       int cc = encode_ints(imol_no, add_rep_no);
       g_signal_connect(G_OBJECT(toggle_button_show_it), "toggled",
 			 G_CALLBACK(add_rep_toggle_button_toggled),
 			 GINT_TO_POINTER(cc));
       gtk_box_pack_start(GTK_BOX(hbox), toggle_button_show_it, FALSE, FALSE, 0);
-      
+
       gtk_widget_show(toggle_button_show_it);
       gtk_widget_show(hbox);
       gtk_widget_show(add_rep_vbox);
       gtk_widget_show(add_rep_frame);
    }
-} 
+}
 
 void add_rep_toggle_button_toggled(GtkToggleButton       *button,
 				   gpointer         user_data) {
-   
+
    std::pair<int, int> p = decode_ints(GPOINTER_TO_INT(user_data));
    int on_off_flag = 0;
    if (gtk_toggle_button_get_active(button))
       on_off_flag = 1;
    set_show_additional_representation(p.first, p.second, on_off_flag);
-} 
+}
 
 GtkWidget*
 create_splash_screen_window_for_file(const char *file_name)
@@ -1866,6 +1814,6 @@ create_splash_screen_window_for_file(const char *file_name)
 /* I dont think this should be here at all!
    I think it should be in gtk2-interface.c !
    But somehow it disappeared from there, so I will put it back!!!
-   Where did all my things go........ */ 
+   Where did all my things go........ */
 
 #endif	/* COOT_USE_GTK2_INTERFACE */

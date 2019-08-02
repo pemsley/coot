@@ -944,19 +944,11 @@ public:
 
    static bool do_expose_swap_buffers_flag;
 
-#ifdef WII_INTERFACE
-   static cwiid_wiimote_t *wiimote;
-#endif
-
-#ifdef WII_INTERFACE_WIIUSE
-  static wiimote** wiimotes;
-#endif // WII_INTERFACE_WIIUSE
-
    static void graphics_draw() {
      if (glarea) {
        gtk_widget_queue_draw(glarea);
        if (make_movie_flag)
-	 dump_a_movie_image();
+	       dump_a_movie_image();
      }
      if (glarea_2)
        gtk_widget_queue_draw(glarea_2);

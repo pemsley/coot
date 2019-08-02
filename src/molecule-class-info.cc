@@ -1663,9 +1663,9 @@ molecule_class_info_t::rotate_rgb_in_place(float *rgb, const float &amount) cons
 // So they need to be filled after calling this function.
 void
 molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecule_name,
-         bool is_diff_map,
-         bool is_anomalous_map,
-         bool swap_difference_map_colours) {
+                                                              bool is_diff_map,
+                                                              bool is_anomalous_map,
+                                                              bool swap_difference_map_colours) {
 
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;
@@ -1682,59 +1682,54 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 
    xmap_is_diff_map = is_diff_map;
 
-
    show_unit_cell_flag = 0;
    have_unit_cell      = 0; // hmmm - CHECKME.
 
-   map_colour = new double*[10];
-
-   map_colour[0] = new double[4];
    if (is_diff_map) {
       if (! swap_difference_map_colours) {
-    if (! is_anomalous_map) {
-       map_colour[0][0] = 0.2;
-       map_colour[0][1] = 0.6;
-       map_colour[0][2] = 0.2;
-    } else {
-       map_colour[0][0] = 0.6;
-       map_colour[0][1] = 0.6;
-       map_colour[0][2] = 0.4;
-    }
+         if (! is_anomalous_map) {
+            map_colour.red   = 0.2;
+            map_colour.green = 0.6;
+            map_colour.blue  = 0.2;
+         } else {
+            map_colour.red   = 0.6;
+            map_colour.green = 0.6;
+            map_colour.blue  = 0.4;
+         }
       } else {
-    map_colour[0][0] = 0.6;
-    map_colour[0][1] = 0.2;
-    map_colour[0][2] = 0.2;
+         map_colour.red   = 0.6;
+         map_colour.green = 0.2;
+         map_colour.blue  = 0.2;
       }
    } else {
-      std::vector<float> orig_colours(3);
+      std::vector<float> orig_colours(3); // convert this to using GdkRGBA
       orig_colours[0] =  0.2;
       orig_colours[1] =  0.5;
       orig_colours[2] =  0.7;
       float rotation_size = float(imol_no) * graphics_info_t::rotate_colour_map_for_map/360.0;
       // std::cout << "rotating map colour by " << rotation_size * 360.0 << std::endl;
       std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-      map_colour[0][0] = rgb_new[0];
-      map_colour[0][1] = rgb_new[1];
-      map_colour[0][2] = rgb_new[2];
+      map_colour.red   = rgb_new[0];
+      map_colour.green = rgb_new[1];
+      map_colour.blue  = rgb_new[2];
    }
 
    // negative contour level
    //
-   map_colour[1] = new double[4];
    if (! swap_difference_map_colours) {
       if (! is_anomalous_map) {
-    map_colour[1][0] = 0.6;
-    map_colour[1][1] = 0.2;
-    map_colour[1][2] = 0.2;
+         map_colour_negative_level.red   = 0.6;
+         map_colour_negative_level.green = 0.2;
+         map_colour_negative_level.blue  = 0.2;
       } else {
-    map_colour[1][0] = 0.55;
-    map_colour[1][1] = 0.25;
-    map_colour[1][2] = 0.45;
+         map_colour_negative_level.red   = 0.55;
+         map_colour_negative_level.green = 0.25;
+         map_colour_negative_level.blue  = 0.45;
       }
    } else {
-      map_colour[1][0] = 0.2;
-      map_colour[1][1] = 0.6;
-      map_colour[1][2] = 0.2;
+      map_colour_negative_level.red   = 0.2;
+      map_colour_negative_level.green = 0.6;
+      map_colour_negative_level.blue  = 0.2;
    }
    name_ = molecule_name;
 
@@ -8487,27 +8482,10 @@ molecule_class_info_t::nearest_atom(const coot::Cartesian &pos) const {
 // mol, 3 elements and 6
 // elements for a
 // difference map.
-std::vector<float>
+std::pair<GdkRGBA, GdkRGBA>
 molecule_class_info_t::map_colours() const {
 
-   std::vector<float> v;
-   if (has_xmap()) {                        // NXMAP-FIXME
-      if (is_difference_map_p()) {
-    v.resize(6,0.3);
-    v[0] = map_colour[0][0];
-    v[1] = map_colour[0][1];
-    v[2] = map_colour[0][2];
-    v[3] = map_colour[1][0];
-    v[4] = map_colour[1][1];
-    v[5] = map_colour[1][2];
-      } else {
-    v.resize(3,0.3);
-    v[0] = map_colour[0][0];
-    v[1] = map_colour[0][1];
-    v[2] = map_colour[0][2];
-      }
-   }
-   return v;
+   return std::pair<GdkRGBA, GdkRGBA> (map_colour, map_colour_negative_level);
 }
 
 // perhaps there is a better place for this?
@@ -8522,9 +8500,9 @@ molecule_class_info_t::set_map_colour_strings() const {
    std::vector<std::string> r;
 
    r.push_back("set-last-map-colour");
-   r.push_back(graphics_info_t::float_to_string(map_colour[0][0]));
-   r.push_back(graphics_info_t::float_to_string(map_colour[0][1]));
-   r.push_back(graphics_info_t::float_to_string(map_colour[0][2]));
+   r.push_back(graphics_info_t::float_to_string(map_colour.red));
+   r.push_back(graphics_info_t::float_to_string(map_colour.green));
+   r.push_back(graphics_info_t::float_to_string(map_colour.blue));
 
    return r;
 }

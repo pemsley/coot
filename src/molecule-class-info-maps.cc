@@ -523,7 +523,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    if (draw_vector_sets.size() > 0) {
 
-	       glColor3dv (map_colour[0]);
+	       // glColor3dv (map_colour[0]);
 	       glLineWidth(graphics_info_t::map_line_width);
 
 	       glBegin(GL_LINES);
@@ -559,7 +559,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	       if (n_diff_map_draw_vectors > 0) {
 
-		  glColor3dv (map_colour[1]);
+		  // glColor3dv (map_colour[1]);
 		  // we only need to do this if it wasn't done above.
 		  // if (n_draw_vectors == 0)
 
@@ -814,11 +814,11 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
       int n_colours = n_vertices_for_VertexArray;
       float *colours = new float[4 * n_colours];
-      unsigned int idx_map = 0;
+      // check here for difference map to to the colours
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-         colours[4*i  ] = map_colour[idx_map][0];
-         colours[4*i+1] = map_colour[idx_map][1];
-         colours[4*i+2] = map_colour[idx_map][2];
+         colours[4*i  ] = map_colour.red;
+         colours[4*i+1] = map_colour.green;
+         colours[4*i+2] = map_colour.blue;
          colours[4*i+3] = 1.0f;
       }
 
@@ -1121,13 +1121,12 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       // narrowing from doubles to floats (there is no glMaterialdv).
 
       GLfloat  mat_specular[]  = {0.6f,  0.6f,  0.6f,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
-				  float(0.3*map_colour[0][1]),
-				  float(0.3*map_colour[0][2]),
-				  opacity};
-      GLfloat  mat_diffuse[]   = {float(map_colour[0][0]),
-				  float(map_colour[0][1]),
-				  float(map_colour[0][2]), opacity};
+      GLfloat  mat_ambient[]   = {float(0.3*map_colour.red),
+				                      float(0.3*map_colour.green),
+				                      float(0.3*map_colour.blue), opacity};
+      GLfloat  mat_diffuse[]   = {float(map_colour.red),
+				                      float(map_colour.green),
+				                      float(map_colour.blue), opacity};
       GLfloat  mat_shininess[] = {100}; // makes a difference
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
@@ -1136,15 +1135,15 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
       if (is_neg) {
-	 // override
-	 GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
-	 GLfloat  mat_ambient[]   = {float(0.3*map_colour[1][0]),
-				     float(0.3*map_colour[1][1]),
-				     float(0.3*map_colour[1][2]), opacity};
-	 GLfloat  mat_diffuse[]   = {float(map_colour[1][0]),
-				     float(map_colour[1][1]),
-				     float(map_colour[1][2]), opacity};
-	 GLfloat  mat_shininess[] = {100};
+	      // override
+         GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
+         GLfloat  mat_ambient[]   = {float(0.3*map_colour_negative_level.red),
+                                     float(0.3*map_colour_negative_level.green),
+				                         float(0.3*map_colour_negative_level.blue), opacity};
+	      GLfloat  mat_diffuse[]   = {float(map_colour.red),
+				                         float(map_colour.green),
+				                         float(map_colour.blue), opacity};
+	      GLfloat  mat_shininess[] = {100};
 
 // 	 std::cout << " is_neg with map_colour: "
 // 		   << map_colour[1][0] << " "
@@ -1152,97 +1151,13 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 // 		   << map_colour[1][2] << " "
 // 		   << std::endl;
 
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
       }
-
-
-   } else {
-
-      // cut glass mode:
-      int shinyness = 128;
-
-      bool less_shiny = false; // testing
-
-      if (! less_shiny) { // so, shiny.
-
-	 GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	 GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	 GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	 // Assign created components to GL_LIGHT2
-	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
-
-	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
-      } else {
-	 // can't assign to arrays.
-	 GLfloat ambientLight[]  = { 0.03, 0.3f, 0.3f, 1.0f };
-	 GLfloat diffuseLight[]  = { 0.6f, 0.6f, 0.6f, 1.0f };
-	 GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-	 shinyness = 8;
-	 // Assign created components to GL_LIGHT2
-	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
-
-	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
-      }
-
-      // glDisable(GL_COLOR_MATERIAL);
-
-      // the facets shine this colour
-      GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {0.160, 0.160, 0.160, opacity};
-      GLfloat  mat_diffuse[]   = {0.200, 0.2,   0.200, opacity}; // lit surface is this colour
-      GLfloat  mat_shininess[] = {120.0};                        // in the direction of the light.
-
-      // interesting and different
-      //
-      if (less_shiny) {
-	 mat_ambient[0] = 0.1*map_colour[0][0];
-	 mat_ambient[1] = 0.1*map_colour[0][1];
-	 mat_ambient[2] = 0.1*map_colour[0][2];
-	 mat_ambient[3] = opacity;
-	 mat_diffuse[0] = map_colour[0][0];
-	 mat_diffuse[1] = map_colour[0][1];
-	 mat_diffuse[2] = map_colour[0][2];
-	 mat_diffuse[3] = opacity;
-      }
-
-      if (is_difference_map_p()) {
-
-	 if (is_neg) {
-	    mat_ambient[0] = 0.03*map_colour[1][0];
-	    mat_ambient[1] = 0.03*map_colour[1][1];
-	    mat_ambient[2] = 0.03*map_colour[1][2];
-	    mat_ambient[3] = opacity;
-	    mat_diffuse[0] = map_colour[1][0];
-	    mat_diffuse[1] = map_colour[1][1];
-	    mat_diffuse[2] = map_colour[1][2];
-	    mat_diffuse[3] = opacity;
-	 } else {
-	    mat_ambient[0] = 0.3*map_colour[0][0];
-	    mat_ambient[1] = 0.3*map_colour[0][1];
-	    mat_ambient[2] = 0.3*map_colour[0][2];
-	    mat_ambient[3] = opacity;
-	    mat_diffuse[0] = map_colour[0][0];
-	    mat_diffuse[1] = map_colour[0][1];
-	    mat_diffuse[2] = map_colour[0][2];
-	    mat_diffuse[3] = opacity;
-	 }
-      }
-
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
-
    }
-
 }
 
 
@@ -1746,23 +1661,16 @@ molecule_class_info_t::fix_anomalous_phases(clipper::HKL_data< clipper::datatype
 void
 molecule_class_info_t::save_previous_map_colour() {
 
-   if (has_xmap() || has_nxmap()) {
-      previous_map_colour.resize(3);
-      for (int i=0; i<3; i++)
-	 previous_map_colour[i] = map_colour[0][i];
-   }
+   if (has_xmap() || has_nxmap())
+      previous_map_colour = map_colour;
 }
 
 
 void
 molecule_class_info_t::restore_previous_map_colour() {
 
-   if (has_xmap() || has_nxmap()) {
-      if (previous_map_colour.size() == 3) {
-	 for (int i=0; i<3; i++)
-	    map_colour[0][i] = previous_map_colour[i];
-      }
-   }
+   if (has_xmap() || has_nxmap())
+	    map_colour = previous_map_colour;
    update_map();
 }
 
@@ -1773,16 +1681,16 @@ molecule_class_info_t::set_initial_contour_level() {
    float level = 1.0;
    if (xmap_is_diff_map) {
       if (map_sigma_ > 0.05) {
-	 level = nearest_step(map_mean_ +
+	      level = nearest_step(map_mean_ +
 			      graphics_info_t::default_sigma_level_for_fofc_map*map_sigma_, 0.01);
       } else {
-	 level = 3.0*map_sigma_;
+	      level = 3.0*map_sigma_;
       }
    } else {
       if (map_sigma_ > 0.05) {
-	 level = nearest_step(map_mean_ + graphics_info_t::default_sigma_level_for_map*map_sigma_, 0.01);
+	      level = nearest_step(map_mean_ + graphics_info_t::default_sigma_level_for_map*map_sigma_, 0.01);
       } else {
-	 level = graphics_info_t::default_sigma_level_for_map * map_sigma_;
+	      level = graphics_info_t::default_sigma_level_for_map * map_sigma_;
       }
    }
 
@@ -3445,13 +3353,13 @@ molecule_class_info_t::set_map_is_difference_map() {
       set_initial_contour_level();
       // and set the right colors
       if (graphics_info_t::swap_difference_map_colours != 1) {
-	map_colour[0][0] = 0.2;
-	map_colour[0][1] = 0.6;
-	map_colour[0][2] = 0.2;
+         map_colour.red   = 0.2;
+         map_colour.green = 0.6;
+         map_colour.blue  = 0.2;
       } else {
-	map_colour[0][0] = 0.6;
-	map_colour[0][1] = 0.2;
-	map_colour[0][2] = 0.2;
+         map_colour.red   = 0.6;
+         map_colour.green = 0.2;
+         map_colour.blue  = 0.2;
       }
       update_map();
    }
@@ -3961,9 +3869,9 @@ molecule_class_info_t::map_is_too_blue_p() const {
 
    if (has_xmap() || has_nxmap())
       if (! xmap_is_diff_map)
-	 if (map_colour[0][0] < 0.4)
-	    if (map_colour[0][1] < 0.4)
-	       state = 1;
+	      if (map_colour.red < 0.4)
+	         if (map_colour.green < 0.4)
+	            state = 1;
 
    std::cout << "Map is too blue: " << state << std::endl;
    return state;
@@ -4025,10 +3933,10 @@ molecule_class_info_t::map_statistics() const {
 
 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
 molecule_class_info_t::get_contours(float contour_level,
-				    float radius,
-				    const coot::Cartesian &centre) const {
+                                    float radius,
+                                    const coot::Cartesian &centre) const {
 
-   // who calls this function?
+      // who calls this function?
 
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > r;
 
@@ -4038,20 +3946,20 @@ molecule_class_info_t::get_contours(float contour_level,
    CIsoSurface<float> my_isosurface;
    // a pointer and a size
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-								       contour_level,
-								       radius, centre,
-								       0,1,1,
-								       isample_step, is_em_map_local);
+                                                                       contour_level,
+                                                                       radius, centre,
+                                                                       0,1,1,
+                                                                       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {
-	 r.resize(v.size);
-	 for (int i=0; i<v.size; i++) {
-	    coot::Cartesian s = v.data[i].getStart();
-	    coot::Cartesian f = v.data[i].getFinish();
-	    clipper::Coord_orth p1(s.x(), s.y(), s.z());
-	    clipper::Coord_orth p2(f.x(), f.y(), f.z());
-	    r[i]= std::pair<clipper::Coord_orth, clipper::Coord_orth>(p1,p2);
-	 }
+         r.resize(v.size);
+         for (int i=0; i<v.size; i++) {
+            coot::Cartesian s = v.data[i].getStart();
+            coot::Cartesian f = v.data[i].getFinish();
+            clipper::Coord_orth p1(s.x(), s.y(), s.z());
+            clipper::Coord_orth p2(f.x(), f.y(), f.z());
+            r[i]= std::pair<clipper::Coord_orth, clipper::Coord_orth>(p1,p2);
+         }
       }
    }
    return r;

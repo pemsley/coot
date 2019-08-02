@@ -2100,18 +2100,15 @@ handle_symmetry_colour_change(int mol, gdouble* col) {
    graphics_draw();
 }
 
-gdouble*
+GdkRGBA
 get_map_colour(int imol) {
 
    //
-   gdouble* colour;
-   colour = (gdouble *) malloc(4*sizeof(gdouble));
+   GdkRGBA colour;
 
    if (imol < graphics_info_t::n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
-	 colour[0] = graphics_info_t::molecules[imol].map_colour[0][0];
-	 colour[1] = graphics_info_t::molecules[imol].map_colour[0][1];
-	 colour[2] = graphics_info_t::molecules[imol].map_colour[0][2];
+         colour = graphics_info_t::molecules[imol].map_colour;
       }
    }
    std::string cmd = "get-map-colour";
@@ -2121,26 +2118,22 @@ get_map_colour(int imol) {
    return colour;
 }
 
-GdkRGBA get_map_gdk_colour(int imol) {
-
-   GdkRGBA col;
-   if (is_valid_map_molecule(imol)) {
-      col.red   = graphics_info_t::molecules[imol].map_colour[0][0];
-      col.green = graphics_info_t::molecules[imol].map_colour[0][1];
-      col.blue  = graphics_info_t::molecules[imol].map_colour[0][2];
-   }
-   return col;
-}
-
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data) {
    if (response_id == GTK_RESPONSE_OK) {
       GdkRGBA color;
-      gtk_color_chooser_get_rgba (GTK_COLOR_CHOOSER (dialog), &color);
+      gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER (dialog), &color);
       // gtk_widget_queue_draw();
-      std::cout << "Do something\n";
+      struct map_colour_data_type *cd = static_cast<struct map_colour_data_type *>(user_data);
+      int imol = cd->imol;
+      if (is_valid_map_molecule(imol)) {
+         std::cout << "Do something\n";
+         // set graphics::molecules[imol].map_colour
+         graphics_info_t::molecules[imol].set_map_colour(color);
+         graphics_draw();
+      }
    }
    gtk_widget_destroy (GTK_WIDGET (dialog));
 }
@@ -6701,7 +6694,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
-      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+      // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);
    }
