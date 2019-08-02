@@ -323,11 +323,63 @@ draw_model_molecules() {
 }
 
 void
+draw_molecular_triangles() {
+#ifdef USE_MOLECULES_TO_TRIANGLES
+   // Martin's triangular molecules
+   //
+   // centre of the screen
+   FCXXCoord pos(graphics_info_t::RotationCentre_x(),
+   graphics_info_t::RotationCentre_y(),
+   graphics_info_t::RotationCentre_z());
+   // where is the eye?  That's what we want.
+   // front plane is at z=0;
+   GtkAllocation allocation;
+   GtkWidget *widget = graphics_info_t::glarea;
+   if (! widget) return;
+   gtk_widget_get_allocation(widget, &allocation);
+   coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
+                                             allocation.height/2, 1);
+   FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
+   FCXXCoord diff = tp_1 - pos;
+   FCXXCoord eye_pos = pos + diff * 5.0;
+   // std::cout << "eye_pos: " << eye_pos << "\n";
+   // coot::Cartesian eye_cart = pos + 20 * diff;
+   // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
+   if (graphics_info_t::mol_tri_scene_setup) {
+      if (graphics_info_t::mol_tri_renderer) {
+         //Can retrieve reference to the light if so preferred
+         // This doesn't move the lights
+         // FCXXCoord random_trans(50.0 * coot::util::random()/float(RAND_MAX),
+         // 		                 50.0 * coot::util::random()/float(RAND_MAX),
+         //                        50.0 * coot::util::random()/float(RAND_MAX));
+	      FCXXCoord light_pos = pos + diff * 10; //  + random_trans;
+         FCXXCoord neg_light_pos = pos + diff * 10; // - random_trans;
+
+         graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
+         graphics_info_t::mol_tri_scene_setup->getLight(1)->setTranslation(neg_light_pos);
+
+         for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+            if (graphics_info_t::is_valid_model_molecule(ii)) {
+               if (graphics_info_t::molecules[ii].draw_it) {
+                  if (graphics_info_t::molecules[ii].molrepinsts.size()) {
+                     // molrepinsts get added to mol_tri_scene_setup when then are made
+                     // turns on glLighting.
+                     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+                  }
+               }
+            }
+         }
+      }
+   }
+#endif
+}
+
+void
 draw_molecules() {
 
    draw_map_molecules();
    draw_model_molecules();
-
+   draw_molecular_triangles(); // Martin's renderings
 }
 
 void

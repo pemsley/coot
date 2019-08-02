@@ -547,7 +547,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 void draw_molecular_triangles(GtkWidget *widget) {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 
       // Martin's triangular molecules
       //
@@ -557,8 +556,10 @@ void draw_molecular_triangles(GtkWidget *widget) {
 		    graphics_info_t::RotationCentre_z());
       // where is the eye?  That's what we want.
       // front plane is at z=0;
-      coot::Cartesian tp_1_cart = unproject_xyz(widget->allocation.width/2,
-						widget->allocation.height/2, 1);
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
+                                                allocation.height/2, 1);
       FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
       FCXXCoord diff = tp_1 - pos;
       FCXXCoord eye_pos = pos + diff * 5.0;
@@ -593,7 +594,6 @@ void draw_molecular_triangles(GtkWidget *widget) {
 	    glDisable(GL_LIGHTING);
 	 }
       }
-#endif // CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 }
