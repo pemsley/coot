@@ -3606,7 +3606,7 @@ if test -n "$build_glob" ; then
   (
    date
    pwd
-   bzip2 -cd glob-1.0.tar.bz2 | tar xf -
+   bzip2 -cd ${AUTOBULD_SOURCES}/glob-1.0.tar.bz2 | tar xf -
    cd glob-1.0
    ./configure $generic_prefix
    make
