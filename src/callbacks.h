@@ -4745,3 +4745,7 @@ on_curlew1_activate              (GtkMenuItem     *menuitem,
                                   gpointer         user_data);
 
 
+
+void
+on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
