@@ -11661,18 +11661,16 @@ on_pisa_interfces_close_button_clicked (GtkButton       *button,
 void
 on_displayed_map_style_as_lines_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
-					 gpointer         user_data) {
+                                         gpointer         user_data) {
 
+   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
+                                     "single_map_properties_dialog");
 
-  GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton),
-				    "single_map_properties_dialog");
-
-  int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
-  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
-    set_draw_map_standard_lines(imol, 1);
-    set_draw_solid_density_surface(imol, 0);
-  }
-
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+      set_draw_map_standard_lines(imol, 1);
+      set_draw_solid_density_surface(imol, 0);
+   }
 }
 
 /* we should call this "third-map-mode" or something */
@@ -12551,7 +12549,7 @@ on_curlew1_activate              (GtkMenuItem     *menuitem,
   curlew();
 
 }
- 
+
 on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {

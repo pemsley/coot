@@ -190,10 +190,13 @@ void draw_map_molecules() {
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
-      if (! graphics_info_t::molecules[ii].draw_it_for_map) continue;
-      if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
+      const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+      if (! m.draw_it_for_map) continue;
+      if (m.n_vertices_for_VertexArray > 0) {
 
          bool draw_with_lines = true;
+         if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
+
          if (draw_with_lines) {
             glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
             err = glGetError();
@@ -708,7 +711,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 gint
 spin_func(gpointer data) {
 
-   float delta = 0.02;
+   float delta = 0.002;
    glm::vec3 EulerAngles(0, delta, 0);
    glm::quat quat_delta(EulerAngles);
    glm::quat normalized_quat_delta(glm::normalize(quat_delta));
@@ -717,11 +720,7 @@ spin_func(gpointer data) {
    gtk_widget_queue_draw(graphics_info_t::glarea);
 
    std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
-   std::chrono::time_point<std::chrono::system_clock> tp_nowa = std::chrono::high_resolution_clock::now();
-   std::chrono::time_point<std::chrono::system_clock> tp_nowb = std::chrono::high_resolution_clock::now();
    std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time;
-   std::chrono::duration<double> elapsed_secondsA = tp_now - graphics_info_t::previous_frame_time;
-   std::chrono::duration<double> elapsed_secondsB = tp_now - graphics_info_t::previous_frame_time;
    if (elapsed_seconds.count() > 1.0) {
       float nf = graphics_info_t::frame_counter - graphics_info_t::frame_counter_at_last_display;
       std::cout << "Frame/second: " << 1000 * elapsed_seconds.count()/nf << " milliseconds\n";
@@ -752,7 +751,8 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       graphics_info_t::zoom *= 1.1;
    }
 
-   // think about the more generic adjust_clipping()
+   // I want to be able to push out the front clipping plane (say, for making a figure or movie)
+
    if (event->keyval == GDK_KEY_d) {
       adjust_clipping(1.0);
    }

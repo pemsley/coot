@@ -2789,12 +2789,13 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *rb_3  = lookup_widget(window, "displayed_map_style_as_transparent_radiobutton");
    GtkWidget *scale = lookup_widget(window, "map_opacity_hscale");
 
+   gtk_widget_hide(rb_2);
+
+   const molecule_class_info_t &m = graphics_info_t::molecules[imol];
+
    graphics_info_t g;
-   if (true) {
-      if (false)
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_2), TRUE);
-      else
-         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_3), TRUE);
+   if (! m.draw_it_for_map_standard_lines) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_3), TRUE);
    } else {
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rb_1), TRUE);
    }

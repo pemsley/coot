@@ -345,6 +345,11 @@ molecule_class_info_t::set_draw_solid_density_surface(bool state) {
 
    // is this function needed now?
 
+   if (state)
+      draw_it_for_map_standard_lines = false;
+   else
+      draw_it_for_map_standard_lines = true;
+
    update_map(); // gets solid triangles too.
 }
 
@@ -819,7 +824,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          colours[4*i  ] = map_colour.red;
          colours[4*i+1] = map_colour.green;
          colours[4*i+2] = map_colour.blue;
-         colours[4*i+3] = 1.0f;
+         colours[4*i+3] = 0.3f;
       }
 
       // why is this needed?
