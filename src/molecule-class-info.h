@@ -108,7 +108,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "gl-bits.hh"
 #include "pli/flev-annotations.hh" // animated ligand interactions
 
-#include "pick.h"
+#include "pick.hh"
 
 #include "dots-representation.hh"
 #include "named-rotamer-score.hh"

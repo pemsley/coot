@@ -53,8 +53,6 @@
 
 #include "globjects.h"
 
-#include "pick.h"
-
 #include "cc-interface.hh"  // for atom_info_as_text_for_statusbar, maybe not here then
 
 // #define DEBUG_SYMM_PICK 1

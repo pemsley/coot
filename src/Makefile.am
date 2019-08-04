@@ -497,7 +497,7 @@ coot_bin_SOURCES = \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
 	pisa-interface.hh	 \
-        pick.h pick.cc		 \
+        pick.hh pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
 	probe-clash-score.cc     \

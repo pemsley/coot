@@ -3,6 +3,7 @@
 #include <Python.h>
 #endif
 
+#include "coords/cos-sin.h"
 #include "graphics-info.h"
 
 
@@ -15,7 +16,11 @@ graphics_info_t::init() {
 #ifdef WINDOWS_MINGW
       prefer_python = 1;
 #endif
-
+   // The cosine->sine lookup table, used in picking.
+   //
+   // The data in it are static, so we can get to them anywhere
+   // now that we have run this
+   cos_sin cos_sin_table(1000);
 
    for (int i=0; i<4; i++)
 	   for (int j=0; j<4; j++)

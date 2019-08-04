@@ -78,7 +78,7 @@
 
 #include "coords/Cartesian.h"
 #include "ccp4mg-utils/mgtree.h"
-#include "pick.h"
+#include "pick.hh"
 
 #include "compat/coot-sysdep.h"
 #include "command-arg.hh"

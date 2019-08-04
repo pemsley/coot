@@ -596,16 +596,31 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
-   std::cout << "button press!" << std::endl;
+   // std::cout << "button press!" << std::endl;
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);
+   g.SetMouseClicked(event->x, event->y); // Hmm
    return TRUE;
 }
 
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
-   std::cout << "button release!" << std::endl;
+   if (event->state == GDK_BUTTON2_MASK) {
+      std::cout << "Button 2 released" << std::endl;
+      graphics_info_t g;
+      pick_info nearest_atom_index_info = atom_pick_gtk3(event);
+      double delta_x = g.GetMouseClickedX() - event->x;
+      double delta_y = g.GetMouseClickedY() - event->y;
+      if (std::abs(delta_x) < 10.0) {
+         if (std::abs(delta_y) < 10.0) {
+            if (nearest_atom_index_info.success == GL_TRUE) {
+               g.setRotationCentre(nearest_atom_index_info.atom_index,
+				                       nearest_atom_index_info.imol);
+            }
+         }
+      }
+   }
    return TRUE;
 }
 
