@@ -362,9 +362,14 @@ draw_molecular_triangles() {
             if (graphics_info_t::is_valid_model_molecule(ii)) {
                if (graphics_info_t::molecules[ii].draw_it) {
                   if (graphics_info_t::molecules[ii].molrepinsts.size()) {
+                     std::cout << "----------------------- in draw_molecular_triangles() calling Martin code now... \n";
                      // molrepinsts get added to mol_tri_scene_setup when then are made
+                     GLenum err = glGetError();
+                     if (err) std::cout << "gl error pre-renderer in draw_molecular_triangles() " << err << std::endl;
                      // turns on glLighting.
                      graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+                     err = glGetError();
+                     if (err) std::cout << "gl error in draw_molecular_triangles() " << err << std::endl;
                   }
                }
             }
@@ -493,11 +498,8 @@ on_glarea_realize(GtkGLArea *glarea) {
       glEnable(GL_LINE_SMOOTH);
    }
 
-#if 0
-   transform = Transform(glm::vec3(0.0, 0.0, 0.0),   // position
-       glm::vec3(0.0, 0.0, 0.0),   // rotation
-       glm::vec3(1.0, 1.0, 1.0));  // scales
-#endif
+   // Martin's Molecular triangles
+   setup_for_mol_triangles();
 
 }
 

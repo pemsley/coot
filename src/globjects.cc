@@ -1418,10 +1418,8 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
 std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
-#endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 // --------------------------------------------------------------------------------------------

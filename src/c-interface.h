@@ -4766,6 +4766,7 @@ void set_flev_idle_ligand_interactions(int state);
 /* Toggle for animated ligand interaction display above */
 void toggle_flev_idle_ligand_interactions();
 
+void add_molecular_representation_test();
 
 
 /* \} */

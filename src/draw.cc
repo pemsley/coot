@@ -35,9 +35,9 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
    if (graphics_info_t::display_mode_use_secondary_p()) {
       if (widget == graphics_info_t::glarea_2) {
-	 do_second = true;
+    do_second = true;
       } else {
-	 do_first = true;
+    do_first = true;
       }
    }
 
@@ -58,13 +58,13 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       float trans_fac = 0.038;
 
       if (do_first) {
-	 view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
-	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(trans_fac, 0.0, 0.0);
+    view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+    glMultMatrixf(view_skew_matrix);
+    glTranslatef(trans_fac, 0.0, 0.0);
       } else {
-	 view_skew_matrix[8] = -skew_factor;
-	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(-trans_fac, 0.0, 0.0);
+    view_skew_matrix[8] = -skew_factor;
+    glMultMatrixf(view_skew_matrix);
+    glTranslatef(-trans_fac, 0.0, 0.0);
       }
    }
 }
@@ -79,9 +79,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    if ((event-1) != 0) {
       /* Draw only last expose. */
       if (event->count > 0) {
-	 //       cout << "event->count is " << event->count << endl;
-	 //       cout << "chucking an event" << endl;
-	 return TRUE;
+    //       cout << "event->count is " << event->count << endl;
+    //       cout << "chucking an event" << endl;
+    return TRUE;
       }
    }
 
@@ -117,7 +117,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       if (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO) {
-	 aspect_ratio *= 2.0; // DTI side by side stereo mode
+    aspect_ratio *= 2.0; // DTI side by side stereo mode
       }
 
       // Clear the scene
@@ -143,37 +143,37 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
       // Zalman works here?! but crap lighting!?
       if (in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-	// draws one Zalman lines
-	glEnable(GL_STENCIL_TEST);
-	glStencilFunc(GL_EQUAL, 1, 1);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	glEnable(GL_STENCIL_TEST);
+   // draws one Zalman lines
+   glEnable(GL_STENCIL_TEST);
+   glStencilFunc(GL_EQUAL, 1, 1);
+   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+   glEnable(GL_STENCIL_TEST);
 
-	/* red triangle for testing*/
-	//glColor3ub(200, 0, 0);
-	//glBegin(GL_POLYGON);
-	//glVertex3i(-4, -4, 0);
-	//glVertex3i(4, -4, 0);
-	//glVertex3i(0, 4, 0);
-	//glEnd();
+   /* red triangle for testing*/
+   //glColor3ub(200, 0, 0);
+   //glBegin(GL_POLYGON);
+   //glVertex3i(-4, -4, 0);
+   //glVertex3i(4, -4, 0);
+   //glVertex3i(0, 4, 0);
+   //glEnd();
 
-	//glDisable(GL_STENCIL_TEST);
+   //glDisable(GL_STENCIL_TEST);
       }
 
       if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT) {
-	// g_print("BL DEBUG:: now draw 'right'\n");
-	// draws the other Zalman lines
-	glStencilFunc(GL_EQUAL, 0, 1);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	glEnable(GL_STENCIL_TEST);
-	/* green square for testing */
-	//glColor3ub(0, 200, 0);
-	//glBegin(GL_POLYGON);
-	//glVertex3i(3, 3, 0);
-	//glVertex3i(-3, 3, 0);
-	//glVertex3i(-3, -3, 0);
-	//glVertex3i(3, -3, 0);
-	//glEnd();
+   // g_print("BL DEBUG:: now draw 'right'\n");
+   // draws the other Zalman lines
+   glStencilFunc(GL_EQUAL, 0, 1);
+   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+   glEnable(GL_STENCIL_TEST);
+   /* green square for testing */
+   //glColor3ub(0, 200, 0);
+   //glBegin(GL_POLYGON);
+   //glVertex3i(3, 3, 0);
+   //glVertex3i(-3, 3, 0);
+   //glVertex3i(-3, -3, 0);
+   //glVertex3i(3, -3, 0);
+   //glEnd();
       }
 
 
@@ -195,8 +195,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       //	 if (graphics_info_t::esoteric_depth_cue_flag)
       glOrtho(-0.3*graphics_info_t::zoom*aspect_ratio, 0.3*graphics_info_t::zoom*aspect_ratio,
-	      -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
-	      near, far);
+         -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
+         near, far);
       // 	 else
       // 	    glOrtho(-0.3*info.zoom*aspect_ratio, 0.3*info.zoom*aspect_ratio,
       // 		    -0.3*info.zoom,  0.3*info.zoom,
@@ -208,25 +208,25 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       if (graphics_info_t::esoteric_depth_cue_flag) {
-	 glFogf(GL_FOG_START,  0.0f);
-	 glFogf(GL_FOG_END, far);
+    glFogf(GL_FOG_START,  0.0f);
+    glFogf(GL_FOG_END, far);
       } else {
-	 glFogf(GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-	 glFogf(GL_FOG_DENSITY, 1.0);
-	 GLdouble fog_start = 0;
-	 GLdouble fog_end =  far;
-	 glFogf(GL_FOG_START,  fog_start);
-	 glFogf(GL_FOG_END,    fog_end);
-	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
-	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+    glFogf(GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+    glFogf(GL_FOG_DENSITY, 1.0);
+    GLdouble fog_start = 0;
+    GLdouble fog_end =  far;
+    glFogf(GL_FOG_START,  fog_start);
+    glFogf(GL_FOG_END,    fog_end);
+    // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
+    // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
       }
 
       if (false) { // try/test clipping
-	 // I don't understand what I need to do
-	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
-	 glEnable(GL_CLIP_PLANE0);
-	 glClipPlane(GL_CLIP_PLANE0, plane);
-	 glPopMatrix();
+    // I don't understand what I need to do
+    GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+    glEnable(GL_CLIP_PLANE0);
+    glClipPlane(GL_CLIP_PLANE0, plane);
+    glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -241,59 +241,59 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // i.e. the screenrotation center is at (X(), Y(), Z())
       //
       glTranslatef(-graphics_info_t::RotationCentre_x(),
-		   -graphics_info_t::RotationCentre_y(),
-		   -graphics_info_t::RotationCentre_z());
+      -graphics_info_t::RotationCentre_y(),
+      -graphics_info_t::RotationCentre_z());
 
       draw_molecular_triangles(widget);
 
       if (false) { // try/test clipping
-	 // This does indeed clip the model, but it's in world coordinates,
-	 // not eye coordinates
-	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
-	 glEnable(GL_CLIP_PLANE0);
-	 glClipPlane(GL_CLIP_PLANE0, plane);
-	 glPopMatrix();
+    // This does indeed clip the model, but it's in world coordinates,
+    // not eye coordinates
+    GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+    glEnable(GL_CLIP_PLANE0);
+    glClipPlane(GL_CLIP_PLANE0, plane);
+    glPopMatrix();
       }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) {
-	 coot::Cartesian front = unproject(0.0);
-	 coot::Cartesian back  = unproject(1.0);
-	 coot::Cartesian front_to_back = back - front;
-	 coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
-	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
+    coot::Cartesian front = unproject(0.0);
+    coot::Cartesian back  = unproject(1.0);
+    coot::Cartesian front_to_back = back - front;
+    coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
+    // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
       if (true) {
-	 glPushMatrix();
-	 glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
-	 GLfloat  light_0_position[] = {  0.7,   0.0,   0.7, 0.0}; // 1 is positional, 0 is directional
-	 GLfloat  light_1_position[] = { -0.3,   0.2,   1.0, 0.0};
-	 GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
-	 GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
-	 GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
-	 GLfloat  light_5_position[] = { -0.7,   0.7,  21.0, 0.0};
+    glPushMatrix();
+    glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
+    GLfloat  light_0_position[] = {  0.7,   0.0,   0.7, 0.0}; // 1 is positional, 0 is directional
+    GLfloat  light_1_position[] = { -0.3,   0.2,   1.0, 0.0};
+    GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
+    GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
+    GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
+    GLfloat  light_5_position[] = { -0.7,   0.7,  21.0, 0.0};
 
-	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
-	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
-	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
+    glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+    glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
 
-	 glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
-	 glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
-	 glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
+    glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
+    glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
+    glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
 
-	 glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0);
-	 glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
-	 glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0);
-	 glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);
-	 glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION,    0.0);
-	 glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0);
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0);
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
+    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0);
+    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);
+    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION,    0.0);
+    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0);
 
-	 glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION,    0.0);
-	 glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0);
-	 glLightf(GL_LIGHT4, GL_LINEAR_ATTENUATION,    0.0);
-	 glLightf(GL_LIGHT4, GL_QUADRATIC_ATTENUATION, 0.0);
-	 glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
-	 glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
+    glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION,    0.0);
+    glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0);
+    glLightf(GL_LIGHT4, GL_LINEAR_ATTENUATION,    0.0);
+    glLightf(GL_LIGHT4, GL_QUADRATIC_ATTENUATION, 0.0);
+    glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
+    glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
 
 // 	 GLfloat light_ambient[] =  { 0.1, 0.1, 0.1, 1.0 };
 // 	 GLfloat light_diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
@@ -307,7 +307,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 // 	 glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
 // 	 glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
-	 glPopMatrix();
+    glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -319,23 +319,23 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       bool do_flat_shading = graphics_info_t::do_flat_shading_for_solid_density_surface;
       // do_flat_shading = false; // turn off
       if (do_flat_shading) {
-	 // glUseProgram(programID_global);
+    // glUseProgram(programID_global);
 
-	 glLineWidth(graphics_info_t::map_line_width);
-	 for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	    if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
-	       if (false)
-		  std::cout << "GLSL for imol " << ii << " binding "
-			    << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
-			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-			    << std::endl;
-	       glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
-	       glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
-			      GL_UNSIGNED_INT, nullptr);
-	       glBindVertexArray(0); // unbind
-	    }
-	 }
-	 glUseProgram(0);
+    glLineWidth(graphics_info_t::map_line_width);
+    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
+          if (false)
+     std::cout << "GLSL for imol " << ii << " binding "
+       << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
+       << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+       << std::endl;
+          glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
+          glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+         GL_UNSIGNED_INT, nullptr);
+          glBindVertexArray(0); // unbind
+       }
+    }
+    glUseProgram(0);
       }
 
       // draw_single_triangle();
@@ -347,80 +347,80 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
-	 // Molecule stuff
-	 //
-	 // turning off cis-peptides goes hand in hand with turning off atom disks in
-	 // display_bonds(). We don't want to see them - they confuse the view
-	 bool dcp =  graphics_info_t::draw_cis_peptide_markups;
-	 if (graphics_info_t::moving_atoms_displayed_p())
-	    dcp = false;
-	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb, dcp);
+    // Molecule stuff
+    //
+    // turning off cis-peptides goes hand in hand with turning off atom disks in
+    // display_bonds(). We don't want to see them - they confuse the view
+    bool dcp =  graphics_info_t::draw_cis_peptide_markups;
+    if (graphics_info_t::moving_atoms_displayed_p())
+       dcp = false;
+    graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb, dcp);
 
-	 //
-	 graphics_info_t::molecules[ii].draw_dipoles();
+    //
+    graphics_info_t::molecules[ii].draw_dipoles();
 
-	 // draw display list objects
-	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT0);
-	    glEnable(GL_LIGHT1);
-	    glEnable(GL_LIGHT3);
-	    glEnable(GL_LIGHT4);
-	    glDisable(GL_LIGHT2);
+    // draw display list objects
+    if (graphics_info_t::molecules[ii].has_display_list_objects()) {
+       glEnable(GL_LIGHTING);
+       glEnable(GL_LIGHT0);
+       glEnable(GL_LIGHT1);
+       glEnable(GL_LIGHT3);
+       glEnable(GL_LIGHT4);
+       glDisable(GL_LIGHT2);
  	    n_display_list_objects +=
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
-	    glDisable(GL_LIGHTING);
-	 }
+       glDisable(GL_LIGHTING);
+    }
 
-	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT0);
-	    glEnable(GL_LIGHT1);
-	    glDisable(GL_LIGHT2);
-	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
-									     graphics_info_t::time_holder_for_ligand_interactions);
-	    glDisable(GL_LIGHTING);
-	 }
+    if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
+       glEnable(GL_LIGHTING);
+       glEnable(GL_LIGHT0);
+       glEnable(GL_LIGHT1);
+       glDisable(GL_LIGHT2);
+       graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
+        graphics_info_t::time_holder_for_ligand_interactions);
+       glDisable(GL_LIGHTING);
+    }
 
-	 // draw anisotropic atoms maybe
-	 graphics_info_t::molecules[ii].anisotropic_atoms();
+    // draw anisotropic atoms maybe
+    graphics_info_t::molecules[ii].anisotropic_atoms();
 
-	 // We need to (also) pass whether we are drawing the first or
-	 // secondary window, so that, when display lists are being
-	 // used we use the correct part of theMapContours.
-	 //
+    // We need to (also) pass whether we are drawing the first or
+    // secondary window, so that, when display lists are being
+    // used we use the correct part of theMapContours.
+    //
          // BL says:: bad hack FIXME
          if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							    0);
+       graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+       0);
          } else {
-	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							    in_stereo_flag);
+       graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+       in_stereo_flag);
          }
 
-	 // Turn the light(s) on and after off, if needed.
-	 //
-	 graphics_info_t::molecules[ii].draw_surface();
+    // Turn the light(s) on and after off, if needed.
+    //
+    graphics_info_t::molecules[ii].draw_surface();
 
-	 // extra restraints - thin blue lines or some such
-	 graphics_info_t::molecules[ii].draw_extra_restraints_representation();
+    // extra restraints - thin blue lines or some such
+    graphics_info_t::molecules[ii].draw_extra_restraints_representation();
 
-	 // Label the atoms in the atoms label list.
-	 //
-	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
-						    graphics_info_t::seg_ids_in_atom_labels_flag);
+    // Label the atoms in the atoms label list.
+    //
+    graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
+       graphics_info_t::seg_ids_in_atom_labels_flag);
 
-	 // Draw the dotted atoms:
-	 graphics_info_t::molecules[ii].draw_dots();
+    // Draw the dotted atoms:
+    graphics_info_t::molecules[ii].draw_dots();
 
-	 // Draw Unit cell maybe.
-	 graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
+    // Draw Unit cell maybe.
+    graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
 
-	 // Draw Map unit cell maybe;
-	 graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
+    // Draw Map unit cell maybe;
+    graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
 
-	 //
-	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
+    //
+    graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
 
       // atom pull restraint
@@ -449,8 +449,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // lsq atom blobs
       if (graphics_info_t::lsq_plane_atom_positions->size() > 0) {
-	 graphics_info_t g;
-	 g.render_lsq_plane_atoms();
+    graphics_info_t g;
+    g.render_lsq_plane_atoms();
       }
 
       // ligand flash bond
@@ -459,9 +459,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // draw reference object, which sits at the model origin.
       //
       if (graphics_info_t::show_origin_marker_flag) {
-	 glLineWidth(1.0);
-	 glColor3f(0.7,0.7,0.2);
-	 myWireCube (0.6);
+    glLineWidth(1.0);
+    glColor3f(0.7,0.7,0.2);
+    myWireCube (0.6);
       }
 
       graphics_info_t::draw_generic_objects();
@@ -471,21 +471,21 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       glPushMatrix();
       glTranslatef(graphics_info_t::RotationCentre_x(),
-		   graphics_info_t::RotationCentre_y(),
-		   graphics_info_t::RotationCentre_z());
+      graphics_info_t::RotationCentre_y(),
+      graphics_info_t::RotationCentre_z());
 
       draw_axes(m);
 
       graphics_info_t::graphics_ligand_view();
 
       glScalef (graphics_info_t::rotation_centre_cube_size,
-		graphics_info_t::rotation_centre_cube_size,
-		graphics_info_t::rotation_centre_cube_size);
+   graphics_info_t::rotation_centre_cube_size,
+   graphics_info_t::rotation_centre_cube_size);
 
       if (! graphics_info_t::smooth_scroll_on) {
-	 glLineWidth(2.0);
-	 glColor3f(0.8,0.6,0.7);
-	 myWireCube (1.0);
+    glLineWidth(2.0);
+    glColor3f(0.8,0.6,0.7);
+    myWireCube (1.0);
       }
 
      // Now we have finished displaying our annotation objects and
@@ -500,12 +500,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // Transparent density maps
       //
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	 if (graphics_info_t::is_valid_map_molecule(ii)) {
-	    // enable lighting internal to this function
-	    bool do_flat =
-	       graphics_info_t::do_flat_shading_for_solid_density_surface;
-	    graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
-	 }
+    if (graphics_info_t::is_valid_map_molecule(ii)) {
+       // enable lighting internal to this function
+       bool do_flat =
+          graphics_info_t::do_flat_shading_for_solid_density_surface;
+       graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
+    }
       }
 
       //
@@ -519,7 +519,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 #if 0 // OpenGL interface
 
-	 /* Swap backbuffer to front */
+    /* Swap backbuffer to front */
          GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
          if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
             gdk_gl_drawable_swap_buffers (gldrawable);
@@ -533,7 +533,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
-	 glDisable(GL_STENCIL_TEST);
+    glDisable(GL_STENCIL_TEST);
 
       // show_lighting();
 
@@ -548,54 +548,53 @@ void draw_molecular_triangles(GtkWidget *widget) {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 
-      // Martin's triangular molecules
-      //
-      // centre of the screen
-      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
-		    graphics_info_t::RotationCentre_y(),
-		    graphics_info_t::RotationCentre_z());
-      // where is the eye?  That's what we want.
-      // front plane is at z=0;
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
-                                                allocation.height/2, 1);
-      FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
-      FCXXCoord diff = tp_1 - pos;
-      FCXXCoord eye_pos = pos + diff * 5.0;
-      // std::cout << "eye_pos: " << eye_pos << "\n";
-      // coot::Cartesian eye_cart = pos + 20 * diff;
-      // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
-      if (graphics_info_t::mol_tri_scene_setup) {
-	 if (graphics_info_t::mol_tri_renderer) {
+   // Martin's triangular molecules
+   //
+   // centre of the screen
+   FCXXCoord pos(graphics_info_t::RotationCentre_x(),
+                 graphics_info_t::RotationCentre_y(),
+                 graphics_info_t::RotationCentre_z());
+   // where is the eye?  That's what we want.
+   // front plane is at z=0;
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
+                                             allocation.height/2, 1);
+   FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
+   FCXXCoord diff = tp_1 - pos;
+   FCXXCoord eye_pos = pos + diff * 5.0;
+   // std::cout << "eye_pos: " << eye_pos << "\n";
+   // coot::Cartesian eye_cart = pos + 20 * diff;
+   // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
+   if (graphics_info_t::mol_tri_scene_setup) {
+      if (graphics_info_t::mol_tri_renderer) {
 
-	    //Can retrieve reference to the light if so preferred
-	    // This doesn't move the lights
-	    // FCXXCoord random_trans(50.0 * coot::util::random()/float(RAND_MAX),
-	    // 		              50.0 * coot::util::random()/float(RAND_MAX),
-	    //                        50.0 * coot::util::random()/float(RAND_MAX));
-	    FCXXCoord light_pos = pos + diff * 10; //  + random_trans;
-	    FCXXCoord neg_light_pos = pos + diff * 10; // - random_trans;
+         //Can retrieve reference to the light if so preferred
+         // This doesn't move the lights
+         // FCXXCoord random_trans(50.0 * coot::util::random()/float(RAND_MAX),
+         // 		              50.0 * coot::util::random()/float(RAND_MAX),
+         //                        50.0 * coot::util::random()/float(RAND_MAX));
+         FCXXCoord light_pos = pos + diff * 10; //  + random_trans;
+         FCXXCoord neg_light_pos = pos + diff * 10; // - random_trans;
 
-	    graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
-	    graphics_info_t::mol_tri_scene_setup->getLight(1)->setTranslation(neg_light_pos);
+         graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
+         graphics_info_t::mol_tri_scene_setup->getLight(1)->setTranslation(neg_light_pos);
 
-	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	       if (graphics_info_t::is_valid_model_molecule(ii)) {
-		  if (graphics_info_t::molecules[ii].draw_it) {
-		     if (graphics_info_t::molecules[ii].molrepinsts.size()) {
-			// molrepinsts get added to mol_tri_scene_setup when then are made
-			// turns on glLighting.
-			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
-		     }
-		  }
-	       }
-	    }
-	    glDisable(GL_LIGHTING);
-	 }
+         for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+            if (graphics_info_t::is_valid_model_molecule(ii)) {
+               if (graphics_info_t::molecules[ii].draw_it) {
+                  if (graphics_info_t::molecules[ii].molrepinsts.size()) {
+                     // molrepinsts get added to mol_tri_scene_setup when then are made
+                     // turns on glLighting.
+                     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+                  }
+               }
+            }
+         }
+         glDisable(GL_LIGHTING);
       }
+   }
 #endif // USE_MOLECULES_TO_TRIANGLES
-
 }
 
 void gdkglext_finish_frame(GtkWidget *widget) {
@@ -615,41 +614,41 @@ display_density_level_maybe() {
    if (graphics_info_t::display_density_level_on_screen == 1) {
       if (graphics_info_t::display_density_level_this_image == 1) {
 
-	 //	 std::cout << "DEBUG:: screen label: "
-	 // << graphics_info_t::display_density_level_screen_string
-	 // << std::endl;
+    //	 std::cout << "DEBUG:: screen label: "
+    // << graphics_info_t::display_density_level_screen_string
+    // << std::endl;
 
-	 bool is_bb = graphics_info_t::background_is_black_p();
+    bool is_bb = graphics_info_t::background_is_black_p();
 
-	 GLfloat white[3] = {1.0, 1.0, 1.0};
-	 GLfloat black[3] = {0.0, 0.0, 0.0};
+    GLfloat white[3] = {1.0, 1.0, 1.0};
+    GLfloat black[3] = {0.0, 0.0, 0.0};
 
-	 if (is_bb)
-	    glColor3fv(white);
-	 else
-	    glColor3fv(black);
+    if (is_bb)
+       glColor3fv(white);
+    else
+       glColor3fv(black);
 
-	 glPushMatrix();
-	 glLoadIdentity();
+    glPushMatrix();
+    glLoadIdentity();
 
  	 glMatrixMode(GL_PROJECTION);
-	 glPushMatrix();
+    glPushMatrix();
  	 glLoadIdentity();
 
-	 // Disable the fog so that the density level text will not
-	 // change intensity in a zoom-dependent way:
-	 glPushAttrib(GL_ENABLE_BIT);
-	 glDisable(GL_FOG);
+    // Disable the fog so that the density level text will not
+    // change intensity in a zoom-dependent way:
+    glPushAttrib(GL_ENABLE_BIT);
+    glDisable(GL_FOG);
 
-	 // glRasterPos3f();
-	 graphics_info_t::printString_for_density_level(graphics_info_t::display_density_level_screen_string,
-							0.0, 0.95, -0.9);
+    // glRasterPos3f();
+    graphics_info_t::printString_for_density_level(graphics_info_t::display_density_level_screen_string,
+   0.0, 0.95, -0.9);
 
          glPopAttrib();
-	 glPopMatrix();
-	 glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
 
-	 glPopMatrix();
+    glPopMatrix();
 
       }
    }
@@ -689,17 +688,17 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
       draw_hardware_stereo(widget, event);
    } else {
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-	 draw_zalman_stereo(widget, event);
+    draw_zalman_stereo(widget, event);
       } else {
-	 if (graphics_info_t::display_mode_use_secondary_p()) {
-	    if (widget == graphics_info_t::glarea_2) {
-	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
-	    } else {
-	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
-	    }
-	 } else {
-	    draw_mono(widget, event, IN_STEREO_MONO);
-	 }
+    if (graphics_info_t::display_mode_use_secondary_p()) {
+       if (widget == graphics_info_t::glarea_2) {
+          draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
+       } else {
+          draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
+       }
+    } else {
+       draw_mono(widget, event, IN_STEREO_MONO);
+    }
       }
    }
    return TRUE;
@@ -861,8 +860,8 @@ coot::Cartesian eye_position() {
    // and translated by a length related to graphics_info_t::zoom
 
    coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-		      graphics_info_t::RotationCentre_y(),
-		      graphics_info_t::RotationCentre_z());
+         graphics_info_t::RotationCentre_y(),
+         graphics_info_t::RotationCentre_z());
 
    float dist = 0.5 * graphics_info_t::zoom;
 
@@ -883,8 +882,8 @@ void
 debug_eye_position(GtkWidget *widget) {
 
    coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-		      graphics_info_t::RotationCentre_y(),
-		      graphics_info_t::RotationCentre_z());
+         graphics_info_t::RotationCentre_y(),
+         graphics_info_t::RotationCentre_z());
 
    coot::Cartesian ep = eye_position();
 
@@ -909,17 +908,17 @@ parse_shader(const std::string &file_name) {
    if (f) {
       std::string line;
       while(std::getline(f, line)) {
-	 if (line.find("#shader") != std::string::npos) {
-	    if (line.find("vertex") != std::string::npos)
-	       type = ShaderType::VERTEX;
-	    if (line.find("fragment") != std::string::npos)
-	       type = ShaderType::FRAGMENT;
-	 } else {
-	    if (type == ShaderType::VERTEX)
-	       ss.VertexSource += line + "\n";
-	    if (type == ShaderType::FRAGMENT)
-	       ss.FragmentSource += line + "\n";
-	 }
+    if (line.find("#shader") != std::string::npos) {
+       if (line.find("vertex") != std::string::npos)
+          type = ShaderType::VERTEX;
+       if (line.find("fragment") != std::string::npos)
+          type = ShaderType::FRAGMENT;
+    } else {
+       if (type == ShaderType::VERTEX)
+          ss.VertexSource += line + "\n";
+       if (type == ShaderType::FRAGMENT)
+          ss.FragmentSource += line + "\n";
+    }
       }
    } else {
       std::cout << "Failed to open " << file_name  << std::endl;
@@ -962,7 +961,7 @@ std::string file_to_string(const std::string &file_name) {
    std::ifstream f(file_name.c_str());
    if (f) {
       std::string s((std::istreambuf_iterator<char>(f)),
-		    std::istreambuf_iterator<char>());
+       std::istreambuf_iterator<char>());
       return s;
    } else {
       return std::string("");

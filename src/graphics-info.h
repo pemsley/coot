@@ -4041,14 +4041,12 @@ string   static std::string sessionid;
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif
+#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
    static std::shared_ptr<Renderer> mol_tri_renderer;
-   static std::shared_ptr<SceneSetup>   mol_tri_scene_setup;
-#endif
+   static std::shared_ptr<SceneSetup> mol_tri_scene_setup;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 };
