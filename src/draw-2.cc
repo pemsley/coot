@@ -735,6 +735,8 @@ spin_func(gpointer data) {
       return TRUE;
 }
 
+#include "c-interface.h" // for update_go_to_atom_from_current_position()
+
 gboolean
 on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
@@ -784,7 +786,14 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
          int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
          g.set_density_level_string(s, g.molecules[s].contour_level);
          g.display_density_level_this_image = 1;
+         handled = TRUE;
       }
+   }
+
+   // fix the type here
+   if (int(event->keyval) == graphics_info_t::update_go_to_atom_from_current_residue_key) {
+      update_go_to_atom_from_current_position();
+      handled = TRUE;
    }
 
    gtk_widget_queue_draw(widget);
@@ -796,6 +805,27 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 gboolean
 on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
 
+   graphics_info_t g;
+
+   if (event->keyval == GDK_KEY_space) {
+      g.reorienting_next_residue_mode = true; // hack
+      bool reorienting = graphics_info_t::reorienting_next_residue_mode;
+      if (reorienting) {
+         if (graphics_info_t::shift_is_pressed) {
+            g.reorienting_next_residue(false); // backwards
+         } else {
+            std::cout << "Do forward reorienting" << std::endl;
+            g.reorienting_next_residue(true); // forwards
+         }
+      } else {
+         // old/standard simple translation
+         if (graphics_info_t::shift_is_pressed) {
+            g.intelligent_previous_atom_centring(g.go_to_atom_window);
+         } else {
+            g.intelligent_next_atom_centring(g.go_to_atom_window);
+         }
+      }
+   }
    return TRUE;
 }
 

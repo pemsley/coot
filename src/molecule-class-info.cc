@@ -3659,7 +3659,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       }
 
 
-      float radius = 0.13f;
+      float radius = 0.11f;
 
       bool do_real = true;
       unsigned int idx_running = 0;

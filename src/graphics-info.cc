@@ -602,41 +602,41 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       // check dir here
       mmdb::Residue *residue_next = 0;
       if (dir)
-    residue_next = coot::util::next_residue(residue_current);
+         residue_next = coot::util::next_residue(residue_current);
       else
-    residue_next = coot::util::previous_residue(residue_current);
+         residue_next = coot::util::previous_residue(residue_current);
 
       if (residue_next) {
          std::pair<bool, clipper::RTop_orth> ro =
-       coot::util::get_reorientation_matrix(residue_current, residue_next);
+            coot::util::get_reorientation_matrix(residue_current, residue_next);
          std::pair<bool, clipper::Coord_orth> residue_centre =
-       molecules[imol].residue_centre(residue_next);
+            molecules[imol].residue_centre(residue_next);
 
          if (ro.first) {
 
-       // Happy case
+            // Happy case
 
-       // make a view for current pos and one for where you want to go
+            // make a view for current pos and one for where you want to go
 
-       // I want to convert from quat (which should be a quaternion) to
-       // a clipper::Mat33<double>
-       //
-       //
-       GL_matrix m(quat);
-       clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
+            // I want to convert from quat (which should be a quaternion) to
+            // a clipper::Mat33<double>
+            //
+            //
+            GL_matrix m(quat);
+            clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
 
-       clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
-       coot::util::quaternion vq(mc);
-       // Note to self: Views should use util::quaternion, not this
-       // old style
-       //
-       float vqf[4];
-       vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+            clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
+            coot::util::quaternion vq(mc);
+            // Note to self: Views should use util::quaternion, not this
+            // old style
+            //
+            float vqf[4];
+            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
 
-       const clipper::Coord_orth &rc = residue_centre.second;
-       coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
-       coot::Cartesian rot_centre = RotationCentre();
-       coot::Cartesian target_pos = res_centre;
+            const clipper::Coord_orth &rc = residue_centre.second;
+            coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+            coot::Cartesian rot_centre = RotationCentre();
+            coot::Cartesian target_pos = res_centre;
 
             // however, if we were "close" to the CA of the current
             // residue, then we should centre on the CA of the next
@@ -658,50 +658,50 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                }
             }
 
-       set_old_rotation_centre(RotationCentre());
+            set_old_rotation_centre(RotationCentre());
 
-       if (smooth_scroll == 1) {
+            if (smooth_scroll == 1) {
 
-          coot::view_info_t view1(quat, rot_centre, zoom, "current");
-          coot::view_info_t view2(vqf,  target_pos, zoom, "next");
-          int nsteps = smooth_scroll_steps * 2;
-          coot::view_info_t::interpolate(view1, view2, nsteps);
+               coot::view_info_t view1(quat, rot_centre, zoom, "current");
+               coot::view_info_t view2(vqf,  target_pos, zoom, "next");
+               int nsteps = smooth_scroll_steps * 2;
+               coot::view_info_t::interpolate(view1, view2, nsteps);
 
-          // bleugh :-)
-          for(int i=0; i<4; i++) quat[i] = vqf[i];
+               // bleugh :-)
+               for(int i=0; i<4; i++) quat[i] = vqf[i];
 
-       } else {
+            } else {
 
-          // "snap" the view
-          rotation_centre_x = target_pos.x();
-          rotation_centre_y = target_pos.y();
-          rotation_centre_z = target_pos.z();
-          // bleugh again
-          for(int i=0; i<4; i++) quat[i] = vqf[i];
+               // "snap" the view
+               rotation_centre_x = target_pos.x();
+               rotation_centre_y = target_pos.y();
+               rotation_centre_z = target_pos.z();
+               // bleugh again
+               for(int i=0; i<4; i++) quat[i] = vqf[i];
 
-       }
+            }
 
-       done_it = true;
-       go_to_atom_chain_       = residue_next->GetChainID();
-       go_to_atom_residue_     = residue_next->GetSeqNum();
-       go_to_atom_inscode_     = residue_next->GetInsCode();
+            done_it = true;
+            go_to_atom_chain_       = residue_next->GetChainID();
+            go_to_atom_residue_     = residue_next->GetSeqNum();
+            go_to_atom_inscode_     = residue_next->GetInsCode();
 
-       try_centre_from_new_go_to_atom();
-       update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
+            try_centre_from_new_go_to_atom();
+            update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
-       if (go_to_atom_window) {
-          // what is next_atom here? Hmm
-          // update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-       }
+            if (go_to_atom_window) {
+               // what is next_atom here? Hmm
+               // update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+            }
          }
       }
    }
    if (! done_it) {
       // Oops! Next residue was not found, back to normal/standard/old mode
       if (dir)
-    intelligent_next_atom_centring(go_to_atom_window);
+         intelligent_next_atom_centring(go_to_atom_window);
       else
-    intelligent_previous_atom_centring(go_to_atom_window);
+         intelligent_previous_atom_centring(go_to_atom_window);
    }
    // graphics_draw();
 }
