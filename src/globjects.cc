@@ -1433,6 +1433,9 @@ GLuint graphics_info_t::central_cube_index_buffer_id = 0;
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
+Shader graphics_info_t::shader_for_models;
+Shader graphics_info_t::shader_for_central_cube;
+Shader graphics_info_t::shader_for_origin_cube;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;

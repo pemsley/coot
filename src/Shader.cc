@@ -63,6 +63,8 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
    // don't ask the hardware about the location of the uniform if we
    // have asked before.
 
+   // sort of strange thing - because I store the locations - Hmm.
+
    std::map<std::string, GLuint>::const_iterator it = uniform_location_map.find(key);
    if (it != uniform_location_map.end()) {
       return it->second;

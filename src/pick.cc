@@ -57,15 +57,11 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
                               const coot::Cartesian &front, const coot::Cartesian &back, short int pick_mode,
                               bool verbose_mode) {
 
-   float min_dist = 0.6;
+   float min_dist = 0.6; // should depend on zoom so that we can pick atom in faraway molecules
    int nearest_atom_index = -1;
    float dist = -999.9;
    pick_info p_i;
-   p_i.min_dist = 0; // keep compiler happy
-   p_i.atom_index = -1; // ditto
-   p_i.imol = -1; // ditto
-   p_i.model_number = mmdb::MinInt4; // unset
-   p_i.success = GL_FALSE;
+
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
       if (! SelAtom.atom_selection[i]->isTer()) {
@@ -73,7 +69,7 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
          coot::Cartesian atom_pos(at->x, at->y, at->z);
          if (atom_pos.within_box(front,back)) {
 	         dist = atom_pos.distance_to_line(front, back);
-            // std::cout << "debug " << coot::atom_spec_t(at) << "dist to line: " << dist << std::endl;
+            // std::cout << "debug " << coot::atom_spec_t(at) << " " << atom_pos << "dist to line: " << dist << std::endl;
 
             if (dist < min_dist) {
 
@@ -83,64 +79,63 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 
                   std::string ele(SelAtom.atom_selection[i]->element);
 
-		  if (((pick_mode == PICK_ATOM_NON_HYDROGEN) && (ele != " H")) ||
-		      (pick_mode != PICK_ATOM_NON_HYDROGEN)) {
+		            if (((pick_mode == PICK_ATOM_NON_HYDROGEN) && (ele != " H")) ||
+		                 (pick_mode != PICK_ATOM_NON_HYDROGEN)) {
 
-		     bool allow_pick = 1;
+		               bool allow_pick = 1;
 
-		     // std::cout << "pick_mode: " << pick_mode << std::endl;
+                     // std::cout << "pick_mode: " << pick_mode << std::endl;
 
-		     // 20101211 stop picking on regular residue atoms
-		     // in CA+ligand mode
-		     //
-		     if (pick_mode == PICK_ATOM_CA_OR_LIGAND) {
-			std::string res_name = SelAtom.atom_selection[i]->GetResName();
-			std::string atom_name(SelAtom.atom_selection[i]->name);
-			// std::cout << "res_name: " << res_name << std::endl;
-			if (coot::util::is_standard_residue_name(res_name))
-			   // no CAs in RNA/DNA and no Ps in protein.
-			   if ((atom_name != " CA ") && (atom_name != " P  "))
-			      allow_pick = 0;
-		     }
+                     // 20101211 stop picking on regular residue atoms
+                     // in CA+ligand mode
+                     //
+                     if (pick_mode == PICK_ATOM_CA_OR_LIGAND) {
+                        std::string res_name = SelAtom.atom_selection[i]->GetResName();
+                        std::string atom_name(SelAtom.atom_selection[i]->name);
+                        // std::cout << "res_name: " << res_name << std::endl;
+                        if (coot::util::is_standard_residue_name(res_name))
+                        // no CAs in RNA/DNA and no Ps in protein.
+                        if ((atom_name != " CA ") && (atom_name != " P  "))
+                        allow_pick = 0;
+                     }
 
-             if (pick_mode == PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND) {
-			std::string res_name = SelAtom.atom_selection[i]->GetResName();
-			std::string atom_name(SelAtom.atom_selection[i]->name);
-			// std::cout << "res_name: " << res_name << std::endl;
-			if (coot::util::is_standard_residue_name(res_name))
-			   // no CAs in RNA/DNA and no Ps in protein.
-               // Ignoring NA at the moment
-			   if ((atom_name == " C  ") && (atom_name == " O  ") &&
-                   (atom_name == " N  "))
-			      allow_pick = 0;
-		     }
+                     if (pick_mode == PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND) {
+                        std::string res_name = SelAtom.atom_selection[i]->GetResName();
+                        std::string atom_name(SelAtom.atom_selection[i]->name);
+                        // std::cout << "res_name: " << res_name << std::endl;
+                        if (coot::util::is_standard_residue_name(res_name))
+                        // no CAs in RNA/DNA and no Ps in protein.
+                        // Ignoring NA at the moment
+                        if ((atom_name == " C  ") && (atom_name == " O  ") &&
+                        (atom_name == " N  "))
+                        allow_pick = 0;
+                     }
 
+                     if (allow_pick) {
+                        min_dist = dist;
+                        nearest_atom_index = i;
+                        p_i.success = GL_TRUE;
+                        p_i.atom_index = nearest_atom_index;
+                        p_i.model_number = SelAtom.atom_selection[i]->GetModelNum();
+                        p_i.imol = imol;
+                        p_i.min_dist = dist;
 
-		     if (allow_pick) {
-			min_dist = dist;
-			nearest_atom_index = i;
-			p_i.success = GL_TRUE;
-			p_i.atom_index = nearest_atom_index;
-			p_i.model_number = SelAtom.atom_selection[i]->GetModelNum();
-			p_i.imol = imol;
-			p_i.min_dist = dist;
-
-			if (verbose_mode) {
-			   std::cout << "   DEBUG:: imol " << imol << " "
-				     << " atom index " << nearest_atom_index << std::endl;
-			   std::cout << "   DEBUG:: imol " << imol << " "
-				     << SelAtom.atom_selection[i] << " " << min_dist
-				     << std::endl;
-			}
-		     }
-		  }
-	       } else {
-		  if (verbose_mode) {
-		     std::cout << "CA pick mode:" << std::endl;
-		  }
-	       }
-	    }
-	 }
+                        if (verbose_mode) {
+                           std::cout << "   DEBUG:: imol " << imol << " "
+                           << " atom index " << nearest_atom_index << std::endl;
+                           std::cout << "   DEBUG:: imol " << imol << " "
+                           << SelAtom.atom_selection[i] << " " << min_dist
+                           << std::endl;
+                        }
+                     }
+                  }
+               } else {
+                  if (verbose_mode) {
+                     std::cout << "CA pick mode:" << std::endl;
+                  }
+               }
+            }
+         }
       }
    }
    return p_i;

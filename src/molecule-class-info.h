@@ -3377,7 +3377,6 @@ public:        //                      public
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 
-   Shader shader;
 };
 
 #endif // MOLECULE_CLASS_INFO_T

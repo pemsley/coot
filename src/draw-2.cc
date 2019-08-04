@@ -56,6 +56,10 @@ void init_central_cube_shaders() {
 
 void init_shaders() {
    graphics_info_t::shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   graphics_info_t::shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
+   graphics_info_t::shader_for_central_cube.init("model.shader", Shader::Entity_t::INFRASTRUCTURE);
+   graphics_info_t::shader_for_origin_cube.init("model.shader", Shader::Entity_t::INFRASTRUCTURE);
+
 }
 
 void init_central_cube();
@@ -280,12 +284,22 @@ void draw_map_molecules() {
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
 
-            glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
+            glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-            glUniformMatrix4fv(graphics_info_t::view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
+            glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
+
+            GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
+            glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+            glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+            err = glGetError();
+            if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+
+            GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
+            glm::vec4 ep = new_unproject(0,0,-1);
+            glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
             // glDrawElements() uses a vertex count, not n indices, needs checking
             glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
@@ -306,6 +320,7 @@ draw_model_molecules() {
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
+   Shader &shader = graphics_info_t::shader_for_models; // uses uniform map
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       const molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
@@ -316,7 +331,7 @@ draw_model_molecules() {
                    << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
       if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
          // OOps - every model has its own shader - that's a mistake
-         GLuint pid = graphics_info_t::molecules[ii].shader.get_program_id();
+         GLuint pid = shader.get_program_id();
          glUseProgram(pid);
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
@@ -332,9 +347,8 @@ draw_model_molecules() {
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_model_ID);
          err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() i " << err << std::endl;
 
-         GLuint mvp_location = graphics_info_t::molecules[ii].shader.mvp_uniform_location;
-         GLuint view_rotation_location = graphics_info_t::molecules[ii].shader.view_rotation_uniform_location;
-         // std::cout << "  draw_model_molecules() locations " << mvp_location << " " << view_rotation_location << std::endl;
+         GLuint mvp_location           = graphics_info_t::shader_for_models.mvp_uniform_location;
+         GLuint view_rotation_location = graphics_info_t::shader_for_models.view_rotation_uniform_location;
 
          glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
          err = glGetError();
@@ -343,13 +357,13 @@ draw_model_molecules() {
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
 
-         GLuint background_colour_uniform_location = graphics_info_t::molecules[ii].shader.background_colour_uniform_location;
+         GLuint background_colour_uniform_location = graphics_info_t::shader_for_models.background_colour_uniform_location;
          glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
          glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
-         GLuint eye_position_uniform_location = m.shader.eye_position_uniform_location;
+         GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
          glm::vec4 ep = new_unproject(0,0,-1);
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
@@ -649,8 +663,8 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
-   if (event->state == GDK_BUTTON2_MASK) {
-      std::cout << "Button 2 released" << std::endl;
+   std::cout << "Button 2 released" << std::endl;
+   if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
       pick_info nearest_atom_index_info = atom_pick_gtk3(event);
       double delta_x = g.GetMouseClickedX() - event->x;
