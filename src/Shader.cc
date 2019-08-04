@@ -57,14 +57,32 @@ Shader::set_attribute_locations() {
    }
 }
 
+unsigned int
+Shader::glGetUniformLocation_internal(const std::string &key) {
+
+   // don't ask the hardware about the location of the uniform if we
+   // have asked before.
+
+   std::map<std::string, GLuint>::const_iterator it = uniform_location_map.find(key);
+   if (it != uniform_location_map.end()) {
+      return it->second;
+   } else {
+      GLuint l = glGetUniformLocation(program_id, key.c_str());
+      uniform_location_map[key] = l;
+      return l;
+   }
+}
+
 void Shader::set_uniform_locations() {
    GLuint err;
-   mvp_uniform_location           = glGetUniformLocation(program_id, "mvp");
+   mvp_uniform_location           = glGetUniformLocation_internal("mvp");
    err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
-   view_rotation_uniform_location = glGetUniformLocation(program_id, "view_rotation");
+   view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
    err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2: " << err << std::endl;
-   background_colour_uniform_location = glGetUniformLocation(program_id, "background_colour");
+   background_colour_uniform_location = glGetUniformLocation_internal("background_colour");
    err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
+   eye_position_uniform_location = glGetUniformLocation_internal("eye_position");
+   err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
    std::cout << "debug:: set_uniform_locations() " << mvp_uniform_location << " " << view_rotation_uniform_location
              << " " << background_colour_uniform_location << std::endl;
 }

@@ -162,6 +162,37 @@ glm::mat4 get_molecule_mvp() {
    return mvp;
 }
 
+glm::vec4 new_unproject(float z) {
+   // z is 1 and -1 for front and back (or vice verse).
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   graphics_info_t g;
+   float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
+   float mouseY = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   float real_y = - mouseY; // in range -1 -> 1
+   glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, z, 1.0f);
+   glm::vec4 worldPos_f = vp_inv * screenPos_f;
+   return worldPos_f;
+}
+
+
+glm::vec4 new_unproject(float x, float y, float z) {
+   // z is 1 and -1 for front and back (or vice verse).
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   glm::vec4 screenPos_f = glm::vec4(x, y, z, 1.0f); // maybe +1
+   glm::vec4 worldPos_f = vp_inv * screenPos_f;
+   return worldPos_f;
+}
+
 glm::mat4 get_view_rotation() {
 
    // need to be in the correct program
@@ -220,11 +251,15 @@ void draw_map_molecules() {
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
-            glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
+            GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
+            glm::vec4 ep = new_unproject(0,0,-1);
+            glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+
+            glDrawElements(GL_LINES, m.n_vertices_for_VertexArray,
                            GL_UNSIGNED_INT, nullptr);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glDrawElements() n_vertices: "
-                               << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
+                               << m.n_vertices_for_VertexArray
                                << " with GL err " << err << std::endl;
          }
 
@@ -272,6 +307,7 @@ draw_model_molecules() {
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+      const molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
       if (! graphics_info_t::molecules[ii].draw_it) continue;
 
@@ -312,6 +348,10 @@ draw_model_molecules() {
          glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
+
+         GLuint eye_position_uniform_location = m.shader.eye_position_uniform_location;
+         glm::vec4 ep = new_unproject(0,0,-1);
+         glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;

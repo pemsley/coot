@@ -10,6 +10,7 @@ layout(location = 2) in vec4 colour;
 uniform mat4 mvp;
 uniform mat4 view_rotation;
 uniform vec4 background_colour;
+uniform vec4 eye_position;
 
 out vec3 frag_pos;
 out vec3 Normal;
