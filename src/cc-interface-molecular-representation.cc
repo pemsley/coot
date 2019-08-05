@@ -63,6 +63,26 @@ void remove_molecular_representation(int imol, int rep_no) {
    }
 }
 
+#include "cc-interface.hh"
+
+void add_molecular_representation_test() {
+
+   int status = -1;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+   if (active_atom.first) {
+      int imol = active_atom.second.first;
+      std::cout << "Ribbons on molecule " << imol << std::endl;
+      if (is_valid_model_molecule(imol)) {
+         std::string atom_selection = "//A";
+         std::string ColorScheme = "colorRampChainsScheme";
+         std::string style = "Ribbon";
+         status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+      }
+   }
+
+}
+
+
 
 
 

@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include <mmdb2/mmdb_manager.h> 
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
 
 #include "coords/mmdb-extras.h"
@@ -16,14 +16,21 @@
 coot::Cartesian unproject(float screen_z);
 coot::Cartesian unproject_xyz(int x, int y, float screen_z);
 
-class pick_info { 
- public:
-  int success; 
-  int model_number;
-  int atom_index;
-  int imol;
-  float min_dist;
-}; 
+class pick_info {
+   public:
+   int success;
+   int model_number;
+   int atom_index;
+   int imol;
+   float min_dist;
+   pick_info() {
+      success = GL_FALSE;
+      min_dist = 0;
+      atom_index = -1;
+      imol = -1;
+      model_number = -1;
+   }
+};
 
 // this is a class, because it contains a class (symm_trans_t)
 //
@@ -40,34 +47,34 @@ class symm_atom_info_t {
 
 };
 
-namespace coot { 
-  class clip_hybrid_atom { 
+namespace coot {
+  class clip_hybrid_atom {
   public:
     mmdb::Atom *atom;
     // clipper::Coord_orth pos;
     coot::Cartesian pos;
     clip_hybrid_atom() { atom = NULL; }
-    clip_hybrid_atom(mmdb::Atom *mmdb_atom_p, const coot::Cartesian &p) { 
+    clip_hybrid_atom(mmdb::Atom *mmdb_atom_p, const coot::Cartesian &p) {
       atom = mmdb_atom_p;
       pos = p;
-    } 
+    }
   };
 
-  class Symm_Atom_Pick_Info_t { 
-  public: 
-    int success;
-    int atom_index;
-    int imol; 
-    clip_hybrid_atom hybrid_atom;
-    symm_trans_t symm_trans; 
-    Cell_Translation pre_shift_to_origin; 
-    Symm_Atom_Pick_Info_t() {
-      success = 0;
-      symm_trans = symm_trans_t(-1, -999, -999, -999);
-    }
-    clip_hybrid_atom Hyb_atom() const { 
-      return hybrid_atom;
-    }
+  class Symm_Atom_Pick_Info_t {
+  public:
+     int success;
+     int atom_index;
+     int imol;
+     clip_hybrid_atom hybrid_atom;
+     symm_trans_t symm_trans;
+     Cell_Translation pre_shift_to_origin;
+     Symm_Atom_Pick_Info_t() {
+       success = 0;
+       symm_trans = symm_trans_t(-1, -999, -999, -999);
+     }
+     clip_hybrid_atom Hyb_atom() const {
+       return hybrid_atom;
+     }
   };
 
 }
@@ -78,10 +85,13 @@ enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND, PICK_ATOM_
 // a NULL event can be passed - in that case the check for CTRL press is not made.
 pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
 
+
+pick_info atom_pick_gtk3(GdkEventButton *event);
+
 // pick_info moving_atoms_atom_pick(); not here, it's in graphics.
 
-pick_info pick_atom(const atom_selection_container_t &SelAtom, int imol,
-		    const coot::Cartesian &front, const coot::Cartesian &back, 
+pick_info pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imol,
+		    const coot::Cartesian &front, const coot::Cartesian &back,
 		    short int pick_mode, bool verbose_mode);
 
 pick_info pick_intermediate_atom(const atom_selection_container_t &SelAtom);
@@ -97,7 +107,7 @@ std::string make_symm_atom_label_string(mmdb::PAtom atom, symm_trans_t symm_tran
 
 coot::Symm_Atom_Pick_Info_t symmetry_atom_pick();
 // used by symmetry_atom_pick():
-void 
+void
 fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_atoms, 
 		  const atom_selection_container_t &basc,
 		  const clipper::Spacegroup &spg, 

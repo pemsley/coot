@@ -97,13 +97,13 @@ bash fixup-interface.h.sh
 #    -e 's? GTK_WIDGET_SET_FLAGS ? // GTK_WIDGET_SET_FLAGS ?'
 #   -e 's? GTK_WIDGET_UNSET_FLAGS ? // GTK_WIDGET_UNSET_FLAGS ?' \
 #    -e 's? GTK_WIDGET_SET_FLAGS ? gtk_widget_set_can_default ?' \
- 
+
 # / GTK_WIDGET_SET_FLAGS .* GTK_CAN_DEFAULT / {print "  gtk_widget_set_can_default " $2, "1);" }
 
 #    -e 's? GLADE_HOOKUP_OBJECT_NO_REF ? // GLADE_HOOKUP_OBJECT_NO_REF tooltip thing?'
 
 # We don't care about old gtks now
 #    -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/'
-#    -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/' 
-#    -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' 
+#    -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/'
+#    -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/'
 

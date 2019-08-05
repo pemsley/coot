@@ -1,18 +1,18 @@
 # src/Makefile.am
-# 
+#
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
 # Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -97,7 +97,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
 	$(top_builddir)/cootilus/libcootilus.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
-	$(top_builddir)/compat/libcoot-compat.la  		
+	$(top_builddir)/compat/libcoot-compat.la
 
 
 
@@ -178,7 +178,7 @@ AM_CFLAGS = \
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)
 
-# must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 
+# must have GUILE and GUILE_GTK flags before $(INCLUDES), and this
 # does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.
 # But DEFAULT_INCLUDES is *before* INCLUDES
 # DEFAULT_INCLUDES = ... snip.  Rethink...
@@ -232,9 +232,9 @@ AM_CPPFLAGS = \
 	$(WITH_SOUND)                   \
 	$(VORBISFILE_CFLAGS)            \
 	$(SQLITE3_CFLAGS)               \
-	$(CURL_CFLAGS)                 
+	$(CURL_CFLAGS)
 
-#	$(WITH_SCRIPT_CFLAGS) 
+#	$(WITH_SCRIPT_CFLAGS)
 
 pkginclude_HEADERS = crunch-model.hh
 
@@ -269,7 +269,7 @@ libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin \
 bin_PROGRAMS =  coot-fix-nomenclature-errors
 endif
 dist_bin_SCRIPTS = coot coot-density-score-by-residue dynarama
-check_PROGRAMS = test-coot-align test-cholesky 
+check_PROGRAMS = test-coot-align test-cholesky
 
 coot_fix_nomenclature_errors_SOURCES = \
 	fix-nomenclature.cc    \
@@ -492,11 +492,12 @@ coot_bin_SOURCES = \
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-mol-tris.cc 	\
 	molecule-class-info-widget-work.cc \
+	molecule-class-info-geometry.cc \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
 	pisa-interface.hh	 \
-        pick.h pick.cc		 \
+        pick.hh pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
 	probe-clash-score.cc     \
@@ -525,14 +526,15 @@ coot_bin_SOURCES = \
 	sequence-view.cc         \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
+	Shader.cc Shader.hh      \
 	startup-scripts.hh       \
-	support.c support.h 	 \
+	support.c support.h      \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \
 	trackball.c trackball.h  \
-	triangle-extras.h 	 \
+	triangle-extras.h        \
 	select-atom-info.hh      \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
@@ -652,7 +654,7 @@ test_cholesky_LDADD =	\
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc
-# testmap_LDADD = $(COOT_EXTRA_LIBS) $(SURFACE_LIB) $(CLIPPER_LIBS) 
+# testmap_LDADD = $(COOT_EXTRA_LIBS) $(SURFACE_LIB) $(CLIPPER_LIBS)
 
 
 #write_map_SOURCES = write-map.cc xmap-interface.cc
@@ -661,7 +663,7 @@ test_cholesky_LDADD =	\
 
 
 # test_command_line_SOURCES = test-command-line.cc
-# test_command_line_LDADD = -L$(top_srcdir)/compat      -lcoot-compat    
+# test_command_line_LDADD = -L$(top_srcdir)/compat      -lcoot-compat
 
 # if you like, you can investigate why coot-geometry and clipper is needed here:
 test_coot_align_SOURCES = align.cc coot-align.cc

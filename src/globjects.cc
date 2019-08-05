@@ -88,8 +88,6 @@
 
 #include "graphics-info.h"
 
-#include "pick.h"
-
 #include "gl-matrix.h"
 
 // #include "xmap-interface.h" // is this necessary? nope
@@ -518,8 +516,8 @@ GtkWidget *graphics_info_t::statusbar = NULL;
 guint      graphics_info_t::statusbar_context_id = 0;
 std::string graphics_info_t::main_window_title;
 
-float graphics_info_t::clipping_front = 0.0;
-float graphics_info_t::clipping_back  = 0.0;
+float graphics_info_t::clipping_front = -7.0;
+float graphics_info_t::clipping_back  = -6.0;
 
 //
 int       graphics_info_t::atom_label_font_size = 2; // medium
@@ -546,7 +544,7 @@ short int graphics_info_t::swap_difference_map_colours = 0; // default: not in J
 
 // No idle functions to start (but setting them to zero doesn't set that - the
 // idle functions are added by gtk_idle_add()).
-int   graphics_info_t::idle_function_spin_rock_token = 0;
+int   graphics_info_t::idle_function_spin_rock_token = -1; // magic "unset" value
 long  graphics_info_t::time_holder_for_rocking = 0;
 double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
@@ -868,7 +866,8 @@ coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Ca
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
-float* graphics_info_t::background_colour = new float[4];
+float grey_level = 0.24;
+glm::vec3 graphics_info_t::background_colour = glm::vec3(grey_level, grey_level, grey_level);
 
 //
 short int graphics_info_t::delete_item_atom = 0;
@@ -1417,10 +1416,8 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
 std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
-#endif
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 // --------------------------------------------------------------------------------------------
@@ -1433,6 +1430,16 @@ GLuint graphics_info_t::programID_for_central_cube = 0;
 GLuint graphics_info_t::central_cube_vertexarray_id = 0;
 GLuint graphics_info_t::central_cube_array_buffer_id = 0;
 GLuint graphics_info_t::central_cube_index_buffer_id = 0;
+// GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
+//programID_for_central_cube should be
+Shader graphics_info_t::shader_for_maps;
+Shader graphics_info_t::shader_for_models;
+Shader graphics_info_t::shader_for_central_cube;
+Shader graphics_info_t::shader_for_origin_cube;
+std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
+long graphics_info_t::frame_counter = 0;
+long graphics_info_t::frame_counter_at_last_display = 0;
+
 // --------------------------------------------------------------------------------------------
 
 
@@ -1734,14 +1741,6 @@ init(GtkWidget *widget)
 
    graphics_info_t g;
 
-   if (g.background_colour == NULL) {
-      g.background_colour = new float[4];
-      g.background_colour[0] = 0.0;
-      g.background_colour[1] = 0.0;
-      g.background_colour[2] = 0.0;
-      g.background_colour[3] = 1.0;
-   }
-
    // The cosine->sine lookup table, used in picking.
    //
    // The data in it are static, so we can get to them anywhere
@@ -1791,7 +1790,7 @@ init_gl_widget(GtkWidget *widget) {
    // glFogf(GL_FOG_START, 0.0);
    glFogf(GL_FOG_END, 20.0);
 
-   glFogfv(GL_FOG_COLOR, g.background_colour);
+   // glFogfv(GL_FOG_COLOR, g.background_colour);
 
    // Exponential fog
    //
@@ -2598,14 +2597,15 @@ void
 adjust_clipping(double d) {
 
    if (d>0) {
-      if (graphics_info_t::clipping_back < 15.0) {
-	 set_clipping_front(graphics_info_t::clipping_front + d);
-	 set_clipping_back (graphics_info_t::clipping_front + d);
+      // I am not sure that this limit does any good these days
+      if (graphics_info_t::clipping_back < 65.0) {
+         set_clipping_front(graphics_info_t::clipping_front + d);
+         set_clipping_back (graphics_info_t::clipping_front + d);
       }
    } else {
-      if (graphics_info_t::clipping_back > -15.2) {
-	 set_clipping_front(graphics_info_t::clipping_front + d);
-	 set_clipping_back (graphics_info_t::clipping_front + d);
+      if (graphics_info_t::clipping_back > -65.2) {
+         set_clipping_front(graphics_info_t::clipping_front + d);
+         set_clipping_back (graphics_info_t::clipping_front + d);
       }
    }
 }
@@ -3553,7 +3553,7 @@ gint idle_contour_function(gpointer data) {
          }
       }
    }
-   std::cout << "Here with something_changed: " << something_changed << std::endl;
+   // std::cout << "Here with something_changed: " << something_changed << std::endl;
 
    // is this needed?
    if (something_changed)
@@ -3849,7 +3849,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 	    int im = nearest_atom_index_info.imol;
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+	    mmdb::Residue     *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
 	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
 	    info.setup_graphics_ligand_view(im, r, alt_conf);
 	 } else {

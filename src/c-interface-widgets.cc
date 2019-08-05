@@ -1,20 +1,20 @@
 /* src/c-interface-build.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
  * Copyright 2007 by the University of Oxford
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -43,13 +43,13 @@
 
 #include "generic-display-objects-c.h"
 
-void do_rot_trans_adjustments(GtkWidget *dialog) { 
+void do_rot_trans_adjustments(GtkWidget *dialog) {
    graphics_info_t g;
    g.do_rot_trans_adjustments(dialog);
 }
 
 short int delete_item_widget_is_being_shown() {
-   short int r = 0; 
+   short int r = 0;
    if (graphics_info_t::delete_item_widget != NULL) {
       r = 1;
    }
@@ -58,7 +58,7 @@ short int delete_item_widget_is_being_shown() {
 
 short int delete_item_widget_keep_active_on() {
    short int r = 0;
-   if (delete_item_widget_is_being_shown()) { 
+   if (delete_item_widget_is_being_shown()) {
       GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
 					     "delete_item_keep_active_checkbutton");
       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton))) {
@@ -100,7 +100,7 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
    std::cout << "needs to set widget data imol " << std::endl;
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
 
-   if (is_valid_map_molecule(imol)) { 
+   if (is_valid_map_molecule(imol)) {
       GtkToggleButton *toggle_button =
 	 GTK_TOGGLE_BUTTON(lookup_widget(w, "single_map_properties_sigma_radiobutton"));
 
@@ -118,9 +118,9 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
 #include "remarks-browser-gtk-widgets.hh"
 
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
-void remarks_dialog(int imol) { 
+void remarks_dialog(int imol) {
 
-   if (graphics_info_t::use_graphics_interface_flag) { 
+   if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_model_molecule(imol)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 if (mol) {
@@ -131,7 +131,7 @@ void remarks_dialog(int imol) {
 	    // is this correct!?
 	    // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
 	    GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
-	    GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+	    GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 						  GTK_WIDGET(vbox_inner));
@@ -150,7 +150,7 @@ void remarks_dialog(int imol) {
 	    mmdb::TitleContainer *tc_p = mol->GetRemarks();
 	    int l = tc_p->Length();
 	    std::map<int, std::vector<std::string> > remarks;
-	    for (int i=0; i<l; i++) { 
+	    for (int i=0; i<l; i++) {
 	       mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	       int rn = cr->remarkNum;
 	       std::string s = cr->remark;
@@ -158,7 +158,7 @@ void remarks_dialog(int imol) {
 	    }
 	    if (! remarks.size()) {
 	       info_dialog("WARNING:: No REMARKS");
-	    } else { 
+	    } else {
 
 	       std::map<int, std::vector<std::string> >::const_iterator it;
 	       for (it=remarks.begin(); it != remarks.end(); it++) {
@@ -180,11 +180,11 @@ void remarks_dialog(int imol) {
 		  gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
 		  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
-		  GdkColor colour = remark_number_to_colour(it->first); 
+		  GdkColor colour = remark_number_to_colour(it->first);
 		  gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
 		  GtkTextIter end_iter;
-		  for (unsigned int itext=0; itext<it->second.size(); itext++) { 
+		  for (unsigned int itext=0; itext<it->second.size(); itext++) {
 		     gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
 		     std::string s = it->second[itext];
 		     s += "\n";
@@ -196,14 +196,14 @@ void remarks_dialog(int imol) {
 	       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
 	       GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(d));
 	       gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
-	       
+
 	       g_signal_connect(G_OBJECT(close_button), "clicked",
 				G_CALLBACK(on_remarks_dialog_close_button_clicked), NULL);
 	       gtk_widget_show(close_button);
 	       gtk_widget_set_size_request(d, 500, 400);
 	       gtk_widget_show(d);
 	    }
-	 } 
+	 }
       }
    }
 }
@@ -247,12 +247,12 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       GdkColor colour;
       colour.red   = 65535;
       colour.green = 63535;
-      colour.blue  = 63535; 
-      colour.pixel = 65535; 
+      colour.blue  = 63535;
+      colour.pixel = 65535;
       gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
       GtkTextIter end_iter;
-      for (unsigned int itext=0; itext<compound_lines.size(); itext++) { 
+      for (unsigned int itext=0; itext<compound_lines.size(); itext++) {
 	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
 	 std::string s = compound_lines[itext];
 	 s += "\n";
@@ -465,18 +465,18 @@ GdkColor remark_number_to_colour(int remark_number) {
    GdkColor colour;
    colour.red   = 65535;
    colour.green = 65535;
-   colour.blue  = 65535; 
-   colour.pixel = 65535; 
-   if (remark_number == 2) { 
+   colour.blue  = 65535;
+   colour.pixel = 65535;
+   if (remark_number == 2) {
       colour.blue  = 60000;
    }
-   if (remark_number == 3) { 
+   if (remark_number == 3) {
       colour.red   = 60000;
    }
-   if (remark_number == 4) { 
+   if (remark_number == 4) {
       colour.green  = 60000;
    }
-   if (remark_number == 5) { 
+   if (remark_number == 5) {
       colour.green = 62000;
       colour.blue  = 62000;
    }
@@ -488,12 +488,12 @@ GdkColor remark_number_to_colour(int remark_number) {
       colour.green  = 61000;
       colour.blue   = 61500;
    }
-   if (remark_number == 465) { 
+   if (remark_number == 465) {
       colour.blue   = 60000;
       colour.green  = 60000;
    }
    return colour;
-} 
+}
 
 
 void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
@@ -513,14 +513,14 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 
       // is this correct?
       GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
-      GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+      GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
       GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					    GTK_WIDGET(vbox_inner));
       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
       gtk_widget_show(scrolled_window);
       gtk_widget_show(vbox_inner);
-      
+
       GtkWidget *text_widget = gtk_text_view_new ();
       gtk_widget_show (text_widget);
       gtk_container_add (GTK_CONTAINER (vbox_inner), text_widget);
@@ -536,7 +536,7 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
        g_signal_connect(G_OBJECT(close_button), "clicked",
  		       G_CALLBACK(on_simple_text_dialog_close_button_pressed),
  		       (gpointer) d);
-      
+
       gtk_widget_show(d);
 
    }
@@ -546,7 +546,7 @@ void clear_generic_objects_dialog_pointer() {
 
    graphics_info_t g;
    g.generic_objects_dialog = NULL;
-} 
+}
 
 /* Donna's request to do the counts in the Mutate Residue range dialog */
 void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,

@@ -482,23 +482,11 @@ void set_convert_to_v2_atom_names(short int state) {
 }
 
 
-// get rid of this at some stage
-void init_other_buffers();
-
-
 int handle_read_draw_molecule_with_recentre(const char *filename,
 					   int recentre_on_read_pdb_flag) {
 
    int r = -1;
    //
-
-
-   std::cout << "handle_read_draw_molecule: handling ----------  " << filename << std::endl;
-
-   // there is no scritping :-)
-   graphics_info_t::draw_the_other_things = true;
-   init_other_buffers();
-   gtk_widget_queue_draw(graphics_info_t::glarea);
 
    graphics_info_t g;
    if (! filename)
@@ -2112,18 +2100,15 @@ handle_symmetry_colour_change(int mol, gdouble* col) {
    graphics_draw();
 }
 
-gdouble*
+GdkRGBA
 get_map_colour(int imol) {
 
    //
-   gdouble* colour;
-   colour = (gdouble *) malloc(4*sizeof(gdouble));
+   GdkRGBA colour;
 
    if (imol < graphics_info_t::n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
-	 colour[0] = graphics_info_t::molecules[imol].map_colour[0][0];
-	 colour[1] = graphics_info_t::molecules[imol].map_colour[0][1];
-	 colour[2] = graphics_info_t::molecules[imol].map_colour[0][2];
+         colour = graphics_info_t::molecules[imol].map_colour;
       }
    }
    std::string cmd = "get-map-colour";
@@ -2131,6 +2116,26 @@ get_map_colour(int imol) {
    args.push_back(imol);
    add_to_history_typed(cmd, args);
    return colour;
+}
+
+
+void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
+                                                     gint       response_id,
+                                                     gpointer   user_data) {
+   if (response_id == GTK_RESPONSE_OK) {
+      GdkRGBA color;
+      gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER (dialog), &color);
+      // gtk_widget_queue_draw();
+      struct map_colour_data_type *cd = static_cast<struct map_colour_data_type *>(user_data);
+      int imol = cd->imol;
+      if (is_valid_map_molecule(imol)) {
+         std::cout << "Do something\n";
+         // set graphics::molecules[imol].map_colour
+         graphics_info_t::molecules[imol].set_map_colour(color);
+         graphics_draw();
+      }
+   }
+   gtk_widget_destroy (GTK_WIDGET (dialog));
 }
 
 //! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
@@ -6689,7 +6694,7 @@ GtkWidget *wrapped_create_run_state_file_dialog() {
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
-      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+      // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);
    }

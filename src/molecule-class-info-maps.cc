@@ -343,10 +343,14 @@ molecule_class_info_t::update_map_internal() {
 void
 molecule_class_info_t::set_draw_solid_density_surface(bool state) {
 
-   draw_it_for_solid_density_surface = state;
-   if (state) {
-      update_map(); // gets solid triangles too.
-   }
+   // is this function needed now?
+
+   if (state)
+      draw_it_for_map_standard_lines = false;
+   else
+      draw_it_for_map_standard_lines = true;
+
+   update_map(); // gets solid triangles too.
 }
 
 
@@ -524,7 +528,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	    if (draw_vector_sets.size() > 0) {
 
-	       glColor3dv (map_colour[0]);
+	       // glColor3dv (map_colour[0]);
 	       glLineWidth(graphics_info_t::map_line_width);
 
 	       glBegin(GL_LINES);
@@ -560,7 +564,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
 	       if (n_diff_map_draw_vectors > 0) {
 
-		  glColor3dv (map_colour[1]);
+		  // glColor3dv (map_colour[1]);
 		  // we only need to do this if it wasn't done above.
 		  // if (n_draw_vectors == 0)
 
@@ -654,17 +658,15 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
-      if (! draw_it_for_solid_density_surface) {
 
+      if (false) {
+         // keep this because it uses threads for contouring
 	      clear_draw_vecs();
-
 	      std::vector<std::thread> threads;
 	      int n_reams = coot::get_max_number_of_threads();
-
       	for (int ii=0; ii<n_reams; ii++) {
 	         int iream_start = ii;
 	         int iream_end   = ii+1;
-
 	         threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
 					  &xmap,
 					  contour_level, dy_radius, centre,
@@ -688,7 +690,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             set_diff_map_draw_vecs(v.data, v.size);
       }
 
-      if (draw_it_for_solid_density_surface) {
+      if (true) {
          tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
             contour_level, dy_radius, centre, isample_step);
 
@@ -698,8 +700,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
                   dy_radius, centre,
                   isample_step);
          }
-         //std::cout << "Pre-setup_glsl_map_rendering() tricon.points size "
-         //          << tri_con.points.size() << std::endl;
          setup_glsl_map_rendering(); // turn tri_con into buffers.
       }
    }
@@ -784,12 +784,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       }
 
       // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
-      n_map_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
+      n_vertices_for_map_VertexArray = 6 * tri_con.point_indices.size();
+      // That's wrong I think, let me try again
+      // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
       n_indices_for_triangles    = 3 * tri_con.point_indices.size();
 
       // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
 
-      int *indices = new int[n_map_vertices_for_VertexArray];
+      int *indices = new int[n_vertices_for_map_VertexArray];
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
          indices[6*i  ] = tri_con.point_indices[i].pointID[0];
          indices[6*i+1] = tri_con.point_indices[i].pointID[1];
@@ -815,26 +817,27 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          normals[3*i+2] = tri_con.normals[i].z();
       }
 
-      int n_colours = n_indices_for_triangles;
+      int n_colours = n_vertices_for_map_VertexArray;
       float *colours = new float[4 * n_colours];
+      // check here for difference map to to the colours
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-         colours[4*i  ] = 0.5f;
-         colours[4*i+1] = 0.6f;
-         colours[4*i+2] = 0.7f;
+         colours[4*i  ] = map_colour.red;
+         colours[4*i+1] = map_colour.green;
+         colours[4*i+2] = map_colour.blue;
          colours[4*i+3] = 1.0f;
       }
 
       // why is this needed?
       gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 
-      glGenVertexArrays(1, &m_VertexArrayID);
+      glGenVertexArrays(1, &m_VertexArrayID_for_map);
       GLenum err = glGetError();
       std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
-		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
-      glBindVertexArray(m_VertexArrayID);
+		          << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
+      glBindVertexArray(m_VertexArrayID_for_map);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
-                << " for m_VertexArrayID " << m_VertexArrayID << std::endl;
+                << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
 
       // positions
       glGenBuffers(1, &m_VertexBufferID);
@@ -892,7 +895,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
 
-      
+
       // unsigned int ibo;
       glGenBuffers(1, &m_IndexBufferID);
       err = glGetError();
@@ -900,7 +903,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_map_vertices_for_VertexArray,
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_map_VertexArray,
 		   &indices[0], GL_STATIC_DRAW);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
@@ -913,16 +916,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-		   &indices_for_triangles[0], GL_STATIC_DRAW);
+		             &indices_for_triangles[0], GL_STATIC_DRAW);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
-
-      // test
-
-      glBindVertexArray(m_VertexArrayID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() again try glBindVertexArray() " << err
-		<< " for m_VertexArrayID " << m_VertexArrayID << std::endl;
 
       delete [] points;
       delete [] indices;
@@ -933,7 +929,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
    std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------"
-             << n_map_vertices_for_VertexArray << std::endl;
+             << n_vertices_for_map_VertexArray << std::endl;
 
 }
 
@@ -946,56 +942,55 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
       return; //
 
    if (draw_it_for_map) {
-      if (draw_it_for_solid_density_surface) {
+      if (true) {
 
-	 coot::Cartesian front = unproject(0.0);
-	 coot::Cartesian back  = unproject(1.0);
+         coot::Cartesian front = unproject(0.0);
+         coot::Cartesian back  = unproject(1.0);
 
-	 glEnable(GL_LIGHTING);
-	 glEnable(GL_LIGHT0);
-	 glEnable(GL_LIGHT1);
-	 // glEnable(GL_LIGHT2); // OK, for maps
-	 glEnable (GL_BLEND);
-	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+         glEnable(GL_LIGHTING);
+         glEnable(GL_LIGHT0);
+         glEnable(GL_LIGHT1);
+         // glEnable(GL_LIGHT2); // OK, for maps
+         glEnable (GL_BLEND);
+         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	 if (density_surface_opacity < 1.0) {
-	    clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
-	    clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
-	    tri_con.depth_sort(back_cl, front_cl);
-	    // std::cout << " sorted" << std::endl;
-	    if (xmap_is_diff_map)
-	       tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
-	 } else {
+         if (density_surface_opacity < 1.0) {
+            clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
+            clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
+            tri_con.depth_sort(back_cl, front_cl);
+            // std::cout << " sorted" << std::endl;
+            if (xmap_is_diff_map)
+            tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
+         } else {
 
-	    // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
+            // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
 
-	 }
+         }
 
-	 // solid_mode is 1 for density maps represented without
-	 // density lines - typically for representation of EM maps
-	 // and smooth shaded.  The lighting needs to be more ambient
-	 // and the material surface has colour (shared with the
-	 // colour of the map lines).
+         // solid_mode is 1 for density maps represented without
+         // density lines - typically for representation of EM maps
+         // and smooth shaded.  The lighting needs to be more ambient
+         // and the material surface has colour (shared with the
+         // colour of the map lines).
 
-	 bool solid_mode = ! do_flat_shading;
+         bool solid_mode = ! do_flat_shading;
 
-	 setup_density_surface_material(solid_mode, density_surface_opacity);
+         setup_density_surface_material(solid_mode, density_surface_opacity);
 
-	 glEnable(GL_POLYGON_OFFSET_FILL);
-	 glPolygonOffset(2.0, 2.0);
-	 glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
-	 display_solid_surface_triangles(tri_con, do_flat_shading);
+         glEnable(GL_POLYGON_OFFSET_FILL);
+         glPolygonOffset(2.0, 2.0);
+         glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
+         display_solid_surface_triangles(tri_con, do_flat_shading);
 
-	 if (xmap_is_diff_map) {
-	    bool is_neg = 1;
-	    setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
-	    display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
-	 }
+         if (xmap_is_diff_map) {
+            bool is_neg = 1;
+            setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
+            display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
+         }
 
-	 glDisable(GL_POLYGON_OFFSET_FILL);
-	 glDisable(GL_LIGHT2);
-	 glDisable(GL_LIGHTING);
-
+         glDisable(GL_POLYGON_OFFSET_FILL);
+         glDisable(GL_LIGHT2);
+         glDisable(GL_LIGHTING);
       }
    }
 }
@@ -1132,13 +1127,12 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       // narrowing from doubles to floats (there is no glMaterialdv).
 
       GLfloat  mat_specular[]  = {0.6f,  0.6f,  0.6f,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
-				  float(0.3*map_colour[0][1]),
-				  float(0.3*map_colour[0][2]),
-				  opacity};
-      GLfloat  mat_diffuse[]   = {float(map_colour[0][0]),
-				  float(map_colour[0][1]),
-				  float(map_colour[0][2]), opacity};
+      GLfloat  mat_ambient[]   = {float(0.3*map_colour.red),
+				                      float(0.3*map_colour.green),
+				                      float(0.3*map_colour.blue), opacity};
+      GLfloat  mat_diffuse[]   = {float(map_colour.red),
+				                      float(map_colour.green),
+				                      float(map_colour.blue), opacity};
       GLfloat  mat_shininess[] = {100}; // makes a difference
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
@@ -1147,15 +1141,15 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
       if (is_neg) {
-	 // override
-	 GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
-	 GLfloat  mat_ambient[]   = {float(0.3*map_colour[1][0]),
-				     float(0.3*map_colour[1][1]),
-				     float(0.3*map_colour[1][2]), opacity};
-	 GLfloat  mat_diffuse[]   = {float(map_colour[1][0]),
-				     float(map_colour[1][1]),
-				     float(map_colour[1][2]), opacity};
-	 GLfloat  mat_shininess[] = {100};
+	      // override
+         GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
+         GLfloat  mat_ambient[]   = {float(0.3*map_colour_negative_level.red),
+                                     float(0.3*map_colour_negative_level.green),
+				                         float(0.3*map_colour_negative_level.blue), opacity};
+	      GLfloat  mat_diffuse[]   = {float(map_colour.red),
+				                         float(map_colour.green),
+				                         float(map_colour.blue), opacity};
+	      GLfloat  mat_shininess[] = {100};
 
 // 	 std::cout << " is_neg with map_colour: "
 // 		   << map_colour[1][0] << " "
@@ -1163,97 +1157,13 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 // 		   << map_colour[1][2] << " "
 // 		   << std::endl;
 
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
       }
-
-
-   } else {
-
-      // cut glass mode:
-      int shinyness = 128;
-
-      bool less_shiny = false; // testing
-
-      if (! less_shiny) { // so, shiny.
-
-	 GLfloat  ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	 GLfloat  diffuseLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	 GLfloat specularLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	 // Assign created components to GL_LIGHT2
-	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
-
-	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
-      } else {
-	 // can't assign to arrays.
-	 GLfloat ambientLight[]  = { 0.03, 0.3f, 0.3f, 1.0f };
-	 GLfloat diffuseLight[]  = { 0.6f, 0.6f, 0.6f, 1.0f };
-	 GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-	 shinyness = 8;
-	 // Assign created components to GL_LIGHT2
-	 glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
-	 glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
-	 glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
-
-	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
-      }
-
-      // glDisable(GL_COLOR_MATERIAL);
-
-      // the facets shine this colour
-      GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {0.160, 0.160, 0.160, opacity};
-      GLfloat  mat_diffuse[]   = {0.200, 0.2,   0.200, opacity}; // lit surface is this colour
-      GLfloat  mat_shininess[] = {120.0};                        // in the direction of the light.
-
-      // interesting and different
-      //
-      if (less_shiny) {
-	 mat_ambient[0] = 0.1*map_colour[0][0];
-	 mat_ambient[1] = 0.1*map_colour[0][1];
-	 mat_ambient[2] = 0.1*map_colour[0][2];
-	 mat_ambient[3] = opacity;
-	 mat_diffuse[0] = map_colour[0][0];
-	 mat_diffuse[1] = map_colour[0][1];
-	 mat_diffuse[2] = map_colour[0][2];
-	 mat_diffuse[3] = opacity;
-      }
-
-      if (is_difference_map_p()) {
-
-	 if (is_neg) {
-	    mat_ambient[0] = 0.03*map_colour[1][0];
-	    mat_ambient[1] = 0.03*map_colour[1][1];
-	    mat_ambient[2] = 0.03*map_colour[1][2];
-	    mat_ambient[3] = opacity;
-	    mat_diffuse[0] = map_colour[1][0];
-	    mat_diffuse[1] = map_colour[1][1];
-	    mat_diffuse[2] = map_colour[1][2];
-	    mat_diffuse[3] = opacity;
-	 } else {
-	    mat_ambient[0] = 0.3*map_colour[0][0];
-	    mat_ambient[1] = 0.3*map_colour[0][1];
-	    mat_ambient[2] = 0.3*map_colour[0][2];
-	    mat_ambient[3] = opacity;
-	    mat_diffuse[0] = map_colour[0][0];
-	    mat_diffuse[1] = map_colour[0][1];
-	    mat_diffuse[2] = map_colour[0][2];
-	    mat_diffuse[3] = opacity;
-	 }
-      }
-
-      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-      glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shinyness);
-
    }
-
 }
 
 
@@ -1757,23 +1667,16 @@ molecule_class_info_t::fix_anomalous_phases(clipper::HKL_data< clipper::datatype
 void
 molecule_class_info_t::save_previous_map_colour() {
 
-   if (has_xmap() || has_nxmap()) {
-      previous_map_colour.resize(3);
-      for (int i=0; i<3; i++)
-	 previous_map_colour[i] = map_colour[0][i];
-   }
+   if (has_xmap() || has_nxmap())
+      previous_map_colour = map_colour;
 }
 
 
 void
 molecule_class_info_t::restore_previous_map_colour() {
 
-   if (has_xmap() || has_nxmap()) {
-      if (previous_map_colour.size() == 3) {
-	 for (int i=0; i<3; i++)
-	    map_colour[0][i] = previous_map_colour[i];
-      }
-   }
+   if (has_xmap() || has_nxmap())
+	    map_colour = previous_map_colour;
    update_map();
 }
 
@@ -1784,16 +1687,16 @@ molecule_class_info_t::set_initial_contour_level() {
    float level = 1.0;
    if (xmap_is_diff_map) {
       if (map_sigma_ > 0.05) {
-	 level = nearest_step(map_mean_ +
+	      level = nearest_step(map_mean_ +
 			      graphics_info_t::default_sigma_level_for_fofc_map*map_sigma_, 0.01);
       } else {
-	 level = 3.0*map_sigma_;
+	      level = 3.0*map_sigma_;
       }
    } else {
       if (map_sigma_ > 0.05) {
-	 level = nearest_step(map_mean_ + graphics_info_t::default_sigma_level_for_map*map_sigma_, 0.01);
+	      level = nearest_step(map_mean_ + graphics_info_t::default_sigma_level_for_map*map_sigma_, 0.01);
       } else {
-	 level = graphics_info_t::default_sigma_level_for_map * map_sigma_;
+	      level = graphics_info_t::default_sigma_level_for_map * map_sigma_;
       }
    }
 
@@ -3456,13 +3359,13 @@ molecule_class_info_t::set_map_is_difference_map() {
       set_initial_contour_level();
       // and set the right colors
       if (graphics_info_t::swap_difference_map_colours != 1) {
-	map_colour[0][0] = 0.2;
-	map_colour[0][1] = 0.6;
-	map_colour[0][2] = 0.2;
+         map_colour.red   = 0.2;
+         map_colour.green = 0.6;
+         map_colour.blue  = 0.2;
       } else {
-	map_colour[0][0] = 0.6;
-	map_colour[0][1] = 0.2;
-	map_colour[0][2] = 0.2;
+         map_colour.red   = 0.6;
+         map_colour.green = 0.2;
+         map_colour.blue  = 0.2;
       }
       update_map();
    }
@@ -3972,9 +3875,9 @@ molecule_class_info_t::map_is_too_blue_p() const {
 
    if (has_xmap() || has_nxmap())
       if (! xmap_is_diff_map)
-	 if (map_colour[0][0] < 0.4)
-	    if (map_colour[0][1] < 0.4)
-	       state = 1;
+	      if (map_colour.red < 0.4)
+	         if (map_colour.green < 0.4)
+	            state = 1;
 
    std::cout << "Map is too blue: " << state << std::endl;
    return state;
@@ -4036,10 +3939,10 @@ molecule_class_info_t::map_statistics() const {
 
 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
 molecule_class_info_t::get_contours(float contour_level,
-				    float radius,
-				    const coot::Cartesian &centre) const {
+                                    float radius,
+                                    const coot::Cartesian &centre) const {
 
-   // who calls this function?
+      // who calls this function?
 
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > r;
 
@@ -4049,20 +3952,20 @@ molecule_class_info_t::get_contours(float contour_level,
    CIsoSurface<float> my_isosurface;
    // a pointer and a size
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-								       contour_level,
-								       radius, centre,
-								       0,1,1,
-								       isample_step, is_em_map_local);
+                                                                       contour_level,
+                                                                       radius, centre,
+                                                                       0,1,1,
+                                                                       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {
-	 r.resize(v.size);
-	 for (int i=0; i<v.size; i++) {
-	    coot::Cartesian s = v.data[i].getStart();
-	    coot::Cartesian f = v.data[i].getFinish();
-	    clipper::Coord_orth p1(s.x(), s.y(), s.z());
-	    clipper::Coord_orth p2(f.x(), f.y(), f.z());
-	    r[i]= std::pair<clipper::Coord_orth, clipper::Coord_orth>(p1,p2);
-	 }
+         r.resize(v.size);
+         for (int i=0; i<v.size; i++) {
+            coot::Cartesian s = v.data[i].getStart();
+            coot::Cartesian f = v.data[i].getFinish();
+            clipper::Coord_orth p1(s.x(), s.y(), s.z());
+            clipper::Coord_orth p2(f.x(), f.y(), f.z());
+            r[i]= std::pair<clipper::Coord_orth, clipper::Coord_orth>(p1,p2);
+         }
       }
    }
    return r;
