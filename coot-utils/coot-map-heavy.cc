@@ -547,7 +547,7 @@ xmap_to_nxmap_workpackage(const clipper::Xmap<float> &xmap,
    // std::cout << "starting workpackage" << std::endl;
 
    clipper::Coord_grid offset =
-      xmap.coord_map(nxmap_p->coord_orth(clipper::Coord_map(0.0,0.i0,0.0))).coord_grid();
+      xmap.coord_map(nxmap_p->coord_orth(clipper::Coord_map(0.0, 0.0, 0.0))).coord_grid();
 
    // std::cout << "debug:: " << start_stop.first.index() << " " << start_stop.second.index() << std::endl;
 
