@@ -20,6 +20,8 @@
 #include "draw.hh"
 #include "draw-2.hh"
 
+enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
+
 gint idle_contour_function(gpointer data);
 
 void init_central_cube_shaders() {}
@@ -441,7 +443,7 @@ draw_molecules() {
 }
 
 void
-draw_central_cube(GtkGLArea *glarea) {
+draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
    gtk_gl_area_make_current(glarea);
    glLineWidth(2.0);  // GLv4 antialiasing - OpenGL implementations are not required to support this
@@ -453,7 +455,6 @@ draw_central_cube(GtkGLArea *glarea) {
    // glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
    // This may not be possible in GL_LINE_SMOOTH mode.
 
-   // inside?
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
@@ -463,13 +464,22 @@ draw_central_cube(GtkGLArea *glarea) {
    err = glGetError(); if (err) std::cout << "   error draw_central_cube() C err " << err << std::endl;
    glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
-   mvp = glm::translate(mvp, rc);
-   glm::vec3 sc(0.2f, 0.2f, 0.2f);
-   mvp = glm::scale(mvp, sc);
+   if (cube_type == VIEW_CENTRAL_CUBE) {
+      mvp = glm::translate(mvp, rc);
+      glm::vec3 sc(0.2f, 0.2f, 0.2f);
+      mvp = glm::scale(mvp, sc);
+   }
+   if (cube_type == ORIGIN_CUBE) {
+      glm::vec3 sc(0.3f, 0.3f, 0.3f);
+      mvp = glm::scale(mvp, sc);
+   }
+
+   // we don't diverge here on the cube tye. Maybe change the name of the shader
+   // because it does both
+   Shader &shader = graphics_info_t::shader_for_central_cube;
 
    // we do this for all the shaders - Hmm.
    {
-      Shader &shader = graphics_info_t::shader_for_central_cube;
       GLuint mvp_location           = shader.mvp_uniform_location;
       GLuint view_rotation_location = shader.view_rotation_uniform_location;
 
@@ -480,17 +490,20 @@ draw_central_cube(GtkGLArea *glarea) {
       err = glGetError();
       if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for view_rotation " << err << std::endl;
 
+      GLuint line_colour_uniform_location = shader.line_colour_uniform_location;
+      glm::vec4 lc(0.5, 0.4, 0.4, 1.0);
+      if (cube_type == ORIGIN_CUBE)
+         lc = glm::vec4(0.6, 0.6, 0.4, 1.0);
+      glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(lc));
+      err = glGetError();
+      if (err) std::cout << "   error draw_central_cube() glUniform4fv() for line colour " << err << std::endl;
+
       GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
       glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
       glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
       err = glGetError();
       if (err) std::cout << "   error draw_central_cube() glUniform4fv() for background " << err << std::endl;
 
-      GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-      glm::vec4 ep = new_unproject(0,0,-1);
-      glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-      err = glGetError();
-      if (err) std::cout << "   error draw_central_cube() glUniform4fv() for eye position " << err << std::endl;
    }
 
    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
@@ -499,7 +512,16 @@ draw_central_cube(GtkGLArea *glarea) {
 
    glBindVertexArray(0); // unbind
    glUseProgram(0);
+}
 
+
+void
+draw_central_cube(GtkGLArea *glarea) {
+   draw_cube(glarea, VIEW_CENTRAL_CUBE);
+}
+
+void draw_origin_cube(GtkGLArea *glarea) {
+   draw_cube(glarea, ORIGIN_CUBE);
 }
 
 GtkWidget *my_gtkglarea(GtkWidget *vbox) {
@@ -653,6 +675,7 @@ on_glarea_render(GtkGLArea *glarea) {
    // draw_triangle(glarea);
 
    draw_central_cube(glarea);
+   draw_origin_cube(glarea);
    draw_molecules();
    // draw_hud_text();
 

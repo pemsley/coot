@@ -27,6 +27,7 @@ public:
    unsigned int view_rotation_uniform_location;
    unsigned int mvp_uniform_location;
    unsigned int background_colour_uniform_location;
+   unsigned int line_colour_uniform_location;
    unsigned int eye_position_uniform_location;
 };
 

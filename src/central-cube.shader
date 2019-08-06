@@ -7,8 +7,8 @@ layout(location = 0) in vec3 position;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
+uniform vec4 line_colour;
 uniform vec4 background_colour;
-uniform vec4 eye_position;
 
 out vec4 tri_colour;
 out vec4 bg_colour;
@@ -19,6 +19,7 @@ void main() {
    gl_Position = p2;
 
    tri_colour = vec4(0.5, 0.4, 0.4, 1.0);
+   tri_colour = line_colour;
    bg_colour = background_colour;
 }
 

@@ -78,7 +78,7 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
 void Shader::set_uniform_locations() {
    GLuint err;
 
-   if (entity_type == Entity_t::MODEL || entity_type == Entity_t::MAP || entity_type == Entity_t::INFRASTRUCTURE) {
+   if (entity_type == Entity_t::MODEL || entity_type == Entity_t::MAP) {
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
       view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
@@ -89,6 +89,16 @@ void Shader::set_uniform_locations() {
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
       std::cout << "debug:: set_uniform_locations() " << mvp_uniform_location << " " << view_rotation_uniform_location
                 << " " << background_colour_uniform_location << std::endl;
+   }
+   if (entity_type == Entity_t::INFRASTRUCTURE) {
+      mvp_uniform_location           = glGetUniformLocation_internal("mvp");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
+      view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2: " << err << std::endl;
+      line_colour_uniform_location = glGetUniformLocation_internal("line_colour");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
+      background_colour_uniform_location = glGetUniformLocation_internal("background_colour");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
    }
 }
 
