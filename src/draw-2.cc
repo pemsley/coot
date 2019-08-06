@@ -462,6 +462,8 @@ draw_central_cube(GtkGLArea *glarea) {
    glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
    err = glGetError(); if (err) std::cout << "   error draw_central_cube() C err " << err << std::endl;
    glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   mvp = glm::translate(mvp, rc);
    glm::vec3 sc(0.2f, 0.2f, 0.2f);
    mvp = glm::scale(mvp, sc);
 
