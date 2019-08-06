@@ -462,10 +462,7 @@ draw_central_cube(GtkGLArea *glarea) {
    glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
    err = glGetError(); if (err) std::cout << "   error draw_central_cube() C err " << err << std::endl;
    glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
-   float z = graphics_info_t::zoom * 0.002;
-   // std::cout << "z " << z << std::endl;
-   glm::vec3 sc(z,z,z);
-   // glm::vec3 sc(0.2f, 0.2f, 0.2f);
+   glm::vec3 sc(0.2f, 0.2f, 0.2f);
    mvp = glm::scale(mvp, sc);
 
    // we do this for all the shaders - Hmm.
@@ -497,54 +494,6 @@ draw_central_cube(GtkGLArea *glarea) {
    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
    err = glGetError();
    if (err) std::cout << "draw_central_cube() F glDrawElements() err " << err << std::endl;
-
-
-   if (false) { // old - delete when cental cube is working
-
-      // Note to self: use the same shader as for models. You will need
-      // to do move the cube to the rotattion centre.
-
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
-      int w = allocation.width;
-      int h = allocation.height;
-      float aspect_ratio = static_cast<float>(h)/static_cast<float>(w);
-
-      glBindVertexArray(graphics_info_t::central_cube_vertexarray_id);
-      err = glGetError();
-      if (err) std::cout << "draw_central_cube() B err " << err << std::endl;
-      glUseProgram(graphics_info_t::programID_for_central_cube);
-      err = glGetError();
-      if (err) std::cout << "draw_central_cube() C err " << err << std::endl;
-
-      err = glGetError();
-      if (err) std::cout << "draw_central_cube() D err " << err << std::endl;
-
-      glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
-      float z = graphics_info_t::zoom * 0.0002;
-      glm::vec3 sc(z,z,z);
-      // std::cout << "z " << z << std::endl;
-      // glm::vec3 sc(0.2f, 0.2f, 0.2f);
-      glm::mat4 mvp  = glm::scale(view_orientation, sc);
-      // glm::mat4 mvp = glm::scale(m1, glm::vec3(4.0*aspect_ratio, 1.0, 1.0));
-
-      if (false) {
-         std::cout << "debug:: draw_central_cube()       local mvp: ";
-         for (unsigned int i=0; i<4; i++)
-            for (unsigned int j=0; j<4; j++)
-               std::cout << std::setw(8) << mvp[i][j] << " ";
-         std::cout << std::endl;
-      }
-      glUniformMatrix4fv(graphics_info_t::mvp_location, 1, GL_FALSE, &mvp[0][0]);
-      err = glGetError();
-      if (err) std::cout << "draw_central_cube() glUniformMatrix4fv() " << err << std::endl;
-
-      // glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::central_cube_array_buffer_id);
-      // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::central_cube_index_buffer_id);
-      glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
-      err = glGetError();
-      if (err) std::cout << "draw_central_cube() F glDrawElements() " << err << std::endl;
-   }
 
    glBindVertexArray(0); // unbind
    glUseProgram(0);
