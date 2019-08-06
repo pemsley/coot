@@ -1305,10 +1305,10 @@ int main(int argc, char **argv) {
       test_merge_fragments(argc, argv);
 
    if (false)
-      test_nxmap_simple(argc, argv);
+      test_make_a_difference_map(argc, argv);
 
    if (true)
-      test_make_a_difference_map(argc, argv);
+      test_nxmap_simple(argc, argv);
 
    return 0;
 }

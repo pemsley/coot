@@ -547,7 +547,7 @@ xmap_to_nxmap_workpackage(const clipper::Xmap<float> &xmap,
    // std::cout << "starting workpackage" << std::endl;
 
    clipper::Coord_grid offset =
-      xmap.coord_map(nxmap_p->coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
+      xmap.coord_map(nxmap_p->coord_orth(clipper::Coord_map(0.0,0.i0,0.0))).coord_grid();
 
    // std::cout << "debug:: " << start_stop.first.index() << " " << start_stop.second.index() << std::endl;
 
@@ -560,9 +560,38 @@ xmap_to_nxmap_workpackage(const clipper::Xmap<float> &xmap,
 
 
 
-
 clipper::NXmap<float>
 coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border) {
+
+   // if we are given an EM map then we presume that the molecule is nicely situated in
+   // that map. It might not be, but we will fix that later.
+
+   if (is_EM_map(xmap))
+      return make_nxmap_from_EM_P1_map(xmap);
+   else
+      return make_nxmap_from_xmap(xmap, mol, SelectionHandle, border);
+
+}
+
+clipper::NXmap<float>
+coot::util::make_nxmap_from_EM_P1_map(const clipper::Xmap<float> &xmap) {
+
+   clipper::Cell cell = xmap.cell();
+   clipper::Grid_sampling grid_sampling = xmap.grid_sampling();
+   clipper::Grid_range gr_asu = xmap.grid_asu();
+   clipper::NXmap<float> nxmap(cell, grid_sampling, gr_asu);
+
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next() )  { // iterator index.
+      clipper::Coord_grid cg = ix.coord();
+      nxmap.set_data(cg, xmap[ix]);
+   }
+   return nxmap;
+}
+
+
+clipper::NXmap<float>
+coot::util::make_nxmap_from_xmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    bool debug = false;
@@ -667,6 +696,8 @@ coot::util::make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int
 }
 
 
+// border is default argument, value 3.
+//
 clipper::NXmap<float>
 coot::util::make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border) {
 
