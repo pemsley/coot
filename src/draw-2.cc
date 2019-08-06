@@ -29,13 +29,15 @@ void init_shaders() {
    graphics_info_t::shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
    graphics_info_t::shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    graphics_info_t::shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
-
+   graphics_info_t::shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
 }
 
 void init_central_cube();
+void init_hud_text();
 
 void init_buffers() {
    init_central_cube();
+   init_hud_text();
 }
 
 void init_central_cube() {
@@ -46,10 +48,10 @@ void init_central_cube() {
          -0.5,  -0.5,  0.5,
          -0.5,   0.5, -0.5,
          -0.5,   0.5,  0.5,
-         0.5,  -0.5, -0.5,
-         0.5,  -0.5,  0.5,
-         0.5,   0.5, -0.5,
-         0.5,   0.5,  0.5
+          0.5,  -0.5, -0.5,
+          0.5,  -0.5,  0.5,
+          0.5,   0.5, -0.5,
+          0.5,   0.5,  0.5
       };
 
       glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
@@ -58,7 +60,6 @@ void init_central_cube() {
 
       // number of lines * 2:
       unsigned int indices[24] { 0,1, 1,5, 5,4, 4,0, 2,3, 3,7, 7,6, 6,2, 0,2, 1,3, 5,7, 4,6 };
-
 
       // GLuint VertexArrayID;
       glGenVertexArrays(1, &graphics_info_t::central_cube_vertexarray_id);
@@ -81,6 +82,24 @@ void init_central_cube() {
       if (err) std::cout << "init_central_cube() glBufferData() err is " << err << std::endl;
 
    }
+}
+
+void init_hud_text() {
+   glUseProgram(graphics_info_t::shader_for_hud_text.get_program_id());
+   GLenum err = glGetError();
+   if (err) std::cout << "init_hud_text() glUseProgram() err is " << err << std::endl;
+   glGenVertexArrays(1, &graphics_info_t::hud_text_vertexarray_id);
+   err = glGetError(); if (err) std::cout << "init_hud_text() glGenVertexArrays() err is " << err << std::endl;
+   glBindVertexArray(graphics_info_t::hud_text_vertexarray_id);
+   err = glGetError(); if (err) std::cout << "init_hud_text() glBindVertexArray() err is " << err << std::endl;
+   glGenBuffers(1, &graphics_info_t::hud_text_array_buffer_id);
+   err = glGetError(); if (err) std::cout << "init_hud_text() glGenBuffers() err is " << err << std::endl;
+   glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
+   err = glGetError(); if (err) std::cout << "init_hud_text() glBindBuffer() err is " << err << std::endl;
+   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_STATIC_DRAW);
+   err = glGetError(); if (err) std::cout << "init_hud_text() glBufferData() err is " << err << std::endl;
+   glEnableVertexAttribArray(0);
+   err = glGetError(); if (err) std::cout << "init_hud_text() glEnableVertexAttribArray() err is " << err << std::endl;
 }
 
 glm::mat4 get_molecule_mvp() {
@@ -323,12 +342,14 @@ draw_model_molecules() {
          GLuint mvp_location           = graphics_info_t::shader_for_models.mvp_uniform_location;
          GLuint view_rotation_location = graphics_info_t::shader_for_models.view_rotation_uniform_location;
 
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() pre mvp " << err << std::endl;
          glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() " << err << std::endl;
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
          glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation " << err << std::endl;
 
          GLuint background_colour_uniform_location = graphics_info_t::shader_for_models.background_colour_uniform_location;
          glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
@@ -339,6 +360,8 @@ draw_model_molecules() {
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
          glm::vec4 ep = new_unproject(0,0,-1);
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
@@ -423,7 +446,7 @@ draw_central_cube(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    glLineWidth(2.0);  // GLv4 antialiasing - OpenGL implementations are not required to support this
    GLenum err = glGetError();
-   if (err) std::cout << "draw_triangle() A err " << err << std::endl;
+   if (err) std::cout << "   error draw_central_cube() A err " << err << std::endl;
 
    // To see the possible values of the line width in aliased mode:
    // GLfloat line_width_max_min[2] = {0.0f, 0.0f};
@@ -435,13 +458,15 @@ draw_central_cube(GtkGLArea *glarea) {
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
    glBindVertexArray(graphics_info_t::central_cube_vertexarray_id);
+   err = glGetError(); if (err) std::cout << "   error draw_central_cube() B err " << err << std::endl;
    glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
+   err = glGetError(); if (err) std::cout << "   error draw_central_cube() C err " << err << std::endl;
    glm::mat4 view_orientation = glm::toMat4(graphics_info_t::glm_quat);
-   // float z = graphics_info_t::zoom * 0.0002;
-   // glm::vec3 sc(z,z,z);
+   float z = graphics_info_t::zoom * 0.002;
    // std::cout << "z " << z << std::endl;
+   glm::vec3 sc(z,z,z);
    // glm::vec3 sc(0.2f, 0.2f, 0.2f);
-   // glm::mat4 mvp  = glm::scale(view_orientation, sc);
+   mvp = glm::scale(mvp, sc);
 
    // we do this for all the shaders - Hmm.
    {
@@ -451,20 +476,22 @@ draw_central_cube(GtkGLArea *glarea) {
 
       glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
       err = glGetError();
-      if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() " << err << std::endl;
+      if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for mvp " << err << std::endl;
       glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
       err = glGetError();
-      if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
+      if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for view_rotation " << err << std::endl;
 
       GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
       glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
       glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
       err = glGetError();
-      if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
+      if (err) std::cout << "   error draw_central_cube() glUniform4fv() for background " << err << std::endl;
 
       GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
       glm::vec4 ep = new_unproject(0,0,-1);
       glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+      err = glGetError();
+      if (err) std::cout << "   error draw_central_cube() glUniform4fv() for eye position " << err << std::endl;
    }
 
    glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
@@ -574,6 +601,76 @@ on_glarea_realize(GtkGLArea *glarea) {
 
 }
 
+void draw_hud_text() {
+   GLenum err = glGetError();
+   std::cout << "start draw_hud_text() err is " << err << std::endl;
+   err = glGetError();
+   std::cout << "in draw_hud_text() A0, err is " << err << std::endl;
+   glBindVertexArray(graphics_info_t::hud_text_vertexarray_id);
+   err = glGetError(); std::cout << "in draw_hud_text() A1, err is " << err << std::endl;
+
+   Shader &shader = graphics_info_t::shader_for_hud_text;
+   GLuint pid = shader.get_program_id();
+   err = glGetError();
+   std::cout << "in draw_hud_text() A2, err is " << err << std::endl;
+   glm::vec3 color(0.7, 0.7, 0.4);
+   glUseProgram(pid);
+   err = glGetError();
+   std::cout << "in draw_hud_text() B, err is " << err << std::endl;
+   glUniform3f(glGetUniformLocation(pid, "textColor"), color.x, color.y, color.z);
+   err = glGetError();
+   std::cout << "in draw_hud_text() C, err is " << err << std::endl;
+   glActiveTexture(GL_TEXTURE0);
+   err = glGetError();
+   std::cout << "in draw_hud_text() C2, err is " << err << std::endl;
+
+   std::string text = "Hello - this is Coot";
+   GLfloat x = 0.1;
+   GLfloat y = 0.1;
+   GLfloat scale = 0.1;
+
+   // Iterate through all characters
+   std::string::const_iterator c;
+   for (c = text.begin(); c != text.end(); c++)
+   {
+      FT_character ch = graphics_info_t::ft_characters[*c];
+
+      GLfloat xpos = x + ch.Bearing.x * scale;
+      GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+      GLfloat w = ch.Size.x * scale;
+      GLfloat h = ch.Size.y * scale;
+      // Update VBO for each character
+      GLfloat vertices[6][4] = {
+         { xpos,     ypos + h,   0.0, 0.0 },
+         { xpos,     ypos,       0.0, 1.0 },
+         { xpos + w, ypos,       1.0, 1.0 },
+
+         { xpos,     ypos + h,   0.0, 0.0 },
+         { xpos + w, ypos,       1.0, 1.0 },
+         { xpos + w, ypos + h,   1.0, 0.0 }
+      };
+      // Render glyph texture over quad
+      std::cout << "in draw_hud_text() D, err is " << err << std::endl;
+      glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+      std::cout << "in draw_hud_text() E, err is " << err << std::endl;
+      // Update content of VBO memory
+      glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
+      std::cout << "in draw_hud_text() F, err is " << err << std::endl;
+      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+      std::cout << "in draw_hud_text() G, err is " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, 0);
+      std::cout << "in draw_hud_text() H, err is " << err << std::endl;
+      // Render quad
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      std::cout << "in draw_hud_text() I, err is " << err << std::endl;
+      // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+      x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
+   }
+   glBindVertexArray(0);
+   glBindTexture(GL_TEXTURE_2D, 0);
+
+}
 
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
@@ -606,6 +703,7 @@ on_glarea_render(GtkGLArea *glarea) {
 
    draw_central_cube(glarea);
    draw_molecules();
+   // draw_hud_text();
 
    err = glGetError();
    if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;

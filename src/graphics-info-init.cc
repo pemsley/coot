@@ -6,15 +6,15 @@
 #include "coords/cos-sin.h"
 #include "graphics-info.h"
 
-
-// benny::Camera graphics_info_t::camera = benny::Camera();
-// Transform     graphics_info_t::transform = Transform();
+ #include <glm/glm.hpp>
+ #include <glm/gtc/matrix_transform.hpp>
+ #include <glm/gtc/type_ptr.hpp>
 
 void
 graphics_info_t::init() {
 
 #ifdef WINDOWS_MINGW
-      prefer_python = 1;
+   prefer_python = 1;
 #endif
    // The cosine->sine lookup table, used in picking.
    //
@@ -22,12 +22,63 @@ graphics_info_t::init() {
    // now that we have run this
    cos_sin cos_sin_table(1000);
 
-   for (int i=0; i<4; i++)
-	   for (int j=0; j<4; j++)
-	      mvp[i*4+j] = 0.0;
 
-   for (int i=0; i<4; i++)
-	   mvp[i*4+i] = 1.0;
+   // ----------------------------- font test -----------------
+   FT_Library ft;
+   if (FT_Init_FreeType(&ft))
+   std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+
+   FT_Face face;
+   if (FT_New_Face(ft, "fonts/Vera.ttf", 0, &face))
+   std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+   FT_Set_Pixel_Sizes(face, 0, 48);
+
+   if (FT_Load_Char(face, 'X', FT_LOAD_RENDER))
+   std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+   // only using one byte.
+
+   for (GLubyte ic = 0; ic < 128; ic++) {
+      // Load character glyph
+      if (FT_Load_Char(face, ic, FT_LOAD_RENDER)) {
+         std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+         continue;
+      }
+      // Generate texture
+      GLuint texture;
+      glGenTextures(1, &texture);
+      glBindTexture(GL_TEXTURE_2D, texture);
+      glTexImage2D( GL_TEXTURE_2D,
+         0,
+         GL_RED,
+         face->glyph->bitmap.width,
+         face->glyph->bitmap.rows,
+         0,
+         GL_RED,
+         GL_UNSIGNED_BYTE,
+         face->glyph->bitmap.buffer);
+         // Set texture options
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+      // Now store the character
+      FT_character character = {
+         texture,
+         glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+         glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+         face->glyph->advance.x};
+         ft_characters[ic] = character; // ic type change
+   }
+
+   FT_Done_Face(face);
+   FT_Done_FreeType(ft);
+
+   // ----------------------------- done font test -----------------
+
+
 
       // transform = Transform(glm::vec3(0.0, 0.0, 0.0),
       //                       glm::vec3(0.0, 0.0, 0.0),

@@ -5,7 +5,7 @@
 #include <map>
 class Shader {
 public:
-   enum class Entity_t { NONE = -1, MODEL, MAP, INFRASTRUCTURE, VALIDATION};
+   enum class Entity_t { NONE = -1, MODEL, MAP, INFRASTRUCTURE, VALIDATION, HUD_TEXT, TEXT_3D};
 private:
    enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2 };
    void parse(const std::string &file_name);

@@ -66,13 +66,17 @@
 #endif // HAVE_CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-#ifdef WII_INTERFACE_WIIUSE
-#include "wiiuse.h"
-#endif // WII_INTERFACE_WIIUSE
 
-#ifdef WII_INTERFACE
-#include "cwiid.h"
-#endif
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+struct FT_character {
+   GLuint     TextureID;  // ID handle of the glyph texture
+   glm::ivec2 Size;       // Size of glyph
+   glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
+    FT_Pos     Advance;    // Offset to advance to next glyph
+};
+
 
 #include "clipper/core/xmap.h"
 
@@ -3993,10 +3997,13 @@ string   static std::string sessionid;
    static GLuint central_cube_vertexarray_id;
    static GLuint central_cube_array_buffer_id;
    static GLuint central_cube_index_buffer_id;
+   static GLuint hud_text_vertexarray_id;
+   static GLuint hud_text_array_buffer_id;
    static Shader shader_for_maps;
    static Shader shader_for_models;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
+   static Shader shader_for_hud_text;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
@@ -4051,6 +4058,9 @@ string   static std::string sessionid;
    static std::shared_ptr<Renderer> mol_tri_renderer;
    static std::shared_ptr<SceneSetup> mol_tri_scene_setup;
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+// text
+   static std::map<GLchar, FT_character> ft_characters;
 
 };
 

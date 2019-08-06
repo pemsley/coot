@@ -904,6 +904,8 @@ GdkModifierType graphics_info_t::button_1_mask_ = GDK_BUTTON1_MASK;
 GdkModifierType graphics_info_t::button_2_mask_ = GDK_BUTTON2_MASK;
 GdkModifierType graphics_info_t::button_3_mask_ = GDK_BUTTON3_MASK;
 
+std::map<GLchar, FT_character> graphics_info_t::ft_characters;
+
 // shall we show the density leven on screen?
 short int graphics_info_t::display_density_level_on_screen = 1;
 short int graphics_info_t::display_density_level_this_image = 1;
@@ -1430,12 +1432,15 @@ GLuint graphics_info_t::programID_for_central_cube = 0;
 GLuint graphics_info_t::central_cube_vertexarray_id = 0;
 GLuint graphics_info_t::central_cube_array_buffer_id = 0;
 GLuint graphics_info_t::central_cube_index_buffer_id = 0;
+GLuint graphics_info_t::hud_text_vertexarray_id = 0;
+GLuint graphics_info_t::hud_text_array_buffer_id = 0;
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
 Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
+Shader graphics_info_t::shader_for_hud_text;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
