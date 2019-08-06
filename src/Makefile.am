@@ -127,7 +127,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-refine.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
-			     $(top_srcdir)/src/c-interface-generic-objects.h \
+                             $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/curlew.h \
@@ -149,17 +149,17 @@ coot_wrap_guile.cc: coot_wrap_guile_pre.cc
 # -iwithsysroot dir - and swig barfs on that.
 # so make a variable that gives us python flags without -iwithsysroot
 coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
-			 $(top_srcdir)/src/cc-interface.hh    \
-	                 $(top_srcdir)/src/coot.i             \
+                         $(top_srcdir)/src/cc-interface.hh    \
+                         $(top_srcdir)/src/coot.i             \
                          $(top_srcdir)/src/cc-interface-ncs.hh  \
-			 $(top_srcdir)/src/lbg-interface.hh   \
-	                 $(top_srcdir)/src/c-interface-refine.hh \
+                         $(top_srcdir)/src/lbg-interface.hh   \
+                         $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
-			 $(top_srcdir)/src/sdf-interface.hh   \
+                         $(top_srcdir)/src/sdf-interface.hh   \
                          $(top_srcdir)/src/cfc.hh \
                          $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
-	                 $(top_srcdir)/src/validation.hh \
+                         $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
@@ -366,10 +366,10 @@ coot_bin_SOURCES = \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
 	callbacks.c callbacks.h	 \
-        canvas-fixes.hh          \
-	cfc.cc cfc.hh            \
-        cfc-widgets.hh           \
-        cfc-widgets-c-interface.h \
+   canvas-fixes.hh          \
+   cfc.cc cfc.hh            \
+   cfc-widgets.hh           \
+   cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
@@ -625,7 +625,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
-                $(EPOXY_LIBS)           \
+      $(EPOXY_LIBS)           \
 		$(GLUT_LIBS) -lGL	\
 		$(CANVAS_LIBS) 		\
 		$(GSL_LIBS)		\
@@ -635,10 +635,12 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(BOOST_LDFLAGS)        \
 		$(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
+		-lfreetype \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@ \
 		-lpthread
 
+# make freetype a configure variable FREETYPE_LIBS
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
