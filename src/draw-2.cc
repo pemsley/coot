@@ -87,6 +87,8 @@ void init_central_cube() {
 }
 
 void init_hud_text() {
+
+   std::cout << "------------------ init_hud_text() ---------------------\n";
    graphics_info_t g;
    g.load_freetype_font_textures();
    glUseProgram(g.shader_for_hud_text.get_program_id());
@@ -107,6 +109,7 @@ void init_hud_text() {
 
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glBindVertexArray(0);
+   std::cout << "------------------ done init_hud_text() ---------------------\n";
 }
 
 glm::mat4 get_molecule_mvp() {
@@ -581,99 +584,91 @@ on_glarea_realize(GtkGLArea *glarea) {
 
 }
 
+
+void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
+    // Activate corresponding render state
+    shader.Use();
+    // glUniform3f(glGetUniformLocation(shader.Program, "textColor"), color.x, color.y, color.z);
+    glUniform3f(glGetUniformLocation(shader.get_program_id(), "textColour"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(graphics_info_t::hud_text_vertexarray_id);
+
+    // Iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) {
+        // FT_character ch = Characters[*c];
+        std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
+       if (it == graphics_info_t::ft_characters.end()) {
+          std::cout << "ooooooooooooooooops failure to look up" << *c << std::endl;
+          continue;
+       } else {
+          std::cout << "Found " << *c << std::endl;
+       }
+       const FT_character &ch = it->second;
+
+        GLfloat xpos = x + ch.Bearing.x * scale;
+        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        GLfloat w = ch.Size.x * scale;
+        GLfloat h = ch.Size.y * scale;
+        // Update VBO for each character
+        GLfloat vertices[6][4] = {
+            { xpos,     ypos + h,   0.0, 0.0 },
+            { xpos,     ypos,       0.0, 1.0 },
+            { xpos + w, ypos,       1.0, 1.0 },
+
+            { xpos,     ypos + h,   0.0, 0.0 },
+            { xpos + w, ypos,       1.0, 1.0 },
+            { xpos + w, ypos + h,   1.0, 0.0 }
+        };
+        // Render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        // Update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // Render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
 void draw_hud_text() {
-   GLenum err = glGetError();
-   std::cout << "start draw_hud_text() err is " << err << std::endl;
-   err = glGetError();
-   std::cout << "in draw_hud_text() A0, err is " << err << std::endl;
-   glBindVertexArray(graphics_info_t::hud_text_vertexarray_id);
-   err = glGetError(); std::cout << "in draw_hud_text() A1, err is " << err << std::endl;
 
-   Shader &shader = graphics_info_t::shader_for_hud_text;
-   GLuint pid = shader.get_program_id();
-   err = glGetError();
-   std::cout << "in draw_hud_text() A2, err is " << err << std::endl;
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
    glm::vec3 color(0.7, 0.7, 0.4);
-   glUseProgram(pid);
-   err = glGetError();
-   std::cout << "in draw_hud_text() B, err is " << err << std::endl;
-   glUniform3f(glGetUniformLocation(pid, "textColor"), color.x, color.y, color.z);
-   err = glGetError();
-   std::cout << "in draw_hud_text() C, err is " << err << std::endl;
-   glActiveTexture(GL_TEXTURE0);
-   err = glGetError();
-   std::cout << "in draw_hud_text() C2, err is " << err << std::endl;
-
+   Shader &shader = graphics_info_t::shader_for_hud_text;
    std::string text = "Hello - this is Coot";
    GLfloat x = 0.1;
    GLfloat y = 0.1;
    GLfloat scale = 0.1;
 
-   // Iterate through all characters
-   std::string::const_iterator c;
-   for (c = text.begin(); c != text.end(); c++) {
+   GLenum err = glGetError();
+   GLuint program_id = shader.get_program_id();
+   glm::mat4 hud_projection = glm::ortho(0.0f, 900.0f, 0.0f, 900.0f);
+   glUniformMatrix4fv(glGetUniformLocation(program_id, "projection"), 1, GL_FALSE, glm::value_ptr(hud_projection));
+   if (err) std::cout << "draw_hud_text() glUniformMatrix4fv " << err << std::endl;
 
-      std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
-      if (it == graphics_info_t::ft_characters.end()) {
-         std::cout << "ooooooooooooooooops failure to look up" << *c << std::endl;
-         continue;
-      } else {
-         std::cout << "Found " << *c << std::endl;
-      }
-      const FT_character &ch = it->second;
-
-      GLfloat xpos = x + ch.Bearing.x * scale;
-      GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-      GLfloat w = ch.Size.x * scale;
-      GLfloat h = ch.Size.y * scale;
-      // Update VBO for each character
-      GLfloat vertices[6][4] = {
-         { xpos,     ypos + h,   0.0, 0.0 },
-         { xpos,     ypos,       0.0, 1.0 },
-         { xpos + w, ypos,       1.0, 1.0 },
-
-         { xpos,     ypos + h,   0.0, 0.0 },
-         { xpos + w, ypos,       1.0, 1.0 },
-         { xpos + w, ypos + h,   1.0, 0.0 }
-      };
-      // Render glyph texture over quad
-      err = glGetError();
-      std::cout << "in draw_hud_text() D, err is " << err << std::endl;
-      glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-      err = glGetError();
-      std::cout << "in draw_hud_text() E, err is " << err << std::endl;
-      // Update content of VBO memory
-      glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
-      err = glGetError();
-      std::cout << "in draw_hud_text() F, err is " << err << std::endl;
-      glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-      err = glGetError();
-      std::cout << "in draw_hud_text() G, err is " << err << std::endl;
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-      err = glGetError();
-      std::cout << "in draw_hud_text() H, err is " << err << std::endl;
-      // Render quad
-      glDrawArrays(GL_TRIANGLES, 0, 6);
-      err = glGetError();
-      std::cout << "in draw_hud_text() I, err is " << err << std::endl;
-      // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-      x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
-   }
-   glBindVertexArray(0);
-   glBindTexture(GL_TEXTURE_2D, 0);
-
+   RenderText(shader, text, 50, 50, 1, color);
 }
 
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
+   GLenum err = glGetError();
+   if (err) std::cout << "on_glarea_render() start " << err << std::endl;
 
    // is this needed?
    gtk_gl_area_make_current(glarea);
-   GLenum err = glGetError();
-   if (err) std::cout << "on_glarea_render() start " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "on_glarea_render() post gtk_gl_area_make_current() " << err << std::endl;
 
    glClearColor (0.24, 0.24, 0.24, 1.0);
    const glm::vec3 &bg = graphics_info_t::background_colour;
@@ -769,7 +764,6 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
-   std::cout << "Button 2 released" << std::endl;
    if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
       pick_info nearest_atom_index_info = atom_pick_gtk3(event);

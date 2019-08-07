@@ -12553,5 +12553,7 @@ on_curlew1_activate              (GtkMenuItem     *menuitem,
 on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
+#ifdef USE_MOLECULES_TO_TRIANGLES
    add_molecular_representation_test();
+#endif
 }

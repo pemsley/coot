@@ -23,11 +23,8 @@
 
    FT_Face face;
    if (FT_New_Face(ft, "fonts/Vera.ttf", 0, &face))
-   std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+      std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
    FT_Set_Pixel_Sizes(face, 0, 48);
-
-   if (FT_Load_Char(face, 'X', FT_LOAD_RENDER))
-   std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
 
    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
    // only using one byte.
@@ -63,14 +60,17 @@
 
       // std::cout << "Storing characture with texture id " << texture << std::endl;
       // Now store the character
+      GLuint face_glyph_advance_x = face->glyph->advance.x;
       FT_character character = {
          texture,
          glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
          glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-         face->glyph->advance.x};
-         ft_characters[ic] = character; // ic type change
+         face_glyph_advance_x
+      };
+      ft_characters[ic] = character; // ic type change
    }
-
+    glBindTexture(GL_TEXTURE_2D, 0);
+    // Destroy FreeType once we're finished
    FT_Done_Face(face);
    FT_Done_FreeType(ft);
 

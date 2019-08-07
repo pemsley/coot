@@ -10,7 +10,7 @@
 
 // #include "globjects.h" //includes gtk/gtk.h
 #include "graphics-info.h"
-#include "c-interface.h"
+#include ""
 #include "cc-interface-molecular-representation.hh"
 
 #ifdef USE_PYTHON
@@ -66,7 +66,6 @@ void remove_molecular_representation(int imol, int rep_no) {
 #include "cc-interface.hh"
 
 void add_molecular_representation_test() {
-
    int status = -1;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
    if (active_atom.first) {
@@ -79,11 +78,11 @@ void add_molecular_representation_test() {
          status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
       }
    }
-
 }
 
 
+#else
 
-
-
+// needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
+void add_molecular_representation_test() {}
 #endif // USE_MOLECULES_TO_TRIANGLES

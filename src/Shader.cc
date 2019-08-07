@@ -78,6 +78,11 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
    }
 }
 
+void
+Shader::Use() {
+   glUseProgram(program_id);
+}
+
 void Shader::set_uniform_locations() {
    GLuint err;
 

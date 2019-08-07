@@ -23,7 +23,8 @@ public:
    Shader(const std::string &file_name, Entity_t e);
    void init(const std::string &file_name, Entity_t e);
    unsigned int program_id;
-   unsigned int get_program_id() const { return program_id; }
+   void Use();
+   unsigned int get_program_id() const { return program_id; } // or use above function
    unsigned int view_rotation_uniform_location;
    unsigned int mvp_uniform_location;
    unsigned int background_colour_uniform_location;
