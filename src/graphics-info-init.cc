@@ -10,18 +10,11 @@
  #include <glm/gtc/matrix_transform.hpp>
  #include <glm/gtc/type_ptr.hpp>
 
-void
-graphics_info_t::init() {
+ void
+ graphics_info_t::load_freetype_font_textures() {
 
-#ifdef WINDOWS_MINGW
-   prefer_python = 1;
-#endif
-   // The cosine->sine lookup table, used in picking.
-   //
-   // The data in it are static, so we can get to them anywhere
-   // now that we have run this
-   cos_sin cos_sin_table(1000);
 
+   std::cout << "------------------------------- font loading -------" << std::endl;
 
    // ----------------------------- font test -----------------
    FT_Library ft;
@@ -48,7 +41,9 @@ graphics_info_t::init() {
       // Generate texture
       GLuint texture;
       glGenTextures(1, &texture);
+      GLenum err = glGetError(); if (err) std::cout << "Loading characture textures glGenTextures err " << err << std::endl;
       glBindTexture(GL_TEXTURE_2D, texture);
+      err = glGetError(); if (err) std::cout << "Loading characture textures glBindTexture err " << err << std::endl;
       glTexImage2D( GL_TEXTURE_2D,
          0,
          GL_RED,
@@ -59,11 +54,14 @@ graphics_info_t::init() {
          GL_UNSIGNED_BYTE,
          face->glyph->bitmap.buffer);
          // Set texture options
+      err = glGetError(); if (err) std::cout << "Loading characture textures glTexImage2D err " << err << std::endl;
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      err = glGetError(); if (err) std::cout << "Loading characture textures glTexParameteri err " << err << std::endl;
 
+      // std::cout << "Storing characture with texture id " << texture << std::endl;
       // Now store the character
       FT_character character = {
          texture,
@@ -78,6 +76,22 @@ graphics_info_t::init() {
 
    // ----------------------------- done font test -----------------
 
+
+
+
+}
+
+void
+graphics_info_t::init() {
+
+#ifdef WINDOWS_MINGW
+   prefer_python = 1;
+#endif
+   // The cosine->sine lookup table, used in picking.
+   //
+   // The data in it are static, so we can get to them anywhere
+   // now that we have run this
+   cos_sin cos_sin_table(1000);
 
 
       // transform = Transform(glm::vec3(0.0, 0.0, 0.0),

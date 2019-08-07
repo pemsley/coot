@@ -55,6 +55,9 @@ Shader::set_attribute_locations() {
       glBindAttribLocation(program_id, 1, "normal");
       glBindAttribLocation(program_id, 2, "colour");
    }
+   if (entity_type == Entity_t::HUD_TEXT) {
+      glBindAttribLocation(program_id, 0, "vertex"); // 2 x 2 pos, texture
+   }
 }
 
 unsigned int
@@ -99,6 +102,10 @@ void Shader::set_uniform_locations() {
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
       background_colour_uniform_location = glGetUniformLocation_internal("background_colour");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
+   }
+   if (entity_type == Entity_t::HUD_TEXT) {
+      hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
    }
 }
 

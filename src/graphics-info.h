@@ -4061,7 +4061,7 @@ string   static std::string sessionid;
 
 // text
    static std::map<GLchar, FT_character> ft_characters;
-
+   void load_freetype_font_textures();
 };
 
 

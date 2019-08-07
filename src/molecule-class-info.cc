@@ -3611,11 +3611,11 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
    for (int i=0; i<bonds_box.num_colours; i++) {
       index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-      if (i == 0) index_to_colour[i] = glm::vec4(0.8, 0.8, 0.5, 1.0);
+      if (i == 0) index_to_colour[i] = glm::vec4(0.9, 0.8, 0.3, 1.0);
       if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
       if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
-      if (i == 3) index_to_colour[i] = glm::vec4(0.2, 0.4, 0.9, 1.0);
-      if (i == 4) index_to_colour[i] = glm::vec4(0.5, 0.2, 0.5, 1.0);
+      if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
+      if (i == 4) index_to_colour[i] = glm::vec4(0.6, 0.2, 0.6, 1.0);
    }
 
    for (int i=0; i<bonds_box.num_colours; i++) {
@@ -3659,7 +3659,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       }
 
 
-      float radius = 0.11f;
+      float radius = 0.1f;
 
       bool do_real = true;
       unsigned int idx_running = 0;

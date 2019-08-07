@@ -29,6 +29,7 @@ public:
    unsigned int background_colour_uniform_location;
    unsigned int line_colour_uniform_location;
    unsigned int eye_position_uniform_location;
+   unsigned int hud_projection_uniform_location;
 };
 
 #endif // SHADER_HH

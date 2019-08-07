@@ -87,7 +87,9 @@ void init_central_cube() {
 }
 
 void init_hud_text() {
-   glUseProgram(graphics_info_t::shader_for_hud_text.get_program_id());
+   graphics_info_t g;
+   g.load_freetype_font_textures();
+   glUseProgram(g.shader_for_hud_text.get_program_id());
    GLenum err = glGetError();
    if (err) std::cout << "init_hud_text() glUseProgram() err is " << err << std::endl;
    glGenVertexArrays(1, &graphics_info_t::hud_text_vertexarray_id);
@@ -98,10 +100,13 @@ void init_hud_text() {
    err = glGetError(); if (err) std::cout << "init_hud_text() glGenBuffers() err is " << err << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
    err = glGetError(); if (err) std::cout << "init_hud_text() glBindBuffer() err is " << err << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
    err = glGetError(); if (err) std::cout << "init_hud_text() glBufferData() err is " << err << std::endl;
    glEnableVertexAttribArray(0);
    err = glGetError(); if (err) std::cout << "init_hud_text() glEnableVertexAttribArray() err is " << err << std::endl;
+
+   glBindBuffer(GL_ARRAY_BUFFER, 0);
+   glBindVertexArray(0);
 }
 
 glm::mat4 get_molecule_mvp() {
@@ -538,6 +543,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    std::cout << "realize!" << std::endl;
 
    gtk_gl_area_make_current(glarea);
+   //gtk_gl_area_set_has_alpha(glarea, TRUE);
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
    GLenum err = glGetError();
@@ -604,9 +610,16 @@ void draw_hud_text() {
 
    // Iterate through all characters
    std::string::const_iterator c;
-   for (c = text.begin(); c != text.end(); c++)
-   {
-      FT_character ch = graphics_info_t::ft_characters[*c];
+   for (c = text.begin(); c != text.end(); c++) {
+
+      std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
+      if (it == graphics_info_t::ft_characters.end()) {
+         std::cout << "ooooooooooooooooops failure to look up" << *c << std::endl;
+         continue;
+      } else {
+         std::cout << "Found " << *c << std::endl;
+      }
+      const FT_character &ch = it->second;
 
       GLfloat xpos = x + ch.Bearing.x * scale;
       GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
@@ -624,18 +637,24 @@ void draw_hud_text() {
          { xpos + w, ypos + h,   1.0, 0.0 }
       };
       // Render glyph texture over quad
+      err = glGetError();
       std::cout << "in draw_hud_text() D, err is " << err << std::endl;
       glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+      err = glGetError();
       std::cout << "in draw_hud_text() E, err is " << err << std::endl;
       // Update content of VBO memory
       glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
+      err = glGetError();
       std::cout << "in draw_hud_text() F, err is " << err << std::endl;
       glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+      err = glGetError();
       std::cout << "in draw_hud_text() G, err is " << err << std::endl;
       glBindBuffer(GL_ARRAY_BUFFER, 0);
+      err = glGetError();
       std::cout << "in draw_hud_text() H, err is " << err << std::endl;
       // Render quad
       glDrawArrays(GL_TRIANGLES, 0, 6);
+      err = glGetError();
       std::cout << "in draw_hud_text() I, err is " << err << std::endl;
       // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
       x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64)
@@ -851,7 +870,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 gint
 spin_func(gpointer data) {
 
-   float delta = 0.002;
+   float delta = -0.002;
    glm::vec3 EulerAngles(0, delta, 0);
    glm::quat quat_delta(EulerAngles);
    glm::quat normalized_quat_delta(glm::normalize(quat_delta));
