@@ -819,7 +819,7 @@ public:        //                      public
       theMapContours.first = 0;
       theMapContours.second = 0;
       is_em_map_cached_flag = -1; // unset
-      n_vertices_for_VertexArray = 0;
+      n_vertices_for_map_VertexArray = 0;
       n_vertices_for_model_VertexArray = 0;
       n_indices_for_triangles = 0;
       // Assigning to GLuint. Hmm
@@ -3017,7 +3017,8 @@ public:        //                      public
 
    GLuint m_VertexArrayID_for_map;
 
-   GLuint n_vertices_for_VertexArray;
+   GLuint n_vertices_for_map_VertexArray;
+
    GLuint n_indices_for_triangles;
    GLuint m_VertexBufferID;
    GLuint m_IndexBufferID;

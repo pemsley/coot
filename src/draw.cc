@@ -79,9 +79,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    if ((event-1) != 0) {
       /* Draw only last expose. */
       if (event->count > 0) {
-    //       cout << "event->count is " << event->count << endl;
-    //       cout << "chucking an event" << endl;
-    return TRUE;
+         //       cout << "event->count is " << event->count << endl;
+         //       cout << "chucking an event" << endl;
+         return TRUE;
       }
    }
 
@@ -101,12 +101,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
    bool is_bb = graphics_info_t::background_is_black_p();
 
-// void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
-// for z coordinates that's performed during the viewport
-// transformation. The near and far values represent adjustments to the
-// minimum and maximum values that can be stored in the depth buffer. By
-// default, they're 0.0 and 1.0, respectively, which work for most
-// applications. These parameters are clamped to lie within [0,1].
+   // void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
+   // for z coordinates that's performed during the viewport
+   // transformation. The near and far values represent adjustments to the
+   // minimum and maximum values that can be stored in the depth buffer. By
+   // default, they're 0.0 and 1.0, respectively, which work for most
+   // applications. These parameters are clamped to lie within [0,1].
 
    /* OpenGL functions can be called only if make_current returns true */
    if (graphics_info_t::make_current_gl_context(widget)) {
@@ -117,7 +117,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       if (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO) {
-    aspect_ratio *= 2.0; // DTI side by side stereo mode
+         aspect_ratio *= 2.0; // DTI side by side stereo mode
       }
 
       // Clear the scene
@@ -126,7 +126,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // dont clear when we want to draw the 2 Zalman views
 
       if (in_stereo_flag != IN_STEREO_ZALMAN_LEFT)
-      	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 
       // From Bernhard
@@ -143,37 +143,37 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
       // Zalman works here?! but crap lighting!?
       if (in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-   // draws one Zalman lines
-   glEnable(GL_STENCIL_TEST);
-   glStencilFunc(GL_EQUAL, 1, 1);
-   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-   glEnable(GL_STENCIL_TEST);
+         // draws one Zalman lines
+         glEnable(GL_STENCIL_TEST);
+         glStencilFunc(GL_EQUAL, 1, 1);
+         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+         glEnable(GL_STENCIL_TEST);
 
-   /* red triangle for testing*/
-   //glColor3ub(200, 0, 0);
-   //glBegin(GL_POLYGON);
-   //glVertex3i(-4, -4, 0);
-   //glVertex3i(4, -4, 0);
-   //glVertex3i(0, 4, 0);
-   //glEnd();
+         /* red triangle for testing*/
+         //glColor3ub(200, 0, 0);
+         //glBegin(GL_POLYGON);
+         //glVertex3i(-4, -4, 0);
+         //glVertex3i(4, -4, 0);
+         //glVertex3i(0, 4, 0);
+         //glEnd();
 
-   //glDisable(GL_STENCIL_TEST);
+         //glDisable(GL_STENCIL_TEST);
       }
 
       if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT) {
-   // g_print("BL DEBUG:: now draw 'right'\n");
-   // draws the other Zalman lines
-   glStencilFunc(GL_EQUAL, 0, 1);
-   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-   glEnable(GL_STENCIL_TEST);
-   /* green square for testing */
-   //glColor3ub(0, 200, 0);
-   //glBegin(GL_POLYGON);
-   //glVertex3i(3, 3, 0);
-   //glVertex3i(-3, 3, 0);
-   //glVertex3i(-3, -3, 0);
-   //glVertex3i(3, -3, 0);
-   //glEnd();
+         // g_print("BL DEBUG:: now draw 'right'\n");
+         // draws the other Zalman lines
+         glStencilFunc(GL_EQUAL, 0, 1);
+         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+         glEnable(GL_STENCIL_TEST);
+         /* green square for testing */
+         //glColor3ub(0, 200, 0);
+         //glBegin(GL_POLYGON);
+         //glVertex3i(3, 3, 0);
+         //glVertex3i(-3, 3, 0);
+         //glVertex3i(-3, -3, 0);
+         //glVertex3i(3, -3, 0);
+         //glEnd();
       }
 
 
@@ -187,16 +187,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //               GLdouble near,   GLdouble far);
 
       GLdouble near_scale = 0.1;
-//       if (! graphics_info_t::esoteric_depth_cue_flag)
-// 	 near_scale = 0.3;
+      //       if (! graphics_info_t::esoteric_depth_cue_flag)
+      // 	 near_scale = 0.3;
 
       GLdouble near = -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.1 + 1.0);
       GLdouble far  =        0.30*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.1 + 1.0);
 
       //	 if (graphics_info_t::esoteric_depth_cue_flag)
       glOrtho(-0.3*graphics_info_t::zoom*aspect_ratio, 0.3*graphics_info_t::zoom*aspect_ratio,
-         -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
-         near, far);
+              -0.3*graphics_info_t::zoom,  0.3*graphics_info_t::zoom,
+              near, far);
       // 	 else
       // 	    glOrtho(-0.3*info.zoom*aspect_ratio, 0.3*info.zoom*aspect_ratio,
       // 		    -0.3*info.zoom,  0.3*info.zoom,
@@ -208,25 +208,25 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       if (graphics_info_t::esoteric_depth_cue_flag) {
-    glFogf(GL_FOG_START,  0.0f);
-    glFogf(GL_FOG_END, far);
+         glFogf(GL_FOG_START,  0.0f);
+         glFogf(GL_FOG_END, far);
       } else {
-    glFogf(GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
-    glFogf(GL_FOG_DENSITY, 1.0);
-    GLdouble fog_start = 0;
-    GLdouble fog_end =  far;
-    glFogf(GL_FOG_START,  fog_start);
-    glFogf(GL_FOG_END,    fog_end);
-    // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
-    // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+         glFogf(GL_FOG_COORD_SRC, GL_FRAGMENT_DEPTH);
+         glFogf(GL_FOG_DENSITY, 1.0);
+         GLdouble fog_start = 0;
+         GLdouble fog_end =  far;
+         glFogf(GL_FOG_START,  fog_start);
+         glFogf(GL_FOG_END,    fog_end);
+         // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
+         // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
       }
 
       if (false) { // try/test clipping
-    // I don't understand what I need to do
-    GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
-    glEnable(GL_CLIP_PLANE0);
-    glClipPlane(GL_CLIP_PLANE0, plane);
-    glPopMatrix();
+         // I don't understand what I need to do
+         GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+         glEnable(GL_CLIP_PLANE0);
+         glClipPlane(GL_CLIP_PLANE0, plane);
+         glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -241,186 +241,157 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // i.e. the screenrotation center is at (X(), Y(), Z())
       //
       glTranslatef(-graphics_info_t::RotationCentre_x(),
-      -graphics_info_t::RotationCentre_y(),
-      -graphics_info_t::RotationCentre_z());
+                   -graphics_info_t::RotationCentre_y(),
+                   -graphics_info_t::RotationCentre_z());
 
       draw_molecular_triangles(widget);
 
       if (false) { // try/test clipping
-    // This does indeed clip the model, but it's in world coordinates,
-    // not eye coordinates
-    GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
-    glEnable(GL_CLIP_PLANE0);
-    glClipPlane(GL_CLIP_PLANE0, plane);
-    glPopMatrix();
+         // This does indeed clip the model, but it's in world coordinates,
+         // not eye coordinates
+         GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+         glEnable(GL_CLIP_PLANE0);
+         glClipPlane(GL_CLIP_PLANE0, plane);
+         glPopMatrix();
       }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) {
-    coot::Cartesian front = unproject(0.0);
-    coot::Cartesian back  = unproject(1.0);
-    coot::Cartesian front_to_back = back - front;
-    coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
-    // glTranslatef(fbs.x(), fbs.y(), fbs.z());
+         coot::Cartesian front = unproject(0.0);
+         coot::Cartesian back  = unproject(1.0);
+         coot::Cartesian front_to_back = back - front;
+         coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
+         // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
       if (true) {
-    glPushMatrix();
-    glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
-    GLfloat  light_0_position[] = {  0.7,   0.0,   0.7, 0.0}; // 1 is positional, 0 is directional
-    GLfloat  light_1_position[] = { -0.3,   0.2,   1.0, 0.0};
-    GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
-    GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
-    GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
-    GLfloat  light_5_position[] = { -0.7,   0.7,  21.0, 0.0};
+         glPushMatrix();
+         glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
+         GLfloat  light_0_position[] = {  0.7,   0.0,   0.7, 0.0}; // 1 is positional, 0 is directional
+         GLfloat  light_1_position[] = { -0.3,   0.2,   1.0, 0.0};
+         GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
+         GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
+         GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
+         GLfloat  light_5_position[] = { -0.7,   0.7,  21.0, 0.0};
 
-    glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
-    glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
-    glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
+         glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
+         glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+         glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
 
-    glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
-    glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
-    glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
+         glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
+         glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
+         glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
 
-    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0);
-    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
-    glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0);
-    glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);
-    glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION,    0.0);
-    glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0);
+         glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0);
+         glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
+         glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0);
+         glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);
+         glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION,    0.0);
+         glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0);
 
-    glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION,    0.0);
-    glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0);
-    glLightf(GL_LIGHT4, GL_LINEAR_ATTENUATION,    0.0);
-    glLightf(GL_LIGHT4, GL_QUADRATIC_ATTENUATION, 0.0);
-    glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
-    glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
+         glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION,    0.0);
+         glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0);
+         glLightf(GL_LIGHT4, GL_LINEAR_ATTENUATION,    0.0);
+         glLightf(GL_LIGHT4, GL_QUADRATIC_ATTENUATION, 0.0);
+         glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
+         glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
 
-// 	 GLfloat light_ambient[] =  { 0.1, 0.1, 0.1, 1.0 };
-// 	 GLfloat light_diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
-// 	 GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+         // 	 GLfloat light_ambient[] =  { 0.1, 0.1, 0.1, 1.0 };
+         // 	 GLfloat light_diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
+         // 	 GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 
-// 	 glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-// 	 glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-// 	 glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+         // 	 glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+         // 	 glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+         // 	 glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
 
-// 	 glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-// 	 glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-// 	 glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+         // 	 glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+         // 	 glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+         // 	 glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
 
-    glPopMatrix();
+         glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
 
-#ifdef GRAPHICS_TESTING
-      // GLSL density maps
-
-      // this should not be a graphics_info_t variable. Needs to be put into molecule/map
-      bool do_flat_shading = graphics_info_t::do_flat_shading_for_solid_density_surface;
-      // do_flat_shading = false; // turn off
-      if (do_flat_shading) {
-    // glUseProgram(programID_global);
-
-    glLineWidth(graphics_info_t::map_line_width);
-    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-       if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
-          if (false)
-     std::cout << "GLSL for imol " << ii << " binding "
-       << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
-       << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-       << std::endl;
-          glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
-          glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
-         GL_UNSIGNED_INT, nullptr);
-          glBindVertexArray(0); // unbind
-       }
-    }
-    glUseProgram(0);
-      }
-
-      // draw_single_triangle();
-
-#endif // GRAPHICS_TESTING
 
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
-    // Molecule stuff
-    //
-    // turning off cis-peptides goes hand in hand with turning off atom disks in
-    // display_bonds(). We don't want to see them - they confuse the view
-    bool dcp =  graphics_info_t::draw_cis_peptide_markups;
-    if (graphics_info_t::moving_atoms_displayed_p())
-       dcp = false;
-    graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb, dcp);
+         // Molecule stuff
+         //
+         // turning off cis-peptides goes hand in hand with turning off atom disks in
+         // display_bonds(). We don't want to see them - they confuse the view
+         bool dcp =  graphics_info_t::draw_cis_peptide_markups;
+         if (graphics_info_t::moving_atoms_displayed_p())
+            dcp = false;
+         graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb, dcp);
 
-    //
-    graphics_info_t::molecules[ii].draw_dipoles();
+         //
+         graphics_info_t::molecules[ii].draw_dipoles();
 
-    // draw display list objects
-    if (graphics_info_t::molecules[ii].has_display_list_objects()) {
-       glEnable(GL_LIGHTING);
-       glEnable(GL_LIGHT0);
-       glEnable(GL_LIGHT1);
-       glEnable(GL_LIGHT3);
-       glEnable(GL_LIGHT4);
-       glDisable(GL_LIGHT2);
+         // draw display list objects
+         if (graphics_info_t::molecules[ii].has_display_list_objects()) {
+            glEnable(GL_LIGHTING);
+            glEnable(GL_LIGHT0);
+            glEnable(GL_LIGHT1);
+            glEnable(GL_LIGHT3);
+            glEnable(GL_LIGHT4);
+            glDisable(GL_LIGHT2);
  	    n_display_list_objects +=
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
-       glDisable(GL_LIGHTING);
-    }
-
-    if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
-       glEnable(GL_LIGHTING);
-       glEnable(GL_LIGHT0);
-       glEnable(GL_LIGHT1);
-       glDisable(GL_LIGHT2);
-       graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
-        graphics_info_t::time_holder_for_ligand_interactions);
-       glDisable(GL_LIGHTING);
-    }
-
-    // draw anisotropic atoms maybe
-    graphics_info_t::molecules[ii].anisotropic_atoms();
-
-    // We need to (also) pass whether we are drawing the first or
-    // secondary window, so that, when display lists are being
-    // used we use the correct part of theMapContours.
-    //
-         // BL says:: bad hack FIXME
-         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-       graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-       0);
-         } else {
-       graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-       in_stereo_flag);
+            glDisable(GL_LIGHTING);
          }
 
-    // Turn the light(s) on and after off, if needed.
-    //
-    graphics_info_t::molecules[ii].draw_surface();
+         if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
+            glEnable(GL_LIGHTING);
+            glEnable(GL_LIGHT0);
+            glEnable(GL_LIGHT1);
+            glDisable(GL_LIGHT2);
+            graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
+                                                                             graphics_info_t::time_holder_for_ligand_interactions);
+            glDisable(GL_LIGHTING);
+         }
 
-    // extra restraints - thin blue lines or some such
-    graphics_info_t::molecules[ii].draw_extra_restraints_representation();
+         // draw anisotropic atoms maybe
+         graphics_info_t::molecules[ii].anisotropic_atoms();
 
-    // Label the atoms in the atoms label list.
-    //
-    graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
-       graphics_info_t::seg_ids_in_atom_labels_flag);
+         // We need to (also) pass whether we are drawing the first or
+         // secondary window, so that, when display lists are being
+         // used we use the correct part of theMapContours.
+         //
+         // BL says:: bad hack FIXME
+         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
+            graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+                                                            0);
+         } else {
+            graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+                                                            in_stereo_flag);
+         }
 
-    // Draw the dotted atoms:
-    graphics_info_t::molecules[ii].draw_dots();
+         // Turn the light(s) on and after off, if needed.
+         //
+         graphics_info_t::molecules[ii].draw_surface();
 
-    // Draw Unit cell maybe.
-    graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
+         // extra restraints - thin blue lines or some such
+         graphics_info_t::molecules[ii].draw_extra_restraints_representation();
 
-    // Draw Map unit cell maybe;
-    graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
+         // Label the atoms in the atoms label list.
+         //
+         graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
+                                                    graphics_info_t::seg_ids_in_atom_labels_flag);
 
-    //
-    graphics_info_t::molecules[ii].draw_skeleton(is_bb);
+         // Draw the dotted atoms:
+         graphics_info_t::molecules[ii].draw_dots();
+
+         // Draw Unit cell maybe.
+         graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
+
+         // Draw Map unit cell maybe;
+         graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
+
+         //
+         graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
 
       // atom pull restraint
@@ -449,8 +420,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // lsq atom blobs
       if (graphics_info_t::lsq_plane_atom_positions->size() > 0) {
-    graphics_info_t g;
-    g.render_lsq_plane_atoms();
+         graphics_info_t g;
+         g.render_lsq_plane_atoms();
       }
 
       // ligand flash bond
@@ -459,9 +430,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // draw reference object, which sits at the model origin.
       //
       if (graphics_info_t::show_origin_marker_flag) {
-    glLineWidth(1.0);
-    glColor3f(0.7,0.7,0.2);
-    myWireCube (0.6);
+         glLineWidth(1.0);
+         glColor3f(0.7,0.7,0.2);
+         myWireCube (0.6);
       }
 
       graphics_info_t::draw_generic_objects();
@@ -471,25 +442,25 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       glPushMatrix();
       glTranslatef(graphics_info_t::RotationCentre_x(),
-      graphics_info_t::RotationCentre_y(),
-      graphics_info_t::RotationCentre_z());
+                   graphics_info_t::RotationCentre_y(),
+                   graphics_info_t::RotationCentre_z());
 
       draw_axes(m);
 
       graphics_info_t::graphics_ligand_view();
 
       glScalef (graphics_info_t::rotation_centre_cube_size,
-   graphics_info_t::rotation_centre_cube_size,
-   graphics_info_t::rotation_centre_cube_size);
+                graphics_info_t::rotation_centre_cube_size,
+                graphics_info_t::rotation_centre_cube_size);
 
       if (! graphics_info_t::smooth_scroll_on) {
-    glLineWidth(2.0);
-    glColor3f(0.8,0.6,0.7);
-    myWireCube (1.0);
+         glLineWidth(2.0);
+         glColor3f(0.8,0.6,0.7);
+         myWireCube (1.0);
       }
 
-     // Now we have finished displaying our annotation objects and
-     // making transformations, lets put the matrix back how it used
+      // Now we have finished displaying our annotation objects and
+      // making transformations, lets put the matrix back how it used
       // to be.
       glPopMatrix();
 
@@ -500,12 +471,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // Transparent density maps
       //
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-    if (graphics_info_t::is_valid_map_molecule(ii)) {
-       // enable lighting internal to this function
-       bool do_flat =
-          graphics_info_t::do_flat_shading_for_solid_density_surface;
-       graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
-    }
+         if (graphics_info_t::is_valid_map_molecule(ii)) {
+            // enable lighting internal to this function
+            bool do_flat =
+               graphics_info_t::do_flat_shading_for_solid_density_surface;
+            graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
+         }
       }
 
       //
@@ -519,7 +490,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 #if 0 // OpenGL interface
 
-    /* Swap backbuffer to front */
+         /* Swap backbuffer to front */
          GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
          if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
             gdk_gl_drawable_swap_buffers (gldrawable);
@@ -533,7 +504,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
-    glDisable(GL_STENCIL_TEST);
+         glDisable(GL_STENCIL_TEST);
 
       // show_lighting();
 

@@ -784,14 +784,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       }
 
       // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
-      n_vertices_for_VertexArray = 6 * tri_con.point_indices.size();
+      n_vertices_for_map_VertexArray = 6 * tri_con.point_indices.size();
       // That's wrong I think, let me try again
       // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
       n_indices_for_triangles    = 3 * tri_con.point_indices.size();
 
       // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
 
-      int *indices = new int[n_vertices_for_VertexArray];
+      int *indices = new int[n_vertices_for_map_VertexArray];
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
          indices[6*i  ] = tri_con.point_indices[i].pointID[0];
          indices[6*i+1] = tri_con.point_indices[i].pointID[1];
@@ -817,14 +817,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          normals[3*i+2] = tri_con.normals[i].z();
       }
 
-      int n_colours = n_vertices_for_VertexArray;
+      int n_colours = n_vertices_for_map_VertexArray;
       float *colours = new float[4 * n_colours];
       // check here for difference map to to the colours
       for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
          colours[4*i  ] = map_colour.red;
          colours[4*i+1] = map_colour.green;
          colours[4*i+2] = map_colour.blue;
-         colours[4*i+3] = 0.3f;
+         colours[4*i+3] = 1.0f;
       }
 
       // why is this needed?
@@ -903,7 +903,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_VertexArray,
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_map_VertexArray,
 		   &indices[0], GL_STATIC_DRAW);
       err = glGetError();
       std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
@@ -928,7 +928,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
    }
 
 
-   std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------" << n_vertices_for_VertexArray << std::endl;
+   std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------"
+             << n_vertices_for_map_VertexArray << std::endl;
 
 }
 

@@ -34,7 +34,7 @@ void main() {
 
   vec4 background_color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-  vec3 lightdir = normalize(vec3(-2,-1,5));
+  vec3 lightdir = normalize(vec3(-2,-1,3));
   float dp = dot(Normal, -lightdir);
 
   float m  = clamp(gl_FragCoord.x, 0.0f, 1.0f);
@@ -47,6 +47,5 @@ void main() {
 
   // interesting effects of this kind: gl_FragColor += vec4(0.2, 0.2, 0.2, 1.0);
   // I want to make the back face be grey, not black.
-
 
 }

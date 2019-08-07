@@ -226,7 +226,7 @@ void draw_map_molecules() {
       if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
       const molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! m.draw_it_for_map) continue;
-      if (m.n_vertices_for_VertexArray > 0) {
+      if (m.n_vertices_for_map_VertexArray > 0) {
 
          bool draw_with_lines = true;
          if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
@@ -238,6 +238,7 @@ void draw_map_molecules() {
                                << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
 
+            // I doubt that I need to do these here:
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
 
@@ -258,11 +259,11 @@ void draw_map_molecules() {
             glm::vec4 ep = new_unproject(0,0,-1);
             glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
-            glDrawElements(GL_LINES, m.n_vertices_for_VertexArray,
+            glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
                            GL_UNSIGNED_INT, nullptr);
             err = glGetError();
             if (err) std::cout << "   draw_map_molecules() glDrawElements() n_vertices: "
-                               << m.n_vertices_for_VertexArray
+                               << m.n_vertices_for_map_VertexArray
                                << " with GL err " << err << std::endl;
          }
 

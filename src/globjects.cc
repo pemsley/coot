@@ -1969,36 +1969,11 @@ void show_lighting() {
 /* When glarea widget size changes, viewport size is set to match the
    new size */
 
-gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
-
-   if (graphics_info_t::make_current_gl_context(widget)) {
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      glViewport(0,0, allocation.width, allocation.height);
-      graphics_info_t g;
-      GtkWidget *window = lookup_widget(widget, "window1");
-      gtk_widget_get_allocation(window, &allocation);
-      g.graphics_x_size = allocation.width;
-      g.graphics_y_size = allocation.height;
-   }
-   graphics_info_t::graphics_draw(); // Added 20080408, needed?
-   return TRUE;
-}
+gint reshape(GtkWidget *widget, GdkEventConfigure *event) { }
 
 /* When widget is exposed it's contents are redrawn. */
 #define DEG_TO_RAD .01745327
-gint expose(GtkWidget *widget, GdkEventExpose *event) {
-
-   // std::cout << "expose "  << widget << std::endl;
-   draw(widget, event);
-
-   // RR Broke
-   // if (graphics_info_t::do_expose_swap_buffers_flag)
-   // graphics_info_t::coot_swap_buffers(widget, 0);
-
-   graphics_info_t::do_expose_swap_buffers_flag = 1;
-   return TRUE;
-}
+gint expose(GtkWidget *widget, GdkEventExpose *event) { }
 
 void
 update_things_on_move_and_redraw() {
