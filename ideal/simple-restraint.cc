@@ -3665,7 +3665,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
    if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
-                << residue_spec_t(residue_p)
+                << residue_spec_t(residue_p) << " with " << residue_p->GetNumberOfAtoms() << " atoms "
                 <<  " and using type :" << pdb_resname << ": and imol "
                 << imol << " do_residue_internal_torsions: "
                 << do_residue_internal_torsions << std::endl;
@@ -6032,12 +6032,16 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
    int n_angle_restr = 0;
    int index1, index2, index3;
 
+   std::vector<std::string> string_atom_names(i_no_res_atoms);
+   for (int iat=0; iat<i_no_res_atoms; iat++)
+      string_atom_names[iat] = res_selection[iat]->name;
+
 //    std::cout << "There are " << geom[idr].angle_restraint.size()
 // 	     << " angle restraints for this residue type" << std::endl; 
 
    for (unsigned int ib=0; ib<geom[idr].second.angle_restraint.size(); ib++) {
       for (int iat=0; iat<i_no_res_atoms; iat++) {
-	 std::string pdb_atom_name1(res_selection[iat]->name);
+	 const std::string &pdb_atom_name1 = string_atom_names[iat];
 
 //  	 std::cout << "angle:  comparing :" << pdb_atom_name1 << ": with :"
 //  		   << geom[idr].angle_restraint[ib].atom_id_1_4c()
@@ -6046,7 +6050,7 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 	 if (pdb_atom_name1 == geom[idr].second.angle_restraint[ib].atom_id_1_4c()) {
 	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
-	       std::string pdb_atom_name2(res_selection[iat2]->name);
+	       const std::string &pdb_atom_name2 = string_atom_names[iat2];
 	       if (pdb_atom_name2 == geom[idr].second.angle_restraint[ib].atom_id_2_4c()) {
 				    
 // 		  std::cout << "angle: atom match 1 " << pdb_atom_name1;
@@ -6055,7 +6059,7 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 
 		  for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
 		     
-		     std::string pdb_atom_name3(res_selection[iat3]->name);
+                     const std::string &pdb_atom_name3 = string_atom_names[iat3];
 		     if (pdb_atom_name3 == geom[idr].second.angle_restraint[ib].atom_id_3_4c()) {
 
 			std::string alt_1(res_selection[iat ]->altLoc);
@@ -6215,6 +6219,10 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
    
    //   std::cout << "DEBUG:: trying to add chirals for this residue..." << std::endl;
    
+   std::vector<std::string> string_atom_names(i_no_res_atoms);
+   for (int iat=0; iat<i_no_res_atoms; iat++)
+      string_atom_names[iat] = res_selection[iat]->name;
+
    for (unsigned int ic=0; ic<geom[idr].second.chiral_restraint.size(); ic++) {
       // for now, let's just reject restraints that are a "both",
       // better would be to check the geometry and refine to the one
@@ -6224,19 +6232,19 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 
       if (!geom[idr].second.chiral_restraint[ic].is_a_both_restraint()) { 
 	 for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
-	    std::string pdb_atom_name1(res_selection[iat1]->name);
+	    const std::string &pdb_atom_name1 = string_atom_names[iat1];
 	    if (pdb_atom_name1 == geom[idr].second.chiral_restraint[ic].atom_id_1_4c()) {
 	       
 	       for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
-		  std::string pdb_atom_name2(res_selection[iat2]->name);
+                  const std::string &pdb_atom_name2 = string_atom_names[iat2];
 		  if (pdb_atom_name2 == geom[idr].second.chiral_restraint[ic].atom_id_2_4c()) {
 		     
 		     for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
-			std::string pdb_atom_name3(res_selection[iat3]->name);
+                        const std::string &pdb_atom_name3 = string_atom_names[iat3];
 			if (pdb_atom_name3 == geom[idr].second.chiral_restraint[ic].atom_id_3_4c()) {
 			   
 			   for (int iatc=0; iatc<i_no_res_atoms; iatc++) {
-			      std::string pdb_atom_namec(res_selection[iatc]->name);
+                              const std::string &pdb_atom_namec = string_atom_names[iatc];
 			      if (pdb_atom_namec == geom[idr].second.chiral_restraint[ic].atom_id_c_4c()) {
 				 
 //   			      std::cout << "DEBUG:: adding chiral number " << ic << " for " 

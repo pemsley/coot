@@ -222,6 +222,9 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 								bool do_trans_peptide_restraints) {
 
    bool debug = false;
+
+   std::cout << "INFO:: making flanking restraints" << std::endl;
+
    link_restraints_counts flank_restraints("flank");
 
    // residue 20 is being refined, we need to make flanking link restraints to residues 19 and 21 using
@@ -1456,6 +1459,8 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 
    // make_polymer_links_ng uses the residues_vec (which is sorted in initialization)
    // so, only the passed active atoms are consider for polymer links
+
+   std::cout << "INFO:: making link polymer links " << std::endl;
 
    std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set = *residue_pair_link_set_p;
 
