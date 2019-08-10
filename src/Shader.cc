@@ -14,6 +14,28 @@ Shader::Shader(const std::string &file_name, Shader::Entity_t e) {
    init(file_name, e);
 }
 
+Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name) {
+
+   entity_type = Entity_t::HUD_TEXT; // hackety-hack
+   program_id = glCreateProgram();
+
+   parse(vs_file_name);
+   if (! VertexSource.empty()) {
+      unsigned int vs = compile_shader(VertexSource, ShaderType::VERTEX);
+      parse(fs_file_name);
+      if (! FragmentSource.empty()) {
+         unsigned int fs = compile_shader(FragmentSource, ShaderType::FRAGMENT);
+
+         glAttachShader(program_id, vs);
+         glAttachShader(program_id, fs);
+         glLinkProgram(program_id);
+         glValidateProgram(program_id);
+      } else {
+        std::cout << "Oops - empty Fragment shader" << std::endl;
+      }
+   }
+}
+
 void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    // don't init if we have already been init.
    // (maybe this is not the best way of dealing with double-reading)
@@ -27,6 +49,7 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
          program_id = create();
          std::cout << "debug() Shader::init() " << file_name << " program_id " << program_id << std::endl;
          if (true) {
+            Use();
             set_uniform_locations();
             set_attribute_locations();
          }
@@ -36,6 +59,13 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    } else {
       std::cout << "Empty Vertex Shader source\n";
    }
+}
+
+void
+Shader::Use() {
+
+  glUseProgram(program_id);
+
 }
 
 void
@@ -76,11 +106,6 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
       uniform_location_map[key] = l;
       return l;
    }
-}
-
-void
-Shader::Use() {
-   glUseProgram(program_id);
 }
 
 void Shader::set_uniform_locations() {

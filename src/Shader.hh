@@ -21,6 +21,7 @@ private:
 public:
    Shader();
    Shader(const std::string &file_name, Entity_t e);
+   Shader(const std::string &vs_file_name,  const std::string &fs_file_name);
    void init(const std::string &file_name, Entity_t e);
    unsigned int program_id;
    void Use();
