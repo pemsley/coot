@@ -957,13 +957,16 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
         (z - rotation_centre_z) != 0.0) {
       smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
    }
-
 }
+
+#include <glm/gtx/string_cast.hpp>
 
 void
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
-        short int do_zoom_and_move_flag,
-        float target_zoom) {
+                                                             short int do_zoom_and_move_flag,
+                                                             float target_zoom) {
+
+   std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
    // This is more like how PyMol does it (and is better than stepped
    // acceleration).
@@ -988,7 +991,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 
       float frac = 1;
       if (smooth_scroll_steps > 0)
-    frac = 1/float (smooth_scroll_steps);
+         frac = 1/float (smooth_scroll_steps);
       float stepping_x = frac*xd;
       float stepping_y = frac*yd;
       float stepping_z = frac*zd;
@@ -999,16 +1002,19 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 
       smooth_scroll_on = 1; // flag to stop wirecube being drawn.
       double v_acc = 0; // accumulated distance
+      smooth_scroll_steps = 3000;
       for (int istep=0; istep<smooth_scroll_steps; istep++) {
-    if (do_zoom_and_move_flag)
-       zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
-    double theta = 2 * M_PI * frac * istep;
-    double v = (1-cos(theta))*frac;
-    v_acc += v;
-    rotation_centre_x = rc_x_start + v_acc * xd;
-    rotation_centre_y = rc_y_start + v_acc * yd;
-    rotation_centre_z = rc_z_start + v_acc * zd;
-    graphics_draw();
+         if (do_zoom_and_move_flag)
+            zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
+         double theta = 2 * M_PI * frac * istep;
+         double v = (1-cos(theta))*frac;
+         v_acc += v;
+         rotation_centre_x = rc_x_start + v_acc * xd;
+         rotation_centre_y = rc_y_start + v_acc * yd;
+         rotation_centre_z = rc_z_start + v_acc * zd;
+         std::cout << istep << " " << glm::to_string(get_rotation_centre()) << std::endl;
+         // graphics_draw();
+         gtk_widget_queue_draw(GTK_WIDGET(glarea));
       }
 
       smooth_scroll_on = 0;
@@ -1042,10 +1048,10 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
    // This bit of code doesn't get executed (practically ever).
    if (smooth_scroll_do_zoom && (pre_zoom < 70.0)) {
       if ( (xd*xd + yd*yd + zd*zd) > smooth_scroll_limit*smooth_scroll_limit ) {
-    for (int ii=0; ii<n_extra_steps+smooth_scroll_steps; ii++) {
-       graphics_info_t::zoom *= zoom_in; // typically 1.1
-       graphics_draw();
-    }
+         for (int ii=0; ii<n_extra_steps+smooth_scroll_steps; ii++) {
+            graphics_info_t::zoom *= zoom_in; // typically 1.1
+            graphics_draw();
+         }
       }
    }
 
@@ -1055,13 +1061,13 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
       if (0) {
 
     for (int ii=0; ii<smooth_scroll_steps; ii++) {
-       rotation_centre_x += stepping_x;
-       rotation_centre_y += stepping_y;
-       rotation_centre_z += stepping_z;
-       if (do_zoom_and_move_flag)
+      rotation_centre_x += stepping_x;
+      rotation_centre_y += stepping_y;
+      rotation_centre_z += stepping_z;
+      if (do_zoom_and_move_flag)
           graphics_info_t::zoom = pre_zoom +
-     float(ii+1)*frac*(target_zoom - pre_zoom);
-       graphics_draw();
+      float(ii+1)*frac*(target_zoom - pre_zoom);
+      graphics_draw();
     }
 
       } else {

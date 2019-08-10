@@ -1,19 +1,19 @@
 /* src/graphics-info-navigation.cc
- * 
+ *
  * Copyright 2004, 2005, 2006 by The University of York
  * Copyright 2013, 2016 by Medical Research Council
  * Author Paul Emsley, Bernhard Lohkamp
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
@@ -61,14 +61,14 @@
 
 #include "cc-interface.hh"  // for statusbar_text
 
-// After this function, we call try_centre_from_new_go_to_atom(); 
-void graphics_info_t::set_go_to_atom_chain_residue_atom_name(const gchar *t1, 
-							     int it2, 
+// After this function, we call try_centre_from_new_go_to_atom();
+void graphics_info_t::set_go_to_atom_chain_residue_atom_name(const gchar *t1,
+							     int it2,
 							     const gchar *t3){
    // these are strings, don't forget.
-   go_to_atom_chain_     = t1; 
-   go_to_atom_residue_   = it2; 
-   go_to_atom_atom_name_ = t3; 
+   go_to_atom_chain_     = t1;
+   go_to_atom_residue_   = it2;
+   go_to_atom_atom_name_ = t3;
    go_to_atom_atom_altLoc_ = "empty";  // Reset it to something
                                        // sensible don't keep the old
                                        // altLoc; see
@@ -78,30 +78,30 @@ void graphics_info_t::set_go_to_atom_chain_residue_atom_name(const gchar *t1,
 
 }
 
-// After this function, we call try_centre_from_new_go_to_atom(); 
-void 
-graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *t1, 
-							int it2, const char *t3, const char *altLoc) { 
-   
+// After this function, we call try_centre_from_new_go_to_atom();
+void
+graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *t1,
+							int it2, const char *t3, const char *altLoc) {
+
    // these are strings, don't forget.
-   go_to_atom_chain_     = t1; 
-   go_to_atom_residue_   = it2; 
-   go_to_atom_atom_name_ = t3; 
+   go_to_atom_chain_     = t1;
+   go_to_atom_residue_   = it2;
+   go_to_atom_atom_name_ = t3;
    go_to_atom_atom_altLoc_ = altLoc;
    go_to_atom_inscode_ = "";
-   
-} 
+
+}
 
 
-// After this function, we call try_centre_from_new_go_to_atom(); 
-void 
-graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *chain_id, 
+// After this function, we call try_centre_from_new_go_to_atom();
+void
+graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 							int resno, const char *ins_code,
 							const char *atom_name, const char *altLoc) {
    // these are strings, don't forget.
-   go_to_atom_chain_     = chain_id; 
-   go_to_atom_residue_   = resno; 
-   go_to_atom_atom_name_ = atom_name; 
+   go_to_atom_chain_     = chain_id;
+   go_to_atom_residue_   = resno;
+   go_to_atom_atom_name_ = atom_name;
    go_to_atom_atom_altLoc_ = altLoc;
    go_to_atom_inscode_ = ins_code;
 }
@@ -109,7 +109,7 @@ graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char *chain_id,
 
 const char *graphics_info_t::go_to_atom_chain() {
 
-   return go_to_atom_chain_.c_str(); 
+   return go_to_atom_chain_.c_str();
 }
 
 // Return the current go_to_atom residue number, if special case
@@ -143,11 +143,11 @@ int graphics_info_t::go_to_atom_residue() {
 
 int graphics_info_t::go_to_atom_molecule() {
 
-   return go_to_atom_molecule_; 
+   return go_to_atom_molecule_;
 }
 
 const char *graphics_info_t::go_to_atom_atom_name() {
-   return go_to_atom_atom_name_.c_str(); 
+   return go_to_atom_atom_name_.c_str();
 }
 
 const char *
@@ -160,31 +160,31 @@ graphics_info_t::go_to_atom_alt_conf() {
    return go_to_atom_atom_altLoc_.c_str();
 }
 
-void 
-graphics_info_t::set_go_to_atom_molecule(int pos) { 
+void
+graphics_info_t::set_go_to_atom_molecule(int pos) {
    go_to_atom_molecule_ = pos;
 }
 
 int
 graphics_info_t::try_centre_from_new_go_to_atom() {
 
-   // 
-   // std::string atom_string = make_mmdb_atom_string_from_go_to_atom(); 
+   //
+   // std::string atom_string = make_mmdb_atom_string_from_go_to_atom();
 
    // find_atom_index returns pick_info using prestored atom
    // information (go_to_atom_* variables).
    //
    int imol = go_to_atom_molecule();
-   pick_info pi = find_atom_index_from_goto_info(imol); 
+   pick_info pi = find_atom_index_from_goto_info(imol);
    if (pi.success) {
 
-      setRotationCentre(pi.atom_index, go_to_atom_molecule()); 
+      setRotationCentre(pi.atom_index, go_to_atom_molecule());
 
-   } else { 
+   } else {
       cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
 	   << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
 	   << " res-no: " << go_to_atom_residue()
-	   << ", ins-code \"" << go_to_atom_inscode_ << "\"," 
+	   << ", ins-code \"" << go_to_atom_inscode_ << "\","
 	   << " chain: \"" << go_to_atom_chain()
 	   << "\" not found in molecule " << go_to_atom_molecule() << endl;
       std::string w = "WARNING:: atom ";
@@ -198,20 +198,20 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
       w += coot::util::int_to_string(go_to_atom_molecule());
       add_status_bar_text(w);
    }
-   return pi.success; 
+   return pi.success;
 }
 
 // Return atom_name, altconf: e.g. (" CA ", "B") from " CA ,B").
-// 
+//
 // static
-std::pair<std::string, std::string> 
-graphics_info_t::split_atom_name(const std::string &atom_name) { 
+std::pair<std::string, std::string>
+graphics_info_t::split_atom_name(const std::string &atom_name) {
 
    std::pair<std::string, std::string> v("","");
 
    std::string::size_type icomma = atom_name.find_last_of(",");
-   if (icomma == string::npos) { 
-      // no comma 
+   if (icomma == string::npos) {
+      // no comma
       v.first = atom_name;
    } else {
       v.first  = atom_name.substr(0, icomma);
@@ -220,7 +220,7 @@ graphics_info_t::split_atom_name(const std::string &atom_name) {
 	 v.second = atom_name.substr(icomma + 1, an_length);
       }
    }
-   
+
    return v;
 }
 
@@ -228,8 +228,8 @@ graphics_info_t::split_atom_name(const std::string &atom_name) {
 //
 // return a pair, the first of which is the resno as a string, the
 // second of which is the inscode as a string.
-// 
-std::pair<std::string, std::string> 
+//
+std::pair<std::string, std::string>
 graphics_info_t::split_resno_inscode(const std::string &entry_str) {
 
    std::pair<std::string, std::string> v("","");
@@ -254,7 +254,7 @@ graphics_info_t::split_resno_inscode(const std::string &entry_str) {
 	       v.first  = entry_str.substr(0, i);
 	    }
 	 }
-      } 
+      }
    }
 //    std::cout << "DEBUG:: :" << v.first << ": :"
 // 	     << v.second << ":" << std::endl;
@@ -283,20 +283,20 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 }
 
 // direction is either "next" or "previous"
-// 
+//
 int
 graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 						const std::string &direction) {
 
 
-   
+
    std::string chain =     go_to_atom_chain_;
    std::string atom_name = go_to_atom_atom_name_;
    std::string ins_code =  go_to_atom_inscode_;
    int resno = go_to_atom_residue();
    int imol = go_to_atom_molecule();
 
-   if (0) { 
+   if (true) {
       std::cout << "intelligent_near_atom_centring() " << direction << std::endl;
       std::cout << "intelligent_near_atom_centring() " << imol << std::endl;
       std::cout << "intelligent_near_atom_centring() :" << chain << ":" << std::endl;
@@ -330,38 +330,38 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
       coot::Cartesian rc = RotationCentre();
       if (direction == "next") {
-	 atom_index = molecules[imol].intelligent_next_atom(chain, resno, atom_name, ins_code, rc);
+         atom_index = molecules[imol].intelligent_next_atom(chain, resno, atom_name, ins_code, rc);
       } else { // "previous"
-	 atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code, rc);
-      } 
+         atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code, rc);
+      }
 
       if (atom_index != -1) {
-	 mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
+         mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
 
-	 go_to_atom_chain_       = next_atom->GetChainID();
-	 go_to_atom_atom_name_   = next_atom->name;
-	 go_to_atom_residue_     = next_atom->GetSeqNum();
-	 go_to_atom_inscode_     = next_atom->GetInsCode();
-	 go_to_atom_atom_altLoc_ = next_atom->altLoc;
+         go_to_atom_chain_       = next_atom->GetChainID();
+         go_to_atom_atom_name_   = next_atom->name;
+         go_to_atom_residue_     = next_atom->GetSeqNum();
+         go_to_atom_inscode_     = next_atom->GetInsCode();
+         go_to_atom_atom_altLoc_ = next_atom->altLoc;
 
-	 // now update the widget with the new values of the above (like
-	 // c-interface:goto_near_atom_maybe())
+         // now update the widget with the new values of the above (like
+         // c-interface:goto_near_atom_maybe())
 
-	 if (go_to_atom_window) { 
-	    update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-	    // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window, 
-	    // 						 "go_to_atom_residue_tree"); 
-	    // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
-	 } 
-	 try_centre_from_new_go_to_atom();
-	 
-	 // Update the graphics (glarea widget):
-	 // 
-	 update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
-     // and show something in the statusbar
-     std::string ai;
-     ai = atom_info_as_text_for_statusbar(atom_index, imol);
-     add_status_bar_text(ai);
+         if (go_to_atom_window) {
+            update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+            // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+            // 						 "go_to_atom_residue_tree");
+            // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
+         }
+         try_centre_from_new_go_to_atom();
+
+         // Update the graphics (glarea widget):
+         //
+         update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
+                                             // and show something in the statusbar
+         std::string ai;
+         ai = atom_info_as_text_for_statusbar(atom_index, imol);
+         add_status_bar_text(ai);
       }
    }
    return 1;
@@ -372,50 +372,50 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 // *t1, int it2, const char *t3, const char *altLoc)
 // in that it sets the go_to_atom variables.
 // (try_centre_from_new_go_to_atom should be called after this function)
-// 
+//
 // We will set the atom name to " CA " if there is one, if not, then
 // first atom in the residue.
-//
+//';m,.'
 // Note the non-optimalness: we find the atom index when we find the
 // atom in the residue, but then throw it away again and use
 // try_centre_from_new_go_to_atom()
 //
 void
 graphics_info_t::set_go_to_residue_intelligent(const std::string &chain_id, int resno,
-					       const std::string &ins_code) { 
+					       const std::string &ins_code) {
 
-      
+
    // OK, we want a molecule function that returns an atom name
    // (either " CA ", or the first atom in the residue or "no-residue"
    // (error-flag)).
 
    mmdb::Atom *at = molecules[go_to_atom_molecule()].atom_intelligent(chain_id, resno, ins_code);
 
-   if (at) { 
+   if (at) {
       go_to_atom_chain_ = chain_id;
       go_to_atom_residue_ = resno;
       go_to_atom_atom_name_ = std::string(at->name);
       go_to_atom_atom_altLoc_ = std::string(at->altLoc);
       go_to_atom_inscode_ = ins_code;
-   } else { 
-      std::cout << "Sorry - can't find residue " << resno << " " << chain_id 
+   } else {
+      std::cout << "Sorry - can't find residue " << resno << " " << chain_id
 		<< " in molecule " << go_to_atom_molecule() << std::endl;
-   } 
-} 
+   }
+}
 
 
 // We pass atom so that we know the mmdb atom and residue which we
 // have just centred on.  Using that, we can also update the residue
 // and atom list (like Jan wants) rather than just the entry widgets.
-// 
+//
 void
 graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *atom)  {
 
    std::string res_str   = int_to_string(go_to_atom_residue_);
-   res_str += go_to_atom_inscode_; 
+   res_str += go_to_atom_inscode_;
 
    GtkEntry *entry;
-   
+
    if (window) {
        entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_chain_entry"));
        gtk_entry_set_text(entry, go_to_atom_chain_.c_str());
@@ -426,7 +426,7 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *
       entry = GTK_ENTRY(lookup_widget(window, "go_to_atom_atom_name_entry"));
       std::string atom_name_txt = go_to_atom_atom_name_;
       if (! (go_to_atom_atom_altLoc_ == "empty")) {
-	 if (go_to_atom_atom_altLoc_ != "") { 
+	 if (go_to_atom_atom_altLoc_ != "") {
 	    atom_name_txt += ",";
 	    atom_name_txt += go_to_atom_atom_altLoc_;
 	 }
@@ -435,14 +435,14 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *
 
    } else {
       std::cout << "ERROR: Null window in update_widget_go_to_atom_values\n";
-   } 
+   }
 }
 
 
 
 // We need to run through the list items looking for a item that
 // has an attached user data that is the residue of that atom:
-// 
+//
 // When we find it, we generate a synthetic signal that that list_item
 // has been selected - which runs the callback
 // on_go_to_atom_residue_list_selection_changed().
@@ -454,7 +454,7 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *
 //
 // We need to go into the list and check if this item has a tree
 // attached (it should do) and check *those* items.
-// 
+//
 void
 graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, mmdb::Atom *atom_p) const {
 
@@ -466,7 +466,7 @@ graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, 
 
    // actually it would be nice to fix this
 
-#endif   
+#endif
 
 }
 
@@ -476,47 +476,47 @@ graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, 
 // (go_to_atom_* variables).
 //
 pick_info
-graphics_info_t::find_atom_index_from_goto_info(int imol) { 
+graphics_info_t::find_atom_index_from_goto_info(int imol) {
 
-   pick_info pi; 
+   pick_info pi;
 
    pi.min_dist = 0; // keep compiler happy
    pi.atom_index = -1; // ditto
    pi.imol = -1; // ditto
-   pi.success = GL_FALSE; 
+   pi.success = GL_FALSE;
 
    // actually, try ignoring the atom_string argument and consider
    // using mmdb atom selection
 
-   if (imol < 0) { 
+   if (imol < 0) {
       std::cout << "WARNING:: no molecule for imol = " << imol << std::endl;
-      
-   } else { 
 
-      if (imol >= n_molecules()) { 
+   } else {
+
+      if (imol >= n_molecules()) {
 	 std::cout << "WARNING:: no molecule for imol = " << imol << std::endl;
-      } else { 
-      
+      } else {
+
 	 if (graphics_info_t::molecules[imol].atom_sel.mol == NULL ) {
 	    std::cout << "WARNING: (Programmer error) looking for atoms "
 		      << "in a molecule " << imol << " which is null" << std::endl;
 	 } else {
-	    atom_selection_container_t AtomSel = 
-	       graphics_info_t::molecules[imol].atom_sel; 
+	    atom_selection_container_t AtomSel =
+	       graphics_info_t::molecules[imol].atom_sel;
 
 	    int selHnd = AtomSel.mol->NewSelection(); // d
 
 	    // 0 -> any (mmdb) model
-	    // 
-	    // note that we have to do ugly (char *) casting.  Hopefully 
+	    //
+	    // note that we have to do ugly (char *) casting.  Hopefully
 	    // that will go away in new version of mmdb..? (20 Aug 2002 - PE)
-	    // 
-	    std::pair<std::string, std::string> p = 
+	    //
+	    std::pair<std::string, std::string> p =
 	       graphics_info_t::split_atom_name(go_to_atom_atom_name());
 
 	    char altconf[2];
 	    strncpy(altconf, go_to_atom_atom_altLoc_.c_str(), 2);
-	    if (go_to_atom_atom_altLoc_ == "empty") { 
+	    if (go_to_atom_atom_altLoc_ == "empty") {
 	       strcpy(altconf, "");
 	    }
 
@@ -535,13 +535,13 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 				      p.first.c_str(), // atom name
 				      "*", // elements
 				      "*"
-				      ); 
+				      );
 
-	    int nSelAtoms; 
+	    int nSelAtoms;
 	    mmdb::PPAtom local_SelAtom = NULL;
 
 	    // modify nSelAtoms
-	    // 
+	    //
 	    AtomSel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
 	    if (nSelAtoms > 0) {
@@ -555,26 +555,26 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 
 	       // So the question is however, what is the index of the atom in
 	       // the AtomSel.atom_selection array?
-	       // 
+	       //
 	       // Let's use the UDD (c.f. full_atom_spec_to_atom_index)
 
 	       int ic;
 	       std::string target_altconf = go_to_atom_atom_altLoc_;
 	       for (int iat=0; iat<nSelAtoms; iat++) {
-		  if (target_altconf == local_SelAtom[iat]->altLoc) { 
+		  if (target_altconf == local_SelAtom[iat]->altLoc) {
 		     if (local_SelAtom[iat]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
-			pi.success = GL_TRUE; 
+			pi.success = GL_TRUE;
 			pi.atom_index = ic;
 			break;
 		     } else {
-	 
+
 			// Fall back to comparing pointers.
-			// 
-			for (int i=0; i<AtomSel.n_selected_atoms; i++) { 
-			   if (AtomSel.atom_selection[i] == local_SelAtom[0]) { 
-			      pi.success = GL_TRUE; 
+			//
+			for (int i=0; i<AtomSel.n_selected_atoms; i++) {
+			   if (AtomSel.atom_selection[i] == local_SelAtom[0]) {
+			      pi.success = GL_TRUE;
 			      pi.atom_index = i;
-			      break; 
+			      break;
 			   }
 			}
 		     }
@@ -582,37 +582,37 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	       }
 
 	       // The altconf didn't match, so try an atom that is the same except for the altconf:
-	       // 
+	       //
 	       if (pi.success != GL_TRUE) {
 		  if (local_SelAtom[0]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
-		     pi.success = GL_TRUE; 
+		     pi.success = GL_TRUE;
 		     pi.atom_index = ic;
 		  } else {
-		     
+
 		     // Fall back to comparing pointers.
-		     // 
-		     for (int i=0; i<AtomSel.n_selected_atoms; i++) { 
-			if (AtomSel.atom_selection[i] == local_SelAtom[0]) { 
-			   pi.success = GL_TRUE; 
+		     //
+		     for (int i=0; i<AtomSel.n_selected_atoms; i++) {
+			if (AtomSel.atom_selection[i] == local_SelAtom[0]) {
+			   pi.success = GL_TRUE;
 			   pi.atom_index = i;
-			   break; 
+			   break;
 			}
 		     }
 		  }
 	       }
 
 	       if (pi.success == GL_TRUE) {
-		  go_to_atom_atom_altLoc_ = AtomSel.atom_selection[pi.atom_index]->altLoc;
+             go_to_atom_atom_altLoc_ = AtomSel.atom_selection[pi.atom_index]->altLoc;
 	       }
 
 	       // should we update the go to atom widget's atom name entry now? (it
 	       // is not updated elsewhere)
-		  
+
 	    } else {
-	       
+
 	       // this happens when the search atom is not in the molecule
 
-	       int selHnd_check = AtomSel.mol->NewSelection(); 
+	       int selHnd_check = AtomSel.mol->NewSelection();
 	       AtomSel.mol->SelectAtoms (selHnd_check, 0, "*",
 					 mmdb::ANY_RES, // starting resno, an int
 					 "*", // any insertion code
@@ -629,8 +629,8 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 					local_SelAtom_check, nSelAtoms_check);
 
 	       std::cout << "There are " << nSelAtoms_check << " atoms "
-			 << "in the molecule " << std::endl; 
-	       // 
+			 << "in the molecule " << std::endl;
+	       //
 	       std::cout << "find_atom_index_from_goto_info(), "
 			 << "no matching atoms of the " << AtomSel.n_selected_atoms
 			 <<" in this (non-null) molecule ("
@@ -641,12 +641,12 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	 }
       }
    }
-   return pi; 
+   return pi;
 }
 
 // imol has changed.
 // Now fix up the Go_To_Atom window to match:
-// 
+//
 void
 graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
 
@@ -656,7 +656,7 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
    // deleted)
 
 
-   if (go_to_atom_window) { 
+   if (go_to_atom_window) {
 
       // The go to atom molecule matched this molecule, so we
       // need to regenerate the residue and atom lists.
@@ -665,45 +665,45 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       GtkWidget *atom_list = lookup_widget(go_to_atom_window,
 					   "go_to_atom_atom_list");
       if (residue_tree == NULL) {
-	 std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n"; 
+         std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n";
       } else {
-	 graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
+         graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
       }
-   } 
+   }
 }
 
 
 
-void 
+void
 graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 
   const gchar *chain_str;
-  const gchar *res_str; 
-  const gchar *atom_name_str; 
+  const gchar *res_str;
+  const gchar *atom_name_str;
 
-  GtkEntry *entry; 
+  GtkEntry *entry;
 
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), 
+  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget),
 				  "go_to_atom_chain_entry"));
   chain_str = gtk_entry_get_text(entry);
 
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), 
+  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget),
 				  "go_to_atom_residue_entry"));
   res_str = gtk_entry_get_text(entry);
 
-  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget), 
+  entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(widget),
 				  "go_to_atom_atom_name_entry"));
 
   const gchar *txt =  gtk_entry_get_text(entry);
   if (txt) {
-     std::pair<std::string, std::string> p = 
-	graphics_info_t::split_atom_name(std::string(txt));
-//      std::cout << "DEBUG: split: " << std::string(txt) << " into :" 
+     std::pair<std::string, std::string> p =
+        graphics_info_t::split_atom_name(std::string(txt));
+//      std::cout << "DEBUG: split: " << std::string(txt) << " into :"
 // 	       << p.first << ":  :" << p.second << ":\n" ;
 
      // we have to use the version of set_go_to.. that has 4 params,
      // because the 3 parameter version sets the altconf to "empty:.
-     // 
+     //
      atom_name_str = p.first.c_str();
 
      std::pair<std::string, std::string> resno_inscode =
@@ -718,10 +718,10 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
      set_go_to_atom_chain_residue_atom_name(chain_str,
 					    resno,
 					    inscode.c_str(),
-					    atom_name_str, 
+					    atom_name_str,
 					    p.second.c_str());
      int success = try_centre_from_new_go_to_atom();
-     if (success) 
+     if (success)
 	update_things_on_move_and_redraw();
   }
 }
@@ -729,9 +729,9 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 
 
 // Coordinates have been read into a new molecule (imol).
-// 
+//
 // Now fix up the Go_To_Atom window to match by changing the option menu
-// 
+//
 void
 graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
@@ -740,7 +740,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
    if (go_to_atom_window) {
 
       // GtkWidget *option_menu =
-      // lookup_widget(GTK_WIDGET(go_to_atom_window), 
+      // lookup_widget(GTK_WIDGET(go_to_atom_window),
       //"go_to_atom_molecule_optionmenu");
 
       GtkWidget *combobox = lookup_widget(go_to_atom_window, "go_to_atom_molecule_combobox");
@@ -768,7 +768,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // molecule residue tree (do we?)
       //
       // 20090620:
-      // 
+      //
       //    I wonder why I thought the above.  The behaviour before
       //    todays fix was that on reading a new molecule, the
       //    residue/atom trees were not updated.  How can I have
@@ -778,7 +778,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       //    is not updated by reading in a new PDB file!  That's why
       //    the atom/residue trees should not be changed (except for
       //    special circumstances).
-      
+
       int mol_no= -1;
       std::vector<int> imols_existing;
       for (int imol=0; imol<n_molecules(); imol++) {
@@ -800,7 +800,7 @@ void
 graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 
    if (go_to_atom_window) {
-      GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window), 
+      GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window),
 					     "go_to_atom_molecule_combobox");
 
       GCallback callback_func = G_CALLBACK(go_to_atom_mol_combobox_changed);
@@ -809,11 +809,11 @@ graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
    }
 }
 
-int 
+int
 graphics_info_t::update_go_to_atom_molecule_on_go_to_atom_molecule_deleted() {
 
    // Choose the first valid molecule
-   // 
+   //
    int mol_no= -1;
    std::vector<int> imols_existing;
    for (int imol=0; imol<n_molecules(); imol++) {
@@ -827,7 +827,7 @@ graphics_info_t::update_go_to_atom_molecule_on_go_to_atom_molecule_deleted() {
       update_go_to_atom_window_on_changed_mol(mol_no);
    }
    return mol_no;
-} 
+}
 
 
 // a static
@@ -843,18 +843,18 @@ graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 
 //    std::cout << "This function should not be called!" << std::endl;
 
-// //    GtkSignalFunc callback_func = 
+// //    GtkSignalFunc callback_func =
 // //       GTK_SIGNAL_FUNC(graphics_info_t::go_to_atom_mol_menu_item_select);
-   
+
 // //    fill_option_menu_with_coordinates_options(option_menu, callback_func);
 
-   
+
 // }
 
 
 // // a static
 // void
-// graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos) { 
+// graphics_info_t::go_to_atom_mol_menu_item_select(GtkWidget *item, GtkPositionType pos) {
 
 //    std::cout << "DEBUG:: (menu item select) Go To Atom molecule now: " << pos << std::endl;
 //    graphics_info_t g;
@@ -932,7 +932,7 @@ graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
 
 
    coot::Cartesian c = get_old_rotation_centre();
-   
+
    std::cout << "INFO:: Moving back to old centre: " << c << std::endl;
    setRotationCentre(c);
    for(int ii=0; ii<n_molecules(); ii++) {
@@ -942,7 +942,7 @@ graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
    graphics_draw();
 }
 
-// static 
+// static
 std::pair<bool, std::pair<int, coot::atom_spec_t> >
 graphics_info_t::active_atom_spec(int imol) {
 
@@ -956,24 +956,24 @@ graphics_info_t::active_atom_spec() {
 
 // if imol_only is -1 then we can allow any molecule to be active.  If it
 // is >=0, only allow molecule imol_only to have the the active.
-// 
+//
 std::pair<bool, std::pair<int, coot::atom_spec_t> >
 graphics_info_t::active_atom_spec_internal(int imol_only) {
 
    coot::atom_spec_t spec;
    bool was_found_flag = 0;
-   
+
    graphics_info_t g;
    float dist_best = 999999999.9;
    int imol_closest = -1;
    mmdb::Atom *at_close = 0;
-   
+
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 
-      if ((imol_only == -1) || (imol == imol_only)) { 
+      if ((imol_only == -1) || (imol == imol_only)) {
 	 if (is_valid_model_molecule(imol)) {
-	    if (graphics_info_t::molecules[imol].is_displayed_p()) { 
-	       if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
+	    if (graphics_info_t::molecules[imol].is_displayed_p()) {
+	       if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
 		  coot::at_dist_info_t at_info =
 		     graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
 		  if (at_info.atom) {
@@ -1041,7 +1041,7 @@ graphics_info_t::active_atom_spec_simple() {
 		      graphics_info_t::RotationCentre_y(),
 		      graphics_info_t::RotationCentre_z());
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].is_displayed_p()) { 
+      if (graphics_info_t::molecules[imol].is_displayed_p()) {
 	 if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
 	    bool do_ca_check_flag = false;
 	    coot::at_dist_info_t at_info =
@@ -1065,11 +1065,11 @@ graphics_info_t::active_atom_spec_simple() {
    return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
 }
 
-   
 
 
 
-// static 
+
+// static
 void
 graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
 
@@ -1078,7 +1078,7 @@ graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
    coot::Cartesian rc = g.RotationCentre();
 
    if (aas.first) {
-      if (! coot::sequence::is_sequence_triplet(ks)) { 
+      if (! coot::sequence::is_sequence_triplet(ks)) {
 	 int imol = aas.second.first;
 	 mmdb::Atom *new_centre_atom = g.molecules[imol].get_atom(ks, aas.second.second, rc);
 	 if (new_centre_atom) {
@@ -1092,7 +1092,7 @@ graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
 	 int imol = aas.second.first;
 	 g.apply_go_to_residue_from_sequence_triplet(imol, ks);
       }
-   } else { 
+   } else {
       std::cout << "WARNING:: No active atom " << std::endl;
    }
 }
@@ -1106,9 +1106,9 @@ graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, mmdb::Ato
                              new_centre_atom->y,
                              new_centre_atom->z);
       setRotationCentre(new_pt);
-      //for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) { 
+      //for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
       //	 graphics_info_t::molecules[ii].update_map();
-      //	 graphics_info_t::molecules[ii].update_clipper_skeleton(); 
+      //	 graphics_info_t::molecules[ii].update_clipper_skeleton();
       //     }
       //    graphics_draw();
       update_things_on_move_and_redraw();
@@ -1131,13 +1131,13 @@ graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, mmdb::Ato
           }
           if (show_symmetry)
             update_symmetry_environment_graphics_object(index, imol);
-        } else { 
-        
-          if (label_atom_on_recentre_flag) { 
+        } else {
+
+          if (label_atom_on_recentre_flag) {
             molecules[imol].unlabel_last_atom();
             molecules[imol].add_to_labelled_atom_list(index);
           }
-        } 
+        }
       } else {
         std::cout << "WARNING:: failed to find index. No updating of labels and distanced" << std::endl;
       }
@@ -1149,12 +1149,12 @@ graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, mmdb::Ato
 // go to the middle residue of the first occurance of the sequence triplet if you can
 // seq_trip is of course something like "ACE"
 // return the "found the triplet and moved there" status: 0 for fail.
-// 
+//
 int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const std::string &seq_trip) {
 
    int status = 0;
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       mmdb::Atom *new_centre_atom = graphics_info_t::molecules[imol].get_centre_atom_from_sequence_triplet(seq_trip);
       std::cout << "INFO:: new centre atom: " << new_centre_atom << std::endl;
       if (new_centre_atom)
@@ -1166,22 +1166,22 @@ int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const s
 
 
 // do it if have intermediate atoms and ctrl is pressed.
-// 
+//
 // axis: 0 for Z, 1 for X.
-// 
+//
 short int
 graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
 
 
    short int handled_flag = 0;
 
-   if (rot_trans_rotation_origin_atom) { 
+   if (rot_trans_rotation_origin_atom) {
       if (moving_atoms_asc) {
 	 if (moving_atoms_asc->n_selected_atoms > 0) {
 	    if (control_is_pressed) {
 	       if (axis == 0)
 		  rotate_intermediate_atoms_round_screen_z(angle);
-	       else 
+	       else
 		  rotate_intermediate_atoms_round_screen_x(angle);
 	       handled_flag = 1;
 	    }
@@ -1195,7 +1195,7 @@ graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
 // --- unapply symmetry to current view, (we are looking at
 // symmetry and we want to get back to the main molecule,
 // preserving the orientation, if possible.
-// 
+//
 // pre_translation is the translation that needed to be applied to
 // the molecule so that it was close to the origin (from there we
 // do the symmetry expansion, and it seems that st generates the
@@ -1213,11 +1213,11 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
 
       clipper::RTop_orth  rtop_symm = symm_mat_and_pre_shift[i].first;
       clipper::Coord_orth pre_shift = symm_mat_and_pre_shift[i].second;
-      
+
       clipper::Coord_orth pt_1 = centre_pt.transform(rtop_symm.inverse());
       clipper::Coord_orth pt_2 = pt_1 + pre_shift;
 
-      if (0) { 
+      if (0) {
 	 std::cout << "box =================== " << i << " ======================= " << std::endl;
 	 std::cout << "rtop_symm:\n" << rtop_symm.format() << std::endl;
 	 std::cout << "pre_shift: " << pre_shift.format() << std::endl;
@@ -1225,7 +1225,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
 
       // Now, is pt_2 close to an atom in the imolth molecule?  If so, what is the distance?
       // that function uses a coot::Cartesian
-      // 
+      //
       coot::Cartesian pt_2c(pt_2.x(), pt_2.y(), pt_2.z());
       std::pair<float, int> na = molecules[imol].nearest_atom(pt_2c);
       if (na.second >= 0) {
@@ -1239,7 +1239,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
    }
 
 
-   if (r) { 
+   if (r) {
       coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
       coot::util::quaternion q(quat[0],quat[1],quat[2],quat[3]);
       clipper::Mat33<double> current_view_mat = q.matrix();
@@ -1251,11 +1251,11 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       quat[3] = vq.q3;
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
-      
+
       graphics_draw();
    }
    return r;
-} 
+}
 
 
 void graphics_info_t::register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > & udip) {
