@@ -20,6 +20,7 @@ out vec3 frag_pos;
 out vec3 Normal;
 out vec4 tri_color;
 out vec4 bg_colour;
+out vec4 eye_position_transfer;
 
 void main() {
 
@@ -36,6 +37,7 @@ void main() {
    frag_pos =  p3.xyz;
    tri_color = colour;
    bg_colour = background_colour;
+   eye_position_transfer = eye_position;
 }
 
 #shader fragment
@@ -46,6 +48,7 @@ in vec3 frag_pos;
 in vec3 Normal;
 in vec4 tri_color;
 in vec4 bg_colour;
+in vec4 eye_position_transfer;
 
 layout(location = 0) out vec4 out_col;
 
@@ -61,19 +64,19 @@ void main() {
   float f_1 = 1.0 - gl_FragCoord.z; // because glm::ortho() near and far are reversed?
   float f_2 = 1.0 - abs(f_1 - 0.7)/0.7;
   f_2 = f_1; // just testing
-  vec4 col_1 = vec4(vec3(f_2), 1.0) * tri_color;
+  vec4 col_1 = 0.8 * vec4(vec3(f_2), 1.0) * tri_color;
   vec4 col_2_1 = col_1 * dp_l1;
   vec4 col_2_2 = col_1 * dp_l2;
   vec4 col_2 = col_2_1 + col_2_2;
 
-  float flat_frac = 0.2;
-  vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
+  float flat_frac = 0.3;
+  vec4 c_1 = col_2 + col_1 * flat_frac;
   vec4 c_2 = mix(bg_colour, c_1, f_1);
 
   // is this right? Looks like it might be
   vec3 eye_pos =  vec3(0.0, 0.0, 5.0);
 
-  vec3 view_dir = eye_pos - frag_pos; // view_dir.z positive is a good idea.
+  vec3 view_dir = eye_position_transfer.xyz - frag_pos; // view_dir.z positive is a good idea.
   view_dir = normalize(view_dir);
 
   vec3 norm_2 = Normal;

@@ -20,6 +20,8 @@
 #include "draw.hh"
 #include "draw-2.hh"
 
+#include "text-rendering-utils.hh"
+
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
 gint idle_contour_function(gpointer data);
@@ -35,12 +37,9 @@ void init_shaders() {
 }
 
 void init_central_cube();
-void init_hud_text();
-void draw_hud_text();
 
 void init_buffers() {
    init_central_cube();
-   init_hud_text();
 }
 
 void init_central_cube() {
@@ -136,7 +135,7 @@ glm::mat4 get_molecule_mvp() {
 
    GLfloat near_scale = 0.3;
    GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 1.0);
-   GLfloat near =  0.10*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 1.0);
+   GLfloat near =  0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 1.0);
 
    if (false)
       std::cout << "near: " << near << " far " << far
@@ -566,12 +565,15 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError();
    std::cout << "on_glarea_realize() post init_buffer(): err is " << err << std::endl;
 
+   setup_hud_text(graphics_info_t::shader_for_hud_text);
+
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
    glEnable(GL_DEPTH_TEST);
-   glDepthFunc(GL_GREATER); // what does this do?
-   // glDisable(GL_DEPTH_TEST);
-   // glDepthFunc(GL_ALWAYS);
+   // glEnable(GL_CULL_FACE); // if I enable this, then I get to see th back side
+                              // of the bonds (and atoms, possibly) It's a weird look
+   glEnable(GL_BLEND);
+
 
    // Make antialised lines
    if (false) {
@@ -587,6 +589,11 @@ on_glarea_realize(GtkGLArea *glarea) {
 
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    GLenum err = glGetError();
@@ -617,12 +624,16 @@ on_glarea_render(GtkGLArea *glarea) {
 
    draw_central_cube(glarea);
    draw_origin_cube(glarea);
-   draw_molecules();
-   // draw_hud_text();
+   err = glGetError();
+   if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
+   draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+   err = glGetError();
+   if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
 
    err = glGetError();
    if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
 
+   draw_molecules();
    glFlush ();
    err = glGetError();
    if (err) std::cout << "on_glarea_render E err " << err << std::endl;
