@@ -24,7 +24,7 @@ enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
 gint idle_contour_function(gpointer data);
 
-void init_central_cube_shaders() {}
+void init_central_cube_shaders() {} // part of init_shaders() now. Delete at some stage
 
 void init_shaders() {
    graphics_info_t::shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
@@ -36,6 +36,7 @@ void init_shaders() {
 
 void init_central_cube();
 void init_hud_text();
+void draw_hud_text();
 
 void init_buffers() {
    init_central_cube();
@@ -547,7 +548,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    std::cout << "realize!" << std::endl;
 
    gtk_gl_area_make_current(glarea);
-   //gtk_gl_area_set_has_alpha(glarea, TRUE);
+   // gtk_gl_area_set_has_alpha(glarea, TRUE);
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
    GLenum err = glGetError();
@@ -582,81 +583,6 @@ on_glarea_realize(GtkGLArea *glarea) {
    // Martin's Molecular triangles
    setup_for_mol_triangles();
 
-}
-
-
-void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color) {
-    // Activate corresponding render state
-    shader.Use();
-    // glUniform3f(glGetUniformLocation(shader.Program, "textColor"), color.x, color.y, color.z);
-    glUniform3f(glGetUniformLocation(shader.get_program_id(), "textColour"), color.x, color.y, color.z);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(graphics_info_t::hud_text_vertexarray_id);
-
-    // Iterate through all characters
-    std::string::const_iterator c;
-    for (c = text.begin(); c != text.end(); c++) {
-        // FT_character ch = Characters[*c];
-        std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
-       if (it == graphics_info_t::ft_characters.end()) {
-          std::cout << "ooooooooooooooooops failure to look up" << *c << std::endl;
-          continue;
-       } else {
-          std::cout << "Found " << *c << std::endl;
-       }
-       const FT_character &ch = it->second;
-
-        GLfloat xpos = x + ch.Bearing.x * scale;
-        GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
-
-        GLfloat w = ch.Size.x * scale;
-        GLfloat h = ch.Size.y * scale;
-        // Update VBO for each character
-        GLfloat vertices[6][4] = {
-            { xpos,     ypos + h,   0.0, 0.0 },
-            { xpos,     ypos,       0.0, 1.0 },
-            { xpos + w, ypos,       1.0, 1.0 },
-
-            { xpos,     ypos + h,   0.0, 0.0 },
-            { xpos + w, ypos,       1.0, 1.0 },
-            { xpos + w, ypos + h,   1.0, 0.0 }
-        };
-        // Render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-        // Update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::hud_text_array_buffer_id);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // Render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-
-void draw_hud_text() {
-
-   glEnable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-   glm::vec3 color(0.7, 0.7, 0.4);
-   Shader &shader = graphics_info_t::shader_for_hud_text;
-   std::string text = "Hello - this is Coot";
-   GLfloat x = 0.1;
-   GLfloat y = 0.1;
-   GLfloat scale = 0.1;
-
-   GLenum err = glGetError();
-   GLuint program_id = shader.get_program_id();
-   glm::mat4 hud_projection = glm::ortho(0.0f, 900.0f, 0.0f, 900.0f);
-   glUniformMatrix4fv(glGetUniformLocation(program_id, "projection"), 1, GL_FALSE, glm::value_ptr(hud_projection));
-   if (err) std::cout << "draw_hud_text() glUniformMatrix4fv " << err << std::endl;
-
-   RenderText(shader, text, 50, 50, 1, color);
 }
 
 gboolean
@@ -750,6 +676,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    }
    return TRUE;
 }
+
 
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
@@ -863,7 +790,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 }
 
 gint
-spin_func(gpointer data) {
+view_spin_func(gpointer data) {
 
    float delta = -0.002;
    glm::vec3 EulerAngles(0, delta, 0);
@@ -925,11 +852,12 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
          g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
          graphics_info_t::idle_function_spin_rock_token = -1;
       } else {
-         int toi = g_timeout_add(5, spin_func, GINT_TO_POINTER(66));
+         int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
          graphics_info_t::idle_function_spin_rock_token = toi;
       }
    }
 
+   // GDK_KEY_equals should be the same as GDK_KEY_plus
    if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus) {
       int s = graphics_info_t::scroll_wheel_map;
       if (graphics_info_t::is_valid_map_molecule(s)) {
@@ -962,7 +890,7 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
    graphics_info_t g;
 
    if (event->keyval == GDK_KEY_space) {
-      g.reorienting_next_residue_mode = true; // hack
+      g.reorienting_next_residue_mode = false; // hack
       bool reorienting = graphics_info_t::reorienting_next_residue_mode;
       if (reorienting) {
          if (graphics_info_t::shift_is_pressed) {

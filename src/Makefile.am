@@ -513,6 +513,7 @@ coot_bin_SOURCES = \
 	rama_mousey.hh		 \
 	rama_plot.cc		 \
 	rama_plot.hh		 \
+        render-text.cc           \
 	restraints-editor.cc     \
 	restraints-editor.hh     \
 	restraints-editor-c.h    \
