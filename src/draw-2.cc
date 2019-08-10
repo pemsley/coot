@@ -837,11 +837,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    // I want to be able to push out the front clipping plane (say, for making a figure or movie)
 
    if (event->keyval == GDK_KEY_d) {
-      adjust_clipping(1.0);
+      adjust_clipping(0.5);
    }
 
    if (event->keyval == GDK_KEY_f) {
-      adjust_clipping(-1.0);
+      adjust_clipping(-0.5);
    }
 
    if (event->keyval == GDK_KEY_i) {
