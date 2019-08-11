@@ -971,14 +971,14 @@ void probe_mol_selector_activate (GtkMenuItem     *menuitem,
       cmd_strings.push_back("probe");
       cmd_strings.push_back(coot::util::int_to_string(imol));
       run_generic_script(cmd_strings);
-#else    
-      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#else
+      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 }
 
 // is the probe executable available?
 // 1 for yes, 0 for no.
-// 
+//
 int probe_available_p() {
    short int r = graphics_info_t::probe_available;
 
@@ -988,22 +988,22 @@ int probe_available_p() {
 
       std::string command("(command-in-path-or-absolute? *probe-command*)");
 
-      SCM scm_thunk = safe_scheme_command(command); 
+      SCM scm_thunk = safe_scheme_command(command);
 
       int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
 
-      if (was_boolean_flag) { 
-	 if (scm_is_true(scm_thunk) == 1) {
+      if (was_boolean_flag) {
+	 if (scm_is_true(scm_thunk)) {
 	    r = 1;
 	 } else {
 	    r = 0;
 	 }
-      } else { 
+      } else {
 	 r = 0;
       }
 
 #else
-      
+
       // BL says:: here comes some (experimental) code to do the same thing in python
       // it's a bit longer and uses compiled python code but dont see another option
       // currently (and there might be none..)
