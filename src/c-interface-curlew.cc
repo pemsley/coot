@@ -73,7 +73,7 @@ void curlew() {
 
 	 // not https, that transfers nothing
 	 // (probably a curl configuration/SSL thing)
-	 std::string url_prefix = "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+	 std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
 	 url_prefix += "extensions";
 
 	 std::string url_curlew_prefix = url_prefix + "/curlew";
