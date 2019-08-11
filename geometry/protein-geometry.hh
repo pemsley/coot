@@ -190,8 +190,8 @@ namespace coot {
       std::string type_;
       double dist_;
       double dist_esd_;
-      bool have_target_values; 
-   
+      bool have_target_values;
+
    public:
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       aromaticity_t aromaticity;
@@ -221,9 +221,9 @@ namespace coot {
 	 aromaticity = arom_in;
       }
       dict_bond_restraint_t() {} // boost::python needs this
-      
+
       std::string type() const { return type_; }
-      int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage 
+      int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage
       // can throw a std::runtime_error exception (if target values not set)
       double value_dist() const {
 	 if (have_target_values)
@@ -255,6 +255,7 @@ namespace coot {
 
    class dict_angle_restraint_t : public basic_dict_restraint_t {
       std::string atom_id_3_;
+      std::string atom_id_3_4c_;
       double angle_;
       double angle_esd_;
    public:
@@ -266,13 +267,14 @@ namespace coot {
 			     double angle_esd) :
       basic_dict_restraint_t(atom_id_1, atom_id_2) {
 	 atom_id_3_ = atom_id_3;
+         atom_id_3_4c_ = atom_id_mmdb_expand(atom_id_3_);
 	 angle_ = angle;
-	 angle_esd_ = angle_esd; 
+	 angle_esd_ = angle_esd;
       };
       dict_angle_restraint_t() {} // boost::python needs this
 
       std::string atom_id_3() const { return atom_id_3_;}
-      std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
+      std::string atom_id_3_4c() const { return atom_id_3_4c_; }
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
 
@@ -286,7 +288,7 @@ namespace coot {
 	       if (atom_id_3() == r.atom_id_1())
 		  return true;
 	 return false;
-      } 
+      }
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
       void set_atom_3_atom_id(const std::string &id) { atom_id_3_ = id; }
@@ -298,17 +300,18 @@ namespace coot {
    // Note hydrogen torsions can only be detected at the container
    // (protein_geometry) level, because we don't have acces to the
    // elements here (only the atom names).
-   // 
+   //
    class dict_torsion_restraint_t : public basic_dict_restraint_t {
       std::string id_;
       std::string atom_id_3_;
       std::string atom_id_4_;
+      std::string atom_id_3_4c_;
+      std::string atom_id_4_4c_;
       double angle_;
       double angle_esd_;
       int period;
    public:
 
-      // dict_torsion_restraint_t() {}; 
       dict_torsion_restraint_t(std::string id_in,
 			       std::string atom_id_1,
 			       std::string atom_id_2,
@@ -322,12 +325,14 @@ namespace coot {
 	 id_ = id_in;
 	 atom_id_3_ = atom_id_3;
 	 atom_id_4_ = atom_id_4;
+         atom_id_3_4c_ = atom_id_mmdb_expand(atom_id_3_);
+         atom_id_4_4c_ = atom_id_mmdb_expand(atom_id_4_);
 	 angle_ = angle;
 	 angle_esd_ = angle_esd;
 	 period = period_in;
       };
-      std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
-      std::string atom_id_4_4c() const { return atom_id_mmdb_expand(atom_id_4_);}
+      std::string atom_id_3_4c() const { return atom_id_3_4c_; }
+      std::string atom_id_4_4c() const { return atom_id_4_4c_; }
       std::string atom_id_3() const { return atom_id_3_;}
       std::string atom_id_4() const { return atom_id_4_;}
       std::string id() const { return id_;}
@@ -345,12 +350,12 @@ namespace coot {
       void set_atom_3_atom_id(const std::string &id) { atom_id_3_ = id; }
       void set_atom_4_atom_id(const std::string &id) { atom_id_4_ = id; }
    };
-   std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest); 
+   std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
 
    // ------------------------------------------------------------------------
-   // class dict_plane_restraint_t 
+   // class dict_plane_restraint_t
    // ------------------------------------------------------------------------
-   // 
+   //
    class dict_plane_restraint_t : public basic_dict_restraint_t {
       std::vector<std::pair<std::string, double> > atom_ids;
       double dist_esd_;  // despite separate entries for each atom in
