@@ -333,7 +333,8 @@ draw_model_molecules() {
          std::cout << "imol " << ii << " n_vertices_for_model_VertexArray "
                    << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
       if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
-         // OOps - every model has its own shader - that's a mistake
+
+         glDisable(GL_BLEND);
          GLuint pid = shader.get_program_id();
          glUseProgram(pid);
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
@@ -546,6 +547,11 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    std::cout << "realize!" << std::endl;
 
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
    gtk_gl_area_make_current(glarea);
    // gtk_gl_area_set_has_alpha(glarea, TRUE);
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
@@ -565,7 +571,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError();
    std::cout << "on_glarea_realize() post init_buffer(): err is " << err << std::endl;
 
-   setup_hud_text(graphics_info_t::shader_for_hud_text);
+   setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 

@@ -1,4 +1,6 @@
 
+////////////// git REMOve this file /////////////////////////////////////////
+
 #include <iostream>
 #include <string>
 
@@ -85,7 +87,7 @@ void draw_hud_text() {
    glm::vec3 color(0.7, 0.7, 0.4);
    Shader &shader = graphics_info_t::shader_for_hud_text;
    shader.Use();
-   std::string text = "Hello - this is Coot";
+   std::string text = "Hello, welcome to Coot";
    GLfloat x = 0.1;
    GLfloat y = 0.1;
    GLfloat scale = 0.1;
@@ -97,7 +99,6 @@ void draw_hud_text() {
    GLuint loc = glGetUniformLocation(program_id, "projection");
    err = glGetError(); std::cout << "draw_hud_text() post glGetUniformLocation() " << err << std::endl;
 
-   std::cout << "loc:" << loc << std::endl;
    glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(hud_projection));
    err = glGetError(); std::cout << "draw_hud_text() glUniformMatrix4fv() " << err << std::endl;
 

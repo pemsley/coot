@@ -26,7 +26,7 @@
 #include "Shader.hh"
 
 // Properties
-const GLuint WIDTH = 800, HEIGHT = 600;
+// const GLuint WIDTH = 800, HEIGHT = 600;
 
 /// Holds all state information relevant to a character as loaded using FreeType
 struct FT_character {
@@ -51,17 +51,17 @@ void debug_ft_characters() {
 void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 
 // The MAIN function, from here we start our application and run the Game loop
-int setup_hud_text(Shader &shader) {
+int setup_hud_text(int widget_width, int widget_height, Shader &shader) {
 
    GLenum err = glGetError();
    std::cout << "RenderText start with err " << err << std::endl;
 
     // Set OpenGL options
     // glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
+    // glEnable(GL_BLEND);
 
     shader.init("shaders/hud-text.shader", Shader::Entity_t::HUD_TEXT);
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WIDTH), 0.0f, static_cast<GLfloat>(HEIGHT));
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(widget_width), 0.0f, static_cast<GLfloat>(widget_height));
     shader.Use();
     glUniformMatrix4fv(glGetUniformLocation(shader.get_program_id(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
    err = glGetError(); std::cout << "RenderText A " << err << std::endl;
@@ -151,6 +151,7 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
     GLenum err = glGetError();
     if (err) std::cout << "RenderText start err " << err << std::endl;
 
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     shader.Use();
     glUniform3f(glGetUniformLocation(shader.get_program_id(), "textColour"), color.x, color.y, color.z);
@@ -213,9 +214,8 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 
 void draw_hud_text(int widget_width, int widget_height, Shader &shader) {
    // this puts the text top right.
-   float x = widget_width  - 320.0;
-   float y = widget_height - 330.0;
+   float x = widget_width  - 230.0;
+   float y = widget_height -  30.0;
    // std::cout << "x " << x << " y " << y << std::endl;
    RenderText(shader, "Welcome to Coot",  x, y, 0.5f, glm::vec3(0.6, 0.7, 0.7f));
 }
-
