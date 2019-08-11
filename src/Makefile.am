@@ -412,6 +412,7 @@ coot_bin_SOURCES = \
 	draw-generic-display-objects.cc \
 	flev.hh			 \
 	flev.cc                  \
+        framebuffer.cc           \
 	generic-display-object.hh\
 	generic-display-object.cc\
 	generic-objects.cc   	 \

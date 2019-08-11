@@ -544,7 +544,6 @@ GtkWidget *my_gtkglarea(GtkWidget *vbox) {
 
 void
 on_glarea_realize(GtkGLArea *glarea) {
-
    std::cout << "realize!" << std::endl;
 
    GtkAllocation allocation;
@@ -555,6 +554,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    // gtk_gl_area_set_has_alpha(glarea, TRUE);
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
+
+   // setup_frame_buffer();
 
    GLenum err = glGetError();
    std::cout << "start on_glarea_realize() err is " << err << std::endl;
