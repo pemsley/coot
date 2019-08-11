@@ -1736,6 +1736,7 @@ namespace coot {
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
+      void analize_for_bad_bond_restraints();
 #ifndef __NVCC__
       // threaded workpackage
       static
@@ -2277,32 +2278,20 @@ namespace coot {
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
 
-      int something_like_make_restraints( // int imol
-			  // bool do_residue_internal_torsions,
-			  // bool do_trans_peptide_restraints,
-			  // float rama_plot_target_weight,
-			  // bool do_rama_plot_retraints,
-			  // bool do_auto_helix_restraints,
-			  // bool do_auto_strand_restraints,
-			  // pseudo_restraint_bond_type sec_struct_pseudo_bonds,
-			  // bool do_link_restraints=true,
-			  // bool do_flank_restraints=true
-			  );
-
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
 	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size()
 		   << std::endl;
 	 std::cout << "    geom ref pointer " << &geom << std::endl;
 	 return geom.size();
-      } 
+      }
       unsigned int const_test_function(const protein_geometry &geom) const;
 
       mmdb::Atom *add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos);
       void clear_atom_pull_restraint(const atom_spec_t &spec); // clear any previous restraint for this atom.
       void clear_all_atom_pull_restraints();
       unsigned int n_atom_pull_restraints() const;
-      
+
       void add_extra_restraints(int imol,
 				const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);

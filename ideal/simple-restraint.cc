@@ -2584,24 +2584,6 @@ coot::restraints_container_t::set_dist_crit_for_bonded_pairs(float dist) {
    dist_crit_for_bonded_pairs = dist;
 }
 
-int
-coot::restraints_container_t::something_like_make_restraints(
-                                              // int imol
-					      // bool do_residue_internal_torsions,
-					      // bool do_trans_peptide_restraints,
-					      // float rama_plot_target_weight,
-					      // bool do_rama_plot_restraints,
-					      // bool do_auto_helix_restraints,
-					      // bool do_auto_strand_restraints,
-					      // coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
-					      // bool do_link_restraints,
-					      // bool do_flank_restraints
-					      ) {
-
-   return df_by_thread_results_size();
-
-}
-
 
 // We need to fill restraints_vec (which is a vector of
 // simple_restraint) using the coordinates () and the dictionary of

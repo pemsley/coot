@@ -83,6 +83,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
+      analize_for_bad_bond_restraints();
+
       auto tp_3 = std::chrono::high_resolution_clock::now();
       raic.init(restraints_vec);
 
@@ -1708,3 +1710,49 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 	     << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
 
 }
+
+void
+coot::restraints_container_t::analize_for_bad_bond_restraints() {
+
+   double n_z_for_baddie = 4.0; // must be at least this bad
+   std::vector<std::pair<unsigned int, double> > distortions;
+   for (unsigned int i=0; i<restraints_vec.size(); i++) {
+      const simple_restraint &rest = restraints_vec[i];
+      if (rest.restraint_type == BOND_RESTRAINT) {
+         mmdb::Atom *at_1 = atom[rest.atom_index_1];
+         mmdb::Atom *at_2 = atom[rest.atom_index_2];
+         if (at_1 && at_2) {
+            clipper::Coord_orth p1 = co(at_1);
+            clipper::Coord_orth p2 = co(at_2);
+            double d = sqrt((p2-p1).lengthsq());
+            double distortion = d - rest.target_value;
+            double z = distortion/rest.sigma;
+            double pen_score = z * z;
+            if (z >= n_z_for_baddie) {
+               std::pair<unsigned int, double> p(i, pen_score);
+               distortions.push_back(p);
+            }
+         }
+      }
+   }
+
+  auto distortion_sorter_lambda = // big distortions at the top
+     [] (const std::pair<unsigned int, double> &p1,
+         const std::pair<unsigned int, double> &p2) {
+    return (p1.second > p2.second); };
+
+   std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
+   unsigned int n_baddies = 10;
+   if (distortions.size() < n_baddies) n_baddies = distortions.size();
+   for (unsigned int i=0; i<n_baddies; i++) {
+      const simple_restraint &rest = restraints_vec[distortions[i].first];
+      mmdb::Atom *at_1 = atom[rest.atom_index_1];
+      mmdb::Atom *at_2 = atom[rest.atom_index_2];
+      std::cout << "INFO:: Very Bad Bond: "
+                << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                << " nz " << sqrt(distortions[i].second) << std::endl;
+   }
+
+}
+
+
