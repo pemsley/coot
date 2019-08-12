@@ -644,7 +644,8 @@ namespace coot {
 					   const std::string &atom_2_type, 
 					   const protein_geometry &geom);
 
-      double torsion_distortion(double model_torsion) const; 
+      double torsion_distortion(double model_torsion) const;
+      std::pair<double, double> distortion(mmdb::PAtom *atoms, const double &lj_epsilon) const; // i.e. atom
       std::string type() const; // a string representation of the restraint type
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
       std::string format(mmdb::PAtom *atoms_vec, double distortion) const;
@@ -1736,7 +1737,8 @@ namespace coot {
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
-      void analyze_for_bad_bond_restraints();
+      void analyze_for_bad_restraints();
+      void analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit);
 #ifndef __NVCC__
       // threaded workpackage
       static

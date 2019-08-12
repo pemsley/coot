@@ -83,8 +83,6 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
-      analyze_for_bad_bond_restraints();
-
       auto tp_3 = std::chrono::high_resolution_clock::now();
       raic.init(restraints_vec);
 
@@ -142,6 +140,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
+
+      analyze_for_bad_restraints(); // bonds and non-bonded.
 
       // info();  - are the NBCs correct?
 
@@ -1716,26 +1716,29 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 }
 
 void
-coot::restraints_container_t::analyze_for_bad_bond_restraints() {
+coot::restraints_container_t::analyze_for_bad_restraints() {
+
+   double interesting_distortion_limit = 15.0;
+   analyze_for_bad_restraints(BOND_RESTRAINT, interesting_distortion_limit);
+   analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT, interesting_distortion_limit);
+
+}
+
+void
+coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit) {
 
    double n_z_for_baddie = 4.0; // must be at least this bad
    std::vector<std::tuple<unsigned int, double, double> > distortions;
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
-      if (rest.restraint_type == BOND_RESTRAINT) {
-         mmdb::Atom *at_1 = atom[rest.atom_index_1];
-         mmdb::Atom *at_2 = atom[rest.atom_index_2];
-         if (at_1 && at_2) {
-            clipper::Coord_orth p1 = co(at_1);
-            clipper::Coord_orth p2 = co(at_2);
-            double d = sqrt((p2-p1).lengthsq());
-            double distortion = d - rest.target_value;
-            double z = distortion/rest.sigma;
-            double pen_score = z * z;
-            if (z >= n_z_for_baddie) {
-               std::tuple<unsigned int, double, double> p(i, pen_score, distortion);
-               distortions.push_back(p);
-            }
+      if (rest.restraint_type == r_type) {
+         std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
+         double distortion_score = distortion_pair.first;
+         if (distortion_score >= interesting_distortion_limit) {
+            double n_z = sqrt(distortion_score);
+            double bl_delta = distortion_pair.second;
+            std::tuple<unsigned int, double, double> p(i, n_z, bl_delta);
+            distortions.push_back(p);
          }
       }
    }
@@ -1752,10 +1755,17 @@ coot::restraints_container_t::analyze_for_bad_bond_restraints() {
       const simple_restraint &rest = restraints_vec[std::get<0>(distortions[i])];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
-      std::cout << "INFO:: Very Bad Bond: "
-                << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                << " nZ " << sqrt(std::get<1>(distortions[i]))
-                << " delta " << std::get<2>(distortions[i]) << std::endl;
+      if (r_type == BOND_RESTRAINT)
+         std::cout << "INFO:: Input Model: Very Bad Bond: "
+                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                   << " nZ " << sqrt(std::get<1>(distortions[i]))
+                   << " delta " << std::get<2>(distortions[i]) << std::endl;
+      if (r_type == NON_BONDED_CONTACT_RESTRAINT)
+         std::cout << "INFO:: Input Model: Very Bad Non-Bonded Contact: "
+                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                   << " distortion " << std::get<1>(distortions[i])
+                   << " delta " << std::get<2>(distortions[i]) << std::endl;
+      
    }
 
 }

@@ -5172,6 +5172,76 @@ coot::simple_restraint::get_nbc_dist(const std::string &atom_1_type,
    return geom.get_nbc_dist(atom_1_type, atom_2_type);
 }
 
+std::pair<double, double>
+coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon) const {
+
+   // distortion and bond length delta
+   std::pair<double, double> distortion_pair(-1.0, -1.0);
+
+   if (restraint_type == BOND_RESTRAINT) {
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      if (at_1 && at_2) {
+         clipper::Coord_orth p1 = co(at_1);
+         clipper::Coord_orth p2 = co(at_2);
+         double d = sqrt((p2-p1).lengthsq());
+         double distortion = d - target_value;
+         double z = distortion/sigma;
+         double pen_score = z * z;
+         distortion_pair.first = pen_score;
+         distortion_pair.second = distortion;
+      }
+   }
+
+   if (restraint_type == NON_BONDED_CONTACT_RESTRAINT) {
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      if (at_1 && at_2) {
+         clipper::Coord_orth p1 = co(at_1);
+         clipper::Coord_orth p2 = co(at_2);
+
+         double dist_sq = clipper::Coord_orth(p2-p1).lengthsq();
+         double dist = sqrt(dist_sq);
+         double dist_delta = dist - target_value;
+
+         // float bl = sqrt(bl_sq);
+         // float delta =  bl - target_value;
+
+         float V_lj = 0;
+
+         // the value lj_sigma is r when is the potential is 0.
+         // for lj_sigma + delta the potential is negative
+         // for lj_sigma - delta the potential is positive
+         // the potential is at a minimum at lj_r_min
+         // 
+         // so if target_value is say 3.4A, lj_sigma is 3.4 sigma
+         // and lj_r_min ~ 3.4 * 1.122 = 3.82
+         double lj_sigma = target_value;
+         // double lj_r_min = std::pow(2.0, 1.0/6.0) * lj_sigma;
+         double lj_r_min = 1.122462048309373 * lj_sigma;
+
+         double max_dist = 2.5 * lj_sigma; // r_max
+
+         if (dist_sq < 0.81) dist_sq = 0.81; // 0.9^2
+         double alpha_sqrd = lj_r_min*lj_r_min/dist_sq;
+         double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
+         double alpha_up_12 = alpha_up_6 * alpha_up_6;
+         V_lj = lj_epsilon * (alpha_up_12 - 2.0 * alpha_up_6);
+
+         // offset the Vlj so that it is zero at r_max (beyond which we no longer
+         // consider contributions to the distortion)
+
+         double Vlj_at_rmax = -0.016316891136 * lj_epsilon; // see Lennard-Jones truncated and shifted for
+
+         V_lj += Vlj_at_rmax;
+
+         distortion_pair.first = V_lj;
+         distortion_pair.second = dist_delta;
+      }
+   }
+   return distortion_pair;
+}
+
 double
 coot::simple_restraint::torsion_distortion(double model_theta) const {
 
