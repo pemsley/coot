@@ -1462,19 +1462,19 @@ change_chain_ids_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 void
 change_chain_id_by_widget(GtkWidget *w) {
 
-   GtkWidget *residue_range_yes_radiobutton =  lookup_widget(w, "change_chain_residue_range_yes_radiobutton");
-
-   GtkWidget *residue_range_from_entry  =  lookup_widget(w, "change_chain_residues_from_entry");
-   GtkWidget *residue_range_to_entry  =  lookup_widget(w, "change_chains_residues_to_entry");
-   GtkWidget *change_chains_new_chain_entry  =  lookup_widget(w, "change_chains_new_chain_id");
+   GtkWidget *residue_range_yes_radiobutton = lookup_widget(w, "change_chain_residue_range_yes_radiobutton");
+   GtkWidget *residue_range_from_entry      = lookup_widget(w, "change_chain_residues_from_entry");
+   GtkWidget *residue_range_to_entry        = lookup_widget(w, "change_chains_residues_to_entry");
+   GtkWidget *change_chains_new_chain_entry = lookup_widget(w, "change_chains_new_chain_id");
+   GtkWidget *change_chain_id_from_chain_combobox = lookup_widget(w, "change_chain_id_chain_combobox");
 
    int imol = graphics_info_t::change_chain_id_molecule;
-   short int use_res_range_flag = 0;
+   bool use_res_range_flag = false;
    int from_resno = -9999;
-   int to_resno = -9999;
+   int to_resno   = -9999;
 
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(residue_range_yes_radiobutton))) { 
-      use_res_range_flag = 1;
+      use_res_range_flag = true;
       std::pair<short int, int> p1 = int_from_entry(residue_range_from_entry);
       std::pair<short int, int> p2 = int_from_entry(residue_range_to_entry);
       if (p1.first)
@@ -1489,7 +1489,9 @@ change_chain_id_by_widget(GtkWidget *w) {
    
       if (is_valid_model_molecule(imol)) {
 	 std::string to_chain_id(txt);
-	 std::string from_chain_id = graphics_info_t::change_chain_id_from_chain;
+
+         // 20190810-PE use the widget to find the value now, rather than looking up a stored value
+	 std::string from_chain_id = get_active_label_in_combobox(GTK_COMBO_BOX(change_chain_id_from_chain_combobox));
 
 	 if (false)
 	    std::cout << "in change_chain_id_molecule() with " << imol << " "
