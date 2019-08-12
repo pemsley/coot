@@ -83,7 +83,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
-      analize_for_bad_bond_restraints();
+      analyze_for_bad_bond_restraints();
 
       auto tp_3 = std::chrono::high_resolution_clock::now();
       raic.init(restraints_vec);
@@ -1691,31 +1691,35 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    // bonded_atom_indices is a vector of what is bonded or angle-bonded to each atom.
 
-   make_flanking_atoms_restraints_ng(geom,
-				     residue_link_vector_map_p,
-				     residue_pair_link_set_p,
-				     do_rama_plot_restraints,  // not done here.
-				     do_trans_peptide_restraints);
+   bool for_beasty = true;
 
-   auto tp_2 = std::chrono::high_resolution_clock::now();
+   if (! for_beasty) {
+      make_flanking_atoms_restraints_ng(geom,
+                                        residue_link_vector_map_p,
+                                        residue_pair_link_set_p,
+                                        do_rama_plot_restraints,  // not done here.
+                                        do_trans_peptide_restraints);
+      
+      auto tp_2 = std::chrono::high_resolution_clock::now();
 
-   link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
-   others.report();
+      link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
+      others.report();
 
-   auto tp_3 = std::chrono::high_resolution_clock::now();
-   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
-	     << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
+                << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
 
+   }
 }
 
 void
-coot::restraints_container_t::analize_for_bad_bond_restraints() {
+coot::restraints_container_t::analyze_for_bad_bond_restraints() {
 
    double n_z_for_baddie = 4.0; // must be at least this bad
-   std::vector<std::pair<unsigned int, double> > distortions;
+   std::vector<std::tuple<unsigned int, double, double> > distortions;
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
       if (rest.restraint_type == BOND_RESTRAINT) {
@@ -1729,7 +1733,7 @@ coot::restraints_container_t::analize_for_bad_bond_restraints() {
             double z = distortion/rest.sigma;
             double pen_score = z * z;
             if (z >= n_z_for_baddie) {
-               std::pair<unsigned int, double> p(i, pen_score);
+               std::tuple<unsigned int, double, double> p(i, pen_score, distortion);
                distortions.push_back(p);
             }
          }
@@ -1737,20 +1741,21 @@ coot::restraints_container_t::analize_for_bad_bond_restraints() {
    }
 
   auto distortion_sorter_lambda = // big distortions at the top
-     [] (const std::pair<unsigned int, double> &p1,
-         const std::pair<unsigned int, double> &p2) {
-    return (p1.second > p2.second); };
+     [] (const std::tuple<unsigned int, double, double> &p1,
+         const std::tuple<unsigned int, double, double> &p2) {
+     return (std::get<1>(p1) > std::get<1>(p2)); };
 
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies) n_baddies = distortions.size();
    for (unsigned int i=0; i<n_baddies; i++) {
-      const simple_restraint &rest = restraints_vec[distortions[i].first];
+      const simple_restraint &rest = restraints_vec[std::get<0>(distortions[i])];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
       std::cout << "INFO:: Very Bad Bond: "
                 << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                << " nz " << sqrt(distortions[i].second) << std::endl;
+                << " nZ " << sqrt(std::get<1>(distortions[i]))
+                << " delta " << std::get<2>(distortions[i]) << std::endl;
    }
 
 }

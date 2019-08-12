@@ -993,13 +993,13 @@ int probe_available_p() {
       int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
 
       if (was_boolean_flag) {
-	 if (scm_is_true(scm_thunk)) {
-	    r = 1;
-	 } else {
-	    r = 0;
-	 }
+         if (scm_is_true(scm_thunk)) {
+            r = 1;
+         } else {
+           r = 0;
+         }
       } else {
-	 r = 0;
+         r = 0;
       }
 
 #else

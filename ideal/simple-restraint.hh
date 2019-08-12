@@ -1736,7 +1736,7 @@ namespace coot {
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
-      void analize_for_bad_bond_restraints();
+      void analyze_for_bad_bond_restraints();
 #ifndef __NVCC__
       // threaded workpackage
       static
