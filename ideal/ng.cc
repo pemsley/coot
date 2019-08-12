@@ -1691,7 +1691,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    // bonded_atom_indices is a vector of what is bonded or angle-bonded to each atom.
 
-   bool for_beasty = true;
+   bool for_beasty = false;
 
    if (! for_beasty) {
       make_flanking_atoms_restraints_ng(geom,
