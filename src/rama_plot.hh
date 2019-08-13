@@ -422,6 +422,10 @@ public:
    void basic_white_underlay(); // Not const because we modify canvas_item_vec. 
    void display_background();   // Likewise.
 #ifdef HAVE_GOOCANVAS
+   guint get_intermediate_bg_colour(guint start_colour[4], guint end_colour[4],
+                                    float prob_min, float prob_max, float probability,
+                                    int quad_channel=-1);
+
    void make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
    int make_background_from_image(const clipper::Ramachandran rama_type,
                                   GooCanvasItem *bg_group, std::string file_name);
