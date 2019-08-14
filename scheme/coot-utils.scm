@@ -3644,7 +3644,8 @@
       (format #t "in drugbox->chemspider i: ~s~%" i)
       i))
 
-
+  (define (last-element list-of-strings)
+    (car (reverse list-of-strings)))
 
   ;; With some clever coding, these handle-***-value functions could
   ;; be consolidated.  There is likely something clever in Python to
@@ -3731,6 +3732,15 @@
 	(format #t "handle-rev-string none of the above~%")
 	#f))))
 
+  ;;
+  (define (file-seems-good? file-name)
+    (if (not (file-exists? file-name))
+	#f
+	(let* ((stat-result (stat file-name))
+	       (stat-size (stat:size stat-result)))
+	  (> stat-size 20))))
+
+  ;; return a mol file name
   (define (handle-rev-string-2016 rev-string)
 
     (let ((lines (string-split rev-string #\newline)))
@@ -3750,35 +3760,131 @@
 			(get-drug-via-wikipedia s)))))))) ;; returns a file anme
 
        (else
-	(let ((db-id #f)) ;; drugbank-id e.g. DB01098
+	(let ((db-id-list '())) ;; drugbank-id e.g. DB01098
 	  (for-each (lambda (line)
-		      (if (string-match "DrugBank = " line)
+		      (format #t "debug:: line: ~s~%" line)
+
+		      ;; we don't want to hit xxx_Ref - hence the trailing space
+
+		      (if (string-match "DrugBank " line)
 			  (let ((parts (string->list-of-strings line)))
-			    (if (> (length parts) 3)
-				(set! db-id (list-ref parts 3)))))
-		      ;; match other databases here
+			    (format #t "   debug:: drugbank parts: ~s~%" parts)
+			    (let ((id-string (last-element parts)))
+			      (if (number? (string->number id-string))
+				  (set! db-id-list (cons (cons "DrugBank" id-string) db-id-list))))))
+
+		      (if (string-match "ChemSpiderID " line)
+			  (let ((parts (string->list-of-strings line)))
+			    (format #t "   debug:: ChemSpiderID parts: ~s~%" parts)
+			    (let ((id-string (last-element parts)))
+			      (if (not (string-match "correct" id-string))
+				  (if (number? (string->number id-string))
+				      (set! db-id-list (cons (cons "ChemSpider" id-string) db-id-list)))))))
+
+		      (if (string-match "PubChem " line)
+			  (let ((parts (string->list-of-strings line)))
+			    (format #t "   debug:: PubChem parts: ~s~%" parts)
+			    (let ((id-string (last-element parts)))
+			      (if (not (string-match "correct" id-string))
+				  (set! db-id-list (cons (cons "PubChem" id-string) db-id-list))))))
+
+		      (if (string-match "ChEMBL " line)
+			  (let ((parts (string->list-of-strings line)))
+			    (format #t "   debug:: ChEMBL parts: ~s~%" parts)
+			    (let ((id-string (last-element parts)))
+			      (if (number? (string->number id-string))
+				  (set! db-id-list (cons (cons "ChEMBL" id-string) db-id-list))))))
 		      )
 		    lines)
 
-	  (format #t "DEBUG:: handle-rev-string-2016: db-id: ~s~%" db-id)
+	  (format #t "DEBUG:: handle-rev-string-2016: db-id-list: ~s~%" db-id-list)
 
-	  ;; check an association-list for the "DrugBank" entry
-	  ;; 
-	  (if (string? db-id)
+	  ;; now db-id-list is something like (("DrugBank" . 12234) ("ChEMBL" . 6789))
+	  ;; can we find one of them that works?
 
-	      ;; normal path hopefully
-	      ;; 
-	      (let ((db-mol-uri (string-append
-				 ;; "http://www.drugbank.ca/structures/structures/small_molecule_drugs/"
-				 "https://www.drugbank.ca/structures/small_molecule_drugs/"
-				 db-id ".mol"))
-		    (file-name (string-append db-id ".mol")))
-		(format #t "DEBUG:: handle-rev-string-2016: getting url: ~s to file ~s~%" db-mol-uri file-name)
-		(coot-get-url db-mol-uri file-name)
-		file-name)
- 
-	      #f))))))
+	  (let loop ((db-id-list db-id-list))
 
+	    (cond
+	     ((null? db-id-list) "Failed-to-find-a-molecule-file-name")
+	     ((string=? (car (car db-id-list)) "DrugBank")
+
+	       (let ((db-id (car db-id-list)))
+		 (if (pair? db-id)
+
+		     (let ((DBWebsite (car db-id))
+			   (id (cdr db-id)))
+
+		       (let ((db-mol-uri (string-append
+					  "https://www.drugbank.ca/structures/small_molecule_drugs/" id ".mol"))
+			     (file-name (string-append "drugbank-" id ".mol")))
+			 (format #t "DEBUG:: DrugBank path: getting url: ~s to file ~s~%"
+				 db-mol-uri file-name)
+			 (coot-get-url db-mol-uri file-name)
+			 ;; check that file-name is good here
+			 (if (file-seems-good? file-name)
+			     (format #t "DEBUG:: yes db file-name: ~s seems good ~%" file-name))
+			 (if (file-seems-good? file-name)
+			     file-name
+			     (loop (cdr db-id-list))))))))
+
+	      ((string=? (car (car db-id-list))  "ChemSpider")
+	       (let ((db-id (car db-id-list)))
+		 (if (pair? db-id)
+
+		     (let ((DBWebsite (car db-id))
+			   (id (cdr db-id)))
+
+		       (let ((cs-mol-url
+			      (string-append "http://www.chemspider.com/"
+					     "FilesHandler.ashx?type=str&striph=yes&id="
+					     id))
+			     (file-name (string-append "cs-" id ".mol")))
+			 (format #t "Get ---ChemSpider--- ~s ~s~%" cs-mol-url id)
+			 (coot-get-url cs-mol-url file-name)
+			 (if (file-seems-good? file-name)
+			     (format #t "DEBUG:: yes cs file-name: ~s seems good ~%" file-name))
+			 (if (file-seems-good? file-name)
+			     file-name
+			     (loop (cdr db-id-list))))))))
+
+	      ((string=? (car (car db-id-list))  "ChEMBL")
+	       (let ((db-id (car db-id-list)))
+		 (if (pair? db-id)
+
+		     (let ((DBWebsite (car db-id))
+			   (id (cdr db-id)))
+
+		       (let ((mol-url
+			      (string-append "https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL"
+					     id ".sdf"))
+			     (file-name (string-append "chembl-" id ".sdf")))
+			 (coot-get-url mol-url file-name)
+			 (if (file-seems-good? file-name)
+			     (format #t "DEBUG:: yes chembl file-name: ~s seems good ~%" file-name))
+			 (if (file-seems-good? file-name)
+			     file-name
+			     (loop (cdr db-id-list))))))))
+
+	      ((string=? (car (car db-id-list))  "PubChem")
+	       (let ((db-id (car db-id-list)))
+		 (if (pair? db-id)
+
+		     (let ((DBWebsite (car db-id))
+			   (id (cdr db-id)))
+
+		       (let ((pc-mol-url (string-append "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/"
+							id "/record/SDF/?record_type=2d&response_type=display"))
+			     (file-name (string-append "pc-" id ".mol")))
+			 (format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
+			 (coot-get-url pc-mol-url file-name)
+			 (if (file-seems-good? file-name)
+			     (format #t "DEBUG:: yes pc file-name: ~s seems good ~%" file-name))
+			 (if (file-seems-good? file-name)
+			     file-name
+			     (loop (cdr db-id-list))))))))
+
+	      (else
+	       (loop (cdr db-id-list))))))))))
 
   (define (handle-sxml-rev-value sxml)
     ;; (format #t "handle-sxml-rev-value sxml: ~s~%" sxml)
@@ -3789,7 +3895,9 @@
        (else 
 	(let ((entity (car ls)))
 	  (if (string? entity)
-	      (handle-rev-string-2016 entity)
+	      (let ((aaa (handle-rev-string-2016 entity)))
+		(format #t "---------- aaa: ~s~%" aaa)
+		aaa)
 	      (loop (cdr ls))))))))
 
   (define (handle-sxml-revisions-value sxml)
@@ -3932,6 +4040,7 @@
 					   ;; (format #t "about to get sxml ~%") paracetamol.xml fails here
 					   (let ((sxml (xml->sxml string-port)))
 					     (handle-sxml sxml))))))
+		      (format #t "------------- captured: ~s~%" captured)
 		      captured))))))))
 
 
