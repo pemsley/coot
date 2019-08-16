@@ -150,7 +150,7 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
-std::vector<std::string> *graphics_info_t::command_line_scripts;
+std::vector<std::string> *graphics_info_t::command_line_scripts = 0;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
