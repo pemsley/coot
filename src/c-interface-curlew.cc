@@ -64,6 +64,7 @@ void curlew() {
    GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
    GtkWidget *install_button = lookup_widget(w, "curlew_install_button");
    if (vbox) {
+
       std::string download_dir = coot::get_directory("coot-download");
       if (download_dir.empty()) {
 	 std::cout << "Can't make download directory " << std::endl;
@@ -82,11 +83,13 @@ void curlew() {
 	 int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
 
 	 if (! coot::file_exists(dl_fn)) {
-	    std::cout << "WARNING:: no directory " << dl_fn << std::endl;
+	    std::cout << "WARNING:: no file " << dl_fn << std::endl;
 	 } else {
 	    // Happy path
 	    std::fstream f(dl_fn);
-	    if (f) {
+	    if (! f) {
+	       std::cout << "WARNING:: Missing/bad curlew info file " << dl_fn << std::endl;
+            } else {
 
 	       std::string s;
 	       f.seekg(0, std::ios::end);
@@ -188,7 +191,7 @@ void curlew() {
 	       }
 	    }
 	 }
-      }
+      } // we've done the "empty" message already
    }
    gtk_widget_show(w);
 

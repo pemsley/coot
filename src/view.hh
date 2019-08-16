@@ -76,7 +76,7 @@ namespace coot {
 	n_spin_steps = nsteps;
 	if (n_spin_steps > 0) 
 	  degrees_per_step = degrees_total/n_spin_steps;
-	else 
+	else
 	  degrees_per_step = 0.5;
       }
       // an action view

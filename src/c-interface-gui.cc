@@ -2326,6 +2326,7 @@ void handle_get_accession_code(GtkWidget *widget) {
 
       if (n == 1) {
          get_coords_for_accession_code(text);
+         std::cout << "Here with mode n " << n << " guile path " << std::endl;
       } else {
          if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
 	    // 20050725 EDS code:
