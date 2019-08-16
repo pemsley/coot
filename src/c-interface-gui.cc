@@ -2280,9 +2280,13 @@ void handle_get_accession_code(GtkWidget *widget) {
    int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
 									"accession_code_window")));
    int n = *n_p;
+
+   std::cout << "Here with mode n " << n << std::endl;
    
 #ifdef USE_GUILE
    string scheme_command;
+
+   std::cout << "Here with mode n " << n << " guile path " << std::endl;
 
    if (n == 1) {
       get_coords_for_accession_code(text);

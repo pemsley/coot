@@ -647,6 +647,13 @@ int handle_read_draw_molecule(const char *filename);
 
 int make_updating_model_molecule(const char *filename);
 
+/* or better still, use the json file from refmac */
+void updating_refmac_refinement_files(const char *updating_refmeac_refinement_files_json_file_name);
+
+/* used by above, no API for this */
+int updating_refmac_refinement_json_timeout_function(gpointer data);
+
+
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();
 

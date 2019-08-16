@@ -143,6 +143,25 @@
 #endif // USE_PYTHON
 
 
+#ifdef HAVE_CXX11
+   #if defined(__clang__)
+      #define MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
+   #else
+      #if defined(__GNUC__)
+         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40805
+            // no json usage
+         #else
+            #define MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
+         #endif
+      #endif
+   #endif
+#endif
+
+#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
+#include "json.hpp"
+using json = nlohmann::json;
+#endif
+
 // This is (already) in git-revision-count.cc
 //
 int svn_revision() {
@@ -487,6 +506,72 @@ int make_updating_model_molecule(const char *filename) {
    }
    return status;
 }
+
+// do we need to return the imol for the model and the map? If so, this
+// needs to be in cc-interface.hh
+//
+void updating_refmac_refinement_files(const char *updating_refmac_refinement_files_json_file_name) {
+
+#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES // using JSON
+
+   if (updating_refmac_refinement_files_json_file_name) {
+
+      // set a timeout function that looks for this file
+      GSourceFunc f = GSourceFunc(updating_refmac_refinement_json_timeout_function);
+      std::string *fn_p = new std::string(updating_refmac_refinement_files_json_file_name);
+      guint updating_idx = g_timeout_add(500, f, fn_p); // possibly illegal.
+   }
+#else
+   std::cout << "ERROR:: updating_refmac_refinement_files() is just a stub - needs CXX11"
+	     << std::endl;
+#endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES   
+}
+
+int updating_refmac_refinement_json_timeout_function(gpointer data) {
+
+   int status = 1; // keep going
+
+#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES // using JSON
+
+   if (! data) return 0;
+
+   std::string *fn = reinterpret_cast<std::string *>(data);
+   std::string json_file_name = *fn;
+
+   std::fstream f(json_file_name);
+   if (f) { // Hooray, it arrived.
+
+      std::string s;
+      f.seekg(0, std::ios::end);
+      s.reserve(f.tellg());
+      f.seekg(0, std::ios::beg);
+
+      s.assign((std::istreambuf_iterator<char>(f)),
+	       std::istreambuf_iterator<char>());
+      unsigned int n_already_done = 0;
+
+      try {
+	 json j = json::parse(s);
+
+	 // on correct parsing, add another timeout function that looks for the files
+	 // in the json file.  Maybe create initially empty molecules to run them
+	 // from? Like make_updating_model_molecule() and make_updating_map() do?
+
+      }
+      catch(const nlohmann::detail::type_error &e) {
+	 std::cout << "ERROR:: " << e.what() << std::endl;
+      }
+      catch(const nlohmann::detail::parse_error &e) {
+	 std::cout << "ERROR:: " << e.what() << std::endl;
+      }
+
+      status = 0; // no need to run this function again
+   }
+#endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
+   return status;
+}
+
+
 
 
 void allow_duplicate_sequence_numbers() {

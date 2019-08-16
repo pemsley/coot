@@ -3534,18 +3534,20 @@ if test -n "$build_libidn" ; then
 (
    # get libcurl from here: 
    libidn_version=1.15
-   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+   libidn_version=2.2.0
+   # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+   ${WGET}    https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
 
-   gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
-   cd libidn-$libidn_version
+   gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
+   cd libidn2-$libidn_version
   
    ./configure  $generic_prefix
    if $MAKE ; then
       $MAKE install
    fi
-) > $HOSTLOGDIR/15-a-libidn.txt
+) > $HOSTLOGDIR/15-a-libidn2.txt
 else
-    echo not building libidn:
+    echo not building libidn2:
 fi
 
 #
@@ -3561,8 +3563,11 @@ if test -n "$build_curl" ; then
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
    # libcurl_version=7.27.0
-   libcurl_version=7.32.0
-   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   # libcurl_version=7.32.0
+   libcurl_version=7.65.3
+   # ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version/curl-$libcurl_version.tar.gz
+
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
@@ -3576,8 +3581,8 @@ if test -n "$build_curl" ; then
    # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
    # (lemur).
    #
-   echo ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
-   ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then 
          fixup_libcurl
