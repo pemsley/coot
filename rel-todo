@@ -3,6 +3,9 @@
 
    o what is the map grid? Tell me in the map preferences.
 
+   o fix the compilation of libcurl in the build script to use
+     libidn2 and OpenSSL for https
+
    o add a function to set the window title (dont' for get to check
      for use-graphics)
 
