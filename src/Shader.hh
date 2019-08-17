@@ -5,7 +5,8 @@
 #include <map>
 class Shader {
 public:
-   enum class Entity_t { NONE = -1, MODEL, MAP, INFRASTRUCTURE, VALIDATION, HUD_TEXT, TEXT_3D};
+   enum class Entity_t { NONE = -1, MODEL, MAP, INFRASTRUCTURE, VALIDATION, HUD_TEXT, TEXT_3D,
+   SCREEN /* i.e. draw the image texture into the screen frame buffer using a quad*/};
 private:
    enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2 };
    void parse(const std::string &file_name);
@@ -32,6 +33,8 @@ public:
    unsigned int line_colour_uniform_location;
    unsigned int eye_position_uniform_location;
    unsigned int hud_projection_uniform_location;
+   // general purpose, not class member uniform locations
+   void set_int_for_uniform(const std::string &uniform_name, int value) const;
 };
 
 #endif // SHADER_HH

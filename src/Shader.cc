@@ -62,10 +62,19 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
 }
 
 void
+Shader::set_int_for_uniform(const std::string &uniform_name, int value) const {
+   GLuint err = glGetError();
+   if (err) std::cout << "set_int_for_uniform() start err " << err << std::endl;
+   GLuint loc = glGetUniformLocation(program_id, uniform_name.c_str());
+   err = glGetError(); if (err) std::cout << "set_int_for_uniform() A err " << err << std::endl;
+   glUniform1i(loc,value);
+   err = glGetError(); if (err) std::cout << "set_int_for_uniform() B err " << err << std::endl;
+}
+
+
+void
 Shader::Use() {
-
   glUseProgram(program_id);
-
 }
 
 void
