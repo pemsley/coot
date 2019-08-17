@@ -1281,6 +1281,15 @@ public:
    static float smooth_scroll_zoom_limit; // above this value we zoom, if zoom is on.
    static int   smooth_scroll_do_zoom;
 
+   static
+   gboolean smooth_scroll_animation_func(GtkWidget *widget,
+                                         GdkFrameClock *frame_clock,
+                                         gpointer data);
+   // in that function, we need to know the current step
+   static int smooth_scroll_current_step;
+   // and the position delta (position at the end of the animation - the postion at the start of the animation)
+   static coot::Cartesian smooth_scroll_delta;
+
    // atom label font size
    static int atom_label_font_size; // range of 1->3. small, medium, large.
    static void *atom_label_font;
@@ -1403,8 +1412,11 @@ public:
       rotation_centre_z += x_drag.get_z()*x_diff + y_drag.get_z()*y_diff;
 
    };
-   void add_vector_to_RotationCentre(const coot::Cartesian &vec); // do the updates and redraw too.
 
+   // simple
+   static void add_vector_to_rotation_centre(const coot::Cartesian &vec);
+   // old method - not sure that it's useful or even works now...
+   void add_vector_to_RotationCentre(const coot::Cartesian &vec); // do the updates and redraw too.
 
    // map colour by scripting
    void set_last_map_colour(double f1, double f2, double f3) const;
@@ -3998,12 +4010,16 @@ string   static std::string sessionid;
    static GLuint central_cube_array_buffer_id;
    static GLuint central_cube_index_buffer_id;
    static GLuint hud_text_vertexarray_id;
+   static GLuint framebuffer_id;
+   static GLuint screen_quad_vertex_array_id;
+   static GLuint textureColorbuffer;
    static GLuint hud_text_array_buffer_id;
    static Shader shader_for_maps;
    static Shader shader_for_models;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
+   static Shader shader_for_screen;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;

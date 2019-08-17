@@ -263,11 +263,13 @@ float  graphics_info_t::rotation_centre_z = 0.0;
 coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
-int    graphics_info_t::smooth_scroll_steps =  40;
+int    graphics_info_t::smooth_scroll_steps =  10;
 float  graphics_info_t::smooth_scroll_limit =  10.0; // A
 float  graphics_info_t::smooth_scroll_zoom_limit = 30.0; // A
 int    graphics_info_t::smooth_scroll_do_zoom = 0;  // initially no, too ugly ATM.
 short int graphics_info_t::smooth_scroll_on = 0;
+int    graphics_info_t::smooth_scroll_current_step = 0;
+coot::Cartesian graphics_info_t::smooth_scroll_delta;
 int    graphics_info_t::mouse_just_cliked     = 0;
 float  graphics_info_t::rotation_centre_cube_size = 0.1; // Angstroems
 short int graphics_info_t::quanta_like_zoom_flag = 0;
@@ -1434,6 +1436,10 @@ GLuint graphics_info_t::central_cube_array_buffer_id = 0;
 GLuint graphics_info_t::central_cube_index_buffer_id = 0;
 GLuint graphics_info_t::hud_text_vertexarray_id = 0;
 GLuint graphics_info_t::hud_text_array_buffer_id = 0;
+GLuint graphics_info_t::framebuffer_id = 0;
+GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
+GLuint graphics_info_t::textureColorbuffer = 0;
+
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
@@ -1441,6 +1447,7 @@ Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
+Shader graphics_info_t::shader_for_screen;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
@@ -2603,12 +2610,12 @@ adjust_clipping(double d) {
 
    if (d>0) {
       // I am not sure that this limit does any good these days
-      if (graphics_info_t::clipping_back < 65.0) {
+      if (graphics_info_t::clipping_back < 165.0) {
          set_clipping_front(graphics_info_t::clipping_front + d);
          set_clipping_back (graphics_info_t::clipping_front + d);
       }
    } else {
-      if (graphics_info_t::clipping_back > -65.2) {
+      if (graphics_info_t::clipping_back > -165.2) {
          set_clipping_front(graphics_info_t::clipping_front + d);
          set_clipping_back (graphics_info_t::clipping_front + d);
       }

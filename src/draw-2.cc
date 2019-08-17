@@ -19,6 +19,7 @@
 
 #include "draw.hh"
 #include "draw-2.hh"
+#include "framebuffer.hh"
 
 #include "text-rendering-utils.hh"
 
@@ -28,18 +29,54 @@ gint idle_contour_function(gpointer data);
 
 void init_central_cube_shaders() {} // part of init_shaders() now. Delete at some stage
 
+
+float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+      // positions   // texCoords
+      -1.0f,  1.0f,  0.0f, 1.0f,
+      -1.0f, -1.0f,  0.0f, 0.0f,
+       1.0f, -1.0f,  1.0f, 0.0f,
+
+      -1.0f,  1.0f,  0.0f, 1.0f,
+       1.0f, -1.0f,  1.0f, 0.0f,
+       1.0f,  1.0f,  1.0f, 1.0f
+   };
+
 void init_shaders() {
    graphics_info_t::shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
    graphics_info_t::shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
    graphics_info_t::shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    graphics_info_t::shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    graphics_info_t::shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
+   // we use the above to make an image/texture in the framebuffer and use then
+   // shader_for_screen to convert that framebuffer to the screen buffer.
+   graphics_info_t::shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
+
+}
+
+void init_screen_quads() {
+
+   graphics_info_t::shader_for_screen.Use();
+   // screen quad VAO
+   unsigned int quadVBO;
+   glGenVertexArrays(1, &graphics_info_t::screen_quad_vertex_array_id);
+   glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
+   glGenBuffers(1, &quadVBO);
+   glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+   GLenum err = glGetError();
+   if (true) std::cout << "init_screen_quads() err is " << err << std::endl;
+
 }
 
 void init_central_cube();
 
 void init_buffers() {
    init_central_cube();
+   init_screen_quads();
 }
 
 void init_central_cube() {
@@ -134,8 +171,8 @@ glm::mat4 get_molecule_mvp() {
    // with narrow depth of field: 5 and 6.
 
    GLfloat near_scale = 0.3;
-   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 1.0);
-   GLfloat near =  0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 1.0);
+   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 3.0);
+   GLfloat near =  0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 3.0);
 
    if (false)
       std::cout << "near: " << near << " far " << far
@@ -271,7 +308,7 @@ void draw_map_molecules() {
          }
 
          if (!draw_with_lines) { // draw as a solid object
-            if (true)
+            if (false)
                std::cout << "   draw_map_molecules(): imol " << ii
                          << " array_id and n_vertices_for_VertexArray: "
                          << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
@@ -283,7 +320,8 @@ void draw_map_molecules() {
             if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
                                << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
-
+            glDisable(GL_BLEND);
+            glEnable(GL_BLEND);
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
 
@@ -447,8 +485,8 @@ draw_molecular_triangles() {
 void
 draw_molecules() {
 
-   draw_map_molecules();
    draw_model_molecules();
+   draw_map_molecules();
    draw_molecular_triangles(); // Martin's renderings
 }
 
@@ -554,25 +592,30 @@ on_glarea_realize(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    // gtk_gl_area_set_has_alpha(glarea, TRUE);
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
-
-   // setup_frame_buffer();
-
    GLenum err = glGetError();
-   std::cout << "start on_glarea_realize() err is " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
 
    init_shaders();
+   init_buffers();
+   init_central_cube_shaders();
    err = glGetError();
    std::cout << "on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
-   init_central_cube_shaders();
-   err = glGetError();
-   std::cout << "on_glarea_realize() post init_central_cube_shaders() err is " << err << std::endl;
+   graphics_info_t::shader_for_screen.Use(); // needed?
+   std::pair<unsigned int, unsigned int> p = setup_frame_buffer(w,h);
+   graphics_info_t::framebuffer_id     = p.first;
+   graphics_info_t::textureColorbuffer = p.second;
 
-   init_buffers();
-   err = glGetError();
-   std::cout << "on_glarea_realize() post init_buffer(): err is " << err << std::endl;
+   err = glGetError(); std::cout << "start on_glarea_realize() err is " << err << std::endl;
 
    setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+
+   graphics_info_t::shader_for_screen.Use();
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() B err " << err << std::endl;
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() C err " << err << std::endl;
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() D err " << err << std::endl;
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
@@ -610,42 +653,54 @@ on_glarea_render(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    err = glGetError(); if (err) std::cout << "on_glarea_render() post gtk_gl_area_make_current() " << err << std::endl;
 
-   glClearColor (0.24, 0.24, 0.24, 1.0);
-   const glm::vec3 &bg = graphics_info_t::background_colour;
-   glClearColor (bg[0], bg[1], bg[2], 1.0);
-   err = glGetError();
-   if (err) std::cout << "on_glarea_render B err " << err << std::endl;
+   glBindFramebuffer(GL_FRAMEBUFFER, graphics_info_t::framebuffer_id);
+   glEnable(GL_DEPTH_TEST);
+
+   {
+      const glm::vec3 &bg = graphics_info_t::background_colour;
+      glClearColor (bg[0], bg[1], bg[2], 1.0);
+      err = glGetError();
+      if (err) std::cout << "on_glarea_render B err " << err << std::endl;
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      err = glGetError();
+      if (err) std::cout << "on_glarea_render C err " << err << std::endl;
+
+      draw_central_cube(glarea);
+      draw_origin_cube(glarea);
+      err = glGetError();
+      if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
+      draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+      err = glGetError();
+      if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
+
+      err = glGetError();
+      if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
+
+      draw_molecules();
+      glBindVertexArray(0);
+   }
+
+   // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
+   gtk_gl_area_attach_buffers(glarea);
+
+   // glDisable(GL_DEPTH_TEST);
+   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+   graphics_info_t::shader_for_screen.Use();
+   glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
+
+   glClearColor(0.5, 0.2, 0.2, 1.0);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   err = glGetError();
-   if (err) std::cout << "on_glarea_render C err " << err << std::endl;
 
-   //
+   // colour and depth are attached to this texture colourbuffer
+   glBindTexture(GL_TEXTURE_2D, graphics_info_t::textureColorbuffer);
+   glDrawArrays(GL_TRIANGLES, 0, 6);
 
-   // get rid of this?
-   // if (graphics_info_t::draw_the_other_things)
-   // draw_other_triangle(glarea);
-
-
-   // Has the start triangle been correctly init? It errors on draw now.
-   // draw_triangle(glarea);
-
-   draw_central_cube(glarea);
-   draw_origin_cube(glarea);
-   err = glGetError();
-   if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
-   draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
-   err = glGetError();
-   if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
-
-   err = glGetError();
-   if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
-
-   draw_molecules();
-   glFlush ();
    err = glGetError();
    if (err) std::cout << "on_glarea_render E err " << err << std::endl;
 
    graphics_info_t::frame_counter++;
+
    // auto tp_1 = std::chrono::high_resolution_clock::now();
    // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
    // std::cout << "INFO:: Timing for frame render " << d10 << " microseconds" << std::endl;

@@ -27,15 +27,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#ifdef GRAPHICS_TESTING
-
-// #define glGenVertexArrays glGenVertexArraysAPPLE
-// #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
-// #define glBindVertexArray glBindVertexArrayAPPLE
-
 #include <epoxy/gl.h>
-
-#endif // GRAPHICS_TESTING
 
 #include "compat/coot-sysdep.h"
 

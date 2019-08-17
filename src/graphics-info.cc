@@ -748,16 +748,16 @@ graphics_info_t::setRotationCentre(int index, int imol) {
       update_environment_graphics_object(index, imol);
       // label new centre
       if (environment_distance_label_atom) {
-    molecules[imol].unlabel_last_atom();
-    molecules[imol].add_to_labelled_atom_list(index);
+         molecules[imol].unlabel_last_atom();
+         molecules[imol].add_to_labelled_atom_list(index);
       }
       if (show_symmetry)
-    update_symmetry_environment_graphics_object(index, imol);
+         update_symmetry_environment_graphics_object(index, imol);
    } else {
 
       if (label_atom_on_recentre_flag) {
-    molecules[imol].unlabel_last_atom();
-    molecules[imol].add_to_labelled_atom_list(index);
+         molecules[imol].unlabel_last_atom();
+         molecules[imol].add_to_labelled_atom_list(index);
       }
    }
    run_post_set_rotation_centre_hook();
@@ -793,7 +793,7 @@ void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
 
-# if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
    std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
                                        res_spec.ins_code);
@@ -949,8 +949,8 @@ graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
 
 void
 graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
-        short int do_zoom_and_move_flag,
-        float target_zoom) {
+                                     short int do_zoom_and_move_flag,
+                                    float target_zoom) {
 
    if ( (x - rotation_centre_x) != 0.0 ||
         (y - rotation_centre_y) != 0.0 ||
@@ -961,6 +961,31 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 
 #include <glm/gtx/string_cast.hpp>
 
+// static
+gboolean
+graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
+                                              GdkFrameClock *frame_clock,
+                                              gpointer data) {
+   float frac = 1.0;
+   if (graphics_info_t::smooth_scroll_steps > 0)
+      frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_steps);
+   smooth_scroll_current_step += 1;
+   std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step
+             << std::endl;
+   if (smooth_scroll_current_step >= smooth_scroll_steps) {
+      std::cout << "smooth_scroll_animation_func - path A - finish\n";
+      return G_SOURCE_REMOVE;
+   } else {
+      double theta = 2.0 * M_PI * frac * smooth_scroll_current_step;
+      coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
+      // add_vector_to_rotation_centre(this_step_delta);
+      std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre());
+      // std::cout << "smooth_scroll_animation_func - path B\n";
+      gtk_widget_queue_draw(glarea);
+      return G_SOURCE_CONTINUE;
+   }
+}
+
 void
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
                                                              short int do_zoom_and_move_flag,
@@ -968,7 +993,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 
    std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
-   // This is more like how PyMol does it (and is better than stepped
+   // This is more like how PyMOL does it (and is better than stepped
    // acceleration).
 
    // acceleration between istep 0 and smooth_scroll_steps (n_steps) is:
@@ -986,7 +1011,6 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    float zd = z - rotation_centre_z;
    if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
 
-
       float pre_zoom = zoom;
 
       float frac = 1;
@@ -1002,21 +1026,12 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
 
       smooth_scroll_on = 1; // flag to stop wirecube being drawn.
       double v_acc = 0; // accumulated distance
-      smooth_scroll_steps = 3000;
-      for (int istep=0; istep<smooth_scroll_steps; istep++) {
-         if (do_zoom_and_move_flag)
-            zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
-         double theta = 2 * M_PI * frac * istep;
-         double v = (1-cos(theta))*frac;
-         v_acc += v;
-         rotation_centre_x = rc_x_start + v_acc * xd;
-         rotation_centre_y = rc_y_start + v_acc * yd;
-         rotation_centre_z = rc_z_start + v_acc * zd;
-         std::cout << istep << " " << glm::to_string(get_rotation_centre()) << std::endl;
-         // graphics_draw();
-         gtk_widget_queue_draw(GTK_WIDGET(glarea));
-      }
+      gpointer user_data = 0;
+      smooth_scroll_current_step = 0;
+      smooth_scroll_delta = coot::Cartesian(xd, yd, zd);
+      gtk_widget_add_tick_callback(glarea, smooth_scroll_animation_func, user_data, NULL);
 
+      // restore state
       smooth_scroll_on = 0;
    }
 }
@@ -1025,90 +1040,7 @@ void
 graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
      short int do_zoom_and_move_flag,
      float target_zoom) {
-
-   float xd = x - rotation_centre_x;
-   float yd = y - rotation_centre_y;
-   float zd = z - rotation_centre_z;
-
-   float pre_zoom = zoom;
-
-   float frac = 1/float (smooth_scroll_steps);
-   float stepping_x = frac*xd;
-   float stepping_y = frac*yd;
-   float stepping_z = frac*zd;
-
-   int n_extra_steps = 10;
-   float zoom_in = 1.0 + 1/float(2.0*n_extra_steps + smooth_scroll_steps);
-   float zoom_out;
-   if (zoom_in != 0.0)      // silly user/divide by zero protection
-      zoom_out = 1/zoom_in;
-   else
-      zoom_out = 1;
-
-   // This bit of code doesn't get executed (practically ever).
-   if (smooth_scroll_do_zoom && (pre_zoom < 70.0)) {
-      if ( (xd*xd + yd*yd + zd*zd) > smooth_scroll_limit*smooth_scroll_limit ) {
-         for (int ii=0; ii<n_extra_steps+smooth_scroll_steps; ii++) {
-            graphics_info_t::zoom *= zoom_in; // typically 1.1
-            graphics_draw();
-         }
-      }
-   }
-
-   if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
-      smooth_scroll_on = 1; // flag to stop wirecube being drawn.
-
-      if (0) {
-
-    for (int ii=0; ii<smooth_scroll_steps; ii++) {
-      rotation_centre_x += stepping_x;
-      rotation_centre_y += stepping_y;
-      rotation_centre_z += stepping_z;
-      if (do_zoom_and_move_flag)
-          graphics_info_t::zoom = pre_zoom +
-      float(ii+1)*frac*(target_zoom - pre_zoom);
-      graphics_draw();
-    }
-
-      } else {
-
-    // -6x^2 +6x parametric function
-    if (smooth_scroll_steps > 0) {
-
-       float rotation_centre_x_start = rotation_centre_x;
-       float rotation_centre_y_start = rotation_centre_y;
-       float rotation_centre_z_start = rotation_centre_z;
-
-       for (int ii=0; ii<smooth_scroll_steps; ii++) {
-          float range_frac = float(ii)/float(smooth_scroll_steps);
-          float f_x = (-2*range_frac*range_frac*range_frac + 3*range_frac*range_frac);
-
-          rotation_centre_x = rotation_centre_x_start + f_x*xd;
-          rotation_centre_y = rotation_centre_y_start + f_x*yd;
-          rotation_centre_z = rotation_centre_z_start + f_x*zd;
-
-          if (do_zoom_and_move_flag)
-     graphics_info_t::zoom = pre_zoom +
-        float(ii+1)*frac*(target_zoom - pre_zoom);
-          graphics_draw();
-
-       }
-    }
-      }
-   }
-
-   // Also not executed generally.
-   if (smooth_scroll_do_zoom && pre_zoom < 70.0 ) {
-      if ( (xd*xd + yd*yd + zd*zd) > smooth_scroll_limit*smooth_scroll_limit ) {
-    for (int ii=0; ii<(n_extra_steps + smooth_scroll_steps); ii++) {
-       graphics_info_t::zoom *= zoom_out; // typically 0.9
-       graphics_draw();
-    }
-      }
-   }
-
-   smooth_scroll_on = 0;
-   zoom = pre_zoom;
+          // defunct
 }
 
 std::vector<int>
@@ -3606,6 +3538,16 @@ graphics_info_t::update_maps() {
     }
       }
    } // active map drag test
+}
+
+// simple
+// static
+void
+graphics_info_t::add_vector_to_rotation_centre(const coot::Cartesian &vec) {
+
+   rotation_centre_x += vec.x();
+   rotation_centre_y += vec.y();
+   rotation_centre_z += vec.z();
 }
 
 void

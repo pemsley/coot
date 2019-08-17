@@ -3609,13 +3609,19 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
 
    // setup a few colours
    std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
+   float brass_r = static_cast<float>(229)/static_cast<float>(255);
+   float brass_g = static_cast<float>(177)/static_cast<float>(255);
+   float brass_b = static_cast<float>(119)/static_cast<float>(255);
+   glm::vec4 brass(brass_r, brass_g, brass_b, 1.0f);
    for (int i=0; i<bonds_box.num_colours; i++) {
       index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-      if (i == 0) index_to_colour[i] = glm::vec4(0.7, 0.7, 0.4, 1.0);
+      if (i == 0) index_to_colour[i] = glm::vec4(0.7, 0.7, 0.5, 1.0);
       if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
       if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
       if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
       if (i == 4) index_to_colour[i] = glm::vec4(0.6, 0.2, 0.6, 1.0);
+      ;;
+      // if (i == 0) index_to_colour[i] = brass;
    }
 
    for (int i=0; i<bonds_box.num_colours; i++) {
@@ -3702,9 +3708,6 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       }
 
       // now the atom parts:
-
-
-      gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
 
       glGenVertexArrays(1, &m_VertexArray_for_model_ID);
       GLenum err = glGetError();
@@ -5887,111 +5890,113 @@ molecule_class_info_t::close_yourself() {
 // -1 on failure.
 int
 molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
-        int resno,
-        const std::string &atom_name,
-        const std::string &ins_code,
-        const coot::Cartesian &rc) {
+                                             int resno,
+                                             const std::string &atom_name,
+                                             const std::string &ins_code,
+                                             const coot::Cartesian &rc) {
 
-   // This is really a problem of "what is the next residue?", the
-   // actual atom is a superficial problem that is handled by
-   // intelligent_this_residue_atom().  We simply have to find this
-   // residue in the chain, and return the residue after that.
-   //
-   // If there is no next residue, use the residue at the beginning of
-   // the next chain.
-   //
-   // If there is no next chain, use the residue at the start of the
-   // first chain.
-   //
-   // If this residue can't be found, then go through chain and look
-   // for the first residue that has higher residue number than resno.
-
-   int i_atom_index = -1; // failure initially.
-   if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) {
-      std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
-   } else {
-
-      mmdb::Residue *next_residue = NULL;
-
-      // Note: we may not be at this residue.
+      // This is really a problem of "what is the next residue?", the
+      // actual atom is a superficial problem that is handled by
+      // intelligent_this_residue_atom().  We simply have to find this
+      // residue in the chain, and return the residue after that.
       //
-      coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
+      // If there is no next residue, use the residue at the beginning of
+      // the next chain.
+      //
+      // If there is no next chain, use the residue at the start of the
+      // first chain.
+      //
+      // If this residue can't be found, then go through chain and look
+      // for the first residue that has higher residue number than resno.
 
-      mmdb::Residue *this_residue = get_residue(this_residue_spec);
-
-      if (this_residue) {
-
-    if (close_to_residue(this_residue, rc)) {
-
-       // === move on to next one ===
-
-       // Can we do that by residue index?
-       //
-       int ser_num = this_residue->index;
-       if (ser_num != -1) {
-          // yes...
-          int ser_num_next = ser_num + 1;
-          mmdb::Residue *rr = this_residue->chain->GetResidue(ser_num);
-          if (this_residue == rr) {
-     // self reference works as it should
-     next_residue = this_residue->chain->GetResidue(ser_num_next);
-          } else {
-     coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
-     mmdb::Residue *residue_p = get_residue(next_residue_spec);
-     if (residue_p)
-        next_residue = residue_p;
-          }
-       } else {
-          // no...
-          // this_residue was not properly inserted into the
-          // chain for some reason.
-          //
-          coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
-          mmdb::Residue *residue_p = get_residue(next_residue_spec);
-          if (residue_p)
-     next_residue = residue_p;
-       }
-
-       if (next_residue) {
-
-          i_atom_index = intelligent_this_residue_atom(next_residue);
-
-       } else {
-
-          // OK, we need to move onto the next chain.... or find
-          // the residue after the gap.
-          //
-
-          next_residue = next_residue_missing_residue(this_residue);
-          if (next_residue) {
-     i_atom_index = intelligent_this_residue_atom(next_residue);
-          } else {
-     // we are on the last atom then.
-     i_atom_index = 0;
-
-          }
-       }
-
-    } else {
-       // Go (back) to this one - because we had moved away from it.
-       i_atom_index = intelligent_this_residue_atom(this_residue);
-    }
+      int i_atom_index = -1; // failure initially.
+      if (atom_sel.n_selected_atoms <= 0 || atom_sel.mol == NULL) {
+         std::cout << "ERROR:: trying to move to (next) atom of a closed molecule!\n";
       } else {
-    // OK, the residue could not be found, it was a deleted atom
-    // perhaps.  So find the next residue in the chain that has a
-    // higher residue number than resno.
 
-    // the residue is not found for this_residue_spec
-    //
-    next_residue = next_residue_missing_residue(this_residue_spec);
+         mmdb::Residue *next_residue = NULL;
 
-    if (next_residue)
-       i_atom_index = intelligent_this_residue_atom(next_residue);
+         // Note: we may not be at this residue.
+         //
+         coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
+         mmdb::Residue *this_residue = get_residue(this_residue_spec);
 
+         std::cout << "molecule intelligent_next_atom here A " << this_residue << std::endl;
+         if (this_residue) {
+            std::cout << "molecule intelligent_next_atom here B " << this_residue << std::endl;
+
+            if (close_to_residue(this_residue, rc)) {
+               std::cout << "molecule intelligent_next_atom here C " << this_residue << std::endl;
+
+               // === move on to next one ===
+
+               // Can we do that by residue index?
+               //
+               int ser_num = this_residue->index;
+               std::cout << "molecule intelligent_next_atom ser_num " << ser_num << std::endl;
+               if (ser_num != -1) {
+                  // yes...
+                  int ser_num_next = ser_num + 1;
+                  mmdb::Residue *rr = this_residue->chain->GetResidue(ser_num);
+                  if (this_residue == rr) {
+                     // self reference works as it should
+                     next_residue = this_residue->chain->GetResidue(ser_num_next);
+                  } else {
+                     coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
+                     mmdb::Residue *residue_p = get_residue(next_residue_spec);
+                     if (residue_p)
+                     next_residue = residue_p;
+                  }
+               } else {
+                  // no...
+                  // this_residue was not properly inserted into the
+                  // chain for some reason.
+                  //
+                  coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
+                  mmdb::Residue *residue_p = get_residue(next_residue_spec);
+                  if (residue_p)
+                  next_residue = residue_p;
+               }
+
+               if (next_residue) {
+
+                  i_atom_index = intelligent_this_residue_atom(next_residue);
+
+               } else {
+
+                  // OK, we need to move onto the next chain.... or find
+                  // the residue after the gap.
+                  //
+
+                  next_residue = next_residue_missing_residue(this_residue);
+                  if (next_residue) {
+                     i_atom_index = intelligent_this_residue_atom(next_residue);
+                  } else {
+                     // we are on the last atom then.
+                     i_atom_index = 0;
+                  }
+               }
+
+            } else {
+               // Go (back) to this one - because we had moved away from it.
+               i_atom_index = intelligent_this_residue_atom(this_residue);
+            }
+         } else {
+            // OK, the residue could not be found, it was a deleted atom
+            // perhaps.  So find the next residue in the chain that has a
+            // higher residue number than resno.
+
+            // the residue is not found for this_residue_spec
+            //
+            next_residue = next_residue_missing_residue(this_residue_spec);
+
+            if (next_residue)
+            i_atom_index = intelligent_this_residue_atom(next_residue);
+
+         }
       }
+      return i_atom_index;
    }
-   return i_atom_index;
-}
 
 
 // Return the atom index of the "previous" atom
@@ -6272,20 +6277,20 @@ molecule_class_info_t::close_to_residue(mmdb::Residue *residue_p, coot::Cartesia
    bool status = false;
    if (residue_p) {
       if (atom_sel.mol) {
-    //
-    mmdb::PPAtom residue_atoms = 0;
-    int n_residue_atoms;
-    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-    for (int iat=0; iat<n_residue_atoms; iat++) {
-       coot::Cartesian atom_pt(residue_atoms[iat]->x,
-       residue_atoms[iat]->y,
-       residue_atoms[iat]->z);
-       double d = (atom_pt - point).amplitude();
-       if (d < 1.0) {
-          status = true;
-          break;
-       }
-    }
+         //
+         mmdb::PPAtom residue_atoms = 0;
+         int n_residue_atoms;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            coot::Cartesian atom_pt(residue_atoms[iat]->x,
+                                    residue_atoms[iat]->y,
+                                    residue_atoms[iat]->z);
+            double d = (atom_pt - point).amplitude();
+            if (d < 1.0) {
+               status = true;
+               break;
+            }
+         }
       }
    }
    return status;
