@@ -1436,9 +1436,9 @@ GLuint graphics_info_t::central_cube_array_buffer_id = 0;
 GLuint graphics_info_t::central_cube_index_buffer_id = 0;
 GLuint graphics_info_t::hud_text_vertexarray_id = 0;
 GLuint graphics_info_t::hud_text_array_buffer_id = 0;
-GLuint graphics_info_t::framebuffer_id = 0;
 GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
 GLuint graphics_info_t::textureColorbuffer = 0;
+framebuffer graphics_info_t::screen_framebuffer;
 
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be

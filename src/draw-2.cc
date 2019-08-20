@@ -29,6 +29,9 @@ gint idle_contour_function(gpointer data);
 
 void init_central_cube_shaders() {} // part of init_shaders() now. Delete at some stage
 
+// maybe this can go in the draw-2.hh header
+glm::vec4 new_unproject(float z);
+
 
 float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
       // positions   // texCoords
@@ -171,8 +174,8 @@ glm::mat4 get_molecule_mvp() {
    // with narrow depth of field: 5 and 6.
 
    GLfloat near_scale = 0.3;
-   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 3.0);
-   GLfloat near =  0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 3.0);
+   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 0.1);
+   GLfloat near =  0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 0.1);
 
    if (false)
       std::cout << "near: " << near << " far " << far
@@ -190,17 +193,27 @@ glm::mat4 get_molecule_mvp() {
    view_matrix = glm::scale(view_matrix, sc);
    view_matrix = glm::translate(view_matrix, -rc);
 
+   glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
+
 #if 0
    // for fun/testing
    // turn off view scaling when tinkering with this?
    // there should not be a concept of "zoom" with perspective view, just translation
    // along screen-Z.
-   float fov = 60.0;
-   std::cout << "fov " << fov << std::endl;
-   glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, 2.1f, 1000.0f);
+   float fov = 40.0;
+   glm::vec3 up(0.0, 1.0, 0.0);
+   glm::vec3 ep(1,2,30);
+   // view_matrix = glm::lookAt(glm::vec3(ep), rc, up);
+   view_matrix = glm::translate(view_matrix, -0.2 * rc);
+   float z_front = 30.0;
+   float z_back = 300.0;
+   z_front += 0.2 * graphics_info_t::clipping_front;
+   z_back  -= 0.2 * graphics_info_t::clipping_back;
+   fov /= 0.01 * graphics_info_t::zoom;
+   std::cout << z_front << " " << z_back << " fov " << fov << std::endl;
+   glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
+   mvp = projection_matrix_persp * view_matrix * model_matrix;
 #endif
-
-   glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
 
    return mvp;
 }
@@ -602,17 +615,18 @@ on_glarea_realize(GtkGLArea *glarea) {
    std::cout << "on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
    graphics_info_t::shader_for_screen.Use(); // needed?
-   std::pair<unsigned int, unsigned int> p = setup_frame_buffer(w,h);
-   graphics_info_t::framebuffer_id     = p.first;
-   graphics_info_t::textureColorbuffer = p.second;
 
    err = glGetError(); std::cout << "start on_glarea_realize() err is " << err << std::endl;
+
+   graphics_info_t::screen_framebuffer.init(w,h);
+
+   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_buffer init() err is " << err << std::endl;
 
    setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
 
    graphics_info_t::shader_for_screen.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() B err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() C err " << err << std::endl;
    graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() D err " << err << std::endl;
@@ -653,28 +667,27 @@ on_glarea_render(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    err = glGetError(); if (err) std::cout << "on_glarea_render() post gtk_gl_area_make_current() " << err << std::endl;
 
-   glBindFramebuffer(GL_FRAMEBUFFER, graphics_info_t::framebuffer_id);
+   // glBindFramebuffer(GL_FRAMEBUFFER, graphics_info_t::framebuffer_id);
+   graphics_info_t::screen_framebuffer.bind();
+   err = glGetError(); if (err) std::cout << "on_glarea_render() post screen_buffer bind() " << err << std::endl;
+
    glEnable(GL_DEPTH_TEST);
 
    {
       const glm::vec3 &bg = graphics_info_t::background_colour;
       glClearColor (bg[0], bg[1], bg[2], 1.0);
-      err = glGetError();
-      if (err) std::cout << "on_glarea_render B err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render B err " << err << std::endl;
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      err = glGetError();
-      if (err) std::cout << "on_glarea_render C err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render C err " << err << std::endl;
 
       draw_central_cube(glarea);
       draw_origin_cube(glarea);
       err = glGetError();
       if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
       draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
-      err = glGetError();
-      if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
 
-      err = glGetError();
-      if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
 
       draw_molecules();
       glBindVertexArray(0);
@@ -683,8 +696,7 @@ on_glarea_render(GtkGLArea *glarea) {
    // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
    gtk_gl_area_attach_buffers(glarea);
 
-   // glDisable(GL_DEPTH_TEST);
-   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+   glDisable(GL_DEPTH_TEST);
 
    graphics_info_t::shader_for_screen.Use();
    glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
@@ -692,18 +704,19 @@ on_glarea_render(GtkGLArea *glarea) {
    glClearColor(0.5, 0.2, 0.2, 1.0);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   // colour and depth are attached to this texture colourbuffer
-   glBindTexture(GL_TEXTURE_2D, graphics_info_t::textureColorbuffer);
-   glDrawArrays(GL_TRIANGLES, 0, 6);
+   GLuint pid = graphics_info_t::shader_for_screen.get_program_id();
+   glActiveTexture(GL_TEXTURE0 + 1);
+   glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_colour());
+   glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1);
+   glActiveTexture(GL_TEXTURE0 + 2);
+   glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_depth());
+   glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2);
+   err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
 
-   err = glGetError();
-   if (err) std::cout << "on_glarea_render E err " << err << std::endl;
+   glDrawArrays(GL_TRIANGLES, 0, 6);
+   err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
 
    graphics_info_t::frame_counter++;
-
-   // auto tp_1 = std::chrono::high_resolution_clock::now();
-   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   // std::cout << "INFO:: Timing for frame render " << d10 << " microseconds" << std::endl;
 
   return FALSE;
 }
@@ -910,11 +923,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    // I want to be able to push out the front clipping plane (say, for making a figure or movie)
 
    if (event->keyval == GDK_KEY_d) {
-      adjust_clipping(0.5);
+      adjust_clipping(0.3);
    }
 
    if (event->keyval == GDK_KEY_f) {
-      adjust_clipping(-0.5);
+      adjust_clipping(-0.3);
    }
 
    if (event->keyval == GDK_KEY_i) {

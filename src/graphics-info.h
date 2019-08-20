@@ -133,6 +133,8 @@ struct FT_character {
 
 #include "restraints-editor.hh"
 
+#include "framebuffer.hh"
+
 // #include "Transform.hh"
 // #include "Camera.hh"
 
@@ -4010,7 +4012,7 @@ string   static std::string sessionid;
    static GLuint central_cube_array_buffer_id;
    static GLuint central_cube_index_buffer_id;
    static GLuint hud_text_vertexarray_id;
-   static GLuint framebuffer_id;
+   // static GLuint framebuffer_id;  // now we get access from the framebuffer class
    static GLuint screen_quad_vertex_array_id;
    static GLuint textureColorbuffer;
    static GLuint hud_text_array_buffer_id;
@@ -4022,6 +4024,7 @@ string   static std::string sessionid;
    static Shader shader_for_screen;
    static long frame_counter;
    static long frame_counter_at_last_display;
+   static framebuffer screen_framebuffer;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
 
