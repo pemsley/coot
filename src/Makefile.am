@@ -106,6 +106,7 @@ EXTRA_DIST = \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
+        fixup-interface.h.sh \
 	coot_wrap_guile_pre.cc dynarama.glade
 
 
