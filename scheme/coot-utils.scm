@@ -3791,14 +3791,14 @@
 
 		      ;; we don't want to hit xxx_Ref - hence the trailing space
 
-		      (if (string-match "DrugBank " line)
+		      (if (string-match "DrugBank[ \t]+" line)
 			  (let ((parts (string->list-of-strings line)))
 			    (format #t "   debug:: drugbank parts: ~s~%" parts)
 			    (let ((id-string (last-element parts)))
 			      (if (number? (string->number id-string))
 				  (set! db-id-list (cons (cons "DrugBank" id-string) db-id-list))))))
 
-		      (if (string-match "ChemSpiderID " line)
+		      (if (string-match "ChemSpiderID[ \t]+" line)
 			  (let ((parts (string->list-of-strings line)))
 			    (format #t "   debug:: ChemSpiderID parts: ~s~%" parts)
 			    (let ((id-string (last-element parts)))
@@ -3806,14 +3806,14 @@
 				  (if (number? (string->number id-string))
 				      (set! db-id-list (cons (cons "ChemSpider" id-string) db-id-list)))))))
 
-		      (if (string-match "PubChem " line)
+		      (if (string-match "PubChem[ \t]+" line)
 			  (let ((parts (string->list-of-strings line)))
 			    (format #t "   debug:: PubChem parts: ~s~%" parts)
 			    (let ((id-string (last-element parts)))
 			      (if (not (string-match "correct" id-string))
 				  (set! db-id-list (cons (cons "PubChem" id-string) db-id-list))))))
 
-		      (if (string-match "ChEMBL " line)
+		      (if (string-match "ChEMBL[ \t]+" line)
 			  (let ((parts (string->list-of-strings line)))
 			    (format #t "   debug:: ChEMBL parts: ~s~%" parts)
 			    (let ((id-string (last-element parts)))
