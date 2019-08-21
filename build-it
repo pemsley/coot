@@ -1482,7 +1482,10 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+echo doing the awk
+awk ' /a href=.*.tar.gz/ {split($2, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' $pre_release_files_html
+
+coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {split($2, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
 
 echo pre_release_files_html $pre_release_files_html
@@ -1512,7 +1515,7 @@ if test "$build_coot_prerelease" = 1 ; then
 
    echo debug:: ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
    ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
-   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
 
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
@@ -1528,7 +1531,7 @@ if test "$build_coot_prerelease" = 1 ; then
       echo examining release server files ${AUTOBUILD_SOURCES}/index.html
       # coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' 
       # have another go at latest version extraction.
-      coot_version=$(awk '/compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}'  \
+      coot_version=$(awk '/compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}'  \
           ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
       echo coot_version $coot_version
 
@@ -1552,11 +1555,11 @@ else
 
     ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-    coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
+    coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
-       coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+       coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
     fi
     echo coot_version $coot_version
