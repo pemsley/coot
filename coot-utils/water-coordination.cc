@@ -268,7 +268,7 @@ coot::util::water_coordination_t::sort_contacts_func(const coot::util::contact_a
       double smallest_dist_2 = second.smallest_contact_dist();
       return (smallest_dist_1 < smallest_dist_2);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       return 0;
    }
 }

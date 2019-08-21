@@ -5372,120 +5372,224 @@
 	  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 	  <child>
-	    <widget class="GtkHBox" id="hbox5">
+	    <widget class="GtkVBox" id="vbox332">
 	      <property name="visible">True</property>
 	      <property name="homogeneous">False</property>
 	      <property name="spacing">0</property>
 
 	      <child>
-		<widget class="GtkLabel" id="label6">
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Map Radius: </property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">7</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
-		<widget class="GtkEntry" id="entry1">
+		<widget class="GtkTable" id="table10">
 		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="editable">True</property>
-		  <property name="visibility">True</property>
-		  <property name="max_length">0</property>
-		  <property name="text" translatable="yes"></property>
-		  <property name="has_frame">True</property>
-		  <property name="invisible_char">*</property>
-		  <property name="activates_default">False</property>
-		  <signal name="key_press_event" handler="on_entry1_key_press_event"/>
+		  <property name="n_rows">2</property>
+		  <property name="n_columns">4</property>
+		  <property name="homogeneous">False</property>
+		  <property name="row_spacing">0</property>
+		  <property name="column_spacing">0</property>
+
+		  <child>
+		    <widget class="GtkLabel" id="label6">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Map Radius x-ray: </property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_CENTER</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">8</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkEntry" id="map_radius_xray_entry">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="editable">True</property>
+		      <property name="visibility">True</property>
+		      <property name="max_length">0</property>
+		      <property name="text" translatable="yes"></property>
+		      <property name="has_frame">True</property>
+		      <property name="invisible_char">*</property>
+		      <property name="activates_default">False</property>
+		      <signal name="key_press_event" handler="on_entry1_key_press_event"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label7">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Ångström</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_CENTER</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">8</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkButton" id="map_radius_xray_apply_button">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">  Apply  </property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <signal name="clicked" handler="on_map_radius_apply_button_clicked"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">0</property>
+		      <property name="bottom_attach">1</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label832">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Map Radius EM: </property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_LEFT</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">8</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">0</property>
+		      <property name="right_attach">1</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkEntry" id="map_radius_em_entry">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="editable">True</property>
+		      <property name="visibility">True</property>
+		      <property name="max_length">0</property>
+		      <property name="text" translatable="yes"></property>
+		      <property name="has_frame">True</property>
+		      <property name="invisible_char">●</property>
+		      <property name="activates_default">False</property>
+		      <signal name="key_press_event" handler="on_map_radius_em_entry_key_press_event" last_modification_time="Fri, 24 May 2019 19:59:53 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">1</property>
+		      <property name="right_attach">2</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkLabel" id="label833">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">Ångström</property>
+		      <property name="use_underline">False</property>
+		      <property name="use_markup">False</property>
+		      <property name="justify">GTK_JUSTIFY_CENTER</property>
+		      <property name="wrap">False</property>
+		      <property name="selectable">False</property>
+		      <property name="xalign">0.5</property>
+		      <property name="yalign">0.5</property>
+		      <property name="xpad">0</property>
+		      <property name="ypad">0</property>
+		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+		      <property name="width_chars">-1</property>
+		      <property name="single_line_mode">False</property>
+		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">2</property>
+		      <property name="right_attach">3</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <widget class="GtkButton" id="map_radius_em_button">
+		      <property name="visible">True</property>
+		      <property name="can_focus">True</property>
+		      <property name="label" translatable="yes">Apply</property>
+		      <property name="use_underline">True</property>
+		      <property name="relief">GTK_RELIEF_NORMAL</property>
+		      <property name="focus_on_click">True</property>
+		      <signal name="clicked" handler="on_map_radius_em_button_clicked" last_modification_time="Fri, 24 May 2019 19:47:03 GMT"/>
+		    </widget>
+		    <packing>
+		      <property name="left_attach">3</property>
+		      <property name="right_attach">4</property>
+		      <property name="top_attach">1</property>
+		      <property name="bottom_attach">2</property>
+		      <property name="x_options">fill</property>
+		      <property name="y_options"></property>
+		    </packing>
+		  </child>
 		</widget>
 		<packing>
-		  <property name="padding">11</property>
-		  <property name="expand">False</property>
+		  <property name="padding">0</property>
+		  <property name="expand">True</property>
 		  <property name="fill">True</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkLabel" id="label7">
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Ångström</property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">18</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkButton" id="map_radius_apply_button">
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="label" translatable="yes">  Apply  </property>
-		  <property name="use_underline">True</property>
-		  <property name="relief">GTK_RELIEF_NORMAL</property>
-		  <property name="focus_on_click">True</property>
-		  <signal name="clicked" handler="on_map_radius_apply_button_clicked"/>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
-	      </child>
-
-	      <child>
-		<widget class="GtkLabel" id="label275">
-		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">  </property>
-		  <property name="use_underline">False</property>
-		  <property name="use_markup">False</property>
-		  <property name="justify">GTK_JUSTIFY_CENTER</property>
-		  <property name="wrap">False</property>
-		  <property name="selectable">False</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xpad">0</property>
-		  <property name="ypad">0</property>
-		  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		  <property name="width_chars">-1</property>
-		  <property name="single_line_mode">False</property>
-		  <property name="angle">0</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
 		</packing>
 	      </child>
 	    </widget>
@@ -6481,6 +6585,7 @@
 			  <property name="active">True</property>
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
+			  <signal name="toggled" handler="on_show_symmetry_no_radiobutton_toggled" last_modification_time="Wed, 22 May 2019 00:10:13 GMT"/>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -6501,6 +6606,7 @@
 			  <property name="inconsistent">False</property>
 			  <property name="draw_indicator">True</property>
 			  <property name="group">show_symmetry_no_radiobutton</property>
+			  <signal name="toggled" handler="on_show_symmetry_yes_radiobutton_toggled" last_modification_time="Wed, 22 May 2019 00:10:29 GMT"/>
 			</widget>
 			<packing>
 			  <property name="padding">0</property>
@@ -6661,6 +6767,7 @@
 			      <property name="has_frame">True</property>
 			      <property name="invisible_char">*</property>
 			      <property name="activates_default">False</property>
+			      <signal name="key_release_event" handler="on_symmetry_radius_entry_key_release_event" last_modification_time="Wed, 22 May 2019 09:32:34 GMT"/>
 			    </widget>
 			    <packing>
 			      <property name="padding">0</property>
@@ -6857,6 +6964,7 @@
 				      <property name="update_policy">GTK_UPDATE_CONTINUOUS</property>
 				      <property name="inverted">False</property>
 				      <property name="adjustment">0 0 0 0 0 0</property>
+				      <signal name="value_changed" handler="on_hscale_symmetry_colour_value_changed" last_modification_time="Wed, 22 May 2019 09:34:24 GMT"/>
 				    </widget>
 				    <packing>
 				      <property name="padding">0</property>
@@ -6901,6 +7009,7 @@
 		  <property name="active">False</property>
 		  <property name="inconsistent">False</property>
 		  <property name="draw_indicator">True</property>
+		  <signal name="toggled" handler="on_show_symmetry_expanded_labels_checkbutton_toggled" last_modification_time="Wed, 22 May 2019 09:33:05 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -7039,85 +7148,7 @@
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkButton" id="show_symmetry_apply_button">
-	      <property name="visible">True</property>
-	      <property name="can_default">True</property>
-	      <property name="has_default">True</property>
-	      <property name="can_focus">True</property>
-	      <property name="has_focus">True</property>
-	      <property name="relief">GTK_RELIEF_NORMAL</property>
-	      <property name="focus_on_click">True</property>
-	      <signal name="clicked" handler="on_show_symmetry_apply_button_clicked"/>
-
-	      <child>
-		<widget class="GtkAlignment" id="alignment21">
-		  <property name="visible">True</property>
-		  <property name="xalign">0.5</property>
-		  <property name="yalign">0.5</property>
-		  <property name="xscale">0</property>
-		  <property name="yscale">0</property>
-		  <property name="top_padding">0</property>
-		  <property name="bottom_padding">0</property>
-		  <property name="left_padding">0</property>
-		  <property name="right_padding">0</property>
-
-		  <child>
-		    <widget class="GtkHBox" id="hbox172">
-		      <property name="visible">True</property>
-		      <property name="homogeneous">False</property>
-		      <property name="spacing">2</property>
-
-		      <child>
-			<widget class="GtkImage" id="image1490">
-			  <property name="visible">True</property>
-			  <property name="stock">gtk-apply</property>
-			  <property name="icon_size">4</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkLabel" id="label346">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">  Apply  </property>
-			  <property name="use_underline">True</property>
-			  <property name="use_markup">False</property>
-			  <property name="justify">GTK_JUSTIFY_LEFT</property>
-			  <property name="wrap">False</property>
-			  <property name="selectable">False</property>
-			  <property name="xalign">0.5</property>
-			  <property name="yalign">0.5</property>
-			  <property name="xpad">0</property>
-			  <property name="ypad">0</property>
-			  <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-			  <property name="width_chars">-1</property>
-			  <property name="single_line_mode">False</property>
-			  <property name="angle">0</property>
-			</widget>
-			<packing>
-			  <property name="padding">0</property>
-			  <property name="expand">False</property>
-			  <property name="fill">False</property>
-			</packing>
-		      </child>
-		    </widget>
-		  </child>
-		</widget>
-	      </child>
-	    </widget>
-	    <packing>
-	      <property name="padding">4</property>
-	      <property name="expand">True</property>
-	      <property name="fill">True</property>
-	    </packing>
+	    <placeholder/>
 	  </child>
 
 	  <child>
@@ -8218,7 +8249,7 @@
 		  <child>
 		    <widget class="GtkLabel" id="label27">
 		      <property name="visible">True</property>
-		      <property name="label" translatable="yes">Do Not Scroll for 
+		      <property name="label" translatable="yes">Do Not Scroll for
 distances more than:</property>
 		      <property name="use_underline">False</property>
 		      <property name="use_markup">False</property>
@@ -8644,10 +8675,10 @@ distances more than:</property>
 	  <child>
 	    <widget class="GtkLabel" id="label36">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">.phs files additionally need cell and symmetry. 
+	      <property name="label" translatable="yes">.phs files additionally need cell and symmetry.
  We need a pdb file to assign them.
 
-(Note that this will not read coordinates - 
+(Note that this will not read coordinates -
 just the cell and symmetry)
 </property>
 	      <property name="use_underline">False</property>
@@ -13000,7 +13031,7 @@ just the cell and symmetry)
 	    <widget class="GtkLabel" id="label76">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">
-One or more of the selected ligands has 
+One or more of the selected ligands has
 unexpectedly many atoms.
 
 This is an opportunity for you to reflect on that...
@@ -16060,7 +16091,7 @@ Do you want to continue?
 			      <property name="sensitive">False</property>
 			      <property name="tooltip" translatable="yes">Use omega restraints too</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Use Omega Restraints - there is no code that 
+			      <property name="label" translatable="yes">Use Omega Restraints - there is no code that
 checks the value of this checkbutton</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
@@ -20052,7 +20083,7 @@ checks the value of this checkbutton</property>
 		<widget class="GtkLabel" id="label126">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">
- Now click on an atom (of the residue) 
+ Now click on an atom (of the residue)
 that you wish to delete.               </property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
@@ -20962,10 +20993,10 @@ the Ctrl key to return to &quot;rotate&quot; mode.
 To change the map to which the scrollwheel is attached, use
 HID-&gt;Scrollwhell-&gt;Attach Scrollwheel to which map?
 
-To Use the &quot;Rotation/Translation&quot; column of buttons, simply 
+To Use the &quot;Rotation/Translation&quot; column of buttons, simply
 click on the button and drag (with the button still &quot;down&quot;).
 
-Use the function &quot;(quanta-buttons)&quot; (or &quot;quanta_buttons()&quot;) to 
+Use the function &quot;(quanta-buttons)&quot; (or &quot;quanta_buttons()&quot;) to
 make the mouse functions more like other molecular graphics
 programs to which you may be more accustomed.
 </property>
@@ -25446,6 +25477,10 @@ programs to which you may be more accustomed.
 	      <property name="label_xalign">0</property>
 	      <property name="label_yalign">0.5</property>
 	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
+
+	      <child>
+		<placeholder/>
+	      </child>
 	    </widget>
 	    <packing>
 	      <property name="padding">0</property>
@@ -27192,12 +27227,12 @@ programs to which you may be more accustomed.
 	  <property name="visible">True</property>
 	  <property name="label" translatable="yes">
 
-When you read in an MTZ file, you can assign the column labels 
-needed to run Refmac. 
+When you read in an MTZ file, you can assign the column labels
+needed to run Refmac.
 
-If this option menu is empty it means that you  have not assigned 
-Refmac labels from any MTZ file.  To fix, Cancel the &quot;Run Refmac&quot; 
-dialog, Use File -&gt; Open MTZ and assign Refmac column labels. 
+If this option menu is empty it means that you  have not assigned
+Refmac labels from any MTZ file.  To fix, Cancel the &quot;Run Refmac&quot;
+dialog, Use File -&gt; Open MTZ and assign Refmac column labels.
 Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
 </property>
 	  <property name="use_underline">False</property>
@@ -27301,7 +27336,7 @@ matches the dictionary residue name?
 
 If not, try File -&gt; Import CIF Dictionary
 
-Alternatively, did you check that the atom names of the 
+Alternatively, did you check that the atom names of the
 PDB file match those of the restraints?
 </property>
 		  <property name="use_underline">False</property>
@@ -27330,7 +27365,7 @@ PDB file match those of the restraints?
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">-----------------
 
-The residues in the chain are out of order.   This can 
+The residues in the chain are out of order.   This can
 cause problems with residues selection.
 
 Suggest you re-order residues in increasing order.
@@ -27515,7 +27550,7 @@ Suggest you re-order residues in increasing order.
 	    <widget class="GtkLabel" id="label133">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">
-There are unexplained blobs of 
+There are unexplained blobs of
 density (too big to be waters):
 </property>
 	      <property name="use_underline">False</property>
@@ -29362,8 +29397,8 @@ Delete
 
 	  <child>
 	    <widget class="GtkLabel" id="label148">
-	      <property name="label" translatable="yes">Use Display Manager and Goto Atom 
-Molecule optionmenu to navigate these 
+	      <property name="label" translatable="yes">Use Display Manager and Goto Atom
+Molecule optionmenu to navigate these
 new molecules</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
@@ -29454,7 +29489,7 @@ new molecules</property>
 
 Perhaps there were no ligands to be found?
 
-Alternatively you could try to reduce the search 
+Alternatively you could try to reduce the search
 r.m.s.d. level or the acceptable fit fraction.</property>
 	  <property name="use_underline">False</property>
 	  <property name="use_markup">False</property>
@@ -30574,18 +30609,18 @@ Shall I go and get it?
 	  <child>
 	    <widget class="GtkLabel" id="label156">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">  Select the chi angle (rotatable bond) by clicking 
+	      <property name="label" translatable="yes">  Select the chi angle (rotatable bond) by clicking
 on the button in the list.
 
 In the graphics window, click and drag as you
-would if you wanted to change the view - this 
+would if you wanted to change the view - this
 causes the atoms to move.
 
-There are keyboard equivalents to the butons, &quot;1&quot; 
+There are keyboard equivalents to the butons, &quot;1&quot;
   will rotate chi__1, &quot;2&quot; will rotate chi__2 etc...
 
-To make the view move (rather than the intermediate 
-atoms), click the &quot;View Rotation Mode&quot; button or use 
+To make the view move (rather than the intermediate
+atoms), click the &quot;View Rotation Mode&quot; button or use
 the Ctrl key when moving the mouse.</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
@@ -31446,7 +31481,7 @@ Move a copy?</property>
 	  <child>
 	    <widget class="GtkLabel" id="label162">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">  Add Terminal Residue failed to find 
+	      <property name="label" translatable="yes">  Add Terminal Residue failed to find
 any acceptable configuration here.</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
@@ -32987,7 +33022,7 @@ into Molecule:
 		      <child>
 			<widget class="GtkLabel" id="label245">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Successive Peptides by Ramachandran 
+			  <property name="label" translatable="yes">Successive Peptides by Ramachandran
 search (this may not work well)</property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
@@ -34049,6 +34084,10 @@ search (this may not work well)</property>
 	      </child>
 
 	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
 		<widget class="GtkComboBox" id="renumber_residue_range_combobox">
 		  <property name="visible">True</property>
 		  <property name="add_tearoffs">False</property>
@@ -34084,6 +34123,24 @@ search (this may not work well)</property>
 		      <property name="width_chars">-1</property>
 		      <property name="single_line_mode">False</property>
 		      <property name="angle">0</property>
+		    </widget>
+		    <packing>
+		      <property name="padding">0</property>
+		      <property name="expand">False</property>
+		      <property name="fill">False</property>
+		    </packing>
+		  </child>
+
+		  <child>
+		    <placeholder/>
+		  </child>
+
+		  <child>
+		    <widget class="GtkComboBox" id="renumber_residue_range_chain_combobox">
+		      <property name="width_request">40</property>
+		      <property name="visible">True</property>
+		      <property name="add_tearoffs">False</property>
+		      <property name="focus_on_click">True</property>
 		    </widget>
 		    <packing>
 		      <property name="padding">0</property>
@@ -35165,7 +35222,7 @@ search (this may not work well)</property>
 	      <property name="label" translatable="yes">
 
 
-     Coot found no unexplained blobs      
+     Coot found no unexplained blobs
 
 
 </property>
@@ -35928,7 +35985,7 @@ search (this may not work well)</property>
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">
 
-         Problem finding restraints!          
+         Problem finding restraints!
 (see console)
 
 </property>
@@ -36770,7 +36827,7 @@ WARNING:: No Models with Waters Available!
 		<widget class="GtkLabel" id="label218">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">
-You need a skeleton to use baton building.  
+You need a skeleton to use baton building.
 
 Which map do you want to skeletonize?
 </property>
@@ -49079,7 +49136,7 @@ distances more than:</property>
 	    <widget class="GtkLabel" id="label282">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">
-Nucleotide Builder 
+Nucleotide Builder
 </property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
@@ -52172,9 +52229,9 @@ Windows 2000 Binaries
 
 Everything else: Paul Emsley
 </property>
-  <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">Miguel Ortiz-Lombardia.  
+  <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">Miguel Ortiz-Lombardia.
 
-Translations don't work yet, but when they do, we can 
+Translations don't work yet, but when they do, we can
 have a Spanish Coot because of Miguel's work.
 </property>
   <property name="logo">coot-icon.png</property>
@@ -56848,7 +56905,7 @@ this can be used instead of the above to
 calculate f' and f''.
 
 To add more anomalous atoms use the
-scripting function add_refmac_sad_atom_fp or 
+scripting function add_refmac_sad_atom_fp or
 add_refmac_sad_atom_lambda.
 
 </property>
@@ -59719,7 +59776,7 @@ Look out for information in the console output.</property>
 	      <child>
 		<widget class="GtkLabel" id="label779">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Density 
+		  <property name="label" translatable="yes">Density
 Correlation</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
@@ -61048,6 +61105,7 @@ Bumps</property>
 		      <property name="padding">0</property>
 		      <property name="expand">False</property>
 		      <property name="fill">False</property>
+		      <property name="pack_type">GTK_PACK_END</property>
 		    </packing>
 		  </child>
 		</widget>

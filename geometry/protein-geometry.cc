@@ -3117,10 +3117,11 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 						     bool allow_minimal_flag) const {
 
    int r = -1;
+   bool debug = false;
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
-      if (false)
+      if (debug)
 	 std::cout << "in get_monomer_restraints_index() comparing \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs \"" << monomer_type
 		   << "\" and " << dict_res_restraints[i].first << " " <<  imol_enc
@@ -3149,7 +3150,6 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
       }
    }
    
-
    if (r == -1) {
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
@@ -3158,7 +3158,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	       int ndict = dict_res_restraints.size();
 	       for (int j=0; j<ndict; j++) {
 		  if (dict_res_restraints[j].second.residue_info.comp_id == residue_name_synonyms[i].comp_id) {
-		     r = i;
+		     r = j;
 		     break;
 		  }
 	       }
@@ -3228,6 +3228,50 @@ coot::protein_geometry::get_vdw_radius(const std::string &atom_name,
    }
    return r;
 }
+
+// calculated once and then stored
+bool
+coot::protein_geometry::atom_is_metal(mmdb::Atom *atom) const {
+
+   // PDBv3 FIXME
+
+   bool status = false;
+   std::string atom_name(atom->GetAtomName());
+   if (atom_name == "NA" || atom_name == "CA" || atom_name == "LI") {
+      return true;
+   } else {
+      if (atom_name == "BE" || atom_name == "K" || atom_name == "RB") {
+	 return true;
+      } else {
+	 if (atom_name == "SR" || atom_name == "CS" || atom_name == "BA") {
+	    return true;
+	 } else {
+	    if (atom_name == "SC" || atom_name == "TI" || atom_name == "V" || atom_name == "CR") {
+	       return true;
+	    } else {
+	       if (atom_name == "MN" || atom_name == "FE" || atom_name == "CO" || atom_name == "NI") {
+		  return true;
+	       } else {
+		  if (atom_name == "CU" || atom_name == "ZN" || atom_name == "ZR" || atom_name == "MO") {
+		     return true;
+		  } else {
+		     if (atom_name == "AG" || atom_name == "AU" || atom_name == "PT" || atom_name == "HG") {
+			return true;
+		     } else {
+			if (atom_name == "OS" || atom_name == "PB" || atom_name == " K" || atom_name == " W") {
+			   return true;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return status;
+}
+
 
 // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
 // Used in chem mods, when we don't know the comp_id until residue modification time.
@@ -5237,5 +5281,195 @@ coot::dictionary_residue_restraints_t::delete_atoms_from_restraints(const std::v
 			       angle_restraint.end());
       }
    }
-   
 }
+
+
+// function here: convert_plane_restraints_to_improper_dihedrals()
+// called by the user after having read the dictionary
+// (and before refinement starts).
+
+std::vector<coot::atom_name_quad>
+coot::dictionary_residue_restraints_t::plane_restraint_to_improper_dihedrals(unsigned int idx) const {
+
+   std::vector<atom_name_quad> q;
+   std::map<std::string, bool> done_quads;
+
+   q.reserve(4); // may need tweaking
+
+   if (idx < plane_restraint.size()) {
+      const dict_plane_restraint_t &pr = plane_restraint[idx];
+      std::set<std::string> plane_rest_atom_name_map;
+
+      for (int i=0; i<pr.n_atoms(); i++)
+	 plane_rest_atom_name_map.insert(pr[i].first);
+
+      int n_angle_restraints = angle_restraint.size();
+
+      // now makes sets for all of the angle restraints
+
+      std::vector<std::set<std::string> > angle_restraint_atom_names_map_vector(n_angle_restraints);
+
+      if (false)
+         std::cout << "plane_rest_atom_name_map has " << plane_rest_atom_name_map.size()
+		   << " atoms " << std::endl;
+      std::set<std::string>::const_iterator it;
+      for (it=plane_rest_atom_name_map.begin(); it!=plane_rest_atom_name_map.end(); it++)
+	 std::cout << "   " << *it;
+      std::cout << std::endl;
+
+      for (int i=0; i<n_angle_restraints; i++) {
+	 const dict_angle_restraint_t &ar = angle_restraint[i];
+	 for (int j=0; j<n_angle_restraints; j++) {
+	    angle_restraint_atom_names_map_vector[i].insert(ar.atom_id_1_4c());
+	    angle_restraint_atom_names_map_vector[i].insert(ar.atom_id_2_4c());
+	    angle_restraint_atom_names_map_vector[i].insert(ar.atom_id_3_4c());
+	 }
+      }
+
+      for (int i=0; i<n_angle_restraints; i++) {
+	 const dict_angle_restraint_t &ar_1 = angle_restraint[i];
+
+	 // are the atoms of that angle restraint in the plane restraint?
+	 bool success = true;
+	 for(it =angle_restraint_atom_names_map_vector[i].begin();
+	     it!=angle_restraint_atom_names_map_vector[i].end();
+	     it++) {
+	    if (plane_rest_atom_name_map.find(*it) == plane_rest_atom_name_map.end()) {
+	       success = false;
+	       break;
+	    } else {
+	       // std::cout << "found i " << *it << " in plane rest atom map " << std::endl;
+	    }
+	 }
+	 if (! success) continue;
+
+	 for (int j=(i+1); j<n_angle_restraints; j++) {
+	    const dict_angle_restraint_t &ar_2 = angle_restraint[j];
+
+	    // are the atoms of this second angle_restraint in the plane restraint?
+	    bool success_inner = true;
+	    for(it =angle_restraint_atom_names_map_vector[j].begin();
+		it!=angle_restraint_atom_names_map_vector[j].end();
+		it++) {
+	       if (plane_rest_atom_name_map.find(*it) == plane_rest_atom_name_map.end()) {
+		  success_inner = false;
+		  break;
+	       }
+	    }
+	    if (! success_inner) continue;
+
+	    // OK, do ar_1 and ar_2 share 2 atoms?
+
+	    int n_match = 0;
+	    for (it= angle_restraint_atom_names_map_vector[j].begin();
+		 it!=angle_restraint_atom_names_map_vector[j].end();
+		 it++) {
+	       if (angle_restraint_atom_names_map_vector[i].find(*it) !=
+		   angle_restraint_atom_names_map_vector[i].end()) {
+		  n_match++;
+	       }
+	    }
+	    if (n_match == 2) {
+	       // i and j are have atoms that are in pr
+
+	       // std::cout << "make a quad from " << angle_restraint[i] << " " << angle_restraint[j]
+	       // << std::endl;
+
+	       std::set<std::string> quad_atom_names;
+	       for (it= angle_restraint_atom_names_map_vector[i].begin();
+		    it!=angle_restraint_atom_names_map_vector[i].end();
+		    it++) {
+		  // std::string a = *it;
+                  // std::cout << "a " << a << std::endl;
+		  quad_atom_names.insert(*it);
+	       }
+	       for (it= angle_restraint_atom_names_map_vector[j].begin();
+		    it!=angle_restraint_atom_names_map_vector[j].end();
+		    it++) {
+		  // const std::string &b = *it;
+                  // std::cout << "b " << b << std::endl;
+		  quad_atom_names.insert(*it);
+	       }
+
+	       if (quad_atom_names.size() == 4) {
+
+                  // we need to put the atoms in to the atom name quad in the correct order
+                  // which is not the order of ti quad_atom_names set.
+
+                  std::string atom_name_1 = angle_restraint[i].atom_id_1_4c();
+                  std::string atom_name_2 = angle_restraint[i].atom_id_2_4c();
+                  std::string atom_name_3 = angle_restraint[i].atom_id_3_4c();
+
+                  // what is the atom in the second angle restraint that is not in the first?
+                  std::string other_atom;
+	          for (it= angle_restraint_atom_names_map_vector[j].begin();
+		       it!=angle_restraint_atom_names_map_vector[j].end();
+		       it++) {
+		     const std::string &b = *it;
+                     if (angle_restraint_atom_names_map_vector[i].find(b) == angle_restraint_atom_names_map_vector[i].end()) {
+                        other_atom = b;
+                        if (false) { // debugging
+                           std::cout << "Other atom \"" << b << "\" was not in the set ";
+                           std::set<std::string>::const_iterator it_2;
+                           for (it_2=angle_restraint_atom_names_map_vector[i].begin(); it_2!=angle_restraint_atom_names_map_vector[i].end(); it_2++)
+                               std::cout << " \"" << *it_2 << "\"";
+                           std::cout << std::endl;
+                        }
+                     }
+                  }
+                  if (!other_atom.empty()) {
+                     std::string atom_name_4 = other_atom;
+
+                     // make a key for the done quads from the sorted atom names
+                     std::set<std::string> set_for_key;
+                     set_for_key.insert(atom_name_1);
+                     set_for_key.insert(atom_name_2);
+                     set_for_key.insert(atom_name_3);
+                     set_for_key.insert(atom_name_4);
+                     std::set<std::string>::const_iterator it_s = set_for_key.begin();
+                     std::string key = *it_s;
+                     for(int ii=0; ii<3; ii++) {
+                        it_s++;
+                        key += "+" + *it_s;
+                     }
+
+		     if (done_quads.find(key) == done_quads.end()) {
+		        atom_name_quad qn(atom_name_1, atom_name_2, atom_name_3, atom_name_4);
+                        done_quads[key] = true;
+			q.push_back(qn);
+			// std::cout << "......... added this quad " << qn << std::endl;
+		     }
+		  }
+	       } else {
+		  std::cout << "error: weird quad " << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+   return q;
+}
+
+void coot::protein_geometry::plane_restraint_to_improper_dihedrals() {
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      dict_res_restraints[i].second.improper_dihedral_restraint.clear();
+      for (unsigned int j=0; j<dict_res_restraints[i].second.plane_restraint.size(); j++) {
+         std::vector<atom_name_quad> qs = dict_res_restraints[i].second.plane_restraint_to_improper_dihedrals(j);
+         for(unsigned int k=0; k<qs.size(); k++) {
+            dict_improper_dihedral_restraint_t r(qs[k].atom_name(0), qs[k].atom_name(1), qs[k].atom_name(2), qs[k].atom_name(3));
+            dict_res_restraints[i].second.improper_dihedral_restraint.push_back(r);
+         }
+      }
+   }
+
+}
+
+void coot::protein_geometry::delete_plane_restraints() {
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      dict_res_restraints[i].second.plane_restraint.clear();
+   }
+
+}
+

@@ -784,6 +784,7 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
 
 void
 graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
+
    // just like set_directory_for_filechooser actually, but we give
    // it the full filename, not just the directory.
 
@@ -809,9 +810,12 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	}
       }
 
-      std::cout << "INFO:: Setting fileselection with file: " << full_name
-                << std::endl;
+      if (false)
+	 std::cout << "INFO:: Setting fileselection with file: " << full_name
+		   << std::endl;
+
       if (g_file_test(full_name.c_str(), G_FILE_TEST_EXISTS)) {
+
          gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(fileselection),
                                       full_name.c_str());
 	 // we shouldnt need to call set_current_name and the filename
@@ -820,6 +824,7 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
 	 gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
 					   stripped_name.c_str());
       } else {
+
          gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                       directory_for_saving_for_filechooser.c_str());
          gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
@@ -1797,28 +1802,15 @@ graphics_info_t::residue_info_release_memory(GtkWidget *dialog) {
 
 // static
 void
-graphics_info_t::pointer_atom_molecule_menu_item_activate(GtkWidget *item,
-							  GtkPositionType pos) {
+graphics_info_t::pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    graphics_info_t g;
-   //    std::cout << "DEBUG:: pointer_atom_molecule_menu_item_activate sets user_pointer_atom_molecule to " << pos << std::endl;
-   g.user_pointer_atom_molecule = pos;
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   std::cout << "debug:: changed to imol " << imol << std::endl;
+   g.user_pointer_atom_molecule = imol;
 
 }
 
-
-#if 0
-// We are passed an GtkOptionMenu *option_menu
-//
-void
-graphics_info_t::fill_option_menu_with_coordinates_options(GtkWidget *option_menu,
-							   GtkSignalFunc callback_func) {
-
-   short int set_last_active_flag = 0;
-   fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, set_last_active_flag);
-
-}
-#endif
 
 #if 0
 // See Changelog 2004-05-05
@@ -3987,7 +3979,8 @@ graphics_info_t::get_active_label_in_combobox(GtkComboBox *combobox) const {
       const char *f_label_cstr = g_value_get_string(&f_label_as_value);
       f_label = f_label_cstr;
    } else {
-      std::cout << "in get_active_label_in_combobox(): Bad state" << std::endl;
+      std::cout << "in get_active_label_in_combobox(): Bad state for get_active_iter"
+		<< std::endl;
    }
    return f_label;
 }
@@ -4103,25 +4096,30 @@ graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
 #if 0
    graphics_info_t g;
 
-   GtkWidget *molecule_option_menu =
-      lookup_widget(window, "renumber_residue_range_molecule_optionmenu");
-//    GtkWidget *chain_option_menu =
-//       lookup_widget(window, "renumber_residue_range_chain_optionmenu");
+   // GtkWidget *molecule_option_menu = lookup_widget(window, "renumber_residue_range_molecule_optionmenu");
+
+   GtkWidget *molecule_combobox = lookup_widget(window, "renumber_residue_range_combobox");
+
+   // GtkWidget *chain_option_menu = lookup_widget(window, "renumber_residue_range_chain_optionmenu");
 
    // renumber_residue_range_resno_1_entry
    // renumber_residue_range_resno_2_entry
    // renumber_residue_range_offset_entry
 
    // fill molecules option menu
-   GCallback callback_func =
-      G_CALLBACK(graphics_info_t::renumber_residue_range_molecule_menu_item_select);
+   //    GtkSignalFunc callback_func =
+   //       GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_molecule_menu_item_select);
+   GCallback callback_func = G_CALLBACK(renumber_residue_range_molecule_combobox_changed);
 
    // g.fill_option_menu_with_coordinates_options(molecule_option_menu, callback_func);
 
    short int set_last_active_flag = 0;
-   int imol = renumber_residue_range_molecule;
-   g.fill_option_menu_with_coordinates_options_internal_2(molecule_option_menu, callback_func,
-							  set_last_active_flag, imol);
+   int imol_active = renumber_residue_range_molecule;
+
+   // g.fill_option_menu_with_coordinates_options_internal_2(molecule_option_menu, callback_func,
+   // set_last_active_flag, imol);
+
+   g.fill_combobox_with_coordinates_options(molecule_combobox, callback_func, imol_active);
 
 #endif
 }
@@ -4129,33 +4127,33 @@ graphics_info_t::fill_renumber_residue_range_dialog(GtkWidget *window) {
 void
 graphics_info_t::fill_renumber_residue_range_internal(GtkWidget *w, int imol) {
 
-
-   // hideous frankenstein's function
-
    GtkWidget *chain_combobox = lookup_widget(w, "renumber_residue_range_chain_combobox");
-   GCallback callback_func = G_CALLBACK(graphics_info_t::renumber_residue_range_chain_menu_item_select);
+   GCallback callback_func = G_CALLBACK(renumber_residue_range_chain_combobox_changed);
    std::string a = fill_combobox_with_chain_options(chain_combobox, imol, callback_func);
    if (a != "no-chain") {
       graphics_info_t::renumber_residue_range_chain = a;
    }
 }
 
-
 void
-graphics_info_t::renumber_residue_range_molecule_menu_item_select(GtkWidget *item,
-								  GtkPositionType pos) {
-   graphics_info_t::renumber_residue_range_molecule = pos;
-   GtkWidget *window = lookup_widget(GTK_WIDGET(item),
-				     "renumber_residue_range_dialog");
+graphics_info_t::renumber_residue_range_molecule_combobox_changed(GtkWidget *combobox,
+								  gpointer data) {
+
    graphics_info_t g;
-   g.fill_renumber_residue_range_internal(window, pos);
+   int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
+   renumber_residue_range_molecule = imol;
+   GtkWidget *window = lookup_widget(combobox, "renumber_residue_range_dialog");
+   g.fill_renumber_residue_range_internal(window, imol);
+
 }
 
+// static
 void
-graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
-					        	       GtkPositionType pos) {
+graphics_info_t::renumber_residue_range_chain_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   graphics_info_t::renumber_residue_range_chain = menu_item_label(item);
+   graphics_info_t g;
+   std::string c = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(combobox));
+   g.renumber_residue_range_chain = c;
 }
 
 

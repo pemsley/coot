@@ -190,8 +190,8 @@ namespace coot {
       std::string type_;
       double dist_;
       double dist_esd_;
-      bool have_target_values; 
-   
+      bool have_target_values;
+
    public:
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       aromaticity_t aromaticity;
@@ -221,9 +221,9 @@ namespace coot {
 	 aromaticity = arom_in;
       }
       dict_bond_restraint_t() {} // boost::python needs this
-      
+
       std::string type() const { return type_; }
-      int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage 
+      int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage
       // can throw a std::runtime_error exception (if target values not set)
       double value_dist() const {
 	 if (have_target_values)
@@ -255,6 +255,7 @@ namespace coot {
 
    class dict_angle_restraint_t : public basic_dict_restraint_t {
       std::string atom_id_3_;
+      std::string atom_id_3_4c_;
       double angle_;
       double angle_esd_;
    public:
@@ -266,13 +267,14 @@ namespace coot {
 			     double angle_esd) :
       basic_dict_restraint_t(atom_id_1, atom_id_2) {
 	 atom_id_3_ = atom_id_3;
+         atom_id_3_4c_ = atom_id_mmdb_expand(atom_id_3_);
 	 angle_ = angle;
-	 angle_esd_ = angle_esd; 
+	 angle_esd_ = angle_esd;
       };
       dict_angle_restraint_t() {} // boost::python needs this
 
       std::string atom_id_3() const { return atom_id_3_;}
-      std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
+      std::string atom_id_3_4c() const { return atom_id_3_4c_; }
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
 
@@ -286,7 +288,7 @@ namespace coot {
 	       if (atom_id_3() == r.atom_id_1())
 		  return true;
 	 return false;
-      } 
+      }
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
       void set_atom_3_atom_id(const std::string &id) { atom_id_3_ = id; }
@@ -298,17 +300,18 @@ namespace coot {
    // Note hydrogen torsions can only be detected at the container
    // (protein_geometry) level, because we don't have acces to the
    // elements here (only the atom names).
-   // 
+   //
    class dict_torsion_restraint_t : public basic_dict_restraint_t {
       std::string id_;
       std::string atom_id_3_;
       std::string atom_id_4_;
+      std::string atom_id_3_4c_;
+      std::string atom_id_4_4c_;
       double angle_;
       double angle_esd_;
       int period;
    public:
 
-      // dict_torsion_restraint_t() {}; 
       dict_torsion_restraint_t(std::string id_in,
 			       std::string atom_id_1,
 			       std::string atom_id_2,
@@ -322,12 +325,14 @@ namespace coot {
 	 id_ = id_in;
 	 atom_id_3_ = atom_id_3;
 	 atom_id_4_ = atom_id_4;
+         atom_id_3_4c_ = atom_id_mmdb_expand(atom_id_3_);
+         atom_id_4_4c_ = atom_id_mmdb_expand(atom_id_4_);
 	 angle_ = angle;
 	 angle_esd_ = angle_esd;
 	 period = period_in;
       };
-      std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
-      std::string atom_id_4_4c() const { return atom_id_mmdb_expand(atom_id_4_);}
+      std::string atom_id_3_4c() const { return atom_id_3_4c_; }
+      std::string atom_id_4_4c() const { return atom_id_4_4c_; }
       std::string atom_id_3() const { return atom_id_3_;}
       std::string atom_id_4() const { return atom_id_4_;}
       std::string id() const { return id_;}
@@ -345,12 +350,12 @@ namespace coot {
       void set_atom_3_atom_id(const std::string &id) { atom_id_3_ = id; }
       void set_atom_4_atom_id(const std::string &id) { atom_id_4_ = id; }
    };
-   std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest); 
+   std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
 
    // ------------------------------------------------------------------------
-   // class dict_plane_restraint_t 
+   // class dict_plane_restraint_t
    // ------------------------------------------------------------------------
-   // 
+   //
    class dict_plane_restraint_t : public basic_dict_restraint_t {
       std::vector<std::pair<std::string, double> > atom_ids;
       double dist_esd_;  // despite separate entries for each atom in
@@ -501,6 +506,43 @@ namespace coot {
       friend std::ostream& operator<<(std::ostream &s, const dict_chiral_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_chiral_restraint_t &rest);
+
+   // ------------------------------------------------------------------------
+   // class dict_improper_dihedral_restraint_t
+   // ------------------------------------------------------------------------
+   //
+   class dict_improper_dihedral_restraint_t : public basic_dict_restraint_t {
+
+      // c.f. a chiral restraint, atom id 2 is the "chiral" atom (the
+      // "base" of the tetrahedron).
+      std::string local_atom_id_1;
+      std::string local_atom_id_2;
+      std::string local_atom_id_3;
+      std::string local_atom_id_4;
+      double volume_sigma_;
+
+   public:
+
+      dict_improper_dihedral_restraint_t() {};
+      dict_improper_dihedral_restraint_t(const std::string &atom_id_1_in,
+			                 const std::string &atom_id_2_in,
+			                 const std::string &atom_id_3_in,
+			                 const std::string &atom_id_4_in) {
+	 local_atom_id_1 = atom_id_1_in;
+	 local_atom_id_2 = atom_id_2_in;
+	 local_atom_id_3 = atom_id_3_in;
+	 local_atom_id_4 = atom_id_4_in;
+	 volume_sigma_  = 1.0; // willl need fixing
+      }
+      std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
+      std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
+      std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
+      std::string atom_id_4_4c() const { return atom_id_mmdb_expand(local_atom_id_4);}
+      std::string get_atom_id_centre() const { return local_atom_id_2; }
+      double volume_sigma()  const { return volume_sigma_;}
+      friend std::ostream& operator<<(std::ostream &s, const dict_improper_dihedral_restraint_t &rest);
+   };
+   std::ostream& operator<<(std::ostream &s, const dict_improper_dihedral_restraint_t &rest);
 
 
    // ------------------------------------------------------------------------
@@ -715,12 +757,13 @@ namespace coot {
       // std::string comp_id; // i.e. residue type name
       std::string comp_id() const { return residue_info.comp_id; }
       std::vector <dict_chem_comp_tree_t> tree;
-      int read_number; 
+      int read_number;
       std::vector    <dict_bond_restraint_t>    bond_restraint;
       std::vector   <dict_angle_restraint_t>   angle_restraint;
       std::vector <dict_torsion_restraint_t> torsion_restraint;
       std::vector  <dict_chiral_restraint_t>  chiral_restraint;
       std::vector   <dict_plane_restraint_t>   plane_restraint;
+      std::vector   <dict_improper_dihedral_restraint_t>   improper_dihedral_restraint;
       pdbx_chem_comp_descriptor_container_t descriptors;
       // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
       bool is_hydrogen(const std::string &atom_name) const;
@@ -738,6 +781,16 @@ namespace coot {
       // compares atoms of torsion_restraint vs the ring atoms.
       // bool is_ring_torsion(const dict_torsion_restraint_t &torsion_restraint) const;
       bool is_ring_torsion(const atom_name_quad &quad) const;
+
+      // I think that 20 improper dihedrals can be calculated faster than a plane restraint
+      // on the graphics card (and possibly CPU):
+      // So if this is a plane restraint, what are the sets of 4 atoms for the
+      // improper dihedrals? Atoms to be constructed in "known" order.
+      // Call this after the restraint has been filled (well, the angle restraints, at least).
+      // Maybe instead of returning, I want to fill a
+      // std::vector<improper_dihedral_restraints_t> improper_restraint
+      // It will look like a chiral restraint.
+      std::vector<atom_name_quad> plane_restraint_to_improper_dihedrals(unsigned int i) const;
 
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
@@ -1990,6 +2043,9 @@ namespace coot {
 			    int imol,
 			    bool use_vdwH_flag) const;
 
+      // calculated once and then stored
+      bool atom_is_metal(mmdb::Atom *atom) const;
+
 
       // Find the non-bonded contact distance
       // 
@@ -2008,6 +2064,14 @@ namespace coot {
 					   const std::string &energy_type_2,
 					   bool in_same_residue_flag = true,
 					   bool in_same_ring_flag = true) const;
+
+      // faster, when the caller has cached the metal state
+      std::pair<bool, double> get_nbc_dist_v2(const std::string &energy_type_1,
+					      const std::string &energy_type_2,
+					      bool is_metal_atom_1,
+					      bool is_metal_atom_2,
+					      bool in_same_residue_flag = true,
+					      bool in_same_ring_flag = true) const;
 
       energy_lib_atom get_energy_lib_atom(const std::string &ener_type) const;
       
@@ -2080,6 +2144,14 @@ namespace coot {
       void use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
 						const std::vector<atom_name_torsion_quad> &tors_info_vec,
 						int mmcif_read_number);
+
+      // to use improper dihedrals rather than plane restraints, call this
+      // after reading restraints. Fills the improper dihedral restraints
+      // If you read new restraints, you will need to call this function again
+      // and then delete_plane_restraints().
+      //
+      void plane_restraint_to_improper_dihedrals();
+      void delete_plane_restraints();
 
 
 #ifdef HAVE_CCP4SRS

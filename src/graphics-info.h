@@ -54,16 +54,10 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#ifdef HAVE_CXX_THREAD
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include <utils/ctpl.h>
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#endif // HAVE_CXX_THREAD
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 #include <CXXClasses/RendererGLSL.hpp>
-#endif // HAVE_CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 
@@ -735,10 +729,20 @@ class graphics_info_t {
 
 #ifdef  HAVE_GSL
    static coot::restraints_container_t *last_restraints;
-#endif // HAVE_GSL
    // the mode flag is public:
 
+   // return the state of having found restraints.
+   bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_resiudes,
+			     const std::vector<mmdb::Link> &links,
+			     const coot::protein_geometry &geom,
+			     mmdb::Manager *mol_for_residue_selection,
+			     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+			     coot::restraint_usage_Flags flags,
+			     bool use_map_flag,
+			     const clipper::Xmap<float> *xmap_p);
+#endif // HAVE_GSL
 
+   // the mode flag is public:
    void run_post_manipulation_hook(int imol, int mode);
    // which uses the following...
 #ifdef USE_GUILE
@@ -913,36 +917,7 @@ public:
    enum { USE_PYTHON_STATE_COMMANDS = 2, USE_SCM_STATE_COMMANDS = 1 };
 
    //
-   void initialize_molecules() {
-
-      // I don't like the way that this is currently done.
-      //
-      // I would like to pass i, the molecule number to the constuctor.
-      // How do I do that?      You can't.
-      //
-      // Actually you can, just use it as you would a constructor.
-      //
-      // std::cout << "initializing molecules...";
-      // molecules = new molecule_class_info_t[n_molecules_max];
-     // std::cout << "done" << std::endl;
-/*       for (int i=0; i<n_molecules_max; i++) { */
-/*          molecules[i].set_mol_number(i);  */
-/*       } */
-
-/* Old style array of molecules code */
-/*       for (int i=0; i<n_molecules_max; i++) { */
-/* 	 dynarama_is_displayed[i]      = NULL; */
-/* 	 sequence_view_is_displayed[i] = NULL; */
-/* 	 geometry_graph[i]             = NULL; */
-/* 	 b_factor_variance_graph[i]    = NULL; */
-/* 	 residue_density_fit_graph[i]  = NULL; */
-/* 	 omega_distortion_graph[i]     = NULL; */
-/* 	 rotamer_graph[i]              = NULL; */
-/* 	 ncs_diffs_graph[i]            = NULL; */
-/*       } */
-
-   }
-
+   void initialize_molecules() { }
 
    void init();
 
@@ -1676,9 +1651,7 @@ public:
    static int gtk2_chooser_overwrite_flag;
 
    void apply_go_to_atom_from_widget(GtkWidget *widget);
-   static void pointer_atom_molecule_menu_item_activate(GtkWidget *item,
-							GtkPositionType pos);
-
+   static void pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // return success status
    int intelligent_next_atom_centring(GtkWidget *widget);
@@ -2000,6 +1973,8 @@ public:
 				  const std::string &alt_conf,
 				  mmdb::Manager *mol,
 				  bool use_map_flag);
+   coot::refinement_results_t
+     generate_molecule_from_molecule_and_refine(int imol, mmdb::Manager *mol, bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol,
@@ -2012,6 +1987,8 @@ public:
 			     const std::string &alt_conf,
 			     mmdb::Manager *mol);
 
+   coot::refinement_results_t refine_molecule(int imol, mmdb::Manager *mol);
+   coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);
 
    // on reading a pdb file, we get a list of residues, use these to
    // load monomers from the dictionary
@@ -2499,8 +2476,8 @@ public:
 
    // return the imol of the active item molecule
    int fill_combobox_with_map_options(GtkWidget *combobox,
-				       GCallback signal_func,
-				       int imol_active_position);
+				      GCallback signal_func,
+				      int imol_active_position);
 
    void fill_combobox_with_difference_map_options(GtkWidget *combobox,
 						  GCallback signal_func,
@@ -3370,12 +3347,13 @@ public:
 
    // ----- renumber residue range -------
    static void fill_renumber_residue_range_dialog(GtkWidget *w);
-   static void renumber_residue_range_molecule_menu_item_select(GtkWidget *item,
-								GtkPositionType pos);
+   static void renumber_residue_range_molecule_combobox_changed(GtkWidget *combobox,
+								gpointer data);
    static int renumber_residue_range_molecule;
    static std::string renumber_residue_range_chain;
    void fill_renumber_residue_range_internal(GtkWidget *w, int imol);
    static void renumber_residue_range_chain_menu_item_select(GtkWidget *item, GtkPositionType pos);
+   static void renumber_residue_range_chain_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // -------- public toggle button control: ---------
    void untoggle_model_fit_refine_buttons_except(const std::string &button_name);
@@ -3761,7 +3739,7 @@ string   static std::string sessionid;
    static std::pair<std::string, std::string> db_userid_username;
 #endif
 
-   static std::vector<coot::view_info_t> *views;
+   static std::vector<coot::view_info_t> views;
    static float views_play_speed;
 
    static std::string movie_file_prefix;
@@ -4067,11 +4045,7 @@ string   static std::string sessionid;
   void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
 #endif // USE_PYTHON
 
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
-#endif
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
    static std::shared_ptr<Renderer> mol_tri_renderer;

@@ -109,8 +109,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   int do_disulphide_bonds_in, 
 					   int do_bonds_to_hydrogens_in,
 					   int model_number,
+					   std::string dummy,
 					   bool do_rama_markup,
 					   bool do_rota_markup,
+					   bool do_sticks_for_waters_in,
 					   coot::rotamer_probability_tables *tables_p) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
 
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
@@ -124,7 +126,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    if (geom_in) {
       geom = geom_in;
       have_dictionary = 1;
-   } 
+   }
+
+   do_sticks_for_waters = do_sticks_for_waters_in;
+
    // 1.7 will not catch MET bonds (1.791 and 1.803) nor MSE bonds (1.95)
    // but SO4 bonds (1.46 are fine).
    // They should have special case, handle_MET_or_MSE_case
@@ -1778,6 +1783,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	       if (ic == NO_BOND) {
 		  // no contact found
 		  mmdb::Residue *residue_p = non_Hydrogen_atoms[i]->residue;
+
+		  std::string res_name(residue_p->GetResName());
+		  if (res_name == "HOH")
+		     if (! do_sticks_for_waters)
+			continue;
+
 		  col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
 		  coot::Cartesian atom_pos(non_Hydrogen_atoms[i]->x,
 					   non_Hydrogen_atoms[i]->y,

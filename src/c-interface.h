@@ -644,6 +644,9 @@ float idle_function_rotate_angle();
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
 
+
+int make_updating_model_molecule(const char *filename);
+
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();
 
@@ -1429,6 +1432,14 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 						   float low_reso_limit,
 						   float high_reso_lim);
 
+int make_updating_map(const char *mtz_file_name, 
+		      const char *f_col, const char *phi_col, 
+		      const char *weight,
+		      int use_weights, int is_diff_map);
+
+
+void stop_updating_molecule(int imol);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM refmac_parameters_scm(int imol);
@@ -1480,6 +1491,10 @@ int auto_read_do_difference_map_too_state();
 /* MOVE-ME to c-interface-gtk-widgets.h */
 char* get_text_for_density_size_widget(); /* const gchar *text */
 void set_density_size_from_widget(const char *text);
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
+char *get_text_for_density_size_em_widget();
+void set_density_size_em_from_widget(const char *text);
 
 /*! \brief set the extent of the box/radius of electron density contours for x-ray maps */
 void set_map_radius(float f);
@@ -2218,6 +2233,10 @@ void   set_graphics_window_size(int x_size, int y_size);
 void   set_graphics_window_position(int x_pos, int y_pos);
 /*! \brief store the graphics window position */
 void store_graphics_window_position(int x_pos, int y_pos); /*  "configure_event" callback */
+
+/*! \brief store the graphics window position and size to zenops-graphics-window-size-and-postion.scm in
+ *         the preferences directory. */
+void graphics_window_size_and_position_to_preferences();
 
 /*! \brief draw a frame */
 void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
@@ -6988,6 +7007,11 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
+/*! \brief globularize the molecule.
+
+This is not guaranteed to generate the correct biological entity, but will bring together
+molecules (chains/domains) that are dispersed throughout the unit cell.
+  */
 void globularize(int imol);
 
 #ifdef __cplusplus

@@ -216,9 +216,11 @@ execute_crankshaft(const coot::residue_spec_t &rs, int n_peptides, const clipper
 
    int n_solutions = 1; // just the best
 
+   ctpl::thread_pool thread_pool;
+   int n_threads = 4; // fixme
    std::vector<mmdb::Manager *> v =
       coot::crankshaft::crank_refine_and_score(rs, n_peptides, xmap, mol, map_weight, n_samples,
-					       n_solutions);
+					       n_solutions, &thread_pool, n_threads);
 
    if (v.size() == 1) {
       int err = v[0]->WritePDBASCII(pdb_out_file_name.c_str());

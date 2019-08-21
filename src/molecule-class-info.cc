@@ -586,11 +586,11 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
     //
     int n_atoms_to_label = labelled_atom_index_list.size();
 
-    // also remove labels from atom indexes list of over the end.
-    for (int ii=0; ii<n_atoms_to_label ; ii++)
-       label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+	 // also remove labels from atom indexes list of over the end.
+	 for (int ii=0; ii<n_atoms_to_label ; ii++)
+	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
 
-    n_atoms_to_label = labelled_symm_atom_index_list.size();
+	 n_atoms_to_label = labelled_symm_atom_index_list.size();
 
     for (int ii=0; ii<n_atoms_to_label ; ii++) {
        label_symmetry_atom(ii);
@@ -751,118 +751,117 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
       }
       if (against_a_dark_background) {
 
-    if (false)
-       std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-         << " green "   << GREEN_BOND << " "
-         << " blue "    << BLUE_BOND << " "
-         << " red "     << RED_BOND << " "
-         << " yellow "  << YELLOW_BOND << " "
-         << " grey "    << GREY_BOND << " "
-         << " H-grey "  << HYDROGEN_GREY_BOND << " "
-         << " magenta " << MAGENTA_BOND << " "
-         << std::endl;
+	 if (false)
+	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
+		      << " green "   << GREEN_BOND << " "
+		      << " blue "    << BLUE_BOND << " "
+		      << " red "     << RED_BOND << " "
+		      << " yellow "  << YELLOW_BOND << " "
+		      << " grey "    << GREY_BOND << " "
+		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
+		      << " magenta " << MAGENTA_BOND << " "
+		      << std::endl;
 
-    switch (i) {
-    case CARBON_BOND:
-       if (use_bespoke_grey_colour_for_carbon_atoms) {
-          rgb = bespoke_carbon_atoms_colour;
-       } else {
-          rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-       }
-       break;
-    case YELLOW_BOND:
-       rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-       break;
-    case BLUE_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-       break;
-    case RED_BOND:
-       rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-       break;
-    case GREEN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
-       break;
-    case GREY_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-       break;
-    case HYDROGEN_GREY_BOND:
-       rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-       break;
-       // replaced in mmdb-extras.h
-       //       case white:
-       // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-       // 	 break;
-    case MAGENTA_BOND:
-       rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-       break;
-    case ORANGE_BOND:
-       rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-       break;
-    case CYAN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-       break;
-    case DARK_GREEN_BOND:
-       rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-       break;
-    case DARK_ORANGE_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-       break;
-    case DARK_BROWN_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-       break;
-
-    default:
-       rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-       rgb.rotate(i*26.0/360.0);
-    }
+	 switch (i) {
+	 case CARBON_BOND:
+	    if (use_bespoke_grey_colour_for_carbon_atoms) {
+	       rgb = bespoke_carbon_atoms_colour;
+	    } else {
+	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    }
+	    break;
+	 case YELLOW_BOND:
+	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
+	    break;
+	 case BLUE_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
+	    break;
+	 case RED_BOND:
+	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+	    break;
+	 case GREEN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+	    break;
+	 case GREY_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+	    break;
+	 case HYDROGEN_GREY_BOND:
+	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+	    break;
+	    // replaced in mmdb-extras.h
+	    //       case white:
+	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
+	    // 	 break;
+	 case MAGENTA_BOND:
+	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+	    break;
+	 case ORANGE_BOND:
+	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+	    break;
+	 case CYAN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
+	 default:
+	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+	    rgb.rotate(i*26.0/360.0);
+	 }
 
       } else {
 
-    // against a white background.  Less pale, darker, more saturated.
+	 // against a white background.  Less pale, darker, more saturated.
 
-    switch (i) {
-    case YELLOW_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-       break;
-    case BLUE_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-       break;
-    case RED_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-       break;
-    case GREEN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-       break;
-    case GREY_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-       break;
-    case HYDROGEN_GREY_BOND:
-       rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-       break;
-    case MAGENTA_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-       break;
-    case ORANGE_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-       break;
-    case CYAN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-       break;
-    case DARK_GREEN_BOND:
-       rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-       break;
-    case DARK_ORANGE_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-       break;
-    case DARK_BROWN_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-       break;
+	 switch (i) {
+	 case YELLOW_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+	    break;
+	 case BLUE_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+	    break;
+	 case RED_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+	    break;
+	 case GREEN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+	    break;
+	 case GREY_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
+	    break;
+	 case HYDROGEN_GREY_BOND:
+	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+	    break;
+	 case MAGENTA_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+	    break;
+	 case ORANGE_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
+	 case CYAN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
 
-    default:
-       rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-       // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-       rgb.rotate(i*26.0/360.0);
-    }
+	 default:
+	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
+	    // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+	    rgb.rotate(i*26.0/360.0);
+	 }
       }
 
       // "correct" for the +1 added in the calculation of the rotation
@@ -910,119 +909,127 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       }
       if (against_a_dark_background) {
 
-    if (false)
-       std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-         << " green "   << GREEN_BOND << " "
-         << " blue "    << BLUE_BOND << " "
-         << " red "     << RED_BOND << " "
-         << " yellow "  << YELLOW_BOND << " "
-         << " grey "    << GREY_BOND << " "
-         << " H-grey "  << HYDROGEN_GREY_BOND << " "
-         << " magenta " << MAGENTA_BOND << " "
-         << std::endl;
+	 if (false)
+	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
+		      << " green "   << GREEN_BOND << " "
+		      << " blue "    << BLUE_BOND << " "
+		      << " red "     << RED_BOND << " "
+		      << " yellow "  << YELLOW_BOND << " "
+		      << " grey "    << GREY_BOND << " "
+		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
+		      << " magenta " << MAGENTA_BOND << " "
+		      << std::endl;
 
-    switch (i) {
-    case CARBON_BOND:
-       if (use_bespoke_grey_colour_for_carbon_atoms) {
-          rgb[0] = bespoke_carbon_atoms_colour[0];
-          rgb[1] = bespoke_carbon_atoms_colour[1];
-          rgb[2] = bespoke_carbon_atoms_colour[2];
-       } else {
-          rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-       }
-       break;
-    case YELLOW_BOND:
-       rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-       break;
-    case BLUE_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-       break;
-    case RED_BOND:
-       rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-       break;
-    case GREEN_BOND:
-       rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
-       break;
-    case GREY_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-       break;
-    case HYDROGEN_GREY_BOND:
-       rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-       break;
-       // replaced in mmdb-extras.h
-       //       case white:
-       // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-       // 	 break;
-    case MAGENTA_BOND:
-       rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-       break;
-    case ORANGE_BOND:
-       rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-       break;
-    case CYAN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-       break;
-    case DARK_GREEN_BOND:
-       rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
-       break;
-    case DARK_ORANGE_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-       break;
-    case DARK_BROWN_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-       break;
+	 switch (i) {
+	 case CARBON_BOND:
+	    if (use_bespoke_grey_colour_for_carbon_atoms) {
+	       rgb[0] = bespoke_carbon_atoms_colour[0];
+	       rgb[1] = bespoke_carbon_atoms_colour[1];
+	       rgb[2] = bespoke_carbon_atoms_colour[2];
+	    } else {
+	       if (i == 0) {
+		  if (imol_no == 0) {
+		     rgb[0] = 0.8; rgb[1] =  0.5; rgb[2] =  0.1;
+		  } else {
+		     rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+		  }
+	       } else {
+		  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	       }
+	    }
+	    break;
+	 case YELLOW_BOND:
+	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
+	    break;
+	 case BLUE_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
+	    break;
+	 case RED_BOND:
+	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+	    break;
+	 case GREEN_BOND:
+	    rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
+	    break;
+	 case GREY_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+	    break;
+	 case HYDROGEN_GREY_BOND:
+	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+	    break;
+	    // replaced in mmdb-extras.h
+	    //       case white:
+	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
+	    // 	 break;
+	 case MAGENTA_BOND:
+	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+	    break;
+	 case ORANGE_BOND:
+	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+	    break;
+	 case CYAN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
 
-    default:
-       rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-       rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-    }
+	 default:
+	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+	 }
 
       } else {
 
-    // against a white background.  Less pale, darker, more saturated.
+	 // against a white background.  Less pale, darker, more saturated.
 
-    switch (i) {
-    case YELLOW_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-       break;
-    case BLUE_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-       break;
-    case RED_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-       break;
-    case GREEN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-       break;
-    case GREY_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-       break;
-    case HYDROGEN_GREY_BOND:
-       rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-       break;
-    case MAGENTA_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-       break;
-    case ORANGE_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-       break;
-    case CYAN_BOND:
-       rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-       break;
-    case DARK_GREEN_BOND:
-       rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-       break;
-    case DARK_ORANGE_BOND:
-       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-       break;
-    case DARK_BROWN_BOND:
-       rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-       break;
+	 switch (i) {
+	 case YELLOW_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+	    break;
+	 case BLUE_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+	    break;
+	 case RED_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+	    break;
+	 case GREEN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+	    break;
+	 case GREY_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
+	    break;
+	 case HYDROGEN_GREY_BOND:
+	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+	    break;
+	 case MAGENTA_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+	    break;
+	 case ORANGE_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
+	 case CYAN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
 
-    default:
-       rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-       rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-    }
+	 default:
+	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
+	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+	 }
       }
 
       // "correct" for the +1 added in the calculation of the rotation
@@ -1178,9 +1185,19 @@ molecule_class_info_t::update_symmetry() {
          draw_hydrogens_flag,
          do_intermolecular_symmetry_bonds);
 
-    } else {
-       Bond_lines_container bonds(NO_SYMMETRY_BONDS);
-    }
+	    symmetry_bonds_box =
+	       bonds.addSymmetry_vector_symms(atom_sel, imol_no,
+					      point,
+					      graphics_info_t::symmetry_search_radius,
+					      symm_trans_boxes,
+					      symmetry_as_calphas,
+					      symmetry_whole_chain_flag,
+					      draw_hydrogens_flag,
+					      do_intermolecular_symmetry_bonds);
+
+	 } else {
+	    Bond_lines_container bonds(NO_SYMMETRY_BONDS);
+	 }
 
     if (show_strict_ncs_flag == 1) {
        if (strict_ncs_matrices.size() > 0) {
@@ -1189,7 +1206,7 @@ molecule_class_info_t::update_symmetry() {
     }
 
       } else {
-    // cout << "update_symmetry: no molecule yet" << endl;
+	 // cout << "update_symmetry: no molecule yet" << endl;
       }
    }
 }
@@ -1199,55 +1216,55 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
-    if (extra_restraints_representation.bonds.size() > 0) {
-       glLineWidth(1.0);
-       if (extra_restraints_representation_for_bonds_go_to_CA) {
-          glLineWidth(3.0);
-       } else {
-       }
-       glColor3f(0.6, 0.6, 0.8);
+	 if (extra_restraints_representation.bonds.size() > 0) {
+	    glLineWidth(1.0);
+	    if (extra_restraints_representation_for_bonds_go_to_CA) {
+	       glLineWidth(3.0);
+	    } else {
+	    }
+	    glColor3f(0.6, 0.6, 0.8);
 
-       glBegin(GL_LINES);
-       for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
+	    glBegin(GL_LINES);
+	    for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
 
-          const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
-     extra_restraints_representation.bonds[ib];
+	       const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
+		  extra_restraints_representation.bonds[ib];
 
-          // red if actual distance is greater than target
-          //
-          double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+	       // red if actual distance is greater than target
+	       //
+	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
 
-          if (res.esd > 0) {
-     /*
-     double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.002;
-     if (b >  0.4999) b =  0.4999;
-     if (b < -0.4999) b = -0.4999;
-     double b_green = b;
-     if (b > 0) b_green *= 0.2;
-     glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
-     */
+	       if (res.esd > 0) {
+		  /*
+		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.002;
+		  if (b >  0.4999) b =  0.4999;
+		  if (b < -0.4999) b = -0.4999;
+		  double b_green = b;
+		  if (b > 0) b_green *= 0.2;
+		  glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
+		  */
 
-     double b_1 = (res.target_dist*res.target_dist - d_sqd)/(res.esd*res.esd);
-     // b_1 ~ from a distribution mean 0 sd 1
-     // we want to make short be green and long be purple
-     float b_2 = 0.1 * b_1;
-     if (b_2 >  0.4999) b_2 =  0.4999;
-     if (b_2 < -0.4999) b_2 = -0.4999;
-     // b_2 is now between -0.5 and +0.5
-     float r = 0.5 - b_2;
-     float g = 0.5 + b_2;
-     float b = 0.5 - b_2;
-     glColor3f(r, g, b);
-          }
-          glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
-     extra_restraints_representation.bonds[ib].first.y(),
-     extra_restraints_representation.bonds[ib].first.z());
-          glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
-     extra_restraints_representation.bonds[ib].second.y(),
-     extra_restraints_representation.bonds[ib].second.z());
-       }
-       glEnd();
-    }
+		  double b_1 = (res.target_dist*res.target_dist - d_sqd)/(res.esd*res.esd);
+		  // b_1 ~ from a distribution mean 0 sd 1
+		  // we want to make short be green and long be purple
+		  float b_2 = 0.1 * b_1;
+		  if (b_2 >  0.4999) b_2 =  0.4999;
+		  if (b_2 < -0.4999) b_2 = -0.4999;
+		  // b_2 is now between -0.5 and +0.5
+		  float r = 0.5 - b_2;
+		  float g = 0.5 + b_2;
+		  float b = 0.5 - b_2;
+		  glColor3f(r, g, b);
+	       }
+	       glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
+			  extra_restraints_representation.bonds[ib].first.y(),
+			  extra_restraints_representation.bonds[ib].first.z());
+	       glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
+			  extra_restraints_representation.bonds[ib].second.y(),
+			  extra_restraints_representation.bonds[ib].second.z());
+	    }
+	    glEnd();
+	 }
       }
    }
 
@@ -1259,61 +1276,61 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
-    if (extra_restraints_representation.parallel_planes.size() > 0) {
-       glLineWidth(2.0);
-       glColor3f(0.55, 0.55, 0.3);
-       glBegin(GL_LINES);
-       for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
-          const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
-     extra_restraints_representation.parallel_planes[i];
+	 if (extra_restraints_representation.parallel_planes.size() > 0) {
+	    glLineWidth(2.0);
+	    glColor3f(0.55, 0.55, 0.3);
+	    glBegin(GL_LINES);
+	    for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
+	       const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
+		  extra_restraints_representation.parallel_planes[i];
 
-          clipper::Coord_orth arb(0.2, 0.8, 0.1);
-          clipper::Coord_orth cr(clipper::Coord_orth::cross(r.normal, arb).unit());
-          clipper::Coord_orth first_pt = r.ring_centre + r.ring_radius * cr;
-          clipper::Coord_orth first_pt_pp = r.plane_projection_point + r.pp_radius * cr;
-          // std::cout << i << " r.plane_projection_point: " << r.plane_projection_point.format() << std::endl;
+	       clipper::Coord_orth arb(0.2, 0.8, 0.1);
+	       clipper::Coord_orth cr(clipper::Coord_orth::cross(r.normal, arb).unit());
+	       clipper::Coord_orth first_pt = r.ring_centre + r.ring_radius * cr;
+	       clipper::Coord_orth first_pt_pp = r.plane_projection_point + r.pp_radius * cr;
+	       // std::cout << i << " r.plane_projection_point: " << r.plane_projection_point.format() << std::endl;
 
-          unsigned int n_steps = 32;
-          double step_frac = 1/double(n_steps);
-          clipper::Coord_orth pt_1;
-          clipper::Coord_orth pt_2;
-          for (unsigned int istep=0; istep<n_steps; istep++) {
-     double angle_1 = step_frac * 2.0 * M_PI * istep;
-     double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-     pt_1 = coot::util::rotate_around_vector(r.normal, first_pt, r.ring_centre, angle_1);
-     pt_2 = coot::util::rotate_around_vector(r.normal, first_pt, r.ring_centre, angle_2);
-     glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
-     glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
-          }
+	       unsigned int n_steps = 32;
+	       double step_frac = 1/double(n_steps);
+	       clipper::Coord_orth pt_1;
+	       clipper::Coord_orth pt_2;
+	       for (unsigned int istep=0; istep<n_steps; istep++) {
+		  double angle_1 = step_frac * 2.0 * M_PI * istep;
+		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		  pt_1 = coot::util::rotate_around_vector(r.normal, first_pt, r.ring_centre, angle_1);
+		  pt_2 = coot::util::rotate_around_vector(r.normal, first_pt, r.ring_centre, angle_2);
+		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
+		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
+	       }
 
-          n_steps = 16;
-          step_frac = 1/double(n_steps);
-          for (unsigned int istep=0; istep<n_steps; istep++) {
-     double angle_1 = step_frac * 2.0 * M_PI * istep;
-     double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-     pt_1 = coot::util::rotate_around_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_1);
-     pt_2 = coot::util::rotate_around_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_2);
-     glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
-     glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
-          }
+	       n_steps = 16;
+	       step_frac = 1/double(n_steps);
+	       for (unsigned int istep=0; istep<n_steps; istep++) {
+		  double angle_1 = step_frac * 2.0 * M_PI * istep;
+		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		  pt_1 = coot::util::rotate_around_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_1);
+		  pt_2 = coot::util::rotate_around_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_2);
+		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
+		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
+	       }
 
-          // now the lines between planes
-          glVertex3d(r.ring_centre.x(), r.ring_centre.y(), r.ring_centre.z());
-          glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
-       }
-       glEnd();
-    }
+	       // now the lines between planes
+	       glVertex3d(r.ring_centre.x(), r.ring_centre.y(), r.ring_centre.z());
+	       glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
+	    }
+	    glEnd();
+	 }
 
-    // points
-    float zsc = graphics_info_t::zoom;
-    glPointSize(120.0/zsc);
-    glBegin(GL_POINTS);
-    for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
-       const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
-          extra_restraints_representation.parallel_planes[i];
-       glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
-    }
-    glEnd();
+	 // points
+	 float zsc = graphics_info_t::zoom;
+	 glPointSize(120.0/zsc);
+	 glBegin(GL_POINTS);
+	 for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
+	    const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
+	       extra_restraints_representation.parallel_planes[i];
+	    glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
+	 }
+	 glEnd();
       }
    }
 }
@@ -1332,40 +1349,40 @@ molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colo
 
       if (show_unit_cell_flag == 1) {
 
-    if (draw_it) {
+	 if (draw_it) {
 
-       if (have_unit_cell == 1) {
+	    if (have_unit_cell == 1) {
 
-          glLineWidth(2.0);
-          glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
+	       glLineWidth(2.0);
+	       glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
 
-          float corners[8][3] = {
-     {0,0,0}, //0
-     {0,0,1}, //1
-     {0,1,0}, //2
-     {0,1,1}, //3
-     {1,0,0}, //4
-     {1,0,1}, //5
-     {1,1,0}, //6
-     {1,1,1}};//7
+	       float corners[8][3] = {
+		  {0,0,0}, //0
+		  {0,0,1}, //1
+		  {0,1,0}, //2
+		  {0,1,1}, //3
+		  {1,0,0}, //4
+		  {1,0,1}, //5
+		  {1,1,0}, //6
+		  {1,1,1}};//7
 
-          mmdb::realtype x_orth, y_orth, z_orth;
-          // rsc = real_space_corners
-          float rsc[8][3];
+	       mmdb::realtype x_orth, y_orth, z_orth;
+	       // rsc = real_space_corners
+	       float rsc[8][3];
 
-          for (int ii=0; ii<8; ii++) {
+	       for (int ii=0; ii<8; ii++) {
 
-     atom_sel.mol->Frac2Orth(corners[ii][0], corners[ii][1], corners[ii][2],
-     x_orth, y_orth, z_orth);
+		  atom_sel.mol->Frac2Orth(corners[ii][0], corners[ii][1], corners[ii][2],
+					  x_orth, y_orth, z_orth);
 
-     rsc[ii][0] = x_orth;
-     rsc[ii][1] = y_orth;
-     rsc[ii][2] = z_orth;
-          }
+		  rsc[ii][0] = x_orth;
+		  rsc[ii][1] = y_orth;
+		  rsc[ii][2] = z_orth;
+	       }
 
-          draw_unit_cell_internal(rsc);
-       }
-    }
+	       draw_unit_cell_internal(rsc);
+	    }
+	 }
       }
    }
 }
@@ -1377,36 +1394,36 @@ molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour
    if (has_xmap()) {
       if (show_unit_cell_flag == 1) {
 
-    if (draw_it_for_map) {
+	 if (draw_it_for_map) {
 
-       // rsc = real_space_corners
-       float rsc[8][3];
+	    // rsc = real_space_corners
+	    float rsc[8][3];
 
-       glLineWidth(2.0);
-       glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
+	    glLineWidth(2.0);
+	    glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
 
-       float corners[8][3] = {
-          {0,0,0}, //0
-          {0,0,1}, //1
-          {0,1,0}, //2
-          {0,1,1}, //3
-          {1,0,0}, //4
-          {1,0,1}, //5
-          {1,1,0}, //6
-          {1,1,1}};//7
+	    float corners[8][3] = {
+	       {0,0,0}, //0
+	       {0,0,1}, //1
+	       {0,1,0}, //2
+	       {0,1,1}, //3
+	       {1,0,0}, //4
+	       {1,0,1}, //5
+	       {1,1,0}, //6
+	       {1,1,1}};//7
 
-       for (int ii=0; ii<8; ii++) {
+	    for (int ii=0; ii<8; ii++) {
 
-          clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
+	       clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
 
-          clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
+	       clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
 
-          rsc[ii][0] = c_o.x();
-          rsc[ii][1] = c_o.y();
-          rsc[ii][2] = c_o.z();
-       }
-       draw_unit_cell_internal(rsc);
-    }
+	       rsc[ii][0] = c_o.x();
+	       rsc[ii][1] = c_o.y();
+	       rsc[ii][2] = c_o.z();
+	    }
+	    draw_unit_cell_internal(rsc);
+	 }
       }
    }
 }
@@ -1666,6 +1683,12 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
                                                               bool is_diff_map,
                                                               bool is_anomalous_map,
                                                               bool swap_difference_map_colours) {
+
+   if (false)
+      std::cout << "------------------- initialize_map_things_on_read_molecule() "
+		<< " imol_no " << imol_no << " is_anomalous_map: " << is_anomalous_map
+		<< " is difference map " << is_diff_map << " swapcol: " << swap_difference_map_colours
+		<< std::endl;
 
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;
@@ -3273,11 +3296,11 @@ molecule_class_info_t::label_symmetry_atom(int i) {
        std::string label =
           make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
 
-       GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
+	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
 
-       glColor3fv(blueish);
+	    glColor3fv(blueish);
 
-       coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
+	    coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
 
 // 	    glRasterPos3f(symm_point.get_x(),
 // 			  symm_point.get_y()+0.02,
@@ -3414,12 +3437,14 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
+   bool do_sticks_for_waters = true;
 
    if (single_model_view_current_model_number != 0)
       model_number = single_model_view_current_model_number;
 
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
-         geom_p, do_disulphide_flag, draw_hydrogens_flag, model_number);
+			      geom_p, do_disulphide_flag, draw_hydrogens_flag,
+			      model_number, "dummy", false, false, false);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::NORMAL_BONDS;
@@ -3435,11 +3460,13 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
-   // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
+   // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
+   // << bonds_box_type << std::endl;
 
 }
 
 void
+
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices);
@@ -3480,6 +3507,7 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 }
 
 void
+
 molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms,
      short int change_c_only_flag) {
 
@@ -3534,6 +3562,7 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    coot::protein_geometry *geom_p = g.Geom_p();
 
    std::set<int> dummy;
+
    if (bonds_box_type == coot::NORMAL_BONDS)
       makebonds(geom_p, dummy);
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
@@ -4441,7 +4470,7 @@ molecule_class_info_t::make_atom_label_string(mmdb::PAtom atom,
 // Return -1 on failure to find match
 int
 molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
-          std::string atom_name) const {
+					       std::string atom_name) const {
 
    int iatom_index = -1;
    int selHnd = atom_sel.mol->NewSelection();
@@ -5365,9 +5394,9 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_for_new,
 
       if (chain_p) {
 
-    std::string mol_chain(chain_p->GetChainID());
+         std::string mol_chain(chain_p->GetChainID());
 
-    if (chain_id == mol_chain) {
+         if (chain_id == mol_chain) {
 
        // Find the first residue that has either the residue number or insertion code
        // greater than the passed parameters
@@ -6718,7 +6747,13 @@ molecule_class_info_t::save_coordinates(const std::string filename,
    } else {
       mmdb::byte bz = mmdb::io::GZM_NONE;
 
-      ierr = write_atom_selection_file(atom_sel, filename, bz,
+      bool write_as_cif = false;
+      if (coot::is_mmcif_filename(filename))
+         write_as_cif = true;
+
+      std::cout << "in save_coordinates() write_as_cif is " <<  write_as_cif << std::endl;
+
+      ierr = write_atom_selection_file(atom_sel, filename, write_as_cif, bz,
                                        save_hydrogens, save_aniso_records,
                                        save_conect_records);
    }
@@ -7243,7 +7278,8 @@ molecule_class_info_t::make_backup() { // changes history details
        //
        int istat;
        if (! is_from_shelx_ins_flag) {
-          istat = write_atom_selection_file(atom_sel, backup_file_name, gz);
+          bool as_cif = false;
+          istat = write_atom_selection_file(atom_sel, backup_file_name, as_cif, gz);
           // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
           if (istat) {
              std::string warn;
@@ -9518,4 +9554,91 @@ molecule_class_info_t::print_secondary_structure_info() {
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
       coot::util::print_secondary_structure_info(model_p);
    }
+}
+
+
+
+// static
+int
+molecule_class_info_t::watch_coordinates_file(gpointer data) {
+
+   int status = 1;
+
+   updating_coordinates_molecule_parameters_t *ucp = static_cast<updating_coordinates_molecule_parameters_t *>(data);
+   const updating_coordinates_molecule_parameters_t &rucp = *ucp;
+
+   std::cout << "watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
+   status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
+   return status;
+}
+
+// bool continue_watching_coordinates_file;
+// updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
+
+int
+molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &ucp_in) {
+
+   int status = 1;
+   if (continue_watching_coordinates_file) {
+      bool update_it = false;
+
+      updating_coordinates_molecule_parameters_t ucp = ucp_in;
+      struct stat s;
+      int status = stat(ucp.pdb_file_name.c_str(), &s);
+      if (status != 0) {
+	 std::cout << "WARNING:: update_map_from_mtz_if_changed() Error reading "
+		   << ucp.pdb_file_name << std::endl;
+      } else {
+	 if (!S_ISREG (s.st_mode)) {
+	    std::cout << "WARNING:: update_map_from_mtz_if_changed() not a reguular file: "
+		      << ucp.pdb_file_name << std::endl;
+	    continue_watching_coordinates_file = false;
+	 } else {
+	    // happy path
+#ifndef _POSIX_SOURCE
+	    ucp.ctime = s.st_ctimespec; // Mac OX X?
+#else
+	    ucp.ctime = s.st_ctim;
+#endif
+	 }
+      }
+
+      if (false)
+         std::cout << "#### ctime comparision: imol << " << imol_no << " was "
+            << updating_coordinates_molecule_previous.ctime.tv_sec << " " << updating_coordinates_molecule_previous.ctime.tv_nsec
+            << " now " << ucp.ctime.tv_sec << " " << ucp.ctime.tv_nsec
+            << std::endl;
+
+      if (ucp.ctime.tv_sec > updating_coordinates_molecule_previous.ctime.tv_sec) {
+	 update_it = true;
+      } else {
+	 if (ucp.ctime.tv_sec == updating_coordinates_molecule_previous.ctime.tv_sec) {
+	    if (ucp.ctime.tv_nsec > updating_coordinates_molecule_previous.ctime.tv_nsec) {
+	       update_it = true;
+	    }
+	 }
+      }
+      if (update_it) {
+
+	 std::string cwd = coot::util::current_working_dir();
+	 short int reset_rotation_centre = 0;
+	 short int is_undo_or_redo = 0;
+	 bool allow_duplseqnum = true;
+	 bool v2_convert_flag = false;
+
+	 handle_read_draw_molecule(imol_no, ucp.pdb_file_name, cwd,
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   allow_duplseqnum,
+				   v2_convert_flag,
+				   bond_width,
+				   Bonds_box_type(),
+				   false);
+	 updating_coordinates_molecule_previous = ucp;
+	 graphics_info_t::graphics_draw();
+      }
+   } else {
+      status = 0;
+   }
+   return status;
 }

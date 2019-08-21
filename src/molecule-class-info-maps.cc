@@ -311,6 +311,12 @@ molecule_class_info_t::update_map_internal() {
       if (is_EM_map())
          radius = graphics_info_t::box_radius_em;
 
+      if (false)
+	 std::cout << "in update_map_internal() " << radius << " vs x "
+		   << graphics_info_t::box_radius_xray << " em "
+		   << graphics_info_t::box_radius_em << " is-em: "
+		   << is_EM_map() << std::endl;
+
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 			                graphics_info_t::RotationCentre_y(),
 			                graphics_info_t::RotationCentre_z());
@@ -1393,6 +1399,10 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 long T4 = 0; // glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
+	 std::cout << "      Map extents: ..... "
+		   << xmap.grid_sampling().nu() << " "
+		   << xmap.grid_sampling().nv() << " "
+		   << xmap.grid_sampling().nw() << " " << std::endl;
 	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
 	 std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
 	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
@@ -1410,9 +1420,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // save state strings
 
-	    std::string cwd = coot::util::current_working_dir();
-	    std::string f1  = coot::util::intelligent_debackslash(mtz_file_name);
-	    std::string f2  = coot::util::relativise_file_name(f1, cwd);
+	 std::string cwd = coot::util::current_working_dir();
+	 std::string f1  = coot::util::intelligent_debackslash(mtz_file_name);
+	 std::string f2  = coot::util::relativise_file_name(f1, cwd);
 	 if (have_sensible_refmac_params) {
 	    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
 	    save_state_command_strings_.push_back(single_quote(f2));
@@ -2052,6 +2062,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	 set_initial_contour_level();
       }
 
+      std::cout << "      Map extents: ..... "
+		<< xmap.grid_sampling().nu() << " "
+		<< xmap.grid_sampling().nv() << " "
+		<< xmap.grid_sampling().nw() << " " << std::endl;
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
       std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
@@ -3961,4 +3975,84 @@ molecule_class_info_t::get_contours(float contour_level,
       }
    }
    return r;
+}
+
+// static
+int
+molecule_class_info_t::watch_mtz(gpointer data) {
+
+   int status = 1; // continue
+
+   updating_map_params_t *ump = static_cast<updating_map_params_t *>(data);
+   const updating_map_params_t &rump = *ump;
+   status = graphics_info_t::molecules[rump.imol].update_map_from_mtz_if_changed(rump);
+   return status;
+}
+
+int
+molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_t &ump_in) {
+
+   int status = 1;
+   if (continue_watching_mtz) {
+      
+      bool update_it = false;
+
+      updating_map_params_t ump = ump_in;
+      struct stat s;
+      int status = stat(ump.mtz_file_name.c_str(), &s);
+      if (status != 0) {
+	 std::cout << "WARNING:: update_map_from_mtz_if_changed() Error reading "
+		   << ump.mtz_file_name << std::endl;
+      } else {
+	 if (!S_ISREG (s.st_mode)) {
+	    std::cout << "WARNING:: update_map_from_mtz_if_changed() not a reguular file: "
+		      << ump.mtz_file_name << std::endl;
+	    continue_watching_mtz = false;
+	 } else {
+	    // happy path
+#ifndef _POSIX_SOURCE
+	    ump.ctime = s.st_ctimespec; // mac?
+#else
+	    ump.ctime = s.st_ctim;
+#endif
+	 }
+      }
+
+      if (false)
+	 std::cout << "#### ctime comparision: was "
+		   << updating_map_previous.ctime.tv_sec << " " << updating_map_previous.ctime.tv_nsec
+		   << " now " << ump.ctime.tv_sec << " " << ump.ctime.tv_nsec
+		   << std::endl;
+
+      if (ump.ctime.tv_sec > updating_map_previous.ctime.tv_sec) {
+	 update_it = true;
+      } else {
+	 if (ump.ctime.tv_sec == updating_map_previous.ctime.tv_sec) {
+	    if (ump.ctime.tv_nsec > updating_map_previous.ctime.tv_nsec) {
+	       update_it = true;
+	    }
+	 }
+      }
+      if (update_it) {
+
+	 // map_fill_from_mtz(ump) ?
+
+	 // updating maps shouldn't update (add to) the Display Manager.
+
+	 std::string cwd = coot::util::current_working_dir();
+	 map_fill_from_mtz(ump.mtz_file_name,
+			   cwd,
+			   ump.f_col,
+			   ump.phi_col,
+			   ump.weight_col,
+			   ump.use_weights,
+			   ump.is_difference_map,
+			   graphics_info_t::map_sampling_rate);
+	 updating_map_previous = ump;
+	 graphics_info_t::graphics_draw();
+      }
+   } else {
+      status = 0;
+   }
+   return status;
 }

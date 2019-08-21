@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 #include "contacts-by-bricks.hh"
 
@@ -12,6 +13,7 @@ coot::contacts_by_bricks::contacts_by_bricks(mmdb::PAtom *atoms_in, int n_atoms_
    n_atoms = n_atoms_in;
    brick_size = 20.0;
    dist_nbc_max = 8.0;
+   only_between_different_residues_flag = false;
 
    range[0] = 0; range[1] = 0; range[2] = 0;
    set_lower_left_and_range(atoms_in, n_atoms_in);
@@ -26,9 +28,18 @@ coot::contacts_by_bricks::contacts_by_bricks(mmdb::PAtom *atoms_in, int n_atoms_
    for(it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
       fixed_flags[*it] = true;
 
-   unsigned int n_thread_sets = 3; // or num threads?
+   unsigned int n_threads = get_max_number_of_threads();
+   unsigned int n_thread_sets = n_threads -1;
+   if (n_thread_sets < 1)
+      n_thread_sets = 1;
    split_indices(&thread_index_sets, n_bricks, n_thread_sets);
 
+}
+
+void
+coot::contacts_by_bricks::set_dist_max(float f) {
+
+   dist_nbc_max = f;
 }
 
 void
@@ -139,20 +150,20 @@ coot::contacts_by_bricks::idx_3d_to_idx_1d(int idx_3d[3]) const {
    return idx;
 }
 
-// std::vector<std::set<unsigned int> >
 
-// std::vector<std::set<unsigned int> >
 void
-coot::contacts_by_bricks::find_the_contacts(std::vector<std::set<unsigned int> > *vec_p) {
+coot::contacts_by_bricks::find_the_contacts(std::vector<std::set<unsigned int> > *vec_p,
+					    bool only_between_different_residues_flag) {
 
    vec_p->resize(n_atoms); // can't reserve std::sets
    fill_the_bricks();
-   find_the_contacts_in_bricks(vec_p);
-   find_the_contacts_between_bricks(vec_p);
+   find_the_contacts_in_bricks(vec_p, only_between_different_residues_flag);
+   find_the_contacts_between_bricks(vec_p, only_between_different_residues_flag);
 }
 
 void
-coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsigned int> > *vec) const {
+coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsigned int> > *vec,
+						      bool only_between_different_residues_flag) const {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    unsigned int n_in_brick = 0;
@@ -168,6 +179,9 @@ coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsig
 	    for (it_neighb=brick_base.begin(); it_neighb!=brick_base.end(); it_neighb++) {
 	       if (it_neighb != it_base) {
 		  mmdb::Atom *at_2 = atoms[*it_neighb];
+		  if (only_between_different_residues_flag)
+		     if (at_2->residue == at_1->residue)
+			continue;
 		  float d_x(at_1->x - at_2->x);
 		  float d_y(at_1->y - at_2->y);
 		  float d_z(at_1->z - at_2->z);
@@ -183,17 +197,18 @@ coot::contacts_by_bricks::find_the_contacts_in_bricks(std::vector<std::set<unsig
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-   std::cout << "------- in bricks: " << d10 << " milliseconds " << std::endl;
+   std::cout << "------- contacts_by_bricks(): in bricks: " << d10 << " milliseconds " << std::endl;
 
    // std::cout << "Found n_in_brick " << n_in_brick << std::endl;
 }
 
 void
-coot::contacts_by_bricks::find_the_contacts_between_bricks(std::vector<std::set<unsigned int> > *vec_p) const {
+coot::contacts_by_bricks::find_the_contacts_between_bricks(std::vector<std::set<unsigned int> > *vec_p,
+							   bool only_between_different_residues_flag) const {
 
    // find_the_contacts_between_bricks_simple(vec_p);
 
-   find_the_contacts_between_bricks_multi_thread(vec_p);
+   find_the_contacts_between_bricks_multi_thread(vec_p, only_between_different_residues_flag);
 
    if (false) {
       for (std::size_t ii=0; ii<vec_p->size(); ii++) {
@@ -210,7 +225,8 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks(std::vector<std::set<
 }
 
 void
-coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread(std::vector<std::set<unsigned int> > *vec_p) const {
+coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread(std::vector<std::set<unsigned int> > *vec_p,
+									bool only_between_different_residues_flag) const {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -225,14 +241,21 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread(std::vec
    float dist_max_sqrd = dist_nbc_max * dist_nbc_max;
 
    std::vector<std::thread> threads;
+
+   std::cout << "find_the_contacts_between_bricks_multi_thread using " << thread_index_sets.size() << " threads\n";
    for (std::size_t ii=0; ii<thread_index_sets.size(); ii++) {
       const std::vector<unsigned int> &index_set = thread_index_sets[ii];
       threads.push_back(std::thread(find_the_contacts_between_bricks_multi_thread_workpackage,
       				    vec_p, std::cref(index_set), std::cref(atoms_in_bricks),
-				    std::cref(fixed_flags), range, atoms, brick_index_max, dist_nbc_max));
+				    std::cref(fixed_flags), range, atoms, brick_index_max, dist_nbc_max,
+				    only_between_different_residues_flag));
    }
    for (std::size_t ii=0; ii<thread_index_sets.size(); ii++)
       threads[ii].join();
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "------- contacts_by_bricks(): between_brick_multi: " << d10 << " milliseconds " << std::endl;
 
 }
 
@@ -247,7 +270,8 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread_workpack
 										    const int brick_range[3],
 										    mmdb::PAtom *atoms,
 										    int brick_index_max,
-										    float dist_max) {
+										    float dist_max,
+										    bool only_between_different_residues_flag) {
 
    float dist_max_sqrd = dist_max * dist_max;
    for (std::size_t ii=0; ii<index_set.size(); ii++) {
@@ -270,6 +294,9 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread_workpack
 			      mmdb::Atom *at_1 = atoms[*it_base];
 			      for (it_neighb=brick_neighb.begin(); it_neighb!=brick_neighb.end(); it_neighb++) {
 				 mmdb::Atom *at_2 = atoms[*it_neighb];
+				 if (only_between_different_residues_flag)
+				    if (at_2->residue == at_1->residue)
+				       continue;
 				 float d_x(at_1->x - at_2->x);
 				 float d_y(at_1->y - at_2->y);
 				 float d_z(at_1->z - at_2->z);
@@ -296,7 +323,8 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_multi_thread_workpack
 
 
 void
-coot::contacts_by_bricks::find_the_contacts_between_bricks_simple(std::vector<std::set<unsigned int> > *vec) const {
+coot::contacts_by_bricks::find_the_contacts_between_bricks_simple(std::vector<std::set<unsigned int> > *vec,
+								  bool only_between_different_residues_flag) const {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -332,6 +360,9 @@ coot::contacts_by_bricks::find_the_contacts_between_bricks_simple(std::vector<st
 			      mmdb::Atom *at_1 = atoms[*it_base];
 			      for (it_neighb=brick_neighb.begin(); it_neighb!=brick_neighb.end(); it_neighb++) {
 				 mmdb::Atom *at_2 = atoms[*it_neighb];
+				 if (only_between_different_residues_flag)
+				    if (at_2->residue == at_1->residue)
+				       continue;
 				 float d_x(at_1->x - at_2->x);
 				 float d_y(at_1->y - at_2->y);
 				 float d_z(at_1->z - at_2->z);

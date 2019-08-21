@@ -54,7 +54,9 @@ coot::restraints_container_t::make_df_restraints_indices() {
    restraints_indices.clear();
    restraints_indices.resize(n_r_s);
    if (df_by_thread_results.size() > 0) {
-      std::cout << "currently df_by_thread_results has size " << df_by_thread_results.size() << " - so clearing" << std::endl;
+      if (false)
+	 std::cout << "currently df_by_thread_results has size " << df_by_thread_results.size()
+		   << " - so clearing" << std::endl;
       df_by_thread_results.clear();
    }
    std::vector<mmdb::Link> links;

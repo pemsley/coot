@@ -1347,8 +1347,8 @@ coot::distortion_score_torsion(unsigned int idx_restraint,
 //    P4 = clipper::Coord_orth(-1.0, -1.0, 1.0);
 //    P4 = clipper::Coord_orth( 1.0,  1.0, 1.0);
 
-   clipper::Coord_orth a = P2 - P1; 
-   clipper::Coord_orth b = P3 - P2; 
+   clipper::Coord_orth a = P2 - P1;
+   clipper::Coord_orth b = P3 - P2;
    clipper::Coord_orth c = P4 - P3;
 
    // b*b * [ a.(bxc)/b ]

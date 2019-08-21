@@ -180,7 +180,6 @@ void coot::my_df(const gsl_vector *v,
 
    // std::cout << "debug:: entered my_df(): v size " << v->size << std::endl;
 
-
    // first extract the object from params
    //
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);

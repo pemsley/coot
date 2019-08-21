@@ -15,6 +15,7 @@
 // for refinement:
 #include "clipper/core/xmap.h"
 #include <geometry/protein-geometry.hh>
+#include <utils/ctpl.h> // everyone has a thread pool now.
 
 namespace coot {
 
@@ -193,7 +194,8 @@ namespace coot {
 			    const protein_geometry &geom,
 			    const clipper::Xmap<float> &xmap,
 			    float map_weight,
-			    std::vector<molecule_score_t> *mol_scores);
+			    std::vector<molecule_score_t> *mol_scores,
+			    ctpl::thread_pool *thread_pool_p, int n_threads);
       static molecule_score_t
       refine_and_score_mol(mmdb::Manager *mol,
 			   const std::vector<residue_spec_t> &refine_residue_specs,
@@ -201,7 +203,8 @@ namespace coot {
 			   const protein_geometry &geom,
 			   const clipper::Xmap<float> &xmap,
 			   float map_weight,
-			   const std::string &output_pdb_file_name);
+			   const std::string &output_pdb_file_name,
+			   ctpl::thread_pool *thread_pool_p, int n_threads);
 
    public:
       crankshaft(mmdb::Manager *mol_in) {
@@ -369,7 +372,8 @@ namespace coot {
 			                         // use with atom index transfer?
 			     float map_weight,
 			     int n_samples,
-			     int n_solutions);
+			     int n_solutions,
+			     ctpl::thread_pool *thread_pool_p, int n_threads);
 
       static
       bool null_eraser(const scored_nmer_angle_set_t &snas) { return (snas.angles.empty()); }

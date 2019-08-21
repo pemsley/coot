@@ -126,8 +126,8 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
 	       if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) {
 		  residue_atoms[iat_1]->GetUDData(udd_atom_index_handle, index_1);
 		  residue_atoms[iat_2]->GetUDData(udd_atom_index_handle, index_2);
-		  bonded_atom_indices[index_1].push_back(index_2);
-		  bonded_atom_indices[index_2].push_back(index_1);
+		  bonded_atom_indices[index_1].insert(index_2);
+		  bonded_atom_indices[index_2].insert(index_1);
 		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
 
 		  add(BOND_RESTRAINT, index_1, index_2,

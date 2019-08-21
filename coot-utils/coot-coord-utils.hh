@@ -1105,9 +1105,16 @@ namespace coot {
 
       // we pass the mol_old so that selected header info can be transfered also
       // currently only LINKs.
+      //
+      // Also add the index of the reference residue (the one in molecules[imol].atom_selection.mol)
+      // to the molecule that we are construction here. So that we can properly link
+      // the residues in restraints_container (there we rather need to know the references indices,
+      // not the indices from the fragment molecule). The label (for lookup later) is
+      // "index from reference residue".
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
-					    mmdb::Manager *mol_old);
+					     mmdb::Manager *mol_old,
+					     const std::pair<bool,std::string> &use_alt_conf = std::pair<bool, std::string>(false, ""));
 
       // ignore atom index transfer, return NULL on error.
       // 
@@ -1167,6 +1174,16 @@ namespace coot {
       // passed residue.  Simple copy of residue and atoms.
       //
       mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue);
+
+      // As above but use the alt conf flags to filter copied atoms.
+      // Can return 0 if there are no atoms copied
+      //
+      // If use_alt_conf first is true then
+      //    if use_alt_conf second is not blank
+      // then copy atoms that have blank alt conf and those
+      // with altconfs that match use_alt_conf.second.
+      mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue,
+					    const std::pair<bool,std::string> &use_alt_conf);
 
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
       

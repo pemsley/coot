@@ -560,35 +560,56 @@ coot::util::b_factor(const std::vector<coot::amplitude_vs_resolution_point> &fsq
 		     std::pair<bool, float> reso_low_invresolsq,
 		     std::pair<bool, float> reso_high_invresolsq) {
 
+   // we want to chop off data that are zeros (from over-sampled maps (routine, of course)):
+   // check if the current data point is 200 times smaller (say) than the
+   // previous resolution range.
+
+   std::cout << "debug:: b_factor() fsqrd_data size " << fsqrd_data.size() << std::endl;
+
    float b = 0.0f;
    std::vector<std::pair<double, double> > data;
    data.reserve(fsqrd_data.size());
+   float prev_log = -100.0f;
    for (std::size_t i=0; i<fsqrd_data.size(); i++) {
       const amplitude_vs_resolution_point &d = fsqrd_data[i];
+      float reso = d.get_invresolsq();
+      float lf = log10(d.get_average_fsqrd());
+      if (true)
+	 std::cout << "debug::raw " << d.count << " " << reso << " " << lf << " "
+		   << reso_low_invresolsq.first << " " << reso_low_invresolsq.second << " "
+		   << reso_high_invresolsq.first << " " << reso_high_invresolsq.second << std::endl;
       if (d.count > 0) {
-	 float reso = d.get_invresolsq();
 	 if (!reso_low_invresolsq.first  || reso >= reso_low_invresolsq.second) {
 	    if (!reso_high_invresolsq.first || reso <= reso_high_invresolsq.second) {
-	       std::pair<double, double> p(2.0 * reso, log10(d.get_average_fsqrd()));
-	       data.push_back(p);
+	       if (lf > (prev_log-2.3)) {
+		  std::pair<double, double> p(reso, lf);
+		  data.push_back(p);
+		  prev_log = lf;
+	       } else {
+		  // no more data
+		  std::cout << "breaking on " << reso << " " << lf << std::endl;
+		  break;
+	       }
 	    }
 	 }
       }
    }
 
+   std::cout << "debug:: b_fact(): data size " << data.size() << std::endl;
    if (data.size() > 1) {
       unsigned int n = data.size();
       double *x_p = new double[n];
       double *y_p = new double[n];
       for (std::size_t i=0; i<data.size(); i++) {
+	 std::cout << "debug::b-factor estimation: adding graph data " << data[i].first << " " << data[i].second << std::endl;
 	 x_p[i] = data[i].first;
 	 y_p[i] = data[i].second;
-	 std::cout << "adding data " << data[i].first << " " << data[i].second << std::endl;
       }
       double cov00, cov01, cov11, sum_sq;
       double c_0, c_1; // c and m
       gsl_fit_linear(x_p, 1, y_p, 1, n, &c_0, &c_1, &cov00, &cov01, &cov11, &sum_sq);
-      b = -8.0 * M_PI * M_PI * c_1;
+      // b = -8.0 * M_PI * M_PI * c_1;
+      b = -0.5 * c_1;
       delete [] x_p;
       delete [] y_p;
    }

@@ -1,18 +1,18 @@
 /* src/callbacks.h
- * 
+ *
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -216,10 +216,10 @@ void
 on_show_aniso_ok_button_clicked        (GtkButton       *button,
                                         gpointer         user_data);
 
-void aniso_probability_adjustment_changed(GtkAdjustment *adj, 
+void aniso_probability_adjustment_changed(GtkAdjustment *adj,
 					  GtkWidget *window);
 
-void 
+void
 on_smooth_scrolling_window_ok_button_clicked (GtkButton       *button,
 					      gpointer         user_data);
 
@@ -1646,7 +1646,7 @@ on_run_refmac_help_dialog_ok_button_clicked
                                         gpointer         user_data);
 
 void
-on_run_refmac_nolabels_help_button_clicked      
+on_run_refmac_nolabels_help_button_clicked
 					(GtkButton       *button,
                                         gpointer         user_data);
 
@@ -2177,12 +2177,12 @@ void
 on_temp_fact_variance_analysis1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
-////B 
+////B
 void
 on_temp_fact_analysis1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
-////E 
+////E
 void
 on_rotamer_analysis1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
@@ -3689,90 +3689,90 @@ on_phs_coordinates_filechooserdialog1_destroy
 
 void
 on_save_coords_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 
+					(GtkDialog * dialog,
+					gint response_id,
 					gpointer user_data);
 
 void
 on_save_coords_filechooserdialog1_destroy
-					(GtkWidget * object, 
+					(GtkWidget * object,
 					gpointer user_data);
 
 void
 on_cif_dictionary_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 
+					(GtkDialog * dialog,
+					gint response_id,
 					gpointer user_data);
 
 void
 on_cif_dictionary_filechooserdialog1_destroy
-					(GtkWidget * object, 
+					(GtkWidget * object,
 					gpointer user_data);
 
 void
 on_run_script_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 	
+					(GtkDialog * dialog,
+					gint response_id,
 					gpointer user_data);
 
 void
 on_run_script_filechooserdialog1_destroy
-					(GtkWidget * object, 
+					(GtkWidget * object,
 					gpointer user_data);
 
 GtkFileChooserConfirmation
 on_save_coords_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
+					(GtkFileChooser * filechooser,
 					gpointer user_data);
 
 GtkFileChooserConfirmation
 on_save_symmetry_coords_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
+					(GtkFileChooser * filechooser,
 					gpointer user_data);
 
 GtkFileChooserConfirmation
 on_save_state_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
+					(GtkFileChooser * filechooser,
 					gpointer user_data);
 
 GtkFileChooserConfirmation
 on_screendump_filechooserdialog1_confirm_overwrite
-					(GtkFileChooser * filechooser, 
+					(GtkFileChooser * filechooser,
 					gpointer user_data);
 
 void
 on_save_symmetry_coords_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 
+					(GtkDialog * dialog,
+					gint response_id,
 					gpointer user_data);
 
 void
 on_save_symmetry_coords_filechooserdialog1_destroy
-					(GtkWidget * object, 
+					(GtkWidget * object,
 					gpointer user_data);
 
 
 void
 on_save_state_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 
+					(GtkDialog * dialog,
+					gint response_id,
 					gpointer user_data);
 
 void
 on_save_state_filechooserdialog1_destroy
-					(GtkWidget * object, 
+					(GtkWidget * object,
 					gpointer user_data);
 
 
 void
 on_screendump_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 
+					(GtkDialog * dialog,
+					gint response_id,
 					gpointer user_data);
 
 void
 on_screendump_filechooserdialog1_destroy
-					(GtkWidget * object, 
+					(GtkWidget * object,
 					gpointer user_data);
 
 
@@ -4467,7 +4467,7 @@ on_mogul_geometry_dialog_close_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
 
-void 
+void
 on_ligand_check_okbutton_clicked(GtkButton       *button,
 				 gpointer         user_data);
 
@@ -4744,8 +4744,47 @@ void
 on_curlew1_activate              (GtkMenuItem     *menuitem,
                                   gpointer         user_data);
 
+void
+on_show_symmetry_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_show_symmetry_yes_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
 
 
 void
 on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
+                                        gpointer data);
+
+
+gboolean
+on_symmetry_radius_entry_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+void
+on_hscale_symmetry_colour_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data);
+
+void
+on_show_symmetry_expanded_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_map_radius_em_entry_changed         (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_map_radius_em_button_clicked        (GtkButton       *button,
+                                        gpointer         user_data);
+
+gboolean
+on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
+                                        GdkEventKey     *event,
                                         gpointer         user_data);

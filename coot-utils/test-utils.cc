@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 #include "clipper/core/rotation.h"
 
@@ -162,7 +163,7 @@ void test_lsq_improve() {
 	 // mol_2->WritePDBASCII("lsq-improved.pdb");
 	 
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
       }
    }
@@ -589,6 +590,32 @@ void density_for_atoms_multithread(int thread_index,
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
+int test_nxmap_simple(int argc, char **argv) {
+
+   int status = 0;
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      // Happy path
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+      clipper::NXmap<float> nxmap = coot::util::make_nxmap(xmap, asc);
+
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("nxmap.map");
+      mapout.set_cell(xmap.cell());
+      mapout.export_nxmap(nxmap);
+      mapout.close_write();
+   }
+   return 1;
+}
+
 int test_nxmap(int argc, char **argv) {
 
    int status = 0;
@@ -700,6 +727,21 @@ int test_nxmap(int argc, char **argv) {
 
 }
 
+void
+nxmap_fft_to(const clipper::Xmap<float> &xmap,
+	     clipper::HKL_data<clipper::data32::F_phi> &fphidata) {
+
+   float mg = coot::util::max_gridding(xmap);
+   clipper::Resolution reso(2.0 * mg);
+   clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
+   // clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   fphidata.init(myhkl, xmap.cell());
+
+   // clipper::Xmap<float> xmap = somehow nxmap-to-xmap
+
+   xmap.fft_to(fphidata);
+}
+
 int
 test_nxmap_edcalc(int argc, char **argv) {
 
@@ -731,10 +773,12 @@ test_nxmap_edcalc(int argc, char **argv) {
       spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
 
       std::cout << "Making nxmap... " << std::endl;
-      clipper::NXmap<float> nxmap_ref = coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
+      clipper::NXmap<float> nxmap_ref =
+	 coot::util::make_nxmap(xmap, asc.mol, few_residues_selection_handle);
       std::cout << "ED calc..." << std::endl;
-      clipper::NXmap<float> nxmap_edcalc = coot::util::make_edcalc_map(nxmap_ref,  // for metrics
-								       asc.mol, few_residues_selection_handle);
+      clipper::NXmap<float> nxmap_edcalc =
+	 coot::util::make_edcalc_map(nxmap_ref,  // for metrics
+				     asc.mol, few_residues_selection_handle);
 
       asc.mol->DeleteSelection(few_residues_selection_handle);
 
@@ -749,6 +793,43 @@ test_nxmap_edcalc(int argc, char **argv) {
       mapout.set_cell(xmap.cell());
       mapout.export_nxmap(nxmap_ref);
       mapout.close_write();
+
+      clipper::HKL_data<clipper::data32::F_phi> fphi_calc;
+      clipper::HKL_data<clipper::data32::F_phi> fphi_ref;
+
+      std::cout << "fft-calc" << std::endl;
+      nxmap_fft_to(xmap, fphi_calc);
+
+      // how do I make an xmap from an nxmap for ref? Too hard for now.
+
+      std::cout << "fft-ref" << std::endl;
+      nxmap_fft_to(xmap, fphi_ref);
+
+      std::cout << "done ffts" << std::endl;
+      int n_f_calc = fphi_calc.data_size();
+      int n_f_ref  = fphi_ref.data_size();
+
+      // std::cout << "info:: n_f_calc " << fphi_calc.debug() << std::endl;
+      // std::cout << "info:: n_f_ref  " << n_f_ref  << std::endl;
+
+      // fphi_calc.debug();
+      // fphi_ref.debug();
+
+      int count = 0;
+      clipper::HKL_info::HKL_reference_index hri;
+
+      hri = fphi_calc.first();
+      if (hri.last()) {
+	 std::cout << "booo... first is last " << std::endl;
+      }
+      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+	 std::cout << "   " << fphi_calc[hri].f() << " " << fphi_ref[hri].f()
+		   << std::endl;
+
+	 count++;
+	 if (count == 10)
+	    break;
+      }
 
       // bricks
 
@@ -784,6 +865,50 @@ test_nxmap_edcalc(int argc, char **argv) {
    }
    return 1;
 }
+
+int
+test_xmap_edcalc(int argc, char **argv) {
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      // now a few residues
+      coot::residue_spec_t spec_1("A", 10, "");
+      coot::residue_spec_t spec_2("A", 11, "");
+      coot::residue_spec_t spec_3("A", 12, "");
+      coot::residue_spec_t spec_4("A", 13, "");
+      coot::residue_spec_t spec_5("A", 14, "");
+
+      int few_residues_selection_handle = asc.mol->NewSelection();
+
+      spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
+      spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      clipper::Xmap<float> calc_atom_map(mmdb::Manager *mol,
+					 int atom_selection_handle, 
+					 const clipper::Cell &cell,
+					 const clipper::Spacegroup &space_group,
+					 const clipper::Grid_sampling &sampling);
+
+      asc.mol->DeleteSelection(few_residues_selection_handle);
+
+   }
+
+   return 0;
+}
+
 
 int
 test_string_split() {
@@ -911,10 +1036,210 @@ test_merge_fragments(int argc, char **argv) {
    return 1;
 }
 
+#include <fstream>
+
+int
+test_make_a_difference_map(int argc, char **argv) {
+
+   // This function is for all map and all model - not a model selection
+   // that is quite a bit more tricky.
+
+   // B-factor scaling:
+   // <f^2> = k <Fo^2> * exp(-2B * r)
+   //    where r = 1/d^2 where d is in A.
+   // -2B * r + ln(k) = log(<f^2>/<Fo^2>)
+
+   int status = 1;
+
+   if (argc <= 2) {
+      std::cout << "Usage: " << argv[0] << " map_file_name pdb_file_name" << std::endl;
+   } else {
+
+      // ----- 1 ------------------ Parse
+
+      std::string map_file_name = argv[1];
+      std::string pdb_file_name = argv[2];
+      clipper::CCP4MAPfile file;
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+
+      // Matching structure factors on an atom selection is a different function.
+      //
+      // now a few residues
+      // coot::residue_spec_t spec_1("A", 10, "");
+      // coot::residue_spec_t spec_2("A", 11, "");
+      // int few_residues_selection_handle = asc.mol->NewSelection();
+      // spec_1.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_NEW);
+      // spec_2.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      // spec_3.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      // spec_4.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+      // spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
+
+      // ----- 2 ------------------ Make Calc Map
+
+      auto tp_0 = std::chrono::high_resolution_clock::now();
+      clipper::Xmap<float> xmap_calc = coot::util::calc_atom_map(asc.mol,
+					                         asc.SelectionHandle,
+					                         xmap.cell(),
+					                         xmap.spacegroup(),
+					                         xmap.grid_sampling());
+
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      if (true) {
+         clipper::CCP4MAPfile outmapfile;
+         outmapfile.open_write("test-calc.map");
+         outmapfile.export_xmap(xmap_calc);
+         outmapfile.close_write();
+      }
+
+
+      if (false) {
+	 xmap_calc = xmap;
+         clipper::Xmap_base::Map_reference_index ix;
+         for (ix = xmap_calc.first(); !ix.last(); ix.next() ) {
+	    xmap_calc[ix] = xmap[ix] * 2.0 + 0.11;
+	 }
+      }
+
+      // ----- 3 ------------------ Get Amp vs Reso data for B-factor from map
+
+      std::vector<coot::amplitude_vs_resolution_point> pts_ref  = coot::util::amplitude_vs_resolution(xmap,      15);
+      std::vector<coot::amplitude_vs_resolution_point> pts_calc = coot::util::amplitude_vs_resolution(xmap_calc, 15);
+
+      if (true) { // debugging B-factor estimation
+	 for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
+            std::cout << "pts_ref " << pts_ref[ii].average << " " << pts_ref[ii].resolution_recip << std::endl;
+	 }
+	 for (unsigned int ii=0; ii< pts_ref.size(); ii++) {
+            std::cout << "pts_calc " << pts_calc[ii].average << " " << pts_calc[ii].resolution_recip << std::endl;
+	 }
+      }
+
+
+      // ----- 4 ------------------ Get B-factors from maps
+
+      // asc.mol->DeleteSelection(few_residues_selection_handle);
+
+      // clipper::HKL_data<clipper::data32::F_phi> fphi_calc;
+      // clipper::HKL_data<clipper::data32::F_phi> fphi_ref;
+
+      clipper::Resolution reso(1.06);
+      float reso_min_for_scaling = 0.05; // 4.47A or so is the minimum resolution
+                                         // for B-factor scaling
+                                         // If there are only data below that
+                                         // then use simple (1 parameter) scaling.
+      double reso_max = 0.29; // inv res sq., calculate this from an analysis of the map f values
+      reso_max = 0.89; // 1pwg
+
+      std::pair<bool, float> reso_low_invresolsq(true, 0.05);
+      std::pair<bool, float> reso_high_invresolsq(true, reso_max);
+
+      float b1 = coot::util::b_factor(pts_ref,  reso_low_invresolsq, reso_high_invresolsq);
+      float b2 = coot::util::b_factor(pts_calc, reso_low_invresolsq, reso_high_invresolsq);
+
+      std::cout << "b1 " << b1 << " b2 " << b2 << std::endl;
+
+      // ----- 5 ------------------ Calculate Structure Factors
+
+      clipper::HKL_info myhkl(xmap.spacegroup(), xmap.cell(), reso, true);
+
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphi_calc(myhkl);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphi_ref(myhkl);
+
+      std::cout << "fft-calc" << std::endl;
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      xmap_calc.fft_to(fphi_calc);
+
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      std::cout << "fft-ref" << std::endl;
+      xmap.fft_to(fphi_ref);
+      auto tp_4 = std::chrono::high_resolution_clock::now();
+
+      int count = 0;
+      clipper::HKL_info::HKL_reference_index hri;
+      hri = fphi_calc.first();
+      if (hri.last()) {
+	 std::cout << "booo... first is last " << std::endl;
+      }
+      if (true) { // just check that the SFS contain data
+         for (hri = fphi_ref.first(); !hri.last(); hri.next()) {
+	    std::cout << "   " << hri.hkl().format() << " " << fphi_ref[hri].f() << " " << fphi_ref[hri].phi()
+		      << std::endl;
+	    count++;
+	    if (count == 10)
+	       break;
+         }
+         count = 0;
+         for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+	    std::cout << "   " << hri.hkl().format() << " " << fphi_calc[hri].f() << " " << fphi_calc[hri].phi()
+		      << std::endl;
+	    count++;
+	    if (count == 10)
+	       break;
+         }
+      }
+
+      // ----- 6 ------------------ Scale and get stats for R-factor
+
+      double sum_f_ref  = 0.0;
+      double sum_f_calc = 0.0;
+
+      const unsigned int n_bins = 20;
+
+      // if these are data from an mtz say, we'd need to check for isnan, but it's from a map
+      // so there is no nan data.
+
+      std::vector<double> sum_fo(n_bins, 0.0);
+      std::vector<double> sum_fc(n_bins, 0.0);
+      std::vector<unsigned int> counts(n_bins, 0);
+
+      for (hri = fphi_calc.first(); !hri.last(); hri.next()) {
+	 if (hri.hkl() != clipper::HKL(0,0,0)) {
+	    float irs = hri.invresolsq();
+	    if (irs < reso_max) {
+	       int bin_idx = static_cast<int>(static_cast<float>(n_bins) * irs/reso_max);
+	       if (bin_idx == n_bins) bin_idx--;
+	       if (irs >= reso_min_for_scaling) {
+		  sum_fc[bin_idx] += fabs(fphi_calc[hri].f());
+		  counts[bin_idx]++;
+	       }
+	    }
+	 }
+      }
+
+      for (hri = fphi_ref.first(); !hri.last(); hri.next()) {
+	 if (hri.hkl() != clipper::HKL(0,0,0)) {
+	    float irs = hri.invresolsq();
+	    if (irs < reso_max) {
+	       int bin_no = static_cast<int>(n_bins * irs/reso_max);
+	       if (bin_no == n_bins) bin_no--;
+	       if (irs >= reso_min_for_scaling)
+		  sum_fo[bin_no] += fabs(fphi_ref[hri].f());
+	    }
+	 }
+      }
+
+      for (std::size_t i=0; i<n_bins; i++) {
+	 float bin_reso = reso_max * (static_cast<float>(i)/static_cast<float>(n_bins) + 0.5);
+	 if (counts[i] > 0) {
+	    std::cout << i << " " << bin_reso << " "
+		      << sum_fo[i]/static_cast<float>(counts[i]) << " "
+		      << sum_fc[i]/static_cast<float>(counts[i]) << " "
+		      << sum_fo[i]/sum_fc[i] << "\n";
+	 }
+      }
+   }
+   return status;
+}
+
+
 
 int main(int argc, char **argv) {
 
-   if (1)
+   if (0)
       test_all_atom_overlaps();
 
    if (0)
@@ -955,14 +1280,11 @@ int main(int argc, char **argv) {
    if (0)
       test_reduce();
 
-//    if (true)
-//       test_cp();
+   if (false)
+       test_cp();
 
    if (false)
       test_soi(argc, argv);
-
-   if (false)
-      test_nxmap(argc, argv);
 
    if (false)
       test_bonded_atoms(argc, argv);
@@ -971,13 +1293,22 @@ int main(int argc, char **argv) {
       test_string_split();
    
    if (false)
+      test_xmap_edcalc(argc, argv);
+
+   if (false)
       test_nxmap_edcalc(argc, argv);
 
    if (false)
       test_helix_like(argc, argv);
 
-   if (true)
+   if (false)
       test_merge_fragments(argc, argv);
+
+   if (false)
+      test_make_a_difference_map(argc, argv);
+
+   if (true)
+      test_nxmap_simple(argc, argv);
 
    return 0;
 }

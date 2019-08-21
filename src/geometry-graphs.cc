@@ -159,6 +159,10 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
    graph_label += coot::util::int_to_string(imol);
    graph_label += ": ";
    graph_label += graph_label_in;
+   if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
+      graph_label += " fit vs. Map ";
+      graph_label += coot::util::int_to_string(imol_refinement_map());
+   }
 
    // set the window title:
    std::string title("Graph");

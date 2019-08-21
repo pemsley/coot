@@ -5954,7 +5954,6 @@ int
 molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
                                               int start_resno, int last_resno, int offset) {
 
-
    int status = 0;
 
    // PDBCleanup(mmdb::PDBCLEAN_SERIAL) doesn't move the residue to
@@ -7521,7 +7520,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 
    if (atom_sel.n_selected_atoms > 0) {
 
-      if (use_resno_range == 1) {
+      if (use_resno_range) {
 
 	 std::pair<int, std::string> r =
 	    change_chain_id_with_residue_range(from_chain_id, to_chain_id, start_resno, end_resno);
@@ -7531,7 +7530,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
       } else {
       // The usual case, I imagine
 
-	 short int target_chain_id_exists = 0;
+	 bool target_chain_id_exists = false;
 
 	 int n_models = atom_sel.mol->GetNumberOfModels();
 	 for (int imod=1; imod<=n_models; imod++) {
@@ -7554,7 +7553,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 		  } else {
 		     std::string chain_id = chain_p->GetChainID();
 		     if (to_chain_id == chain_id) {
-			target_chain_id_exists = 1;
+			target_chain_id_exists = true;
 			break;
 		     }
 		  }
@@ -7562,7 +7561,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	    }
 	 }
 
-	 if (target_chain_id_exists == 0) {
+	 if (!target_chain_id_exists) {
 
 	    int n_models = atom_sel.mol->GetNumberOfModels();
 	    for (int imod=1; imod<=n_models; imod++) {
@@ -7609,6 +7608,13 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	       if (chain_p_to) {
 		  std::pair<bool, int> min_r_1 = coot::util::min_resno_in_chain(chain_p_from);
 		  std::pair<bool, int> max_r_1 = coot::util::max_resno_in_chain(chain_p_from);
+
+                  if (false) {
+                     std::cout << "--------- here with min_r_1  " << min_r_1.first << " " << min_r_1.second << std::endl;
+                     std::cout << "--------- here with max_r_1  " << max_r_1.first << " " << max_r_1.second << std::endl;
+                     std::cout << "--------- here with from_chain_id " << from_chain_id << std::endl;
+                     std::cout << "--------- here with to_chain_id " << to_chain_id << std::endl;
+                  }
 
 		  if (min_r_1.first) {
 		     if (max_r_1.first) {

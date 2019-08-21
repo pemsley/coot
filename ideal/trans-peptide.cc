@@ -86,31 +86,12 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 				 			   
 			if (pdb_atom_name_4 == " CA ") {
 
-			   int index1 = get_asc_index(atom_1_sel[ifat]->name,
-						      atom_1_sel[ifat]->altLoc,
-						      atom_1_sel[ifat]->residue->seqNum,
-						      atom_1_sel[ifat]->GetInsCode(),
-						      atom_1_sel[ifat]->GetChainID());
-			
-			   int index2 = get_asc_index(atom_2_sel[isat]->name,
-						      atom_2_sel[isat]->altLoc,
-						      atom_2_sel[isat]->residue->seqNum,
-						      atom_2_sel[isat]->GetInsCode(),
-						      atom_2_sel[isat]->GetChainID());
+			   int index1 = get_asc_index(atom_1_sel[ifat]);
+			   int index2 = get_asc_index(atom_2_sel[isat]);
+			   int index3 = get_asc_index(atom_3_sel[itat]);
+			   int index4 = get_asc_index(atom_4_sel[iffat]);
 
-			   int index3 = get_asc_index(atom_3_sel[itat]->name,
-						      atom_3_sel[itat]->altLoc,
-						      atom_3_sel[itat]->residue->seqNum,
-						      atom_3_sel[itat]->GetInsCode(),
-						      atom_3_sel[itat]->GetChainID());
-
-			   int index4 = get_asc_index(atom_4_sel[iffat]->name,
-						      atom_4_sel[iffat]->altLoc,
-						      atom_4_sel[iffat]->residue->seqNum,
-						      atom_4_sel[iffat]->GetInsCode(),
-						      atom_4_sel[iffat]->residue->GetChainID());
-
-			   if (false) 
+			   if (false)
 			      std::cout << "trans-peptide restraint.... "
 					<< " from atoms \n    "
 					<< atom_1_sel[ifat]->name << " " 
@@ -145,14 +126,25 @@ coot::restraints_container_t::add_link_trans_peptide(mmdb::Residue *first,
 				    if (other_fixed_flags[ii])
 				       fixed_flags[ii] = true;
 
-				 if (none_are_fixed_p(fixed_flags)) {
 
-				    if (false) {
+				 // why did I have this test here?
+				 //
+				 // if (none_are_fixed_p(fixed_flags)) ...
+				 //
+				 // it seems that I didn't want to make trans restraints if there
+				 // were fixed atoms in the restraint.
+				 // I am now (20190528) not convinced that that's such a bad idea
+				 // So now I enable trans-peptide links to residues with fixed atoms
+
+				 if (true) {
+
+				    if (false) { // debug
 				       std::cout << "debug:: making trans-peptide restraint with fixed flags: ";
 				       for (std::size_t jj=0; jj<fixed_flags.size(); jj++)
 					  std::cout << " " << fixed_flags[jj];
 				       std::cout << std::endl;
 				    }
+
 				    double target_omega = 180.0;
 				    double esd = 2.0; // 5.0 lets slip 72A in 2bmd to trans
 				    // esd = 0.2; // 20171228 trial - does this beat the plane restraints?

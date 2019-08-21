@@ -40,6 +40,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 					    short int is_fixed_second,
 					    const coot::protein_geometry &geom) {
 
+   bool debug = false;
 
    mmdb::PPAtom first_sel;
    mmdb::PPAtom second_sel;
@@ -58,13 +59,15 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
       std::cout << "no atoms in second residue!? " << std::endl;
    }
 
-//    std::cout << "INFO:: geom.link_size() is " << geom.link_size() << std::endl;
-//    std::cout << "first residue:\n";
-//    for (int i=0; i<n_first_res_atoms; i++)
-//       std::cout << "    " << first_sel[i]->name  << " " << first_sel[i]->GetSeqNum() << "\n";
-//    std::cout << "second residue:\n";
-//    for (int i=0; i<n_second_res_atoms; i++)
-//       std::cout << "    " << second_sel[i]->name  << " " << second_sel[i]->GetSeqNum() << "\n";
+   if (debug) {
+      std::cout << "INFO:: geom.link_size() is " << geom.link_size() << std::endl;
+      std::cout << "first residue:\n";
+      for (int i=0; i<n_first_res_atoms; i++)
+	 std::cout << "    " << first_sel[i]->name  << " " << first_sel[i]->GetSeqNum() << "\n";
+      std::cout << "second residue:\n";
+      for (int i=0; i<n_second_res_atoms; i++)
+	 std::cout << "    " << second_sel[i]->name  << " " << second_sel[i]->GetSeqNum() << "\n";
+   }
 
    int nbond = 0;
    for (int i=0; i<geom.link_size(); i++) {
@@ -87,12 +90,13 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 
 		     if (pdb_atom_name_2 == geom.link(i).link_bond_restraint[j].atom_id_2_4c()) {
 
-//   			std::cout << "DEBUG::  adding " << link_type << " bond for "
-// 				  << first->seqNum
-//    				  << " -> " << second->seqNum << " atoms " 
-// 				  << first_sel [ifat]->GetAtomName() << " to "
-// 				  << second_sel[isat]->GetAtomName() 
-// 				  << std::endl;
+			if (debug)
+			   std::cout << "DEBUG::  adding " << link_type << " bond for "
+				     << first->seqNum
+				     << " -> " << second->seqNum << " atoms "
+				     << first_sel [ifat]->GetAtomName() << " to "
+				     << second_sel[isat]->GetAtomName()
+				     << std::endl;
 
 			// Now, do the alt confs match?
 			//
@@ -106,8 +110,8 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 			   // set the UDD flag for this residue being bonded/angle with 
 			   // the other
 
-			   bonded_atom_indices[index1].push_back(index2);
-			   bonded_atom_indices[index2].push_back(index1);
+			   bonded_atom_indices[index1].insert(index2);
+			   bonded_atom_indices[index2].insert(index1);
 
 			   fixed_atom_flags[0] = is_fixed_first;
 			   fixed_atom_flags[1] = is_fixed_second;
@@ -286,8 +290,8 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 				 }
 
 			     
-				 bonded_atom_indices[index1].push_back(index3);
-				 bonded_atom_indices[index3].push_back(index1);
+				 bonded_atom_indices[index1].insert(index3);
+				 bonded_atom_indices[index3].insert(index1);
 
 				 std::vector<bool> other_fixed_flags = make_fixed_flags(index1,
 											index2,
@@ -584,7 +588,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
    coot::bonded_pair_container_t bonded_residue_pairs =
       bonded_residues_conventional(selHnd, geom);
 
-   if (0) 
+   if (0)
       std::cout << "debug -------- in make_link_restraints_by_linear() "
 		<< bonded_residue_pairs.size() << " bonded residue pairs "
 		<< std::endl;
@@ -610,18 +614,27 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
    bool debug = false;
    // this determines the link type
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
    bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   std::cout << "INFO:: Timing for bonded_residues_from_res_vec " << d10 << " milliseconds" << std::endl;
 
    if (false) {
       std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
 		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
       for (std::size_t i=0; i<bonded_residue_pairs.size(); i++) {
 	 const bonded_pair_t &bp = bonded_residue_pairs.bonded_residues[i];
-	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2) << std::endl;
+	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2)
+		   << std::endl;
       }
    }
 
+   auto tp_2 = std::chrono::high_resolution_clock::now();
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   std::cout << "INFO:: Timing for make_link_restraints_by_pairs " << d32 << " milliseconds" << std::endl;
 
    if (do_rama_plot_restraints)
       add_rama_links_from_res_vec(bonded_residue_pairs, geom);

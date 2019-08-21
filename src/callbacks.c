@@ -274,19 +274,19 @@ on_density_ok_button_clicked           (GtkButton       *button,
 
 /*    entry_char_type *text; */
    const char *text;
-   int imol = 0;		/*  FIXME */
 
-   entry = (GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "entry1")));
-   text = gtk_entry_get_text(entry);
+   GtkEntry *entry_xray = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_xray_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_em_entry"));
+   const char *text_xray = gtk_entry_get_text(entry_xray);
+   const char *text_em   = gtk_entry_get_text(entry_em);
+   int imol = -1;
 
- /*   printf("We found entry text: %s\n", text); */
-
-   set_density_size_from_widget(text);
+   set_density_size_from_widget(text_xray);
+   set_density_size_em_from_widget(text_em);
 
    /* Now the increment of the iso level entry */
 
-   entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button),
-				   "iso_level_increment_entry"));
+   entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "iso_level_increment_entry"));
 
    text = gtk_entry_get_text(entry);
 
@@ -332,13 +332,14 @@ on_density_size1_activate              (GtkMenuItem     *menuitem,
    density_window = create_global_map_properties_window();
    entry = lookup_widget(density_window, "entry1");
 
+   GtkEntry *entry_xray = GTK_ENTRY(lookup_widget(GTK_WIDGET(density_window), "map_radius_xray_entry"));
+   GtkEntry *entry_em   = GTK_ENTRY(lookup_widget(GTK_WIDGET(density_window), "map_radius_em_entry"));
    text = get_text_for_density_size_widget(); /* const gchar *text */
-
-  /* Question to self: is this GTK_ENTRY necessary
-     if entry is an GtkEntry? */
-   gtk_entry_set_text(GTK_ENTRY(entry), text);
-
+   gtk_entry_set_text(entry_xray, text);
+   text = get_text_for_density_size_em_widget(); /* const gchar *text */
+   gtk_entry_set_text(entry_em, text);
    free (text);
+   text = 0;
 
  /* Now the iso level increment entry  */
 
@@ -1835,12 +1836,17 @@ on_find_ligand_ok_button_clicked       (GtkButton       *button,
 {
    GtkWidget *window;
 
-   execute_get_mols_ligand_search(GTK_WIDGET(button));
-				/* which then runs
-				   execute_ligand_search */
-   window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
-   free_ligand_search_user_data(GTK_WIDGET(button));
-   gtk_widget_destroy(window);
+   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
+			                    	/* which then runs
+				                   execute_ligand_search */
+
+   if (n_ligands > 0) {
+     window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
+     free_ligand_search_user_data(GTK_WIDGET(button));
+     gtk_widget_destroy(window);
+   } else {
+     info_dialog("WARNING:: No ligands were selected");
+   }
 }
 
 
@@ -1936,11 +1942,12 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
 {
   GtkWidget *widget;
   GtkWidget *combobox;
-  GCallback callback_func = G_CALLBACK(save_molecule_coords_button_select);
+  GCallback callback_func = G_CALLBACK(save_molecule_coords_combobox_changed);
   int imol = first_coords_imol();
   int imol_unsaved = first_unsaved_coords_imol();
   if (imol_unsaved != -1)
     imol = imol_unsaved;
+  printf("in on_save_coordinates1_activate() with imol_unsaved %d\n", imol_unsaved);
   set_save_molecule_number(imol); /* set *save* molecule number */
 
   widget = create_save_coords_dialog();
@@ -3569,8 +3576,7 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
 
-  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
-				    "pointer_atom_type_dialog");
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_dialog");
   GtkToggleButton *tbut;
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_other_entry");
@@ -9041,7 +9047,7 @@ on_entry1_key_press_event              (GtkWidget       *widget,
                                         GdkEventKey     *event,
                                         gpointer         user_data)
 {
-  GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "entry1")));
+  GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "map_radius_xray_entry")));
   const char *text = gtk_entry_get_text(entry);
   if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
     set_density_size_from_widget(text);
@@ -9054,7 +9060,7 @@ void
 on_map_radius_apply_button_clicked     (GtkButton       *button,
                                         gpointer         user_data)
 {
-   GtkEntry *entry = (GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "entry1")));
+   GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_xray_entry"));
    const char *text = gtk_entry_get_text(entry);
    set_density_size_from_widget(text);
 }
@@ -12073,16 +12079,21 @@ on_export_map_filechooserdialog_response
                                         gint             response_id,
 					 gpointer         user_data) {
 
-  int imol_map;
-  int is_map_fragment;
-  char *txt;
-  const char *filename;
+  int imol_map = -1;
+  int is_map_fragment = 0;
+  char *txt = 0;
+  const char *filename = 0;
 
   if (response_id == GTK_RESPONSE_OK) {
-    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
+    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number")); 
     is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
-    txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
-    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+    if (is_map_fragment) {
+      txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
+    }
+
+    if (GTK_IS_FILE_CHOOSER(dialog)) {
+      filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+    }
 
     if (is_map_fragment) {
       export_map_fragment_with_text_radius(imol_map, txt, filename);
@@ -12545,9 +12556,94 @@ on_symmetry_always_on_checkbutton_toggled (GtkToggleButton *togglebutton,
 void
 on_curlew1_activate              (GtkMenuItem     *menuitem,
                                   gpointer         user_data) {
-
   curlew();
+}
 
+void
+on_show_symmetry_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data) {
+
+  if (gtk_toggle_button_get_active(togglebutton)) {
+      set_show_symmetry_master(0);
+  }
+}
+
+
+void
+on_show_symmetry_yes_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (gtk_toggle_button_get_active(togglebutton)) {
+      set_show_symmetry_master(1);
+  }
+}
+
+
+gboolean
+on_symmetry_radius_entry_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  const char *text;
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter) {
+    text = gtk_entry_get_text(GTK_ENTRY(widget));
+    set_symmetry_size_from_widget(text);
+  }
+  return TRUE;
+}
+
+
+void
+on_hscale_symmetry_colour_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data)
+{
+  gdouble f = gtk_range_get_value(range);
+  set_symmetry_colour_merge(f);
+}
+
+
+void
+on_show_symmetry_expanded_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+     set_symmetry_atom_labels_expanded(1);
+   else
+     set_symmetry_atom_labels_expanded(0);
+}
+
+
+void
+on_map_radius_em_button_clicked        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+
+  GtkEntry *entry = GTK_ENTRY(lookup_widget(GTK_WIDGET(button), "map_radius_em_entry"));
+  const char *text = gtk_entry_get_text(entry);
+  printf("set_density_size_em_from_widget() %s\n", text);
+  set_density_size_em_from_widget(text);
+}
+
+
+gboolean
+on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  GtkEntry *entry = (GTK_ENTRY(lookup_widget(widget, "map_radius_em_entry")));
+  const char *text = gtk_entry_get_text(entry);
+  if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
+    set_density_size_em_from_widget(text);
+  return FALSE;
 }
 
 on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,

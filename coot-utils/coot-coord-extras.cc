@@ -543,7 +543,7 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 				       tors.second * 180/M_PI);
 	 status = 1; // may not happen if set_dihedral() throws an exception
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // std::cout << "WARNING tree-based setting dihedral failed, " << rte.what() << std::endl;
       } 
    }
@@ -601,7 +601,7 @@ coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &movi
       }
       status = 1;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    } 
    return std::pair<bool, double> (status, new_angle * M_PI/180.0);

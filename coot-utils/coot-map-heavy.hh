@@ -33,6 +33,12 @@
 
 namespace coot {
 
+   std::vector<std::pair<clipper::Xmap<float>::Map_reference_index, clipper::Xmap<float>::Map_reference_index> >
+   make_map_reference_index_start_stops(const clipper::Xmap<float> &xmap, int n_threads);
+
+   std::vector<std::pair<clipper::NXmap<float>::Map_reference_index, clipper::NXmap<float>::Map_reference_index> >
+   make_map_reference_index_start_stops(const clipper::NXmap<float> &nxmap, int n_threads);
+
    namespace util { 
 
 #ifdef HAVE_GSL
@@ -179,6 +185,13 @@ namespace coot {
       clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, atom_selection_container_t asc, float border=3.0);
 
       clipper::NXmap<float> make_nxmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol, int SelectionHandle, float border=3.0);
+
+
+      // the EM version doesn't use the model
+      clipper::NXmap<float> make_nxmap_from_EM_P1_map(const clipper::Xmap<float> &xmap);
+
+      clipper::NXmap<float> make_nxmap_from_xmap(const clipper::Xmap<float> &xmap, mmdb::Manager *mol,
+                                                 int SelectionHandle, float border);
 
       //
       clipper::NXmap<float> make_edcalc_map(const clipper::NXmap<float>& map_ref,  // for metrics

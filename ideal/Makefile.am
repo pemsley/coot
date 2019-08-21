@@ -30,7 +30,7 @@ EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
 	regularize-minimol.hh lograma.h zo-rama.hh phi-psi.hh \
 	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh \
-        refinement-lights.hh refinement-results-t.hh rama-types.hh
+        refinement-lights.hh refinement-results-t.hh rama-types.hh new-linked-residue-t.hh
 
 pkgincludedir = $(includedir)/coot/ideal
 
@@ -72,7 +72,7 @@ libcoot_ideal_la_LIBADD =                 \
    $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS) $(LIBPNG_LIBS)
 
 
-libcoot_ideal_la_SOURCES = simple-restraint.cc \
+libcoot_ideal_la_SOURCES = simple-restraint.cc ng.cc \
 	mods.cc distortion.cc chirals.cc flanking.cc gradients.cc extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp process-dfs-in-range.cc process-dfs-in-range.hh \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \

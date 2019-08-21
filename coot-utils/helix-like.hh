@@ -5,7 +5,7 @@
 
 namespace coot {
 
-   // select the residue in a chain and call this for every chain
+   // select the residues in a chain and call this for every chain
    // in the molecule.
    void like_a_helix(mmdb::Manager *mol, int selection_handle);
 

@@ -215,7 +215,7 @@ graphics_info_t::init() {
       generic_texts_p = new std::vector<coot::generic_text_object_t>;
 
       // views
-      views = new std::vector<coot::view_info_t>;
+      // views = new std::vector<coot::view_info_t>; // not a pointer any more - hooray.
 
       // glob extensions:
       coordinates_glob_extensions = new std::vector<std::string>;
