@@ -3283,42 +3283,30 @@ molecule_class_info_t::label_symmetry_atom(int i) {
 
       if (i_unsigned < labelled_symm_atom_index_list.size()) {
 
-    int iatom_index = labelled_symm_atom_index_list[i];
+         int iatom_index = labelled_symm_atom_index_list[i];
 
-    if (iatom_index < atom_sel.n_selected_atoms) {
+         if (iatom_index < atom_sel.n_selected_atoms) {
 
-       // look at translate_atom_with_pre_shift(), it translate
-       // the negative of the passed translation, so print the
-       // negative.
-       //
-       std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
-       std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
-       std::string label =
-          make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
-
-	    // look at translate_atom_with_pre_shift(), it translate
-	    // the negative of the passed translation, so print the
-	    // negative.
-	    //
-	    std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
-	    std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
-	    std::string label =
-	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
+            // look at translate_atom_with_pre_shift(), it translate
+            // the negative of the passed translation, so print the
+            // negative.
+            //
+            std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
+            std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
+            std::string label = make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
 
 	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
-
 	    glColor3fv(blueish);
-
 	    coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
 
 // 	    glRasterPos3f(symm_point.get_x(),
 // 			  symm_point.get_y()+0.02,
 // 			  symm_point.get_z()+0.02);
 
-       graphics_info_t::printString(label,
-    symm_point.get_x(),
-    symm_point.get_y()+0.02,
-    symm_point.get_z()+0.02);
+            graphics_info_t::printString(label,
+                                         symm_point.get_x(),
+                                         symm_point.get_y()+0.02,
+                                         symm_point.get_z()+0.02);
     }
       }
    }
