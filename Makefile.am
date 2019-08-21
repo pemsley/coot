@@ -67,7 +67,6 @@ EXTRA_DIST = 		\
 	guile.supp	\
 	windows/syminfo.lib	\
 	fix-cif-loops.awk       \
-        fixup-interface.h.sh \
 	ifdef-for-create-aboutdialog.awk \
 	mtrix-to-ncs-matrix.awk  \
 	RELEASE-NOTES	         \
