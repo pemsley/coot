@@ -1651,7 +1651,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		     // will return a peptide link (for links that were not made before (perhaps because
 		     // missing atoms)).
 		     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
-			std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraints "
+			std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
 				  << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
 				  << " with type " << lt.first << " and order switch " << lt.second
 				  << std::endl;
@@ -1728,43 +1728,47 @@ void
 coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit) {
 
    double n_z_for_baddie = 4.0; // must be at least this bad
-   std::vector<std::tuple<unsigned int, double, double> > distortions;
+   std::vector<std::tuple<unsigned int, double, double, double> > distortions;
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
       if (rest.restraint_type == r_type) {
+
+         // distortion and bond length delta
          std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
          double distortion_score = distortion_pair.first;
          if (distortion_score >= interesting_distortion_limit) {
             double n_z = sqrt(distortion_score);
             double bl_delta = distortion_pair.second;
-            std::tuple<unsigned int, double, double> p(i, n_z, bl_delta);
+            std::tuple<unsigned int, double, double, double> p(i, rest.target_value, n_z, bl_delta);
             distortions.push_back(p);
          }
       }
    }
 
   auto distortion_sorter_lambda = // big distortions at the top
-     [] (const std::tuple<unsigned int, double, double> &p1,
-         const std::tuple<unsigned int, double, double> &p2) {
-     return (std::get<1>(p1) > std::get<1>(p2)); };
+     [] (const std::tuple<unsigned int, double, double, double> &p1,
+         const std::tuple<unsigned int, double, double, double> &p2) {
+     return (std::get<2>(p1) > std::get<2>(p2)); };
 
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies) n_baddies = distortions.size();
    for (unsigned int i=0; i<n_baddies; i++) {
-      const simple_restraint &rest = restraints_vec[std::get<0>(distortions[i])];
+      const std::tuple<unsigned int, double, double, double> &t = distortions[i];
+         const simple_restraint &rest = restraints_vec[std::get<0>(t)];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
+      double target_value = std::get<1>(t);
       if (r_type == BOND_RESTRAINT)
          std::cout << "INFO:: Input Model: Very Bad Bond: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " nZ " << sqrt(std::get<1>(distortions[i]))
-                   << " delta " << std::get<2>(distortions[i]) << std::endl;
+                   << " nZ " << sqrt(std::get<2>(distortions[i]))
+                   << " delta " << std::get<3>(distortions[i]) << " target_value " << target_value << std::endl;
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
          std::cout << "INFO:: Input Model: Very Bad Non-Bonded Contact: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " distortion " << std::get<1>(distortions[i])
-                   << " delta " << std::get<2>(distortions[i]) << std::endl;
+                   << " distortion " << std::get<2>(distortions[i])
+                   << " delta " << std::get<3>(distortions[i])  << " target_value " << target_value << std::endl;
       
    }
 

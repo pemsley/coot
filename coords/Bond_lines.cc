@@ -3262,8 +3262,22 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 }
 
 void
-Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
-					  int imodel) {
+Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom, int imodel) {
+
+   do_disulphide_bonds_by_distance(SelAtom, imodel);
+}
+
+
+void
+Bond_lines_container::do_disulphide_bonds_by_header(atom_selection_container_t SelAtom,
+                                                    int imodel) {
+
+   // How do I see the SSBond records?
+}
+
+void
+Bond_lines_container::do_disulphide_bonds_by_distance(atom_selection_container_t SelAtom,
+                                                      int imodel) {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
@@ -3296,10 +3310,12 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 
    SelAtom.mol->GetSelIndex(selHnd2, Sulfur_selection, n_sulfurs);
 
-   if (n_sulfurs > 0) { 
+   float max_SS_bond_length = 2.4;
+
+   if (n_sulfurs > 0) {
       SelAtom.mol->SeekContacts(Sulfur_selection, n_sulfurs,
 				Sulfur_selection, n_sulfurs,
-				0.01, 3.0, // min, max dist.
+				0.01, max_SS_bond_length, // min, max dist.
 				0,         // in same res also.
 				contact, ncontacts, 
 				0, &my_matt, i_contact_group);
@@ -3338,7 +3354,29 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 		      (Sulfur_selection[ contact[i].id1 ]->GetChainID() ==
 		       Sulfur_selection[ contact[i].id2 ]->GetChainID()))) {
 		  int model_number = Sulfur_selection[ contact[i].id1 ]->GetModelNum();
-		  addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
+
+                  // only add this bond if the atom is not already linked to something
+                  // A Zn for example
+
+                  bool is_linked = false;
+                  mmdb::Model *model_p = SelAtom.mol->GetModel(model_number);
+                  int n_links = model_p->GetNumberOfLinks();
+                  if (n_links > 0) {
+                     coot::atom_spec_t SS_atom_1_spec(Sulfur_selection[contact[i].id1]);
+                     coot::atom_spec_t SS_atom_2_spec(Sulfur_selection[contact[i].id2]);
+                     for (int i_link=1; i_link<=n_links; i_link++) {
+                        mmdb::PLink link = model_p->GetLink(i_link);
+                        std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atom_specs = coot::link_atoms(link, model_p);
+                        if (link_atom_specs.first  == SS_atom_1_spec) is_linked = true;
+                        if (link_atom_specs.second == SS_atom_1_spec) is_linked = true;
+                        if (link_atom_specs.first  == SS_atom_2_spec) is_linked = true;
+                        if (link_atom_specs.second == SS_atom_2_spec) is_linked = true;
+                        if (is_linked) break;
+                     }
+                  }
+
+                  if (! is_linked)
+                     addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
 	       }
 	    }
 	 }
@@ -5831,15 +5869,17 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
       bool is_H_flag = false;
       if (is_hydrogen(std::string(SelAtom.atom_selection[i]->element)))
-	 is_H_flag = true;
+         is_H_flag = true;
       if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
-	 graphical_bonds_atom_info_t p(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						       SelAtom.atom_selection[i]->y,
-						       SelAtom.atom_selection[i]->z), i, is_H_flag);
+         mmdb::Atom *at = SelAtom.atom_selection[i];
+         coot::Cartesian pos(at->x, at->y, at->z);
+	 graphical_bonds_atom_info_t p(pos, i, is_H_flag);
+         if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
+            p.radius_scale = 2.0;
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
-	       p.atom_p = SelAtom.atom_selection[i];
+	       p.atom_p = at;
 	       atom_centres.push_back(p);
-	       atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
+	       atom_centres_colour.push_back(atom_colour(at, atom_colour_type));
          }
       }
    }
