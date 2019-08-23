@@ -534,7 +534,7 @@ int updating_refmac_refinement_json_timeout_function(gpointer data) {
 
    int status = 1; // keep going
 
-#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES // using JSON
+#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
 
    if (! data) return 0;
 
@@ -542,7 +542,7 @@ int updating_refmac_refinement_json_timeout_function(gpointer data) {
    std::string json_file_name = *fn;
 
    std::fstream f(json_file_name);
-   if (f) { // Hooray, it arrived.
+   if (f) {
 
       std::string s;
       f.seekg(0, std::ios::end);
@@ -553,13 +553,73 @@ int updating_refmac_refinement_json_timeout_function(gpointer data) {
 	       std::istreambuf_iterator<char>());
       unsigned int n_already_done = 0;
 
+      std::vector<coot::mtz_to_map_info_t> mtz_map_infos;
+
       try {
 	 json j = json::parse(s);
+         json ls = j["animation"];
+         unsigned int n_cycles = ls.size();
 
-	 // on correct parsing, add another timeout function that looks for the files
-	 // in the json file.  Maybe create initially empty molecules to run them
-	 // from? Like make_updating_model_molecule() and make_updating_map() do?
+         std::cout << "n_cycles " << n_cycles << std::endl;
+         std::string mtz_file_name, f_col, phi_col;
+         std::string model_file_name;
 
+         json anim_part_id    = ls["id"];
+         json anim_part_map   = ls["map"];
+         json anim_part_model = ls["model"];
+         json anim_part_x     = ls["xmissing"];
+         std::cout << "map: " << anim_part_map << std::endl;
+         std::cout << "x:   " << anim_part_x   << std::endl;
+
+         if (! anim_part_id.is_null() && !anim_part_model.is_null() && !anim_part_map.is_null()) {
+
+            std::string cycle = anim_part_id;
+            model_file_name = anim_part_model["filepath"];
+            mtz_file_name = anim_part_map["filepath"];
+
+            json column_sets = anim_part_map["columns"];
+            std::size_t n_column_sets = column_sets.size();
+            for (std::size_t i=0; i<n_column_sets; i++) {
+               json col_set = column_sets[i];
+               if (col_set["id"] == "2Fo-Fc") {
+                  std::cout << "Found 2Fo-Fc" << std::endl;
+                  json labels = col_set["labels"];
+                  coot::mtz_to_map_info_t mmi;
+                  mmi.mtz_file_name = mtz_file_name;
+                  mmi.f_col         = labels[0];
+                  mmi.phi_col       = labels[1];
+                  mtz_map_infos.push_back(mmi);
+               }
+               if (col_set["id"] == "Fo-Fc") {
+                  std::cout << "Found Fo-Fc" << std::endl;
+                  json labels = col_set["labels"];
+                  coot::mtz_to_map_info_t mmi;
+                  mmi.mtz_file_name = mtz_file_name;
+                  mmi.f_col         = labels[0];
+                  mmi.phi_col       = labels[1];
+                  mmi.is_difference_map = true;
+                  mtz_map_infos.push_back(mmi);
+               }
+            }
+
+
+            if (true) { // debug
+               std::cout << "Here with cycle: " << cycle << std::endl;
+               std::cout << "Here with model_file_name: " << model_file_name << std::endl;
+               std::cout << "Here with mtz_file_name: " << mtz_file_name << std::endl;
+               for (unsigned int i=0; i<mtz_map_infos.size(); i++)
+                  std::cout << mtz_map_infos[i].mtz_file_name << " " << mtz_map_infos[i].f_col << " " << mtz_map_infos[i].phi_col << std::endl;
+            }
+
+            // OK, but which map and which model needs to be updated?
+            std::cout << "Here are the molecules so far " << std::endl;
+            for (int i=0; i<graphics_n_molecules(); i++) {
+               std::cout << "molecule name " << i << " " << graphics_info_t::molecules[i].name_ << std::endl;
+            }
+
+            // Too much effort. Stop this now. Fix the interface the other way. Using the interface I already had.
+
+         }
       }
       catch(const nlohmann::detail::type_error &e) {
 	 std::cout << "ERROR:: " << e.what() << std::endl;
