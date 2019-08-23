@@ -174,8 +174,8 @@ glm::mat4 get_molecule_mvp() {
    // with narrow depth of field: 5 and 6.
 
    GLfloat near_scale = 0.3;
-   GLfloat far  =      -near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*-0.3 + 0.1);
-   GLfloat near =  0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* -0.3 + 0.1);
+   GLfloat far  =       near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*0.3 + -0.1);
+   GLfloat near = -0.20*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* 0.3 + -0.1);
 
    if (false)
       std::cout << "near: " << near << " far " << far
@@ -187,12 +187,26 @@ glm::mat4 get_molecule_mvp() {
                                             -ortho_size, ortho_size,
                                             near, far); // wrong way round?
 
+   // --------------- again -----------------------
+
+   near = -0.3*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*0.1 - 1.0);
+   far  =      near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* 0.1 - 1.0);
+
+   projection_matrix = glm::ortho(-0.3f*graphics_info_t::zoom*screen_ratio, 0.3f*graphics_info_t::zoom*screen_ratio,
+                                  -0.3f*graphics_info_t::zoom,  0.3f*graphics_info_t::zoom,
+                                  near, far);
+
+   if (false)
+      std::cout << "near " << near << " far " << far << " clipping front "
+                        << graphics_info_t::clipping_front << " back " << graphics_info_t::clipping_back << std::endl;
+
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
    glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
-   view_matrix = glm::scale(view_matrix, sc);
-   view_matrix = glm::translate(view_matrix, -rc);
 
+   glm::vec3 reverse_z(1,1,-1);
+   view_matrix = glm::translate(view_matrix, -rc);
+   // view_matrix = glm::scale(view_matrix, reverse_z); causes weirdness - not sure about handedness
    glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
 
 #if 0
@@ -202,6 +216,8 @@ glm::mat4 get_molecule_mvp() {
    // along screen-Z.
    float fov = 40.0;
    glm::vec3 up(0.0, 1.0, 0.0);
+   // to use perspective properly, we need to know the eye position. We should
+   // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
    glm::vec3 ep(1,2,30);
    // view_matrix = glm::lookAt(glm::vec3(ep), rc, up);
    view_matrix = glm::translate(view_matrix, -0.2 * rc);
@@ -260,7 +276,7 @@ glm::mat4 get_view_rotation() {
 void draw_map_molecules() {
    glLineWidth(1.0f);
    GLenum err = glGetError();
-   if (err) std::cout << "gtk3_draw_molecules() glLineWidth " << err << std::endl;
+   if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
    GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
    glUseProgram(pid);
@@ -292,8 +308,8 @@ void draw_map_molecules() {
                                << " with GL err " << err << std::endl;
 
             // I doubt that I need to do these here:
-            glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID);
+            // glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID); // not needed
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID); // needed - it seems!?
 
             glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
@@ -333,7 +349,6 @@ void draw_map_molecules() {
             if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
                                << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
-            glDisable(GL_BLEND);
             glEnable(GL_BLEND);
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
@@ -371,6 +386,8 @@ void draw_map_molecules() {
 void
 draw_model_molecules() {
 
+   std::cout << "draw_model_molecules" << std::endl;
+
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
 
@@ -385,17 +402,16 @@ draw_model_molecules() {
                    << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
       if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
 
-         glDisable(GL_BLEND);
-         GLuint pid = shader.get_program_id();
-         glUseProgram(pid);
+         glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
+         shader.Use();
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
 
          glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArray_for_model_ID);
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glBindVertexArray() "
-                               << graphics_info_t::molecules[ii].m_VertexArray_for_model_ID
-                               << " with GL err " << err << std::endl;
+                            << graphics_info_t::molecules[ii].m_VertexArray_for_model_ID
+                            << " with GL err " << err << std::endl;
 
          glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBuffer_for_model_ID);
          err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
@@ -498,8 +514,8 @@ draw_molecular_triangles() {
 void
 draw_molecules() {
 
-   draw_model_molecules();
    draw_map_molecules();
+   draw_model_molecules();
    draw_molecular_triangles(); // Martin's renderings
 }
 
@@ -603,10 +619,13 @@ on_glarea_realize(GtkGLArea *glarea) {
    int h = allocation.height;
 
    gtk_gl_area_make_current(glarea);
-   // gtk_gl_area_set_has_alpha(glarea, TRUE);
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
    GLenum err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
+
+   //glEnable(GL_MULTISAMPLE);   // seems not to work at the moment - needs more setup?
+   err = glGetError();
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() A1 err " << err << std::endl;
 
    init_shaders();
    init_buffers();
@@ -667,7 +686,6 @@ on_glarea_render(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    err = glGetError(); if (err) std::cout << "on_glarea_render() post gtk_gl_area_make_current() " << err << std::endl;
 
-   // glBindFramebuffer(GL_FRAMEBUFFER, graphics_info_t::framebuffer_id);
    graphics_info_t::screen_framebuffer.bind();
    err = glGetError(); if (err) std::cout << "on_glarea_render() post screen_buffer bind() " << err << std::endl;
 
@@ -864,8 +882,8 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       double delta_y = event->y - g.GetMouseBeginY();
       double fx = 1.0f +  delta_x/300.0;
       double fy = 1.0f +  delta_y/300.0;
-      if (fx > 0.0) g.zoom *= fx;
-      if (fy > 0.0) g.zoom *= fy;
+      if (fx > 0.0) g.zoom /= fx;
+      if (fy > 0.0) g.zoom /= fy;
       // std::cout << "now zoom: " << g.zoom << std::endl;
    }
 
