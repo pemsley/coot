@@ -130,6 +130,7 @@
 #include "rotate-translate-modes.hh"
 
 #include "change-dir.hh"
+#include "curlew.hh"
 
 void show_citation_request();
 void load_gtk_resources();
@@ -420,6 +421,8 @@ main (int argc, char *argv[]) {
    //
    add_ligand_builder_menu_item_maybe();
 
+   // remove Curlew from the File menu with old compiler?
+   remove_file_curlew_menu_item_maybe();
 
    setup_python(argc, argv);
      

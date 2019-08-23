@@ -109,6 +109,9 @@
 #include "coot-fileselections.h"
 
 // #include "xmap-interface.h"
+
+#define ENABLE_NLS //added to fix libintl.h:51:14: error: expected unqualified-id before ‘const
+                   // error on importing gtk-manual.h - why now? Why this file? - who knows...
 #include "graphics-info.h"
 
 #include "skeleton/BuildCas.h"

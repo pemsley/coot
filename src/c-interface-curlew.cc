@@ -40,6 +40,46 @@ using json = nlohmann::json;
 #include "curlew.hh"
 
 
+void remove_file_curlew_menu_item_maybe() {
+
+#ifdef BUILD_CURLEW
+
+   // OK, keep the menu item in.
+
+#else
+   GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   if (menubar) {
+      // gtk_container_foreach(GTK_CONTAINER(menubar), my_delete_file_curlew_menu_item, menubar);
+
+      GList *dlist_1 = gtk_container_children(GTK_CONTAINER(menubar));
+      while (dlist_1) {
+         GtkWidget *w = static_cast<GtkWidget *>(dlist_1->data);
+         std::string l = gtk_menu_item_get_label(GTK_MENU_ITEM(w));
+         // std::cout << "l: " << l << std::endl;
+         if (l == "_File") {
+            GtkWidget *w_submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(w));
+            GList *dlist_2 = gtk_container_children(GTK_CONTAINER(w_submenu));
+            GtkWidget *curlew_menu = 0;
+            while (dlist_2) {
+               GtkWidget *w_inner = static_cast<GtkWidget *>(dlist_2->data);
+               std::string l_inner = gtk_menu_item_get_label(GTK_MENU_ITEM(w_inner));
+               // std::cout << "l_inner: " << l_inner << std::endl;
+               if (l_inner == "Curlew")
+                  curlew_menu = w_inner;
+               dlist_2 = dlist_2->next;
+            }
+            if (curlew_menu) {
+               gtk_container_remove(GTK_CONTAINER(w_submenu), curlew_menu);
+            }
+         }
+         dlist_1 = dlist_1->next;
+      }
+   } else {
+      std::cout << "WARNING:: remove_file_curlew_menu_item_maybe() ooops no menubar" << std::endl;
+   }
+#endif // BUILD_CURLEW   
+}
+
 // put this in a widget header (maybe its own?)
 GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 						GtkWidget *item_hbox,
@@ -92,7 +132,7 @@ void curlew() {
 	 }
       }
 
-      if (! is_empty) {
+      if (is_empty) {
 	 if (coot::file_exists(dl_fn)) {
 	    std::fstream f(dl_fn);
 	    if (f) {
@@ -204,6 +244,9 @@ void curlew() {
 
    gtk_widget_show(w);
 
+#else
+   // well take out the menu item then!
+   std::cout << "No curlew with old GCC" << std::endl;
 #endif // BUILD_CURLEW
 }
 
