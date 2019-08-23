@@ -1542,6 +1542,9 @@ my_delete_ramachandran_mol_option(GtkWidget *widget, void *data) {
 void
 show_fix_nomenclature_errors_gui(int imol,
 				 const std::vector<std::pair<std::string, coot::residue_spec_t> > &nomenclature_errors) {
+
+   return; // add this hack because this function crashes, I don't know why -fix later.
+
    if (graphics_info_t::use_graphics_interface_flag) {
       if (is_valid_model_molecule(imol)) {
 
@@ -1570,6 +1573,7 @@ show_fix_nomenclature_errors_gui(int imol,
 
 	 if (box) {
 	    // fill box
+            std::cout << "Fix box with " << nomenclature_errors.size() << " nomenclature_errors " << std::endl;
 
 	    for (unsigned int i=0; i<nomenclature_errors.size(); i++) {
 	       s = nomenclature_errors[i].first; // the residue type
