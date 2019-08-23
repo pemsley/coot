@@ -3568,9 +3568,9 @@ if test -n "$build_curl" ; then
    # libcurl_version=7.27.0
    # libcurl_version=7.32.0
    libcurl_version=7.65.3
+   libcurl_version_directory=7_65_3
    # ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
-   ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version/curl-$libcurl_version.tar.gz
-
+   ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version_directory/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
@@ -3583,6 +3583,8 @@ if test -n "$build_curl" ; then
    # is bad because /usr/lib gets in front, and /usr/lib/libidn.so is missing). So here
    # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
    # (lemur).
+   #
+   # this implicitly uses OpenSSL if it can be configured via pkg-config
    #
    echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
