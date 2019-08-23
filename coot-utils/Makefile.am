@@ -67,7 +67,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 # clean
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/geometry/libcoot-geometry.la \
-    $(GSL_LIBS)
+    $(CLIPPER_LIBS) $(GSL_LIBS)
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
