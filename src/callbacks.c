@@ -63,7 +63,7 @@
 #include "positioned-widgets.h"
 
 #include "generic-display-objects-c.h"
-// #include "curlew.h"
+#include "curlew.h"
 
 /* This is our data identification string to store
  * data in list items
