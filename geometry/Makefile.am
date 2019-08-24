@@ -66,7 +66,7 @@ test_ccp4srs_SOURCES = test-ccp4srs.cc
 
 test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
-test_ccp4srs_LDADD = ./libcoot-geometry.la    
+test_ccp4srs_LDADD = ./libcoot-geometry.la
 
 test_geometry_LDADD = ./libcoot-geometry.la
 
@@ -79,11 +79,15 @@ coot_dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 coot_compare_dictionaries_SOURCES = compare-dictionaries.cc
 
 coot_compare_dictionaries_LDADD = ./libcoot-geometry.la \
-	$(top_builddir)/compat/libcoot-compat.la
+	$(top_builddir)/compat/libcoot-compat.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(MMDB_LIBS)
 
 coot_make_shelx_restraints_SOURCES = make-shelx-restraints.cc
 
-coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la 
+coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+        $(CLIPPER_LIBS)
 
 coot_available_comp_id_SOURCES = available-comp-id.cc
 
