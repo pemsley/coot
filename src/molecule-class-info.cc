@@ -9383,3 +9383,31 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
    }
    return status;
 }
+
+// no redraw
+void
+molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
+
+   std::string cwd = coot::util::current_working_dir();
+   short int reset_rotation_centre = 0;
+   short int is_undo_or_redo = 0;
+   bool allow_duplseqnum = true;
+   bool v2_convert_flag = false;
+ 
+   handle_read_draw_molecule(imol_no, pdb_file_name, cwd,
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   allow_duplseqnum,
+				   v2_convert_flag,
+				   bond_width,
+				   Bonds_box_type(),
+				   false);
+
+}
+
+void
+molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
+
+}
+
+

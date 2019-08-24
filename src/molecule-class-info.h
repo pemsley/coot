@@ -135,6 +135,7 @@ namespace molecule_map_type {
 #include "density-results-container-t.hh"
 #include "updating-map-params.hh"
 #include "updating-coordinates-molecule-parameters.hh"
+#include "cmtz-interface.hh" // for udating molecules
 
 namespace coot {
 
@@ -1087,9 +1088,9 @@ public:        //                      public
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
-	 draw_hydrogens_flag = i;
-	 make_bonds_type_checked();
-	 update_symmetry();
+	      draw_hydrogens_flag = i;
+	      make_bonds_type_checked();
+	      update_symmetry();
       }
    }
 
@@ -2895,8 +2896,8 @@ public:        //                      public
    bool extra_restraints_representation_for_bonds_go_to_CA;
    void set_extra_restraints_representation_for_bonds_go_to_CA(bool val) {
       if (val != extra_restraints_representation_for_bonds_go_to_CA) { 
-	 extra_restraints_representation_for_bonds_go_to_CA = val;
-	 update_extra_restraints_representation();
+	      extra_restraints_representation_for_bonds_go_to_CA = val;
+	      update_extra_restraints_representation();
       } 
    } 
    coot::extra_restraints_representation_t extra_restraints_representation;
@@ -3323,6 +3324,8 @@ public:        //                      public
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
+	void update_self_from_file(const std::string &file_name);
+	void update_self(const coot::mtz_to_map_info_t &mmi);
 
    static int watch_coordinates_file(gpointer data);
    bool continue_watching_coordinates_file;

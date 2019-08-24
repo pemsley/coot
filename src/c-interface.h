@@ -644,8 +644,17 @@ float idle_function_rotate_angle();
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
 
+/*! \brief make a model molecule from the give file name.
 
+* If the file updates, then the model will be updated. */
 int make_updating_model_molecule(const char *filename);
+
+/* or better still, use the json file from refmac */
+void updating_refmac_refinement_files(const char *updating_refmeac_refinement_files_json_file_name);
+
+/* used by above, no API for this */
+int updating_refmac_refinement_json_timeout_function(gpointer data);
+
 
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();
@@ -1432,6 +1441,9 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 						   float low_reso_limit,
 						   float high_reso_lim);
 
+/*! \brief make a map molecule from the give file name.
+
+ If the file updates, then the map will be updated. */
 int make_updating_map(const char *mtz_file_name, 
 		      const char *f_col, const char *phi_col, 
 		      const char *weight,

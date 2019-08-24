@@ -2770,10 +2770,16 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
       r = 2.0 * xmap.cell().descr().a()/static_cast<float>(xmap.grid_sampling().nu());
       reso_text_string = " ";
       reso_text_string += coot::util::float_to_string(r);
-      reso_text_string += " (by grid)";
    } else {
       reso_text_string = coot::util::float_to_string(r);
    }
+   // now add the grid info to the reso text
+   reso_text_string += " Å (by grid) ";
+   clipper::Grid_sampling gs = xmap.grid_sampling();
+   reso_text_string += coot::util::int_to_string(gs.nu()) + " ";
+   reso_text_string += coot::util::int_to_string(gs.nv()) + " ";
+   reso_text_string += coot::util::int_to_string(gs.nw());
+
 
    gtk_label_set_text(GTK_LABEL(cell_text), cell_text_string.c_str());
    gtk_label_set_text(GTK_LABEL(spgr_text), spgr_text_string.c_str());

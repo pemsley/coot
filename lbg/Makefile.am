@@ -22,14 +22,14 @@ lib_LTLIBRARIES=libcoot-lidia.la
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-        $(GSL_CFLAGS) \
+        $(GSL_CFLAGS)   \
         $(GOOCANVAS_CFLAGS) \
-        $(GTK_CFLAGS) \
+        $(GTK_CFLAGS)   \
 	$(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) \
 	$(COOT_WINDOWS_CFLAGS) \
 	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
-	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) 	\
-        $(PYTHON_CFLAGS)  
+	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)  \
+        $(PYTHON_CFLAGS)
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"'
@@ -80,8 +80,9 @@ lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 # res spec output operator means we include libcoot-coord-utils
 # (if that is annoying, then remove it and expand it by hand)
 #
-lidia_LDADD = \
-	./libcoot-lidia.la $(top_builddir)/lidia-core/libcoot-lidia-core.la $(MMDB_LIBS) $(GTK_LIBS) $(GLOB_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
+lidia_LDADD = ./libcoot-lidia.la \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
+        $(MMDB_LIBS) $(GLOB_LIBS) $(GTK_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
 # not needed: linked by dependency libs
 # $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
