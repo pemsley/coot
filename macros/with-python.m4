@@ -46,7 +46,8 @@ if test x$with_python != x; then
    # Similar for python-config
    #
    if test x$PYTHON_CONFIG = x ; then
-      PYTHON_CONFIG=python-config
+      # PYTHON_CONFIG=python-config
+      PYTHON_CONFIG=python3-config
    fi
 
    # Check to see if python exists:
