@@ -107,7 +107,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
-   init(true);
+   init();
    are_all_one_atom_residues = false;
    init_from_mol(istart_res_in, iend_res_in, 
 		 have_flanking_residue_at_start, 
@@ -122,7 +122,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 coot::restraints_container_t::restraints_container_t(atom_selection_container_t asc_in,
 						     const std::string &chain_id,
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
-   init(true);
+   init();
    mol = asc_in.mol;
    are_all_one_atom_residues = false;
 
@@ -193,7 +193,7 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
 						     mmdb::Manager *mol_in,
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
-   init(true);
+   init();
    are_all_one_atom_residues = false;
 
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
@@ -236,7 +236,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const clipper::Xmap<float> *map_p_in,
 						     float map_weight_in) : xmap_p(map_p_in) {
 
-   init(true);
+   init();
    init_from_mol(istart_res_in, iend_res_in, 		 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
@@ -306,7 +306,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
    istart_minus_flag = false; // used in make_flanking_atoms_rama_restraints
    iend_plus_flag = false;
 
-   init(true);
+   init();
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
 
@@ -338,7 +338,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     mmdb::Manager *mol_in,
 						     const clipper::Xmap<float> *map_p_in) : xmap_p(map_p_in) {
 
-   init(true);
+   init();
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
 

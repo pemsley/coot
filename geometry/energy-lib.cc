@@ -21,10 +21,12 @@
  */
 
 #include <stdexcept>
+#include <fstream>
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
 
+#include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 
 void
@@ -619,6 +621,7 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 					const std::string &energy_type_2,
 					bool is_metal_atom_1,
 					bool is_metal_atom_2,
+					bool extended_atoms_mode, // turn this on when model has no Hydrogen atoms
 					bool in_same_residue_flag,
 					bool in_same_ring_flag) const {
 
@@ -630,12 +633,30 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
    if (it_1 != energy_lib.atom_map.end()) {
       if (it_2 != energy_lib.atom_map.end()) {
 
+	 // Use vdwh_radius of called in "No hydrogens in the model" mode.
 	 float radius_1 = it_1->second.vdw_radius;
 	 float radius_2 = it_1->second.vdw_radius;
 
 	 if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
 	 if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
 	 r.second = radius_1 + radius_2;
+
+#if 0
+
+	 // This needs more thought.
+	 //
+	 // We want to be able to distinguish if this is actually an O coordination-bonded to the metal
+	 // or is just an oxygen in the environment. We do that by distance. But we don't have
+	 // access to distance here.  If it _is_ coordination bonded, we should not make
+	 // a NBC for this atom pair. Probably we shouldn't even come here.
+	 // Restraint generation needs make_metal_coordination_bond_restraints();
+
+	 if (is_metal_atom_1)
+	    if (energy_type_1[0] == 'O')
+	       double d = get_metal_O_distance(energy_type_2);
+	       if (d != 0.0)
+		  r = std::pair<bool, double> (true, d);
+#endif
 
 	 if (in_same_residue_flag) {
 	    // I need to reject atoms that have bond (done), angle and
@@ -697,6 +718,68 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
    return r;
 }
 
+// extract values from these sets - return 0.0 on failure
+double
+coot::protein_geometry::get_metal_O_distance(const std::string &metal) const {
+
+   double d = 0.0;
+   std::map<std::string, double>::const_iterator it = metal_O_map.find(metal);
+   if (it != metal_O_map.end())
+      d = it->second;
+   return d;
+}
+
+double
+coot::protein_geometry::get_metal_N_distance(const std::string &metal) const {
+   double d = 0.0;
+   std::map<std::string, double>::const_iterator it = metal_N_map.find(metal);
+   if (it != metal_N_map.end())
+      d = it->second;
+   return d;
+}
+
+bool
+coot::protein_geometry::parse_metal_NO_distance_tables() {
+
+   bool status = false;
+   std::vector<std::string> v;
+   v.push_back("metal-O-distance.table");
+   v.push_back("metal-N-distance.table");
+
+   for (std::size_t i=0; i<v.size(); i++) {
+      std::string d1 = package_data_dir(); // $prefix/share/coot
+      std::string d2 = util::append_dir_dir(d1, "data");
+      std::string d3 = util::append_dir_dir(d2, "metal");
+      std::string fn = util::append_dir_file(d3, v[i]);
+      std::string line;
+      std::ifstream f(fn.c_str());
+      if (!f) {
+	 std::cout << "Failed to open " << fn << std::endl;
+      } else {
+	 while (std::getline(f, line)) {
+	    std::vector<std::string> ss = util::split_string(line, " ");
+	    if (ss.size() == 2) {
+	       try {
+		  std::string metal_1 = ss[0];
+		  std::string metal = util::upcase(metal_1);
+		  double bl = util::string_to_double(ss[1]);
+		  if (i == 0) // bleugh :-)
+		     metal_O_map[metal] = bl;
+		  if (i == 1)
+		     metal_N_map[metal] = bl;
+		  std::cout << metal << " " << bl << std::endl;
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "ERROR:: rte " << rte.what() << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+
+   return status;
+
+}
 
 
 // throw a std::runtime_error if bond not found

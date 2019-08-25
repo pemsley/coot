@@ -486,6 +486,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
    float dist_max = 8.0; // needed?
 
+   bool extended_atom_mode = false; // turn this on if there are no Hydrogen atoms in the model
+
    for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
 
       const std::set<unsigned int> &n_set = vcontacts[i];
@@ -577,6 +579,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
 								    atom_is_metal[i],
 								    atom_is_metal[j],
+								    extended_atom_mode,
 								    in_same_residue_flag,
 								    in_same_ring_flag);
 
@@ -880,6 +883,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    // raic can be a member of the class
    // to make it: reduced_angle_info_container_t raic(restraints_vec);
 
+   bool extended_atom_mode = false; // turn this on if the model has no Hydrogen atoms;
+
    float dist_max = 8.0;
 
    // cache the energy types:
@@ -995,6 +1000,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
 								    atom_is_metal[i],
 								    atom_is_metal[j],
+								    extended_atom_mode,
 								    in_same_residue_flag,
 								    in_same_ring_flag);
 
