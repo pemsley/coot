@@ -215,9 +215,12 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    std::vector<coot::stack_and_pair::paired_residues_info_t> v;
+
+   // add the target distance here too. Depends on base name and atom pair
+   // typically 2.92, 2.83, 2.87
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > atom_vec;
 
-   float dist_crit = 3.8; // less than this to form a pairing bond
+   float dist_crit = 3.2; // 3.8; // less than this to form a pairing bond 3.8 is too generous.
    float dist_crit_sqrt = dist_crit * dist_crit;
 
    int selection_handle_moving;

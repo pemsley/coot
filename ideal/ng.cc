@@ -128,13 +128,13 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       // disperse_plane_restraints();
 
       if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS)
-	 make_helix_pseudo_bond_restraints();
+	      make_helix_pseudo_bond_restraints();
 
       if (sec_struct_pseudo_bonds == coot::STRAND_PSEUDO_BONDS)
-	 make_strand_pseudo_bond_restraints();
+	      make_strand_pseudo_bond_restraints();
 
       if (do_auto_helix_restraints)
-	 make_helix_pseudo_bond_restraints_from_res_vec_auto();
+	      make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
       make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
@@ -188,9 +188,13 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
          at_1->GetUDData(udd_atom_index_handle, index_1);
          at_2->GetUDData(udd_atom_index_handle, index_2);
          std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-         if (!fixed_flags[0] || fixed_flags[1]) {
+         if (!fixed_flags[0] || !fixed_flags[1]) {
             // This should be hydrogen bond type (whatever that means)
-            add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.8, 0.05, 1.2);
+	    // the target distance depends on the pair and should be calculated in
+	    // paired_residues and made part of the atom "pair" (-> tuple/class)
+	    //
+	    // typical values: 2.92, 2.83, 2.87
+            add(BOND_RESTRAINT, index_1, index_2, fixed_flags, 2.88, 0.08, 1.2);
             n_base_pairing_bonds++;
          }
       }
@@ -1730,7 +1734,7 @@ void
 coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit) {
 
    double n_z_for_baddie = 4.0; // must be at least this bad
-   std::vector<std::tuple<unsigned int, double, double> > distortions;
+   std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
       if (rest.restraint_type == r_type) {
@@ -1739,37 +1743,40 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
          if (distortion_score >= interesting_distortion_limit) {
             double n_z = sqrt(distortion_score);
             double bl_delta = distortion_pair.second;
-            std::tuple<unsigned int, double, double> p(i, n_z, bl_delta);
+            std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
             distortions.push_back(p);
          }
       }
    }
 
   auto distortion_sorter_lambda = // big distortions at the top
-     [] (const std::tuple<unsigned int, double, double> &p1,
-         const std::tuple<unsigned int, double, double> &p2) {
+     [] (const std::tuple<unsigned int, double, double, double> &p1,
+         const std::tuple<unsigned int, double, double, double> &p2) {
      return (std::get<1>(p1) > std::get<1>(p2)); };
 
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies) n_baddies = distortions.size();
    for (unsigned int i=0; i<n_baddies; i++) {
-      const simple_restraint &rest = restraints_vec[std::get<0>(distortions[i])];
+	   const std::tuple<unsigned int, double, double, double> &d = distortions[i];
+      const simple_restraint &rest = restraints_vec[std::get<0>(d)];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
+		// How can I know if this was a Hydrogen bond restraint?
       if (r_type == BOND_RESTRAINT)
          std::cout << "INFO:: Input Model: Very Bad Bond: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " nZ " << sqrt(std::get<1>(distortions[i]))
-                   << " delta " << std::get<2>(distortions[i]) << std::endl;
+                   << " nZ "         << std::get<1>(d)
+                   << " delta "      << std::get<2>(d)
+                   << " target "     << rest.target_value
+                   << " distortion " << std::get<3>(d) << std::endl;
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
          std::cout << "INFO:: Input Model: Very Bad Non-Bonded Contact: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " distortion " << std::get<1>(distortions[i])
-                   << " delta " << std::get<2>(distortions[i]) << std::endl;
-      
+                   << " delta "      << std::get<2>(d)
+                   << " target "     << rest.target_value
+                   << " distortion " << std::get<3>(d) << std::endl;
    }
-
 }
 
 
