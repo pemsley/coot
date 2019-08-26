@@ -3609,8 +3609,14 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
 
    // make glsl triangles
    glUseProgram(graphics_info_t::shader_for_models.get_program_id());
+   std::cout << "make_bonds_type_checked() using model shader program_id is "  << graphics_info_t::shader_for_models.get_program_id() << std::endl;
    GLenum err = glGetError();
-   if (err) std::cout << "Error in glUseProgram()\n";
+   if (err) std::cout << "Error in glUseProgram() in make_bonds_type_checked() " << err << "\n";
+
+   GLint current_program;
+   glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
+   std::cout << "INFO:: current program " << current_program << std::endl;
+
    make_glsl_bonds_type_checked();
 
    // all these will need to be changed or removed

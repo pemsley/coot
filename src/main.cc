@@ -293,13 +293,6 @@ main (int argc, char *argv[]) {
       GtkWidget *vbox = lookup_widget(window1, "vbox1");
       GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
 
-      // Gtk2
-//       glarea = gl_extras(lookup_widget(window1, "vbox1"),
-// 			 cld.hardware_stereo_flag);
-
-      // GTK3
-      // glarea = gl_gtk3_widget(vbox, 0);
-
       glarea = my_gtkglarea(graphics_hbox);
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glarea = glarea; // have I done this elsewhere?
@@ -309,9 +302,8 @@ main (int argc, char *argv[]) {
 	 setup_application_icon(GTK_WINDOW(window1));
 	 // adjust screen size settings
 	 int small_screen = setup_screen_size_settings();
-	 if (!cld.small_screen_display) {
+	 if (!cld.small_screen_display)
 	    cld.small_screen_display = small_screen;
-	 }
 
 	 graphics_info.glarea = glarea; // save it in the static
 
@@ -393,7 +385,7 @@ main (int argc, char *argv[]) {
 
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    handle_command_line_data(cld);  // and add a flag if listener
-   // should be started.
+                                   // should be started.
 #endif
 
    // which gets looked at later in c_inner_main's make_port_listener_maybe()
