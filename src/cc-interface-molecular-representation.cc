@@ -10,7 +10,7 @@
 
 // #include "globjects.h" //includes gtk/gtk.h
 #include "graphics-info.h"
-#include ""
+#include "c-interface.h"
 #include "cc-interface-molecular-representation.hh"
 
 #ifdef USE_PYTHON
