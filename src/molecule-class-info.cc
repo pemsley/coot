@@ -3655,6 +3655,8 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       sum_n_vertices += n_slices * (n_stacks+1) * ll.num_lines;
    }
 
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits = make_generic_vertices_for_atoms(index_to_colour);
 
    unsigned int sum_n_vertices_start_atoms  = sum_n_vertices;
@@ -3735,6 +3737,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       }
 
       // now the atom parts:
+
 
       glGenVertexArrays(1, &m_VertexArray_for_model_ID);
       GLenum err = glGetError();
