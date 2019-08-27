@@ -385,7 +385,7 @@ draw_model_molecules() {
 
          glDisable(GL_BLEND);
          GLuint pid = shader.get_program_id();
-         glUseProgram(pid);
+         shader.Use();
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
 
@@ -636,6 +636,7 @@ on_glarea_realize(GtkGLArea *glarea) {
                               // of the bonds (and atoms, possibly) It's a weird look
    glEnable(GL_BLEND);
 
+   glEnable(GL_LINE_SMOOTH);
 
    // Make antialised lines
    if (false) {
