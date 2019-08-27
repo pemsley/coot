@@ -1110,7 +1110,7 @@ unsigned int
 coot::restraints_container_t::n_atom_pull_restraints() const {
 
    unsigned int n=0;
-   for (unsigned int i=0; i<restraints_vec.size(); i++) {
+   for (int i=0; i<size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
       if (rest.restraint_type == TARGET_POS_RESTRAINT)
 	 n++;
@@ -1189,7 +1189,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
 
-   std::cout << "------------ ::minimize() basic " << restraints_vec.size() << std::endl;
+   std::cout << "------------ ::minimize() basic " << size() << std::endl;
    n_times_called++;
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
@@ -1206,7 +1206,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 				       short int print_initial_chi_sq_flag,
 				       const coot::protein_geometry &geom) {
 
-   // std::cout << "------------ ::minimize() " << restraints_vec.size() << std::endl;
+   // std::cout << "------------ ::minimize() " << size() << std::endl;
 
    unsigned int n_steps_per_relcalc_nbcs = 3000000;
 
@@ -1261,7 +1261,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // n_refiners_refining++;
 
    // check that we have restraints before we start to minimize:
-   if (restraints_vec.size() == 0) {
+   if (size() == 0) {
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
 	 std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
 	 std::cout << "No minimization will happen" << std::endl;
@@ -1762,173 +1762,177 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    std::map<std::string, refinement_lights_info_t::the_worst_t> baddies;
    std::map<std::string, refinement_lights_info_t::the_worst_t>::iterator baddies_iterator;
 
-   for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      if (restraints_usage_flag & BONDS_MASK) {
-	 if (restraints_vec[i].restraint_type == BOND_RESTRAINT) {
-	    n_bond_restraints++;
-	    // 	    bond_distortion += distortion_score_bond(restraints_vec[i], v);
-	    double dist = distortion_score_bond(restraints_vec[i], v);
-	    const simple_restraint &rest = restraints_vec[i];
-	    bond_distortion += dist;
-	    if (dist > dist_max_bonds.second) {
-	       dist_max_bonds.first = i;
-	       dist_max_bonds.second = dist;
-	    }
-	    baddies["Bonds"].update_if_worse(dist, i);
-	 }
-      }
-
-      if (restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
-	 if (restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	    n_geman_mcclure_distance++;
-	    double d = distortion_score_geman_mcclure_distance(restraints_vec[i], v, geman_mcclure_alpha);
-	    gm_distortion += d;
-	    baddies["GemanMcClure"].update_if_worse(d, i);
-	 }
-      }
-
-      if (restraints_usage_flag & ANGLES_MASK) { // 2: angles
-	 if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) {
-	    n_angle_restraints++;
-	    double dist = coot::distortion_score_angle(restraints_vec[i], v);
-	    angle_distortion += dist;
-	    if (dist > dist_max_angles.second) {
-	       dist_max_angles.first = i;
-	       dist_max_angles.second = dist;
-	    }
-	    baddies["Angles"].update_if_worse(dist, i);
-	 }
-      }
-
-      if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
-	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    try {
-	       double dist = coot::distortion_score_torsion(i, restraints_vec[i], v);
-	       torsion_distortion += dist;
-	       n_torsion_restraints++;
-	       baddies["Torsions"].update_if_worse(dist, i);
-	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "WARNING:: caught runtime_error torsion " << rte.what() << std::endl;
-	    }
-	 }
-      }
-
-      if (restraints_usage_flag & TRANS_PEPTIDE_MASK) {
-	 if (restraints_vec[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	    try {
-	       double dist = distortion_score_trans_peptide(i, restraints_vec[i], v);
-	       trans_peptide_distortion += dist;
-	       n_trans_peptide_restraints++;
-	       baddies["Trans_peptide"].update_if_worse(dist, i);
-	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "WARNING:: caught runtime_error trans-pep " << rte.what() << std::endl;
-	    }
-	 }
-      }
-
-      if (restraints_usage_flag & PLANES_MASK) { // 8: planes
-	 if (restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT) {
-	    n_plane_restraints++;
-	    double dist = coot::distortion_score_plane(restraints_vec[i], v);
-	    plane_distortion += dist;
-	    if (dist > dist_max_planes.second) {
-	       dist_max_planes.first = i;
-	       dist_max_planes.second = dist;
-	    }
-	    baddies["Planes"].update_if_worse(dist, i);
-            if (false) {  // debugging plane restraints.
-                std::cout << " plane distortion " << i << " " 
-                          << coot::distortion_score_plane(restraints_vec[i], v) << " " 
-                          << restraints_vec[i];
-                for (unsigned int jj = 0; jj<restraints_vec[i].plane_atom_index.size(); jj+=3) { 
-                    std::cout << "\n                                ";
-		    unsigned int idx = restraints_vec[i].plane_atom_index[jj].first;
-                    std::cout << idx << " " << coot::atom_spec_t(atom[idx]);
-                    if ((jj+1) < restraints_vec[i].plane_atom_index.size()) { 
-		       unsigned int idx_1 = restraints_vec[i].plane_atom_index[jj+1].first;
-                       std::cout << " " << idx_1 << " " << coot::atom_spec_t(atom[idx_1]);
-                    }
-                    if ((jj+2) < restraints_vec[i].plane_atom_index.size()) { 
-		       unsigned int idx_2 = restraints_vec[i].plane_atom_index[jj+1].first;
-                       std::cout << " " << idx_2 << " " << coot::atom_spec_t(atom[idx_2]);
-                    }
-                }
-                std::cout << std::endl;
-            }
-	 }
-      }
-
-      if (restraints_usage_flag & coot::NON_BONDED_MASK) { 
-	 if ( restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
-	    n_non_bonded_restraints++;
-	    double dist = coot::distortion_score_non_bonded_contact(restraints_vec[i], lennard_jones_epsilon, v);
-	    non_bonded_distortion += dist;
-	    if (dist > dist_max_nbc.second) {
-	       dist_max_nbc.first = i;
-	       dist_max_nbc.second = dist;
-	    }
-	    baddies["NonBonded"].update_if_worse(dist, i);
-	 }
-      }
-
-      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
-  	 if ( restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
-  	    n_chiral_volumes++;
-	    double dist = coot::distortion_score_chiral_volume(restraints_vec[i], v);
-  	    chiral_vol_distortion += dist;
-	    baddies["Chirals"].update_if_worse(dist, i);
-  	 }
-      }
-
-      if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
-  	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
-  	    n_rama_restraints++;
-	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-	       double dd = distortion_score_rama( restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
-	       // std::cout << "Here with index " << i << " rama distortion score " << dd << std::endl;
-	       rama_distortion += dd;
-	       baddies["Rama"].update_if_worse(dd, i);
-
-	       if (false) { // debugging rama baddie update
-		  baddies_iterator = baddies.find("Rama");
-		  if (baddies_iterator != baddies.end()) {
-		     const refinement_lights_info_t::the_worst_t &w = baddies_iterator->second;
-		     const simple_restraint &baddie_restraint = restraints_vec[w.restraints_index];
-		     std::cout << "Running rama worst baddie: w.restraints_index " << w.restraints_index
-			       << " w.value " << w.value
-			       << " distortion " << baddie_restraint.format(atom, w.value)
-			       << std::endl;
-		  }
+   for (int i=0; i<size(); i++) {
+      {
+	 const simple_restraint &restraint = restraints_vec[i];
+	 if (restraints_usage_flag & BONDS_MASK) {
+	    if (restraint.restraint_type == BOND_RESTRAINT) {
+	       n_bond_restraints++;
+	       // 	    bond_distortion += distortion_score_bond(restraint, v);
+	       double dist = distortion_score_bond(restraint, v);
+	       const simple_restraint &rest = restraint;
+	       bond_distortion += dist;
+	       if (dist > dist_max_bonds.second) {
+		  dist_max_bonds.first = i;
+		  dist_max_bonds.second = dist;
 	       }
-
-	    } else {
-	       double dd = distortion_score_rama(restraints_vec[i], v, lograma);
-	       rama_distortion += dd;
-	       baddies["Rama"].update_if_worse(dd, i);
-	    }
-	    if (false) {
-	       double d1 = distortion_score_rama(restraints_vec[i], v, LogRama());
-	       double d2 = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
-	       std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
+	       baddies["Bonds"].update_if_worse(dist, i);
 	    }
 	 }
-      }
 
-      if (restraints_vec[i].restraint_type == coot::TARGET_POS_RESTRAINT) {
-	 n_target_pos_restraints++;
-	 double dist = coot::distortion_score_target_pos(restraints_vec[i],
-							 log_cosh_target_distance_scale_factor, v);
-         target_pos_distortion += dist;
-	 baddies["Target_pos"].update_if_worse(dist, i);
-      }
+	 if (restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
+	    if (restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	       n_geman_mcclure_distance++;
+	       double d = distortion_score_geman_mcclure_distance(restraint, v, geman_mcclure_alpha);
+	       gm_distortion += d;
+	       baddies["GemanMcClure"].update_if_worse(d, i);
+	    }
+	 }
 
-      if (restraints_vec[i].restraint_type == coot::START_POS_RESTRAINT) {
-         n_start_pos_restraints++;
-	 double dist = distortion_score_start_pos(restraints_vec[i], params, v);
-         start_pos_distortion += dist;
-	 baddies["StartPositions"].update_if_worse(dist, i);
+	 if (restraints_usage_flag & ANGLES_MASK) { // 2: angles
+	    if (restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+	       n_angle_restraints++;
+	       double dist = coot::distortion_score_angle(restraint, v);
+	       angle_distortion += dist;
+	       if (dist > dist_max_angles.second) {
+		  dist_max_angles.first = i;
+		  dist_max_angles.second = dist;
+	       }
+	       baddies["Angles"].update_if_worse(dist, i);
+	    }
+	 }
+
+	 if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
+	    if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
+	       try {
+		  double dist = coot::distortion_score_torsion(i, restraint, v);
+		  torsion_distortion += dist;
+		  n_torsion_restraints++;
+		  baddies["Torsions"].update_if_worse(dist, i);
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "WARNING:: caught runtime_error torsion " << rte.what() << std::endl;
+	       }
+	    }
+	 }
+
+	 if (restraints_usage_flag & TRANS_PEPTIDE_MASK) {
+	    if (restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	       try {
+		  double dist = distortion_score_trans_peptide(i, restraint, v);
+		  trans_peptide_distortion += dist;
+		  n_trans_peptide_restraints++;
+		  baddies["Trans_peptide"].update_if_worse(dist, i);
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "WARNING:: caught runtime_error trans-pep " << rte.what() << std::endl;
+	       }
+	    }
+	 }
+
+	 if (restraints_usage_flag & PLANES_MASK) { // 8: planes
+	    if (restraint.restraint_type == coot::PLANE_RESTRAINT) {
+	       n_plane_restraints++;
+	       double dist = coot::distortion_score_plane(restraint, v);
+	       plane_distortion += dist;
+	       if (dist > dist_max_planes.second) {
+		  dist_max_planes.first = i;
+		  dist_max_planes.second = dist;
+	       }
+	       baddies["Planes"].update_if_worse(dist, i);
+	       if (false) {  // debugging plane restraints.
+		  std::cout << " plane distortion " << i << " " 
+			    << coot::distortion_score_plane(restraint, v) << " " 
+			    << restraint;
+		  for (unsigned int jj = 0; jj<restraint.plane_atom_index.size(); jj+=3) { 
+		     std::cout << "\n                                ";
+		     unsigned int idx = restraint.plane_atom_index[jj].first;
+		     std::cout << idx << " " << coot::atom_spec_t(atom[idx]);
+		     if ((jj+1) < restraint.plane_atom_index.size()) { 
+			unsigned int idx_1 = restraint.plane_atom_index[jj+1].first;
+			std::cout << " " << idx_1 << " " << coot::atom_spec_t(atom[idx_1]);
+		     }
+		     if ((jj+2) < restraint.plane_atom_index.size()) { 
+			unsigned int idx_2 = restraint.plane_atom_index[jj+1].first;
+			std::cout << " " << idx_2 << " " << coot::atom_spec_t(atom[idx_2]);
+		     }
+		  }
+		  std::cout << std::endl;
+	       }
+	    }
+	 }
+
+	 if (restraints_usage_flag & coot::NON_BONDED_MASK) { 
+	    if ( restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
+	       n_non_bonded_restraints++;
+	       double dist = coot::distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
+	       non_bonded_distortion += dist;
+	       if (dist > dist_max_nbc.second) {
+		  dist_max_nbc.first = i;
+		  dist_max_nbc.second = dist;
+	       }
+	       baddies["NonBonded"].update_if_worse(dist, i);
+	    }
+	 }
+
+	 if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
+	    if ( restraint.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
+	       n_chiral_volumes++;
+	       double dist = coot::distortion_score_chiral_volume(restraint, v);
+	       chiral_vol_distortion += dist;
+	       baddies["Chirals"].update_if_worse(dist, i);
+	    }
+	 }
+
+	 if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
+	    if (restraint.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+	       n_rama_restraints++;
+	       if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+		  double dd = distortion_score_rama( restraint, v, ZO_Rama(), get_rama_plot_weight());
+		  // std::cout << "Here with index " << i << " rama distortion score " << dd << std::endl;
+		  rama_distortion += dd;
+		  baddies["Rama"].update_if_worse(dd, i);
+
+#if 0	// needs indexing fixup	  
+		  if (false) { // debugging rama baddie update
+		     baddies_iterator = baddies.find("Rama");
+		     if (baddies_iterator != baddies.end()) {
+			const refinement_lights_info_t::the_worst_t &w = baddies_iterator->second;
+			const simple_restraint &baddie_restraint = restraints_vec[w.restraints_index];
+			std::cout << "Running rama worst baddie: w.restraints_index " << w.restraints_index
+				  << " w.value " << w.value
+				  << " distortion " << baddie_restraint.format(atom, w.value)
+				  << std::endl;
+		     }
+		  }
+#endif		  
+
+	       } else {
+		  double dd = distortion_score_rama(restraint, v, lograma);
+		  rama_distortion += dd;
+		  baddies["Rama"].update_if_worse(dd, i);
+	       }
+	       if (false) {
+		  double d1 = distortion_score_rama(restraint, v, LogRama());
+		  double d2 = coot::distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
+		  std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
+	       }
+	    }
+	 }
+
+	 if (restraint.restraint_type == coot::TARGET_POS_RESTRAINT) {
+	    n_target_pos_restraints++;
+	    double dist = coot::distortion_score_target_pos(restraint, log_cosh_target_distance_scale_factor, v);
+	    target_pos_distortion += dist;
+	    baddies["Target_pos"].update_if_worse(dist, i);
+	 }
+
+	 if (restraint.restraint_type == coot::START_POS_RESTRAINT) {
+	    n_start_pos_restraints++;
+	    double dist = distortion_score_start_pos(restraint, params, v);
+	    start_pos_distortion += dist;
+	    baddies["StartPositions"].update_if_worse(dist, i);
+	 }
       }
    }
 
@@ -2613,7 +2617,7 @@ coot::restraints_container_t::make_restraints(int imol,
 		      do_auto_helix_restraints, do_auto_strand_restraints,
 		      sec_struct_pseudo_bonds, do_link_restraints, do_flank_restraints);
 
-   return restraints_vec.size();
+   return size();
 #endif
 
    // if a peptide is trans, add a restraint to penalize non-trans configuration
@@ -2702,7 +2706,7 @@ coot::restraints_container_t::make_restraints(int imol,
 	 bpc = make_flanking_atoms_restraints(geom,
 					      do_rama_plot_restraints,
 					      do_trans_peptide_restraints);
-      int iret_prev = restraints_vec.size();
+      int iret_prev = size();
 
       if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
 	 make_helix_pseudo_bond_restraints();
@@ -2737,7 +2741,7 @@ coot::restraints_container_t::make_restraints(int imol,
 
    // debug
    // info();
-   return restraints_vec.size();
+   return size();
 }
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
@@ -2773,68 +2777,70 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
    restraints_limits_start_pos = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_trans_peptide = std::pair<unsigned int, unsigned int> (unset,0);
 
-   for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      const simple_restraint &restraint = restraints_vec[i];
-      if (restraint.restraint_type == coot::BOND_RESTRAINT) {
-	 if (restraints_limits_bonds.first == unset)
-	    restraints_limits_bonds.first = i;
-	 if (i > restraints_limits_bonds.second)
-	    restraints_limits_bonds.second = i;
-      }
-      if (restraint.restraint_type == coot::ANGLE_RESTRAINT) {
-	 if (restraints_limits_angles.first == unset)
-	    restraints_limits_angles.first = i;
-	 if (i > restraints_limits_angles.second)
-	    restraints_limits_angles.second = i;
-      }
-      if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
-	 if (restraints_limits_torsions.first == unset)
-	    restraints_limits_torsions.first = i;
-	 if (i > restraints_limits_torsions.second)
-	    restraints_limits_torsions.second = i;
-      }
-      if (restraint.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-	 if (restraints_limits_chirals.first == unset)
-	    restraints_limits_chirals.first = i;
-	 if (i > restraints_limits_chirals.second)
-	    restraints_limits_chirals.second = i;
-      }
-      if (restraint.restraint_type == coot::PLANE_RESTRAINT) {
-	 if (restraints_limits_planes.first == unset)
-	    restraints_limits_planes.first = i;
-	 if (i > restraints_limits_planes.second)
-	    restraints_limits_planes.second = i;
-      }
-      if (restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
-	 if (restraints_limits_parallel_planes.first == unset)
-	    restraints_limits_parallel_planes.first = i;
-	 if (i > restraints_limits_parallel_planes.second)
-	    restraints_limits_parallel_planes.second = i;
-      }
-      if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	 if (restraints_limits_non_bonded_contacts.first == unset)
-	    restraints_limits_non_bonded_contacts.first = i;
-	 if (i > restraints_limits_non_bonded_contacts.second)
-	    restraints_limits_non_bonded_contacts.second = i;
-      }
-      if (restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	 if (restraints_limits_geman_mclure.first == unset)
-	    restraints_limits_geman_mclure.first = i;
-	 if (i > restraints_limits_geman_mclure.second)
-	    restraints_limits_geman_mclure.second = i;
-      }
-      if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
-	 if (restraints_limits_trans_peptide.first == unset) {
-	    restraints_limits_trans_peptide.first = i;
+   for (unsigned int i=0; i<restraints_vec.size(); i++) { // needs dual indexing
+      {
+	 const simple_restraint &restraint = restraints_vec[i];
+	 if (restraint.restraint_type == coot::BOND_RESTRAINT) {
+	    if (restraints_limits_bonds.first == unset)
+	       restraints_limits_bonds.first = i;
+	    if (i > restraints_limits_bonds.second)
+	       restraints_limits_bonds.second = i;
 	 }
-	 if (i > restraints_limits_trans_peptide.second)
-	    restraints_limits_trans_peptide.second = i;
-      }
-      if (restraint.restraint_type == coot::START_POS_RESTRAINT) {
-	 if (restraints_limits_start_pos.first == unset)
-	    restraints_limits_start_pos.first = i;
-	 if (i > restraints_limits_start_pos.second)
-	    restraints_limits_start_pos.second = i;
+	 if (restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+	    if (restraints_limits_angles.first == unset)
+	       restraints_limits_angles.first = i;
+	    if (i > restraints_limits_angles.second)
+	       restraints_limits_angles.second = i;
+	 }
+	 if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
+	    if (restraints_limits_torsions.first == unset)
+	       restraints_limits_torsions.first = i;
+	    if (i > restraints_limits_torsions.second)
+	       restraints_limits_torsions.second = i;
+	 }
+	 if (restraint.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	    if (restraints_limits_chirals.first == unset)
+	       restraints_limits_chirals.first = i;
+	    if (i > restraints_limits_chirals.second)
+	       restraints_limits_chirals.second = i;
+	 }
+	 if (restraint.restraint_type == coot::PLANE_RESTRAINT) {
+	    if (restraints_limits_planes.first == unset)
+	       restraints_limits_planes.first = i;
+	    if (i > restraints_limits_planes.second)
+	       restraints_limits_planes.second = i;
+	 }
+	 if (restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	    if (restraints_limits_parallel_planes.first == unset)
+	       restraints_limits_parallel_planes.first = i;
+	    if (i > restraints_limits_parallel_planes.second)
+	       restraints_limits_parallel_planes.second = i;
+	 }
+	 if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    if (restraints_limits_non_bonded_contacts.first == unset)
+	       restraints_limits_non_bonded_contacts.first = i;
+	    if (i > restraints_limits_non_bonded_contacts.second)
+	       restraints_limits_non_bonded_contacts.second = i;
+	 }
+	 if (restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    if (restraints_limits_geman_mclure.first == unset)
+	       restraints_limits_geman_mclure.first = i;
+	    if (i > restraints_limits_geman_mclure.second)
+	       restraints_limits_geman_mclure.second = i;
+	 }
+	 if (restraint.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+	    if (restraints_limits_trans_peptide.first == unset) {
+	       restraints_limits_trans_peptide.first = i;
+	    }
+	    if (i > restraints_limits_trans_peptide.second)
+	       restraints_limits_trans_peptide.second = i;
+	 }
+	 if (restraint.restraint_type == coot::START_POS_RESTRAINT) {
+	    if (restraints_limits_start_pos.first == unset)
+	       restraints_limits_start_pos.first = i;
+	    if (i > restraints_limits_start_pos.second)
+	       restraints_limits_start_pos.second = i;
+	 }
       }
    }
 
@@ -3589,7 +3595,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(int imol,
 
    sum.report(do_residue_internal_torsions);
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "created " << restraints_vec.size() << " restraints" << std::endl;
+      std::cout << "created " << size() << " restraints" << std::endl;
       std::cout << std::endl;
    }
    return iret; // return 1 on success.  Hmm... how is this set? (and subsequently used?)
@@ -3618,7 +3624,7 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
    } 
 
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "INFO:: created " << restraints_vec.size() << " restraints" << std::endl;
+      std::cout << "INFO:: created " << size() << " restraints" << std::endl;
       std::cout << std::endl;
       if (print_summary)
 	 sum.report(do_residue_internal_torsions);
@@ -4289,6 +4295,7 @@ coot::restraints_container_t::H_parent_atom_is_donor(mmdb::Atom *at) {
    return state;
 }
 
+// delete this
 int 
 coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const coot::bonded_pair_container_t &bpc,
 								 const coot::protein_geometry &geom) {
@@ -4752,7 +4759,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 
 	       r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
 	                                                // restraints
-	       r.restraints_index = restraints_vec.size(); // likewise
+	       r.restraints_index = size(); // likewise
 	       restraints_vec.push_back(r);
 
 	       n_nbc_r++;
@@ -4996,44 +5003,50 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2) const
 
    bool is_1_4 = false;
 
-   for (unsigned int ii=0; ii<restraints_vec.size(); ii++) { 
-      if (restraints_vec[ii].restraint_type == coot::ANGLE_RESTRAINT) {
+   for (unsigned int ii=0; ii<restraints_vec.size(); ii++) {
 
-	 if (idx_1 == restraints_vec[ii].atom_index_1 ||
-	     idx_1 == restraints_vec[ii].atom_index_3 ||
-	     idx_2 == restraints_vec[ii].atom_index_1 ||
-	     idx_2 == restraints_vec[ii].atom_index_3) { 
+      { // double indexing angle_1
+	 const simple_restraint &restraint_i = restraints_vec[ii];
+	 if (restraint_i.restraint_type == coot::ANGLE_RESTRAINT) {
 
-	    for (unsigned int jj=ii; jj<restraints_vec.size(); jj++) {
-	       if (jj != ii) { 
-		  if (restraints_vec[jj].restraint_type == coot::ANGLE_RESTRAINT) {
+	    if (idx_1 == restraint_i.atom_index_1 ||
+		idx_1 == restraint_i.atom_index_3 ||
+		idx_2 == restraint_i.atom_index_1 ||
+		idx_2 == restraint_i.atom_index_3) { 
 
-		     if (idx_2 == restraints_vec[jj].atom_index_1 ||
-			 idx_2 == restraints_vec[jj].atom_index_3 ||
-			 idx_1 == restraints_vec[jj].atom_index_1 ||
-			 idx_1 == restraints_vec[jj].atom_index_3) {
+	       for (unsigned int jj=ii; jj<restraints_vec.size(); jj++) {
+		  const simple_restraint &restraint_j = restraints_vec[jj];
 
-			if (false)
-			   std::cout << "check_for_1_4_relation() indices "
-				     << idx_1 << " " << idx_2
-				     << " examining angle restraint pair "
-				     << restraints_vec[ii].atom_index_1 << " "
-				     << restraints_vec[ii].atom_index_2 << " "
-				     << restraints_vec[ii].atom_index_3 << " and "
-				     << restraints_vec[jj].atom_index_1 << " "
-				     << restraints_vec[jj].atom_index_2 << " "
-				     << restraints_vec[jj].atom_index_3 << std::endl;
+		  if (jj != ii) { // check both indices
+		     if (restraint_j.restraint_type == coot::ANGLE_RESTRAINT) {
 
-			if ((restraints_vec[ii].atom_index_2 == restraints_vec[jj].atom_index_1) ||
-			    (restraints_vec[ii].atom_index_2 == restraints_vec[jj].atom_index_3)) {
-			   
-			   if ((restraints_vec[jj].atom_index_2 == restraints_vec[ii].atom_index_1) ||
-			       (restraints_vec[jj].atom_index_2 == restraints_vec[ii].atom_index_3)) {
-			      
-			      is_1_4 = true;
-			      break;
+			if (idx_2 == restraint_j.atom_index_1 ||
+			    idx_2 == restraint_j.atom_index_3 ||
+			    idx_1 == restraint_j.atom_index_1 ||
+			    idx_1 == restraint_j.atom_index_3) {
+
+			   if (false)
+			      std::cout << "check_for_1_4_relation() indices "
+					<< idx_1 << " " << idx_2
+					<< " examining angle restraint pair "
+					<< restraint_i.atom_index_1 << " "
+					<< restraint_i.atom_index_2 << " "
+					<< restraint_i.atom_index_3 << " and "
+					<< restraint_j.atom_index_1 << " "
+					<< restraint_j.atom_index_2 << " "
+					<< restraint_j.atom_index_3 << std::endl;
+
+			   if ((restraint_i.atom_index_2 == restraint_j.atom_index_1) ||
+			       (restraint_i.atom_index_2 == restraint_j.atom_index_3)) {
+
+			      if ((restraint_j.atom_index_2 == restraint_i.atom_index_1) ||
+				  (restraint_j.atom_index_2 == restraint_i.atom_index_3)) {
+
+				 is_1_4 = true;
+				 break;
+			      }
 			   }
-			} 
+			}
 		     }
 		  }
 	       }
@@ -6355,12 +6368,13 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 
 				       std::vector<bool> fixed_flags =
 					  make_fixed_flags(indexc, index1, index2, index3);
-				       restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
-										 index1, index2, index3,
-										 geom[idr].second.chiral_restraint[ic].volume_sign,
-										 geom[idr].second.chiral_restraint[ic].target_volume(),
-										 geom[idr].second.chiral_restraint[ic].volume_sigma(),
-										 fixed_flags, chiral_hydrogen_index));
+				       simple_restraint sr(CHIRAL_VOLUME_RESTRAINT, indexc,
+							   index1, index2, index3,
+							   geom[idr].second.chiral_restraint[ic].volume_sign,
+							   geom[idr].second.chiral_restraint[ic].target_volume(),
+							   geom[idr].second.chiral_restraint[ic].volume_sigma(),
+							   fixed_flags, chiral_hydrogen_index);
+				       restraints_vec.push_back(sr); // push_back_restraint()
 				       n_chiral_restr++;
 				    } else {
 				       std::cout << "WARNING:: Reject chiral restraint for "
@@ -6803,7 +6817,7 @@ coot::restraints_container_t::post_add_new_restraint() {
    // adjust just one - used for target position (atom pull) restraints
 
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-   unsigned int idx_rest = restraints_vec.size() -1;
+   unsigned int idx_rest = size() -1;
    // if idx_rest is not in restraints_indices, add it to the back of restraints_indices.
 
    // If this is slow, we can go through this list backwards.
@@ -6948,27 +6962,27 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
 void
 coot::restraints_container_t::info() const {
 
-   std::cout << "INFO:: There are " << restraints_vec.size() << " restraints" << std::endl;
+   std::cout << "INFO:: There are " << size() << " restraints" << std::endl;
 
    for (unsigned int i=0; i< restraints_vec.size(); i++) {
-      if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
+      const simple_restraint &restraint = restraints_vec[i];
+      if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
 	 std::cout << "INFO:: restraint " << i << " is of type "
-		   << restraints_vec[i].restraint_type << std::endl;
+		   << restraint.restraint_type << std::endl;
 
-	 std::cout << restraints_vec[i].atom_index_1 << " "
-		   << restraints_vec[i].atom_index_2 << " "
-		   << restraints_vec[i].atom_index_3 << " "
-		   << restraints_vec[i].atom_index_4 << " "
-		   << restraints_vec[i].target_value << " "
-		   << restraints_vec[i].sigma << " " << std::endl
+	 std::cout << restraint.atom_index_1 << " "
+		   << restraint.atom_index_2 << " "
+		   << restraint.atom_index_3 << " "
+		   << restraint.atom_index_4 << " "
+		   << restraint.target_value << " "
+		   << restraint.sigma << " " << std::endl
 		   << " with "
-  		   << restraints_vec[i].plane_atom_index.size() << " vector atoms " << std::endl
+  		   << restraint.plane_atom_index.size() << " vector atoms " << std::endl
 		   << " with periodicity "
-  		   << restraints_vec[i].periodicity << std::endl;
+  		   << restraint.periodicity << std::endl;
       }
-
       std::cout << "restraint number " << i << " is restraint_type " <<
-	 restraints_vec[i].restraint_type << std::endl;
+	 restraint.restraint_type << std::endl;
    }
 } 
 

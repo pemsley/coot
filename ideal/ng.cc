@@ -148,7 +148,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
    }
 
 
-   return restraints_vec.size();
+   return size();
 }
 
 void
@@ -872,7 +872,7 @@ void
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 								    const coot::protein_geometry &geom) {
 
-   // std::cout << "make_non_bonded_contact_restraints_ng() " << restraints_vec.size() << " "  << std::endl;
+   // std::cout << "make_non_bonded_contact_restraints_ng() " << size() << " "  << std::endl;
 
    // potentially multithreadable.
 
@@ -1151,8 +1151,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
 	 r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
                                                   // restraints
-	 r.restraints_index = restraints_vec.size(); // likewise
-	 restraints_vec.push_back(r);
+	 r.restraints_index = size(); // likewise
+	 restraints_vec.push_back(r); // use push_back_restraint
 
       }
    }
@@ -1432,6 +1432,9 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 void
 coot::restraints_container_t::disperse_plane_restraints() {
 
+#if 0 // I don't think this function is necessary, because the plane restraints get
+      // dispersed as they are allocated to threads
+
    if (n_threads > 1) {
       std::pair<unsigned int, unsigned int> restraints_limit_for_planes(999999999, 0);
       bool found = false;
@@ -1462,6 +1465,7 @@ coot::restraints_container_t::disperse_plane_restraints() {
 	 }
       }
    }
+#endif
 }
 
 void
@@ -1659,7 +1663,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
 		  // Returns first (link_type) as "" if not found, second is order switch flag
 		  if (! lt.first.empty()) {
-		     // this is not the place to make peptide links, event thoug find_link_type_complicado()
+		     // this is not the place to make peptide links, event though find_link_type_complicado()
 		     // will return a peptide link (for links that were not made before (perhaps because
 		     // missing atoms)).
 		     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
@@ -1742,16 +1746,18 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
    double n_z_for_baddie = 4.0; // must be at least this bad
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      const simple_restraint &rest = restraints_vec[i];
-      if (rest.restraint_type == r_type) {
-         std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
-         double distortion_score = distortion_pair.first;
-         if (distortion_score >= interesting_distortion_limit) {
-            double n_z = sqrt(distortion_score);
-            double bl_delta = distortion_pair.second;
-            std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
-            distortions.push_back(p);
-         }
+      {
+	 const simple_restraint &rest = restraints_vec[i];
+	 if (rest.restraint_type == r_type) {
+	    std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
+	    double distortion_score = distortion_pair.first;
+	    if (distortion_score >= interesting_distortion_limit) {
+	       double n_z = sqrt(distortion_score);
+	       double bl_delta = distortion_pair.second;
+	       std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
+	       distortions.push_back(p);
+	    }
+	 }
       }
    }
 
