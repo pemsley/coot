@@ -332,18 +332,18 @@ graphics_info_t::draw_anti_aliasing() {
   if (glarea_2) {
     if (make_current_gl_context(glarea_2)) {
       if (do_anti_aliasing_flag) {
-   // should we also add a (quality) hint here?
-   glEnable(GL_LINE_SMOOTH);
-   glEnable(GL_BLEND);
-   if (background_is_black_p()) {
-     glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
-   } else {
-     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-   }
+         // should we also add a (quality) hint here?
+         glEnable(GL_LINE_SMOOTH);
+         glEnable(GL_BLEND);
+         if (background_is_black_p()) {
+            glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
+         } else {
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+         }
       } else {
-   glDisable(GL_LINE_SMOOTH);
-   glDisable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
+         glDisable(GL_LINE_SMOOTH);
+         glDisable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
       }
     }
   }
