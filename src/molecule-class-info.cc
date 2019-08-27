@@ -48,6 +48,7 @@
 #include <cmath>
 const double pi = M_PI;
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
