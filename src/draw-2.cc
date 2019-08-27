@@ -260,13 +260,11 @@ glm::mat4 get_view_rotation() {
 void draw_map_molecules() {
    glLineWidth(1.0f);
    GLenum err = glGetError();
-   if (err) std::cout << "gtk3_draw_molecules() glLineWidth " << err << std::endl;
+   if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
    GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
    glUseProgram(pid);
-   err = glGetError();
-   if (err) std::cout << "   gtk3_draw_molecules() glUseProgram with GL err "
-                      << err << std::endl;
+   err = glGetError(); if (err) std::cout << "   gtk3_draw_map_molecules() glUseProgram with GL err " << err << std::endl;
 
 
    glm::mat4 mvp = get_molecule_mvp();

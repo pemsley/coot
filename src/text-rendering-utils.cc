@@ -63,7 +63,7 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader) {
     glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(widget_width), 0.0f, static_cast<GLfloat>(widget_height));
     shader.Use();
     glUniformMatrix4fv(glGetUniformLocation(shader.get_program_id(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-   err = glGetError(); std::cout << "RenderText A " << err << std::endl;
+    err = glGetError(); if (err) std::cout << "RenderText Aa " << err << std::endl;
     // FreeType
     FT_Library ft;
     // All functions return a value different than 0 whenever an error occurred
@@ -147,19 +147,17 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 {
 
     // Activate corresponding render state
-    GLenum err = glGetError();
-    if (err) std::cout << "RenderText start err " << err << std::endl;
+    GLenum err = glGetError(); if (err) std::cout << "RenderText start err " << err << std::endl;
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     shader.Use();
+    err = glGetError(); if (err) std::cout << "RenderText A0 " << err << std::endl;
     glUniform3f(glGetUniformLocation(shader.get_program_id(), "textColour"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
-    err = glGetError();
-    if (err) std::cout << "RenderText A " << err << std::endl;
+    err = glGetError(); if (err) std::cout << "RenderText A error " << err << std::endl;
     glBindVertexArray(VAO);
-    err = glGetError();
-    if (err) std::cout << "RenderText B " << err << std::endl;
+    err = glGetError(); if (err) std::cout << "RenderText B error " << err << std::endl;
 
     // Iterate through all characters
     std::string::const_iterator c;
