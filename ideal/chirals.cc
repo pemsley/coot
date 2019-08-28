@@ -406,9 +406,12 @@ void
 coot::restraints_container_t::fix_chiral_atoms_maybe(gsl_vector *s) {
 
    if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
-      for(unsigned int i=0; i<restraints_vec.size(); i++) {
-	 if ( restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-	    fix_chiral_atom_maybe(restraints_vec[i], s);
+      for(int i=0; i<size(); i++) {
+	 {
+	    const simple_restraint &rest = restraints_vec[i];
+	    if ( restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	       fix_chiral_atom_maybe(restraints_vec[i], s);
+	    }
 	 }
       }
    }
@@ -420,22 +423,24 @@ coot::restraints_container_t::check_pushable_chiral_hydrogens(gsl_vector *v) {
    bool state = 0; // none
    if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
       for (int i=0; i<size(); i++) {
-	 if ( restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-	    if (restraints_vec[i].chiral_hydrogen_index != coot::UNSET_INDEX) {
-	       // so we have a single H attached to this chiral centre.
+	       {
+	          const simple_restraint &rest = restraints_vec[i];
+	          if ( rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	             if (rest.chiral_hydrogen_index != coot::UNSET_INDEX) {
+		              // so we have a single H attached to this chiral centre.
 
-	       // is the hydrogen on the wrong side of the chiral centre?
-	       // 
-	       bool val = chiral_hydrogen_needs_pushing(restraints_vec[i], v);
-	       // std::cout << "::::  chiral_hydrogen_needs_pushing() returned " << val << std::endl;
-	       if (val) {
-		  const coot::simple_restraint &restraint = restraints_vec[i];
-		  push_chiral_hydrogen(restraint, v);
-		  state = 1;
-		  break; // only do one at a time.
+		              // is the hydrogen on the wrong side of the chiral centre?
+		              //
+		              bool val = chiral_hydrogen_needs_pushing(rest, v);
+		              // std::cout << "::::  chiral_hydrogen_needs_pushing() returned " << val << std::endl;
+		              if (val) {
+		                 push_chiral_hydrogen(rest, v);
+		                 state = 1;
+		                 break; // only do one at a time.
+		              }
+	             }
+	          }
 	       }
-	    } 
-	 }
       }
    }
    return state;

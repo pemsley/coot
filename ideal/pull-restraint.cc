@@ -75,7 +75,7 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
       std::cout << "add_target_position_restraint() for " << idx << " "
                 << spec << target_pos.format() << "\n";
 
-   restraints_vec.push_back(r);
+   restraints_vec.push_back(r); // push_back_restraint()
    post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
    restraints_lock = false; // unlock
    needs_reset = true;
@@ -91,14 +91,15 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
       std::cout << "restraints_container_t clear_atom_pull_restraint for " << spec
 		<< " called " << std::endl;
 
-   unsigned int pre_size = restraints_vec.size();
+   unsigned int pre_size = size();
    if (pre_size > 0) {
+      // extra loop needed.
       restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 					  restraints_vec.end(),
 					  target_position_for_atom_eraser(spec)),
 			   restraints_vec.end());
-      unsigned int post_size = restraints_vec.size();
-      if (false) // debug
+      unsigned int post_size = size();
+      if (false)
 	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
 		   << post_size << std::endl;
    }
@@ -109,17 +110,16 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
 void
 coot::restraints_container_t::clear_all_atom_pull_restraints() {
 
-   // std::cout << "restraints_container_t clear_all_atom_pull_restraints called " << std::endl;
-
-   unsigned int pre_size = restraints_vec.size();
+   unsigned int pre_size = size();
    if (pre_size > 0) {
       restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 					  restraints_vec.end(),
 					  target_position_eraser),
 			   restraints_vec.end());
-      unsigned int post_size = restraints_vec.size();
-      // std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-      // << post_size << std::endl;
+      unsigned int post_size = size();
+      if (false)
+	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
+		   << post_size << std::endl;
    }
    needs_reset = true; // probably
 }
@@ -267,12 +267,12 @@ coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
                              // sync with below function, or make a data member
 
    atom_spec_t dum;
-   unsigned int pre_size = restraints_vec.size();
+   unsigned int pre_size = size();
    restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 				       restraints_vec.end(),
 				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dum)),
 			restraints_vec.end());
-   unsigned int post_size = restraints_vec.size();
+   unsigned int post_size = size();
    if (post_size < pre_size) status = true;
    return status;
 }
@@ -281,11 +281,14 @@ coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
 std::vector<coot::atom_spec_t>
 coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom_spec) {
 
-   std::vector<atom_spec_t> v;
+   // If, as we drag and the refinement proceeds, some atoms get close to their target positions, then
+   // we should drop the restraint - but not for the atom being dragged - that shouldn't lose its restraint.
+   // We want a list of atoms that are now close to their target position (mostly is empty).
+
+   std::vector<atom_spec_t> v; // a list of specs for removed restraints (they no longer need to be drawn)
+
    double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
                              // sync with above function, or make a data member
-
-   std::vector<atom_spec_t> v_dragged;
 
    // set the return value:
    //
@@ -293,10 +296,9 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 mmdb::Atom *at = atom[it->atom_index_1];
-	 v_dragged.push_back(atom_spec_t(at));
 	 if (atom_spec_t(at) != dragged_atom_spec) {
 	    clipper::Coord_orth pos(at->x, at->y, at->z);
-	    double d = sqrt((pos-it->atom_pull_target_pos).lengthsq());
+	    double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
 	    if (d < close_dist)
 	       v.push_back(it->atom_spec);
 	 }

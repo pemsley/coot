@@ -102,7 +102,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
          std::cout << "--------- ERROR:: " << __FUNCTION__ << " - thread pool was not set! ---------"
 		   << std::endl;
          // and yet we continue... that's bad news.
-	 std::cout << "Bad things will now happen" << std::endl;
+	      std::cout << "Bad things will now happen" << std::endl;
       }
 
       make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
