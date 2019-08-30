@@ -1291,9 +1291,10 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 
    if (false)
       std::cout << "try_make_peptide_link_ng():         "
-		<< residue_spec_t(res_1_pair.second) << " " << residue_spec_t(res_2_pair.second) << " fixed-1: "
-		<< res_1_pair.first << " fixed-2: " << res_2_pair.first << " rama "
-		<< do_rama_plot_restraints << " trans " << do_trans_peptide_restraints << std::endl;
+		<< residue_spec_t(res_1_pair.second) << " " << residue_spec_t(res_2_pair.second)
+		<< " fixed-1: " << res_1_pair.first << " fixed-2: " << res_2_pair.first
+		<< " rama " << do_rama_plot_restraints << " trans " << do_trans_peptide_restraints
+		<< std::endl;
 
    mmdb::Residue *res_1 = res_1_pair.second;
    mmdb::Residue *res_2 = res_2_pair.second;
@@ -1302,8 +1303,12 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
    bool status = false;
    link_restraints_counts lrc;
 
-   if (util::is_standard_amino_acid_name(res_name_1)) {
-      if (util::is_standard_amino_acid_name(res_name_2)) {
+   // find_peptide_link_type_ng doesn't test the geometry -
+   // just the residues types, return empty on the groups being peptide linked
+   //
+   std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
+   if (! link_type.empty()) {
+      {
 	 mmdb::Atom **residue_1_atoms = 0;
 	 mmdb::Atom **residue_2_atoms = 0;
 	 int n_residue_1_atoms;
@@ -1322,24 +1327,19 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 		     std::string alt_conf_2(at_2->altLoc);
 		     if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
 
-			// find_peptide_link_type_ng doesn't test the geometry -
-			// just the residues types
-			std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
-			if (! link_type.empty()) {
-			   bool is_fixed_first_residue  = res_1_pair.first;
-			   bool is_fixed_second_residue = res_2_pair.first;
+			bool is_fixed_first_residue  = res_1_pair.first;
+			bool is_fixed_second_residue = res_2_pair.first;
 
-			   if (false) {
-			      std::cout << "adding link bond: "
-					<< atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
-			   }
-			   lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
-								  is_fixed_first_residue,
-								  is_fixed_second_residue,
-								  do_trans_peptide_restraints,
-								  geom);
-			   status = true;
-			}
+			if (false)
+			   std::cout << "adding link bond: "
+				     << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
+
+			lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
+							       is_fixed_first_residue,
+							       is_fixed_second_residue,
+							       do_trans_peptide_restraints,
+							       geom);
+			status = true;
 		     }
 		  }
 	       }
