@@ -1735,6 +1735,7 @@ void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
    double interesting_distortion_limit = 15.0;
+   analyze_for_bad_restraints(CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
    analyze_for_bad_restraints(BOND_RESTRAINT, interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT, interesting_distortion_limit);
 
@@ -1743,21 +1744,20 @@ coot::restraints_container_t::analyze_for_bad_restraints() {
 void
 coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit) {
 
-   double n_z_for_baddie = 4.0; // must be at least this bad
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       {
-	 const simple_restraint &rest = restraints_vec[i];
-	 if (rest.restraint_type == r_type) {
-	    std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
-	    double distortion_score = distortion_pair.first;
-	    if (distortion_score >= interesting_distortion_limit) {
-	       double n_z = sqrt(distortion_score);
-	       double bl_delta = distortion_pair.second;
-	       std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
-	       distortions.push_back(p);
-	    }
-	 }
+	      const simple_restraint &rest = restraints_vec[i];
+	      if (rest.restraint_type == r_type) {
+	         std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
+	         double distortion_score = distortion_pair.first;
+	         if (distortion_score >= interesting_distortion_limit) {
+	            double n_z = sqrt(distortion_score);
+	            double bl_delta = distortion_pair.second;
+	            std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
+	            distortions.push_back(p);
+	         }
+	      }
       }
    }
 
@@ -1774,16 +1774,27 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       const simple_restraint &rest = restraints_vec[std::get<0>(d)];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
+
+      if (r_type == CHIRAL_VOLUME_RESTRAINT) {
+         mmdb::Atom *at_c = atom[rest.atom_index_centre];
+         std::cout << "INFO:: Model: Bad Chiral Volume: "
+                   << atom_spec_t(at_c) << " "
+                   << " delta "      << std::get<2>(d)
+                   << " target "     << rest.target_chiral_volume
+                   << " distortion " << std::get<3>(d) << std::endl;
+		}
+
 		// How can I know if this was a Hydrogen bond restraint?
       if (r_type == BOND_RESTRAINT)
-         std::cout << "INFO:: Input Model: Very Bad Bond: "
+         std::cout << "INFO:: Model: Bad Bond: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " nZ "         << std::get<1>(d)
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
                    << " distortion " << std::get<3>(d) << std::endl;
+
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
-         std::cout << "INFO:: Input Model: Very Bad Non-Bonded Contact: "
+         std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
