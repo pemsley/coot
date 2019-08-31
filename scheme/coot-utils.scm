@@ -3824,7 +3824,6 @@
 
 	  (format #t "DEBUG:: handle-rev-string-2016: db-id-list: ~s~%" db-id-list)
 
-
 	  ;; now db-id-list is something like (("DrugBank" . 12234) ("ChEMBL" . 6789))
 	  ;; can we find one of them that works?
 

@@ -2318,6 +2318,7 @@ void handle_get_accession_code(GtkWidget *widget) {
       std::cout << "PDB Accession Code: " << text << std::endl;
       int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
 									"accession_code_window")));
+
       int n = *n_p;
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
 

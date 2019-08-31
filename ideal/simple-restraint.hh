@@ -1015,6 +1015,7 @@ namespace coot {
       int n_atoms_limit_for_nbc; // the neighbours in non_bonded_contacts_atom_indices are only useful
                                  // for the moving atoms.
       mmdb::PPAtom atom;
+      bool model_has_hydrogen_atoms;
       std::vector<bool> atom_is_metal;
       std::vector<bool> atom_is_hydrogen;
       std::vector<int>  old_atom_index_to_new_atom_index;
@@ -1053,8 +1054,7 @@ namespace coot {
       int nSelResidues_active;
       bool apply_H_non_bonded_contacts;
 
-      // pointless argument - remove later
-      void init(bool unset_deriv_locks) {
+      void init() {
       	 verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
 	 n_atoms = 0;
@@ -1062,6 +1062,7 @@ namespace coot {
 	 mol = 0;
 	 n_atoms = 0;
 	 atom = 0;
+	 model_has_hydrogen_atoms = true;
 	 include_map_terms_flag = 0;
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
@@ -1995,7 +1996,7 @@ namespace coot {
 
 	 // xmap = xmap_in;
 
-	 init(true); // initially locks pointer should be null
+	 init();
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
@@ -2482,7 +2483,7 @@ namespace coot {
 
       void clear() {
 	 restraints_vec.clear();
-	 init(false);
+	 init();
       }
 
       double log_cosh_target_distance_scale_factor;

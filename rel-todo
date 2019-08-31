@@ -4,24 +4,35 @@
    o Refine a bit of distorted RNA
      Marc Leibundgut 26/06/2019.
 
+   o add a function to set the window title (don't for get to check
+     for use-graphics)
+
+* set_main_window_title() already exists.
+
    o what is the map grid? Tell me in the map preferences.
+
+* Done.
 
    o fix the compilation of libcurl in the build script to use
      libidn2 and OpenSSL for https
 
-   o add a function to set the window title (don't for get to check
-     for use-graphics)
+* Done.
+
+   o Rob's JSON file for mtz animation - do we have the JSON parser here?
+
+* Yes. But you need to test for it in the same way that it's tested to set BUILD_CURLEW
+  Give up with this for now - too messy because the file names change.
 
    o Refinement on an alt conf should refine just the atoms with that alt conf.
 
    o Read in a PDB file that has a TER. Write it out as a mmCIF. It has a blank atom at the
      end - it should not [Nigel Moriarty]. mmdb bug? ::: 1
 
-   o Rob's JSON file for mtz animation - do we have the JSON parser here?
-
-* Yes. But you need to test for it in the same way that it's tested to set BUILD_CURLEW
+* Not a coot bug.
 
    o for drawing bonds - don't make a S-S bond if the S is linked to something else.
+
+* In refinement.
 
    o Huw (from York) sent a message about pygtk usage. Needs to be incorportated. ::: 1
 
