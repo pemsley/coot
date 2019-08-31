@@ -1687,6 +1687,7 @@ namespace coot {
       public:
 	 reduced_angle_info_container_t() {}
 	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+	 reduced_angle_info_container_t(const std::vector<std::vector<simple_restraint> > &rvv); // needs init() also?
 	 void init(const std::vector<simple_restraint> &r);
 	 std::map<int, std::vector<std::pair<int, int> > > angles;
 	 bool is_1_4(int i, int j) const;

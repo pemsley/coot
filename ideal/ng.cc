@@ -102,7 +102,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
          std::cout << "--------- ERROR:: " << __FUNCTION__ << " - thread pool was not set! ---------"
 		   << std::endl;
          // and yet we continue... that's bad news.
-	 std::cout << "Bad things will now happen" << std::endl;
+	      std::cout << "Bad things will now happen" << std::endl;
       }
 
       make_non_bonded_contact_restraints_using_threads_ng(imol, geom);
@@ -148,7 +148,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
    }
 
 
-   return restraints_vec.size();
+   return size();
 }
 
 void
@@ -872,7 +872,7 @@ void
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 								    const coot::protein_geometry &geom) {
 
-   // std::cout << "make_non_bonded_contact_restraints_ng() " << restraints_vec.size() << " "  << std::endl;
+   // std::cout << "make_non_bonded_contact_restraints_ng() " << size() << " "  << std::endl;
 
    // potentially multithreadable.
 
@@ -1151,8 +1151,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
 	 r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
                                                   // restraints
-	 r.restraints_index = restraints_vec.size(); // likewise
-	 restraints_vec.push_back(r);
+	 r.restraints_index = size(); // likewise
+	 restraints_vec.push_back(r); // use push_back_restraint
 
       }
    }
@@ -1291,9 +1291,10 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 
    if (false)
       std::cout << "try_make_peptide_link_ng():         "
-		<< residue_spec_t(res_1_pair.second) << " " << residue_spec_t(res_2_pair.second) << " fixed-1: "
-		<< res_1_pair.first << " fixed-2: " << res_2_pair.first << " rama "
-		<< do_rama_plot_restraints << " trans " << do_trans_peptide_restraints << std::endl;
+		<< residue_spec_t(res_1_pair.second) << " " << residue_spec_t(res_2_pair.second)
+		<< " fixed-1: " << res_1_pair.first << " fixed-2: " << res_2_pair.first
+		<< " rama " << do_rama_plot_restraints << " trans " << do_trans_peptide_restraints
+		<< std::endl;
 
    mmdb::Residue *res_1 = res_1_pair.second;
    mmdb::Residue *res_2 = res_2_pair.second;
@@ -1302,8 +1303,12 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
    bool status = false;
    link_restraints_counts lrc;
 
-   if (util::is_standard_amino_acid_name(res_name_1)) {
-      if (util::is_standard_amino_acid_name(res_name_2)) {
+   // find_peptide_link_type_ng doesn't test the geometry -
+   // just the residues types, return empty on the groups being peptide linked
+   //
+   std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
+   if (! link_type.empty()) {
+      {
 	 mmdb::Atom **residue_1_atoms = 0;
 	 mmdb::Atom **residue_2_atoms = 0;
 	 int n_residue_1_atoms;
@@ -1322,24 +1327,19 @@ coot::restraints_container_t::try_make_peptide_link_ng(const coot::protein_geome
 		     std::string alt_conf_2(at_2->altLoc);
 		     if (alt_conf_1 == alt_conf_2 || alt_conf_1.empty() || alt_conf_2.empty()) {
 
-			// find_peptide_link_type_ng doesn't test the geometry -
-			// just the residues types
-			std::string link_type = find_peptide_link_type_ng(res_1, res_2, geom);
-			if (! link_type.empty()) {
-			   bool is_fixed_first_residue  = res_1_pair.first;
-			   bool is_fixed_second_residue = res_2_pair.first;
+			bool is_fixed_first_residue  = res_1_pair.first;
+			bool is_fixed_second_residue = res_2_pair.first;
 
-			   if (false) {
-			      std::cout << "adding link bond: "
-					<< atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
-			   }
-			   lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
-								  is_fixed_first_residue,
-								  is_fixed_second_residue,
-								  do_trans_peptide_restraints,
-								  geom);
-			   status = true;
-			}
+			if (false)
+			   std::cout << "adding link bond: "
+				     << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
+
+			lrc = make_link_restraints_for_link_ng(link_type, res_1, res_2,
+							       is_fixed_first_residue,
+							       is_fixed_second_residue,
+							       do_trans_peptide_restraints,
+							       geom);
+			status = true;
 		     }
 		  }
 	       }
@@ -1432,6 +1432,9 @@ coot::restraints_container_t::try_make_phosphodiester_link_ng(const coot::protei
 void
 coot::restraints_container_t::disperse_plane_restraints() {
 
+#if 0 // I don't think this function is necessary, because the plane restraints get
+      // dispersed as they are allocated to threads
+
    if (n_threads > 1) {
       std::pair<unsigned int, unsigned int> restraints_limit_for_planes(999999999, 0);
       bool found = false;
@@ -1462,6 +1465,7 @@ coot::restraints_container_t::disperse_plane_restraints() {
 	 }
       }
    }
+#endif
 }
 
 void
@@ -1659,7 +1663,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
 		  // Returns first (link_type) as "" if not found, second is order switch flag
 		  if (! lt.first.empty()) {
-		     // this is not the place to make peptide links, event thoug find_link_type_complicado()
+		     // this is not the place to make peptide links, event though find_link_type_complicado()
 		     // will return a peptide link (for links that were not made before (perhaps because
 		     // missing atoms)).
 		     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
