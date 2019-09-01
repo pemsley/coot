@@ -91,7 +91,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 	    make_moving_atoms_graphics_object(imol, make_asc(moving_mol));
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;
 	 } 
 

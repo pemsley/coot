@@ -646,8 +646,10 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    
    int imol_1 = first_coords_imol();
    int imol_2 = first_coords_imol();
-   graphics_info_t::lsq_ref_imol = imol_1;
-   graphics_info_t::lsq_mov_imol = imol_2;
+   if (! is_valid_model_molecule(graphics_info_t::lsq_ref_imol))
+      graphics_info_t::lsq_ref_imol = imol_1;
+   if (! is_valid_model_molecule(graphics_info_t::lsq_mov_imol))
+      graphics_info_t::lsq_mov_imol = imol_2;
 
    if (is_valid_model_molecule(g.lsq_dialog_values.reference_molecule_number))
       imol_1 = g.lsq_dialog_values.reference_molecule_number;
@@ -704,8 +706,8 @@ void update_lsq_dialog_store_values(GtkWidget *lsq_dialog) {
 					     g.lsq_mov_imol,
 					     g.lsq_match_chain_id_ref,
 					     g.lsq_match_chain_id_mov);
-   
-} 
+
+}
 
 
 int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
@@ -802,6 +804,13 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
       imol = graphics_info_t::lsq_mov_imol;
        callback_func =
 	 GTK_SIGNAL_FUNC(lsq_moving_chain_option_menu_item_activate);
+   }
+
+   if (false) { // debug
+      std::cout << "debug:: fill chain option menu for mol " << imol
+		<< " and  active_chain_id " << active_chain_id << std::endl;
+      std::cout << "debug:: lsq_ref_imol " << graphics_info_t::lsq_ref_imol << std::endl;
+      std::cout << "debug:: lsq_mov_imol " << graphics_info_t::lsq_mov_imol << std::endl;
    }
 
    if (is_valid_model_molecule(imol)) {

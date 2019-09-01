@@ -271,7 +271,7 @@ graphics_info_t::read_standard_residues() {
    const char *filename = getenv(standard_env_dir.c_str());
    if (! filename) {
 
-      std::string standard_file_name = PKGDATADIR;
+      std::string standard_file_name = coot::package_data_dir();
       standard_file_name += "/";
       standard_file_name += "standard-residues.pdb";
 

@@ -40,8 +40,13 @@
 
 #include "coords/phenix-geo.hh"
 
+/*! \file
+  \brief Coot Scripting Interface - General (C++ functions)
+*/
+
 namespace coot {
 
+   //! alias path
    class alias_path_t {
    public:
       int index;
@@ -54,7 +59,7 @@ namespace coot {
       }
    };
 
-   // pisa internal function
+   //! pisa internal function
    //
    class pisa_interface_bond_info_t {
    public:
@@ -134,9 +139,11 @@ int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec);
 int set_go_to_atom_from_res_spec(const coot::residue_spec_t &spec);
 #ifdef USE_GUILE
 int set_go_to_atom_from_res_spec_scm(SCM residue_spec);
+int set_go_to_atom_from_atom_spec_scm(SCM residue_spec);
 #endif 
 #ifdef USE_PYTHON
 int set_go_to_atom_from_res_spec_py(PyObject *residue_spec);
+int set_go_to_atom_from_atom_spec_py(PyObject *residue_spec);
 #endif 
 
 
@@ -174,6 +181,15 @@ SCM get_symmetry(int imol);
 // return a python object as a list (or some other python container)
 PyObject *get_symmetry_py(int imol);
 #endif // USE_PYTHON
+
+//! \brief return 1 if this residue clashes with the symmetry-related
+//!  atoms of the same molecule.
+//! 
+//! 0 means that it did not clash,
+//! -1 means that the residue or molecule could not be found or that there
+//!    was no cell and symmetry.
+int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
+			  float clash_dist);
 //! \}
 
 /*  ---------------------------------------------------------------------- */
@@ -284,6 +300,7 @@ std::string refmac_name(int imol);
 /*  ------------------------------------------------------------------- */
 
 namespace coot {
+   //! str mtime for for attributes
    class str_mtime {
    public:
       str_mtime(std::string file_in, time_t mtime_in) {
@@ -295,7 +312,7 @@ namespace coot {
       std::string file;
    };
    
-   // trivial helper function
+   //! trivial helper function for file attributes
    class file_attribs_info_t {
    public:
       std::string directory_prefix;
@@ -330,9 +347,10 @@ void add_to_database(const std::vector<std::string> &command_strings);
 /*  ----------------------------------------------------------------------- */
 /*                         Merge Molecules                                  */
 /*  ----------------------------------------------------------------------- */
+#include "merge-molecule-results-info-t.hh"
 // return the status and vector of chain-ids of the new chain ids.
 // 
-std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
+std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_vector(const std::vector<int> &add_molecules, int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                         Dictionaries                                     */
@@ -703,6 +721,10 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief return a Python object for the radii of the atoms in the dictionary
+//
+PyObject *get_dictionary_radii();
+
 //! \brief return a Python object for the representation of bump and hydrogen bonds of
 //          the specified residue
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
@@ -730,6 +752,16 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 
 //! \name Refinement with specs
 //! \{
+
+//! \brief
+//! a utility to return the specs of all the residues, each spec prefixed by the serial number
+#ifdef USE_GUILE
+SCM all_residues_with_serial_numbers_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *all_residues_with_serial_numbers_py(int imol);
+#endif
+
 
 //! \brief
 //! regularize the given residues
@@ -818,7 +850,10 @@ SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 #endif 
 #ifdef USE_PYTHON
 PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_density_level);
-#endif 
+#endif
+
+//! B-factor distribution histogram
+void b_factor_distribution_graph(int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                  water chain                                             */
@@ -1461,6 +1496,16 @@ void register_interesting_positions_list_py(PyObject *pos_list);
 #endif // USE_PYTHON 
 
 /* ------------------------------------------------------------------------- */
+/*                      all-molecule atom overlaps                           */
+/* ------------------------------------------------------------------------- */
+#ifdef USE_PYTHON
+PyObject *molecule_atom_overlaps_py(int imol);
+#endif // USE_PYTHON
+#ifdef USE_GUILE
+SCM molecule_atom_overlaps_scm(int imol);
+#endif // USE_GUILE
+
+/* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */
 /* ------------------------------------------------------------------------- */
 //
@@ -1519,10 +1564,6 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
 //! \brief make a simple text dialog.
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			int geom_x, int geom_y);
-
-// gui nuts and bolts
-void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
-						 GtkWidget *dialog);
 
 
 /*  ----------------------------------------------------------------------- */

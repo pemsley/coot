@@ -88,6 +88,6 @@ int main(int argc, char **argv) {
       catch (const clipper::Message_base &exc) {
 	 std::cout << "WARNING:: failed to open " << file_name << std::endl;
       } 
-   } 
+   }
    return 0;
 } 

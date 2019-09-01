@@ -782,3 +782,43 @@ coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, 
 #endif
    return bpc;
 }
+
+
+// use residues-near-residue to find linked residues
+std::vector<mmdb::Residue *>
+coot::simple_residue_tree(mmdb::Residue *residue_centre, mmdb::Manager *mol, float close_dist_max) {
+
+   double dist_crit = close_dist_max;
+   std::vector<mmdb::Residue *> v;
+   std::set<mmdb::Residue *> s;
+
+   std::queue<mmdb::Residue *> q; // what is dequeue? (double-ended)
+
+   q.push(residue_centre);
+   s.insert(residue_centre);
+
+   while (q.size()) {
+      mmdb::Residue *test_residue = q.front();
+      s.insert(test_residue);
+      q.pop();
+
+      // OK, what new ones shall we add?
+      // Don't add residues that are already in the set. Everything that is in the queue
+      // is in the set also.
+      std::vector<mmdb::Residue *> residues = residues_near_residue(test_residue, mol, dist_crit);
+      for (unsigned int ires=0; ires<residues.size(); ires++) {
+	 mmdb::Residue *rnr = residues[ires];
+	 std::set<mmdb::Residue *>::const_iterator it = s.find(rnr);
+	 if (it == s.end()) {
+	    q.push(rnr);
+	    s.insert(rnr);
+	 }
+      }
+   }
+
+   std::set<mmdb::Residue *>::const_iterator its;
+   for (its=s.begin(); its!=s.end(); its++)
+      v.push_back(*its);
+
+   return v;
+}

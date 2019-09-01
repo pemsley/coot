@@ -392,7 +392,7 @@
 
 
 (define bug-report
-  (lambda (coot-exe)
+  (lambda (coot-exe start-date)
 
     (define (is-GLX-problem? string-list)
       (let ((status #f)) ;; no problem as default
@@ -404,8 +404,11 @@
 
 
     (format #t "coot-exe: ~s~%" coot-exe)
+    (run-command/strings "ls" (list "-l" coot-exe) '())
     (format #t "coot-version: ~%" )
     (run-command/strings coot-exe (list "--version-full") '())
+    (if (> (string-length start-date) 0)
+	(format #t "start-date: ~s~%" start-date))
     (format #t "platform: ~%" )
     (run-command/strings "uname" (list "-a") '())
     
@@ -416,6 +419,26 @@
 	      (let ((gui-string (add-newlines sl "")))
 		(make-gui gui-string)))))))
 
+;; range: works like the eponymous python function
+;; e.g. (range 3) -> '(0, 1, 2)
+;; e.g. (range 1 3) -> '(1, 2)
+;;
+(define (range first . second)
+
+  (if (number? first)
+
+      ;; OK input
+      (let ((n-low/n-high (if (= (length second) 0)
+			      (cons 0 first)
+			      (cons first (car second)))))
+
+	(let loop ((count (car n-low/n-high))
+		   (rng '()))
+	  (cond
+	   ((>= count (cdr n-low/n-high)) (reverse rng))
+	   (else
+	    (loop (+ count 1)
+		  (cons count rng))))))))
 
 ;; command line invocation:
 (let* ((args (command-line)))
@@ -435,8 +458,16 @@
 			     (display line)
 			     (newline)) 
 			   s)))))
-		     
-	    (bug-report coot-exe)))))
+	    (begin
+
+	      ;; did we get the start date?
+	      (let ((start-date ""))
+		(for-each (lambda (idx)
+			    (let ((arg (list-ref args idx)))
+			      (if (string=? arg "--date")
+				  (set! start-date (list-ref args (+ idx 1))))))
+			  (range (length args)))
+
+		(bug-report coot-exe start-date)))))))
 
 
-			   

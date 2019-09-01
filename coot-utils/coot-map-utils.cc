@@ -217,6 +217,18 @@ coot::util::density_at_point(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+//
+float
+coot::util::density_at_point_by_linear_interpolation(const clipper::Xmap<float> &xmap,
+						     const clipper::Coord_orth &pos) {
+
+   float dv;
+   clipper::Coord_frac a_cf = pos.coord_frac(xmap.cell());
+   clipper::Coord_map  a_cm = a_cf.coord_map(xmap.grid_sampling());
+   clipper::Interp_linear::interp(xmap, a_cm, dv);
+   return dv;
+}
+
 void
 coot::util::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
 				 const float &reso_low,
@@ -822,6 +834,54 @@ coot::util::backrub_residue_triple_t::trim_next_residue_atoms() {
    vec.push_back(" H  ");
    trim_residue_atoms_generic(this_residue, vec, 0);
 }
+
+clipper::Xmap<float>
+coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor) {
+
+   float mg = coot::util::max_gridding(xmap_in);
+   clipper::Resolution reso(3.0);
+   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), xmap_in.grid_sampling());
+   xmap_in.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+
+#if 0 // 10 times slower
+   //...and inside loop:
+   it = reso_map.find(irs);
+   if (it != reso_map.end()) {
+      fphis[hri].f() *= it->second;
+   } else {
+      float esf = exp(-b_factor * irs * 0.25);
+      reso_map[irs] = esf;
+      fphis[hri].f() *= esf;
+   }
+#endif
+
+   std::map<float, float> reso_map;
+   std::map<float, float>::const_iterator it;
+   int count = 0;
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      if (true) {
+	 float f = fphis[hri].f();
+	 if (! clipper::Util::is_nan(f)) {
+	    float irs =  hri.invresolsq();
+	    fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+	 }
+	 count++;
+      }
+   }
+   // auto tp_2 = std::chrono::high_resolution_clock::now();
+   xmap_out.fft_from(fphis);
+   // auto tp_3 = std::chrono::high_resolution_clock::now();
+   // auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   // auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   // FFT takes ~50 times more time than the adjust of the Fs.
+   // std::cout << "::::::: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+   return xmap_out;
+}
+
 
 // as in the verb, not the noun., return the number of segments (0 is
 // also useful segment).
@@ -1707,7 +1767,9 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       clipper::Coord_orth ex_pt_2_co;
       clipper::Coord_frac ex_pt_1_fc;
       clipper::Coord_frac ex_pt_2_fc;
+      unsigned int n_rounds = 0;
       while (! good_frac_coords) {
+	 n_rounds++;
 	 ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
 					  selection_extents.first.y()-border,
 					  selection_extents.first.z()-border);
@@ -1716,7 +1778,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 					  selection_extents.second.z()+border);
 	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
 	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
-	 if (debug) {
+	 if (false) {
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
 	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
@@ -1727,12 +1789,30 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 	 }
 	 good_frac_coords = true;
 	 for (int i=0; i<3; i++) {
+	    // Yes, this still can happen, but we can rescue (see later)
+	    // std::cout << "comparing: " << ex_pt_2_fc[i] << " should be greater than "
+	    // << ex_pt_1_fc[i] << std::endl;
 	    if (ex_pt_2_fc[i] < ex_pt_1_fc[i]) {
+	       // std::cout << "opps false " << std::endl;
 	       good_frac_coords = false;
-	       border += 1.2;
+	       border += 1.4;
 	    }
 	 }
+	 // Opps. We didn't converge - but we don't want to stay here.
+	 if (n_rounds >= 10)
+	    good_frac_coords = true;
       }
+
+      // If needed, try to rescue using a different method - that works for P1. Maybe this should
+      // replace the method above?
+      //
+      if (n_rounds == 10) {
+	 std::pair<clipper::Coord_frac, clipper::Coord_frac> nfc =
+	    find_struct_fragment_coord_fracs_v2(selection_extents, reference_map.cell());
+	 ex_pt_1_fc = nfc.first;
+	 ex_pt_2_fc = nfc.second;
+      }
+
       clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
 				       ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
       if (debug) {
@@ -1773,7 +1853,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 	    std::cout << "INFO:: masking iat " << iat << " box grid: " << grid.format() << std::endl;
 	    std::cout << "INFO:: masking iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
 	 }
-	 
+
 	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
 	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
@@ -1954,6 +2034,53 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 
    return stats;
 }
+
+// helper
+std::pair<clipper::Coord_frac, clipper::Coord_frac>
+coot::util::find_struct_fragment_coord_fracs_v2(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &selection_extents,
+						const clipper::Cell &cell) {
+
+   clipper::Coord_orth sum = selection_extents.first + selection_extents.second;
+   const clipper::Coord_orth &pt_1 = selection_extents.first;
+   const clipper::Coord_orth &pt_2 = selection_extents.second;
+   clipper::Coord_orth mid_pt(0.5 * sum.x(), 0.5 * sum.y(), 0.5 * sum.z());
+   double l = 0.7 * clipper::Coord_orth::length(pt_2, pt_1);
+
+   // we want to find the min and max fractional coords of the corner points of a box centred on mid_pt
+   //
+   std::vector<clipper::Coord_orth> v;
+   v.push_back(clipper::Coord_orth(pt_1.x(), pt_1.y(), pt_1.z()));
+   v.push_back(clipper::Coord_orth(pt_1.x(), pt_1.y(), pt_2.z()));
+   v.push_back(clipper::Coord_orth(pt_1.x(), pt_2.y(), pt_1.z()));
+   v.push_back(clipper::Coord_orth(pt_1.x(), pt_2.y(), pt_2.z()));
+   v.push_back(clipper::Coord_orth(pt_2.x(), pt_1.y(), pt_1.z()));
+   v.push_back(clipper::Coord_orth(pt_2.x(), pt_1.y(), pt_2.z()));
+   v.push_back(clipper::Coord_orth(pt_2.x(), pt_2.y(), pt_1.z()));
+   v.push_back(clipper::Coord_orth(pt_2.x(), pt_2.y(), pt_2.z()));
+
+   clipper::Coord_frac cf_1( 99, 99,  99);
+   clipper::Coord_frac cf_2(-99, -99, -99);
+   for (std::size_t i=0; i<v.size(); i++) {
+      const clipper::Coord_orth &pt = v[i];
+      clipper::Coord_frac cf = pt.coord_frac(cell);
+      if (cf.u() < cf_1.u()) cf_1 = clipper::Coord_frac(cf.u(),  cf_1.v(), cf_1.w());
+      if (cf.v() < cf_1.v()) cf_1 = clipper::Coord_frac(cf_1.u(), cf.v(),  cf_1.w());
+      if (cf.w() < cf_1.w()) cf_1 = clipper::Coord_frac(cf_1.u(), cf_1.v(),  cf.w());
+      if (cf.u() > cf_2.u()) cf_2 = clipper::Coord_frac(cf.u(),  cf_2.v(), cf_2.w());
+      if (cf.v() > cf_2.v()) cf_2 = clipper::Coord_frac(cf_2.u(), cf.v(),  cf_2.w());
+      if (cf.w() > cf_2.w()) cf_2 = clipper::Coord_frac(cf_2.u(), cf_2.v(),  cf.w());
+   }
+
+   if (false) {
+      std::cout << "......... rescue " << std::endl;
+      std::cout << "     " << cf_1.format() << std::endl;
+      std::cout << "     " << cf_2.format() << std::endl;
+   }
+
+   return std::pair<clipper::Coord_frac, clipper::Coord_frac> (cf_1, cf_2);
+
+}
+
 
 // the first of the pair contains the correlation for the given residue spec.
 // 

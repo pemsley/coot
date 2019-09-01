@@ -184,8 +184,13 @@ int test_internal() {
 
    // restore me at some stage.
    // functions.push_back(named_func(test_peptide_link, "test_peptide_link"));
-   functions.push_back(named_func(test_dictionary_partial_charges,
-				  "test dictionary partial charges"));
+
+
+   // dictionaries don't have partial charges at the moment
+   //
+   // functions.push_back(named_func(test_dictionary_partial_charges,
+   // 				  "test dictionary partial charges"));
+
    // restore me at some stage
    // functions.push_back(named_func(test_dipole, "test_dipole"));
 
@@ -263,7 +268,7 @@ int test_phi_psi_values() {
 	       coot::util::phi_psi_t pp(prev_res, this_res, next_res);
 	       n_phi_psi++;
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << std::endl;
 	    } 
 	 }
@@ -337,7 +342,7 @@ run_internal_tests(std::vector<named_func> functions) {
 	    break;
 	 }
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
 	 std::cout << "FAIL: " << functions[i_func].second << " " << mess.what() << std::endl;
 	 status = 0;
 	 break;
@@ -1648,7 +1653,7 @@ int test_coot_atom_tree() {
    try { 
       coot::atom_tree_t tree(rest, res, "");
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
       b = 1;
    } 
@@ -1665,7 +1670,7 @@ int test_coot_atom_tree() {
    try { 
       coot::atom_tree_t tree(rest, res, "");
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
       b = 1;
    } 
@@ -1703,10 +1708,10 @@ int test_coot_atom_tree() {
    if (0) {
       try {
 	 r = test_tree_rotation(p.second, res, " CB ", " CG ", 0);
-	 if (r) 
+	 if (r)
 	    r = test_tree_rotation(p.second, res, " CB ", " CG ", 1);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       }
    }
@@ -1733,13 +1738,13 @@ int test_coot_atom_tree() {
 		     r = 1;
 	       } else { 
 		  std::cout << "Getting restraints for 3GP failed" << std::endl;
-	       } 
+	       }
 	    }
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
-	 r = 0; 
+	 r = 0;
       }
    }
 
@@ -2259,13 +2264,21 @@ int test_OXT_in_restraints() {
    } else { 
       bool v1 = geom.OXT_in_residue_restraints_p("TRP");
       bool v2 = geom.OXT_in_residue_restraints_p("BCS");
-      if (v1 == 0)
-	 if (v2 == 1)
-	    r = 1;
-	 else
-	    std::cout << "fail to find OXT in BSC" << std::endl;
+
+// This doesn't work for new restraints (which *do* have OXTs)
+//       if (v1 == 0)
+// 	 if (v2 == 1)
+// 	    r = 1;
+// 	 else
+// 	    std::cout << "fail to find OXT in BSC" << std::endl;
+//       else
+// 	 std::cout << "Fail to not find OXT in TRP" << std::endl;
+
+      if (v2 == 1)
+	 r = 1;
       else
-	 std::cout << "Fail to not find OXT in TRP" << std::endl;
+	 std::cout << "fail to find OXT in BSC" << std::endl;
+
    }
    return r; 
 } 
@@ -2407,7 +2420,7 @@ int test_geometry_distortion_info_type() {
 	       int x = 2; 
 	    cont = 0;
 	 }
-	 catch (std::runtime_error rte) { 
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "    Good gdi < exception thrown" << std::endl;
 	 }
 	 if (cont) { 
@@ -2416,7 +2429,7 @@ int test_geometry_distortion_info_type() {
 		  int x = 2;
 	       cont = 0;
 	    }
-	    catch (std::runtime_error rte) { 
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "    Good gdi > exception thrown" << std::endl;
 	       status = 1;
 	    }
@@ -2511,7 +2524,7 @@ int test_map_segmentation() {
       mapout.export_xmap(segmented_map.second);
       mapout.close_write();
    }
-   catch (clipper::Message_base exc) {
+   catch (const clipper::Message_base &exc) {
       std::cout <<  "WARNING:: failed to open " << filename << std::endl;
    }
 

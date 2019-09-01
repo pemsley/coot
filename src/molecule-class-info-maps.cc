@@ -331,7 +331,7 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 void
 molecule_class_info_t::compile_density_map_display_list(short int first_or_second) {
 
-   // std::cout << "Deleting theMapContours " << theMapContours << std::endl;
+   // std::cout << "Deleting theMapContours " << theMapContours.first << std::endl;
    if (first_or_second == SIDE_BY_SIDE_MAIN) { 
       glDeleteLists(theMapContours.first, 1);
       theMapContours.first = glGenLists(1);
@@ -497,6 +497,11 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    int isample_step = 1;
    graphics_info_t g;
 
+   bool is_em_map = false;
+   if (is_em_map_cached_state() == 1) {
+      is_em_map = true;
+   }
+
    // std::cout   << "DEBUG:: g.zoom: " << g.zoom << std::endl;
 
    if (g.dynamic_map_resampling == 1)
@@ -550,7 +555,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  contour_level,
 						  dy_radius, centre,
-						  isample_step);
+						  isample_step, is_em_map);
 #ifdef ANALYSE_CONTOURING_TIMING
       auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif
@@ -570,7 +575,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						  -contour_level,
 						  dy_radius, centre,
-						  isample_step);
+						  isample_step, is_em_map);
       if (is_dynamically_transformed_map_flag)
 	 dynamically_transform(v);
       set_diff_map_draw_vecs(v.data, v.size);
@@ -941,8 +946,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       mol_name += g.float_to_string(high_reso_limit);
    }
    
-   initialize_map_things_on_read_molecule(mol_name,
-					  is_diff_map,
+   initialize_map_things_on_read_molecule(mol_name, is_diff_map, is_anomalous_flag,
 					  g.swap_difference_map_colours);
    
    // If use weights, use both strings, else just use the first
@@ -950,8 +954,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
    if (p.first.length() == 0) { // mechanism to signal an error
       std::cout << "ERROR:: fill_map.. - There was a column label error.\n";
-   } else { 
-      
+   } else {
+
       if (use_weights) {
 	 // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
 	 mtzin.import_hkl_data( f_sigf_data, p.first );
@@ -966,11 +970,11 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 mtzin.import_hkl_data(fphidata, p.first);
 	 mtzin.close_read();
       }
-   
+
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
       int n_reflections = fphidata.num_obs();
-      std::cout << "Number of OBSERVED reflections: " << n_reflections << "\n";
+      std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
       if (n_reflections <= 0) {
 	 std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
       } else { 
@@ -997,7 +1001,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 				   fphidata.cell(),
 				   fft_reso,
 				   map_sampling_rate);
-	 cout << "INFO grid sampling..." << gs.format() << endl; 
+	 cout << "INFO:: grid sampling..." << gs.format() << endl; 
 	 xmap.init( fphidata.spacegroup(), fphidata.cell(), gs); // 1.5 default
 	 // 	 cout << "Grid..." << xmap.grid_sampling().format() << "\n";
    
@@ -1073,7 +1077,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // update_map_colour_menu_manual(g.n_molecules, name_.c_str()); 
 	 // update_map_scroll_wheel_menu_manual(g.n_molecules, name_.c_str()); 
 
-
 	 update_map();
 	 long T5 = glutGet(GLUT_ELAPSED_TIME);
 	 std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
@@ -1081,9 +1084,9 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 
 	 // save state strings
 
-	    std::string cwd = coot::util::current_working_dir();
-	    std::string f1  = coot::util::intelligent_debackslash(mtz_file_name);
-	    std::string f2  = coot::util::relativise_file_name(f1, cwd);
+	 std::string cwd = coot::util::current_working_dir();
+	 std::string f1  = coot::util::intelligent_debackslash(mtz_file_name);
+	 std::string f2  = coot::util::relativise_file_name(f1, cwd);
 	 if (have_sensible_refmac_params) {
 	    save_state_command_strings_.push_back("make-and-draw-map-with-refmac-params");
 	    save_state_command_strings_.push_back(single_quote(f2));
@@ -1147,8 +1150,6 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 }
       }
    }
-   // std::cout << "DEBUG:: finishing map_fill_from_mtz_with_reso_limits, imol_no is "
-   // << imol_no << std::endl;
 }
 
 
@@ -1189,7 +1190,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
 	 
       initialize_map_things_on_read_molecule(mol_name,
-					     is_diff_map,
+					     is_diff_map, false,
 					     g.swap_difference_map_colours);
       long T1 = glutGet(GLUT_ELAPSED_TIME);
 
@@ -1674,7 +1675,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 			     0.5*c.descr().c());
 	   new_centre.first = true;
 	   new_centre.second = m;
-           std::cout << "INOF:: map appears to be EM map."<< std::endl;
+           std::cout << "INFO:: map appears to be EM map."<< std::endl;
 	}
 	std::cout << "closing CCP4 map: " << filename << std::endl;
 	file.close_read();
@@ -1686,7 +1687,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      }
      
    } else {
-     std::cout << "attempting to read CNS map: " << filename << std::endl;
+     std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
      clipper::CNSMAPfile file;
      file.open_read(filename);
      try {
@@ -1699,9 +1700,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      file.close_read();
    }
 
-   if (bad_read == false) {
+   if (! bad_read) {
 
-      initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
+      bool is_anomalous_flag = false;
+      initialize_map_things_on_read_molecule(filename, is_diff_map_flag, is_anomalous_flag,
 					     graphics_info_t::swap_difference_map_colours);
 
       mean_and_variance<float> mv = map_density_distribution(xmap, 40, true, true);
@@ -1800,6 +1802,19 @@ molecule_class_info_t::is_EM_map() const {
    return is_em;
 }
 
+short int
+molecule_class_info_t::is_em_map_cached_state() {
+
+   if (is_em_map_cached_flag == -1) {
+
+      if (has_xmap()) { // FIXME - need to test for NXmap too.
+	 bool is_em = is_EM_map();
+	 is_em_map_cached_flag = is_em;
+      }
+   }
+   return is_em_map_cached_flag;
+}
+
 
 void
 molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string name_in) {
@@ -1807,12 +1822,12 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    xmap = map_in; 
    // the map name is filled by using set_name(std::string)
    // sets name_ to name_in:
-   initialize_map_things_on_read_molecule(name_in, 0, 0); // not a diff_map
+   initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
 
    mean_and_variance<float> mv = map_density_distribution(xmap, 40, true); 
 
    float mean = mv.mean; 
-   float var = mv.variance; 
+   float var = mv.variance;
    contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
    update_map_in_display_control_widget();
    
@@ -1903,7 +1918,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
    
   std::string mol_name = phs_filename; 
 
-  initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+  initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
   std::cout << "initializing map..."; 
   xmap.init(mydata.spacegroup(), 
@@ -1970,8 +1985,14 @@ molecule_class_info_t::make_map_from_cif(int imol_no_in,
 					 std::string cif_file_name,
 					 int imol_coords) {
 
-   return make_map_from_cif(imol_no_in, cif_file_name,
-			    graphics_info_t::molecules[imol_coords].atom_sel); 
+   graphics_info_t g;
+   int r = -1;
+   if (g.is_valid_model_molecule(imol_coords))
+      r =  make_map_from_cif(imol_no_in, cif_file_name,
+			     g.molecules[imol_coords].atom_sel);
+   else
+      std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
+   return r;
 }
 
 // and the molecule number imol_coords where the coordinates are.
@@ -1980,9 +2001,14 @@ molecule_class_info_t::make_map_from_cif_2fofc(int imol_no_in,
 					       std::string cif_file_name,
 					       int imol_coords) {
 
-   return make_map_from_cif_2fofc(imol_no_in,
-				  cif_file_name,
-				  graphics_info_t::molecules[imol_coords].atom_sel); 
+   graphics_info_t g;
+   int r = -1;
+   if (g.is_valid_model_molecule(imol_coords))
+      r =  make_map_from_cif(imol_no_in, cif_file_name,
+			     g.molecules[imol_coords].atom_sel);
+   else
+      std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
+   return r;
 }
 
 // and the molecule number imol_coords where the coordinates are.
@@ -1991,10 +2017,16 @@ molecule_class_info_t::make_map_from_cif_fofc(int imol_no_in,
 					      std::string cif_file_name,
 					      int imol_coords) {
 
-   return make_map_from_cif_generic(imol_no_in,
+   graphics_info_t g;
+   int r = -1;
+   if (g.is_valid_model_molecule(imol_coords))
+      r = make_map_from_cif_generic(imol_no_in,
 				    cif_file_name,
-				    graphics_info_t::molecules[imol_coords].atom_sel,
+				    g.molecules[imol_coords].atom_sel,
 				    2);  // 2 -> is Fo-Fc map
+   else
+      std::cout << "WARNING:: " << imol_coords << " is not a valid model molecule" << std::endl;
+   return r;
 }
 
 
@@ -2049,7 +2081,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 						  atom_selection_container_t SelAtom,
 						  short int is_2fofc_type) {
 
-   initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+   initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
    
    std::cout << "calculating structure factors..." << std::endl;
 
@@ -2436,7 +2468,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    // xmap.fft_from( fphidata );       // generate Fc alpha-c map
 	    xmap.fft_from( map_fphidata );       // generate sigmaA map 20050804
 	    cout << "done." << endl;
-	    initialize_map_things_on_read_molecule(mol_name, is_diff, 0);
+	    initialize_map_things_on_read_molecule(mol_name, is_diff, false, false);
 	    // now need to fill contour_level, xmap_is_diff_map xmap_is_filled
 	    if (is_diff)
 	       xmap_is_diff_map = 1;
@@ -2543,8 +2575,9 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 if (map_type == molecule_map_type::TYPE_FO_ALPHA_CALC) {
 	    mol_name += " Fo ac";
 	 }
-	 
-	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag,
+
+	 bool is_anomalous_flag = false;
+	 initialize_map_things_on_read_molecule(mol_name, is_diff_map_flag, is_anomalous_flag,
 						swap_difference_map_colours);
 	
 	 cout << "initializing map..."; 
@@ -2751,7 +2784,7 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 
       std::string mol_name = phs_filename; 
 
-      initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+      initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
       cout << "initializing map..."; 
       xmap.init(mydata.spacegroup(), 
@@ -2887,7 +2920,7 @@ float
 molecule_class_info_t::density_at_point(const clipper::Coord_orth &co) const {
 
    if (xmap.is_null()) {
-      std::cout << " returning bogus value from density_at_point: " << std::endl;
+      std::cout << "WARNING:: null map. Returning bogus value from density_at_point()" << std::endl;
       return -1000.0;
    } else {
 
@@ -3051,6 +3084,12 @@ trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 }
 
 // called by above and split_water.
+//
+// chain_for_moving is default arg, with value 0.
+//
+// if chain_for_moving is not null, apply the transformation
+// the the atoms of chain_for_moving rather than to the atom of atom_selection
+//
 float
 molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 						   int n_atoms,
@@ -3058,7 +3097,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 						   float map_sigma,
 						   int n_trials,
 						   float jiggle_scale_factor,
-						   bool use_biased_density_scoring) {
+						   bool use_biased_density_scoring,
+						   mmdb::Chain *chain_for_moving) {
    float v = 0;
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
    if (n_trials <= 0)
@@ -3069,7 +3109,6 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    std::vector<mmdb::Atom> direct_initial_atoms(n_atoms);
    for (int iat=0; iat<n_atoms; iat++)
       initial_atoms[iat] = atom_selection[iat];
-   
 
    // We have to make a copy because direct_initial_atoms goes out of
    // scope and destroys the mmdb::Atoms (we don't want to take the
@@ -3082,7 +3121,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    float (*density_scoring_function)(const coot::minimol::molecule &mol,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
-				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score;
+				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
    if (use_biased_density_scoring)
       density_scoring_function = coot::util::biased_z_weighted_density_score;
@@ -3101,7 +3140,6 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    bool  bested = false;
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
-   
 
    // first, find the centre point.  We do that because otherwise we
    // do it lots of times in jiggle_atoms.  Inefficient.
@@ -3156,7 +3194,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
 		<< std::setw(2) << i_trial << ": prelim-score was "
-		<< std::setw(5) << trial_results[i_trial].second << " post-fit "
+		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
 		<< std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
 	 best_score_so_far = this_score;
@@ -3174,6 +3212,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    
     if (post_fit_trial_results[0].second > initial_score) {
        bested = true;
+       best_rtop = post_fit_trial_results[0].first; // the rtop from before the rigid-body fitting
        coot::minimol::molecule  post_fit_mol = direct_mol;
        post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
        coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap, map_sigma);
@@ -3182,7 +3221,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
        float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
        std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
        best_score = this_score;
-    } 
+    }
 
    //
    if (bested) {
@@ -3193,26 +3232,56 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       if (! best_molecule.is_empty()) {
 	 mmdb::Manager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {
-	    
-	    atom_selection_container_t asc_ligand = make_asc(mol);
 
-	    if (0) { // debug
-	       std::cout << "===== initial positions: =====" << std::endl;
-	       for (int iat=0; iat<n_atoms; iat++) {
-		  std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
-	       } 
-	       std::cout << "===== moved to: =====" << std::endl;
-	       for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
-		  std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
+	    if (chain_for_moving) {
+
+	       // move the atoms of chain for moving, not the atoms of the atom selection
+	       //
+	       // now fitted_mol contains the atoms of the atom selection fitted to density
+	       // We need to find the transformation from the current/original coordintes
+	       // to that fitted mol coordinates and then apply them to all the atom
+	       // in the chain
+	       std::string chain_id = chain_for_moving->GetChainID();
+	       std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
+	       if (mmr.second >= mmr.first) {
+		  std::vector<coot::lsq_range_match_info_t> matches;
+		  coot::lsq_range_match_info_t match(mmr.first,
+						     mmr.second, chain_id,
+						     mmr.first,
+						     mmr.second, chain_id,
+						     COOT_LSQ_MAIN);
+		  matches.push_back(match);
+		  mmdb::Manager *mol_1 = mol;
+		  mmdb::Manager *mol_2 = atom_sel.mol;
+		  std::pair<short int, clipper::RTop_orth> lsq_mat =
+		     coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
+		  const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
+		  coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
 	       }
+
+	    } else {
+
+	       atom_selection_container_t asc_ligand = make_asc(mol);
+
+	       if (0) { // debug
+		  std::cout << "===== initial positions: =====" << std::endl;
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
+		  }
+		  std::cout << "===== moved to: =====" << std::endl;
+		  for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
+		     std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
+		  }
+	       }
+	       replace_coords(asc_ligand, false, true);
 	    }
 
-	    replace_coords(asc_ligand, false, true);
 	    have_unsaved_changes_flag = 1; 
 	    make_bonds_type_checked();
 	 } else {
 	    std::cout << "ERROR:: fit_to_map_by_random_jiggle(): mol is null! " << std::endl;
-	 } 
+	 }
+	 delete mol;
       } else {
 	 std::cout << "ERROR:: fit_to_map_by_random_jiggle(): best_molecule is empty!" << std::endl;
       } 
@@ -3317,7 +3386,11 @@ molecule_class_info_t::get_contours(float contour_level,
 				    float radius,
 				    const coot::Cartesian &centre) const {
 
+   // who calls this function?
+
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > r;
+
+   bool is_em_map_local = false; // needs setting?
 
    int isample_step = 1;
    CIsoSurface<float> my_isosurface;
@@ -3325,7 +3398,7 @@ molecule_class_info_t::get_contours(float contour_level,
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 								       contour_level,
 								       radius, centre,
-								       isample_step);
+								       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {
 	 r.resize(v.size);
@@ -3339,4 +3412,84 @@ molecule_class_info_t::get_contours(float contour_level,
       }
    }
    return r;
+}
+
+// static
+int
+molecule_class_info_t::watch_mtz(gpointer data) {
+
+   int status = 1; // continue
+
+   updating_map_params_t *ump = static_cast<updating_map_params_t *>(data);
+   const updating_map_params_t &rump = *ump;
+   status = graphics_info_t::molecules[rump.imol].update_map_from_mtz_if_changed(rump);
+   return status;
+}
+
+int
+molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_t &ump_in) {
+
+   int status = 1;
+   if (continue_watching_mtz) {
+      
+      bool update_it = false;
+
+      updating_map_params_t ump = ump_in;
+      struct stat s;
+      int status = stat(ump.mtz_file_name.c_str(), &s);
+      if (status != 0) {
+	 std::cout << "WARNING:: update_map_from_mtz_if_changed() Error reading "
+		   << ump.mtz_file_name << std::endl;
+      } else {
+	 if (!S_ISREG (s.st_mode)) {
+	    std::cout << "WARNING:: update_map_from_mtz_if_changed() not a reguular file: "
+		      << ump.mtz_file_name << std::endl;
+	    continue_watching_mtz = false;
+	 } else {
+	    // happy path
+#ifndef _POSIX_SOURCE
+	    ump.ctime = s.st_ctimespec; // mac?
+#else
+	    ump.ctime = s.st_ctim;
+#endif
+	 }
+      }
+
+      if (false)
+	 std::cout << "#### ctime comparision: was "
+		   << updating_map_previous.ctime.tv_sec << " " << updating_map_previous.ctime.tv_nsec
+		   << " now " << ump.ctime.tv_sec << " " << ump.ctime.tv_nsec
+		   << std::endl;
+
+      if (ump.ctime.tv_sec > updating_map_previous.ctime.tv_sec) {
+	 update_it = true;
+      } else {
+	 if (ump.ctime.tv_sec == updating_map_previous.ctime.tv_sec) {
+	    if (ump.ctime.tv_nsec > updating_map_previous.ctime.tv_nsec) {
+	       update_it = true;
+	    }
+	 }
+      }
+      if (update_it) {
+
+	 // map_fill_from_mtz(ump) ?
+
+	 // updating maps shouldn't update (add to) the Display Manager.
+
+	 std::string cwd = coot::util::current_working_dir();
+	 map_fill_from_mtz(ump.mtz_file_name,
+			   cwd,
+			   ump.f_col,
+			   ump.phi_col,
+			   ump.weight_col,
+			   ump.use_weights,
+			   ump.is_difference_map,
+			   graphics_info_t::map_sampling_rate);
+	 updating_map_previous = ump;
+	 graphics_info_t::graphics_draw();
+      }
+   } else {
+      status = 0;
+   }
+   return status;
 }

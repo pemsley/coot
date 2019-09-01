@@ -150,18 +150,20 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
-std::vector<std::string> *graphics_info_t::command_line_scripts;
+std::vector<std::string> *graphics_info_t::command_line_scripts = 0;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
-std::vector<coot::view_info_t> *graphics_info_t::views = 0;
+std::vector<coot::view_info_t> graphics_info_t::views;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
 #ifdef HAVE_CXX_THREAD
 ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
 #endif // HAVE_CC_THREAD
+
+clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
 
 
 //WII
@@ -203,7 +205,7 @@ short int graphics_info_t::display_lists_for_maps_flag = 1;
 int graphics_info_t::save_imol = -1;
 
 bool graphics_info_t::cryo_EM_refinement_flag = false;
-double graphics_info_t::geman_mcclure_alpha = 2; // soft
+double graphics_info_t::geman_mcclure_alpha = 1; // soft, (20180230-PE was 2, too soft, I think)
 
 // accept/reject
 GtkWidget *graphics_info_t::accept_reject_dialog = 0;
@@ -256,9 +258,10 @@ double graphics_info_t::mouse_begin_y = 0.0;
 float  graphics_info_t::rotation_centre_x = 0.0;
 float  graphics_info_t::rotation_centre_y = 0.0;
 float  graphics_info_t::rotation_centre_z = 0.0;
-float  graphics_info_t::old_rotation_centre_x = 0.0;
-float  graphics_info_t::old_rotation_centre_y = 0.0;
-float  graphics_info_t::old_rotation_centre_z = 0.0;
+// float  graphics_info_t::old_rotation_centre_x = 0.0;
+// float  graphics_info_t::old_rotation_centre_y = 0.0;
+// float  graphics_info_t::old_rotation_centre_z = 0.0;
+coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_steps =  40;
@@ -315,6 +318,7 @@ clipper::Coord_orth graphics_info_t::intermediate_flash_point;
 
 
 int graphics_info_t::default_bond_width = 5;
+bool graphics_info_t::use_variable_bond_width = false;
 
    
 int graphics_info_t::rotamer_selection_dialog_x_position = -100;
@@ -348,11 +352,15 @@ int graphics_info_t::file_selection_dialog_x_size = -1; // unset
 int graphics_info_t::file_selection_dialog_y_size = -1; 
 
 
-// things for quaternion rotation:
+// things for quaternion-based view rotation:
 double graphics_info_t::mouse_current_x = 0.0; 
 double graphics_info_t::mouse_current_y = 0.0;
 float* graphics_info_t::quat = new float[4]; 
 float graphics_info_t::trackball_size = 0.8; // for kevin
+
+// residue reorientation on "space"
+bool graphics_info_t::reorienting_next_residue_mode = false;
+
 
 // things for baton quaternion rotation: Must use a c++ class at some
 // stage:
@@ -436,6 +444,9 @@ short int graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
 // validate moving atoms
 int       graphics_info_t::moving_atoms_n_cis_peptides = -1;  // unset
 
+// for picking intermediate atoms
+bool      graphics_info_t::moving_atoms_have_hydrogens_displayed = false;
+
 
 std::string graphics_info_t::model_fit_refine_place_atom_at_pointer_string = "";
 std::string graphics_info_t::model_fit_refine_rotate_translate_zone_string = "";
@@ -517,6 +528,7 @@ coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8,
 bool      graphics_info_t::stroke_characters = false;
 
 short int graphics_info_t::brief_atom_labels_flag = 0;
+short int graphics_info_t::seg_ids_in_atom_labels_flag = 0;
 
 // scroll wheel
 int       graphics_info_t::scroll_wheel_map = -1; // (initial magic value) 
@@ -837,11 +849,14 @@ short int graphics_info_t::delete_item_residue_zone = 0;
 short int graphics_info_t::delete_item_residue_hydrogens = 0;
 short int graphics_info_t::delete_item_water = 0;
 short int graphics_info_t::delete_item_sidechain = 0;
+short int graphics_info_t::delete_item_sidechain_range = 0;
 short int graphics_info_t::delete_item_chain = 0;
 GtkWidget *graphics_info_t::delete_item_widget = NULL;
 int       graphics_info_t::keep_delete_item_active_flag = 0;
 coot::residue_spec_t graphics_info_t::delete_item_residue_zone_1;
+coot::residue_spec_t graphics_info_t::delete_item_sidechain_range_1;
 int graphics_info_t::delete_item_residue_zone_1_imol = -1;
+int graphics_info_t::delete_item_sidechain_range_1_imol = -1;
 
 
 GtkWidget *graphics_info_t::symmetry_controller_dialog = 0;
@@ -875,7 +890,8 @@ float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
 // cif dictionary
 std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;
 int  graphics_info_t::cif_dictionary_read_number = 1;
-bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = true;
+// bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = true; // Too annoying
+bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = false;
 
 
 // map radius slider
@@ -918,7 +934,7 @@ int       graphics_info_t::imol_rigid_body_refine = 0;
 
 // terminal residue define
 short int graphics_info_t::in_terminal_residue_define = 0;
-short int graphics_info_t::add_terminal_residue_immediate_addition_flag = 0;
+short int graphics_info_t::add_terminal_residue_immediate_addition_flag = 1;
 short int graphics_info_t::add_terminal_residue_do_post_refine = 0;
 float graphics_info_t::terminal_residue_addition_direct_phi = -135.0;
 float graphics_info_t::terminal_residue_addition_direct_psi =  135.0;
@@ -964,7 +980,7 @@ short int graphics_info_t::guile_history  = 1; // on
 coot::history_list_t graphics_info_t::history_list;
 
 // build one residue, n trials:
-int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 1000;
+int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 5000;
 int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
 std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
 short int graphics_info_t::terminal_residue_do_rigid_body_refine = 0; // off by default
@@ -995,8 +1011,7 @@ int         graphics_info_t::align_and_mutate_imol;
 std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
-// Bob recommends:
-mmdb::realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
+mmdb::realtype    graphics_info_t::alignment_wgap   = -3.0; // was -0.5 (Bob) // was -3.0;
 mmdb::realtype    graphics_info_t::alignment_wspace = -0.4;
 
 //
@@ -1203,6 +1218,7 @@ bool  graphics_info_t::raster3d_enable_shadows = 1;
 int   graphics_info_t::renderer_show_atoms_flag = 1;
 float graphics_info_t::raster3d_bone_thickness    = 0.05;
 int   graphics_info_t::raster3d_water_sphere_flag = 0;
+std::string graphics_info_t::raster3d_font_size = "4";
 
 // map (density) line thickness:
 int graphics_info_t::map_line_width = 1;
@@ -1214,6 +1230,7 @@ float graphics_info_t::bond_thickness_intermediate_atoms = 5; // thick white ato
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;
 std::vector<int> *graphics_info_t::merge_molecules_merging_molecules;
+coot::residue_spec_t graphics_info_t::merge_molecules_ligand_spec;
 
 // change chain ids:
 int graphics_info_t::change_chain_id_molecule = -1;
@@ -1340,7 +1357,9 @@ float graphics_info_t::mogul_max_badness = 5.0;   // The z value colour at which
 bool graphics_info_t::linked_residue_fit_and_refine_state = true;
 
 //
-bool graphics_info_t::allow_duplseqnum = false;
+bool graphics_info_t::allow_duplseqnum = true; // 20181214-PE - I presume that this is safe now?
+
+std::map<std::string, std::string> graphics_info_t::extensions_registry;
 
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
@@ -1349,8 +1368,18 @@ std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
 
+std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, float> (false, 15);
+
+// need to configure for this!
+// #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
+
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
+
+// CA-bonds missing loops dotted line params
+float graphics_info_t::ca_bonds_loop_param_1 = 0.5;
+float graphics_info_t::ca_bonds_loop_param_2 = 0.05;
+float graphics_info_t::ca_bonds_loop_param_3 = 111.0;
 
 // GTK2 code
 // 
@@ -1845,7 +1874,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 	       // std::cout << "drawing regular gl_area (left) " << std::endl;
 	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
 	    }
-	 } else { 
+	 } else {
 	    draw_mono(widget, event, IN_STEREO_MONO);
 	 }
       }
@@ -2127,7 +2156,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glFogf(GL_FOG_END,    fog_end);
 	 // std::cout << "GL_FOG_START " << fog_start << " with far  " << far  << std::endl;
 	 // std::cout << "GL_FOG_END "   << fog_end   << " with near " << near << std::endl;
+      }
 
+      if (false) { // try/test clipping
+	 // I don't understand what I need to do
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
       }
 
       glMatrixMode(GL_MODELVIEW);
@@ -2144,6 +2180,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glTranslatef(-graphics_info_t::RotationCentre_x(),
 		   -graphics_info_t::RotationCentre_y(),
 		   -graphics_info_t::RotationCentre_z());
+
+      if (false) { // try/test clipping
+	 // This does indeed clip the model, but it's in world coordinates,
+	 // not eye coordinates
+	 GLdouble plane[] = { 0.0, 0.0, -1.0, -2.0};
+	 glEnable(GL_CLIP_PLANE0);
+	 glClipPlane(GL_CLIP_PLANE0, plane);
+	 glPopMatrix();
+      }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) { 
       	 coot::Cartesian front = unproject(0.0);
@@ -2231,7 +2276,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Label the atoms in the atoms label list.
 	 //
-	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag);
+	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
+						    graphics_info_t::seg_ids_in_atom_labels_flag);
 
 	 // Draw the dotted atoms:
 	 graphics_info_t::molecules[ii].draw_dots();
@@ -2257,13 +2303,13 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::picked_intermediate_atom_graphics_object();
 
       //
-      graphics_info_t::baton_object();
+      graphics_info_t::draw_baton_object();
 
       //
-      graphics_info_t::geometry_objects(); // angles and distances
+      graphics_info_t::draw_geometry_objects(); // angles and distances
 
       // pointer distances
-      graphics_info_t::pointer_distances_objects();
+      graphics_info_t::draw_pointer_distances_objects();
 
       // lsq atom blobs
       if (graphics_info_t::lsq_plane_atom_positions->size() > 0) {
@@ -2345,9 +2391,11 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
          graphics_info_t::Increment_Frames();
       }
 
+
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
 	glDisable(GL_STENCIL_TEST);
-  
+
+
    } // gtkgl make area current test
 
    gdkglext_finish_frame(widget);
@@ -3141,6 +3189,13 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 }
 	 graphics_info_t::accept_reject_dialog = 0;
       }
+
+      if (graphics_info_t::rotamer_dialog) {
+	 accept_regularizement();
+	 gtk_widget_destroy(graphics_info_t::rotamer_dialog);
+	 set_graphics_rotamer_dialog(NULL);
+      }
+
       handled = TRUE;
       break;
 
@@ -3149,6 +3204,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       // std::cout << "GDK_Escape pressed" << std::endl;
 
       clear_up_moving_atoms();
+
+      // stop the refinement
+      graphics_info_t::remove_drag_refine_idle_function();
       
       if (graphics_info_t::accept_reject_dialog) {
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
@@ -3897,10 +3955,20 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 // 					     g.go_to_atom_residue()+next,
 // 					     g.go_to_atom_atom_name());
 
-      if (graphics_info_t::shift_is_pressed) {
-	 g.intelligent_previous_atom_centring(g.go_to_atom_window);
+      bool reorienting = graphics_info_t::reorienting_next_residue_mode;
+      if (reorienting) {
+	 if (graphics_info_t::shift_is_pressed) {
+	    g.reorienting_next_residue(false); // backwards
+	 } else {
+	    g.reorienting_next_residue(true); // forwards
+	 }
       } else {
-	 g.intelligent_next_atom_centring(g.go_to_atom_window);
+	 // old/standard simple translation
+	 if (graphics_info_t::shift_is_pressed) {
+	    g.intelligent_previous_atom_centring(g.go_to_atom_window);
+	 } else {
+	    g.intelligent_next_atom_centring(g.go_to_atom_window);
+	 }
       }
       break;
    }
@@ -4458,6 +4526,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
    }
 
    int s = info.scroll_wheel_map;
+
    if (scroll_up_down_flag == 1) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) { 
 	 if (s>=0) {

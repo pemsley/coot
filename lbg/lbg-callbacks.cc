@@ -43,8 +43,10 @@ on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
       // l->mol.debug();
       l->mol.write_mdl_molfile("coot-lidia.mdl");
 
+      std::string comp_id = l->get_comp_id(); // was hardwired "DRG"
+
       // input to Coot, this means.
-      l->import_prodrg_output("coot-lidia.mdl", "DRG");
+      l->import_prodrg_output("coot-lidia.mdl", comp_id);
    }
 }
 

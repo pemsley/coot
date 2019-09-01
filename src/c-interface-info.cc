@@ -365,7 +365,7 @@ void output_residue_info_dialog(int imol, int atom_index) {
 		     } 
 		  }
 	       }
-	       catch (std::runtime_error mess) {
+	       catch (const std::runtime_error &mess) {
 		  std::cout << mess.what() << std::endl;
 	       }
 	    }
@@ -554,7 +554,7 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 	    std::cout << "No Chi Angles for this residue" << std::endl;
 	 }
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
 	 std::cout << mess.what() << std::endl;
       }
    }
@@ -1623,6 +1623,14 @@ int set_go_to_atom_from_res_spec_scm(SCM residue_spec_scm) {
    return set_go_to_atom_from_res_spec(spec);
 }
 
+#ifdef USE_GUILE
+int set_go_to_atom_from_atom_spec_scm(SCM atom_spec_scm) {
+   coot::atom_spec_t spec = atom_spec_from_scm_expression(atom_spec_scm);
+   return set_go_to_atom_from_spec(spec);
+}
+#endif // USE_GUILE
+
+
 #endif 
 
 #ifdef USE_PYTHON
@@ -1637,6 +1645,14 @@ int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
 } 
 #endif 
 
+
+#ifdef USE_PYTHON
+int set_go_to_atom_from_atom_spec_py(PyObject *atom_spec_py) {
+
+   coot::atom_spec_t spec = atom_spec_from_python_expression(atom_spec_py);
+   return set_go_to_atom_from_spec(spec);
+}
+#endif
 
 
 // (is-it-valid? (active-molecule-number spec))
@@ -2406,8 +2422,8 @@ double
 add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
 
    graphics_info_t g;
-   double d = g.display_geometry_distance_symm(imol_1, coot::Cartesian(x_1, y_1, z_1),
-					       imol_2, coot::Cartesian(x_2, y_2, z_2));
+   double d = g.display_geometry_distance(imol_1, coot::Cartesian(x_1, y_1, z_1),
+					  imol_2, coot::Cartesian(x_2, y_2, z_2));
    return d;
 } 
 
@@ -2433,7 +2449,7 @@ add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom
 	       // happy path
 	       coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
 	       coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
-	       d = g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+	       d = g.display_geometry_distance(imol_1, pos_1, imol_2, pos_2);
 	       std::cout << "Distance: " << spec_1 << " to " << spec_2 << " is " << d << " A" << std::endl;
 	    }
 	 }
@@ -2464,7 +2480,7 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 	       // happy path
 	       coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
 	       coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
-	       d = g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+	       d = g.display_geometry_distance(imol_1, pos_1, imol_2, pos_2);
 	       std::cout << "Distance: " << spec_1 << " to " << spec_2 << " is " << d << " A" << std::endl;
 	    }
 	 }
@@ -2553,26 +2569,46 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
 
    GtkWidget *cell_text = lookup_widget(window, "single_map_properties_cell_text");
    GtkWidget *spgr_text = lookup_widget(window, "single_map_properties_sg_text");
+   GtkWidget *reso_text = lookup_widget(window, "single_map_properties_reso_text");
 
    std::string cell_text_string;
    std::string spgr_text_string;
+   std::string reso_text_string;
 
+   // 20180924-PE FIXME needs to consider NXmaps
+   //
+   const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
    cell_text_string = graphics_info_t::molecules[imol].cell_text_with_embeded_newline();
    spgr_text_string = "   ";
-   spgr_text_string += graphics_info_t::molecules[imol].xmap.spacegroup().descr().symbol_hm();
+   spgr_text_string += xmap.spacegroup().descr().symbol_hm();
    spgr_text_string += "  [";
-   spgr_text_string += graphics_info_t::molecules[imol].xmap.spacegroup().descr().symbol_hall();
+   spgr_text_string += xmap.spacegroup().descr().symbol_hall();
    spgr_text_string += "]";
+   float r = graphics_info_t::molecules[imol].data_resolution();
+   if (r < 0) {
+      r = 2.0 * xmap.cell().descr().a()/static_cast<float>(xmap.grid_sampling().nu());
+      reso_text_string = " ";
+      reso_text_string += coot::util::float_to_string(r);
+   } else {
+      reso_text_string = coot::util::float_to_string(r);
+   }
+   // now add the grid info to the reso text
+   reso_text_string += " Å (by grid) ";
+   clipper::Grid_sampling gs = xmap.grid_sampling();
+   reso_text_string += coot::util::int_to_string(gs.nu()) + " ";
+   reso_text_string += coot::util::int_to_string(gs.nv()) + " ";
+   reso_text_string += coot::util::int_to_string(gs.nw());
+
 
    gtk_label_set_text(GTK_LABEL(cell_text), cell_text_string.c_str());
    gtk_label_set_text(GTK_LABEL(spgr_text), spgr_text_string.c_str());
+   gtk_label_set_text(GTK_LABEL(reso_text), reso_text_string.c_str());
 
    // And now the map rendering style: transparent surface or standard lines:
    GtkWidget *rb_1  = lookup_widget(window, "displayed_map_style_as_lines_radiobutton");
    GtkWidget *rb_2  = lookup_widget(window, "displayed_map_style_as_cut_glass_radiobutton");
    GtkWidget *rb_3  = lookup_widget(window, "displayed_map_style_as_transparent_radiobutton");
    GtkWidget *scale = lookup_widget(window, "map_opacity_hscale");
-   
 
    graphics_info_t g;
    if (g.molecules[imol].draw_it_for_solid_density_surface) {
@@ -2610,17 +2646,18 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
    if (is_valid_map_molecule(imol)) {
       // set_and_get_histogram_values(); surely?
-      unsigned int n = graphics_info_t::molecules[imol].map_histogram_values.size();
+
+      unsigned int n_bins = 1000;
+      mean_and_variance<float> mv = graphics_info_t::molecules[imol].set_and_get_histogram_values(n_bins);
+
+      unsigned int n = mv.size();
+
       if (n == 1) {
 	 // pass, previous fail
       } else {
 
 	 if (true) {
 
-	    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
-	    unsigned int n_bins = 1000;
-	    bool ignore_pseudo_zeros = false;
-	    mean_and_variance <float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
 	    float rmsd = sqrt(mv.variance);
 
 	    if (false) {
@@ -3665,7 +3702,7 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id) {
       std::string s = SMILES_for_comp_id(comp_id);
       r = scm_makfrom0str(s.c_str());
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    } 
    return r;
@@ -3680,7 +3717,7 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
       std::string s = SMILES_for_comp_id(comp_id);
       r = PyString_FromString(s.c_str());
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    } 
    if (PyBool_Check(r))
@@ -3766,7 +3803,7 @@ SCM monomer_restraints(const char *monomer_type) {
 	    esd_scm = scm_double2num(esd);
 	    d_scm   = scm_double2num(d);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    // we use the default values of #f, if the esd or dist is not set.
 	 } 
 	 bond_restraint_scm = scm_cons(esd_scm, bond_restraint_scm);
@@ -3977,7 +4014,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	    py_value_dist = PyFloat_FromDouble(d);
 	    py_value_esd  = PyFloat_FromDouble(esd);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 
 	    // Use default false values.
 	    // So I suppose that I need to do this then:

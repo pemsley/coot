@@ -45,7 +45,7 @@ def render_image():
     if (r3d_exe):
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
-       r3d_call = r3d_exe + image_format + coot_image_file_name + " < " + coot_r3d_file_name
+       r3d_call = r3d_exe + image_format + " -labels " + coot_image_file_name + " < " + coot_r3d_file_name
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
 
@@ -97,7 +97,7 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
        #we have to check filenames for spaces for dodgy windows path
        image_file_name_mod, source_file_name_mod, space_flag = \
 		check_file_names_for_space_and_move(image_file_name, source_file_name)
-       r3d_call = r3d_exe + image_format + image_file_name_mod + " < " + source_file_name_mod
+       r3d_call = r3d_exe + image_format + " -labels" + image_file_name_mod + " < " + source_file_name_mod
        print "BL DEBUG:: r3d_call is ", r3d_call
        print "calling render..."
 

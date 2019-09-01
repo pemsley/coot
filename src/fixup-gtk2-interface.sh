@@ -1,4 +1,9 @@
 
+# use a better awk if we can find it
+if [ -d $HOME/awk/bin ] ; then
+   export PATH=$HOME/awk/bin:$PATH
+fi
+
 cp gtk2-interface.c gtk2-interface.c.copy
 awk '
 BEGIN { count = 0; }

@@ -103,14 +103,14 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	    }
 	    delete mol;
 	 }
-	 catch (std::runtime_error coot_error) {
+	 catch (const std::runtime_error &coot_error) {
 	    std::cout << coot_error.what() << std::endl;
 	    std::string m = "Residue type ";
 	    m += residue_p->GetResName();
 	    m += " not found in dictionary.";
 	    add_status_bar_text(m.c_str());
 	 }
-	 catch (std::exception rdkit_error) {
+	 catch (const std::exception &rdkit_error) {
 	    std::cout << rdkit_error.what() << std::endl;
 	 }
       } 
@@ -131,7 +131,11 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       // if SmilesToMol() fails on parsing the string, then that
       // (can?) results in rdk_mol returning NULL (rather than an
       // exception being thrown).
-      if (rdk_mol) { 
+      if (!rdk_mol) {
+	 std::string s("WARNING:: Bad SMILES: ");
+	 s += smiles_string;
+	 info_dialog(s.c_str());
+      } else {
 	 // clear out any cached properties
 	 rdk_mol->clearComputedProps();
 	 // clean up things like nitro groups

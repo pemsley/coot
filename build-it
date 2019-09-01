@@ -385,7 +385,12 @@
 # 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
 # 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
 # 5.30 20180109 Update python version.
-script_version=5.30
+# 5.31 20180822 gdkshapes.c in gtkglext
+# 5.32 20180924 bump the clipper version (pre-Pro)
+# 5.33 20181214 bump the mmdb2 version (pdbx_ins_code)
+# 5.34 20181215 clipper patch fixes
+# 5.35 20190401 clipper configure fftw patch
+script_version=5.35
 
 
 
@@ -1477,7 +1482,10 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+echo doing the awk
+awk ' /a href=.*.tar.gz/ {split($2, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' $pre_release_files_html
+
+coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {split($2, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
 
 echo pre_release_files_html $pre_release_files_html
@@ -1507,7 +1515,7 @@ if test "$build_coot_prerelease" = 1 ; then
 
    echo debug:: ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
    ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
-   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
 
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
@@ -1523,7 +1531,7 @@ if test "$build_coot_prerelease" = 1 ; then
       echo examining release server files ${AUTOBUILD_SOURCES}/index.html
       # coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' 
       # have another go at latest version extraction.
-      coot_version=$(awk '/compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}'  \
+      coot_version=$(awk '/compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}'  \
           ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
       echo coot_version $coot_version
 
@@ -1547,11 +1555,11 @@ else
 
     ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-    coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
+    coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
-       coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+       coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
     fi
     echo coot_version $coot_version
@@ -1579,6 +1587,14 @@ echo coot_version $coot_version
 #
 # we need install_top_dir because we use it to copy over coot.py 
 # to the install python directory.
+
+# Notes for SSL with python:
+# after configure, run this sed:
+# real_ssl_prefix=/usr  # for mac, for PC, libs go in /usr/lib64 and
+# sed -i -e "s?#SSL=.*?SSL=$real_ssl_prefix?" -e 's/^#_ssl/_ssl/' -e's/^#.*-DUSE_SSL/    -DUSE_SSL/' -e 's?^#.*-L$(SSL)/lib?    -L$(SSL)/lib?' Modules/Setup
+# also add --with-ensurepip=install
+# For ubuntu, you need system OpenSSL:
+# sudo apt-get install openssl-dev
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
@@ -2090,7 +2106,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.14
+pver=2.7.15
 #
 # but more modern pythons do not compile (at least on my mac)
 if [ $OS = Darwin ] ; then
@@ -2448,6 +2464,8 @@ mmdb_version=2.0.1
 mmdb_version=2.0.2
 mmdb_version=2.0.5
 mmdb_version=2.0.11
+mmdb_version=2.0.16
+mmdb_version=2.0.19
 # mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
@@ -2570,16 +2588,34 @@ if test -n "$build_clipper" ; then
 
     # now clipper has all the bits.
     # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
-    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
+    # ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
+
+    # Bernie made this tarball
+    clipper_version=2.1.20180802
+    clipper_version_dir=2.1
+    ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} $extras_place/clipper-configure-2.patch
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
 
-    cd clipper-$clipper_dir_version
+    cd clipper-$clipper_version_dir
     pwd
     date
+
+    # this seems to have already been applied in 2.1.20180802
+    # patch the hkl_data.h header
+    # needs testing
+    # sed -ibackup -e 's/int i = 0; i < list.size(); i++/unsigned int i = 0; i < list.size(); i++/' clipper/core/hkl_data.h
     
-    # make clipper
+    # --- make clipper
+
+    # patch clipper
+
+    # fix the linking to the wrong libfftw
+    echo patching clipper with ${AUTOBUILD_SOURCES}/clipper-configure-2.patch
+    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-configure-2.patch
+
     echo . ------------------------------------------------------------------------------
     echo . "         clipper                                                            "
     echo . ------------------------------------------------------------------------------
@@ -2760,7 +2796,13 @@ if [ "$build_gtkglext" = 1 ] ; then
             echo gtkglext patch_file_3 failed.
             my_exit 2
         fi
-     else 
+
+        # 20180822 I also found on Ubuntu 18.04 gtk 2.24.32 that we need to fix up gdkglshapes.c
+        sed -e 's/static int index/static int index_xx/' \
+            -e 's/drawtriangle(i, idata, index/drawtriangle(i, idata, index_xx/' \
+           gdk/gdkglshapes.c > shapes-tmp
+        mv shapes-tmp gdk/gdkglshapes.c
+     else
         echo version of gtk is old, no need to patch gtkglext.
      fi
 
@@ -2926,6 +2968,7 @@ if test -n "$build_python" ; then
 
    cd Python-$pver
 
+   # --with-ensurepip=install
    echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
    # 
    # do we also need to use --with-threads=dir?
@@ -3494,18 +3537,20 @@ if test -n "$build_libidn" ; then
 (
    # get libcurl from here: 
    libidn_version=1.15
-   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+   libidn_version=2.2.0
+   # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+   ${WGET}    https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
 
-   gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
-   cd libidn-$libidn_version
+   gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
+   cd libidn2-$libidn_version
   
    ./configure  $generic_prefix
    if $MAKE ; then
       $MAKE install
    fi
-) > $HOSTLOGDIR/15-a-libidn.txt
+) > $HOSTLOGDIR/15-a-libidn2.txt
 else
-    echo not building libidn:
+    echo not building libidn2:
 fi
 
 #
@@ -3521,8 +3566,11 @@ if test -n "$build_curl" ; then
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
    # libcurl_version=7.27.0
-   libcurl_version=7.32.0
-   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   # libcurl_version=7.32.0
+   libcurl_version=7.65.3
+   libcurl_version_directory=7_65_3
+   # ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version_directory/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
@@ -3536,8 +3584,10 @@ if test -n "$build_curl" ; then
    # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit 
    # (lemur).
    #
-   echo ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
-   ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   # this implicitly uses OpenSSL if it can be configured via pkg-config
+   #
+   echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then 
          fixup_libcurl
@@ -3650,7 +3700,7 @@ else
           echo /usr/include/gd.h exists - skip libgd build
        fi
 
-      ) > $HOSTLOGDIR/15-libgd.log
+      ) > $HOSTLOGDIR/15-libgd.txt
     
       ( 
        date
@@ -3698,7 +3748,7 @@ else
        else 
           echo $install_top_dir/bin/render already exists, no build
        fi
-       ) > $HOSTLOGDIR/15-raster3d.log
+       ) > $HOSTLOGDIR/15-raster3d.txt
    fi
 fi
 

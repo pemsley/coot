@@ -444,22 +444,30 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Assign HETATMs as per PDB definition", 
 		lambda imol: assign_hetatms(imol)))
 
+     # in main menu now
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Copy Coordinates Molecule...", 
+     #   lambda func: molecule_chooser_gui("Molecule to Copy...", 
+     #    	lambda imol: copy_molecule(imol)))
 
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Copy Coordinates Molecule...", 
-       lambda func: molecule_chooser_gui("Molecule to Copy...", 
-		lambda imol: copy_molecule(imol)))
 
-
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Copy Fragment...", 
-       lambda func: generic_chooser_and_entry("Create a new Molecule\n \
-                                  From which molecule shall we seed?", 
-                                 "Atom selection for fragment", "//A/1-10", 
-		lambda imol, text: new_molecule_by_atom_selection(imol,text)))
-
+     # moved to main menu now
+     # should stay open if helper function returns False
+     # def atom_selection_from_fragmemt_func(imol, text, button_state):
+     #   print "BL DEBUG:: imol, text, button_state", imol, text, button_state
+     #   jmol = new_molecule_by_atom_selection(imol, text)
+     #   if button_state:
+     #     move_molecule_to_screen_centre(jmol)
+     #   return valid_model_molecule_qm(jmol)
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Copy Fragment...", 
+     #   lambda func: generic_chooser_and_entry_and_check_button("Create a new Molecule\n \
+     #                              From which molecule shall we copy the fragment?", 
+     #                                                           "Atom selection for fragment", "//A/1-10", "Move molecule here?", 
+     #    	                                               lambda imol, text, button_state: atom_selection_from_fragmemt_func(imol, text, button_state),
+     #                                          False))
 
      # --- D ---
 
@@ -771,25 +779,26 @@ if (have_coot_python):
      # --- Rep ---
 
      # BL says:: may work, not sure about function entirely
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Replace Fragment...",
-       lambda func: molecule_chooser_gui("Define the molecule that needs updating",
-		lambda imol_base: generic_chooser_and_entry(
-				"Molecule that contains the new fragment:",
-				"Atom Selection","//",
-				lambda imol_fragment, atom_selection_str:
-				replace_fragment(imol_base, imol_fragment, atom_selection_str))))
+     # this is in main menu now
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Replace Fragment...",
+     #   lambda func: molecule_chooser_gui("Define the molecule that needs updating",
+     #    	lambda imol_base: generic_chooser_and_entry(
+     #    			"Molecule that contains the new fragment:",
+     #    			"Atom Selection","//",
+     #    			lambda imol_fragment, atom_selection_str:
+     #    			replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
-     
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Replace Residue...",
-       lambda func: generic_single_entry("Replace this residue with residue of type:",
-                                         "ALA", "Mutate",
-                                         lambda text: using_active_atom(mutate_by_overlap,
-                                                                        "aa_imol", "aa_chain_id", "aa_res_no",
-                                                                        text)))
+     # in main menu now
+     # add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Replace Residue...",
+     #   lambda func: generic_single_entry("Replace this residue with residue of type:",
+     #                                     "ALA", "Mutate",
+     #                                     lambda text: using_active_atom(mutate_by_overlap,
+     #                                                                    "aa_imol", "aa_chain_id", "aa_res_no",
+     #                                                                    text)))
 
      # --- Res ---
      
@@ -1029,6 +1038,12 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_ncs,
+       "NCS Jumping...",
+       lambda func: ncs_jumping_gui())
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_ncs,
        "NCS ligands...",
        lambda func: ncs_ligand_gui())
 
@@ -1238,12 +1253,6 @@ if (have_coot_python):
 	else:
 		add_status_bar_text("Failed to read a number")
 
-     add_simple_coot_menu_menuitem(
-       submenu_refine,
-       "Set Density Fit Graph Weight...",
-       lambda func: generic_single_entry("set weight (smaller means apparently better fit)", 
-		str("%.2f" %residue_density_fit_scale_factor()), "Set it", 
-		lambda text: set_den_gra_func(text)))
 
 
      # ---------------------------------------------------------------------
@@ -1296,62 +1305,6 @@ if (have_coot_python):
        lambda func: load_tutorial_data_func()
        )
 
-
-     # ---------------------------------------------------------------------
-     #     Lidia
-     # ---------------------------------------------------------------------
-     #
-     if coot_can_do_lidia_p():
-       # don't do this if the LIDIA interface functions have already
-       # been done in guile-gtk.
-       # Otherwise, do, of course
-       #
-       if (use_gui_qm != 2):
-
-         submenu_lidia = gtk.Menu()
-         menuitem_lidia = gtk.MenuItem("Lidia...")
-
-         menuitem_lidia.set_submenu(submenu_lidia)
-         menu.append(menuitem_lidia)
-         menuitem_lidia.show()
-     
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "Hydrogenate region",
-           lambda func:
-           hydrogenate_region(6)
-           )
-
-         # Does it work?! Maybe not!?
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "View in LIDIA",
-           lambda func:
-           using_active_atom(fle_view,
-                             "aa_imol", "aa_chain_id",
-                             "aa_res_no", "aa_ins_code")
-           )
-         
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "Load SBase monomer...",
-           lambda func:
-           generic_single_entry("Load SBase Monomer from three-letter-code: ",
-                                "",
-                                " Load ",
-                                lambda tlc:
-                                get_sbase_monomer(tlc))
-           )
-
-         add_simple_coot_menu_menuitem(
-           submenu_lidia,
-           "Activate prodrg flat mode",
-           lambda func:
-           using_active_atom(prodrg_flat,
-                             "aa_imol", "aa_chain_id",
-                             "aa_res_no")
-           )
-            
      
      # ---------------------------------------------------------------------
      #     Views/Representations
@@ -1497,6 +1450,27 @@ if (have_coot_python):
 		lambda imol, text: clear_dot_surf_func(imol, text)))
 
 
+     def limit_model_disp_func(text):
+       try:
+         f = float(text)
+         if f < 0.1:
+           set_model_display_radius(0, 10)
+         else:
+           set_model_display_radius(1, f)
+       except:
+           set_model_display_radius(0, 10)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Limit Model Display Radius...",
+       lambda func: generic_single_entry("Display Radius Limit (0 for \'no limit\') ",
+                                         #  "15.0" ;; maybe this should be the map radius
+                                         # BL says:: I think it should be the current one
+                                         str(get_map_radius()),
+                                         "Set: ",
+                                         lambda text: limit_model_disp_func(text)))
+
+     
      add_simple_coot_menu_menuitem(
          submenu_representation,
          "HOLE...",
@@ -1664,6 +1638,10 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(
+       submenu_modules, "CCP4...",
+       lambda func: add_module_ccp4())
+
+     add_simple_coot_menu_menuitem(
        submenu_modules, "SHELX...",
        lambda func: add_module_shelx())
 
@@ -1677,7 +1655,11 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
-         lambda func: add_module_carbohydrate())
+         lambda func: add_module_carbohydrate_gui())
+     
+     add_simple_coot_menu_menuitem(
+         submenu_modules, "Cryo-EM",
+         lambda func: add_module_cryo_em())
 
      
      # ---------------------------------------------------------------------
@@ -1700,6 +1682,13 @@ if (have_coot_python):
        submenu, "Rotate About Second Clicked Atom",
        lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_settings,
+       "Set Density Fit Graph Weight...",
+       lambda func: generic_single_entry("set weight (smaller means apparently better fit)",
+		str("%.2f" %residue_density_fit_scale_factor()), "Set it",
+		lambda text: set_den_gra_func(text)))
 
      # BL says:: maybe check if number at some point
      add_simple_coot_menu_menuitem(

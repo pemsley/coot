@@ -587,7 +587,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
    if (do_rama_plot_restraints) {
-      add_rama_links(selHnd, geom);
+      add_rama_links(selHnd, geom); // uses TRANS links
    }
     
 
@@ -601,10 +601,20 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 								bool do_rama_plot_restraints,
 								bool do_trans_peptide_restraints) {
 
+   bool debug = false;
    // this determines the link type
-   coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
-   // std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
-   //           << bonded_residue_pairs.size() << " bonded residues " << std::endl;
+
+   bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
+
+   if (false) {
+      std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
+		<< bonded_residue_pairs.size() << " bonded residues " << std::endl;
+      for (std::size_t i=0; i<bonded_residue_pairs.size(); i++) {
+	 const bonded_pair_t &bp = bonded_residue_pairs.bonded_residues[i];
+	 std::cout << "   " << i << " " << residue_spec_t(bp.res_1) << " " << residue_spec_t(bp.res_2) << std::endl;
+      }
+   }
+
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
    if (do_rama_plot_restraints)
@@ -629,6 +639,26 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_plane_restr = 0;
    int n_link_parallel_plane_restr = 0;
 
+   if (false) {
+      std::cout << "Here are the bonded pairs: " << std::endl;
+      for (unsigned int ibonded_residue=0;
+	   ibonded_residue<bonded_residue_pairs.size();
+	   ibonded_residue++) {
+
+	 std::string link_type = bonded_residue_pairs[ibonded_residue].link_type;
+	 mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
+	 mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
+
+	 std::cout << " ------- looking for link :" << link_type
+		   << ": restraints etc. between residues "
+		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
+		   << " - "
+		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
+		   << std::endl;
+      }
+   }
+   // std::cout << "---------- Done bonded pairs" << std::endl;
+
    for (unsigned int ibonded_residue=0;
 	ibonded_residue<bonded_residue_pairs.size();
 	ibonded_residue++) {
@@ -645,11 +675,11 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
       mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
 
-      if (verbose_geometry_reporting == VERBOSE) { 
+      if (verbose_geometry_reporting == VERBOSE) {
 	 std::cout << " ------- looking for link :" << link_type
-		   << ": restraints etc. between residues " 
+		   << ": restraints etc. between residues "
 		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
-		   << " - " 
+		   << " - "
 		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
 		   << std::endl;
       }
@@ -739,6 +769,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    return iret; 
 }
 
+// Uses TRANS links only
 void
 coot::restraints_container_t::add_rama_links(int selHnd, const coot::protein_geometry &geom) {
    // 
@@ -756,12 +787,13 @@ coot::restraints_container_t::add_rama_links(int selHnd, const coot::protein_geo
    std::cout << "   " << n_link_torsion_restr << " torsion/rama links" << std::endl;
 }
 
+// Uses TRANS and PTRANS links
 void
 coot::restraints_container_t::add_rama_links_from_res_vec(const coot::bonded_pair_container_t &bonded_residue_pairs,
 							  const coot::protein_geometry &geom) {
 
 
-   std::vector<coot::rama_triple_t> rama_triples;
+   std::vector<rama_triple_t> rama_triples;
    //
    // This relies on the bonded_residues in bonded_residue_pairs being
    // ordered (i.e. res_1 is the first residue in the comp_id of the
@@ -772,11 +804,14 @@ coot::restraints_container_t::add_rama_links_from_res_vec(const coot::bonded_pai
 	 if (i != j) {
 	    if (bonded_residue_pairs.bonded_residues[i].res_2 ==
 		bonded_residue_pairs.bonded_residues[j].res_1) {
-	       if (bonded_residue_pairs.bonded_residues[i].link_type == "TRANS") { 
-		  if (bonded_residue_pairs.bonded_residues[j].link_type == "TRANS") {
+	       const std::string &lt_i = bonded_residue_pairs.bonded_residues[i].link_type;
+	       const std::string &lt_j = bonded_residue_pairs.bonded_residues[j].link_type;
+	       if (lt_i == "TRANS" || lt_i == "PTRANS") {
+		  if (lt_j == "TRANS" || lt_j == "PTRANS") {
 		     coot::rama_triple_t rt(bonded_residue_pairs.bonded_residues[i].res_1,
 					    bonded_residue_pairs.bonded_residues[i].res_2,
 					    bonded_residue_pairs.bonded_residues[j].res_2,
+					    lt_j, // link between residues 2 and 3
 					    bonded_residue_pairs.bonded_residues[i].is_fixed_first,
 					    bonded_residue_pairs.bonded_residues[i].is_fixed_second,
 					    bonded_residue_pairs.bonded_residues[j].is_fixed_second);
@@ -789,13 +824,10 @@ coot::restraints_container_t::add_rama_links_from_res_vec(const coot::bonded_pai
    }
 
    for (unsigned int ir=0; ir<rama_triples.size(); ir++) {
-      add_rama("TRANS",
-	       rama_triples[ir].r_1,
-	       rama_triples[ir].r_2,
-	       rama_triples[ir].r_3,
-	       rama_triples[ir].fixed_1,
-	       rama_triples[ir].fixed_2,
-	       rama_triples[ir].fixed_3,
+      const rama_triple_t &rt = rama_triples[ir];
+      add_rama(rt.link_type,
+	       rt.r_1, rt.r_2, rt.r_3,
+	       rt.fixed_1, rt.fixed_2, rt.fixed_3,
 	       geom);
    }
    
@@ -842,7 +874,7 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
 	 }
       }
    }
-   
+
    if (coot::util::is_nucleotide_by_dict(first, geom))
       link_type = "p"; // phosphodiester linkage
 
@@ -911,7 +943,8 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			     // SSBONDs in the molecule before
 			     // assigning pyranose or disulphides etc.
 
-   bool debug = false;
+   bool debug = false; // TMI.
+
    std::string link_type = "";
    bool order_switch_flag = false;
    std::string comp_id_1 = first->GetResName();
@@ -921,25 +954,25 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
       if (debug)
-	 std::cout << "====== DEBUG:: find_link_type_by_distance() from "
+	 std::cout << "====== DEBUG:: find_link_type_complicado() from "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
-		   << " <--> " 
+		   << " (group " << group_1 << ") <--> "
 		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
-		   << " " << std::endl;
+		   << " (group " << group_2 << ")" << std::endl;
       try {
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug) {
 
-	    std::cout << "DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
+	    std::cout << "   DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
 		      << comp_id_1 << " " << group_1 << " and "
 		      << comp_id_2 << " " << group_2 << std::endl;
-	    std::cout << "DEBUG:: find_link_type_by_distance:: first  " << coot::residue_spec_t(first)
+	    std::cout << "   DEBUG:: find_link_type_complicado:: first  " << coot::residue_spec_t(first)
 		      << std::endl;
-	    std::cout << "DEBUG:: find_link_type_by_distance:: second " << coot::residue_spec_t(second)
+	    std::cout << "   DEBUG:: find_link_type_complicado:: second " << coot::residue_spec_t(second)
 		      << std::endl;
-	    std::cout << "DEBUG:: find_link_type_by_distance: " << link_infos.size() 
+	    std::cout << "   DEBUG:: find_link_type_complicado:: " << link_infos.size()
 		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
 	       std::cout << "    find_link_type_complicado() link_info["
@@ -957,7 +990,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	 for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
 
 	    if (debug)
-	       std::cout << "DEBUG:: LINKS:: for-loop testing ilink " << ilink << " "
+	       std::cout << "   DEBUG:: LINKS:: for-loop testing ilink " << ilink << " "
 			 << link_infos[ilink].first << " bool: " << link_infos[ilink].second
 			 << std::endl;
 
@@ -965,12 +998,17 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	       // ===================== is a peptide ========================================
 	       
-	       std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
+	       // note to self: use an enum for the first, don't use magic numbers
+	       std::pair<int, bool> peptide_info = peptide_C_and_N_are_in_order_p(first, second);
+
 	       if (debug)
-		  std::cout << "   peptide_C_and_N_are_close returns " <<  close_info.first
-			    << " and order-switch: " << close_info.second << std::endl;
-	       if (close_info.first) {
-		  order_switch_flag = close_info.second;
+		  std::cout << "   peptide_C_and_N_are_in_order_p returns " <<  peptide_info.first
+			    << " and order-switch: " << peptide_info.second << std::endl;
+
+
+	       //
+	       if (peptide_info.first == IS_PEPTIDE) {
+		  order_switch_flag = peptide_info.second;
 
 		  mmdb::Residue *r_1 = first;
 		  mmdb::Residue *r_2 = second;
@@ -985,13 +1023,35 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			link_type = "PTRANS";
 		     } else {
 
-   		        link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
-			      	             // TRANS.  (We don't yet (as of today) know if this link was
-				             // CIS or TRANS). TRANS has 5-atom (plane3) plane
+			link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
+			                     // TRANS.  (We don't yet (as of today) know if this link
+				             // was CIS or TRANS). TRANS has 5-atom (plane3) plane
 				             // restraints, CIS does not.
 		     }
 		  }
 	       } else {
+
+		  if (peptide_info.first == UNKNOWN) {
+
+		     // maybe it was a link between residues in different molecules
+		     // i.e. a moving residue and a non moving one (things are in a mess)
+		     // or there was an insertion code.
+		     // so let's try by distance and residue details.
+
+		     peptide_info = peptide_C_and_N_are_close_p(first, second);
+
+                     if (false) {
+		        std::cout << "   DEBUG:: find_link_type_complicado() unknown, so moving-to-fixed? for "
+				  << residue_spec_t(first) << " " << residue_spec_t(second) << " "
+                                  << peptide_info.first << " " << peptide_info.second
+                                  << std::endl;
+		     }
+		  }
+	       }
+
+	       if (peptide_info.first != IS_PEPTIDE) {
+
+		  // is not a peptide link
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
 		     geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2);
@@ -999,9 +1059,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "DEBUG::    find_link_type_by_distance() non-peptide link: "
+			std::cout << "   DEBUG::    find_link_type_complicado() non-peptide link: "
 				  << link_infos_non_peptide[il].first.Id() << std::endl;
-	       
+
 		  // 20100330 eh?  is something missing here?  What
 		  // shall we do with link_infos_non_peptide?  did I
 		  // mean that, now the peptide test has failed,
@@ -1026,7 +1086,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // ===================== is not a peptide ========================================
 
 	       if (debug)
-		  std::cout << "DEBUG::   find_link_type_complicado() this is not a peptide link... "
+		  std::cout << "   DEBUG::   find_link_type_complicado() this "
+			    << link_infos[ilink].first
+			    << " is not a peptide link... "
 			    << std::endl;
 	       //
 	       order_switch_flag = link_infos[ilink].second;
@@ -1036,8 +1098,9 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       // selects a particular link info. Hmmmm.
 	       // The test should be link_info.is_glycosidic(link_infos[ilink])
 	       //
-	       std::cout << "DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
-			 << link_infos_are_glycosidic_p(link_infos) << std::endl;
+	       if (debug)
+		  std::cout << "   DEBUG::   find_link_type_complicado() link_infos are glycosidic: "
+			    << link_infos_are_glycosidic_p(link_infos) << std::endl;
 	    
 	       if (link_infos_are_glycosidic_p(link_infos)) {
 
@@ -1069,7 +1132,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  // ===================== is not glycosidic ========================================
 		  
 		  if (debug)
-		     std::cout << "DEBUG::   find_link_type_complicado() not a glycosidic_linkage... "
+		     std::cout << "   DEBUG::   find_link_type_complicado() not a glycosidic_linkage"
 			       << std::endl;
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide;
@@ -1103,12 +1166,12 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  }
 	       }
 	    }
-	 } 
+	 }
       }
       catch (const std::runtime_error &mess_in) {
 	 if (debug) { 
 	    // didn't find a chem_link for this pair, that's OK sometimes.
-	    std::cout << "CAUGHT exception in find_link_type_by_distance(): "
+	    std::cout << "CAUGHT exception in find_link_type_complicado(): "
 		      << mess_in.what() << std::endl;
 	    geom.print_chem_links();
 	 }
@@ -1121,7 +1184,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
    }
 
    if (debug)
-      std::cout << "   DEBUG:: find_link_type_by_distance() given "
+      std::cout << "   DEBUG:: find_link_type_complicado() given "
 		<< coot::residue_spec_t(first) << " and "
 		<< coot::residue_spec_t(second)
 		<< " find_link_type_by_distance returns link type :"
@@ -1300,7 +1363,8 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
 	       break;
 	 }
       } else {
-	 std::cout << "FAIL close enough with closer than dist_crit " << close.second << std::endl;
+         if (debug)
+	    std::cout << "FAIL close enough with closer than dist_crit " << close.second << std::endl;
       }
    }
    if (debug)
@@ -1398,11 +1462,19 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 				  << atom_sel[iat]->name << ": :"
 				  << atom_sel[iat]->altLoc << ":" << std::endl;
 
-		     atom_indices_map[atom_sel[iat]->altLoc].push_back(get_asc_index(atom_sel[iat]->name,
-										     atom_sel[iat]->altLoc,
-										     res->seqNum,
-										     res->GetInsCode(),
-										     res->GetChainID()));
+
+		     // Too slow for ribosomes
+		     // atom_indices_map[atom_sel[iat]->altLoc].push_back(get_asc_index(atom_sel[iat]->name,
+		     // atom_sel[iat]->altLoc,
+		     // res->seqNum,
+		     // res->GetInsCode(),
+		     // res->GetChainID()));
+
+		     std::string key(atom_sel[iat]->altLoc);
+		     int idx_t_2 = -1;
+		     atom_sel[iat]->GetUDData(udd_atom_index_handle, idx_t_2);
+		     atom_indices_map[key].push_back(idx_t_2);
+
 		  }
 	       }
 	    }

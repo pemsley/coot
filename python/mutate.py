@@ -60,23 +60,28 @@ def multi_mutate(mutate_function, imol, start_res_no, chain_id, sequence):
 # mutate_resiude_range(0,"A",1,2,"AC")
 #
 # This presumes a protein sequence (not nucleic acid).
+# not any more... sort of
+#
 def mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, sequence):
 
-   print "backing up molecule number ", imol
-   make_backup(imol)
-   n_residues = stop_res_no - start_res_no + 1
-   if (len(sequence) != n_residues) :
-       print "sequence length mismatch:", len(sequence), n_residues
+   if is_nucleotide_chain_qm(imol, chain_id):
+      mutate_nucleotide_range(imol, chain_id,
+                              start_res_no, stop_res_no, sequence)
    else:
-       backup_mode = backup_state(imol)
-       turn_off_backup(imol)
-       multi_mutate(mutate_single_residue_by_seqno, imol,
-                    start_res_no, chain_id, sequence.upper())
-       set_have_unsaved_changes(imol)
-       if (backup_mode == 1) :
-           turn_on_backup(imol)
-       update_go_to_atom_window_on_changed_mol(imol)
-       graphics_draw()
+      make_backup(imol)
+      n_residues = stop_res_no - start_res_no + 1
+      if (len(sequence) != n_residues) :
+         print "sequence length mismatch:", len(sequence), n_residues
+      else:
+         backup_mode = backup_state(imol)
+         turn_off_backup(imol)
+         multi_mutate(mutate_single_residue_by_seqno, imol,
+                      start_res_no, chain_id, sequence.upper())
+         set_have_unsaved_changes(imol)
+         if (backup_mode == 1) :
+            turn_on_backup(imol)
+            update_go_to_atom_window_on_changed_mol(imol)
+            graphics_draw()
 
 # mutate and auto fit a residue range
 #
@@ -88,7 +93,7 @@ def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
                                      sequence):
 
    mutate_residue_range(imol, chain_id, start_res_no, stop_res_no,
-                        sequence.upper())
+                        sequence.upper()) # does nucleic acids now too
    mol_for_map = imol_refinement_map()
    if (mol_for_map >= 0) :
        backup_mode = backup_state(imol)

@@ -84,6 +84,8 @@
 			   "tips.scm"
 			   "3d-generator-import.scm"
 			   "dictionary-generators.scm"
+			   "cho-restraints-from-models.scm"
+			   "add-linked-cho.scm"
 			   "jligand.scm"
 			   "americanisms.scm"
 			   "group-settings.scm")))
@@ -96,14 +98,16 @@
 								      "gui-hole.scm"
 								      "gui-prosmart.scm"
 								      "gui-add-linked-cho.scm"
-								      "cho-restraints-from-models.scm"
 								      "jligand-gui.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
 								      "enhanced-ligand.scm"
 								      "ligand-check.scm"
+								      "acedrg-link.scm"
+								      "interactive-nudge-residues.scm"
 								      "gui-ligand-sliders.scm"
+								      "find-baddies.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))

@@ -185,6 +185,7 @@ GtkWidget* create_generic_objects_dialog (void);
 GtkWidget* create_export_map_dialog (void);
 GtkWidget* create_export_map_filechooserdialog (void);
 GtkWidget* create_cfc_dialog (void);
+GtkWidget* create_curlew_dialog (void);
 
 
 END_C_DECLS

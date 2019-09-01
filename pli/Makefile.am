@@ -8,7 +8,8 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS)             \
         $(MMDB_CXXFLAGS) \
         $(PYTHON_CFLAGS)  \
-	$(RDKIT_CXXFLAGS)
+	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
+	$(COOT_WINDOWS_CFLAGS)
 
 lib_LTLIBRARIES=libcoot-pli.la
 
@@ -16,7 +17,10 @@ libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-s
 
 libcoot_pli_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
+                       $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) \
+                       $(PYTHON_LIBS)
+
+libcoot_pli_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh
 

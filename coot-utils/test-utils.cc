@@ -416,19 +416,29 @@ int test_all_atom_overlaps() {
    geom.try_dynamic_add("MBR", 1);
    geom.try_dynamic_add("CL", 1);
    geom.try_dynamic_add("NA", 1);
-   
 
    mmdb::Manager *mol = new mmdb::Manager;
    std::string file_name = "1x8b-all-H-no-water.pdb";
-   file_name = "5hcj-with-coot-Hs.pdb";
-   // file_name = "3-atoms.pdb";
-   coot::residue_spec_t spec("A", 901, "");
+
+   // file_name = "5hcj-with-coot-Hs.pdb";
 
    int read_status = mol->ReadCoorFile(file_name.c_str());
 
    if (read_status == mmdb::Error_NoError) {
-      coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.5);
-      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.5);
+      // spike length and probe radius (which are not used in overlaps)
+      bool waters = true; // include waters
+      coot::atom_overlaps_container_t overlaps(mol, &geom, waters, 0.5, 0.25);
+      overlaps.make_all_atom_overlaps();
+      std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+      std::cout << "Found " << olv.size() << " atom overlaps" << std::endl;
+      for (std::size_t ii=0; ii<olv.size(); ii++) {
+	 const coot::atom_overlap_t &o = olv[ii];
+	 std::cout << "Overlap " << ii << " "
+		   << coot::atom_spec_t(o.atom_1) << " "
+		   << coot::atom_spec_t(o.atom_2) << " overlap-vol "
+		   << o.overlap_volume << " r_1 "
+		   << o.r_1 << " r_2 " << o.r_2 << std::endl;
+      }
    }
 
    delete mol;
@@ -500,8 +510,8 @@ int test_glyco_link_by_geometry() {
    file_names.push_back("beta1-6-example.pdb");
 
    for (std::size_t i=0; i<file_names.size(); i++) {
-      if (file_exists(file_name)) {
-	 const std::string file_name = file_names[i];
+      const std::string &file_name = file_names[i];
+      if (coot::file_exists(file_name)) {
 	 mmdb::Manager *mol = new mmdb::Manager;
 	 mol->ReadCoorFile(file_name.c_str());
 
@@ -517,6 +527,9 @@ int test_glyco_link_by_geometry() {
 int main(int argv, char **argc) {
 
    if (1)
+      test_all_atom_overlaps();
+
+   if (0)
       test_glyco_link_by_geometry();
 
    if (0)

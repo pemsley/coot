@@ -79,6 +79,7 @@ PyObject *get_intermediate_atoms_bonds_representation() {
 
 
 
+
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py) {
 
    PyObject *r = Py_False;
@@ -97,6 +98,34 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
    return r;
 
 }
+
+//! \brief return a Python object for the radii of the atoms in the dictionary
+//
+PyObject *get_dictionary_radii() {
+
+   bool use_vdwH_flag = false; // I suppose caller can pass this
+
+   PyObject *r = Py_False;
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+
+   graphics_info_t g;
+   PyObject *residue_dict_py = PyDict_New();
+   for (std::size_t i=0; i<g.Geom_p()->size(); i++) {
+      const coot::dictionary_residue_restraints_t &rest = g.Geom_p()->get_monomer_restraints(i);
+      const std::string residue_name = rest.comp_id();
+      const std::vector<coot::dict_atom> &ai = rest.atom_info;
+      PyObject *atoms_dict_py = PyDict_New();
+      for (std::size_t j=0; j<ai.size(); j++) {
+	 const std::string &atom_name = ai[j].atom_id_4c;
+	 double r = g.Geom_p()->get_vdw_radius(atom_name, residue_name, imol_enc, use_vdwH_flag);
+	 PyDict_SetItem(atoms_dict_py, PyString_FromString(atom_name.c_str()), PyFloat_FromDouble(r));
+      }
+      PyDict_SetItem(residue_dict_py, PyString_FromString(residue_name.c_str()), atoms_dict_py);
+   }
+   r = residue_dict_py;
+   return r;
+}
+
 
 
 #endif // Python

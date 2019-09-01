@@ -3526,6 +3526,10 @@ void
 on_delete_item_sidechain_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
+void
+on_delete_item_sidechain_range_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
 
 void
 on_delete_item_chain_radiobutton_toggled
@@ -4559,3 +4563,112 @@ void
 on_weight_maxtrix_estimate_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void
+on_mutate_molecule_resno_1_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_mutate_molecule_resno_2_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+void
+on_mutate_molecule_sequence_text_insert_at_cursor
+                                        (GtkTextView     *textview,
+                                        gchar           *string,
+                                        gpointer         user_data);
+
+gboolean
+on_mutate_molecule_sequence_text_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+gboolean
+on_mutate_molecule_sequence_text_button_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data);
+
+void
+on_display_control_last_model_only_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_display_control_align_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_delete_item_sidechain_range_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
+                                        gpointer         user_data);
+
+void
+on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
+                                        gpointer         user_data);
+
+void
+on_curlew_install_button_clicked       (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_curlew_dialog_closebutton_clicked   (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_curlew_dialog_close                 (GtkDialog       *dialog,
+                                        gpointer         user_data);
+
+void
+on_curlew_dialog_response              (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_symmetry_always_on_toggled          (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_symmetry_always_on_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_show_symmetry_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_show_symmetry_yes_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+gboolean
+on_symmetry_radius_entry_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);
+
+void
+on_hscale_symmetry_colour_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data);
+
+void
+on_show_symmetry_expanded_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data);
+
+

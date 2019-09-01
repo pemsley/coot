@@ -6,6 +6,10 @@
 #include "probe-clash-score.hh"
 #include "ligand-check.hh"
 
+/*! \file
+  \brief Coot Scripting Interface - Ligands interface
+*/
+
 // We don't need to SWIG this one...
 std::pair<mmdb::Residue *, int>
 new_molecule_sans_biggest_ligand(int imol);
@@ -32,6 +36,12 @@ PyObject *new_molecule_sans_biggest_ligand_py(int imol);
 void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, double percentile_limit);
 #endif
 
+#ifdef USE_PYTHON
+// this is not a ligands function (although it can be used for ligands)
+// it doesn't belong here
+PyObject *residues_distortions_py(int imol, PyObject *residue_spec_list);
+PyObject *get_intermediate_atoms_distortions_py();
+#endif
 
 // This don't call graphics_draw(), so the caller needs to do so.
 //
@@ -128,6 +138,10 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 bool comprised_of_organic_set_p(const std::string &rn);
 
 // all-atom contact dots.  This is not the place for this declaration (not a ligand function)
+//
+//! \brief calculate all-atom contact dots
+//!
+//! remove contact dots objects using the Generic Display Objects dialog
 void coot_all_atom_contact_dots(int imol);
 
 #ifdef USE_PYTHON

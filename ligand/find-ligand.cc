@@ -131,7 +131,7 @@ main(int argc, char **argv) {
       int ch;
       int option_index = 0;
       while ( -1 != 
-	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) { 
+	      (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
 	 switch(ch) {
 	    
@@ -215,7 +215,7 @@ main(int argc, char **argv) {
 		     if (arg_str == "pos-z")
 			pos_z = std::pair<bool, float> (1, v);
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "WARNING:: Failed to convert " << arg_str << " to a number"
 			       << std::endl;
 		  } 
@@ -341,7 +341,7 @@ main(int argc, char **argv) {
 	    try {
 	       input_sigma_level = coot::util::string_to_float(sigma_str);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << " - using default 2.0 sigma";
 	    }
 	    int n_cluster = atoi(n_cluster_string.c_str());
@@ -381,7 +381,7 @@ main(int argc, char **argv) {
 		     std::cout << "Masking with level " << absolute_string << "("
 			       << input_sigma_level << " sigma)" << std::endl;
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << rte.what() << std::endl;
 		  }
 	       } 
@@ -460,7 +460,7 @@ main(int argc, char **argv) {
 			   clipper::Map_stats stats = wlig.map_statistics();
 			   input_sigma_level = ab/stats.std_dev();
 			}
-			catch (std::runtime_error rte) {
+			catch (const std::runtime_error &rte) {
 			   std::cout << rte.what() << std::endl;
 			}
 		     } 
@@ -506,7 +506,7 @@ main(int argc, char **argv) {
 								       optim_geom,
 								       fill_vec);
 			      }
-			      catch (std::runtime_error mess) {
+			      catch (const std::runtime_error &mess) {
 				 std::cout << "Failed to install flexible ligands\n" << mess.what()
 					   << std::endl;
 			      } 

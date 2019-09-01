@@ -73,7 +73,8 @@ create_window1 (void)
   GtkWidget *separator7;
   GtkWidget *close_molecule1;
   GtkWidget *image12048;
-  GtkWidget *separator6;
+  GtkWidget *curlew1;
+  GtkWidget *separator9;
   GtkWidget *exit1;
   GtkWidget *image12049;
   GtkWidget *edit1;
@@ -274,6 +275,13 @@ create_window1 (void)
   GtkWidget *go_to_atom_toolbutton;
   GtkWidget *go_to_ligand_toolbutton;
   GtkWidget *separatortoolitem1;
+  GtkWidget *toolitem31;
+  GtkWidget *main_toolbar_restraints_alpha_label;
+  GtkWidget *toolitem32;
+  GtkWidget *main_toolbar_restraints_beta_label;
+  GtkWidget *toolitem33;
+  GtkWidget *main_toolbar_restraints_rama_label;
+  GtkWidget *toolitem34;
   GtkWidget *toolitem30;
   GtkWidget *hbox398;
   GtkWidget *toolbar_multi_refine_stop_button;
@@ -574,10 +582,15 @@ create_window1 (void)
   gtk_widget_show (image12048);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close_molecule1), image12048);
 
-  separator6 = gtk_separator_menu_item_new ();
-  gtk_widget_show (separator6);
-  gtk_container_add (GTK_CONTAINER (file1_menu), separator6);
-  gtk_widget_set_sensitive (separator6, FALSE);
+  curlew1 = gtk_image_menu_item_new_with_mnemonic ("Curlew");
+  gtk_widget_show (curlew1);
+  gtk_container_add (GTK_CONTAINER (file1_menu), curlew1);
+  gtk_tooltips_set_tip (tooltips, curlew1, "Coot's Extension Wrangler", NULL);
+
+  separator9 = gtk_separator_menu_item_new ();
+  gtk_widget_show (separator9);
+  gtk_container_add (GTK_CONTAINER (file1_menu), separator9);
+  gtk_widget_set_sensitive (separator9, FALSE);
 
   exit1 = gtk_image_menu_item_new_with_mnemonic ("Exit");
   gtk_widget_show (exit1);
@@ -1325,7 +1338,7 @@ create_window1 (void)
   help1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (help1), help1_menu);
 
-  remarks_browser1 = gtk_menu_item_new_with_mnemonic ("Remarks Browser...");
+  remarks_browser1 = gtk_menu_item_new_with_mnemonic ("Header/Remarks Browser...");
   gtk_widget_show (remarks_browser1);
   gtk_container_add (GTK_CONTAINER (help1_menu), remarks_browser1);
   gtk_tooltips_set_tip (tooltips, remarks_browser1, "View the REMARK cards from the PDB file in a dialog", NULL);
@@ -1403,6 +1416,34 @@ create_window1 (void)
   separatortoolitem1 = (GtkWidget*) gtk_separator_tool_item_new ();
   gtk_widget_show (separatortoolitem1);
   gtk_container_add (GTK_CONTAINER (main_toolbar), separatortoolitem1);
+
+  toolitem31 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem31);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem31);
+
+  main_toolbar_restraints_alpha_label = gtk_label_new ("<span background=\"white\"> \316\261 </span>");
+  gtk_container_add (GTK_CONTAINER (toolitem31), main_toolbar_restraints_alpha_label);
+  gtk_label_set_use_markup (GTK_LABEL (main_toolbar_restraints_alpha_label), TRUE);
+
+  toolitem32 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem32);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem32);
+
+  main_toolbar_restraints_beta_label = gtk_label_new ("<span background=\"white\"> \316\262 </span>");
+  gtk_container_add (GTK_CONTAINER (toolitem32), main_toolbar_restraints_beta_label);
+  gtk_label_set_use_markup (GTK_LABEL (main_toolbar_restraints_beta_label), TRUE);
+
+  toolitem33 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem33);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem33);
+
+  main_toolbar_restraints_rama_label = gtk_label_new ("<span background=\"white\">Rama</span>");
+  gtk_container_add (GTK_CONTAINER (toolitem33), main_toolbar_restraints_rama_label);
+  gtk_label_set_use_markup (GTK_LABEL (main_toolbar_restraints_rama_label), TRUE);
+
+  toolitem34 = (GtkWidget*) gtk_tool_item_new ();
+  gtk_widget_show (toolitem34);
+  gtk_container_add (GTK_CONTAINER (main_toolbar), toolitem34);
 
   toolitem30 = (GtkWidget*) gtk_tool_item_new ();
   gtk_widget_show (toolitem30);
@@ -2098,6 +2139,9 @@ create_window1 (void)
   g_signal_connect ((gpointer) close_molecule1, "activate",
                     G_CALLBACK (on_close_molecule1_activate),
                     NULL);
+  g_signal_connect ((gpointer) curlew1, "activate",
+                    G_CALLBACK (on_curlew1_activate),
+                    NULL);
   g_signal_connect ((gpointer) exit1, "activate",
                     G_CALLBACK (on_exit1_activate),
                     NULL);
@@ -2584,7 +2628,8 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, separator7, "separator7");
   GLADE_HOOKUP_OBJECT (window1, close_molecule1, "close_molecule1");
   GLADE_HOOKUP_OBJECT (window1, image12048, "image12048");
-  GLADE_HOOKUP_OBJECT (window1, separator6, "separator6");
+  GLADE_HOOKUP_OBJECT (window1, curlew1, "curlew1");
+  GLADE_HOOKUP_OBJECT (window1, separator9, "separator9");
   GLADE_HOOKUP_OBJECT (window1, exit1, "exit1");
   GLADE_HOOKUP_OBJECT (window1, image12049, "image12049");
   GLADE_HOOKUP_OBJECT (window1, edit1, "edit1");
@@ -2781,6 +2826,13 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, go_to_atom_toolbutton, "go_to_atom_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, go_to_ligand_toolbutton, "go_to_ligand_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, separatortoolitem1, "separatortoolitem1");
+  GLADE_HOOKUP_OBJECT (window1, toolitem31, "toolitem31");
+  GLADE_HOOKUP_OBJECT (window1, main_toolbar_restraints_alpha_label, "main_toolbar_restraints_alpha_label");
+  GLADE_HOOKUP_OBJECT (window1, toolitem32, "toolitem32");
+  GLADE_HOOKUP_OBJECT (window1, main_toolbar_restraints_beta_label, "main_toolbar_restraints_beta_label");
+  GLADE_HOOKUP_OBJECT (window1, toolitem33, "toolitem33");
+  GLADE_HOOKUP_OBJECT (window1, main_toolbar_restraints_rama_label, "main_toolbar_restraints_rama_label");
+  GLADE_HOOKUP_OBJECT (window1, toolitem34, "toolitem34");
   GLADE_HOOKUP_OBJECT (window1, toolitem30, "toolitem30");
   GLADE_HOOKUP_OBJECT (window1, hbox398, "hbox398");
   GLADE_HOOKUP_OBJECT (window1, toolbar_multi_refine_stop_button, "toolbar_multi_refine_stop_button");
@@ -3970,9 +4022,10 @@ create_show_symmetry_window (void)
   GtkWidget *vbox169;
   GtkWidget *frame7;
   GtkWidget *vbox11;
-  GtkWidget *show_symmetry_yes_radiobutton;
-  GSList *show_symmetry_yes_radiobutton_group = NULL;
   GtkWidget *show_symmetry_no_radiobutton;
+  GSList *show_symmetry_no_radiobutton_group = NULL;
+  GtkWidget *show_symmetry_yes_radiobutton;
+  GtkWidget *symmetry_always_on_checkbutton;
   GtkWidget *label277;
   GtkWidget *show_symmetry_molecule_control_button;
   GtkWidget *frame8;
@@ -3986,11 +4039,8 @@ create_show_symmetry_window (void)
   GtkWidget *vbox13;
   GtkWidget *hbox8;
   GtkWidget *label15;
-  GtkWidget *symmetry_colour_patch_button;
-  GtkWidget *hbox33;
-  GtkWidget *frame33;
   GtkWidget *symmetry_colorbutton;
-  GtkWidget *label68;
+  GtkWidget *label810;
   GtkWidget *hbox9;
   GtkWidget *frame10;
   GtkWidget *hbox10;
@@ -4005,11 +4055,6 @@ create_show_symmetry_window (void)
   GtkWidget *unit_cell_no_radiobutton;
   GtkWidget *label278;
   GtkWidget *hbox133;
-  GtkWidget *show_symmetry_apply_button;
-  GtkWidget *alignment21;
-  GtkWidget *hbox172;
-  GtkWidget *image1490;
-  GtkWidget *label346;
   GtkWidget *show_symmetry_ok_button;
   GtkWidget *alignment22;
   GtkWidget *hbox173;
@@ -4041,26 +4086,30 @@ create_show_symmetry_window (void)
   frame7 = gtk_frame_new (NULL);
   gtk_widget_show (frame7);
   gtk_box_pack_start (GTK_BOX (vbox169), frame7, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame7), 4);
+  gtk_container_set_border_width (GTK_CONTAINER (frame7), 6);
 
   vbox11 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox11);
   gtk_container_add (GTK_CONTAINER (frame7), vbox11);
 
-  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Yes");
-  gtk_widget_show (show_symmetry_yes_radiobutton);
-  gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_yes_radiobutton_group);
-  show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
-
-  show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "No");
+  show_symmetry_no_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry Off");
   gtk_widget_show (show_symmetry_no_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_no_radiobutton, FALSE, FALSE, 0);
-  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_yes_radiobutton_group);
-  show_symmetry_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton), show_symmetry_no_radiobutton_group);
+  show_symmetry_no_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (show_symmetry_no_radiobutton), TRUE);
 
-  label277 = gtk_label_new ("Master Switch: Show Symmetry Atoms?");
+  show_symmetry_yes_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Symmetry On");
+  gtk_widget_show (show_symmetry_yes_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox11), show_symmetry_yes_radiobutton, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton), show_symmetry_no_radiobutton_group);
+  show_symmetry_no_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (show_symmetry_yes_radiobutton));
+
+  symmetry_always_on_checkbutton = gtk_check_button_new_with_mnemonic ("Always On");
+  gtk_widget_show (symmetry_always_on_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox11), symmetry_always_on_checkbutton, FALSE, FALSE, 0);
+
+  label277 = gtk_label_new ("Master Switch");
   gtk_widget_show (label277);
   gtk_frame_set_label_widget (GTK_FRAME (frame7), label277);
 
@@ -4096,6 +4145,7 @@ create_show_symmetry_window (void)
   symmetry_radius_entry = gtk_entry_new ();
   gtk_widget_show (symmetry_radius_entry);
   gtk_box_pack_start (GTK_BOX (hbox7), symmetry_radius_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (symmetry_radius_entry, 60, -1);
 
   label14 = gtk_label_new ("A");
   gtk_widget_show (label14);
@@ -4122,27 +4172,14 @@ create_show_symmetry_window (void)
   gtk_label_set_justify (GTK_LABEL (label15), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label15), 10, 0);
 
-  symmetry_colour_patch_button = gtk_button_new ();
-  gtk_widget_show (symmetry_colour_patch_button);
-  gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colour_patch_button, FALSE, FALSE, 4);
-
-  hbox33 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox33);
-  gtk_container_add (GTK_CONTAINER (symmetry_colour_patch_button), hbox33);
-
-  frame33 = gtk_frame_new (NULL);
-  gtk_widget_show (frame33);
-  gtk_box_pack_start (GTK_BOX (hbox33), frame33, TRUE, TRUE, 0);
-
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
-  gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
+  gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
   gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
-  label68 = gtk_label_new ("Sym Colour");
-  gtk_widget_show (label68);
-  gtk_box_pack_start (GTK_BOX (hbox33), label68, FALSE, FALSE, 2);
-  gtk_label_set_justify (GTK_LABEL (label68), GTK_JUSTIFY_CENTER);
+  label810 = gtk_label_new ("    ");
+  gtk_widget_show (label810);
+  gtk_box_pack_start (GTK_BOX (hbox8), label810, FALSE, FALSE, 0);
 
   hbox9 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox9);
@@ -4151,7 +4188,7 @@ create_show_symmetry_window (void)
   frame10 = gtk_frame_new (NULL);
   gtk_widget_show (frame10);
   gtk_box_pack_start (GTK_BOX (hbox9), frame10, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame10), 4);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame10), GTK_SHADOW_NONE);
 
   hbox10 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox10);
@@ -4171,13 +4208,15 @@ create_show_symmetry_window (void)
   gtk_widget_show (show_symmetry_expanded_labels_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox169), show_symmetry_expanded_labels_checkbutton, FALSE, FALSE, 0);
 
-  label276 = gtk_label_new ("Symmetry");
+  label276 = gtk_label_new ("<b>Symmetry</b>");
   gtk_widget_show (label276);
   gtk_frame_set_label_widget (GTK_FRAME (frame163), label276);
+  gtk_label_set_use_markup (GTK_LABEL (label276), TRUE);
 
   frame11 = gtk_frame_new (NULL);
   gtk_widget_show (frame11);
   gtk_box_pack_start (GTK_BOX (vbox10), frame11, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (frame11), 6);
 
   vbox15 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox15);
@@ -4196,34 +4235,14 @@ create_show_symmetry_window (void)
   unit_cell_yes_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (unit_cell_no_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (unit_cell_no_radiobutton), TRUE);
 
-  label278 = gtk_label_new ("Show Unit Cells?");
+  label278 = gtk_label_new ("<b>Show Unit Cells?</b>");
   gtk_widget_show (label278);
   gtk_frame_set_label_widget (GTK_FRAME (frame11), label278);
+  gtk_label_set_use_markup (GTK_LABEL (label278), TRUE);
 
   hbox133 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox133);
   gtk_box_pack_start (GTK_BOX (vbox10), hbox133, FALSE, FALSE, 9);
-
-  show_symmetry_apply_button = gtk_button_new ();
-  gtk_widget_show (show_symmetry_apply_button);
-  gtk_box_pack_start (GTK_BOX (hbox133), show_symmetry_apply_button, TRUE, TRUE, 4);
-  GTK_WIDGET_SET_FLAGS (show_symmetry_apply_button, GTK_CAN_DEFAULT);
-
-  alignment21 = gtk_alignment_new (0.5, 0.5, 0, 0);
-  gtk_widget_show (alignment21);
-  gtk_container_add (GTK_CONTAINER (show_symmetry_apply_button), alignment21);
-
-  hbox172 = gtk_hbox_new (FALSE, 2);
-  gtk_widget_show (hbox172);
-  gtk_container_add (GTK_CONTAINER (alignment21), hbox172);
-
-  image1490 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
-  gtk_widget_show (image1490);
-  gtk_box_pack_start (GTK_BOX (hbox172), image1490, FALSE, FALSE, 0);
-
-  label346 = gtk_label_new_with_mnemonic ("  Apply  ");
-  gtk_widget_show (label346);
-  gtk_box_pack_start (GTK_BOX (hbox172), label346, FALSE, FALSE, 0);
 
   show_symmetry_ok_button = gtk_button_new ();
   gtk_widget_show (show_symmetry_ok_button);
@@ -4246,23 +4265,35 @@ create_show_symmetry_window (void)
   gtk_widget_show (label347);
   gtk_box_pack_start (GTK_BOX (hbox173), label347, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) show_symmetry_no_radiobutton, "toggled",
+                    G_CALLBACK (on_show_symmetry_no_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) show_symmetry_yes_radiobutton, "toggled",
+                    G_CALLBACK (on_show_symmetry_yes_radiobutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) symmetry_always_on_checkbutton, "toggled",
+                    G_CALLBACK (on_symmetry_always_on_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) show_symmetry_molecule_control_button, "clicked",
                     G_CALLBACK (on_show_symmetry_molecule_control_button_clicked),
                     NULL);
-  g_signal_connect ((gpointer) symmetry_colour_patch_button, "clicked",
-                    G_CALLBACK (on_symmetry_colour_patch_button_clicked),
+  g_signal_connect ((gpointer) symmetry_radius_entry, "key_release_event",
+                    G_CALLBACK (on_symmetry_radius_entry_key_release_event),
                     NULL);
   g_signal_connect ((gpointer) symmetry_colorbutton, "color_set",
                     G_CALLBACK (on_symmetry_colorbutton_color_set),
+                    NULL);
+  g_signal_connect ((gpointer) hscale_symmetry_colour, "value_changed",
+                    G_CALLBACK (on_hscale_symmetry_colour_value_changed),
+                    NULL);
+  g_signal_connect ((gpointer) show_symmetry_expanded_labels_checkbutton, "toggled",
+                    G_CALLBACK (on_show_symmetry_expanded_labels_checkbutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) unit_cell_yes_radiobutton, "toggled",
                     G_CALLBACK (on_unit_cell_yes_radiobutton_toggled),
                     NULL);
   g_signal_connect ((gpointer) unit_cell_no_radiobutton, "toggled",
                     G_CALLBACK (on_unit_cell_no_radiobutton_toggled),
-                    NULL);
-  g_signal_connect ((gpointer) show_symmetry_apply_button, "clicked",
-                    G_CALLBACK (on_show_symmetry_apply_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) show_symmetry_ok_button, "clicked",
                     G_CALLBACK (on_show_symmetry_ok_button_clicked),
@@ -4276,8 +4307,9 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox169, "vbox169");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame7, "frame7");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox11, "vbox11");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_yes_radiobutton, "show_symmetry_yes_radiobutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_no_radiobutton, "show_symmetry_no_radiobutton");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_yes_radiobutton, "show_symmetry_yes_radiobutton");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_always_on_checkbutton, "symmetry_always_on_checkbutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label277, "label277");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_molecule_control_button, "show_symmetry_molecule_control_button");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame8, "frame8");
@@ -4291,11 +4323,8 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, vbox13, "vbox13");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox8, "hbox8");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label15, "label15");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_colour_patch_button, "symmetry_colour_patch_button");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox33, "hbox33");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, frame33, "frame33");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, symmetry_colorbutton, "symmetry_colorbutton");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, label68, "label68");
+  GLADE_HOOKUP_OBJECT (show_symmetry_window, label810, "label810");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox9, "hbox9");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, frame10, "frame10");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox10, "hbox10");
@@ -4309,19 +4338,12 @@ create_show_symmetry_window (void)
   GLADE_HOOKUP_OBJECT (show_symmetry_window, unit_cell_no_radiobutton, "unit_cell_no_radiobutton");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label278, "label278");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox133, "hbox133");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_apply_button, "show_symmetry_apply_button");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, alignment21, "alignment21");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox172, "hbox172");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, image1490, "image1490");
-  GLADE_HOOKUP_OBJECT (show_symmetry_window, label346, "label346");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, show_symmetry_ok_button, "show_symmetry_ok_button");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, alignment22, "alignment22");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, hbox173, "hbox173");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, image1491, "image1491");
   GLADE_HOOKUP_OBJECT (show_symmetry_window, label347, "label347");
 
-  gtk_widget_grab_focus (show_symmetry_apply_button);
-  gtk_widget_grab_default (show_symmetry_apply_button);
   return show_symmetry_window;
 }
 
@@ -5179,6 +5201,8 @@ create_display_control_window_glade (void)
   GtkWidget *hbox236;
   GtkWidget *label258;
   GtkWidget *display_control_all_models_togglebutton;
+  GtkWidget *display_control_last_model_only_button;
+  GtkWidget *display_control_align_labels_checkbutton;
   GtkWidget *scrolledwindow22;
   GtkWidget *viewport14;
   GtkWidget *display_molecule_vbox;
@@ -5243,15 +5267,22 @@ create_display_control_window_glade (void)
   gtk_box_pack_start (GTK_BOX (paned_molecules_vbox), hbox236, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox236), 2);
 
-  label258 = gtk_label_new ("   Molecules     ");
+  label258 = gtk_label_new ("   Molecules    ");
   gtk_widget_show (label258);
   gtk_box_pack_start (GTK_BOX (hbox236), label258, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label258), GTK_JUSTIFY_CENTER);
 
   display_control_all_models_togglebutton = gtk_toggle_button_new_with_mnemonic ("   All   ");
   gtk_widget_show (display_control_all_models_togglebutton);
-  gtk_box_pack_start (GTK_BOX (hbox236), display_control_all_models_togglebutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_all_models_togglebutton, FALSE, FALSE, 4);
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (display_control_all_models_togglebutton), TRUE);
+
+  display_control_last_model_only_button = gtk_button_new_with_mnemonic ("Last Only");
+  gtk_widget_show (display_control_last_model_only_button);
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_last_model_only_button, FALSE, FALSE, 3);
+
+  display_control_align_labels_checkbutton = gtk_check_button_new_with_mnemonic ("Align Labels");
+  gtk_box_pack_start (GTK_BOX (hbox236), display_control_align_labels_checkbutton, FALSE, FALSE, 3);
 
   scrolledwindow22 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow22);
@@ -5305,6 +5336,12 @@ create_display_control_window_glade (void)
   g_signal_connect ((gpointer) display_control_all_models_togglebutton, "toggled",
                     G_CALLBACK (on_display_control_all_models_togglebutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) display_control_last_model_only_button, "clicked",
+                    G_CALLBACK (on_display_control_last_model_only_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) display_control_align_labels_checkbutton, "toggled",
+                    G_CALLBACK (on_display_control_align_labels_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) display_control_ok_button, "clicked",
                     G_CALLBACK (on_display_control_ok_button_clicked),
                     NULL);
@@ -5324,6 +5361,8 @@ create_display_control_window_glade (void)
   GLADE_HOOKUP_OBJECT (display_control_window_glade, hbox236, "hbox236");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, label258, "label258");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_all_models_togglebutton, "display_control_all_models_togglebutton");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_last_model_only_button, "display_control_last_model_only_button");
+  GLADE_HOOKUP_OBJECT (display_control_window_glade, display_control_align_labels_checkbutton, "display_control_align_labels_checkbutton");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, scrolledwindow22, "scrolledwindow22");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, viewport14, "viewport14");
   GLADE_HOOKUP_OBJECT (display_control_window_glade, display_molecule_vbox, "display_molecule_vbox");
@@ -9998,6 +10037,7 @@ create_delete_item_dialog (void)
   GtkWidget *delete_item_water_radiobutton;
   GtkWidget *delete_item_atom_radiobutton;
   GtkWidget *delete_item_sidechain_radiobutton;
+  GtkWidget *delete_item_sidechain_range_radiobutton;
   GtkWidget *delete_item_chain_radiobutton;
   GtkWidget *delete_item_residue_hydrogens_radiobutton;
   GtkWidget *delete_item_residue_range_radiobutton;
@@ -10064,6 +10104,13 @@ create_delete_item_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (delete_item_sidechain_radiobutton), 3);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_sidechain_radiobutton), delete_item_residue_radiobutton_group);
   delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_sidechain_radiobutton));
+
+  delete_item_sidechain_range_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Sidechain Zone");
+  gtk_widget_show (delete_item_sidechain_range_radiobutton);
+  gtk_box_pack_start (GTK_BOX (vbox63), delete_item_sidechain_range_radiobutton, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (delete_item_sidechain_range_radiobutton), 3);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (delete_item_sidechain_range_radiobutton), delete_item_residue_radiobutton_group);
+  delete_item_residue_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (delete_item_sidechain_range_radiobutton));
 
   delete_item_chain_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Chain");
   gtk_widget_show (delete_item_chain_radiobutton);
@@ -10140,6 +10187,9 @@ create_delete_item_dialog (void)
   g_signal_connect ((gpointer) delete_item_sidechain_radiobutton, "toggled",
                     G_CALLBACK (on_delete_item_sidechain_radiobutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) delete_item_sidechain_range_radiobutton, "toggled",
+                    G_CALLBACK (on_delete_item_sidechain_range_radiobutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) delete_item_chain_radiobutton, "toggled",
                     G_CALLBACK (on_delete_item_chain_radiobutton_toggled),
                     NULL);
@@ -10166,6 +10216,7 @@ create_delete_item_dialog (void)
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_water_radiobutton, "delete_item_water_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_atom_radiobutton, "delete_item_atom_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_sidechain_radiobutton, "delete_item_sidechain_radiobutton");
+  GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_sidechain_range_radiobutton, "delete_item_sidechain_range_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_chain_radiobutton, "delete_item_chain_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_residue_hydrogens_radiobutton, "delete_item_residue_hydrogens_radiobutton");
   GLADE_HOOKUP_OBJECT (delete_item_dialog, delete_item_residue_range_radiobutton, "delete_item_residue_range_radiobutton");
@@ -12126,6 +12177,8 @@ create_single_map_properties_dialog (void)
   GtkWidget *single_map_properties_cell_text;
   GtkWidget *label165;
   GtkWidget *single_map_properties_sg_text;
+  GtkWidget *label818;
+  GtkWidget *single_map_properties_reso_text;
   GtkWidget *label751;
   GtkWidget *frame293;
   GtkWidget *alignment153;
@@ -12236,6 +12289,18 @@ create_single_map_properties_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox110), single_map_properties_sg_text, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (single_map_properties_sg_text), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (single_map_properties_sg_text), 7.45058e-09, 0.5);
+
+  label818 = gtk_label_new ("Resolution:");
+  gtk_widget_show (label818);
+  gtk_box_pack_start (GTK_BOX (vbox110), label818, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label818), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (label818), 0, 0.5);
+
+  single_map_properties_reso_text = gtk_label_new ("[reso]");
+  gtk_widget_show (single_map_properties_reso_text);
+  gtk_box_pack_start (GTK_BOX (vbox110), single_map_properties_reso_text, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (single_map_properties_reso_text), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_alignment (GTK_MISC (single_map_properties_reso_text), 0, 0.5);
 
   label751 = gtk_label_new ("<b>Cell and Symmetry:</b>");
   gtk_widget_show (label751);
@@ -12536,6 +12601,8 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_cell_text, "single_map_properties_cell_text");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label165, "label165");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_sg_text, "single_map_properties_sg_text");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label818, "label818");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_reso_text, "single_map_properties_reso_text");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label751, "label751");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame293, "frame293");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment153, "alignment153");
@@ -12805,7 +12872,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.8.9.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.8.9.2.png");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
@@ -16213,6 +16280,11 @@ create_mutate_sequence_dialog (void)
   GtkWidget *label186;
   GtkWidget *scrolledwindow12;
   GtkWidget *mutate_molecule_sequence_text;
+  GtkWidget *hbox444;
+  GtkWidget *label808;
+  GtkWidget *mutate_sequence_green_light_image;
+  GtkWidget *mutate_sequence_red_light_image;
+  GtkWidget *mutate_residue_range_counts_label;
   GtkWidget *label187;
   GtkWidget *mutate_sequence_do_autofit_checkbutton;
   GtkWidget *mutate_sequence_use_ramachandran_restraints_checkbutton;
@@ -16235,7 +16307,7 @@ create_mutate_sequence_dialog (void)
   GtkWidget *label417;
 
   mutate_sequence_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), "Mutate sequence");
+  gtk_window_set_title (GTK_WINDOW (mutate_sequence_dialog), "Mutate Residue Range");
   gtk_window_set_type_hint (GTK_WINDOW (mutate_sequence_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox58 = GTK_DIALOG (mutate_sequence_dialog)->vbox;
@@ -16341,6 +16413,28 @@ create_mutate_sequence_dialog (void)
   gtk_widget_set_size_request (mutate_molecule_sequence_text, -1, 70);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (mutate_molecule_sequence_text), GTK_WRAP_WORD);
 
+  hbox444 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox444);
+  gtk_box_pack_start (GTK_BOX (vbox116), hbox444, FALSE, FALSE, 0);
+
+  label808 = gtk_label_new ("Match: ");
+  gtk_widget_show (label808);
+  gtk_box_pack_start (GTK_BOX (hbox444), label808, FALSE, FALSE, 0);
+
+  mutate_sequence_green_light_image = gtk_image_new_from_stock ("gtk-yes", GTK_ICON_SIZE_BUTTON);
+  gtk_box_pack_start (GTK_BOX (hbox444), mutate_sequence_green_light_image, TRUE, TRUE, 0);
+  gtk_misc_set_alignment (GTK_MISC (mutate_sequence_green_light_image), 0, 0.5);
+
+  mutate_sequence_red_light_image = gtk_image_new_from_stock ("gtk-no", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (mutate_sequence_red_light_image);
+  gtk_box_pack_start (GTK_BOX (hbox444), mutate_sequence_red_light_image, TRUE, TRUE, 0);
+  gtk_misc_set_alignment (GTK_MISC (mutate_sequence_red_light_image), 0, 0.5);
+
+  mutate_residue_range_counts_label = gtk_label_new ("Counts: Residue numbers: -: Sequence: -");
+  gtk_widget_show (mutate_residue_range_counts_label);
+  gtk_box_pack_start (GTK_BOX (hbox444), mutate_residue_range_counts_label, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (mutate_residue_range_counts_label), 0.02, 0.5);
+
   label187 = gtk_label_new ("");
   gtk_widget_show (label187);
   gtk_box_pack_start (GTK_BOX (vbox116), label187, FALSE, FALSE, 0);
@@ -16426,6 +16520,21 @@ create_mutate_sequence_dialog (void)
   gtk_widget_show (label417);
   gtk_box_pack_start (GTK_BOX (hbox248), label417, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) mutate_molecule_resno_1_entry, "changed",
+                    G_CALLBACK (on_mutate_molecule_resno_1_entry_changed),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_resno_2_entry, "changed",
+                    G_CALLBACK (on_mutate_molecule_resno_2_entry_changed),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_sequence_text, "insert_at_cursor",
+                    G_CALLBACK (on_mutate_molecule_sequence_text_insert_at_cursor),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_sequence_text, "key_release_event",
+                    G_CALLBACK (on_mutate_molecule_sequence_text_key_release_event),
+                    NULL);
+  g_signal_connect ((gpointer) mutate_molecule_sequence_text, "button_release_event",
+                    G_CALLBACK (on_mutate_molecule_sequence_text_button_release_event),
+                    NULL);
   g_signal_connect ((gpointer) mutate_sequence_do_autofit_checkbutton, "toggled",
                     G_CALLBACK (on_mutate_sequence_do_autofit_checkbutton_toggled),
                     NULL);
@@ -16465,6 +16574,11 @@ create_mutate_sequence_dialog (void)
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label186, "label186");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, scrolledwindow12, "scrolledwindow12");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_molecule_sequence_text, "mutate_molecule_sequence_text");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, hbox444, "hbox444");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label808, "label808");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_green_light_image, "mutate_sequence_green_light_image");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_red_light_image, "mutate_sequence_red_light_image");
+  GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_residue_range_counts_label, "mutate_residue_range_counts_label");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, label187, "label187");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_do_autofit_checkbutton, "mutate_sequence_do_autofit_checkbutton");
   GLADE_HOOKUP_OBJECT (mutate_sequence_dialog, mutate_sequence_use_ramachandran_restraints_checkbutton, "mutate_sequence_use_ramachandran_restraints_checkbutton");
@@ -16910,7 +17024,7 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_resno_1_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_1_entry);
   gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_resno_1_entry, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_resno_1_entry, 40, -1);
+  gtk_widget_set_size_request (renumber_residue_range_resno_1_entry, 50, -1);
 
   label802 = gtk_label_new ("<b>Start Residue</b>");
   gtk_widget_show (label802);
@@ -16943,7 +17057,7 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_resno_2_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_resno_2_entry);
   gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_resno_2_entry, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_resno_2_entry, 40, -1);
+  gtk_widget_set_size_request (renumber_residue_range_resno_2_entry, 50, -1);
 
   label805 = gtk_label_new ("      ");
   gtk_widget_show (label805);
@@ -16977,7 +17091,7 @@ create_renumber_residue_range_dialog (void)
   renumber_residue_range_offset_entry = gtk_entry_new ();
   gtk_widget_show (renumber_residue_range_offset_entry);
   gtk_box_pack_start (GTK_BOX (hbox97), renumber_residue_range_offset_entry, FALSE, TRUE, 0);
-  gtk_widget_set_size_request (renumber_residue_range_offset_entry, 40, -1);
+  gtk_widget_set_size_request (renumber_residue_range_offset_entry, 50, -1);
   gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, "e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36", NULL);
 
   dialog_action_area60 = GTK_DIALOG (renumber_residue_range_dialog)->action_area;
@@ -17279,7 +17393,7 @@ create_ligand_no_blobs_dialog (void)
   GtkWidget *label423;
 
   ligand_no_blobs_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), "dialog1");
+  gtk_window_set_title (GTK_WINDOW (ligand_no_blobs_dialog), "Coot: No Blobs");
   gtk_window_set_type_hint (GTK_WINDOW (ligand_no_blobs_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox62 = GTK_DIALOG (ligand_no_blobs_dialog)->vbox;
@@ -26081,6 +26195,8 @@ create_add_reps_dialog (void)
   GtkWidget *add_rep_rep_ball_and_stick_radiobutton;
   GtkWidget *label621;
   GtkWidget *label619;
+  GtkWidget *label809;
+  GtkWidget *hseparator19;
   GtkWidget *dialog_action_area110;
   GtkWidget *add_rep_add_rep_button;
   GtkWidget *alignment118;
@@ -26377,6 +26493,15 @@ create_add_reps_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame268), label619);
   gtk_label_set_use_markup (GTK_LABEL (label619), TRUE);
 
+  label809 = gtk_label_new ("Display of Addtional Representations is controlled in the Display Control dialog");
+  gtk_widget_show (label809);
+  gtk_box_pack_start (GTK_BOX (vbox267), label809, FALSE, FALSE, 0);
+  gtk_misc_set_alignment (GTK_MISC (label809), 0.03, 0.5);
+
+  hseparator19 = gtk_hseparator_new ();
+  gtk_widget_show (hseparator19);
+  gtk_box_pack_start (GTK_BOX (vbox267), hseparator19, TRUE, TRUE, 2);
+
   dialog_action_area110 = GTK_DIALOG (add_reps_dialog)->action_area;
   gtk_widget_show (dialog_action_area110);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area110), GTK_BUTTONBOX_END);
@@ -26486,6 +26611,8 @@ create_add_reps_dialog (void)
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_rep_ball_and_stick_radiobutton, "add_rep_rep_ball_and_stick_radiobutton");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label621, "label621");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, label619, "label619");
+  GLADE_HOOKUP_OBJECT (add_reps_dialog, label809, "label809");
+  GLADE_HOOKUP_OBJECT (add_reps_dialog, hseparator19, "hseparator19");
   GLADE_HOOKUP_OBJECT_NO_REF (add_reps_dialog, dialog_action_area110, "dialog_action_area110");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, add_rep_add_rep_button, "add_rep_add_rep_button");
   GLADE_HOOKUP_OBJECT (add_reps_dialog, alignment118, "alignment118");
@@ -29338,5 +29465,181 @@ create_cfc_dialog (void)
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_dialog_closebutton, "cfc_dialog_closebutton");
 
   return cfc_dialog;
+}
+
+GtkWidget*
+create_curlew_dialog (void)
+{
+  GtkWidget *curlew_dialog;
+  GtkWidget *dialog_vbox135;
+  GtkWidget *hbox450;
+  GtkWidget *image12118;
+  GtkWidget *hbox445;
+  GtkWidget *vbox328;
+  GtkWidget *vbox329;
+  GtkWidget *hbox446;
+  GtkWidget *label814;
+  GtkWidget *label811;
+  GtkWidget *label812;
+  GtkWidget *label813;
+  GtkWidget *label817;
+  GtkWidget *scrolledwindow42;
+  GtkWidget *viewport29;
+  GtkWidget *curlew_vbox_for_extensions;
+  GtkWidget *curlew_already_installed_label;
+  GtkWidget *hbox448;
+  GtkWidget *curlew_install_button;
+  GtkWidget *alignment170;
+  GtkWidget *hbox449;
+  GtkWidget *image12117;
+  GtkWidget *label816;
+  GtkWidget *dialog_action_area134;
+  GtkWidget *curlew_dialog_closebutton;
+
+  curlew_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (curlew_dialog), "Coot Curlew");
+  gtk_window_set_default_size (GTK_WINDOW (curlew_dialog), 805, 400);
+  gtk_window_set_type_hint (GTK_WINDOW (curlew_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (curlew_dialog), FALSE);
+
+  dialog_vbox135 = GTK_DIALOG (curlew_dialog)->vbox;
+  gtk_widget_show (dialog_vbox135);
+
+  hbox450 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox450);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox135), hbox450, FALSE, FALSE, 2);
+
+  image12118 = create_pixmap (curlew_dialog, "curlew-long.png");
+  gtk_widget_show (image12118);
+  gtk_box_pack_start (GTK_BOX (hbox450), image12118, TRUE, TRUE, 0);
+
+  hbox445 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox445);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox135), hbox445, TRUE, TRUE, 0);
+
+  vbox328 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox328);
+  gtk_box_pack_start (GTK_BOX (hbox445), vbox328, FALSE, FALSE, 0);
+
+  vbox329 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox329);
+  gtk_box_pack_start (GTK_BOX (hbox445), vbox329, TRUE, TRUE, 0);
+
+  hbox446 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox446);
+  gtk_box_pack_start (GTK_BOX (vbox329), hbox446, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox446), 2);
+
+  label814 = gtk_label_new ("                          ");
+  gtk_widget_show (label814);
+  gtk_box_pack_start (GTK_BOX (hbox446), label814, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label814), GTK_JUSTIFY_CENTER);
+
+  label811 = gtk_label_new ("Description                                                          ");
+  gtk_widget_show (label811);
+  gtk_box_pack_start (GTK_BOX (hbox446), label811, FALSE, FALSE, 0);
+
+  label812 = gtk_label_new ("  Version  ");
+  gtk_widget_show (label812);
+  gtk_box_pack_start (GTK_BOX (hbox446), label812, FALSE, FALSE, 0);
+
+  label813 = gtk_label_new ("       Date     ");
+  gtk_widget_show (label813);
+  gtk_box_pack_start (GTK_BOX (hbox446), label813, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (label813), GTK_JUSTIFY_CENTER);
+
+  label817 = gtk_label_new ("  Select  ");
+  gtk_widget_show (label817);
+  gtk_box_pack_start (GTK_BOX (hbox446), label817, FALSE, FALSE, 0);
+
+  scrolledwindow42 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow42);
+  gtk_box_pack_start (GTK_BOX (vbox329), scrolledwindow42, TRUE, TRUE, 0);
+
+  viewport29 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (viewport29);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow42), viewport29);
+
+  curlew_vbox_for_extensions = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (curlew_vbox_for_extensions);
+  gtk_container_add (GTK_CONTAINER (viewport29), curlew_vbox_for_extensions);
+
+  curlew_already_installed_label = gtk_label_new ("Already installed");
+  gtk_widget_show (curlew_already_installed_label);
+  gtk_box_pack_start (GTK_BOX (vbox329), curlew_already_installed_label, FALSE, FALSE, 4);
+  gtk_misc_set_alignment (GTK_MISC (curlew_already_installed_label), 0.01, 0.5);
+
+  hbox448 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox448);
+  gtk_box_pack_start (GTK_BOX (vbox329), hbox448, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox448), 6);
+
+  curlew_install_button = gtk_button_new ();
+  gtk_widget_show (curlew_install_button);
+  gtk_box_pack_start (GTK_BOX (hbox448), curlew_install_button, FALSE, FALSE, 0);
+
+  alignment170 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment170);
+  gtk_container_add (GTK_CONTAINER (curlew_install_button), alignment170);
+
+  hbox449 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox449);
+  gtk_container_add (GTK_CONTAINER (alignment170), hbox449);
+
+  image12117 = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image12117);
+  gtk_box_pack_start (GTK_BOX (hbox449), image12117, FALSE, FALSE, 0);
+
+  label816 = gtk_label_new_with_mnemonic ("  Install Selected  ");
+  gtk_widget_show (label816);
+  gtk_box_pack_start (GTK_BOX (hbox449), label816, FALSE, FALSE, 0);
+
+  dialog_action_area134 = GTK_DIALOG (curlew_dialog)->action_area;
+  gtk_widget_show (dialog_action_area134);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area134), GTK_BUTTONBOX_END);
+
+  curlew_dialog_closebutton = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_show (curlew_dialog_closebutton);
+  gtk_dialog_add_action_widget (GTK_DIALOG (curlew_dialog), curlew_dialog_closebutton, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (curlew_dialog_closebutton, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) curlew_dialog, "close",
+                    G_CALLBACK (on_curlew_dialog_close),
+                    NULL);
+  g_signal_connect ((gpointer) curlew_dialog, "response",
+                    G_CALLBACK (on_curlew_dialog_response),
+                    NULL);
+  g_signal_connect ((gpointer) curlew_install_button, "clicked",
+                    G_CALLBACK (on_curlew_install_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, curlew_dialog, "curlew_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_vbox135, "dialog_vbox135");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox450, "hbox450");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, image12118, "image12118");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox445, "hbox445");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, vbox328, "vbox328");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, vbox329, "vbox329");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox446, "hbox446");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label814, "label814");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label811, "label811");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label812, "label812");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label813, "label813");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label817, "label817");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, scrolledwindow42, "scrolledwindow42");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, viewport29, "viewport29");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_vbox_for_extensions, "curlew_vbox_for_extensions");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_already_installed_label, "curlew_already_installed_label");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox448, "hbox448");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_install_button, "curlew_install_button");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, alignment170, "alignment170");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, hbox449, "hbox449");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, image12117, "image12117");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, label816, "label816");
+  GLADE_HOOKUP_OBJECT_NO_REF (curlew_dialog, dialog_action_area134, "dialog_action_area134");
+  GLADE_HOOKUP_OBJECT (curlew_dialog, curlew_dialog_closebutton, "curlew_dialog_closebutton");
+
+  return curlew_dialog;
 }
 

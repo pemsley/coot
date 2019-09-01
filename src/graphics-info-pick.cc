@@ -120,7 +120,7 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
 			cell = xtal.first;
 			spg  = xtal.second;
 			spacegroup_ok = 1;
-		     } catch ( std::runtime_error except ) {
+		     } catch (const std::runtime_error &except) {
 			cout << "!! get_cell_symm() fails in symmetry_atom_pick"
 			     << endl;
 		     }
@@ -367,8 +367,8 @@ graphics_info_t::fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_a
 // pickable moving atoms molecule
 //
 pick_info
-graphics_info_t::moving_atoms_atom_pick() const {
-   
+graphics_info_t::moving_atoms_atom_pick(short int pick_mode) const {
+
    pick_info p_i;
    p_i.min_dist = 0; // keep compiler happy
    p_i.atom_index = -1; // ditto
@@ -376,24 +376,58 @@ graphics_info_t::moving_atoms_atom_pick() const {
    p_i.success = GL_FALSE;
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
-   float dist, min_dist = 0.4;
+
+   float m_front = 0.8;   // pickable distance
+   float m_back =  0.04;
+
+   std::pair<float, float> min_dist(999,999);
+   float close_score_best = 999.9;
+
+   float d_front_to_back = (back-front).amplitude();
    
    // This is the signal that moving_atoms_asc is clear
    if (moving_atoms_asc->n_selected_atoms > 0) {
-      
+
       for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-	 coot::Cartesian atom( (moving_atoms_asc->atom_selection)[i]->x,
-			       (moving_atoms_asc->atom_selection)[i]->y,
-			       (moving_atoms_asc->atom_selection)[i]->z);
+	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+	 coot::Cartesian atom_pos(at->x, at->y, at->z);
 	 //
-	 if (atom.within_box(front,back)) { 
-	    dist = atom.distance_to_line(front, back);
-	    
-	    if (dist < min_dist) {
-	       
-	       min_dist = dist;
-	       p_i.success = GL_TRUE;
-	       p_i.atom_index = i;
+	 bool at_is_hydrogen = coot::is_hydrogen_p(at);
+
+	 if ((! at_is_hydrogen && pick_mode == PICK_ATOM_NON_HYDROGEN) ||
+	     (pick_mode == PICK_ATOM_ALL_ATOM)) {
+
+	    if (atom_pos.within_box(front,back)) {
+	       float dist = atom_pos.distance_to_line(front, back);
+	       float d_atom_to_front = (atom_pos-front).amplitude();
+
+	       float frac = d_atom_to_front/d_front_to_back;
+
+	       // we are are looking for a low score, so the
+	       // front has a lower score than the back
+	       float m = m_back + frac * (m_front-m_back);
+
+	       float m_limit = m_back + (1.0-frac) * (m_front-m_back);
+
+	       float close_score = dist * m;
+
+	       if (false) // debugging algorithm
+		  std::cout << i << " " << coot::atom_spec_t(at) << " "
+			    << close_score_best << " "
+			    << close_score << " dist " << dist
+			    << " d-atom-front-to-back " << d_atom_to_front
+			    << " m " << m << " m_limit " << m_limit
+			    << " frac " << frac
+			    << std::endl;
+
+	       if (dist < m_limit) {
+		  if (close_score < close_score_best) {
+
+		     close_score_best = close_score;
+		     p_i.success = GL_TRUE;
+		     p_i.atom_index = i;
+		  }
+	       }
 	    }
 	 }
       }
@@ -429,7 +463,10 @@ graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
 void
 graphics_info_t::check_if_moving_atom_pull() {
 
-   pick_info pi = moving_atoms_atom_pick();
+   short int atom_pick_mode = PICK_ATOM_ALL_ATOM;
+   if (! moving_atoms_have_hydrogens_displayed)
+      atom_pick_mode = PICK_ATOM_NON_HYDROGEN;
+   pick_info pi = moving_atoms_atom_pick(atom_pick_mode);
    if (pi.success == GL_TRUE) {
 
       // Flash picked atom.

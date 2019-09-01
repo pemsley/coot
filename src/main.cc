@@ -130,6 +130,7 @@
 #include "rotate-translate-modes.hh"
 
 #include "change-dir.hh"
+#include "curlew.hh"
 
 void show_citation_request();
 void load_gtk_resources();
@@ -147,6 +148,8 @@ void start_command_line_python_maybe(char **argv);
 #include "mysql/mysql.h"
 int setup_database();
 #endif
+
+#include "testing.hh" // for test_internal();
 
 #include "scm-boot-guile.hh"
 
@@ -176,11 +179,19 @@ main (int argc, char *argv[]) {
    if (cld.run_internal_tests_and_exit) {
       // do self tests
       std::cout << "Running internal self tests" << std::endl;
+      // return true on success
       clipper::Test_core test_core;       bool result_core    = test_core();
       clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
       std::cout<<" Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
       std::cout<<" Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
-      return (result_core&&result_contrib) ? 1 : 0;
+      // return 1 on success
+      int gis = test_internal();
+      int shell_exit_code = 1;
+      if (result_core)
+	 if (result_contrib)
+	    if (gis == 1)
+	       shell_exit_code = 0;
+      return shell_exit_code;
    }
   
    if (graphics_info_t::show_citation_notice == 1) { 
@@ -203,8 +214,8 @@ main (int argc, char *argv[]) {
    } else {
 
       // not needed from 2.36
-#if (GTK_MAJOR_VERSION == 2)
-#if (GTK_MINOR_VERSION < 36)
+#if (GLIB_MAJOR_VERSION == 2)
+#if (GLIB_MINOR_VERSION < 36)
       g_type_init(); // for lbg command-line mode, so that
                      // goo_canvas_new() works cleanly.
 #endif
@@ -410,6 +421,8 @@ main (int argc, char *argv[]) {
    //
    add_ligand_builder_menu_item_maybe();
 
+   // remove Curlew from the File menu with old compiler?
+   remove_file_curlew_menu_item_maybe();
 
    setup_python(argc, argv);
      

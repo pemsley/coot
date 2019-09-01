@@ -429,7 +429,7 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
 void
 graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair<std::string, std::vector<std::string> > > nma) {
 
-   std::string s = "   Failed to match (to the dictionary) the following model atom names:\n";
+   std::string s = "WARNING:: Failed to match (to the dictionary) the following model atom names:\n";
    for (unsigned int i=0; i<nma.size(); i++) {
       s += "   ";
       s += nma[i].first;
@@ -602,30 +602,19 @@ graphics_info_t::set_directory_for_fileselection_string(std::string filename) {
 void
 graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const {
 
-#if (GTK_MAJOR_VERSION > 1)
-  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-    set_directory_for_filechooser(fileselection);
-  } else {
-    if (directory_for_fileselection != "") {
+   if (fileselection) {
+      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
+	 set_directory_for_filechooser(fileselection);
+      } else {
+	 if (! directory_for_fileselection.empty()) {
 
-       //       std::cout << "set directory_for_fileselection "
-// 		<< directory_for_fileselection << std::endl;
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-				      directory_for_fileselection.c_str());
-    } else {
-      // std::cout << "not setting directory_for_fileselection" << std::endl;
-    }
-  }
-#else
-   if (directory_for_fileselection != "") {
-//       std::cout << "set directory_for_fileselection "
-// 		<< directory_for_fileselection << std::endl;
-      gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-				      directory_for_fileselection.c_str());
-   } else {
-      // std::cout << "not setting directory_for_fileselection" << std::endl;
-   } 
-#endif // GTK_MAJOR_VERSION
+	    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
+					    directory_for_fileselection.c_str());
+	 } else {
+	    // std::cout << "not setting directory_for_fileselection" << std::endl;
+	 }
+      }
+   }
 }
 
 void 
@@ -639,12 +628,9 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
       std::string stripped_name = 
 	 graphics_info_t::molecules[imol].stripped_save_name_suggestion();
       std::string full_name = stripped_name;
-      //       if (graphics_info_t::save_coordinates_in_original_dir_flag != 0) 
-      if (graphics_info_t::directory_for_saving_for_fileselection != "")
+      if (! directory_for_saving_for_fileselection.empty())
 	 full_name = directory_for_saving_for_fileselection + stripped_name;
 
-//       std::cout << "INFO:: Setting fileselection with file: " << full_name
-// 		<< std::endl;
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
 				      full_name.c_str());
    }
@@ -653,17 +639,29 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
 void
 graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection) {
 
-   gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   directory_for_filechooser = coot::util::file_name_directory(filename);
-   g_free(filename);
+   if (fileselection) {
+      if (GTK_IS_FILE_CHOOSER(fileselection)) {
+	 gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+	 if (filename) {
+	    directory_for_filechooser = coot::util::file_name_directory(filename);
+	    g_free(filename);
+	 }
+      }
+   }
 }
 
 void
 graphics_info_t::save_directory_for_saving_from_filechooser(const GtkWidget *fileselection) {
 
-   gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
-   g_free(filename);
+   if (fileselection) {
+      if (GTK_IS_FILE_CHOOSER(fileselection)) {
+	 gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+	 if (filename) {
+	    directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
+	    g_free(filename);
+	 }
+      }
+   }
 }
 
 void
@@ -1147,33 +1145,38 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
    if (plot) {
       // if it's a normal plot: update it
       if (plot->is_kleywegt_plot()) {
-	 // are the molecule numbers from which the kleywegt plot
-	 // was generated still valid?
-	 std::pair<int, int> p = plot->molecule_numbers();
-	 if (graphics_info_t::molecules[p.first].has_model() && 
-	     graphics_info_t::molecules[p.second].has_model()) { 
-	    std::pair<std::string, std::string> chain_ids = plot->chain_ids();
-	    std::cout << "updating kleywegt plot with chain ids :" << chain_ids.first
-		      << ": :" << chain_ids.second << ":" << std::endl;
-	    if (plot->kleywegt_plot_uses_chain_ids_p())
-	       plot->draw_it(p.first, p.second,
-			     graphics_info_t::molecules[p.first].atom_sel.mol,
-			     graphics_info_t::molecules[p.second].atom_sel.mol,
-			     chain_ids.first, chain_ids.second);
-	    else 
-	       plot->draw_it(p.first, p.second,
-			     graphics_info_t::molecules[p.first].atom_sel.mol,
-			     graphics_info_t::molecules[p.second].atom_sel.mol);
-	 } else {
-	    // close down the plot
-	    plot->destroy_yourself();
-	 }
+         // are the molecule numbers from which the kleywegt plot
+         // was generated still valid?
+         std::pair<int, int> p = plot->molecule_numbers();
+         if (graphics_info_t::molecules[p.first].has_model() &&
+             graphics_info_t::molecules[p.second].has_model()) {
+            std::pair<std::string, std::string> chain_ids = plot->chain_ids();
+            std::cout << "updating kleywegt plot with chain ids :" << chain_ids.first
+                      << ": :" << chain_ids.second << ":" << std::endl;
+            if (plot->kleywegt_plot_uses_chain_ids_p())
+               plot->draw_it(p.first, p.second,
+                             graphics_info_t::molecules[p.first].atom_sel.mol,
+                     graphics_info_t::molecules[p.second].atom_sel.mol,
+                     chain_ids.first, chain_ids.second);
+            else
+               plot->draw_it(p.first, p.second,
+                             graphics_info_t::molecules[p.first].atom_sel.mol,
+                     graphics_info_t::molecules[p.second].atom_sel.mol);
+         } else {
+            // close down the plot
+            plot->destroy_yourself();
+         }
       } else {
-	 plot->draw_it(molecules[imol_moving_atoms].atom_sel.mol);
-      } 
+         // check if selection is there
+         if (GTK_TOGGLE_BUTTON(plot->selection_checkbutton)->active) {
+            plot->apply_selection_from_widget();
+         } else {
+            plot->draw_it(molecules[imol_moving_atoms].atom_sel.mol);
+         }
+      }
    } else {
       std::cout << "ERROR:: (trapped) in handle_rama_plot_update() attempt to draw to null plot\n";
-   } 
+   }
 }
 #endif // HAVE_GNOME_CANVAS or HAVE_GTK_CANVAS
 
@@ -1209,8 +1212,11 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
       graphics_info_t g;
       g.check_and_warn_inverted_chirals_and_cis_peptides();
 
-      gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-      graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+      if (graphics_info_t::drag_refine_idle_function_token != -1) {
+	 std::cout << "Removing idle function " << graphics_info_t::drag_refine_idle_function_token << std::endl;
+	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+      }
    } 
 
 
@@ -1229,6 +1235,8 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 void
 graphics_info_t::add_drag_refine_idle_function() {
 
+   std::cout << "called add_drag_refine_idle_function() " << std::endl;
+
    // add a idle function if there isn't one in operation already.
    graphics_info_t g;
    if (g.drag_refine_idle_function_token == -1) {
@@ -1237,7 +1245,16 @@ graphics_info_t::add_drag_refine_idle_function() {
       T0 = glutGet(GLUT_ELAPSED_TIME);
       print_initial_chi_squareds_flag = 1;
    }
-} 
+}
+
+// static
+void
+graphics_info_t::remove_drag_refine_idle_function() {
+
+   gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+   graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+}
+
 
 
 // --------------------------------------------------------------------------------
@@ -3817,9 +3834,12 @@ graphics_info_t::renumber_residue_range_chain_menu_item_select(GtkWidget *item,
 
 // static
 GtkWidget *
-graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma) {
+graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pair<clipper::Coord_orth, float> > &centres, float map_sigma, const std::string &dialog_title) {
 
    GtkWidget *w = create_diff_map_peaks_dialog();
+
+   gtk_window_set_title(GTK_WINDOW(w), dialog_title.c_str());
+
    difference_map_peaks_dialog = w; // save it for use with , and .
                                     // (globjects key press callback)
    set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, w);

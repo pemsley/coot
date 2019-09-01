@@ -912,7 +912,7 @@ coot::util::split_string(const std::string &string_in,
       if (isplit != std::string::npos) {
 	 std::string f = s.substr(0, isplit);
 	 v.push_back(f);
-	 if (s.length() >= (isplit+splitter.length())) { 
+	 if (s.length() > (isplit+splitter.length())) {
 	    s = s.substr(isplit+splitter.length());
 	 } else {
 	    break;
@@ -1193,7 +1193,65 @@ coot::util::is_standard_amino_acid_name(const std::string &residue_name) {
       return 1;
 
    return 0;
-} 
+}
+
+bool
+coot::util::is_standard_nucleotide_name(const std::string &residue_name) {
+
+   if (residue_name == "G")
+      return 1;
+   if (residue_name == "A")
+      return 1;
+   if (residue_name == "T")
+      return 1;
+   if (residue_name == "C")
+      return 1;
+   if (residue_name == "U")
+      return 1;
+   if (residue_name == "DG")
+      return 1;
+   if (residue_name == "DA")
+      return 1;
+   if (residue_name == "DT")
+      return 1;
+   if (residue_name == "DC")
+      return 1;
+   if (residue_name == "DU")
+      return 1;
+   if (residue_name == "GR")
+      return 1;
+   if (residue_name == "AR")
+      return 1;
+   if (residue_name == "UR")
+      return 1;
+   if (residue_name == "TR")
+      return 1;
+   if (residue_name == "UR")
+      return 1;
+   if (residue_name == "Gr")
+      return 1;
+   if (residue_name == "Ar")
+      return 1;
+   if (residue_name == "Ur")
+      return 1;
+   if (residue_name == "Tr")
+      return 1;
+   if (residue_name == "Ur")
+      return 1;
+   if (residue_name == "Gd")
+      return 1;
+   if (residue_name == "Ad")
+      return 1;
+   if (residue_name == "Ud")
+      return 1;
+   if (residue_name == "Td")
+      return 1;
+   if (residue_name == "Ud")
+      return 1;
+   return 0;
+}
+
+
 
 
 bool
@@ -1368,3 +1426,16 @@ coot::util::extract_number_string(const std::string &s) {
    } 
    return r;
 } 
+
+int
+coot::util::round_up_by_hundreds(int num) {
+
+   // 123 should return 200
+   // 100 should return 100
+
+   float a = static_cast<float>(num+99) * 0.01;
+   float f = floorf(a);
+   int ii = static_cast<int>(f) * 100;
+
+   return ii;
+}

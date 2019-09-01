@@ -10,13 +10,21 @@ run_mogul.py
 ligand_check_refmac_columns in enhanced_ligand.py
 enhanced_ligand.py      test it
 
+Dictionaries:
+KCX, TPP
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+Aniso not working on windows machines 0.8.8 (incl build machine) was ok 0.8.2 
+	rev 5761 (ok on my machine too) => check libraries
 
+New Rama: drag residues->switch to selection and rather refine (e.g. add
+	extra torsion to ref target)?!
 
 
 check up to dateness of supplied manuals
+
+Windows bat use %~dp0 to replace coot prefix and fiddling with installer files
 
 refinement selection with insertion code not working
 
@@ -61,7 +69,6 @@ CCP4 SW:
 - Windows: save working dir directory to properties/start in (possible?)
 - powerpoint plug in
 
-- add nomenclature error check to preferences
 - show all bond distances (angles etc?) for ligand/residue
 - update WIKI (key bindings)
 
@@ -112,6 +119,11 @@ scripting exercise
 
 **** General ****
 
+   o allow export of goograph points (and/or draw these separately after
+	passing of parameters)
+
+   o revisit (re)move TER when adding a C-terminal residue
+
    o revisit anti-aliasing. Seems we need to antialias before drawing map 
 	and lines and not in general, I think.
 
@@ -143,6 +155,8 @@ scripting exercise
 	from Eugene
 
    o add more things to Preferences, e.g. no of auto refine residues steps;
+	add nomenclature error check to preferences
+	reorienting_next_residue
 	Preferences could include all (almost) default
 	settings from globjects e.g.
 	add zero occ box size??
@@ -287,8 +301,6 @@ scripting exercise
    o domain NCS (use parrot's code?!)
 
    o make LINK search and LINK in pdb
-
-   o default bond length (e.g.) preferences conflict with state file
 
    o seq view colour by alignment (optional/button)
 
@@ -551,6 +563,12 @@ low importance
 
 **** Windows ****
 
+   o write a log to file (and maybe error too).
+
+   o pass args from msi to exe
+
+   o make real msi at some point
+
    o distribute probe and reduce (from Richardsons? if not ccp4)
 
    o make batch msi (using msiwrapperbatch and config file)
@@ -698,16 +716,6 @@ low importance
 
    o give phi-psi info in tooltip (maybe optional)
 
-   o contour lines thinner (?) and black
-
-   o play with colours?!
-
-   o shades between the favoured-allowed-disallowed
-
-   o make phi range option 0->360 (default?!)
-
-   o add setting for chains when using a selection in kleywegt
-
    o close menu could be "quit" in stand alone
 
    o (better) exception handling when e.g. no glade file
@@ -719,8 +727,6 @@ low importance
    o add setting for chains when using a selection in kleywegt
 
    o shades between the favoured-allowed-disallowed
-
-   o fix green box position (done?)
 
    o selector for multiple models
 
@@ -1139,3 +1145,7 @@ Osaka 2010
    o fix probe/reduce from ccp4 
 
 * Done 
+
+   o new gtk/gtkglext disappears with Dexpot
+
+* not done but fixed by showing on all desktops. Nothing else can be done AFAIK.

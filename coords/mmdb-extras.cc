@@ -147,6 +147,10 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
    int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "atom index");
+
+   if (false)
+      std::cout << "DEBUG:: in make_asc() atom index udd handle: " << uddHnd << std::endl;
+
    if (uddHnd < 0) {
       std::cout << " atom index registration failed.\n";
    } else {

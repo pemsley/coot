@@ -53,8 +53,16 @@
       (add-simple-coot-menu-menuitem 
        menu "Highly coordinated waters..."
        (lambda ()
-	 (water-coordination-gui)))))
+	 (water-coordination-gui)))
 
+		(add-simple-coot-menu-menuitem
+		 menu "Validation Outliers"
+		 (lambda ()
+			(using-active-atom
+			 (let ((imol-map (imol-refinement-map)))
+				(if (not (valid-map-molecule? imol-map))
+					 (add-status-bar-text "Refinement Map is currently not set")
+					 (validation-outliers-dialog aa-imol imol-map))))))))
 
 
 (define (add-module-user-defined-restraints)
@@ -682,7 +690,7 @@
 				    "Molecule that contains the new fragment:"
 				    "Atom Selection" "//"
 				    (lambda (imol-fragment atom-selection-str)
-				      (replace-fragment 
+				      (replace-fragment
 				       imol-base imol-fragment atom-selection-str)))))))
 
 	(add-simple-coot-menu-menuitem
@@ -867,6 +875,10 @@
 	 (lambda ()
 	   (update-ncs-ghosts-by-local-sphere)))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-ncs "NCS Jumping..."
+	 (lambda ()
+	   (ncs-jumping-gui)))
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-ncs "NCS ligands..."
@@ -1075,24 +1087,6 @@
 							(add-status-bar-text 
 							 "Failed to read a number"))))))))
 	
-	(add-simple-coot-menu-menuitem
-	 submenu-refine "Set Density Fit Graph Weight..."
-	 (lambda ()
-	   (generic-single-entry "set scale factor (smaller number means smaller bars)" 
-				 (format #f "~2,2f" (residue-density-fit-scale-factor))
-				 "Set it" (lambda (text) 
-					    (let ((t (string->number text)))
-					      (if (number? t)
-						  (begin
-						    (let ((s (string-append 
-							      "Density Fit scale factor set to " 
-							      text)))
-						      (set-residue-density-fit-scale-factor t)
-						      (add-status-bar-text s)))
-						  (begin
-						    (add-status-bar-text 
-						     "Failed to read a number"))))))))
-
 
 	;; ---------------------------------------------------------------------
 	;;     Recent structures from the PDBe
@@ -1152,44 +1146,6 @@
 	    (run-python-command "import_rcrane_wrapper()"))
 	     
 	 
-	;; ---------------------------------------------------------------------
-	;;     LIDIA
-	;; ---------------------------------------------------------------------
-	;; 
-	(if (coot-can-do-lidia?)
-	    (let ((submenu-lidia (gtk-menu-new))
-		  (menuitem-lidia (gtk-menu-item-new-with-label "Lidia...")))
-
-	      (gtk-menu-item-set-submenu menuitem-lidia submenu-lidia)
-	      (gtk-menu-append menu menuitem-lidia)
-	      (gtk-widget-show menuitem-lidia)
-
-
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "Hydrogenate region"
-	       (lambda () 
-		 (hydrogenate-region 6)))
-	      
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "View in LIDIA"
-	       (lambda ()
-		 (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
-
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "Load SBase monomer..."
-	       (lambda ()
-		 (generic-single-entry "Load SBase Monomer from three-letter-code: " ""
-				       " Load "
-				       (lambda (tlc)
-					 (get-sbase-monomer tlc)))))
-
-	      (add-simple-coot-menu-menuitem
-	       submenu-lidia "Activate prodrg flat mode"
-	       (lambda ()
-		 (using-active-atom 
-		  (prodrg-flat aa-imol aa-chain-id aa-res-no))))))
-
-
 
 	;; ---------------------------------------------------------------------
 	;;     Views/Representations
@@ -1288,7 +1244,7 @@
 
 	
 	(add-simple-coot-menu-menuitem
-	 submenu-representation "Hilight Interesting Site (here)..."
+	 submenu-representation "Highlight Interesting Site (here)..."
 	 (lambda ()
 	   
 	   (let ((active-atom (active-residue)))
@@ -1325,6 +1281,22 @@
 					(let ((n (string->number text)))
 					  (if (number? n)
 					      (clear-dots imol n)))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Limit Model Display Radius..."
+	 (lambda ()
+	   (generic-single-entry "Display Radius Limit (0 for 'no limit') "
+				 ;; "15.0" ;; maybe this should be the map radius
+				 (number->string (get-map-radius))
+				 "Set: "
+				 (lambda (text)
+				   (let ((f (string->number text)))
+				     (if (number? f)
+					 (if (= f 0)
+					     (set-model-display-radius 0 10)
+					     (set-model-display-radius 1 f))
+					 (set-model-display-radius 0 10)))))))
+	 
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "HOLE..." 
@@ -1480,24 +1452,34 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "SHELX" 
+	 submenu-modules "CCP4"
+	 (lambda ()
+	   (add-module-ccp4)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "SHELX"
 	 (lambda ()
 	   (add-module-shelx)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "User-defined Restraints" 
+	 submenu-modules "User-defined Restraints"
 	 (lambda ()
 	   (add-module-user-defined-restraints)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "ProSMART" 
+	 submenu-modules "ProSMART"
 	 (lambda ()
 	   (add-module-prosmart)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "Carbohydrate" 
+	 submenu-modules "Carbohydrate"
 	 (lambda ()
 	   (add-module-carbohydrate)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "Cryo-EM"
+	 (lambda ()
+	   (add-module-cryo-em)))
 
 
 	;; ---------------------------------------------------------------------
@@ -1522,6 +1504,24 @@
 	   (lambda ()
 	     (set-rotate-translate-zone-rotates-about-zone-centre 0))))
 
+
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Set Density Fit Graph Weight..."
+	 (lambda ()
+	   (generic-single-entry "set scale factor (smaller number means smaller bars)"
+				 (format #f "~2,2f" (residue-density-fit-scale-factor))
+				 "Set it" (lambda (text)
+					    (let ((t (string->number text)))
+					      (if (number? t)
+						  (begin
+						    (let ((s (string-append
+							      "Density Fit scale factor set to "
+							      text)))
+						      (set-residue-density-fit-scale-factor t)
+						      (add-status-bar-text s)))
+						  (begin
+						    (add-status-bar-text
+						     "Failed to read a number"))))))))
 
 	(add-simple-coot-menu-menuitem 
 	 submenu-settings "Set Spin Speed..."
@@ -1551,6 +1551,10 @@
 	 (lambda ()
 	   (set-refinement-immediate-replacement 0)))
 
+   (add-simple-coot-menu-menuitem
+       submenu-settings "Save Graphics Size and Position"
+	    (lambda ()
+			 (graphics-window-size-and-position-to-preferences)))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-settings "Save Dialog Positions..."

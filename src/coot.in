@@ -17,6 +17,9 @@
 #    IFS=$'\t\n'
 # fi
 
+# you will want to redefine this if you are ccp4
+PYTHON=python
+
 function apply_pending_install { 
 
    COOT_PREFIX="$1"
@@ -253,17 +256,38 @@ export LD_LIBRARYN32_PATH
 if [ -e $COOT_PREFIX/pending-install ] ; then
    apply_pending_install $COOT_PREFIX
 fi
-  
+
 if [ "$1" = --check-libs ] ; then 
-   ldd $coot_bin
    if [ $systype = Darwin ] ; then
       otool -L $coot_bin
+   else
+      ldd $coot_bin
    fi
 else 
+   if [ "$1" = --ccp4-mode ] ; then
+      ccp4_mode=true
+   fi
+
+   # echo DEBUG:: coot-script with PATH $PATH and PYTHON $PYTHON
+   # which rsvg-convert
+   # otool -L $HOME/bin/rsvg-convert
+
+   # this doesn't fix the svg icon/library problem
+   # export DYLD_FALLBACK_LIBRARY_PATH=/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib:/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib
+
+
    # normal path
    # "Use $@ to stop word splitting" from Ben Eisenbraun.
-   $coot_bin "$@"
-   status=$?
+   if [ -z "$ccp4_mode" ] ; then
+      # echo ::: DYLD_FALLBACK_LIBRARY_PATH is $DYLD_FALLBACK_LIBRARY_PATH
+      $coot_bin "$@"
+      status=$?
+   else
+      shift
+      coot_py_dir=$COOT_PREFIX/lib/python2.7/site-packages/coot
+      $PYTHON $coot_py_dir/coot_output_to_window.py $@
+      status=$?
+   fi
    if [ $status != 0 ] ; then
       #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
       # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
@@ -272,12 +296,16 @@ else
       unset LD_LIBRARY_PATH
       # only run the crash catcher if coot was compiled with guile
       if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then
-         if guile --version ; then
-            echo catching the crash log:
-            $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+         if [ -e $COOT_PREFIX/bin/guile ] ; then
+            if guile --version ; then
+               echo catching the crash log:
+               $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_bin $*
+            else
+               echo failed to launch the crash catcher
+            fi
          fi
       fi
    fi
    exit $status
-fi 
+fi
 

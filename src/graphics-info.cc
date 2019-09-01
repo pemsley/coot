@@ -261,8 +261,9 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
       GtkWidget *label_widget = lookup_widget(w, "nothing_bad_label");
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+      gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1")));
    }
-      return w;
+   return w;
 }
 
 void
@@ -279,9 +280,9 @@ bool
 graphics_info_t::background_is_black_p() const {
 
    bool v = 0;
-   if (background_colour[0] < 0.1)
-      if (background_colour[1] < 0.1)
-	 if (background_colour[2] < 0.1)
+   if (background_colour[0] < 0.3)
+      if (background_colour[1] < 0.3)
+	 if (background_colour[2] < 0.3)
 	    v = 1;
 
    return v;
@@ -556,32 +557,149 @@ graphics_info_t::add_dir_file(const std::string &dirname, const std::string &fil
    return r;
 }
 
+// if dir is true, we want to go forward
+void
+graphics_info_t::reorienting_next_residue(bool dir) {
 
+   std::pair<int, mmdb::Atom *> atom_pair = get_active_atom();
+
+   bool done_it = false;
+
+   if (atom_pair.second) {
+
+      int imol = atom_pair.first;
+      mmdb::Residue *residue_current = atom_pair.second->residue;
+
+      // check dir here
+      mmdb::Residue *residue_next = 0;
+      if (dir)
+	 residue_next = coot::util::next_residue(residue_current);
+      else
+	 residue_next = coot::util::previous_residue(residue_current);
+
+      if (residue_next) {
+         std::pair<bool, clipper::RTop_orth> ro =
+	    coot::util::get_reorientation_matrix(residue_current, residue_next);
+         std::pair<bool, clipper::Coord_orth> residue_centre =
+	    molecules[imol].residue_centre(residue_next);
+
+         if (ro.first) {
+
+	    // Happy case
+
+	    // make a view for current pos and one for where you want to go
+
+	    // I want to convert from quat (which should be a quaternion) to
+	    // a clipper::Mat33<double>
+	    //
+	    //
+	    GL_matrix m(quat);
+	    clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
+
+	    clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
+	    coot::util::quaternion vq(mc);
+	    // Note to self: Views should use util::quaternion, not this
+	    // old style
+	    //
+	    float vqf[4];
+	    vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+
+	    const clipper::Coord_orth &rc = residue_centre.second;
+	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+	    coot::Cartesian rot_centre = RotationCentre();
+	    coot::Cartesian target_pos = res_centre;
+
+            // however, if we were "close" to the CA of the current
+            // residue, then we should centre on the CA of the next
+            // residue (rather than the mean position) - experimental.
+
+            mmdb::Atom *at = atom_pair.second;
+            std::string atom_name(at->GetAtomName());
+            if (atom_name == " CA ") { // PDBv3 FIXME
+               coot::Cartesian ca_pos(at->x, at->y, at->z);
+               coot::Cartesian delta = ca_pos - rot_centre;
+               if (delta.amplitude() < 0.01) {
+                  std::pair<bool, clipper::Coord_orth> ca_next_pos =
+                    coot::util::get_CA_position_in_residue(residue_next);
+                  if (ca_next_pos.first) {
+                     target_pos = coot::Cartesian(ca_next_pos.second.x(),
+                                                  ca_next_pos.second.y(),
+                                                  ca_next_pos.second.z());
+                  }
+               }
+            }
+
+	    set_old_rotation_centre(RotationCentre());
+
+	    if (smooth_scroll == 1) {
+
+	       coot::view_info_t view1(quat, rot_centre, zoom, "current");
+	       coot::view_info_t view2(vqf,  target_pos, zoom, "next");
+	       int nsteps = smooth_scroll_steps * 2;
+	       coot::view_info_t::interpolate(view1, view2, nsteps);
+
+	       // bleugh :-)
+	       for(int i=0; i<4; i++) quat[i] = vqf[i];
+
+	    } else {
+
+	       // "snap" the view
+	       rotation_centre_x = target_pos.x();
+	       rotation_centre_y = target_pos.y();
+	       rotation_centre_z = target_pos.z();
+	       // bleugh again
+	       for(int i=0; i<4; i++) quat[i] = vqf[i];
+
+	    }
+
+	    done_it = true;
+	    go_to_atom_chain_       = residue_next->GetChainID();
+	    go_to_atom_residue_     = residue_next->GetSeqNum();
+	    go_to_atom_inscode_     = residue_next->GetInsCode();
+
+	    try_centre_from_new_go_to_atom();
+	    update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
+
+	    if (go_to_atom_window) {
+	       // what is next_atom here? Hmm
+	       // update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+	    }
+         }
+      }
+   }
+   if (! done_it) {
+      // Oops! Next residue was not found, back to normal/standard/old mode
+      if (dir)
+	 intelligent_next_atom_centring(go_to_atom_window);
+      else
+	 intelligent_previous_atom_centring(go_to_atom_window);
+   }
+   // graphics_draw();
+}
 
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
    mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
-   
-   float x = atom->x; 
+
+   float x = atom->x;
    float y = atom->y; 
    float z = atom->z;
 
-   old_rotation_centre_x = rotation_centre_x; 
-   old_rotation_centre_y = rotation_centre_y; 
-   old_rotation_centre_z = rotation_centre_z;
+   set_old_rotation_centre(RotationCentre());
+
    short int do_zoom_flag = 0;
 
    if (smooth_scroll == 1)
-      smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0); 
+      smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0);
 
-   rotation_centre_x = x; 
-   rotation_centre_y = y; 
+   rotation_centre_x = x;
+   rotation_centre_y = y;
    rotation_centre_z = z;
 
    if (0) {  // Felix test/play code to orient the residue up the
 	     // screen on moving to next residue.
-       
+
       GL_matrix m;
       clipper::Mat33<double> mat_in = m.to_clipper_mat();
       clipper::Mat33<double> mat = coot::util::residue_orientation(atom->residue, mat_in);
@@ -646,9 +764,43 @@ void
 graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
                                                                    const coot::residue_spec_t &res_spec) {
 
-   #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+# if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
+
    std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
                                        res_spec.ins_code);
+
+#ifdef CLIPPER_HAS_TOP8000
+   bool is_pre_pro = 0;
+   coot::residue_spec_t next_res_spec = res_spec.next();
+   if (next_res_spec.res_no != res_spec.res_no) {
+      // we have next res
+      std::string next_res_name = residue_name(imol, next_res_spec.chain_id,
+                                               next_res_spec.res_no,
+                                               next_res_spec.ins_code);
+      if (next_res_name == "PRO")
+         is_pre_pro = 1;
+   }
+
+   if (res_name == "GLY") {
+      plot->show_background(plot->bg_gly);
+   } else {
+      if (res_name == "PRO") {
+         plot->show_background(plot->bg_pro);
+      } else {
+         if (is_pre_pro) {
+         // pre-pro
+            plot->show_background(plot->bg_pre_pro);
+         } else {
+            if ((res_name == "ILE") || (res_name == "VAL")) {
+               plot->show_background(plot->bg_ileval);
+            } else {
+               plot->show_background(plot->bg_non_gly_pro_pre_pro_ileval);
+            }
+         }
+      }
+   }
+#else
    if (res_name == "GLY") {
       plot->show_background(plot->bg_gly);
    } else {
@@ -658,7 +810,9 @@ graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_pl
          plot->show_background(plot->bg_non_gly_pro);
       }
    }
+#endif // CLIPPER_HAS_TOP8000
 
+#endif // HAVE_GOOCANVAS
 #endif // HAVE_GTK_CANVAS
 
 }
@@ -754,9 +908,10 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
 void
 graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) { 
 
-   std::cout << "setRotationCentre by symmetry hybrid atom " 
-	     << hybrid_atom.atom << " at " 
-	     << hybrid_atom.pos << std::endl;
+   if (false)
+      std::cout << "INFO:: setRotationCentre by symmetry hybrid atom " 
+		<< hybrid_atom.atom << " at " 
+		<< hybrid_atom.pos << std::endl;
    
    rotation_centre_x = hybrid_atom.pos.x();
    rotation_centre_y = hybrid_atom.pos.y();
@@ -770,8 +925,11 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 				     short int do_zoom_and_move_flag,
 				     float target_zoom) {
 
-   smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
-   // smooth_scroll_maybe_stepped_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+   if ( (x - rotation_centre_x) != 0.0 ||
+        (y - rotation_centre_y) != 0.0 ||
+        (z - rotation_centre_z) != 0.0) {
+      smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+   }
 
 }
 
@@ -1000,16 +1158,20 @@ graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &ke
 }
 
 
+void
+graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
 
+   rotation_centre_x = c.get_x();
+   rotation_centre_y = c.get_y();
+   rotation_centre_z = c.get_z();
+
+}
    
 void
 graphics_info_t::setRotationCentre(coot::Cartesian centre) {
 
-   old_rotation_centre_x = rotation_centre_x; 
-   old_rotation_centre_y = rotation_centre_y; 
-   old_rotation_centre_z = rotation_centre_z; 
+   set_old_rotation_centre(RotationCentre());
 
-   // std::cout << "in setRotationCentre Cartesian" << graphics_info_t::smooth_scroll << std::endl;
    if (graphics_info_t::smooth_scroll == 1)
       smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
 			  0, 100.0); // don't zoom and dummy value
@@ -1024,9 +1186,7 @@ void
 graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
 					  float target_zoom) {
 
-   old_rotation_centre_x = rotation_centre_x; 
-   old_rotation_centre_y = rotation_centre_y; 
-   old_rotation_centre_z = rotation_centre_z; 
+   set_old_rotation_centre(RotationCentre());
 
    if (graphics_info_t::smooth_scroll == 1)
       smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
@@ -1572,7 +1732,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 }
 
 
-void 
+void
 graphics_info_t::clear_up_moving_atoms() { 
 
    // std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
@@ -1608,8 +1768,10 @@ graphics_info_t::clear_up_moving_atoms() {
 	 std::cout << "ignoring " << std::endl;
       } 
    } else {
-      std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
-      std::cout << "ignoring " << std::endl;
+      if (false) {
+	 std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
+	 std::cout << "ignoring " << std::endl;
+      }
    }
 
    dynamic_distances.clear();
@@ -1659,7 +1821,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       std::cout << "Null last restraints " << std::endl;
       return retprog;
    }
-   
+
    // While the results of the refinement are a conventional result
    // (unrefined), let's continue.  However, there are return values
    // that we will stop refining and remove the idle function is on a
@@ -1686,7 +1848,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
       flags = coot::ALL_RESTRAINTS;
-   
+
    
    if (do_torsion_restraints && do_rama_restraints) {
 
@@ -1709,7 +1871,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (! g.last_restraints->include_map_terms())
       steps_per_frame *= 6;
 
-   graphics_info_t::saved_dragged_refinement_results =
+   g.saved_dragged_refinement_results =
       g.last_restraints->minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 
 
@@ -1732,7 +1894,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    if (moving_atoms_asc)
       if (moving_atoms_asc->mol)
          if (env)
-            g.tabulate_geometric_distortions(*last_restraints);
+            g.tabulate_geometric_distortions(*last_restraints, flags);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
@@ -2163,6 +2325,7 @@ graphics_info_t::printString_for_density_level(const std::string &s,
 					       const double &x, const double &y, const double &z) {
 
    double sf = 0.00028;
+   sf = 0.00030;
    graphics_info_t::printString_internal(s, x, y, z, false, false, sf);
 }
 
@@ -2181,7 +2344,7 @@ graphics_info_t::printString_internal(const std::string &s,
       // user-settable parameter/function:
       // set_use_smooth_stroke_characters()
       //
-      if (0) { 
+      if (0) {
 	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	 glEnable(GL_BLEND);
 	 glEnable(GL_LINE_SMOOTH);
@@ -2195,7 +2358,8 @@ graphics_info_t::printString_internal(const std::string &s,
       glPushMatrix();
       glTranslated(x,y,z);
 
-      glScaled(sf, sf, sf);
+      float aspect = static_cast<float>(graphics_x_size)/static_cast<float>(graphics_y_size);
+      glScaled(sf/aspect, sf, sf);
 
       if (do_unproject) { 
 	 coot::Cartesian b = unproject(1);
@@ -2761,55 +2925,38 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
 //                   geometry
 // ------------------------------------------------------------------
 //
-void
-graphics_info_t::display_geometry_distance() {
+float
+graphics_info_t::display_geometry_distance(int imol1, const coot::Cartesian &p1,
+					   int imol2, const coot::Cartesian &p2) {
 
-   mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
-   mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
-      
-   clipper::Coord_orth p1(atom1->x, atom1->y, atom1->z);
-   clipper::Coord_orth p2(atom2->x, atom2->y, atom2->z);
-
-   double dist = clipper::Coord_orth::length(p1, p2);
-
-   std::cout << "        distance atom 1: "
-	     << "(" << geometry_atom_index_1_mol_no << ") " 
-	     << atom1->name << "/"
-	     << atom1->GetChainID()  << "/"
-	     << atom1->GetSeqNum()   << "/"
-	     << atom1->GetResName() << std::endl;
-   std::cout << "        distance atom 2: "
-	     << "(" << geometry_atom_index_2_mol_no << ") " 
-	     << atom2->name << "/"
-	     << atom2->GetChainID()  << "/"
-	     << atom2->GetSeqNum()   << "/"
-	     << atom2->GetResName() << std::endl;
-
-   // std::pair<clipper::Coord_orth, clipper::Coord_orth> p(p1, p2);
-   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, p1,
-				    geometry_atom_index_2_mol_no, p2);
+   clipper::Coord_orth cp1(p1.x(), p1.y(), p1.z());
+   clipper::Coord_orth cp2(p2.x(), p2.y(), p2.z());
+   coot::simple_distance_object_t p(geometry_atom_index_1_mol_no, cp1,
+				    geometry_atom_index_2_mol_no, cp2);
    distance_object_vec->push_back(p);
    graphics_draw();
 
+   double dist = sqrt((cp2-cp1).lengthsq());
    std::cout << "INFO:: distance: " << dist << " Angstroems" << std::endl;
    std::string s = "Distance: ";
    s += float_to_string(dist);
    s += " A";
    add_status_bar_text(s);
+   return dist;
 }
 
-double 
-graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
-						int imol2, const coot::Cartesian &p2) { 
+// double 
+// graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
+// 						int imol2, const coot::Cartesian &p2) { 
 
 
-   coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
-				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
-   distance_object_vec->push_back(p);
-   graphics_draw();
-   double d =  (p1-p2).length();
-   return d;
-} 
+//    coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
+// 				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
+//    distance_object_vec->push_back(p);
+//    graphics_draw();
+//    double d =  (p1-p2).length();
+//    return d;
+// } 
 
 void
 graphics_info_t::display_geometry_angle() const {
@@ -3392,20 +3539,39 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
 
 
 void
-graphics_info_t::baton_object() {
+graphics_info_t::draw_baton_object() {
 
-//    std::cout << "baton from " << baton_root << " to " << baton_tip
-// 	     << " draw_baton_flag: " << draw_baton_flag << std::endl;
-   
    if (graphics_info_t::draw_baton_flag) {
+
+      if (false)
+	 std::cout << "baton from " << baton_root << " to " << baton_tip
+		   << " draw_baton_flag: " << draw_baton_flag << std::endl;
+
+      coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+      coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+      // coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+      // coot::Cartesian screen_x = (right - centre);
+      coot::Cartesian screen_z = (front - centre);
+      screen_z.unit_vector_yourself();
+
+      coot::Cartesian baton_vec = baton_tip - baton_root;
+      coot::Cartesian buv = baton_vec;
+      baton_vec.unit_vector_yourself(); // bleugh
+
+      coot::Cartesian arrow_head_pt = baton_tip - baton_vec * 0.5;
+      // rotate arrow_head_pt_1 30 degrees about screen z
+      coot::Cartesian rp_1 = arrow_head_pt.rotate_about_vector(screen_z, baton_tip,  30.0*M_PI/180.0);
+      coot::Cartesian rp_2 = arrow_head_pt.rotate_about_vector(screen_z, baton_tip, -30.0*M_PI/180.0);
+
+      glLineWidth(5);
       glColor3f (0.8, 0.8, 0.9);
       glBegin(GL_LINES);
-      glVertex3f(graphics_info_t::baton_root.x(),
-		 graphics_info_t::baton_root.y(),
-		 graphics_info_t::baton_root.z());
-      glVertex3f( graphics_info_t::baton_tip.x(),
-		  graphics_info_t::baton_tip.y(),
-		  graphics_info_t::baton_tip.z());
+      glVertex3f(baton_root.x(), baton_root.y(), baton_root.z());
+      glVertex3f(baton_tip.x(),  baton_tip.y(),  baton_tip.z());
+      glVertex3f(baton_tip.x(),  baton_tip.y(),  baton_tip.z());
+      glVertex3f(rp_1.x(), rp_1.y(), rp_1.z());
+      glVertex3f(baton_tip.x(), baton_tip.y(), baton_tip.z());
+      glVertex3f(rp_2.x(), rp_2.y(), rp_2.z());
       glEnd();
    }
    
@@ -4720,7 +4886,7 @@ graphics_info_t::set_last_map_sigma_step(float f) {
 
 // ---------------------- geometry objects -----------------------------
 void
-graphics_info_t::geometry_objects() {
+graphics_info_t::draw_geometry_objects() {
 
    // 20090715 We change the type of distance_object_vec, and attach a
    // molecule from which the distance was made.  Don't display the
@@ -4830,7 +4996,7 @@ coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
 }
 
 void
-graphics_info_t::pointer_distances_objects() {
+graphics_info_t::draw_pointer_distances_objects() {
 
    // and pointer distances:
    
@@ -4877,7 +5043,7 @@ graphics_info_t::make_pointer_distance_objects() {
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].has_model()) {
 	    if (molecules[imol].is_displayed_p()) { 
-	       if (molecules[imol].atom_selection_is_pickable()) { 
+	       if (molecules[imol].atom_selection_is_pickable()) {
 		  mol_distances = molecules[imol].distances_to_point(cen,
 								     pointer_min_dist,
 								     pointer_max_dist);
@@ -5771,3 +5937,50 @@ graphics_info_t::remove_last_lsq_plane_atom() {
    return 0;
 }
 
+
+
+// molecule_info_class_t draw_bonds() function use this to see if the point is within the 
+// distance from the screen centre.
+// Maybe this is not the best place for this function?
+// static
+bool
+graphics_info_t::is_within_display_radius(const coot::CartesianPair &p) {
+
+   coot::Cartesian c(graphics_info_t::RotationCentre_x(),
+		     graphics_info_t::RotationCentre_y(),
+		     graphics_info_t::RotationCentre_z());
+   float d_sqrd = graphics_info_t::model_display_radius.second * graphics_info_t::model_display_radius.second;
+
+   coot::Cartesian delta_1 = p.getStart() - c;
+   if (delta_1.amplitude_squared() > d_sqrd) {
+      return false;
+   } else {
+      coot::Cartesian delta_2 = p.getFinish() - c;
+      return (delta_2.amplitude_squared() <= d_sqrd);
+   }
+
+}
+
+// molecule_info_class_t draw_bonds() function use this to see if the point is within the 
+// distance from the screen centre.
+// Maybe this is not the best place for this function?
+// static
+bool
+graphics_info_t::is_within_display_radius(const coot::Cartesian &p) {
+
+   coot::Cartesian c(graphics_info_t::RotationCentre_x(),
+		     graphics_info_t::RotationCentre_y(),
+		     graphics_info_t::RotationCentre_z());
+   float d_sqrd = graphics_info_t::model_display_radius.second * graphics_info_t::model_display_radius.second;
+
+   coot::Cartesian delta = p - c;
+   return (delta.amplitude_squared() <= d_sqrd);
+
+}
+
+
+void
+graphics_info_t::set_merge_molecules_ligand_spec(const coot::residue_spec_t &spec_in) {
+
+   merge_molecules_ligand_spec = spec_in;
+}

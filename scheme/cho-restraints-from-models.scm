@@ -24,9 +24,14 @@
 (define (add-cho-restraints-for-residue imol residue-spec)
    (if (list? residue-spec)
        (let ((id (glyco-tree-residue-id imol residue-spec)))
-	 (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residue-id: ~s~%" id)
-	 (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residues: ~s~%" (glyco-tree-residues-scm imol residue-spec))
+	 ;; (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residue-id: ~s~%" id)
+	 ;; (format #t "debug:: --------------------- add-cho-restraints-for-residue: glyco-tree-residues: ~s~%" (glyco-tree-residues-scm imol residue-spec))
 	 (add-cho-restraints-for-residue-with-id imol residue-spec id))))
+
+;; the smaller the sigmas the more weight the restraints have
+;; This pushes up the weight a bit (c.f. 1.0).
+;;
+(define *cho-geman-mcclure-sigma-scale* 0.5)
 
 (define (add-cho-restraints-for-residue-with-id imol residue-spec glyco-id)
  
@@ -71,7 +76,7 @@
 				       (residue-spec->res-no   parent-residue-spec)
 				       (residue-spec->ins-code parent-residue-spec)
 				       at-name-2 "")
-				 mean sd))))))))
+				 mean (* sd *cho-geman-mcclure-sigma-scale*)))))))))
 
   (define (glyco-id->level-number glyco-id)
     (list-ref glyco-id 0))
@@ -116,8 +121,8 @@
                                    (loop (cons line lines) (read-line port))))))))))
                  (format #t "INFO:: read ~s lines from file ~s~%" (length lines) model-fn)
                  (let ((new-restraints (filter list? (map (lambda(line) (line->extra-bond-restraint-spec parent-res-spec line)) lines))))
-                    ;; (for-each (lambda (nr) (format #t "debug ~s~%" nr)) new-restraints)
-                    (add-extra-bond-restraints-scm imol new-restraints))
+		    ;; (for-each (lambda (nr) (format #t "debug ~s~%" nr)) new-restraints)
+		    (add-extra-bond-restraints-scm imol new-restraints))
    ))))))
 
 

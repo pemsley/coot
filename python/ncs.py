@@ -27,7 +27,7 @@ def find_first_model_molecule():
 # NCS) with the same residue number.  If on the last chain, then wrap
 # to beginning.  If it can't find anything then don't move (and put a
 # message in the status bar)
-# 
+#
 def skip_to_next_ncs_chain(direction):
 
   import types
@@ -35,7 +35,7 @@ def skip_to_next_ncs_chain(direction):
   # Given a chain-id and a list of chain-ids, return the chain-id of
   # the next chain to be jumped to (use wrapping).  If the list of
   # chain-ids is less then length 2, return False.
-  # 
+  #
   def skip_to_chain_internal(this_chain_id, chain_id_list):
     # print "this_chain_id: ", this_chain_id
     if len(chain_id_list) < 2:
@@ -58,7 +58,7 @@ def skip_to_next_ncs_chain(direction):
       # Given a chain-id and a list of chain-ids, return the chain-id of
       # the next chain to be jumped to (use wrapping).  If the list of
       # chain-ids is less then length 2, return False.
-      # 
+      #
       chain_guess = skip_to_chain_internal(this_chain_id, chain_id_list)
 
       if ((not type(chain_guess) is types.StringType)):
@@ -78,7 +78,7 @@ def skip_to_next_ncs_chain(direction):
                   return attempt
           # we havent found this_chain_id in ncs chains, so return all chains
           return chain_ids(imol)
-              
+
   # First, what is imol? imol is the go to atom molecule
   imol = go_to_atom_molecule_number()
   this_chain_id = go_to_atom_chain_id()
@@ -87,13 +87,18 @@ def skip_to_next_ncs_chain(direction):
   make_ncs_ghosts_maybe(imol)
   found_atom_state = 0
   if (not chains):
-	print "BL WARNING:: empty set of chains!!! This should never happen."
-    # what shall we do now? Bail out I guess. But this should never happen!
+      print "BL WARNING:: empty set of chains!!! This should never happen."
+      msg_txt = "BL WARNING:: somehow there are no chains in mol " + str(imol)
+      msg_txt+= "\n Try \"p\" to update the Go To Atom molecule and then\n"
+      msg_txt+= "skip again. Good luck skipping!\n"
+      info_dialog(msg_txt)
+      # what shall we do now? Bail out I guess. But this should never happen!
+      return
   next_chain = skip_to_chain(imol, this_chain_id, chains)
 
   try_next_chain = next_chain
   while (not try_next_chain == this_chain_id):
-      
+
       # OK, stop trying for next chain if we have looped round
       # (as it were) so that we are back at the starting chain:
       # e.g. consider the case: ["A" is protein, "B" is water,

@@ -933,7 +933,11 @@ class PseudoMolecule:
             (curResNum, curInsCode) = self.resNum(curResIndex)
             
             #print "Updating residue %i" % curRes
-            newCoords = residue_info(self.__moleculeNumber, self.chain, curResNum, curInsCode)
+            # 201805115-PE
+            # the atoms from residue_info contain an atom index now - let's
+            # strip it off to restore old functionality
+            newCoords_4 = residue_info(self.__moleculeNumber, self.chain, curResNum, curInsCode)
+            newCoords = [atom_bits[:3] for atom_bits in newCoords_4]
             self.__molecule[0][self.__chainIndex][1][curResIndex][3] = newCoords
             
             

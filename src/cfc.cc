@@ -24,6 +24,8 @@
 
 #ifdef USE_PYTHON
 
+#include "Python.h" // _XOPEN_SOURCE definition - python one before /usr/include/features.h
+
 #include <cstddef>
 
 // needed to parse cc-interface.hh

@@ -15,20 +15,32 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
     # get the F label (Fx) from x/y/SIGFPx
     #
     pass
-    
+
+def jiggle_fit_active_residue():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+        fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, 100, 1.0)
 
 if (use_gui_qm != 2):
     menu = coot_menubar_menu("Ligand")
-        
-    if enhanced_ligand_coot_p():
-    
-        add_simple_coot_menu_menuitem(
-          menu,
-          "Find Ligands...",
-          lambda func: do_find_ligands_dialog())
 
-        
-        add_simple_coot_menu_menuitem(
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Find Ligands...",
+        lambda func: do_find_ligands_dialog())
+
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Jiggle-Fit Ligand",
+        lambda func: jiggle_fit_active_residue())
+
+    add_simple_coot_menu_menuitem(
+        menu,
+        "Hydrogenate region",
+        lambda func: hydrogenate_region(6))
+
+    add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> 2D",
           lambda func:
@@ -37,7 +49,7 @@ if (use_gui_qm != 2):
                                lambda text: smiles_to_ligand_builder(text)))
 
 
-        add_simple_coot_menu_menuitem(
+    add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> simple 3D",
           lambda func:
@@ -48,16 +60,15 @@ if (use_gui_qm != 2):
                                import_rdkit_mol_from_smiles(text_1, text_2)))
 
 
-        add_simple_coot_menu_menuitem(
+    add_simple_coot_menu_menuitem(
             menu,
             "Residue -> 2D",
             lambda func:
             using_active_atom(residue_to_ligand_builder,
                               "aa_imol", "aa_chain_id", "aa_res_no",
-                              "aa_ins_code", 0.015)
-            )
+                              "aa_ins_code", 0.015))
 
-
+    if enhanced_ligand_coot_p():
         def flev_rdkit_func():
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:

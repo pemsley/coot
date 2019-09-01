@@ -28,7 +28,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 # no longer use xpms.
 
 dist_cootpixmap_DATA = \
-coot-0.8.9.png     \
+coot-0.8.9.2.png     \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \
@@ -75,8 +75,17 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   go-to-ligand.png go-to-atom.png azerbaijan.png add-water.png mutate.png \
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
   refine-1.png stock-zoom-follow-window-12.svg stock-zoom-follow-window-12.png \
-  rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png
+  rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png \
+  curlew-long.png
 
+if CLIPPER_TOP8000
+dist_cootpixmap_DATA += \
+  rama2_all.png 	rama2_gly.png 	rama2_pro.png   \
+  rama2_non_gly_pro.png rama2_ileval.png rama2_pre_pro.png \
+  rama2_non_gly_pro_pre_pro_ileval.png
+endif
+
+# removed the svg version of curlew for now because of non anti-aliasing
 
 
 # This is done by the Makefile in icons now.

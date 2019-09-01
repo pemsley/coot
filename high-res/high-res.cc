@@ -174,7 +174,7 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
       try { 
 	 globular_molecule[igfrag].addresidue(residue, 0);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: fill_globular_protein() " << rte.what() << std::endl;
       } 
    }

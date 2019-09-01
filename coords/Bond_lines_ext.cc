@@ -73,6 +73,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 	 my_matt[i][j] = 0.0;
       
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+   int model_number = 1;
 
    SelAtom.mol->SeekContacts(SelAtom.atom_selection, SelAtom.n_selected_atoms,
  			     SelAtom.atom_selection, SelAtom.n_selected_atoms,
@@ -103,7 +104,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 			     atom_sel[ contact[i].id2 ]->y,
 			     atom_sel[ contact[i].id2 ]->z);
 
-	    addBond(col, atom_1, atom_2, cc, iat_1, iat_2);
+	    addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
 
 	 } // contact atom is higher up the list check.
       } // i over ncontacts

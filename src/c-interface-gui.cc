@@ -691,7 +691,6 @@ void add_coot_references_button(GtkWidget *widget) {
 
 GtkWidget *wrapped_create_coot_references_dialog() {
   
-#if (((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 5)) || GTK_MAJOR_VERSION > 2)
   GtkWidget *references_dialog;
   GtkWidget *coot_reference_button;
   references_dialog = create_coot_references_dialog();
@@ -699,15 +698,10 @@ GtkWidget *wrapped_create_coot_references_dialog() {
   g_signal_emit_by_name(G_OBJECT(coot_reference_button), "clicked");
   gtk_widget_show(references_dialog);
   return references_dialog;
-#else
-  GtkWidget *w = 0;
-  return w;
-#endif // GTK_MAJOR_VERSION
 
 }
 
 
-#ifdef COOT_USE_GTK2_INTERFACE
 void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
 
   GtkWidget *notebook;
@@ -1008,7 +1002,6 @@ void fill_references_notebook(GtkToolButton *toolbutton, int reference_id) {
   gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), 0);
 
 }
-#endif // GTK_MAJOR_VERSION
 
 void set_graphics_window_size(int x_size, int y_size) {
 
@@ -1020,13 +1013,8 @@ void set_graphics_window_size(int x_size, int y_size) {
 	 GtkWidget *win = lookup_widget(g.glarea, "window1");
 	 GtkWindow *window = GTK_WINDOW(win);
 
-#if (GTK_MAJOR_VERSION > 1)
          gtk_window_resize(window, x_size, y_size);
-#else
-	 // does this do a configure_event?  If so, then we don't need
-	 // to do the graphics_draw() below.
-         gtk_window_set_default_size(window, x_size, y_size);
-#endif
+
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
 	 while (gdk_events_pending())
@@ -1178,6 +1166,53 @@ store_window_position(int window_type, GtkWidget *widget) {
    }
 }
 
+#include "utils/coot-utils.hh"
+
+
+/*! \brief store the graphics window position and size to zenops-graphics-window-size-and-postion.scm in
+ *         the preferences directory. */
+void graphics_window_size_and_position_to_preferences() {
+
+   // Note to self: is there a "get preferences dir" function?
+   char *h = getenv("HOME");
+   if (h) {
+      std::string pref_dir = coot::util::append_dir_dir(h, ".coot-preferences");
+      if (! coot::is_directory_p(pref_dir)) {
+         // make it
+	 // pref_dir = coot::get_directory(pref_dir); // oops not in this branch.
+	 struct stat s;
+	 int fstat = stat(pref_dir.c_str(), &s);
+	 if (fstat == -1 ) { // file not exist
+	    int status = coot::util::create_directory(pref_dir);
+	 }
+      }
+      if (coot::is_directory_p(pref_dir)) {
+         graphics_info_t g;
+         int x  = g.graphics_x_position;
+         int y  = g.graphics_y_position;
+         int xs = g.graphics_x_size;
+         int ys = g.graphics_y_size;
+	 std::string file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.scm");
+	 std::ofstream f(file_name.c_str());
+	 if (f) {
+	    f << "(set-graphics-window-position " << x  << " " << y  << ")\n";
+	    f << "(set-graphics-window-size     " << xs << " " << ys << ")\n";
+	 }
+	 f.close();
+	 file_name = coot::util::append_dir_file(pref_dir, "xenops-graphics.py");
+	 std::ofstream fp(file_name.c_str());
+	 if (fp) {
+	    fp << "set_graphics_window_position(" << x  << ", " << y << ")\n";
+	    fp << "set_graphics_window_size(" << xs << ", " << ys << ")\n";
+	 }
+	 fp.close();
+      }
+
+   }
+
+}
+
+
 /* a general purpose version of the above, where we pass a widget flag */
 void
 store_window_size(int window_type, GtkWidget *widget) {
@@ -1191,7 +1226,7 @@ store_window_size(int window_type, GtkWidget *widget) {
 void set_file_selection_dialog_size(GtkWidget *dialog) {
 
    if (graphics_info_t::file_selection_dialog_x_size > 0) {
-#if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 2))
+
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
 //          gtk_widget_set_size_request(dialog,
 //  			   graphics_info_t::file_selection_dialog_x_size,
@@ -1204,11 +1239,6 @@ void set_file_selection_dialog_size(GtkWidget *dialog) {
  			   graphics_info_t::file_selection_dialog_x_size,
 			   graphics_info_t::file_selection_dialog_y_size);
       }
-#else
-      gtk_widget_set_usize(dialog,
-			   graphics_info_t::file_selection_dialog_x_size,
-			   graphics_info_t::file_selection_dialog_y_size);
-#endif // GTK_MAJOR
    }
 }
 
@@ -1383,7 +1413,6 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
 void
 add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
 
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
    } else {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -1394,10 +1423,9 @@ add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
       gtk_widget_show(frame);
       gtk_container_add(GTK_CONTAINER(aa), frame);
       gtk_container_add(GTK_CONTAINER(frame), vbox);
-   } 
-#endif
-   
-} 
+   }  
+}
+
 
 // where data type:
 // 0 coords
@@ -1412,12 +1440,10 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
    bool no_chooser_filter = 1;
    GtkWidget *button = 0;
 
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       	no_chooser_filter = 0;
 	add_filechooser_filter_button(fileselection, data_type);
    }
-#endif
 
    if (no_chooser_filter) {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -1431,16 +1457,10 @@ GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
       gtk_container_add(GTK_CONTAINER(aa),frame);
       
       gtk_container_add(GTK_CONTAINER(frame), button);
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-      gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled_gtk1),
-			  GINT_TO_POINTER(d));
-#else
       // callback in c-interface-gtk2.cc
       gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
 			  GINT_TO_POINTER(d));
-#endif   
       gtk_widget_show(frame);
    }
    
@@ -1451,11 +1471,9 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 
    bool no_chooser_filter = 1;
    
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       	no_chooser_filter = 0;
    }
-#endif
 
    if (no_chooser_filter) {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -2262,9 +2280,13 @@ void handle_get_accession_code(GtkWidget *widget) {
    int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
 									"accession_code_window")));
    int n = *n_p;
+
+   std::cout << "Here with mode n " << n << std::endl;
    
 #ifdef USE_GUILE
    string scheme_command;
+
+   std::cout << "Here with mode n " << n << " guile path " << std::endl;
 
    if (n == 1) {
       get_coords_for_accession_code(text);
@@ -2892,17 +2914,14 @@ toolbar_popup_menu (GtkToolbar *toolbar,
 void
 set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data) {
 
-#if (GTK_MAJOR_VERSION > 1)
-  int pos = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (w), "position"));
+  int pos = GPOINTER_TO_INT (g_object_get_data(G_OBJECT (w), "position"));
   set_model_toolbar_docked_position(pos);
-#endif //GTK_MAJOR_VERSION
 
 }
 
 void
 reattach_modelling_toolbar() {
 
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *handlebox = lookup_widget(graphics_info_t::glarea,
 				       "model_fit_refine_toolbar_handlebox");
   GdkEvent *event = gdk_event_new (GDK_DELETE);
@@ -2911,9 +2930,8 @@ reattach_modelling_toolbar() {
   event->any.send_event = TRUE;
   gtk_main_do_event (event);
   gdk_event_free (event);
-  g_object_ref (GTK_HANDLE_BOX(handlebox)->float_window);
+
   g_object_ref (GTK_HANDLE_BOX(handlebox));
-#endif // GTK_MAJOR_VERSION
 }
 
 /*  ------------------------------------------------------------------------ */
@@ -4108,8 +4126,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
    GtkWidget *show_symm_window = create_show_symmetry_window();
    GtkWidget *checkbutton; 
-   GtkButton       *button; 
-   
+   GtkButton *button; 
 
    /* Colour Merge */
    GtkAdjustment *adjustment;
@@ -4131,7 +4148,6 @@ GtkWidget *wrapped_create_show_symmetry_window() {
       } 
    } 
 
-   
 /* The Show Symmetry RadioButtons */
 
    if (get_show_symmetry() == 1) { 
@@ -4155,8 +4171,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
    
 /* The Colour Merge hscale */
 
-   hscale = GTK_SCALE(lookup_widget(show_symm_window,
-				    "hscale_symmetry_colour"));
+   hscale = GTK_SCALE(lookup_widget(show_symm_window, "hscale_symmetry_colour"));
    
    adjustment = GTK_ADJUSTMENT 
       (gtk_adjustment_new(0.5, 0.0, 3.0, 0.02, 0.05, 2.0));
@@ -4186,7 +4201,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 					    "unit_cell_no_radiobutton"));
        }
        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-    } 
+    }
 
        
     //  The Expanded Atoms Label checkbutton
@@ -4196,7 +4211,18 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
     if (graphics_info_t::symmetry_atom_labels_expanded_flag) {
        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-    } 
+    }
+
+    GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
+    if (colour_button) {
+       GdkColor bg_colour;
+       bg_colour.red   = (guint)(graphics_info_t::symmetry_colour[0] * 65535);
+       bg_colour.green = (guint)(graphics_info_t::symmetry_colour[1] * 65535);
+       bg_colour.blue  = (guint)(graphics_info_t::symmetry_colour[2] * 65535);
+       gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
+    } else {
+       std::cout << "failed to lookup colourbutton" << std::endl;
+    }
 
 //     // The symmetry colour molecule checkbutton
 //     checkbutton = lookup_widget(show_symm_window,
@@ -4231,16 +4257,13 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 void symmetry_colour_adjustment_changed (GtkAdjustment *adj, 
 					 GtkWidget *window) { 
 
+   float f = gtk_adjustment_get_value(adj);
 
    // does a graphics_draw() for us...
-   set_symmetry_colour_merge(adj->value); /* this adjusts
-				             graphics_info_t::
-					     symm_colour_merge_weight,
-					     which is a double
-					     array.  But we only
-					     ever use the 0th
-					     position of it in
-					     combine_colour() */
+   set_symmetry_colour_merge(f); /* this adjusts graphics_info_t::
+				    symm_colour_merge_weight, which is a double
+				    array.  But we only ever use the 0th
+				    position of it in combine_colour() */
 }
 
 
@@ -5080,6 +5103,41 @@ GtkWidget *wrapped_create_display_control_window() {
    return widget;
 }
 
+
+void
+align_labels_checkbutton_toggled(GtkToggleButton *togglebutton) {
+
+   float align = 0.0;
+   if (togglebutton->active)
+      align = 1.0;
+
+   graphics_info_t g;
+   if (g.display_control_window()) { // it should be :-)
+      int n_mols = graphics_info_t::n_molecules();
+      for (int i=0; i<n_mols; i++) {
+	 if (is_valid_model_molecule(i)) {
+	    std::string name_stub = "display_mol_entry_";
+	    std::string name = name_stub + coot::util::int_to_string(i);
+	    GtkWidget *entry = lookup_widget(g.display_control_window(), name.c_str());
+	    if (entry) {
+	       // 20180304
+	       // This only changes the alignment for entries that have smaller text than
+	       // the widget.  I want all widgets to adjust their text.
+	       // Maybe use PangoLayout. read gtkentry.c to see if you can work out what
+	       // happens when the user does a click-drag (left or right) on the text.
+	       // So I will make the checkbutton invisible for now.
+	       //
+	       // gtk_entry_set_alignment(GTK_ENTRY(entry), align);
+
+	       // gtk_misc_set_alignment(GTK_MISC(entry), align, 0.5); // no. an entry is not a misc.
+	    }
+	 }
+      }
+   }
+}
+
+
+
 // BL things for file_chooser
 void set_file_chooser_selector(int istate) {
    graphics_info_t::gtk2_file_chooser_selector_flag = istate;
@@ -5911,7 +5969,7 @@ void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
       int rn = coot::util::string_to_int(resno_txt);
       set_baton_build_params(rn, chain_id, direction);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << " aborting." << std::endl;
    }
 
@@ -5974,7 +6032,7 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
 						 int io) {
    
    if (! gdo.is_closed_flag) { 
-	 
+
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = gdo.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
@@ -6022,23 +6080,18 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
    graphics_info_t g;
    
-   GtkWidget *w;
-   if (g.generic_objects_dialog) { 
-      w = g.generic_objects_dialog;
-   } else {
-      w = create_generic_objects_dialog();
-      g.generic_objects_dialog = w;
-   }
+   GtkWidget *w = create_generic_objects_dialog();
+   g.generic_objects_dialog = w;
 
    GtkWidget *generic_objects_dialog_table = lookup_widget(w, "generic_objects_dialog_table");
 
    if (generic_objects_dialog_table) {
 
       unsigned int n_objs = g.generic_objects_p->size();
-
       gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
+
       for (unsigned int io=0; io<n_objs; io++) {
-	 coot::generic_display_object_t &gdo = (*g.generic_objects_p)[io];
+	 const coot::generic_display_object_t &gdo = g.generic_objects_p->at(io);
 	 generic_objects_dialog_table_add_object_internal(gdo, w, generic_objects_dialog_table, io);
       }
    }
@@ -6064,4 +6117,131 @@ int add_generic_display_object(const coot::generic_display_object_t &gdo) {
       }
    }
    return n_objs;
+}
+
+
+// -------------- You can't install extensions if you don't have boost ----------
+
+#ifdef HAVE_BOOST
+#include <boost/crc.hpp>
+#endif
+
+bool
+checksums_match(const std::string &file_name, const std::string &checksum) {
+
+   bool state = false;
+
+#ifdef HAVE_BOOST
+   std::ifstream f(file_name.c_str());
+   if (f) {
+      std::string dl_str((std::istreambuf_iterator<char>(f)),
+			 std::istreambuf_iterator<char>());
+
+      // boost::crc_basic<16> crc_ccitt1( 0x1021, 0xFFFF, 0, false, false );
+      boost::crc_basic<16> crc_ccitt1(0xffff, 0x0, 0, false, false );
+      crc_ccitt1.process_bytes(dl_str.c_str(), dl_str.size());
+      // std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
+      std::string s = coot::util::int_to_string(crc_ccitt1.checksum());
+      if (s == checksum)
+	 state = true;
+   }
+#endif // HAVE_BOOST
+   return state;
+}
+
+// If I put this in c-interface-curlew.cc, then it doesn't resolve when linking.
+// I don't understand why.
+//
+/* curlew install button clicked callback action */
+void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions) {
+
+   // Look up the checkbuttow widgets, find the attached filenames and checksums
+   // download them, check the checksums and, if they match install them to preferences
+   // and run them.
+
+   if (curlew_dialog) {
+      for (int i=0; i<n_extensions; i++) {
+	 std::string cb_name = "curlew_selected_check_button_";
+	 cb_name += coot::util::int_to_string(i);
+	 std::string hbox_name = "curlew_extension_hbox_";
+	 hbox_name += coot::util::int_to_string(i);
+	 GtkWidget *w = lookup_widget(curlew_dialog, cb_name.c_str());
+	 GtkWidget *hbox = lookup_widget(curlew_dialog, hbox_name.c_str());
+
+	 // std::cout << "debug:: here with hbox " << hbox << " for idx " << i << std::endl;
+
+	 if (w) {
+	    int status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
+	    if (status) { // selected for download/install
+	       if (false)
+		  std::cout << "Got w " << w << " for i " << cb_name << " " << status
+			    <<std::endl;
+
+	       gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
+	       gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
+
+	       if (file_name_cstr) {
+
+		  std::string file_name(file_name_cstr);
+
+		  if (!file_name.empty()) {
+
+		     std::string url_prefix = "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+		     url_prefix += "extensions";
+		     url_prefix += "/";
+		     url_prefix += file_name;
+
+		     std::string download_dir = "coot-download"; // FIXME
+		     std::string dl_fn = download_dir + "/";
+		     dl_fn += file_name;
+
+		     if (false) // debug
+			std::cout << "get this " << url_prefix << " as this " << dl_fn << std::endl;
+
+		     int r = coot_get_url(url_prefix.c_str(), dl_fn.c_str());
+
+		     if (r) {
+			std::cout << "WARNING:: bad URL retrieve " << file_name << std::endl;
+		     } else {
+			if (coot::file_exists(dl_fn)) {
+			   std::string checksum;
+			   if (checksum_cstr) checksum = checksum_cstr;
+			   if (checksums_match(dl_fn, checksum)) {
+			      // I want a function that returns preferences_dir
+			      char *home = getenv("HOME");
+			      if (home) {
+				 std::string home_directory(home);
+				 std::string preferences_dir =
+				    coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_file_name =
+				    coot::util::append_dir_file(preferences_dir, file_name);
+				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+				 if (status != 0) {
+				    std::cout << "WARNING:: failed to install " << file_name << std::endl;
+				 } else {
+				    std::cout << "run_script on " << preferences_file_name << std::endl;
+				    run_script(preferences_file_name.c_str());
+				    // make the hbox insensitive
+				    if (hbox) {
+				       gtk_widget_set_sensitive(hbox, FALSE);
+				    }
+				 }
+			      }
+			   } else {
+			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+			   }
+			} else {
+			   std::cout << "WARNING:: file does not exist " << file_name << std::endl;
+			}
+		     }
+		  } else {
+		     std::cout << "WARNING:: file_name data was empty" << std::endl;
+		  }
+	       } else {
+		  std::cout << "WARNING:: No file name data" << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
 }

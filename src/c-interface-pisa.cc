@@ -270,7 +270,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 	       pisa_treeview_info.push_back(pisa_interface_attribs);
 	       
 	    }
-	    catch (std::runtime_error rte)  {
+	    catch (const std::runtime_error &rte)  {
 	       std::cout << "WARNING:: " << rte.what() << std::endl;
 	    }
 	 }
@@ -453,7 +453,7 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
                   pisa_treeview_info.push_back(pisa_interface_attribs);
 	       
               }
-              catch (std::runtime_error rte)  {
+              catch (const std::runtime_error &rte)  {
                   std::cout << "WARNING:: " << rte.what() << std::endl;
               }
           }
@@ -584,7 +584,7 @@ residue_records_list_scm_to_residue_specs(SCM mol_1_residues, const std::string 
 	    coot::residue_spec_t rs(chain_id, seq_num, ins_code);
 	    r.push_back(rs);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING bad seq-num from pisa interfaces xml "
 		      << scm_to_locale_string(display_scm(seq_num_scm)) << std::endl;
 	 }
@@ -616,7 +616,7 @@ residue_records_list_py_to_residue_specs(PyObject *mol_1_residues, const std::st
 	    coot::residue_spec_t rs(chain_id, seq_num, ins_code);
 	    r.push_back(rs);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING bad seq-num from pisa interfaces xml "
 		      << PyString_AsString(display_python(seq_num_py)) << std::endl;
 	 }

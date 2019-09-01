@@ -18,6 +18,7 @@ if Rscript burn-up-graph.r ; then
    # convert -antialias -scale 218x146 ~/public_html/coot/devel/burn-up.png ~/public_html/coot/devel/burn-up-icon.png
 
    # fink convert
-   convert -antialias -scale 218x146 burn-up.png burn-up-icon.png
+   # convert -antialias -scale 218x146 burn-up.png burn-up-icon.png
+   :
 
 fi

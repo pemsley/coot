@@ -682,6 +682,7 @@ coot::crankshaft::find_maxima(const residue_spec_t &spec_mid_residue,
    try {
       // if the atoms are not there, this can throw a std::runtime_error.
       nmer_crankshaft_set cs(spec_mid_residue, n_peptides, zorts, mol);
+      if (cs.size() == 0) return results;
 
       float div = 1.0/float(n_samples);
 
@@ -1033,7 +1034,7 @@ coot::crankshaft::run_optimizer_in_thread(const std::vector<std::size_t> &sample
 					  const coot::nmer_crankshaft_set &cs,
 					  const zo::rama_table_set &zorts,
 					  std::vector<coot::crankshaft::scored_nmer_angle_set_t> *results) {
-   // test coot::crankshaft::scored_nmer_angle_set_t *sas_in) {
+   if (cs.size() == 0) return;
 
    for (std::size_t j=0; j<samples_for_thread.size(); j++) {
       std::vector<float> start_angles(cs.n_peptides(), 0);
@@ -1053,6 +1054,14 @@ coot::crankshaft::scored_nmer_angle_set_t
 coot::crankshaft::run_optimizer(const std::vector<float> &start_angles,
 				const coot::nmer_crankshaft_set &cs,
 				const zo::rama_table_set &zorts) {
+
+   scored_nmer_angle_set_t sas; // empty
+
+   if (cs.size() == 0) { // Jude Short crash: crashes when cs.size() is 0 (it seems).
+                         // This fixes the proximal cause, at least (gsl_vector_alloc(0)).
+      std::cout << "ERROR:: empty crankshaft set " << std::endl;
+      return sas;
+   }
 
    size_t iter = 0;
    int status;
@@ -1097,8 +1106,6 @@ coot::crankshaft::run_optimizer(const std::vector<float> &start_angles,
 		      << s->f << "\n";
 
    } while (status == GSL_CONTINUE && iter < 1000);
-
-   scored_nmer_angle_set_t sas; // empty
 
    if (status == GSL_ENOPROG) {
       // std::cout << "No progress" << std::endl;

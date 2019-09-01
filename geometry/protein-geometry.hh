@@ -29,6 +29,8 @@
 #include <vector>
 #endif
 
+#include <set>
+
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -1189,6 +1191,12 @@ namespace coot {
 	    names = names_in;
 	 }
 
+	 restraint_eraser(const std::set<std::string> &names_in) {
+	    std::set<std::string>::const_iterator it;
+	    for (it=names_in.begin(); it != names_in.end(); it++)
+	       names.push_back(*it);
+	 }
+
 	 // return true for deletion
 	 bool operator()(const dict_torsion_restraint_t &r) const {
 	    int n_match = 0;
@@ -2034,6 +2042,12 @@ namespace coot {
 							       bool at_2_deloc_or_arom) const;
       // use auto-load if not present
       void use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name, int mmcif_read_number);
+
+      // pass the atom names and the desired torsion value - sigma is not specified
+      // by the user.
+      void use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
+						const std::vector<atom_name_torsion_quad> &tors_info_vec,
+						int mmcif_read_number);
 
 
 #ifdef HAVE_CCP4SRS

@@ -147,6 +147,8 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    extra_restraints.add_restraints(r);
    std::cout << "INFO:: add_refmac_extra_restraints(): have "
 	     << extra_restraints.bond_restraints.size() << " bond restraints " << std::endl;
+   std::cout << "INFO:: add_refmac_extra_restraints(): have "
+	     << extra_restraints.angle_restraints.size() << " angle restraints " << std::endl;
    update_extra_restraints_representation();
 }
 
@@ -264,6 +266,7 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
    unsigned int pre_n = extra_restraints.bond_restraints.size();
 
    std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebrv_l;
+   ebrv_l.reserve(extra_restraints.bond_restraints.size());
 
    std::map<coot::atom_spec_t, mmdb::Atom *> atom_map;
    std::map<coot::atom_spec_t, mmdb::Atom *>::const_iterator it_1;
@@ -273,21 +276,51 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
       coot::extra_restraints_t::extra_bond_restraint_t &br = extra_restraints.bond_restraints[i];
       mmdb::Atom *at_1 = NULL;
       mmdb::Atom *at_2 = NULL;
-      it_1 = atom_map.find(br.atom_1);
-      it_2 = atom_map.find(br.atom_2);
-      if (it_1 == atom_map.end()) {
-	 at_1 = get_atom(br.atom_1);
-	 atom_map[br.atom_1] = at_1;
-      } else {
-	 at_1 = it_1->second; // most of the hits, I hope
+      int ifast_index_1 = br.atom_1.int_user_data;
+      int ifast_index_2 = br.atom_2.int_user_data;
+      // std::cout << "fast indices: " << ifast_index_1 << " " << ifast_index_2 << std::endl;
+
+      if (ifast_index_1 != -1) {
+	 if (ifast_index_1 < atom_sel.n_selected_atoms) {
+	    mmdb::Atom *at = atom_sel.atom_selection[ifast_index_1];
+	    if (br.atom_1.matches_spec(at)) {
+	       at_1 = at;
+	    }
+	 }
       }
+      if (ifast_index_2 != -1) {
+	 if (ifast_index_2 < atom_sel.n_selected_atoms) {
+	    mmdb::Atom *at = atom_sel.atom_selection[ifast_index_2];
+	    if (br.atom_2.matches_spec(at)) {
+	       at_2 = at;
+	    }
+	 }
+      }
+
+      // If fast indexing doesn't do the job, let's try the map
+
+      if (! at_1) {
+	 it_1 = atom_map.find(br.atom_1);
+	 if (it_1 == atom_map.end()) {
+	    at_1 = get_atom(br.atom_1);
+	    atom_map[br.atom_1] = at_1;
+	 } else {
+	    at_1 = it_1->second;
+	 }
+      }
+
       // and the same for 2:
-      if (it_2 == atom_map.end()) {
-	 at_2 = get_atom(br.atom_2);
-	 atom_map[br.atom_2] = at_2;
-      } else {
-	 at_2 = it_2->second; 
+
+      if (! at_1) {
+	 it_2 = atom_map.find(br.atom_2);
+	 if (it_2 == atom_map.end()) {
+	    at_2 = get_atom(br.atom_2);
+	    atom_map[br.atom_2] = at_2;
+	 } else {
+	    at_2 = it_2->second;
+	 }
       }
+
       if (at_1 && at_2) {
 	 double dx = at_1->x - at_2->x;
 	 double dy = at_1->y - at_2->y;
@@ -329,6 +362,27 @@ molecule_class_info_t::set_extra_restraints_prosmart_sigma_limits(double limit_l
    update_extra_restraints_representation();
 }
 
+void
+molecule_class_info_t::generate_self_restraints(float local_dist_max,
+						const coot::protein_geometry &geom) {
+
+   // Find all the contacts in chain_id that are less than or equal to local_dist_max
+   // that are not bonded or related by an angle.
+
+   int selHnd = atom_sel.mol->NewSelection(); // deleted in generate_local_self_restraints()
+                                              // Confusing! bleugh! FIXME
+
+   atom_sel.mol->SelectAtoms(selHnd, 0, "*",
+			     mmdb::ANY_RES, "*", // start, insertion code
+			     mmdb::ANY_RES, "*", // end, insertion code
+			     "*", // residue name
+			     "*",
+			     "*", // elements
+			     "*"); // alt locs
+
+   generate_local_self_restraints(selHnd, local_dist_max, geom);
+}
+
 
 // make them yourself - easy as pie.
 void
@@ -351,6 +405,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*"); // alt locs
 
    generate_local_self_restraints(selHnd, local_dist_max, geom);
+   // atom_sel.mol->DeleteSelection(selHnd);
 }
 
 void
@@ -453,8 +508,15 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  clipper::Coord_orth p2 = coot::co(at_2);
 		  double dist = sqrt((p1-p2).lengthsq());
 		  double esd  = 0.5;
-		  coot::extra_restraints_t::extra_bond_restraint_t br(coot::atom_spec_t(at_1),
-								      coot::atom_spec_t(at_2),
+		  coot::atom_spec_t atom_spec_1(at_1);
+		  coot::atom_spec_t atom_spec_2(at_2);
+		  int idx_1 = -1;
+		  int idx_2 = -1;
+		  at_1->GetUDData(atom_sel.UDDAtomIndexHandle, idx_1);
+		  at_2->GetUDData(atom_sel.UDDAtomIndexHandle, idx_2);
+		  atom_spec_1.int_user_data = idx_1;
+		  atom_spec_2.int_user_data = idx_2;
+		  coot::extra_restraints_t::extra_bond_restraint_t br(atom_spec_1, atom_spec_2,
 								      dist, esd);
 		  extra_restraints.bond_restraints.push_back(br);
 	       } 
@@ -462,8 +524,14 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 	 }
       }
    }
-   if (extra_restraints.bond_restraints.size())
-       update_extra_restraints_representation();
+
+   // 20180510-PE surely I want to update the representation even if there are no
+   //             extra bond restraints?
+   //
+   // if (extra_restraints.bond_restraints.size())
+   // update_extra_restraints_representation();
+   //
+   update_extra_restraints_representation();
        
    atom_sel.mol->DeleteSelection(selHnd);
 }
@@ -488,6 +556,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 void
 molecule_class_info_t::clear_extra_restraints() {
    extra_restraints.clear();
+   update_extra_restraints_representation();
 } 
 
 // return an index of the new restraint
@@ -625,7 +694,29 @@ molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t
    if (! moving_residues.empty())
       r = morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
    return r;
-} 
+}
+
+std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+molecule_class_info_t::peptide_C_N_pairs(const std::vector<mmdb::Residue *> &residues) const {
+
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
+   std::vector<mmdb::Chain *> chains;
+   for (unsigned int ires=0; ires<residues.size(); ires++) {
+      mmdb::Residue *r = residues[ires];
+      mmdb::Chain *this_chain = r->GetChain();
+      if (std::find(chains.begin(), chains.end(), this_chain) == chains.end()) {
+	 chains.push_back(this_chain);
+      }
+   }
+   for (std::size_t ic=0; ic<chains.size(); ic++) {
+      mmdb::Chain *chain_p = chains[ic];
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > chain_pairs = coot::util::peptide_C_N_pairs(chain_p);
+      v.insert(v.end(), chain_pairs.begin(), chain_pairs.end());
+   }
+
+   return v;
+}
+
 
 int
 molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues,
@@ -639,7 +730,6 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
    int n_bins = 40; 
    mean_and_variance<float> mv = map_density_distribution(xmap_in, n_bins, false, ignore_pseudo_zeros);
    float map_rmsd = sqrt(mv.variance);
-   
 
    // store the local origin too.
    std::map<mmdb::Residue *, morph_rtop_triple> rtop_map;
@@ -714,6 +804,12 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
       success = 1;
       make_backup();
 
+      // get the "key" residues, for use to find the peptide_C_N_pairs
+      std::vector<mmdb::Residue *> residues_vec;
+      for (unsigned int ires=0; ires<moving_residues.size(); ires++)
+	 residues_vec.push_back(moving_residues[ires].first);
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > c_n_pairs = peptide_C_N_pairs(residues_vec);
+
       std::map<mmdb::Residue *, morph_rtop_triple> simple_shifts;
       std::map<mmdb::Residue *, morph_rtop_triple> smooth_shifts;
       
@@ -785,7 +881,6 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 }
       }
 
-      
       std::cout << std::endl;
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
@@ -794,6 +889,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 
 
       morph_show_shifts(simple_shifts, smooth_shifts);
+      coot::util::standardize_peptide_C_N_distances(c_n_pairs);
       
    }
    return success;
@@ -1089,12 +1185,15 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 
 	 if (nhelix == 0 && nsheet == 0)
 	    add_secondary_structure_header_records(true);
-	mmdb::Helix * helix_p;
-	mmdb::Sheet * sheet_p;
-	mmdb::Strand * strand_p;
+	 mmdb::Helix * helix_p;
+	 mmdb::Sheet * sheet_p;
+	 mmdb::Strand * strand_p;
 
 	 mmdb::Chain *chain_p = model_p->GetChain(chain_id.c_str());
-	 if (chain_p) { 
+	 if (chain_p) {
+
+	    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > c_n_pairs =
+	       coot::util::peptide_C_N_pairs(chain_p);
 
 	    // store the RTops for some residues (we also need the
 	    // local around which the rtop_orth is performed)
@@ -1268,8 +1367,8 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 	       }
 	    }
 
-	 
 	    if (model_changed) {
+	       coot::util::standardize_peptide_C_N_distances(c_n_pairs); // move the C and Ns closer if needed
 	       atom_sel.mol->FinishStructEdit();
 	       have_unsaved_changes_flag = 1;
 	       make_bonds_type_checked();

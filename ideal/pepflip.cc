@@ -74,6 +74,10 @@ coot::pepflip_standard(mmdb::Manager *mol,
    //
    int status = 0; // fail initially
 
+   double dist_crit = 2.5; // C-N needs to be smaller than this to do a standard
+                           // pepflip. If they are further apart, we will want
+                           // to do an internal pepflip.
+
    std::vector<const char *> second_atoms;
    std::vector<const char *> first_atoms(2);
    first_atoms[0] = " C  ";
@@ -83,6 +87,11 @@ coot::pepflip_standard(mmdb::Manager *mol,
 
    mmdb::Atom *ca1 = NULL;
    mmdb::Atom *ca2 = NULL;
+   // 20180325 we need the C and N to be "reasonably" close, so that we don't get
+   // peptide (non-internal) flips for residue that are not at the end of a chain
+   // but are at the end of a fragment.
+   mmdb::Atom *n = NULL;
+   mmdb::Atom *c = NULL;
 
    mmdb::Residue *first_res = coot::util::get_residue(chain_id, resno, ins_code, mol);
    std::vector<mmdb::Atom *> flipping_atoms;
@@ -92,7 +101,7 @@ coot::pepflip_standard(mmdb::Manager *mol,
       if (second_res) {
 	 mmdb::PAtom *first_residue_atoms = NULL;
 	 mmdb::PAtom *second_residue_atoms = NULL;
-	 int n_first_residue_atoms; 
+	 int n_first_residue_atoms;
 	 int n_second_residue_atoms;
 	 first_res->GetAtomTable(first_residue_atoms, n_first_residue_atoms);
 	 second_res->GetAtomTable(second_residue_atoms, n_second_residue_atoms);
@@ -103,12 +112,15 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	       if (atom_name == " CA " ) {
 		  ca1 = first_residue_atoms[iat];
 	       }
+	       if (atom_name == " C  " ) {
+		  c = first_residue_atoms[iat];
+	       }
 	       for (unsigned int i=0; i<first_atoms.size(); i++) {
 		  if (atom_name == first_atoms[i]) {
 		     flipping_atoms.push_back(first_residue_atoms[iat]);
-		  } 
+		  }
 	       }
-	    } 
+	    }
 	 }
 	 for (int iat=0; iat<n_second_residue_atoms; iat++) {
 	    std::string atom_name(second_residue_atoms[iat]->name);
@@ -117,10 +129,13 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	       if (atom_name == " CA " ) {
 		  ca2 = second_residue_atoms[iat];
 	       }
+	       if (atom_name == " N  " ) {
+		  n = second_residue_atoms[iat];
+	       }
 	       for (unsigned int i=0; i<second_atoms.size(); i++) {
 		  if (atom_name == second_atoms[i]) {
 		     flipping_atoms.push_back(second_residue_atoms[iat]);
-		  } 
+		  }
 	       }
 	    }
 	 }
@@ -130,17 +145,30 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	    if (! ca2) {
 	       std::cout << "WARNING:: No second CA atom found" << std::endl;
 	    } else {
-	       status = 1;
-	       std::vector<clipper::Coord_orth> cas(2);
-	       cas[0] = clipper::Coord_orth(ca1->x, ca1->y, ca1->z);
-	       cas[1] = clipper::Coord_orth(ca2->x, ca2->y, ca2->z);
-	       std::vector<clipper::Coord_orth> v = 
-		  flip_internal(cas, flipping_atoms);
-	       for (unsigned int i=0; i<v.size(); i++) {
-		  flipping_atoms[i]->x = v[i].x();
-		  flipping_atoms[i]->y = v[i].y();
-		  flipping_atoms[i]->z = v[i].z();
-	       } 
+	       if (! n) {
+		  std::cout << "WARNING:: No N atom found" << std::endl;
+	       } else {
+		  if (! c) {
+		     std::cout << "WARNING:: No C atom found" << std::endl;
+		  } else {
+		     clipper::Coord_orth N_pos = co(n);
+		     clipper::Coord_orth C_pos = co(c);
+		     double dist = clipper::Coord_orth::length(N_pos, C_pos);
+		     if (dist < dist_crit) {
+			status = 1;
+			std::vector<clipper::Coord_orth> cas(2);
+			cas[0] = clipper::Coord_orth(ca1->x, ca1->y, ca1->z);
+			cas[1] = clipper::Coord_orth(ca2->x, ca2->y, ca2->z);
+			std::vector<clipper::Coord_orth> v =
+			   flip_internal(cas, flipping_atoms);
+			for (unsigned int i=0; i<v.size(); i++) {
+			   flipping_atoms[i]->x = v[i].x();
+			   flipping_atoms[i]->y = v[i].y();
+			   flipping_atoms[i]->z = v[i].z();
+			}
+		     }
+		  }
+	       }
 	    } 
 	 } 
       }

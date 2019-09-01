@@ -1,8 +1,9 @@
 
 
+#include <gtk/gtk.h>
+
 #if defined(HAVE_GOOCANVAS)
 
-#include <gtk/gtk.h>
 #include <goocanvas.h>
 #include "rama_plot.hh"
  

@@ -40,13 +40,29 @@ AC_PROVIDE([AM_PATH_CLIPPER])
 
 AC_MSG_CHECKING([for Clipper])
 
+top8000=false
+
 if ${PKG_CONFIG} clipper ; then 
    CLIPPER_CXXFLAGS="$($PKG_CONFIG --cflags clipper)"
    CLIPPER_LIBS="$($PKG_CONFIG --libs clipper)"
    coot_found_clipper=yes
+   # do we have a version of clipper that has top8000 rama?
+   save_CXXFLAGS="$CXXFLAGS"
+   CXXFLAGS="$CXXFLAGS $CLIPPER_CXXFLAGS"
+   AC_LANG_PUSH(C++)
+   AC_TRY_COMPILE([#include <clipper/clipper.h>],[clipper::Ramachandran rama; rama.init( clipper::Ramachandran::All2 ) ], have_top8000=yes, have_top8000=no)
+   if test $have_top8000 = yes ; then
+      CLIPPER_CXXFLAGS="$CLIPPER_CXXFLAGS -DCLIPPER_HAS_TOP8000"
+      top8000=true
+   fi
+   CXXFLAGS=$save_CXXFLAGS
+   AC_LANG_POP(C++)
+
 else
    coot_found_clipper=no
 fi
+
+AM_CONDITIONAL([CLIPPER_TOP8000], [test x$top8000 = xtrue])
 
 AC_MSG_RESULT($coot_found_clipper)
 

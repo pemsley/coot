@@ -172,7 +172,7 @@ namespace coot {
       double angle_2() const; // angle 1-2-3 in degrees
       double angle_3() const; // angle 2-3-4 in degrees
       // Can throw a std::runtime_error if any of the atoms are null.
-      double torsion() const;
+      double torsion() const; // in degrees
       // Can throw a std::runtime_error if any of the atoms are null.
       double chiral_volume() const;
       atom_quad reverse() const {

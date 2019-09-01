@@ -42,13 +42,13 @@
    program understand `configure --with-gnu-libc' and omit the object files,
    it is simpler to just do this in the source for each such file.  */
 
-#define GETOPT_INTERFACE_VERSION 2
-#if !defined _LIBC && defined __GLIBC__ && __GLIBC__ >= 2
-#include <gnu-versions.h>
-#if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION
-#define ELIDE_CODE
-#endif
-#endif
+/* #define GETOPT_INTERFACE_VERSION 2 */
+/* #if !defined _LIBC && defined __GLIBC__ && __GLIBC__ >= 2 */
+/* #include <gnu-versions.h> */
+/* #if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION */
+/* #define ELIDE_CODE */
+/* #endif */
+/* #endif */
 
 #ifndef ELIDE_CODE
 
@@ -64,7 +64,7 @@
 #endif
 
 int
-getopt_long (argc, argv, options, long_options, opt_index)
+coot_getopt_long (argc, argv, options, long_options, opt_index)
      int argc;
      char *const *argv;
      const char *options;

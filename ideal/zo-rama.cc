@@ -48,7 +48,7 @@ zo::rama_table::test_analytical_derivs() const {
 }
 
 void
-zo::rama_table::make_a_png(int width, const std::string &file_name) {
+zo::rama_table::make_a_png(int width, const std::string &file_name) const {
 
    
    int height = width; // this is so for a ramachandran plot
@@ -148,22 +148,22 @@ zo::rama_table_set::init() {
    // std::cout << "INFO:: reading file " << full << std::endl;
 
    std::vector<std::string> table_type(16);
-   table_type[0] = "ALL!nP";  // all not next Pro
-   table_type[1] = "ALLnP";   // all with next is Pro
-   table_type[2] = "GLY!nP";
-   table_type[3] = "GLYnP";
-   table_type[4] = "PRO!nP";
-   table_type[5] = "PROnP";
-   table_type[6] = "VI!nP";
-   table_type[7] = "VInP";
-   table_type[8] = "DN!nP";
-   table_type[9] = "DNnP";
-   table_type[10] = "ST!nP";
-   table_type[11] = "STnP";
-   table_type[12] = "EQ!nP";
-   table_type[13] = "EQnP";
-   table_type[14] = "LA!nP";
-   table_type[15] = "LAnP";
+   table_type[ 0] = "ALL!P";  // all not next Pro
+   table_type[ 1] = "ALLP";   // all with next is Pro
+   table_type[ 2] = "GLY!P";
+   table_type[ 3] = "GLYP";
+   table_type[ 4] = "PRO!P";
+   table_type[ 5] = "PROP";
+   table_type[ 6] = "VI!P";
+   table_type[ 7] = "VIP";
+   table_type[ 8] = "DN!P";
+   table_type[ 9] = "DNP";
+   table_type[10] = "ST!P";
+   table_type[11] = "STP";
+   table_type[12] = "EQ!P";
+   table_type[13] = "EQP";
+   table_type[14] = "LA!P";
+   table_type[15] = "LAP";
 
    if (f) {
       while(std::getline(f, line)) {
@@ -222,33 +222,33 @@ zo::rama_table_set::get_residue_type(const std::string &this_residue_type,
 
    std::string r;
    if (next_residue_type == "PRO") {
-      r = "ALLnP";
-      if (this_residue_type == "GLY") r = "GLYnP";
-      if (this_residue_type == "PRO") r = "PROnP";
-      if (this_residue_type == "VAL") r = "VInP";
-      if (this_residue_type == "ILE") r = "VInP";
-      if (this_residue_type == "ASP") r = "DNnP";
-      if (this_residue_type == "ASN") r = "DNnP";
-      if (this_residue_type == "SER") r = "STnP";
-      if (this_residue_type == "THR") r = "STnP";
-      if (this_residue_type == "GLU") r = "EQnP";
-      if (this_residue_type == "GLN") r = "EQnP";
-      if (this_residue_type == "LEU") r = "LAnP";
-      if (this_residue_type == "ALA") r = "LAnP";
+      r = "ALLP";
+      if (this_residue_type == "GLY") r = "GLYP";
+      if (this_residue_type == "PRO") r = "PROP";
+      if (this_residue_type == "VAL") r = "VIP";
+      if (this_residue_type == "ILE") r = "VIP";
+      if (this_residue_type == "ASP") r = "DNP";
+      if (this_residue_type == "ASN") r = "DNP";
+      if (this_residue_type == "SER") r = "STP";
+      if (this_residue_type == "THR") r = "STP";
+      if (this_residue_type == "GLU") r = "EQP";
+      if (this_residue_type == "GLN") r = "EQP";
+      if (this_residue_type == "LEU") r = "LAP";
+      if (this_residue_type == "ALA") r = "LAP";
    } else {
-      r = "ALL!nP";
-      if (this_residue_type == "GLY") r = "GLY!nP";
-      if (this_residue_type == "PRO") r = "PRO!nP";
-      if (this_residue_type == "VAL") r = "VI!nP";
-      if (this_residue_type == "ILE") r = "VI!nP";
-      if (this_residue_type == "ASP") r = "DN!nP";
-      if (this_residue_type == "ASN") r = "DN!nP";
-      if (this_residue_type == "SER") r = "ST!nP";
-      if (this_residue_type == "THR") r = "ST!nP";
-      if (this_residue_type == "GLU") r = "EQ!nP";
-      if (this_residue_type == "GLN") r = "EQ!nP";
-      if (this_residue_type == "LEU") r = "LA!nP";
-      if (this_residue_type == "ALA") r = "LA!nP";
+      r = "ALL!P";
+      if (this_residue_type == "GLY") r = "GLY!P";
+      if (this_residue_type == "PRO") r = "PRO!P";
+      if (this_residue_type == "VAL") r = "VI!P";
+      if (this_residue_type == "ILE") r = "VI!P";
+      if (this_residue_type == "ASP") r = "DN!P";
+      if (this_residue_type == "ASN") r = "DN!P";
+      if (this_residue_type == "SER") r = "ST!P";
+      if (this_residue_type == "THR") r = "ST!P";
+      if (this_residue_type == "GLU") r = "EQ!P";
+      if (this_residue_type == "GLN") r = "EQ!P";
+      if (this_residue_type == "LEU") r = "LA!P";
+      if (this_residue_type == "ALA") r = "LA!P";
    }
    return r;
 }

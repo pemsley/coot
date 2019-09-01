@@ -87,6 +87,9 @@ BEGIN_C_DECLS
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
+/* curlew callback action */
+void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions);
+
 void on_filename_filter_toggle_button_toggled (GtkButton       *button,
 					      gpointer         user_data);
 
@@ -161,9 +164,10 @@ void handle_filename_filter_gtk2(GtkWidget *widget);
 void set_transient_and_position(int window_type, GtkWidget *window);
 
 
-GtkWidget *main_menubar();
+GtkWidget *main_menubar();	/* maybe these should be called main_window_xxx() */
 GtkWidget *main_statusbar();
 GtkWidget *main_toolbar();
+GtkWidget *main_hbox();
 
 /* entry_info_t entry_to_number(GtkWidget *entry);  */
 
@@ -377,6 +381,8 @@ on_go_to_atom_residue_list_unselect_child (GtkList         *list,
 void save_display_control_widget_in_graphics(GtkWidget *widget); 
 
 GtkWidget *wrapped_create_display_control_window();
+
+void align_labels_checkbutton_toggled(GtkToggleButton *togglebutton);
 
 GtkWidget *wrapped_create_merge_molecules_dialog();
 void do_merge_molecules_gui();
@@ -606,6 +612,10 @@ int fill_ligands_dialog(GtkWidget *dialog);
 int fill_ligands_dialog_map_bits(GtkWidget *dialog, short int diff_maps_only_flag);	
 int fill_ligands_dialog_protein_bits(GtkWidget *dialog);	
 int fill_ligands_dialog_ligands_bits(GtkWidget *dialog);	
+
+void on_find_ligand_map_radiobutton_imol_toggled(GtkToggleButton *togglebutton,
+						 gpointer         user_data);
+
 /*  we need to delete the find_ligand_dialog when we are done, so  */
 /*  add this pointer as user data. */
 void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog); 
@@ -628,8 +638,9 @@ void set_ligand_dialog_real_space_refine_sites_checkbutton_state(GtkWidget *togg
 
 
  
-/*  info is stored in graphics_info_t beforehand */
-void execute_get_mols_ligand_search(GtkWidget *button); 
+/*  info is stored in graphics_info_t beforehand, return the number of ligands found.
+    We don't want to dismiss the dialog if the number of ligands found is 0 */
+int execute_get_mols_ligand_search(GtkWidget *button);
 
 /* This has pointers to Coord_orths poked into it, let's clear them
    up. */
@@ -792,5 +803,10 @@ void save_refmac_phase_params_to_map(int imol_map,
                                     const char *hlc,
                                     const char *hld);
 
+/* Donna's request to do the counts in the Mutate Residue range dialog */
+void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
+					 GtkWidget *text_widget, GtkWidget *label_widget);
+
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS
+

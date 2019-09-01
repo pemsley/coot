@@ -64,24 +64,24 @@ if test x$with_python != x; then
    
    # for MinGW
    if test $have_windows_mingw = yes ; then 
-     py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/include"'
-     PYTHON_CFLAGS="-DUSE_PYTHON -I`$PYTHON -c "$py_cmd"`"
-     py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print drive + path + "/libs -lpython" + sys.version[[0]]+sys.version[[2]]'
-     PYTHON_LIBS_PRE="-L`$PYTHON -c "$py_cmd"`"
+      py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print(drive + path + "/include")'
+      PYTHON_CFLAGS="-DUSE_PYTHON -I`$PYTHON -c "$py_cmd"`"
+      py_cmd='import sys, os; drive, path = os.path.splitdrive(sys.prefix); drive = "/" + drive.replace(":",""); path = path.replace("\\", "/"); print(drive + path + "/libs -lpython" + sys.version[[0]]+sys.version[[2]])'
+      PYTHON_LIBS_PRE="-L`$PYTHON -c "$py_cmd"`"
    else 
-     # normal execution proceeds..
-     PYTHON_CFLAGS="-DUSE_PYTHON `$PYTHON_CONFIG --includes`"
-   # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
-     config_dir=`$PYTHON -c "import sys; print sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config'"`
-     # echo  ======== config_dir: $config_dir
-     PYTHON_LIBS_PRE="`$PYTHON_CONFIG --ldflags`"
+      # normal execution proceeds..
+      PYTHON_CFLAGS="-DUSE_PYTHON `$PYTHON_CONFIG --includes`"
+      # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
+      config_dir=`$PYTHON -c "import sys; print(sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config')"`
+      # echo  ======== config_dir: $config_dir
+      PYTHON_LIBS_PRE="`$PYTHON_CONFIG --ldflags`"
    
-     # extra hacking so that -ldl appears after -lpython2.x (needed
-     # for correct linking on some systems)
-     #
-     for lib in $PYTHON_LIBS_PRE ; 
-     do
-        case $lib in
+      # extra hacking so that -ldl appears after -lpython2.x (needed
+      # for correct linking on some systems)
+      #
+      for lib in $PYTHON_LIBS_PRE ;
+      do
+         case $lib in
 
            -lpython*)
               if test "$lib_hit" = "-ldl" ; then
@@ -97,7 +97,7 @@ if test x$with_python != x; then
                  lib_hit=-ldl
               fi
               ;;
-        esac
+         esac
      done
 
      if test "$lib_hit" = python ; then
@@ -179,24 +179,22 @@ dnl    echo done Bmessage
       # let's try if --with-pygtk was given on the command line
 
       AC_ARG_WITH(pygtk, [  --with-pygtk=PFX Prefix where pygtk has been installed],
-       with_pygtk_prefix="$withval",
-       with_pygtk_prefix="no")
+          with_pygtk_prefix="$withval",
+          with_pygtk_prefix="no")
 
-     if test "$with_pygtk_prefix" != "no" ; then 
+      if test "$with_pygtk_prefix" != "no" ; then
 
-         PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
-         AC_SUBST(PYGTK_CFLAGS)
-         AC_SUBST(PYGTK_LIBS)
+          PKG_CHECK_MODULES(PYGTK, pygtk-2.0, have_pygtk=true, have_pygtk=false)
+          AC_SUBST(PYGTK_CFLAGS)
+          AC_SUBST(PYGTK_LIBS)
 
           if $have_pygtk ; then
-dnl        Random yes line. Commenting it out.
-dnl    	   AC_MSG_RESULT(yes)
    	      echo Good we have pygtk
    	      PYTHON_CFLAGS="$PYTHON_CFLAGS -DUSE_PYGTK"
-         else
-	      AC_MSG_RESULT(no)
-   	      echo we dont have pygtk-2
-         fi
+          else
+	      AC_MSG_FAILURE([pygtk specified but not found])
+              echo we dont have pygtk-2.0
+          fi
       fi
 
    else 

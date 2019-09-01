@@ -1594,7 +1594,7 @@ molecule_class_info_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
       if (r)
 	 remove_TER_internal(r);
    }
-} 
+}
 
 
 // remove TER record from residue
@@ -1721,7 +1721,7 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 
       
       // first get the sequence of the residues as they currently are.
-      bool status = true;
+      bool seq_status = true;
       std::vector<std::string> current_types;
       for (int i=0; i<=range; i++) {
 	 mmdb::Residue *r = get_residue(chain_id, res_no_range_start+i, "");
@@ -1733,9 +1733,11 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 	 }
       }
 
-      if (status && int(current_types.size()) == (range+1)) {
+      if (seq_status && int(current_types.size()) == (range+1)) {
 
 	 make_backup();
+
+	 status = 1; // we did something
 
 	 for (int i_offset=0; i_offset<=range; i_offset++) {
 	    int i_serial_no = residue_serial_number(chain_id, res_no_range_start+i_offset, "");

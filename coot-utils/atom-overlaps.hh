@@ -147,12 +147,14 @@ namespace coot {
       overlap_mode_t overlap_mode;
       mmdb::Manager *mol;
       bool have_dictionary; // for central residue (or should it be all residues?)
+      bool molecule_has_hydrogens;
       mmdb::Residue *res_central;
       std::vector<mmdb::Residue *> neighbours;
       int udd_h_bond_type_handle;
       int udd_residue_index_handle;
       double probe_radius;
-      
+      bool ignore_water_contacts_flag;
+
       // for energy types -> vdw radius and h-bond type
       std::map<std::string, double> type_to_vdw_radius_map;
       std::map<mmdb::Atom *, double> central_residue_atoms_vdw_radius_map; // ligand atoms
@@ -184,6 +186,19 @@ namespace coot {
       std::pair<bool, bool> is_h_bond_H_and_acceptor(mmdb::Atom *ligand_atom,
 						     mmdb::Atom *env_atom,
 						     int udd_h_bond_type_handle);
+
+      // more general/useful version of the above
+      class h_bond_info_t {
+      public:
+	 bool is_h_bond_H_and_acceptor;
+	 bool is_h_bond_donor_and_acceptor;
+	 bool H_is_first_atom_flag;
+	 bool H_is_second_atom_flag;
+	 bool donor_is_second_atom_flag;
+	 h_bond_info_t(mmdb::Atom *ligand_atom,
+		       mmdb::Atom *env_atom,
+		       int udd_h_bond_type_handle);
+      };
 
       hb_t get_h_bond_type(mmdb::Atom *at);
       // store the results of a contact search.
@@ -221,6 +236,7 @@ namespace coot {
       void mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle);
       // return a contact-type and a colour
       static std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, bool is_h_bond);
+      static std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, const h_bond_info_t &hbi, bool molecule_has_hydrogens_flag);
       static void test_get_type(double delta, bool is_h_bond, std::string *c_type_p, std::string *col);
       // can throw std::exception
       const dictionary_residue_restraints_t &get_dictionary(mmdb::Residue *r, unsigned int idx) const;
@@ -264,6 +280,9 @@ namespace coot {
 						   mmdb::realtype min_dist,
 						   mmdb::realtype max_dist,
 						   bool make_vdw_surface);
+
+      static bool overlap_sorter(const atom_overlap_t &ao1, const atom_overlap_t &ao2);
+      void sort_overlaps();
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -282,15 +301,20 @@ namespace coot {
 				const protein_geometry *geom_p_in,
 				double clash_spike_length_in,
 				double probe_radius_in = 0.25);
+      // all atom contact dots and atom overlaps
       atom_overlaps_container_t(mmdb::Manager *mol_in,
 				const protein_geometry *geom_p_in,
+				bool ignore_water_contacts_flag,
 				double clash_spike_length_in = 0.5,
 				double probe_radius_in = 0.25);
 
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
+      void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
       atom_overlaps_dots_container_t contact_dots_for_ligand();
+      // this should be a vector or derived symmetry_atom class really.
+      std::vector<atom_overlap_t> symmetry_contacts(float d);
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,
 							   bool make_vdw_surface = false);
 
@@ -304,6 +328,7 @@ namespace coot {
 			const std::map<int, std::vector<int> > &bonded_map,
 			const std::vector<double> &neighb_atom_radius,
 			int udd_h_bond_type_handle,
+			bool molecule_has_hydrogens,
 			double probe_radius,
 			double dot_density_in,
 			double clash_spike_length,
@@ -316,6 +341,7 @@ namespace coot {
 			 const std::map<int, std::vector<int> > &bonded_map,
 			 const std::vector<double> &neighb_atom_radius,
 			 int udd_h_bond_type_handle,
+			 bool molecule_has_hydrogens,
 			 double probe_radius,
 			 double dot_density_in,
 			 double clash_spike_length,

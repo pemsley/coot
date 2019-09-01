@@ -191,7 +191,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
 	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
 			       Cartesian(bt.x(), bt.y(), bt.z()));
-	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1);
+	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1, -1);
       }
    }
 }
@@ -424,7 +424,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    }
@@ -483,7 +483,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 	       }
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 } 
       }
@@ -961,9 +961,10 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 
    is_dynamically_transformed_map_flag = 1;
    xmap = map_in;
-   
+
+   bool is_anomalous_flag = false;
    initialize_map_things_on_read_molecule(name_in,
-					  is_diff_map_flag,
+					  is_diff_map_flag, is_anomalous_flag,
 					  swap_difference_map_colours_flag);
    update_map_in_display_control_widget();
    map_ghost_info = ghost_info;
@@ -1258,7 +1259,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	 old_seg_id_for_chain_atoms = coot::chain_atoms_segid(to_chain);
 	 use_old_seg_id = 1;
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
       }
       
       // Don't do a selection here, we have the (from) chain already.
@@ -1359,7 +1360,16 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 
 	       std::pair<int, mmdb::Residue *> serial_number =
 		  find_serial_number_for_insert(to_residue->GetSeqNum(),
+						to_residue->GetInsCode(),
 						to_chain->GetChainID());
+
+	       if (false)
+		  std::cout << "debug:: found serial_number " << serial_number.first << " "
+			    << coot::residue_spec_t(serial_number.second)
+			    << " for residue " << coot::residue_spec_t(to_residue)
+			    << " with index " << to_residue->index
+			    << std::endl;
+
 	       if (serial_number.first != -1) {
 		  to_chain->InsResidue(to_residue, serial_number.first);
 		  coot::copy_segid(serial_number.second, to_residue);
@@ -1387,7 +1397,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	       }
 	    } else {
 	       std::cout << "ERROR:: Null to_residue!!!!" << std::endl;
-	    } 
+	    }
 	 }
       }
       

@@ -394,7 +394,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
 	 name = std::pair<bool, std::string> (1,field);
       if (tag == "type")
 	 type = std::pair<bool, std::string> (1,field);
-      if (tag == "descr_level")
+      if (tag == "desc_level") // not descr_level
 	 description_level = std::pair<bool, std::string> (1,field);
       if (tag == "description_level")
 	 description_level = std::pair<bool, std::string> (1,field);
@@ -620,7 +620,7 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
 		<< name << ": :" << group << ": :"
 		<< description_level << ": :" << number_atoms_all << ": :"
 		<< number_atoms_nh << std::endl;
-   
+
    coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group,
 			     number_atoms_all, number_atoms_nh,
 			     description_level);
@@ -656,7 +656,6 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
       std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
       dict_res_restraints.push_back(p);
       dict_res_restraints[dict_res_restraints.size()-1].second.residue_info = ri;
-
    }
 }
 
@@ -672,7 +671,7 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
 						     const std::string &description_level) {
 
 
-   if (0)
+   if (false)
       std::cout << "------- DEBUG:: in simple_mon_lib_add_chem_comp comp_id :"
 		<< comp_id << ": three-letter-code :" << three_letter_code << ": name :"
 		<< name << ": :" << group << ": descr-lev :"
@@ -744,7 +743,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    at_info.aromaticity = arom_in;
    at_info.formal_charge = formal_charge;
    
-   if (debug) { 
+   if (debug) {
       std::cout << "   mon_lib_add_atom model_pos       " << model_pos.first << " "
 		<< model_pos.second.format() << std::endl;
       std::cout << "   mon_lib_add_atom model_pos_ideal " << model_pos_ideal.first << " "
@@ -1174,8 +1173,11 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 
       s = mmCIFLoop->GetString("group", j, ierr);
       ierr_tot += ierr;
-      if (s)
+      if (s) {
 	 group = s; // e.g. "L-peptide"
+	 if (group == "L-PEPTIDE") // fix acedrg output
+	    group = "L-peptide";
+      }
 
       ierr = mmCIFLoop->GetInteger(number_atoms_all, "number_atoms_all", j);
       ierr_tot += ierr;
@@ -1187,21 +1189,23 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       std::string release_status;
       if (release_status_cs)
 	 release_status = release_status_cs; // can be "OBS" or "REL"
-      
+
       // If desc_level is in the file, extract it, otherwise set it to "None"
-      // 
-      s = mmCIFLoop->GetString("desc_level", j, ierr);
-      if (! ierr) {
-	 if (s) { 
+      //
+      int ierr_description = 0;
+      s = mmCIFLoop->GetString("desc_level", j, ierr_description);
+      if (! ierr_description) {
+	 if (s) {
 	    description_level = s;  // e.g. "." for full, I think
 	 } else {
 	    // if the description_level is "." in the cif file, then
 	    // GetString() does not fail, but s is set to NULL
 	    // (slightly surprising).
 	    description_level = ".";
-	 } 
+	 }
       } else {
 	 std::cout << "WARNING:: desc_level was not set " << j << std::endl;
+	 description_level = "."; // full
       }
 
       if (ierr_tot != 0) {
@@ -2892,7 +2896,7 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 // 		<< std::endl;
 //       print_chem_links();
 //    }
-   
+
    // Is this link a TRANS peptide or a CIS?  Both have same group and
    // comp_ids.  Similarly, is is BETA-1-2 or BETA1-4 (etc).  We need
    // to decide later, don't just pick the first one that matches
@@ -2910,27 +2914,27 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	    std::cout << "... matching_chem_link: found matching link "
 		      << comp_id_1 << " " << comp_id_2 << " " 
 		      << chem_link_vec[i_chem_link] << std::endl;
-	 
+
 	 // make sure that this link id is not a (currently) useless one.
 	 if (chem_link_vec[i_chem_link].Id() != "gap" &&
 	     chem_link_vec[i_chem_link].Id() != "symmetry") { 
-	    coot::chem_link clt = chem_link_vec[i_chem_link];
-	    if (!clt.is_peptide_link_p() || allow_peptide_link_flag) {
+	    chem_link cl = chem_link_vec[i_chem_link];
+	    if (!cl.is_peptide_link_p() || allow_peptide_link_flag) {
 	       switch_order_flag = match_res.second;
 	       found = 1;
-	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
+	       std::pair<chem_link, bool> p(cl, switch_order_flag);
 	       matching_chem_links.push_back(p);
 
 	       // no! We want all of them - not just the first glycosidic bond that matches
 	       // i.e. don't return just BETA1-2 when we have a BETA1-4.
 	       // break; // we only want to find one chem link for this comp_id pair.
-	       
+
 	    } else {
 	       if (debug)
 		  std::cout << "reject link on peptide/allow-peptide test " << std::endl;
-	    } 
+	    }
 	 } else {
-	    if (debug) { 
+	    if (debug) {
 	       std::cout << "reject link \"" << chem_link_vec[i_chem_link].Id() << "\""
 			 << std::endl;
 	    } 
@@ -3227,7 +3231,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       mmCIFLoop->PutString(s, "three_letter_code", i);
       std::string raw_name = residue_info.name.c_str();
       std::string quoted_name = util::single_quote(raw_name, "\"");
-      mmCIFLoop->PutString(quoted_name.c_str(), "name", i);
+      mmCIFLoop->PutString(raw_name.c_str(), "name", i);
       s =  residue_info.group.c_str();
       mmCIFLoop->PutString(s, "group", i);
       int nat = residue_info.number_atoms_all;
@@ -3309,9 +3313,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string id_2 = util::remove_whitespace(bond_restraint[i].atom_id_2_4c());
 	       std::string qan_1 = quoted_atom_name(id_1);
 	       std::string qan_2 = quoted_atom_name(id_2);
-	       ss = qan_1.c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = qan_2.c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
 	       ss = bond_restraint[i].type().c_str();
 	       mmCIFLoop->PutString(ss, "type", i);
@@ -3344,9 +3348,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string qan_2 = quoted_atom_name(id_2);
 	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = qan_1.c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = qan_2.c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
 
 	       // bug fix(!) intermediate value my_ss clears up casting
@@ -3355,7 +3359,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       // 20170305 std::string qan_3 = quoted_atom_name(my_ss);
 	       // ss = qan_3.c_str();
 	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
-	       
+
 	       float v = angle_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
 	       v = angle_restraint[i].esd();
@@ -3384,13 +3388,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = torsion_restraint[i].id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = qan_1.c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = qan_2.c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
-	       ss = qan_3.c_str();
+	       ss = id_3.c_str();
 	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
-	       ss = qan_4.c_str();
+	       ss = id_4.c_str();
 	       mmCIFLoop->PutString(id_4.c_str(), "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
@@ -3422,13 +3426,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = chiral_restraint[i].Chiral_Id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = qan_c.c_str();
+	       ss = id_c.c_str();
 	       mmCIFLoop->PutString(id_c.c_str(), "atom_id_centre", i);
-	       ss = qan_1.c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
-	       ss = qan_2.c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
-	       ss = qan_3.c_str();
+	       ss = id_3.c_str();
 	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
 	       int sign = chiral_restraint[i].volume_sign;
 	       ss = "both";
@@ -3457,9 +3461,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  
 		  std::string id = util::remove_whitespace(plane_restraint[i].atom_id(iat));
 		  std::string qan = quoted_atom_name(id);
-		  ss = qan.c_str();
+		  ss = id.c_str();
 		  mmCIFLoop->PutString(id.c_str(), "atom_id", icount);
-		  
+
 		  float v = plane_restraint[i].dist_esd(iat);
 		  mmCIFLoop->PutReal(v, "dist_esd", icount, 4);
 		  icount++;

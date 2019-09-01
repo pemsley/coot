@@ -48,6 +48,8 @@ horne_pdb         = os.path.join(unittest_data_dir, "coords-B3A.pdb")
 global ins_code_frag_pdb
 ins_code_frag_pdb = os.path.join(unittest_data_dir, "ins-code-fragment-pre.pdb")
 
+set_map_radius(4.5) # faster
+
 # CCP4 is set up? If so, set have-ccp4? True
 try:
     #global have_ccp4_qm
@@ -179,6 +181,25 @@ class PdbMtzTestFunctions(unittest.TestCase):
             print "   pass: ", expected_result
 
 
+    def test05_1(self):
+        """Replace Residue gets correct residue number"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        mutate_by_overlap(imol, "A", 86, "PTR")
+        rn = residue_name(imol, "A", 86, "")
+        self.failUnless(isinstance(rn, str))
+        self.failUnless(rn == "PTR")
+        # OK, did the the refinement run OK? Check the C-N distance
+        N_atom = get_atom(imol, "A", 86, "", " N  ", "")
+        C_atom = get_atom(imol, "A", 85, "", " C  ", "")
+
+        dd = bond_length_from_atoms(N_atom, C_atom)
+        self.failIf(dd > 1.4)
+        self.failIf(dd < 1.25)
+        print "C-N dist good enough:", dd
+
+
     def test06_0(self):
         """Read a bogus map"""
         pre_n_molecules = graphics_n_molecules()
@@ -268,7 +289,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
         imol = read_pdb(rnase_pdb())
         db_mainchain(imol, "A", 10, 20, "forward")
         # didn't hang
-        
+
+
+    def test09_2(self):
+        """"Negative Residues in db-mainchain don't cause a crash"""
+
+        # Oliver Clarke spotted this bug
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        renumber_residue_range(imol, "A", 1, 50, -20)
+        imol_mc_1 = db_mainchain(imol, "A", -19, 6, "forwards")
+        imol_mc_2 = db_mainchain(imol, "B", 10, 30, "backwards")
+        # didnt crash...
 
     def test10_0(self):
         """Set Atom Atribute Test"""
@@ -353,6 +386,38 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnlessEqual(v3, 0)
         
 
+    def test11_2(self):
+        """Add Terminal Residue O Position"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        mtz_file_name = os.path.join(unittest_data_dir,
+                                     "rnasa-1.8-all_refmac1.mtz")
+        imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+
+        # move the O close to where the N will end up - a bad place.
+        # (we check that it moves there)
+        #
+        attribs = [[imol, "A", 93, "", " O  ", "", "x", 58.5],
+                   [imol, "A", 93, "", " O  ", "", "y",  2.9],
+                   [imol, "A", 93, "", " O  ", "", "z", -1.9]]
+        set_atom_attributes(attribs)
+        O_atom_o = get_atom(imol, "A", 93, "", " O  ", "")
+        with NoBackups(imol):
+            dummy = "dummy"
+            add_terminal_residue(imol, "A", 93, "ALA", 1)
+            N_atom_n = get_atom(imol, "A", 94, "", " N  ", "")
+            O_atom_n = get_atom(imol, "A", 93, "", " O  ", "")
+            dd_1 = bond_length_from_atoms(O_atom_o, N_atom_n)
+            dd_2 = bond_length_from_atoms(O_atom_n, N_atom_n)
+            print "Add terminal residue bond check dd_1", dd_1
+            print "Add terminal residue bond check dd_2", dd_2
+            
+            # the new N will not always go into the same place
+            # allow a bit more generosity in position difference
+            self.failUnless(dd_1 < 0.4) # 0.4 should be generous enough
+            self.failUnless(dd_2 > 1.9) # hooray
+
+        
     def test12_0(self):
         """Select by Sphere"""
 
@@ -452,6 +517,35 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "Failed rotamer outlier test for residue 1")
         self.failUnless((pr_2 < 0.3 and pr_2 > 0.0),
                         "Failed rotamer outlier test for residue 2")
+
+
+    def test15_1(self):
+        """HIS with unusual atom order rotates correct fragment for 180 sidechain flip"""
+
+        imol = unittest_pdb("eleanor-HIS.pdb")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "BAD imol for 180 sidechain flip test imol: %s" %imol)
+
+        N_atom_o = get_atom(imol, "A", 111, "", " N  ", "")
+        ND1_Atom_o = get_atom(imol, "A", 111, "", " ND1", "")
+        with NoBackups(imol):
+            do_180_degree_side_chain_flip(imol, "A", 111, "", "")
+            N_atom_n = get_atom(imol, "A", 111, "", " N  ", "")
+            ND1_Atom_n = get_atom(imol, "A", 111, "", " ND1", "")
+
+            # the N-atom stays still
+            # the ND1 atom moves by > 1A.
+
+            dd_1 = bond_length_from_atoms(N_atom_o, N_atom_n)
+            dd_2 = bond_length_from_atoms(ND1_Atom_o, ND1_Atom_n)
+
+            print "dd_1: %s dd_2: %s" %(dd_1, dd_2)
+
+            self.failIf(dd_1 > 0.01,
+                        "N atom moved - fail\n")
+
+            self.failIf(dd_2 < 1.01,
+                            "ND1 atom did not move enough - fail\n")
 
 
     # Don't reset the occupancies of the other parts of the residue
@@ -694,6 +788,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
                 #[accept_regularizement]
                 )
 
+        # replace at some point with call_with_input_file (once we have that)
+        # actually already there using "with file open"...
         tmp_file = "tmp-fixed-cis.pdb"
         write_pdb_file(cis_pep_mol, tmp_file)
         # assuming we do not always have grep we extract information with
@@ -723,6 +819,39 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnlessEqual(len(o), 3)
 
 
+    def test18_1(self):
+        """H on a N moves on cis-trans convert"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        imol_2 = new_molecule_by_atom_selection(imol, "//A/1-10")
+        coot_reduce(imol_2)
+        H_atom_o = get_atom(imol_2, "A", 6, "", " H  ", "")
+        with NoBackups(imol_2):
+            cis_trans_convert(imol_2, "A", 5, "") # 5-6 peptide
+        H_atom_n = get_atom(imol_2, "A", 6, "", " H  ", "")
+        dd = bond_length_from_atoms(H_atom_o, H_atom_n)
+        close_molecule(imol)
+        close_molecule(imol_2)
+        print "dd:", dd
+        self.failUnless(dd> 1.4)
+
+
+    def test18_2(self):
+        """HA on a ALA exists after mutation to GLY"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(valid_model_molecule_qm(imol))
+        imol_2 = new_molecule_by_atom_selection(imol, "//A/5-11")
+        self.failUnless(valid_model_molecule_qm(imol_2))
+        coot_reduce(imol_2)
+        H_atom_o = get_atom(imol_2, "A", 10, "", " HA ", "")
+        self.failUnless(isinstance(H_atom_o, list))
+        mutate(imol_2, "A", 10, "", "GLY")
+        H_atom_n = get_atom(imol_2, "A", 10, "", " HA ", "")
+        self.failIf(isinstance(H_atom_n, list),
+                    "atom still exists %s" %H_atom_n)
+
+
     def test19_0(self):
         """Refine Zone with Alt conf"""
 
@@ -741,7 +870,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # atoms move less here
 	# 20160608 - they move still less  (not sure why this time)
 	#
-        self.failIf(d < 0.2,
+        self.failIf(d < 0.09,
                     "   refined atom failed to move: d=%s" %d)
 
 
@@ -838,6 +967,47 @@ class PdbMtzTestFunctions(unittest.TestCase):
                     "Refinement didnt 'converge' in 5 rounds")
 
 
+    def test20_2(self):
+        """Neighbour-Refine doesn't destroy disulfide bonds"""
+
+        global imol_rnase_map
+        
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        set_imol_refinement_map(imol_rnase_map)
+        set_go_to_atom_molecule(imol)
+        set_go_to_atom_chain_residue_atom_name("B", 7, " CA ")
+
+        rc_spec = ["B", 7, ""]
+        ls = residues_near_residue(imol, rc_spec, 2.2)
+        residue_list = rc_spec + ls
+
+        with AutoAccept():
+            refine_residues(imol, residue_list)
+        at_spec_1 = ["B",  7, "", " SG ", ""]
+        at_spec_2 = ["B",  96, "", " SG ", ""]
+        at_1 = get_atom_from_spec(imol, at_spec_1)
+        at_2 = get_atom_from_spec(imol, at_spec_2)
+        bl = bond_length_from_atoms(at_1, at_2)
+
+        state = bond_length_within_tolerance_qm(at_1, at_2, 2.0, 0.05)
+
+        self.failUnless(state)
+
+        # do it again
+        with AutoAccept():
+            refine_residues(imol, residue_list)
+        at_spec_1 = ["B",  7, "", " SG ", ""]
+        at_spec_2 = ["B",  96, "", " SG ", ""]
+        at_1 = get_atom_from_spec(imol, at_spec_1)
+        at_2 = get_atom_from_spec(imol, at_spec_2)
+        bl = bond_length_from_atoms(at_1, at_2)
+
+        state = bond_length_within_tolerance_qm(at_1, at_2, 2.0, 0.05)
+
+        self.failUnless(state)        
+
+        
     def test21_0(self):
         """Rigid Body Refine Alt Conf Waters"""
 
@@ -1414,7 +1584,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test32_0(self):
-        """Test for mangling of hydrogen names from a PDB v 3.0"""
+        """Test for regularization and mangling of hydrogen names from a PDB v 3.0"""
 
         # Note that it seems to me that the bonds are not within
         # tolerance before the regularization.
@@ -1438,8 +1608,15 @@ class PdbMtzTestFunctions(unittest.TestCase):
         atoms_1 = map(lambda pair: get_atom(imol, "B", 6, "", pair[0]), atom_pairs)
         atoms_2 = map(lambda pair: get_atom(imol, "B", 6, "", pair[1]), atom_pairs)
         #all_true = map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)
-        self.failUnless(all(map(lambda atom_1, atom_2: bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), atoms_1, atoms_2)),
-                        "Hydrogen names mangled from PDB")
+        all_false = filter(lambda (atom_1, atom_2): not bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), zip(atoms_1, atoms_2))
+        #all_true = filter(lambda (atom_1, atom_2): bond_length_within_tolerance_qm(atom_1, atom_2, 0.96, 0.02), zip(atoms_1, atoms_2))
+        #print "BL DEBUG:: all true", all_true
+        # A bit of a windy one...
+        msg = ""
+        if all_false:
+            msg = "  Oops! bond length not within tolerance: %s\n  Hydrogen names mangled from PDB %s %s" %(all_false[0][0],
+                                                                                                            all_false[0][1], all_false[0][2])
+        self.failUnless(len(all_false) == 0, msg)
 
 
     def test32_1(self):
@@ -1453,15 +1630,19 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(len(ls) > 60,
                         "   found %s matching names: %s" %(len(ls), ls))
 
-        
+
     def test33_0(self):
         """Update monomer restraints"""
 
         atom_pair = [" CB ", " CG "]
         m = monomer_restraints("TYR")
         self.failUnless(m, "   update bond restraints - no momomer restraints")
-        
-        n = strip_bond_from_restraints(atom_pair, m)
+
+        # let's delete both ways
+        #
+        n_t = strip_bond_from_restraints(atom_pair, m)
+        atom_pair.reverse()
+        n = strip_bond_from_restraints(atom_pair, n_t)
         set_monomer_restraints("TYR", n)
 
         imol = new_molecule_by_atom_selection(imol_rnase, "//A/30")
@@ -1613,6 +1794,36 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(chains_in_order_qm(c))
 
 
+    def test35_1(self):
+        """Chain-ids in links change also on change chain id"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        spec_1 = ["B", 42, "", " N  ", ""]
+        spec_2 = ["B", 62, "", " O  ", ""]
+
+        make_link(imol, spec_1, spec_2, "test-link", 2.2)
+
+        li_1 = link_info(imol)
+
+        change_chain_id(imol, "B", "C", 0, 0, 0)
+
+        li_2 = link_info(imol)
+
+        # li-1 should not contain C and should contain B
+        # li-2 should not contain B and should contain C
+
+        ch_B_1 = li_1[0][1][1] # before
+        ch_B_2 = li_1[0][2][1] # 
+        ch_A_1 = li_2[0][1][1] # after
+        ch_A_2 = li_2[0][2][1] # 
+
+        self.failUnless(all([ch_B_1 == "B",
+                             ch_B_2 == "B",
+                             ch_A_1 == "C",
+                             ch_A_2 == "C"]))
+
+        
     def test36_0(self):
         """Replace Fragment"""
 
@@ -1756,6 +1967,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "   Missing file rnase-A-needs-an-insertion.pdb")
         renumber = 1
 
+        set_alignment_gap_and_space_penalty(-3.0, -0.5)
         align_and_mutate(imol, "A", rnase_seq_string, renumber)
         write_pdb_file(imol, "mutated.pdb")
 
@@ -1770,13 +1982,16 @@ class PdbMtzTestFunctions(unittest.TestCase):
         def compare_res_spec(res_info):
             residue_spec = res_info[1:len(res_info)]
             expected_status = res_info[0]
-            print "    :::::", residue_spec, residue_in_molecule_qm(*residue_spec), expected_status
+            print "    :::::", residue_spec,
+            residue_in_molecule_qm(*residue_spec), expected_status
             if (residue_in_molecule_qm(*residue_spec) == expected_status):
                 return True
             else:
                 return False
 
-        self.failUnless(all(map(lambda res: compare_res_spec(res), ls)))
+        results = map(lambda res: compare_res_spec(res), ls)
+        print "results", results
+        self.failUnless(all(results))
 
 
     def test42_1(self):
@@ -2183,6 +2398,45 @@ class PdbMtzTestFunctions(unittest.TestCase):
                               "E", "F",                # merged ligs
                               "G", "H", "I", "J", "K"],  # protein chain copies
                              "List did not match")
+        
+
+    def test52_2(self):
+        """Test for good chain ids after a merge"""
+
+        imol = unittest_pdb("tutorial-modern.pdb")
+
+        change_chain_id(imol, "A", "AAA", 0, 0, 0)
+
+        imol_new = new_molecule_by_atom_selection(imol, "//B/1-90")
+
+        change_chain_id(imol_new, "B", "B-chain", 0, 0, 0)
+
+        merge_molecules([imol_new], imol)
+
+        chids = chain_ids(imol)
+
+        print "chain_ids", chids
+
+        # should be ["AAA", "B", "B-chain"]
+
+        self.failUnless(len(chids) == 3)
+
+        self.failUnless(chids[2] == "B-chain")
+
+        # now Wolfram Tempel test: multi-char chain matcher needs
+        # prefix, not new single letter
+
+        change_chain_id(imol_new, "B-chain", "AAA", 0, 0, 0)
+
+        merge_molecules([imol_new], imol)
+
+        chids_2 = chain_ids(imol)
+
+        print "--- chain-ids:", chids_2
+
+        self.failUnless(len(chids_2) == 4)
+
+        self.failUnless(chids_2[3] == "AAA_2")
         
 
     def test53_0(self):

@@ -224,4 +224,4 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    return r;
 }
 
-#endif
+#endif // USE_PYTHON

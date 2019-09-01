@@ -39,6 +39,11 @@
      (using-active-atom
       (fill-partial-residue aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
+(add-key-binding "Delete Sidechain" "K"
+   (lambda ()
+     (using-active-atom
+      (delete-residue-sidechain aa-imol aa-chain-id aa-res-no aa-ins-code 0))))
+
 (add-key-binding "Rotamers dialog for Active Residue" "Q"
    (lambda () 
      (using-active-atom
@@ -88,10 +93,13 @@
 	     (ls (residues-near-residue aa-imol rc-spec 3.0)))
 	(regularize-residues aa-imol (cons rc-spec ls))))))
 	
-(add-key-binding "Edit Chi Angles" "X"
-   (lambda ()
-     (using-active-atom
-      (edit-chi-angles aa-imol aa-chain-id aa-res-no aa-ins-code aa-alt-conf))))
+;; (add-key-binding "Edit Chi Angles" "X"
+;;    (lambda ()
+;;      (using-active-atom
+;;       (edit-chi-angles aa-imol aa-chain-id aa-res-no aa-ins-code aa-alt-conf))))
+
+;; This is more useful
+(add-key-binding "Just One or Next Map" "X" just-one-or-next-map)
 
 (add-key-binding "Jiggle Fit Residue" "J" (lambda ()
 				    (using-active-atom 
@@ -124,13 +132,14 @@
 
 (add-key-binding "accept baton position" "A" accept-baton-position)
 
-(add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
+;; Note: I never use this. Free it up?
+;; (add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
 
 (add-key-binding "JED-flip" "F"
    (lambda () (using-active-atom
 	       (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name aa-alt-conf 0))))
 
-(add-key-binding "JED-flip" "G"
+(add-key-binding "Reverse JED-flip" "G"
    (lambda () (using-active-atom
 	       (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name aa-alt-conf 1))))
 

@@ -211,7 +211,7 @@ coot::reduce::add_riding_hydrogens() {
 	 mmdb::Residue *residue_prev_p;
 	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) {
-	    residue_p      = chain_p->GetResidue(ires);
+	    residue_p = chain_p->GetResidue(ires);
 	    if (ires > 0)
 	       residue_prev_p = chain_p->GetResidue(ires-1);
 	    else
@@ -221,6 +221,14 @@ coot::reduce::add_riding_hydrogens() {
 	    bool done = add_riding_hydrogens(residue_p, residue_prev_p);
 	    if (! done) {
 	       hydrogen_placement_by_dictionary(residue_p);
+	    } else {
+	       // if this was a conventional residue, then if this was the N-terminus, we
+	       // want to ad NH3+ hydrogens too.
+	       if (ires==0) {
+		  double bl_amino = 0.86; // add 0.03 (0.89) to match richardson reduce length. Curious
+		  torsion_info_t ti(" C  ", " CA ", " N  ", bl_amino, 109, 180);
+		  add_methyl_Hs(" H1 ", " H2 ", " H3 ", ti, residue_p); // not methyl
+	       }
 	    }
 	 }
       }
@@ -590,7 +598,8 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    }
 }
 
-
+// this is also called for the hydrogens on a LYS NZ.
+//
 void 
 coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 			    const std::string &at_name_2,  // HB2 + 120 degress
@@ -971,7 +980,7 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
       at_n_2 = residue_p->GetAtom(" CZ ", 0, alt_confs[i].c_str());
       mmdb::Atom *at_nh1 = residue_p->GetAtom(" NH1", 0, alt_confs[i].c_str());
       mmdb::Atom *at_nh2 = residue_p->GetAtom(" NH2", 0, alt_confs[i].c_str());
-      if (at_n_1 && at_n_2 && at_n_3) {
+      if (at_n_1 && at_n_2 && at_nh1 && at_nh2) {
 	 double bf_nh1 = at_nh2->tempFactor;
 	 double bf_nh2 = at_nh2->tempFactor;
 	 double a = clipper::Util::d2rad(120);
@@ -1332,8 +1341,9 @@ coot::reduce::is_linked(const std::string &atom_name, mmdb::Residue *residue_p) 
       }
    }
 
-   std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
-	     << atom_name << " " << status << std::endl;
+   if (false)
+      std::cout << "debug:: is_linked " << coot::residue_spec_t(residue_p) << " "
+		<< atom_name << " " << status << std::endl;
    return status;
 }
 

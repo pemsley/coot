@@ -136,6 +136,45 @@ short int set_space_group(int imol, const char *spg) {
    return r; 
 }
 
+//! \brief set the unit cell for a given molecule
+//!
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group(int imol, float a, float b, float c,
+				  float alpha, float beta, float gamma,
+				  const char *sp_in) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::pair<std::vector<float>, std::string> cs_pair;
+      cs_pair.second = sp_in;
+      cs_pair.first.resize(6);
+      cs_pair.first[0] = a;     cs_pair.first[1] = b;    cs_pair.first[2] = c;
+      cs_pair.first[3] = alpha; cs_pair.first[4] = beta; cs_pair.first[5] = gamma;
+      g.molecules[imol].set_mmdb_cell_and_symm(cs_pair); // no return value
+      status = 1; // hmm.
+   }
+   return status;
+}
+
+//! \brief set the unit cell for a given molecule using the cell of moecule imol_from
+//!
+//! @return  the success status of the setting (1 good, 0 fail).
+int set_unit_cell_and_space_group_using_molecule(int imol, int imol_from) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_model_molecule(imol_from)) {
+	 graphics_info_t g;
+	 std::pair<std::vector<float>, std::string> cs_pair = g.molecules[imol_from].get_cell_and_symm();
+	 g.molecules[imol].set_mmdb_cell_and_symm(cs_pair); // void
+	 status =1 ;
+      }
+   }
+   return status;
+}
+
+
 
 // 
 void setup_save_symmetry_coords() {
@@ -493,7 +532,7 @@ SCM origin_pre_shift_scm(int imol) {
 	 r = scm_cons(SCM_MAKINUM(int(round(cf.v()))), r);
 	 r = scm_cons(SCM_MAKINUM(int(round(cf.u()))), r);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    } 
@@ -516,7 +555,7 @@ PyObject *origin_pre_shift_py(int imol) {
 	 PyList_Append(r, PyInt_FromLong(int(round(cf.v()))));
 	 PyList_Append(r, PyInt_FromLong(int(round(cf.w()))));
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    } 

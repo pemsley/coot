@@ -1,4 +1,7 @@
 
+#ifndef SECONDARY_STRUCTURE_HEADERS_HH
+#define SECONDARY_STRUCTURE_HEADERS_HH
+
 #include <cstdio>
 #include <string.h>
 
@@ -14,9 +17,12 @@ namespace coot {
 	 sheets.sheet   = sheets_in->sheet;
       }
       void add_helix(mmdb::Helix *helix) {
-	 // helices is of type SSContainer
-	 helices.AddData(helix);
+	 // helices protected and is of type SSContainer
+	 if (helix) {
+	    helices.AddData(helix);
+	 }
       }
+      ~access_model() {}
    };
 
    class secondary_structure_header_records {
@@ -90,6 +96,8 @@ namespace coot {
       }
 
    public:
+      secondary_structure_header_records() {};
       secondary_structure_header_records(mmdb::Manager *mol, bool needsCalcSecStructure);
    };
 }
+#endif // SECONDARY_STRUCTURE_HEADERS_HH

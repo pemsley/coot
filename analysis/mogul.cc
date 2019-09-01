@@ -632,7 +632,7 @@ coot::mogul_item::ft_model_torsion_distribution() {
    wavetable = gsl_fft_complex_wavetable_alloc (n);
    workspace = gsl_fft_complex_workspace_alloc (n);
      
-   for (i = 0; i < wavetable->nf; i++) {
+   for (unsigned i = 0; i < wavetable->nf; i++) {
       printf ("# factor %d: %ld\n", i, wavetable->factor[i]);
    }
      

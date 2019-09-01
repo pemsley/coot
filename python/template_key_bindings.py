@@ -42,6 +42,14 @@ def key_binding_func_2():
         fill_partial_residue(imol, chain_id, res_no, ins_code)
 add_key_binding("Fill Partial", "k", lambda: key_binding_func_2())
 
+def delete_residue_sidechain_key():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+        delete_residue_sidechain(aa_imol, aa_chain_id, aa_res_no,
+                                 aa_ins_code, 0)
+add_key_binding("Delete Residue Sidechain", "K",
+                lambda: delete_residue_sidechain_key())
+
 def rotamer_dialog_for_ar():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -96,7 +104,7 @@ def key_binding_func_21():
             with_auto_accept([refine_residues, imol, [rc_spec] + ls])
 add_key_binding("Neighbours Refine", "h", lambda: key_binding_func_21())
 
-add_key_binding("Regularize Residues in sphere", "B", 
+add_key_binding("Regularize Residues in sphere", "B",
                 lambda: sphere_regularize(refine_residue_sphere_radius_key))
 
 def edit_chi_angles_key_func():
@@ -107,6 +115,10 @@ def edit_chi_angles_key_func():
         set_moving_atom_move_chis()
         set_graphics_edit_current_chi(1)
 add_key_binding("Edit Chi Angles", "X", lambda: edit_chi_angles_key_func())
+
+# BL says:: I like to keep edit chi, so use "Y" for something potentially
+# more useful (according to Paule)
+add_key_binding("Just One or Next Map", "Y", lambda: just_one_or_next_map())
 
 def jiggle_fit_residue_key():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -132,7 +144,7 @@ def delete_residue_hydrogens_key():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         delete_residue_hydrogens(aa_imol, aa_chain_id, aa_res_no,
-                                 aa_ins_code, aa_alt_conf)    
+                                 aa_ins_code, aa_alt_conf)
 add_key_binding("Delete Residue Hydrogens", "P",
                 lambda: delete_residue_hydrogens_key())
 
@@ -158,25 +170,6 @@ def key_binding_func_jed(state):
 add_key_binding("JED-flip", "F", lambda: key_binding_func_jed(0))
 
 add_key_binding("JED-flip", "G", lambda: key_binding_func_jed(1))
-
-
-def jed_flip_key_func(dir):
-    active_atom = active_residue()
-    if (not active_atom):
-        print "No active atom"
-    else:
-        imol      = active_atom[0]
-        chain_id  = active_atom[1]
-        res_no    = active_atom[2]
-        ins_code  = active_atom[3]
-        atom_name = active_atom[4]
-        alt_conf  = active_atom[5]
-        jed_flip(imol, chain_id, res_no, ins_code, atom_name, alt_conf, dir)
-
-add_key_binding("JED-Flip", "F", lambda: jed_flip_key_func(0))
-
-add_key_binding("JED-Flip", "G", lambda: jed_flip_key_func(1))
-
 
 # Paul's not sure about this one. I likey!
 # add_key_binding("Delete this water", "D", lambda: delete_atom(*active_residue()))

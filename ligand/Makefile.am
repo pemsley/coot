@@ -96,7 +96,8 @@ test_trace_SOURCES = test-trace.cc
 test_trace_LDADD = ./libcoot-ligand.la
 
 coot_make_ligands_db_SOURCES = make-ligands-db.cc
-coot_make_ligands_db_LDADD = ./libcoot-ligand.la
+coot_make_ligands_db_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
+
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
 ligand_percentiles_LDADD = ./libcoot-ligand.la

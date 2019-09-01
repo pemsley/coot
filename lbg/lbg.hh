@@ -747,6 +747,7 @@ private:
       use_graphics_interface_flag = 1; // default: show gui windows and widgets.
       mdl_file_name = "coot.mol";
       atom_X = "H";
+      comp_id = "LIG";
       lbg_atom_x_dialog = NULL;
       lbg_atom_x_entry = NULL;
       get_url_func_ptr_flag = false;
@@ -1011,6 +1012,7 @@ public:
 	     // generated (quite possibly -1, i.e. no coot molecule)
    GtkWidget *lbg_window;
    GtkWidget *about_dialog; 
+   GtkWidget *lbg_apply_button;
    GtkWidget *lbg_search_combobox;
    GtkWidget *open_dialog;
    GtkWidget *save_as_dialog;
@@ -1111,6 +1113,7 @@ public:
    }
    void render(); // uses internal data member mol
    void update_descriptor_attributes(); // this is not in render_from_molecule() because it can/might be slow.
+   void update_apply_button_sensitivity(); // turn off the "Apply" button is the molecule is not sane.
    void delete_hydrogens();
    void undo();
 #ifdef HAVE_CCP4SRS
@@ -1305,6 +1308,11 @@ public:
 	 
       }
    }
+
+   // instead of hardwiring "DRG" into on_lbg_apply_button_clicked(), allow the user to set the
+   // three-letter-code (we call that variable comp_id)
+   std::string comp_id; // make private?
+   std::string get_comp_id() const { return comp_id; }
 
    // handle the net transfer of drug (to mdl file)
    //

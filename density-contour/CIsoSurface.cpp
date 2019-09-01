@@ -552,8 +552,8 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  T tIsoLevel,
 					  float box_radius, // half length
 					  coot::Cartesian centre_point,
-					  int isample_step)
-{
+					  int isample_step,
+					  bool is_em_map) {
 
 #ifdef ANALYSE_CONTOURING_TIMING
    std::cout << "------ start GenerateSurface_from_Xmap() " << std::endl;
@@ -648,7 +648,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
   coot::CartesianPairInfo cpi =
      returnTriangles(crystal_map,
 		     grid.min().coord_frac(crystal_map.grid_sampling()),
-		     box_radius, centre_point);
+		     box_radius, centre_point, is_em_map);
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_6 = std::chrono::high_resolution_clock::now();
 
@@ -1700,7 +1700,8 @@ coot::CartesianPairInfo
 CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
 				const clipper::Coord_frac& base,
 				float radius,
-				coot::Cartesian centre) const {
+				coot::Cartesian centre,
+				bool is_em_map) const {
 
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -1743,6 +1744,13 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
    bool valid_co_1 = true;
    bool valid_co_2 = true;
    bool valid_co_3 = true;
+
+   double max_x=0, max_y=0, max_z=0;
+   if (is_em_map) {
+      max_x = xmap.cell().descr().a();
+      max_y = xmap.cell().descr().b();
+      max_z = xmap.cell().descr().c();
+   }
 
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_3 = std::chrono::high_resolution_clock::now();
@@ -1809,8 +1817,36 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
       if ((co3_c-centre).amplitude_squared() > radius_sqd)
 	 valid_co_3 = false;
 
+      // if (is_em_map) { // needs adding back when reboxed maps work
+      if (false) {
+	 // test for being inside the box.
+	 if (valid_co_1) {
+	    if (co1_c.x() > max_x) valid_co_1 = false;
+	    if (co1_c.x() < 0)     valid_co_1 = false;
+	    if (co1_c.y() > max_y) valid_co_1 = false;
+	    if (co1_c.y() < 0)     valid_co_1 = false;
+	    if (co1_c.z() > max_z) valid_co_1 = false;
+	    if (co1_c.z() < 0)     valid_co_1 = false;
+	 }
+	 if (valid_co_2) {
+	    if (co2_c.x() > max_x) valid_co_2 = false;
+	    if (co2_c.x() < 0)     valid_co_2 = false;
+	    if (co2_c.y() > max_y) valid_co_2 = false;
+	    if (co2_c.y() < 0)     valid_co_2 = false;
+	    if (co2_c.z() > max_z) valid_co_2 = false;
+	    if (co2_c.z() < 0)     valid_co_2 = false;
+	 }
+	 if (valid_co_3) {
+	    if (co3_c.x() > max_x) valid_co_3 = false;
+	    if (co3_c.x() < 0)     valid_co_3 = false;
+	    if (co3_c.y() > max_y) valid_co_3 = false;
+	    if (co3_c.y() < 0)     valid_co_3 = false;
+	    if (co3_c.z() > max_z) valid_co_3 = false;
+	    if (co3_c.z() < 0)     valid_co_3 = false;
+	 }
+      }
       if (valid_co_1 && valid_co_2)
-	 if (d1_2 == 1) 
+	 if (d1_2 == 1)
 	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co1_c, co2_c);
       if (valid_co_1 && valid_co_3)
 	 if (d1_3 == 1)
@@ -1818,6 +1854,7 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
       if (valid_co_2 && valid_co_3)
 	 if (d2_3 == 1)
 	    result_wrapper.data[result_wrapper.size++] = coot::CartesianPair(co3_c, co2_c);
+
 
       // done_count += d1_2 + d1_3 + d2_3;
    }

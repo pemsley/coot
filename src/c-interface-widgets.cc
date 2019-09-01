@@ -112,7 +112,7 @@ void single_map_properties_apply_contour_level_to_map(GtkWidget *w) {
    }
 }
 
-							 
+#include "remarks-browser-gtk-widgets.hh"
 
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol) { 
@@ -121,6 +121,27 @@ void remarks_dialog(int imol) {
       if (is_valid_model_molecule(imol)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 if (mol) {
+
+	    GtkWidget *d = gtk_dialog_new();
+	    gtk_window_set_title(GTK_WINDOW(d), "Coot Header Browser");
+	    gtk_object_set_data(GTK_OBJECT(d), "remarks_dialog", d);
+	    GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+	    GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+	    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+						  GTK_WIDGET(vbox_inner));
+	    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+	    gtk_widget_show(scrolled_window);
+	    gtk_widget_show(vbox_inner);
+
+	    remarks_browser_fill_compound_info(mol, vbox_inner);
+
+	    remarks_browser_fill_author_info(mol, vbox_inner);
+
+	    remarks_browser_fill_journal_info(mol, vbox_inner);
+
+	    remarks_browser_fill_link_info(mol, vbox_inner);
+
 	    mmdb::TitleContainer *tc_p = mol->GetRemarks();
 	    int l = tc_p->Length();
 	    std::map<int, std::vector<std::string> > remarks;
@@ -131,20 +152,9 @@ void remarks_dialog(int imol) {
 	       remarks[rn].push_back(s);
 	    }
 	    if (! remarks.size()) {
-	       info_dialog("No REMARKS");
+	       info_dialog("WARNING:: No REMARKS");
 	    } else { 
-	       GtkWidget *d = gtk_dialog_new();
-	       gtk_window_set_title(GTK_WINDOW(d), "Coot Remarks Browser");
-	       gtk_object_set_data(GTK_OBJECT(d), "remarks_dialog", d);
-	       GtkWidget *vbox = GTK_DIALOG(d)->vbox;
-	       GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
-	       GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	       gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-						     GTK_WIDGET(vbox_inner));
-	       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
-	       gtk_widget_show(scrolled_window);
-	       gtk_widget_show(vbox_inner);
-	       
+
 	       std::map<int, std::vector<std::string> >::const_iterator it;
 	       for (it=remarks.begin(); it != remarks.end(); it++) {
 		  std::string remark_name = "REMARK ";
@@ -165,7 +175,7 @@ void remarks_dialog(int imol) {
 
 		  GdkColor colour = remark_number_to_colour(it->first); 
 		  gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
-		  
+
 		  GtkTextIter end_iter;
 		  for (unsigned int itext=0; itext<it->second.size(); itext++) { 
 		     gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
@@ -185,11 +195,252 @@ void remarks_dialog(int imol) {
 	       gtk_widget_show(close_button);
 	       gtk_widget_set_usize(d, 500, 400);
 	       gtk_widget_show(d);
-	    } 
+	    }
 	 } 
       }
    }
-} 
+}
+
+
+void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
+
+   std::string title = coot::get_title(mol);
+   std::vector<std::string> compound_lines = coot::get_compound_lines(mol);
+
+   if (!title.empty()) {
+      title = std::string("<b>") + title;
+      title += "</b>";
+      GtkWidget *label = gtk_label_new(title.c_str());
+      gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+      gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 4);
+      gtk_widget_show(label);
+   }
+
+   if (compound_lines.size() > 0) {
+      std::string compound_label = "Compound";
+      GtkWidget *frame = gtk_frame_new(compound_label.c_str());
+      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+      gtk_widget_show(frame);
+      std::string s;
+      for (std::size_t i=0; i<compound_lines.size(); i++) {
+	 s += compound_lines[i];
+	 s += "\n"; // needed?
+      }
+      GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+      GtkWidget *text_view = gtk_text_view_new();
+      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+					   GTK_TEXT_WINDOW_RIGHT, 10);
+      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+      GdkColor colour;
+      colour.red   = 65535;
+      colour.green = 63535;
+      colour.blue  = 63535; 
+      colour.pixel = 65535; 
+      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+      GtkTextIter end_iter;
+      for (unsigned int itext=0; itext<compound_lines.size(); itext++) { 
+	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+	 std::string s = compound_lines[itext];
+	 s += "\n";
+	 gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+      }
+   }
+}
+
+void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
+
+   std::vector<std::string> author_lines;
+
+   access_mol *am = static_cast<access_mol *>(mol); // causes indent problem
+
+   const mmdb::Title *tt = am->GetTitle();
+   mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+   access_title *at = static_cast<access_title *> (ttmp);
+   mmdb::TitleContainer *author_container = at->GetAuthor();
+   unsigned int al = author_container->Length();
+   for (unsigned int i=0; i<al; i++) {
+      mmdb::Author *a_line = mmdb::PAuthor(author_container->GetContainerClass(i));
+      if (a_line) {
+ 	 std::string line(a_line->Line);
+	 author_lines.push_back(line);
+      }
+   }
+   std::cout << "---------------- have " << author_lines.size() << " author lines" << std::endl;
+   if (author_lines.size() > 0) {
+      GtkWidget *frame = gtk_frame_new("Author");
+      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+      gtk_widget_show(frame);
+
+      GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+      GtkWidget *text_view = gtk_text_view_new();
+      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+					   GTK_TEXT_WINDOW_RIGHT, 10);
+      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+      GdkColor colour;
+      colour.red   = 63535;
+      colour.green = 59535;
+      colour.blue  = 53535;
+      colour.pixel = 65535;
+      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+      for (unsigned int ij=0; ij<author_lines.size(); ij++) {
+	 GtkTextIter end_iter;
+	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+	 std::string s = author_lines[ij];
+	 s += "\n";
+	 gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+      }
+   }
+}
+
+void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
+
+   std::vector<std::string> journal_lines;
+
+   access_mol *am = static_cast<access_mol *>(mol); // causes indent problem
+
+   const mmdb::Title *tt = am->GetTitle();
+   mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+   access_title *at = static_cast<access_title *> (ttmp);
+   mmdb::TitleContainer *journal_container = at->GetJournal();
+   int jl = journal_container->Length();
+   unsigned int al = journal_container->Length();
+   for (unsigned int i=0; i<al; i++) {
+      mmdb::Journal *j_line = mmdb::PJournal(journal_container->GetContainerClass(i));
+      if (j_line) {
+	 std::string line(j_line->Line);
+	 journal_lines.push_back(line);
+      }
+   }
+   std::cout << "---------------- have " << journal_lines.size() << " journal_lines" << std::endl;
+   if (journal_lines.size() > 0) {
+      GtkWidget *frame = gtk_frame_new("Journal");
+      gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+      gtk_widget_show(frame);
+
+      GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+      GtkWidget *text_view = gtk_text_view_new();
+      gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+					   GTK_TEXT_WINDOW_RIGHT, 10);
+      gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+      gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+      gtk_widget_show(GTK_WIDGET(text_view));
+      gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+      GdkColor colour;
+      colour.red   = 45535;
+      colour.green = 49535;
+      colour.blue  = 53535;
+      colour.pixel = 65535;
+      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+      for (unsigned int ij=0; ij<journal_lines.size(); ij++) {
+	 GtkTextIter end_iter;
+	 gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+	 std::string s = journal_lines[ij];
+	 s += "\n";
+	 gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+      }
+   }
+}
+
+void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_links = model_p->GetNumberOfLinks();
+      mmdb::LinkContainer *links = model_p->GetLinks();
+      std::cout << "   Model "  << imod << " had " << n_links
+		<< " links\n";
+
+      if (n_links > 0) {
+	 GtkWidget *frame = gtk_frame_new("Links");
+	 gtk_box_pack_start(GTK_BOX(vbox), frame, FALSE, FALSE, 1);
+	 gtk_widget_show(frame);
+
+	 GtkTextBuffer *text_buffer = gtk_text_buffer_new(NULL);
+	 GtkWidget *text_view = gtk_text_view_new();
+	 gtk_text_buffer_create_tag (text_buffer, "monospace",
+				     "family", "monospace", NULL);
+
+	 gtk_text_view_set_border_window_size(GTK_TEXT_VIEW(text_view),
+					      GTK_TEXT_WINDOW_RIGHT, 10);
+	 gtk_widget_set_usize(GTK_WIDGET(text_view), 400, -1);
+	 gtk_container_add(GTK_CONTAINER(frame), GTK_WIDGET(text_view));
+	 gtk_widget_show(GTK_WIDGET(text_view));
+	 gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
+	 gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
+
+	 GdkColor colour;
+	 colour.red   = 45535;
+	 colour.green = 53535;
+	 colour.blue  = 63535;
+	 colour.pixel = 65535;
+	 gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+	 for (int ilink=0; ilink<n_links; ilink++) {
+	    mmdb::Link *link_p = model_p->GetLink(ilink);
+	    if (link_p) {
+	       std::string s = "LINK ";
+
+	       std::string rn1 = link_p->resName1;
+	       std::string rn2 = link_p->resName2;
+
+	       // for alignment of monospaced text
+	       if (rn1.length() == 1) rn1 += "  ";
+	       if (rn1.length() == 2) rn1 += " ";
+	       if (rn2.length() == 1) rn2 += "  ";
+	       if (rn2.length() == 2) rn2 += " ";
+
+	       s += link_p->atName1;
+	       s += " ";
+	       s += link_p->aloc1;
+	       s += " ";
+	       s += rn1;
+	       s += " ";
+	       s += coot::util::int_to_string(link_p->seqNum1);
+	       s += " ";
+	       s += link_p->insCode1;
+	       s += " ";
+	       s += link_p->atName2;
+	       s += " ";
+	       s += link_p->aloc2;
+	       s += " ";
+	       s += rn2;
+	       s += " ";
+	       s += coot::util::int_to_string(link_p->seqNum2);
+	       s += " ";
+	       s += link_p->insCode2;
+	       // symm code
+	       s += " ";
+	       s += coot::util::float_to_string_using_dec_pl(link_p->dist, 3);
+	       s += "\n";
+
+	       GtkTextIter end_iter;
+	       gtk_text_buffer_get_end_iter(text_buffer, &end_iter);
+	       // gtk_text_buffer_insert(text_buffer, &end_iter, s.c_str(), -1);
+
+	       gtk_text_buffer_insert_with_tags_by_name(text_buffer, &end_iter,
+							s.c_str(), -1,
+							"monospace", NULL);
+	    }
+	 }
+      }
+   }
+}
 
 
 void
@@ -209,25 +460,29 @@ GdkColor remark_number_to_colour(int remark_number) {
    colour.blue  = 65535; 
    colour.pixel = 65535; 
    if (remark_number == 2) { 
-      colour.blue   = 60000;
+      colour.blue  = 60000;
    }
    if (remark_number == 3) { 
       colour.red   = 60000;
    }
    if (remark_number == 4) { 
-      colour.green   = 60000;
+      colour.green  = 60000;
    }
    if (remark_number == 5) { 
-      colour.green   = 62000;
-      colour.blue    = 62000;
+      colour.green = 62000;
+      colour.blue  = 62000;
    }
-   if (remark_number == 280) { 
-      colour.green   = 61000;
+   if (remark_number == 280) {
+      colour.green  = 61000;
       colour.red    = 62500;
    }
+   if (remark_number == 350) {
+      colour.green  = 61000;
+      colour.blue   = 61500;
+   }
    if (remark_number == 465) { 
-      colour.blue    = 60000;
-      colour.green   = 60000;
+      colour.blue   = 60000;
+      colour.green  = 60000;
    }
    return colour;
 } 
@@ -282,3 +537,90 @@ void clear_generic_objects_dialog_pointer() {
    graphics_info_t g;
    g.generic_objects_dialog = NULL;
 } 
+
+/* Donna's request to do the counts in the Mutate Residue range dialog */
+void mutate_molecule_dialog_check_counts(GtkWidget *res_no_1_widget, GtkWidget *res_no_2_widget,
+					 GtkWidget *text_widget, GtkWidget *label_widget) {
+
+   if (false) {
+      std::cout << "res_no_1_widget " << res_no_1_widget << std::endl;
+      std::cout << "res_no_2_widget " << res_no_2_widget << std::endl;
+      std::cout << "text_widget " << text_widget << std::endl;
+      std::cout << "label_widget " << label_widget << std::endl;
+   }
+   if (res_no_1_widget && res_no_2_widget) {
+      if (text_widget && label_widget) {
+	 std::string rn_1_str = gtk_entry_get_text(GTK_ENTRY(res_no_1_widget));
+	 std::string rn_2_str = gtk_entry_get_text(GTK_ENTRY(res_no_2_widget));
+	 GtkTextBuffer* tb = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_widget));
+	 GtkTextIter startiter;
+	 GtkTextIter enditer;
+	 char *txt = NULL;
+	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
+	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
+	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+
+	 // if (txt) {
+	 if (true) {
+	    std::string sequence_str(txt);
+
+	    try {
+
+	       int t1_int = coot::util::string_to_int(rn_1_str);
+	       int t2_int = coot::util::string_to_int(rn_2_str);
+	       int counts = t2_int - t1_int;
+	       int res_no_counts = counts + 1;
+
+	       std::string res_no_diff_count_str("-");
+	       std::string sequence_count_str("-");
+
+	       if (counts >= 0)
+		  res_no_diff_count_str = coot::util::int_to_string(res_no_counts);
+
+	       int sequence_count = 0;
+	       for (std::size_t i=0; i<sequence_str.size(); i++) {
+		  char c = sequence_str[i];
+		  if (c >= 'a' && c <= 'z') sequence_count++;
+		  if (c >= 'A' && c <= 'Z') sequence_count++;
+	       }
+	       // std::cout << "debug:: sequence_str " << sequence_str << " gives sequence_count " << sequence_count << std::endl;
+	       if (sequence_count > 0)
+		  sequence_count_str = coot::util::int_to_string(sequence_count);
+
+	       std::string label = "Counts: Residues ";
+	       label += res_no_diff_count_str;
+	       label += " Sequence: ";
+	       label += sequence_count_str;
+
+	       GtkWidget *red_light_widget   = lookup_widget(res_no_1_widget, "mutate_sequence_red_light_image");
+	       GtkWidget *green_light_widget = lookup_widget(res_no_1_widget, "mutate_sequence_green_light_image");
+	       bool show_green_light = false;
+	       if (res_no_counts >= 1) {
+		  if (sequence_count >= 1) {
+		     if (res_no_counts == sequence_count) {
+			label += " counts match";
+			show_green_light = true;
+		     }
+		  }
+	       }
+
+	       if (show_green_light) {
+		  gtk_widget_hide(red_light_widget);
+		  gtk_widget_show(green_light_widget);
+	       } else {
+		  gtk_widget_show(red_light_widget);
+		  gtk_widget_hide(green_light_widget);
+	       }
+
+	       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
+
+	    }
+	    catch (const std::runtime_error &rte) {
+
+	    }
+	 } else {
+	    std::cout << "Null text" << std::endl;
+	 }
+      }
+   }
+}

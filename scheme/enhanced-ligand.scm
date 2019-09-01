@@ -86,21 +86,33 @@
 	     do-find-ligands-dialog)
 
 	    (add-simple-coot-menu-menuitem 
-	     menu "SMILES -> 2D"
+	     menu "Jiggle-Fit Ligand"
 	     (lambda ()
-	       (generic-single-entry "SMILES string" "" " Send to 2D Viewer " 
+	       (using-active-atom
+		(fit-to-map-by-random-jiggle
+		 aa-imol aa-chain-id aa-res-no aa-ins-code 200 1.5))))
+
+	    (add-simple-coot-menu-menuitem
+	     menu "Hydrogenate region"
+	     (lambda ()
+	       (hydrogenate-region 6)))
+
+	    (add-simple-coot-menu-menuitem
+	     menu "SMILES → 2D"
+	     (lambda ()
+	       (generic-single-entry "SMILES string" "" " Send to 2D Viewer "
 				     (lambda (text)
 				       (smiles-to-ligand-builder text)))))
 
 	    (add-simple-coot-menu-menuitem
-	     menu "SMILES -> simple 3D"
+	     menu "SMILES → Simple 3D"
 	     (lambda ()
 	       (generic-double-entry "Residue Name" "SMILES string  " "LIG" "" #f #f "Import Molecule"
 				     (lambda (text-1 text-2 dum)
 				       (import-rdkit-mol-from-smiles text-2 text-1)))))
 
 	    (add-simple-coot-menu-menuitem 
-	     menu "Residue -> 2D"
+	     menu "Residue → 2D"
 	     (lambda ()
 	       (using-active-atom 
 		(residue-to-ligand-builder aa-imol aa-chain-id aa-res-no aa-ins-code 0.015))))

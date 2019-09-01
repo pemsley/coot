@@ -25,6 +25,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <set>
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -275,6 +276,7 @@ namespace coot {
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
+   bool is_hydrogen_atom(mmdb::Atom *at);
 
    // Throw an exception if there is no consistent seg id for the
    // atoms in the given residue.
@@ -304,6 +306,7 @@ namespace coot {
    // standard PDB type
    int hetify_residue_atoms_as_needed(mmdb::Residue *res);
    int hetify_residues_as_needed(mmdb::Manager *mol);
+   void put_amino_acid_residue_atom_in_standard_order(mmdb::Residue *residue_p);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
@@ -320,6 +323,17 @@ namespace coot {
    std::vector<mmdb::Residue *> residues_near_residue(mmdb::Residue *res_ref, mmdb::Manager *mol,
 						 float radius);
 
+   // calling residues_near_residue for every residue in a chain is slow.
+   // Let's make a map to store the results of just one selection
+   //
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> > &residues_vec,
+										mmdb::Manager *mol,
+										float dist_crit);
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues(mmdb::Manager *mol, float dist_crit);
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues_for_residues(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &all_molecule_map, const std::vector<std::pair<bool,mmdb::Residue *> > &limit_to_these_residues_vec);
+   
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
 						  mmdb::Manager *mol,
 						  double radius);
@@ -805,6 +819,17 @@ namespace coot {
 
       
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
+
+      std::pair<bool, clipper::Coord_orth> get_CA_position_in_residue(mmdb::Residue *residue_p);
+
+      // current view has a particular orientation of the mainchain on the screen -
+      // I want to move to the residue_next (which could be the previous residue)
+      // for shift-space - what rotation/translation do I need?
+      //
+      // @return pair.first false if we don't have a valid RTop.
+      //
+      std::pair<bool, clipper::RTop_orth> get_reorientation_matrix(mmdb::Residue *residue_current,
+                                                                   mmdb::Residue *residue_next);
       
       std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
 
@@ -825,10 +850,18 @@ namespace coot {
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
+
+      // get the number of residue in chain, protein first.
+      std::pair<unsigned int, unsigned int> get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p);
+
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
       clipper::RTop_orth matrix_convert(mmdb::mat44 mat);
+
+      // return 9999,-9999 on failure
+      // (test for failure: second being less than first)
+      std::pair<int, int> min_and_max_residues(mmdb::Chain *chain_p);
 
       // Return -1 on badness.
       // 
@@ -842,6 +875,8 @@ namespace coot {
       std::pair<bool, int> max_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_molecule(mmdb::Manager *mol);
       
+
+      std::vector<mmdb::Chain *> chains_in_atom_selection(mmdb::Manager *mol, int model_number, const std::string &atom_selection);
 
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(mmdb::Manager *mol);
@@ -1002,9 +1037,14 @@ namespace coot {
       // return success status.
       bool copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2);
 
+      // All headers except (optionally) cell, symmetry, origin and scale.
+      bool copy_headers(mmdb::Manager *m_from, mmdb::Manager *m_to, bool include_cryst);
+
       // adjust the atoms of residue_p
       void delete_alt_confs_except(mmdb::Residue *residue_p, const std::string &alt_conf);
-      
+
+      // helper function for below create_mmdbmanager function
+      void transfer_links(mmdb::Manager *mol_old, mmdb::Manager *mol_new);
 
       // The flanking residues (if any) are in the residue selection (SelResidues).
       // The flags are not needed now we have made adjustments in the calling
@@ -1036,7 +1076,8 @@ namespace coot {
       // currently only LINKs.
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
-					    mmdb::Manager *mol_old);
+					     mmdb::Manager *mol_old,
+					     const std::pair<bool,std::string> &use_alt_conf = std::pair<bool, std::string>(false, ""));
 
       // ignore atom index transfer, return NULL on error.
       // 
@@ -1068,6 +1109,9 @@ namespace coot {
 
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
 
+      // important for bonding in refinement
+      void pdbcleanup_serial_residue_numbers(mmdb::Manager *mol);
+
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       // 
       bool add_atom(mmdb::Residue *res,
@@ -1094,6 +1138,15 @@ namespace coot {
       //
       mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue);
       
+      // As above but use the alt conf flags to filter copied atoms.
+      // Can return 0 if there are no atoms copied
+      //
+      // If use_alt_conf first is true then
+      //    if use_alt_conf second is not blank
+      // then copy atoms that have blank alt conf and those
+      // with altconfs that match use_alt_conf.second.
+      mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue,
+					    const std::pair<bool,std::string> &use_alt_conf);
 
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
       
@@ -1126,6 +1179,8 @@ namespace coot {
       void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
 			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
 
+      void transform_chain(mmdb::Chain *moving_chain, const clipper::RTop_orth &rtop);
+
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);
 
@@ -1154,6 +1209,9 @@ namespace coot {
       // This presumes that a_residue_p and b_residue_p are valid.
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
 							   mmdb::Residue *b_residue_p);
+
+      // CBs in GLY etc
+      void delete_anomalous_atoms(mmdb::Manager *mol);
 
       // A useful function that was (is) in molecule_class_info_t
       //
@@ -1298,6 +1356,9 @@ namespace coot {
       std::vector<std::pair<atom_spec_t, std::string> >
       gln_asn_b_factor_outliers(mmdb::Manager *mol);
 
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > peptide_C_N_pairs(mmdb::Chain *chain_p);
+      void standardize_peptide_C_N_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &C_N_pairs);
+
       // return the number of cis peptides in mol:
       int count_cis_peptides(mmdb::Manager *mol);
 
@@ -1310,9 +1371,12 @@ namespace coot {
       // mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
       //
       // strictly_cis_flag is false by default.
-      // 
+      //
+      // if model_number == 0, make cis_peptides quads for all models.
+      //
       std::vector<cis_peptide_quad_info_t>
       cis_peptide_quads_from_coords(mmdb::Manager *mol,
+				    int model_number,
 				    bool strictly_cis_flag = false);
       
       // remove wrong cis_peptides from the header records

@@ -114,13 +114,89 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
 } 
 #endif
 
+#ifdef USE_GUILE
+SCM molecule_atom_overlaps_scm(int imol) {
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      bool ignore_waters = false;
+
+      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+      overlaps.make_all_atom_overlaps();
+      std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+      r = SCM_EOL;
+      for (std::size_t ii=0; ii<olv.size(); ii++) {
+	 const coot::atom_overlap_t &o = olv[ii];
+	 coot::atom_spec_t spec_1(o.atom_1);
+	 coot::atom_spec_t spec_2(o.atom_2);
+	 SCM spec_1_scm = atom_spec_to_scm(spec_1);
+	 SCM spec_2_scm = atom_spec_to_scm(spec_2);
+	 SCM r_1_scm = scm_double2num(o.r_1);
+	 SCM r_2_scm = scm_double2num(o.r_2);
+	 SCM ov_scm  = scm_double2num(o.overlap_volume);
+	 SCM item_scm = scm_list_5(spec_1_scm, spec_2_scm, r_1_scm, r_2_scm, ov_scm);
+	 r = scm_cons(item_scm, r);
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+
+#ifdef USE_PYTHON
+PyObject *molecule_atom_overlaps_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      bool ignore_waters = false;
+
+      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+      overlaps.make_all_atom_overlaps();
+      std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+      PyObject *o_py = PyList_New(olv.size());
+      for (std::size_t ii=0; ii<olv.size(); ii++) {
+	 const coot::atom_overlap_t &o = olv[ii];
+	 if (false) // debug
+	    std::cout << "Overlap " << ii << " "
+		      << coot::atom_spec_t(o.atom_1) << " "
+		      << coot::atom_spec_t(o.atom_2) << " overlap-vol "
+		      << o.overlap_volume << " r_1 "
+		      << o.r_1 << " r_2 " << o.r_2 << std::endl;
+	 PyObject *item_dict_py = PyDict_New();
+	 coot::atom_spec_t spec_1(o.atom_1);
+	 coot::atom_spec_t spec_2(o.atom_2);
+	 PyObject *spec_1_py = atom_spec_to_py(spec_1);
+	 PyObject *spec_2_py = atom_spec_to_py(spec_2);
+	 PyObject *r_1_py = PyFloat_FromDouble(o.r_1);
+	 PyObject *r_2_py = PyFloat_FromDouble(o.r_2);
+	 PyObject *ov_py  = PyFloat_FromDouble(o.overlap_volume);
+	 PyDict_SetItemString(item_dict_py, "atom-1-spec", spec_1_py);
+	 PyDict_SetItemString(item_dict_py, "atom-2-spec", spec_2_py);
+	 PyDict_SetItemString(item_dict_py, "overlap-volume", ov_py);
+	 PyDict_SetItemString(item_dict_py, "radius-1", r_1_py);
+	 PyDict_SetItemString(item_dict_py, "radius-2", r_2_py);
+	 PyList_SetItem(o_py, ii, item_dict_py);
+      }
+      r = o_py;
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif // USE_PYTHON
+
 // not const because it manipulated generic graphics objects
 void
 graphics_info_t::do_interactive_coot_probe() {
 
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
-	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p());
+	 bool ignore_waters = true;
+	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p(), ignore_waters);
 	 // dot density
 	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.5);
 

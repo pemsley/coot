@@ -181,12 +181,22 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
       setRotationCentre(pi.atom_index, go_to_atom_molecule()); 
 
    } else { 
-      cout << "Sorry atom with name \"" << go_to_atom_atom_name() 
+      cout << "WARNING:: atom with name \"" << go_to_atom_atom_name()
 	   << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
 	   << " res-no: " << go_to_atom_residue()
 	   << ", ins-code \"" << go_to_atom_inscode_ << "\"," 
 	   << " chain: \"" << go_to_atom_chain()
 	   << "\" not found in molecule " << go_to_atom_molecule() << endl;
+      std::string w = "WARNING:: atom ";
+      w += go_to_atom_atom_name();
+      w += go_to_atom_atom_altLoc_;
+      w += " ";
+      w += coot::util::int_to_string(go_to_atom_residue());
+      w += " ";
+      w += go_to_atom_chain();
+      w += " not found in molecule";
+      w += coot::util::int_to_string(go_to_atom_molecule());
+      add_status_bar_text(w);
    }
    return pi.success; 
 }
@@ -901,9 +911,7 @@ void
 graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
 
 
-   coot::Cartesian c(old_rotation_centre_x,
-		     old_rotation_centre_y,
-		     old_rotation_centre_z);
+   coot::Cartesian c = get_old_rotation_centre();
    
    std::cout << "INFO:: Moving back to old centre: " << c << std::endl;
    setRotationCentre(c);
@@ -969,9 +977,40 @@ graphics_info_t::active_atom_spec_internal(int imol_only) {
    return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
 }
 
+std::pair<int, mmdb::Atom *>
+graphics_info_t::get_active_atom() const {
+
+   mmdb::Atom *at_close = 0;
+   float dist_best = 999999999.9;
+   int imol_closest = -1;
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (true) {
+	 if (is_valid_model_molecule(imol)) {
+	    if (molecules[imol].is_displayed_p()) {
+	       if (molecules[imol].atom_selection_is_pickable()) {
+		  coot::at_dist_info_t at_info =
+		     molecules[imol].closest_atom(RotationCentre());
+		  if (at_info.atom) {
+		     if (at_info.dist <= dist_best) {
+			dist_best = at_info.dist;
+			imol_closest = at_info.imol;
+			at_close = at_info.atom;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   if (at_close)
+      return std::pair<int, mmdb::Atom *>(imol_closest, at_close);
+   else
+      return std::pair<int, mmdb::Atom *>(-1, 0);
+}
+
 std::pair<bool, std::pair<int, coot::atom_spec_t> >
 graphics_info_t::active_atom_spec_simple() {
-   
+
    int imol_closest = -1;
    coot::atom_spec_t spec;
    bool was_found_flag = false;

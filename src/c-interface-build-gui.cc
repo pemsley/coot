@@ -216,13 +216,24 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
 	       std::cout << "Click on an atom in the chain that you wish to delete\n";
 	    } else {
-	       // if (delete_item_mode_is_residue_p()) {
-	       // if nothing else, let's choose delete residue mode
-	       if (true) {
-		  GtkWidget *chain_toggle_button = lookup_widget(widget,
-								 "delete_item_residue_radiobutton");
-		  set_delete_residue_mode();
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+
+	       if (delete_item_mode_is_sidechain_range_p()) {
+
+		  GtkWidget *sidechain_range_toggle_button = lookup_widget(widget,
+									   "delete_item_sidechain_range_radiobutton");
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_range_toggle_button), TRUE);
+
+		  set_delete_sidechain_range_mode();
+	       } else {
+
+		  // if (delete_item_mode_is_residue_p()) {
+		  // if nothing else, let's choose delete residue mode
+		  if (true) {
+		     GtkWidget *chain_toggle_button = lookup_widget(widget,
+								    "delete_item_residue_radiobutton");
+		     set_delete_residue_mode();
+		     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+		  }
 	       }
 	    }
 	 }
@@ -809,8 +820,9 @@ void do_merge_molecules(GtkWidget *dialog) {
 
    std::vector<int> add_molecules = *graphics_info_t::merge_molecules_merging_molecules;
    if (add_molecules.size() > 0) { 
-      std::pair<int, std::vector<std::string> > stat =
-	 merge_molecules_by_vector(add_molecules, graphics_info_t::merge_molecules_master_molecule);
+      std::pair<int, std::vector<merge_molecule_results_info_t> > stat =
+	 merge_molecules_by_vector(add_molecules,
+				   graphics_info_t::merge_molecules_master_molecule);
       if (stat.first)
 	 graphics_draw();
    }
@@ -944,8 +956,8 @@ void do_mutate_sequence(GtkWidget *dialog) {
    if ((t > -999) && (t < 9999))
       res2 = t;
 
-// BL says: we should set a flag tha we swapped the direction and swap back
-// before we call fit-gap to actually build backwards!!
+// BL says: we should set a flag that we swapped the direction and swap back
+// before we call fit-gap to actually build backwards
    int swap_flag = 0;
    if (res2 < res1) {
       t = res1;
@@ -966,7 +978,6 @@ void do_mutate_sequence(GtkWidget *dialog) {
 
    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
       autofit_flag = 1;
-      
 
    if (imol>= 0) { // redundant
       if (is_valid_model_molecule(imol)) { 
@@ -975,9 +986,6 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
-
-	 // std::cout << "Gtk2 text view code... " << std::endl;
-	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
 	 GtkTextIter startiter;
@@ -985,6 +993,10 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
+
+	 std::string mutate_scripting_function = "mutate-and-autofit-residue-range";
+	 if (! autofit_flag)
+	    mutate_scripting_function = "mutate-residue-range";
 
 	 if (txt) {
 	    std::string sequence(txt);
@@ -1004,7 +1016,8 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	       cmd_strings.push_back(single_quote(sequence));
 	       std::string cmd = g.state_command(cmd_strings, state_lang);
 	       
-// BL says: I believe we should distinguish between python and guile here!?
+// BL says: I believe we should distinguish between python and guile here
+
 #ifdef USE_GUILE
 	       if (state_lang == coot::STATE_SCM) {
 		  safe_scheme_command(cmd);
@@ -1016,6 +1029,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
               }
 #endif // PYTHON
 #endif // GUILE
+
 	      update_go_to_atom_window_on_changed_mol(imol);
 	      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 
@@ -1696,7 +1710,7 @@ void  do_edit_copy_molecule() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for copy_molecule in python?
+      std::string cmd = "molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: copy_molecule(imol))";
       safe_python_command(cmd);
    }
 #endif // PYTHON
@@ -1721,15 +1735,24 @@ void  do_edit_copy_fragment() {
 #endif   
 
 #ifdef USE_GUILE
-   std::string cmd = "(generic-chooser-and-entry \"Create a new Molecule\nFrom which molecule shall we seed?\" \"Atom selection for fragment\" \"//A/1-10\" (lambda (imol text) (let ((imol (new-molecule-by-atom-selection imol text))) (valid-model-molecule? imol))) #f)";
+   std::string cmd = "(generic-chooser-and-entry-and-checkbutton \"From which molecule shall we copy the fragment?\" \"Atom selection for fragment\" \"//A/1-10\" \"Move new molecule here?\" (lambda (imol text button-state) (let ((imol (new-molecule-by-atom-selection imol text))) (if button-state (move-molecule-to-screen-centre imol)) (valid-model-molecule? imol))) #f)";
+
    if (state_lang == coot::STATE_SCM) {
+      std::ofstream f("debug.scm");
+      f.write(cmd.c_str(), cmd.size());
+      f.write("\n", 1);
+      f.close();
       safe_scheme_command(cmd);
    }
 #else
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for copy_fragment in python?
+      // This is a tricky, long winded one. We first make a function which is
+      // then executed and all has to reside within exec as we cannot have
+      // multiple line statements in python... lets try
+      std::string cmd = "exec(\'def atom_selection_from_fragment_func(imol, text, button_state): \\n \\t jmol = new_molecule_by_atom_selection(imol, text) \\n \\t if button_state: move_molecule_to_screen_centre(jmol) \\n \\t return valid_model_molecule_qm(jmol) \\ngeneric_chooser_and_entry_and_check_button(\"From which molecule shall we copy the fragment?\", \"Atom selection for fragment\", \"//A/1-10\", \"Move new molecule here?\", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)\')";
+//                         exec('def atom_selection_from_fragment_func(imol, text, button_state): \n \t jmol = new_molecule_by_atom_selection(imol, text) \n \t if button_state: move_molecule_to_screen_centre(jmol) \n \t return valid_model_molecule_qm(jmol) \ngeneric_chooser_and_entry_and_check_button("From which molecule shall we copy the fragment?", "Atom selection for fragment", "//A/1-10", "Move new molecule here?", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)')
       safe_python_command(cmd);
    }
 #endif // PYTHON
@@ -1762,7 +1785,7 @@ void  do_edit_replace_residue() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for replace_residue in python?
+      std::string cmd = "generic_single_entry(\"Replace this residue with residue of type:\", \"ALA\", \"Mutate\", lambda text: using_active_atom(mutate_by_overlap, \"aa_imol\", \"aa_chain_id\", \"aa_res_no\", text))";
       safe_python_command(cmd);
    }
 #endif // PYTHON
@@ -1797,7 +1820,8 @@ void  do_edit_replace_fragment() {
 #ifdef USE_PYTHON
    if (state_lang == coot::STATE_PYTHON) {
 
-      std::string cmd; // how do you do a gui for replace_residue in python?
+      std::string cmd =
+         "molecule_chooser_gui(\"Define the molecule that needs updating\", lambda imol_base: generic_chooser_and_entry(\"Molecule that contains the new fragment:\", \"Atom Selection\", \"//\", lambda imol_fragment, atom_selection_str: replace_fragment(imol_base, imol_fragment, atom_selection_str)))";
       safe_python_command(cmd);
    }
 #endif // PYTHON

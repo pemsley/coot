@@ -21,6 +21,9 @@
 
 #include <string>
 
+/*! \file
+  \brief Coot Scripting Interface - Monomer Interface
+*/
 
 /*! \brief import libcheck monomer give the 3-letter code. 
 

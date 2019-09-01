@@ -62,7 +62,7 @@ coot::db_main::fill_with_fragments(int ilength) {
    molecule_list.resize(pdb_filename_list.size());
 
    for  (unsigned int i=0; i< pdb_filename_list.size(); i++) {
-      std::cout << "Adding fragments from: " << pdb_filename_list[i] << std::endl;
+      std::cout << "     Adding fragments from: " << pdb_filename_list[i] << std::endl;
       coot::minimol::molecule m;
       m.read_file(pdb_filename_list[i]);
 
@@ -666,8 +666,8 @@ coot::db_main::merge_fragments() {
    float weight_target_devi;
    float devi;
    minimol::residue fragment_res;
-   output_fragment.resize(iresno_end+1); // recall: std::vector<weighted_residue>
-   
+   output_fragment.resize(iresno_end-iresno_start+1); // recall: std::vector<weighted_residue>
+
    // we presume that output_fragment is sorted on istart_res
    // 
    std::cout << "merge fragments " << iresno_start << " to "
@@ -710,8 +710,9 @@ coot::db_main::merge_fragments() {
 	       int j = big_results[ibr][i].istart_res_of_ca_target + ipos;
 	       if (j<=iresno_end) {
 		  // std::cout << "merge_fragments adding to residue " << j << std::endl;
-		  output_fragment[j].add_residue_pos(fragment_res,
-						     big_results[ibr][i].rtop, w);
+		  int of_idx = j - iresno_start;
+		  output_fragment[of_idx].add_residue_pos(fragment_res,
+							  big_results[ibr][i].rtop, w);
 	       }
 	    }
 	 }
@@ -759,19 +760,18 @@ coot::db_main::pull_db_fragment(const coot::main_fragment_t &dbfit, int ilength)
 
 coot::minimol::residue
 coot::weighted_residue::pull_residue() const {
-   
-   coot::minimol::residue res;
-   coot::minimol::atom at(std::string("tmp"),
-			  std::string("tmp"), 0,0,0, "", 1.0, 30.0); // overridden
-   
+
+   minimol::residue res;
+   minimol::atom at(std::string("tmp"), std::string("tmp"), 0,0,0, "", 1.0, 30.0); // overridden
+
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       at.name = atoms[iat].name;
       if (at.name == " CB " ) { 
-	 at.pos  = 1/weight_sum_cb * atoms[iat].pos;
+	 at.pos  = 1.0/weight_sum_cb * atoms[iat].pos;
       } else {
 //  	 std::cout << "pulling: weight_sum: " << weight_sum << ", pos "
 //  		   << atoms[iat].pos.format() << std::endl; 
-	 at.pos  = 1/weight_sum * atoms[iat].pos;
+	 at.pos  = 1.0/weight_sum * atoms[iat].pos;
       }
       at.element = atoms[iat].element; 
       res.atoms.push_back(at);
@@ -782,7 +782,7 @@ coot::weighted_residue::pull_residue() const {
 coot::minimol::fragment
 coot::db_main::mainchain_fragment() const {
 
-   coot::minimol::fragment frag;
+   minimol::fragment frag;
    frag.fragment_id = target_fragment_fragment_id; 
 
    frag.residues.resize(iresno_end +1);
@@ -790,25 +790,28 @@ coot::db_main::mainchain_fragment() const {
    std::cout << "mainchain_fragment from " << iresno_start << " to "
 	     << iresno_end << std::endl;
 
-   coot::minimol::residue res; 
    for (int ires=iresno_start; ires<=iresno_end; ires++) {
-      res = output_fragment[ires].pull_residue();
+      int of_idx = ires - iresno_start;
+      minimol::residue res = output_fragment[of_idx].pull_residue();
       for (unsigned int i=0; i<res.atoms.size(); i++) {
 	 if (res.atoms[i].name == " CA " ||
 	     res.atoms[i].name == " CB " ||
 	     res.atoms[i].name == " C  " ||
 	     res.atoms[i].name == " N  " ||
 	     res.atoms[i].name == " O  " ) { 
-	    frag.residues[ires].addatom(res.atoms[i]);
+	    frag[ires].addatom(res.atoms[i]);
 	 }
       }
 
       std::string res_name = "ALA";
-      std::map<int, std::string>::const_iterator it = sequence.find(ires);
-      if (it != sequence.end())
-	 res_name = it->second;
-      frag.residues[ires].name = res_name;
-      frag.residues[ires].seqnum = ires; 
+      if (false) {
+	 // 20180706-PE - why would I want to do this?
+	 std::map<int, std::string>::const_iterator it = sequence.find(ires);
+	 if (it != sequence.end())
+	    res_name = it->second;
+      }
+      frag[ires].name = res_name;
+      frag[ires].seqnum = ires;
    }
 
    std::cout << "done mainchain_fragment" << std::endl; 

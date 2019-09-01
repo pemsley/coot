@@ -38,9 +38,13 @@ namespace coot {
    namespace util { 
 
       clipper::RTop_orth make_rtop_orth_from(mmdb::mat44 mat);
-      
+
+      // cubic interpolation
       float density_at_point(const clipper::Xmap<float> &map_in,
 			     const clipper::Coord_orth &co);
+      // linear interpolation (faster) use for jiggle-fit of chains and the like
+      float density_at_point_by_linear_interpolation(const clipper::Xmap<float> &map_in,
+						     const clipper::Coord_orth &co);
 
       float density_at_map_point(const clipper::Xmap<float> &map_in,
 				 const clipper::Coord_map &cg);
@@ -171,6 +175,13 @@ namespace coot {
 					   unsigned short int atom_mask_mode,
 					   float atom_radius, // for masking 
 					   const clipper::Xmap<float> &xmap_from_sfs);
+
+      // helper
+      std::pair<clipper::Coord_frac, clipper::Coord_frac>
+      find_struct_fragment_coord_fracs_v2(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &selection_extents,
+					  const clipper::Cell &cell);
+
+
       // which uses these for map statistics aggregation
       class map_stats_holder_helper_t {
       public:
@@ -350,7 +361,7 @@ namespace coot {
       };
 
 
-
+      clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
 
       class segment_map {
 	 enum {UNASSIGNED = -1, TOO_LOW = -2 };

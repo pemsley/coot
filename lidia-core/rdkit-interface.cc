@@ -2271,7 +2271,7 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 		     }
 		     
 		  }
-		  catch (KeyErrorException kee) {
+		  catch (const KeyErrorException &kee) {
 
 		     // OK...
 		     //
@@ -2313,10 +2313,10 @@ coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 	 
 	 // delete m;
       }
-      catch (std::runtime_error e) {
+      catch (const std::runtime_error &e) {
 	 std::cout << e.what() << std::endl;
       }
-      catch (std::exception rdkit_error) {
+      catch (const std::exception &rdkit_error) {
 	 std::cout << rdkit_error.what() << std::endl;
       }
    }

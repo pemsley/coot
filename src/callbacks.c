@@ -63,6 +63,7 @@
 #include "positioned-widgets.h"
 
 #include "generic-display-objects-c.h"
+#include "curlew.h"
 
 /* This is our data identification string to store
  * data in list items
@@ -806,7 +807,7 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
 
 
 
-void 
+void
 on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 					 gpointer         user_data)
 {
@@ -1916,9 +1917,8 @@ gboolean on_accession_code_entry_key_press_event (GtkWidget       *widget,
  /* go somewhere if keypress was a carriage return  */
 
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
-    handle_get_accession_code(widget); 
-  } 
-
+    handle_get_accession_code(widget);
+  }
   return FALSE;
 }
 
@@ -2038,12 +2038,17 @@ on_find_ligand_ok_button_clicked       (GtkButton       *button,
 {
    GtkWidget *window;
 
-   execute_get_mols_ligand_search(GTK_WIDGET(button));
-				/* which then runs
-				   execute_ligand_search */
-   window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
-   free_ligand_search_user_data(GTK_WIDGET(button));
-   gtk_widget_destroy(window);
+   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
+			                    	/* which then runs
+				                   execute_ligand_search */
+
+   if (n_ligands > 0) {
+     window = lookup_widget(GTK_WIDGET(button), "find_ligand_dialog");
+     free_ligand_search_user_data(GTK_WIDGET(button));
+     gtk_widget_destroy(window);
+   } else {
+     info_dialog("WARNING:: No ligands were selected");
+   }
 }
 
 
@@ -2743,7 +2748,6 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *dictionary_molecule_selector_option_menu = NULL;
   GtkWidget *active_menu_item;
   GtkWidget *menu;
-  int new_compid_idx;
   int imol_enc = -999997;	/* unset value */
   GtkWidget *checkbutton = lookup_widget(GTK_WIDGET(button), 
 					 "cif_dictionary_file_selector_create_molecule_checkbutton");
@@ -2773,7 +2777,9 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
 	}
       }
     }
-    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc, new_molecule_checkbutton_state);
+    /* handle_cif_dictionary_for_molecule() returns new_compid_idx, but we don't do anything
+       with it, so remove it. */
+    handle_cif_dictionary_for_molecule(filename, imol_enc, new_molecule_checkbutton_state);
     gtk_widget_destroy(fileselection);
   }
 }
@@ -3334,9 +3340,18 @@ on_delete_item_sidechain_radiobutton_toggled
   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
 				      "delete_item_sidechain_radiobutton"))->active)
     set_delete_sidechain_mode();
-
-
 }
+
+void
+on_delete_item_sidechain_range_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data) {
+
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_sidechain_range_radiobutton"))->active)
+    set_delete_sidechain_range_mode();
+}
+
 
 
 void
@@ -6599,14 +6614,12 @@ on_preferences_bond_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = gtk_adjustment_get_value(adjustment);
   preferences_internal_change_value_float(PREFERENCES_BOND_COLOURS_MAP_ROTATION, fvalue);
   set_colour_map_rotation_on_read_pdb(fvalue);
-#endif
 }
 
 void
@@ -6674,7 +6687,6 @@ on_preferences_bg_colour_own_radiobutton_toggled
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
@@ -6697,7 +6709,6 @@ on_preferences_bg_colour_colorbutton_color_set
   }
 
 }
-#endif
 
 
 void
@@ -6911,14 +6922,12 @@ on_preferences_map_colours_hscale_value_changed
                                         (GtkRange        *range,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = gtk_adjustment_get_value(adjustment);
   preferences_internal_change_value_float(PREFERENCES_MAP_COLOURS_MAP_ROTATION, fvalue);
   set_colour_map_rotation_for_map(fvalue);
-#endif
 }
 
 
@@ -10017,6 +10026,16 @@ on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
+
+  GdkColor colour;
+  gdouble color[4]; // use first 3
+  double r = 1.0 / 65535.0;
+  gtk_color_button_get_color(colorbutton, &colour);
+  color[0] = colour.red   * r;
+  color[1] = colour.green * r;
+  color[2] = colour.blue  * r;
+  handle_symmetry_colour_change(1,color);
+
 }
 
 void
@@ -10027,7 +10046,7 @@ on_display_control_all_maps_togglebutton_toggled
 
   if (togglebutton->active)
     set_all_maps_displayed(1);
-  else 
+  else
     set_all_maps_displayed(0);
 
 }
@@ -11047,7 +11066,6 @@ on_save_symmetry_coords_filechooserdialog1_response
 					gint response_id, 
 					gpointer user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   if (response_id == GTK_RESPONSE_OK) {
     GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_symmetry_coords_filechooserdialog1");
     save_symmetry_coords_from_fileselection(w);
@@ -11059,7 +11077,6 @@ on_save_symmetry_coords_filechooserdialog1_response
     gtk_widget_destroy(coords_fileselection1);
 
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 
@@ -11077,7 +11094,6 @@ on_save_symmetry_coords_filechooserdialog1_destroy
 }
 
 
-#if (GTK_MAJOR_VERSION > 1) && (GTK_MINOR_VERSION > 9)
 GtkFileChooserConfirmation
 on_save_state_filechooserdialog1_confirm_overwrite 
 					(GtkFileChooser * filechooser, 
@@ -11095,7 +11111,6 @@ on_save_state_filechooserdialog1_confirm_overwrite
   }
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
@@ -11103,7 +11118,6 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
 					gint response_id, 
 					gpointer user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   if (response_id == GTK_RESPONSE_OK) {
    GtkWidget *w = lookup_widget(GTK_WIDGET(dialog),
 				"save_state_filechooserdialog1");
@@ -11120,7 +11134,6 @@ on_save_state_filechooserdialog1_response (GtkDialog * dialog,
 
     gtk_widget_destroy(coords_fileselection1);
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 
@@ -11385,7 +11398,6 @@ on_restraints1_activate                (GtkMenuItem     *menuitem,
 #endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraint_editor_add_restraint_button_clicked
                                         (GtkButton       *button,
@@ -11394,10 +11406,8 @@ on_restraint_editor_add_restraint_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_add_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_close_button_clicked
                                         (GtkButton       *button,
@@ -11410,9 +11420,7 @@ on_restraints_editor_close_button_clicked
   }
 
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_save_button_clicked
                                         (GtkButton       *button,
@@ -11421,10 +11429,7 @@ on_restraints_editor_save_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_save_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraints_editor_apply_button_clicked
                                         (GtkButton       *button,
@@ -11434,10 +11439,7 @@ on_restraints_editor_apply_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   apply_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_restraint_editor_delete_restraint_button_clicked
                                         (GtkButton       *button,
@@ -11446,7 +11448,6 @@ on_restraint_editor_delete_restraint_button_clicked
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "restraints_editor_dialog");
   restraints_editor_delete_restraint_by_widget(w);
 }
-#endif	/* GTK_MAJOR_VERSION */
 
 
 
@@ -11470,7 +11471,6 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
 					 gpointer         user_data) { 
 /* Maybe there are responses other than OK and cancel, so don't factor
    out the destroy() */
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w = lookup_widget(GTK_WIDGET(dialog), "save_restraint_chooserdialog");
   if (response_id == GTK_RESPONSE_OK) {
     save_monomer_restraints_by_widget(dialog);
@@ -11479,7 +11479,6 @@ on_save_restraint_chooserdialog_response(GtkDialog       *dialog,
   if (response_id == GTK_RESPONSE_CANCEL) {
     gtk_widget_destroy(w);
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 /* This is not the way. */
@@ -11574,7 +11573,6 @@ on_build_na_dialog_radius_entry_activate
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_coot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11583,10 +11581,7 @@ on_coot_references_coot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_COOT);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_wincoot_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11595,10 +11590,8 @@ on_coot_references_wincoot_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_WINCOOT);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_refmac_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11607,10 +11600,8 @@ on_coot_references_refmac_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_REFMAC);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_ssm_toolbutton_clicked  
                                         (GtkToolButton   *toolbutton,
@@ -11619,10 +11610,8 @@ on_coot_references_ssm_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_SSM);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_mmdb_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11631,10 +11620,7 @@ on_coot_references_mmdb_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MMDB);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_clipper_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11643,10 +11629,8 @@ on_coot_references_clipper_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_CLIPPER);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_buccaneer_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11655,10 +11639,8 @@ on_coot_references_buccaneer_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_BUCCANEER);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_molprobity_toolbutton_clicked
                                         (GtkToolButton   *toolbutton,
@@ -11667,7 +11649,6 @@ on_coot_references_molprobity_toolbutton_clicked
   fill_references_notebook(toolbutton, COOT_REFERENCE_MOLPROBITY);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
 #if (GTK_MAJOR_VERSION >1)
@@ -12327,11 +12308,11 @@ on_ligand_check_okbutton_clicked(GtkButton       *button,
 void
 on_generic_objects_dialog_closebutton_clicked
                                         (GtkButton       *button,
-					 gpointer         user_data) { 
-
+					 gpointer         user_data) {
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generic_objects_dialog");
-  gtk_widget_hide(w);
+  gtk_widget_destroy(w);
+  clear_generic_objects_dialog_pointer();
   graphics_draw();
 
 } 
@@ -12341,7 +12322,7 @@ void
 on_generic_objects_dialog_close        (GtkDialog       *dialog,
                                         gpointer         user_data) { 
 
-/*   printf("on_generic_objects_dialog_close\n"); */
+  clear_generic_objects_dialog_pointer(); /* needed here? */
   graphics_draw();
 
 }
@@ -12587,6 +12568,235 @@ on_weight_maxtrix_estimate_button_clicked
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "refine_params_weight_matrix_entry");
   estimate_map_weight(entry);
+
+}
+
+
+void
+on_mutate_molecule_resno_1_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+
+}
+
+
+void
+on_mutate_molecule_resno_2_entry_changed
+                                        (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(editable), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(editable), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+}
+
+
+void
+on_mutate_molecule_sequence_text_insert_at_cursor
+                                        (GtkTextView     *textview,
+                                        gchar           *string,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(textview), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(textview), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+}
+
+
+gboolean
+on_mutate_molecule_sequence_text_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+  return FALSE;
+}
+
+
+gboolean
+on_mutate_molecule_sequence_text_button_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventButton  *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *res_no_1_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_1_entry");
+  GtkWidget *res_no_2_widget = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_resno_2_entry");
+  GtkWidget *text_widget     = lookup_widget(GTK_WIDGET(widget), "mutate_molecule_sequence_text");
+  GtkWidget *label_widget    = lookup_widget(GTK_WIDGET(widget), "mutate_residue_range_counts_label");
+  mutate_molecule_dialog_check_counts(res_no_1_widget, res_no_2_widget, text_widget, label_widget);
+  return FALSE;
+}
+
+
+void
+on_display_control_last_model_only_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  set_only_last_model_molecule_displayed();
+
+}
+
+
+void
+on_display_control_align_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  align_labels_checkbutton_toggled(togglebutton);
+
+}
+
+
+
+void
+on_curlew_install_button_clicked(GtkButton *button,
+				 gpointer   user_data) {
+
+  GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "curlew_dialog");
+  int n_items = 0;
+  if (dialog) {
+    n_items = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "n_extensions"));
+    curlew_dialog_install_extensions(dialog, n_items); /* some of which were selected */
+  }
+}
+
+
+
+void
+on_curlew_dialog_close                 (GtkDialog       *dialog,
+                                        gpointer         user_data)
+{
+  gtk_widget_destroy(GTK_WIDGET(dialog)); /* or maybe hide */
+}
+
+
+void
+on_curlew_dialog_response              (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data)
+{
+
+  /* 
+  printf("in on_curlew_dialog_response with response_id %d\n", response_id);
+  printf("   cf response_id %d\n", GTK_RESPONSE_CLOSE);
+  printf("   cf response_id %d\n", GTK_RESPONSE_OK);
+  printf("   cf response_id %d\n", GTK_RESPONSE_CANCEL);
+  */
+
+  if (response_id == GTK_RESPONSE_CLOSE)
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+
+}
+
+
+void
+on_symmetry_always_on_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+   GtkWidget *symmetry_on_radio_button = NULL;
+   if (gtk_toggle_button_get_active(togglebutton)) {
+      add_symmetry_on_to_preferences_and_apply();
+      symmetry_on_radio_button = lookup_widget(GTK_WIDGET(togglebutton), "show_symmetry_yes_radiobutton");
+      if (! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button)))
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(symmetry_on_radio_button), TRUE);
+   }
+
+}
+
+
+void
+on_show_symmetry_no_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (gtk_toggle_button_get_active(togglebutton)) {
+      set_show_symmetry_master(0);
+  }
+
+}
+
+
+void
+on_show_symmetry_yes_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (gtk_toggle_button_get_active(togglebutton)) {
+      set_show_symmetry_master(1);
+  }
+}
+
+
+gboolean
+on_symmetry_radius_entry_key_release_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  const char *text;
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) { 
+    text = gtk_entry_get_text(GTK_ENTRY(widget));
+    set_symmetry_size_from_widget(text);
+  }
+  return TRUE;
+}
+
+
+void
+on_hscale_symmetry_colour_value_changed
+                                        (GtkRange        *range,
+                                        gpointer         user_data)
+{
+  gdouble f = gtk_range_get_value(range);
+  set_symmetry_colour_merge(f);
+}
+
+
+void
+on_show_symmetry_expanded_labels_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton)))
+     set_symmetry_atom_labels_expanded(1);
+   else
+     set_symmetry_atom_labels_expanded(0);
+}
+
+
+void
+on_curlew1_activate              (GtkMenuItem     *menuitem,
+                                  gpointer         user_data) {
+
+  curlew();
 
 }
 

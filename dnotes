@@ -3989,7 +3989,7 @@ INFO::
    o git push [maybe here? not sure]
    o git tag Release-0.x.y
    o git commit
-   o git push origin Release-0.x.y
+   o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
         OK, disable the build-latest cron-job 
    o clear out pre-releases
@@ -7305,6 +7305,13 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
      graphics, The Visual Computer 5, 2-13, 1989.
 
 
+   Smoothing quaternion interpolations:
+
+   http://allenchou.net/2014/04/game-math-interpolating-quaternions-with-circular-blending/
+
+   Do it with Bezier splines?
+   http://caig.cs.nctu.edu.tw/course/CA/Lecture/slerp.pdf
+
 ----
  
   Refinement of hydrogens:  Allow them to be refined by gemetry gradients
@@ -7380,6 +7387,32 @@ etc
 $ apt-get install librsvg2-dev
 
 (maybe it was not the dev package but the libs/common that solved it, librsvg2-common)
+
+
+
+----
+Wed 20 Feb 2019 16:07:02 PST
+
+
+$ ls ~/ccp4/ccp4-src-2015-02-05%/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+$ ls "/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+$ otool -L "/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+
+fragment of loaders.cache:
+
+"/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-ras.so"
+"ras" 4 "gdk-pixbuf" "The Sun raster image format" "LGPL"
+"image/x-cmu-raster" "image/x-sun-raster" ""
+"ras" ""
+"Y\246j\225" "" 100
+
+"/Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-svg.so"
+"svg" 2 "gdk-pixbuf" "Scalable Vector Graphics" "LGPL"
+"image/svg+xml" "image/svg" "image/svg-xml" "image/vnd.adobe.svg+xml" "text/xml-svg" ""
+"svg" ""
+" <svg" "*    " 100
+" <!DOCTYPE svg" "*             " 100
+
 
 ----
 
@@ -7672,7 +7705,6 @@ Thu Aug 18 12:03:32 BST 2016
    RNA building test: coot-download/5fw1.ent
 
 
-
 ---
 Wed 24 Aug 2016 00:54:22 BST
 
@@ -7754,7 +7786,7 @@ Sun 28 May 2017 17:09:21 CDT
 
    2016 paper
 
-   What would you get (clash score deltas) you tried coot for hydrogen
+   What would you get (clash score deltas) if you tried coot for hydrogen
    addition and refinement?
 
 ----
@@ -8029,6 +8061,10 @@ Sun 31 Dec 2017 20:15:08 GMT
 
 https://developer.gnome.org/pango/stable/pango-Cairo-Rendering.html
 
+  pango notes:
+
+https://www.gtk.org/api/2.6/pango/PangoMarkupFormat.html
+
 ---
 Thu  4 Jan 2018 16:54:56 GMT
 
@@ -8044,3 +8080,910 @@ Wed 17 Jan 2018 05:07:31 FKST
   import jupyter_client
   k = jupyter_client.KernelManager()
   k.start_kernel()
+
+---
+Sun 18 Feb 2018 15:24:11 EET
+
+   HTC Vive on Linux:
+
+   https://www.gamingonlinux.com/articles/first-steps-with-openvr-and-the-vive-on-linux.7229
+
+----
+Sun 18 Feb 2018 18:06:29 EET
+
+   For moving single atoms of the moving atoms (for vrcoot), look at
+   graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny)
+
+----
+Tue 20 Feb 2018 23:47:55 EET
+
+   MDFF example:
+ 
+   http://pubs.rsc.org/en/content/articlehtml/2014/fd/c4fd00005f
+
+   Actually, maybe not - needs close reading.
+
+---
+Sun 25 Feb 2018 07:28:36 EET
+
+   cryo-em tutorial:
+
+   o Note: 4m1m  model and 7325 for the map (Gaby)
+
+---
+Sun 25 Feb 2018 18:17:33 EET
+
+   o cryo-EM tutorial 6771 middle of J: 196 209 281
+
+     the middle of the pyrimidine ring of the ligand 401 J NDP
+
+
+---
+Mon 26 Feb 2018 10:43:18 EET
+
+   o 3wbm is a good example for RNA building - when RCrane works again :-/
+     It has some difference map features that need fixing (in the protein).
+
+---
+Fri  9 Mar 2018 14:57:25 GMT
+
+   o Note to self: covalently bonded ligands must be in the same chain as the
+     protein chain to which they are attached.
+
+
+---
+Fri  9 Mar 2018 15:03:18 GMT
+
+   o when merging a ligand, try to change the chain-id to that of the protein
+     to which it's close. Add checked button to gui: auto-chain-for-ligands
+
+
+---
+Fri  9 Mar 2018 15:12:44 GMT
+
+   o yesterday I installed 3 virtual machines:
+     centos 6.9, Fedora live latest, Ubunutu 17.10 (latest)
+     All compiled coot out of the box with build-it.
+     (I had to install a few system libraries with apt, yum, dnf)
+
+
+---
+Sat 24 Mar 2018 03:00:25 GMT
+
+   o Can you find some "negatively" scoring parts of a domain for jiggle fitting?
+     Make n test points inside the domain box and iterate moving them away from the
+     closest atom of the protein.  Make a chain of test points so that you can use
+     SeekContacts - use a distance that is more than the maximum distance a
+     test point will move (n_iter * step size). Atoms that move away from more than
+     one atom are interesting (probably). Test points will drift away on the outside.
+     So only keep those points that are within xA of any atom.
+
+     Use generic display objects.
+
+---
+Sat 24 Mar 2018 10:27:45 GMT
+
+   Stuart: Make a "extensions looker-upper" as a dropdown option in the Coot interface,
+           so that people don't have to find/download/run scripts.
+
+---
+Fri 20 Apr 2018 14:53:26 BST
+
+   3j3q hiv capsid
+
+   4whj - interesting fitting Alvarez et al, domain needs to be shifted - 4.6A
+
+----
+Sun 20 May 2018 12:54:32 BST
+
+   cute graphics: https://github.com/prideout/aobaker
+                  https://github.com/prideout/blog-source/blob/master/p61/Cylinder.glsl
+
+                  http://github.prideout.net/
+                  http://prideout.net/blog/
+
+    built them into coot :-)
+
+
+
+----
+Sun 20 May 2018 12:54:28 BST
+
+    OpenGL and gtk on gtkglext mailing list (last entries?)
+
+    https://mail.gnome.org/archives/gtkglext-list/2014-February/msg00016.html
+
+
+---
+Sun 20 May 2018 12:59:28 BST
+
+   sharpconstruct for drawing heads?
+
+
+---
+Sun 20 May 2018 13:22:00 BST
+
+    https://www.blendswap.com for heads
+
+----
+Tue 22 May 2018 15:12:04 BST
+
+   o re: a console: look at this:
+     http://www.cplusplus.com/reference/cstdio/freopen/
+     reopen std out as a static string stream?
+
+
+	
+---
+Mon 28 May 2018 12:33:02 BST
+
+    Indirect GLX is no longer supported by default.  You can enable it with:
+
+    defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
+
+   Jeremy Huddleston Sequoia
+   https://bugs.freedesktop.org/show_bug.cgi?id=99146
+
+
+---
+Tue 29 May 2018 16:29:39 BST
+
+   investigate __FILE__ __LINE__ and __FUNCTION__ for debugging
+
+
+---
+Fri  1 Jun 2018 21:52:08 BST
+
+    graphics:
+
+    https://cesium.com/blog/2013/04/22/robust-polyline-rendering-with-webgl/
+
+---
+Sat  2 Jun 2018 17:26:41 BST
+
+
+  14.150 How can I make line or polygon antialiasing work?
+
+  https://www.opengl.org/archives/resources/faq/technical/rasterization.htm#rast0150
+
+
+
+---
+Thu  7 Jun 19:50:40 BST 2018
+
+	compiling on ubuntu 18.04:
+
+   https://stackoverflow.com/questions/39188919/different-exception-specifier-with-g-6-2
+   HACK_THROW_
+
+---
+Fri  8 Jun 2018 17:31:20 BST
+
+   Keele notes:
+
+   have a look at this:
+
+   3j3q hiv capsid
+
+   4whj - interesting fitting Alvarez et al, domain needs to be shifted - 4.6A
+
+
+----
+Tue 12 Jun 2018 17:35:48 BST
+
+  record the desktop
+
+  ffmpeg -f x11grab -r 30 -i :0.0 /tmp/recording.mp4
+
+
+----
+Thu 21 Jun 2018 14:35:55 BST
+
+   Use PyGI+GTK instead of pygtk with Python3
+
+   Converting gtk_timeout_add:
+
+   https://askubuntu.com/questions/228849/pygtk-to-pygi-gtk-timeout-add-equivalent
+
+----
+Fri 22 Jun 2018 14:44:20 BST
+
+  Spin-search Hydrogen atoms - read this first
+
+  Hydrogen bond networks
+  R.W.W.Hooft, C.Sander and G.Vriend,
+  Positioning hydrogen atoms by optimizing hydrogen bond networks in
+  protein structures
+  PROTEINS, 26, 363--376 (1996).
+
+---
+Fri  6 Jul 2018 11:24:42 BST
+
+    1h4h residue 49 is good for NCS jumping
+
+---
+Fri  6 Jul 2018 21:53:36 BST
+
+In refmac
+
+
+   vdwr 2
+
+divides sigma by 2
+
+---
+Sat 14 Jul 2018 02:23:20 BST
+
+   std::unique_ptr: read this:
+
+http://www.drdobbs.com/cpp/c11-uniqueptr/240002708
+
+---
+Sun 15 Jul 2018 14:45:10 BST
+
+   converting a QuickTime movie
+
+ffmpeg -i {in-video}.mov -vcodec h264 -acodec aac -strict -2 {out-video}.mp4
+
+
+---
+Wed 18 Jul 2018 02:06:02 BST
+
+ Fitting problem: https://www.nature.com/articles/nature12162
+
+                  https://www.sciencedirect.com/science/article/pii/S0969212608001330
+
+
+ This?
+
+Electron Cryomicroscopy of Viruses at Near-Atomic Resolutions
+Article September 2017
+DOI: 10.1146/annurev-virology-101416-041921
+
+Accurate model annotation of a near-atomic resolution cryo-EM map
+Article (PDF Available) Proceedings of the National Academy of Sciences 114(12):201621152
+
+
+ Interesting for other reasons:
+
+The HIV-1 envelope glycoprotein structure: nailing down a moving target
+Article
+Jan 2017IMMUNOL REV
+Andrew B Ward Ian A Wilson
+
+
+
+----
+
+   Henry van bedem?
+
+   Read this:  minor modification in a ligand results in different binding mode.
+
+   j med chem 2016, 59, 6356
+
+
+----
+Sun 22 Jul 2018 13:47:36 EDT
+
+   transparent triangles in raster3d?
+   Yes, it is possible.
+
+---
+
+evaluation System and web infrastructure of 3d cryo em model challenge, 2018, JMB
+
+uses EMRinger
+
+
+----
+Mon 23 Jul 2018 13:59:52 EDT
+
+   sgc xchem sabrina mckinnon(?) HAO1 fragment screening.
+
+
+----
+Thu 26 Jul 2018 14:43:36 BST
+
+for difference map for cryoem from refmac:
+
+mapcalc vector
+
+
+---
+Fri 27 Jul 2018 14:45:14 BST
+
+   o Pathwalking: Look at 2015/16 EM model-bulding trial:
+     find e2pathwalker_auto.py?
+
+---
+Tue 21 Aug 2018 16:20:52 BST
+
+   o CUDA cubic spline for grid interpolation:
+
+     http://www.dannyruijters.nl/cubicinterpolation/
+
+---
+Mon  6 Aug 15:21:40 BST 2018
+
+
+Inverse Kinematics, Featherstone?
+
+   https://github.com/bulletphysics
+
+Also
+   Bullet Physics SDK:
+   real-time collision detection and multi-physics simulation for VR,
+   games, visual effects, robotics, machine learning etc.
+
+Also
+
+   https://dartsim.github.io/ DART (Dynamic Animation and Robotics Toolkit
+
+Book: Rigid Body Dynamics Algorithms 2008, Featherstone, Roy
+   A comprehensive collection of the best rigid-body dynamics algorithms
+
+---
+Mon 27 Aug 2018 12:21:09 BST
+
+   what is geexlab?
+
+---
+Tue 28 Aug 2018 03:27:54 BST
+
+   command line parsing in c++ 11
+
+https://www.reddit.com/r/cpp/comments/4zhm2n/which_library_would_you_recommend_for_parsing/
+
+---
+Tue  4 Sep 2018 06:13:12 BST
+
+    read this:
+
+    https://www.ncbi.nlm.nih.gov/pubmed/27318041
+
+    Defining the limits and reliability of rigid-body fitting in cryo-EM maps using
+    multi-scale image pyramids.
+
+    and this:
+
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3150432/
+
+    BCL::EM-Fit: Rigid body fitting of atomic structures into density maps using
+    geometric hashing and real space refinement
+
+    read this:
+
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5715128/
+
+    Tools for the cryo-EM gold rush: going from the cryo-EM map to the atomistic model
+
+    read this
+
+    RosettaES: a sampling strategy enabling automated interpretation of difficult cryo-EM maps.
+    Frenz B, Walls AC, Egelman EH, Veesler D, DiMaio F
+    Nat Methods. 2017 Aug; 14(8):797-800.
+
+    read this:
+
+    Woetzel N, Lowe EW, Meiler J. Poster: GPU-accelerated rigid body fitting of atomic structures
+            into electron density maps. 2011 IEEE 1st International Conference on Computational
+            Advances in Bio and Medical Sciences (ICCABS).2011. [Ref list]
+            Journal ref is one of the above, I think (BCL::EM-Fit)
+
+---
+Tue  4 Sep 2018 16:15:01 BST
+
+   chimera:
+
+   Visualizing density maps with UCSF Chimera.
+   Goddard TD, Huang CC, Ferrin TE
+   J Struct Biol. 2007 Jan; 157(1):281-7.
+
+   Fitting to maps described here?
+
+   Fit in map:
+   https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/midas/fitmap.html
+
+---
+Fri 21 Sep 2018 10:49:26 BST
+
+    Jane Richardon: packing in 1cgi looks nice.
+                    non-Pro cis 3er0 (should be 1 in 3,000 or 1 in 10,000 for non-carbohydrate proteins)
+                    cablam outlier: 3ja8 Leu 235
+
+---
+Tue 11 Sep 23:10:09 BST 2018
+
+
+http://opengl.datenwolf.net/gltut/html/index.html
+
+---
+Mon Sep 17 21:55:15 BST 2018
+
+   build this from a starting ideal helix:
+   (which you might be able to find with a cuda-based search?)
+   5toh
+
+---
+Mon 24 Sep 2018 15:48:27 BST
+
+   quaternion axis rotation in freeglut 2.8.1 spaceball.c
+
+   void sbrot(int x, int y, int z) {
+     float axis_len = (float)sqrt(x * x + y * y + z * z);
+     rot = quat_rotate(rot, axis_len * 0.001f, -x / axis_len, -y / axis_len, z / axis_len);
+
+   Does this mean that a spaceball works? Hmm!
+
+---
+Wed 26 Sep 2018 22:44:14 BST
+
+ Jeremy Huddleston Sequoia 2016-12-19 19:46:44 UTC
+
+    Indirect GLX is no longer supported by default.  You can enable it with:
+
+       defaults write org.macosforge.xquartz.X11 enable_iglx -bool true
+
+---
+Thu 27 Sep 2018 08:12:03 BST
+
+   font stuff
+
+   http://www.lighthouse3d.com/very-simple-libs/vsfl/
+
+
+---
+Thu 27 Sep 2018 11:57:26 BST
+
+   GLSL antialiasing/multisampling
+
+   https://learnopengl.com/Advanced-OpenGL/Anti-Aliasing
+
+---
+Thu 27 Sep 2018 15:12:53 BST
+
+   3gp0 needs helix shift of MR solution
+
+   Try low res, prosmart-like restraints or morphing wrapped with prosmart restraints.
+
+
+---
+Thu 27 Sep 2018 15:33:44 BST
+
+   histogram of H (or HA) density values in the apoferritin map.
+
+
+----
+Thu 27 Sep 2018 15:58:58 BST
+
+    Dave Brown suggests:
+    ligand validation meeting: what should we do with ligands from pandda - they will
+    seem to be rubbish by conventional metrics.
+
+----
+Sun 14 Oct 2018 17:10:02 BST
+
+   bfgs
+
+   https://www.caam.rice.edu/~dennis/images/Broyden-Fletcher-Goldfarb-Shanno.jpg
+
+---
+Sun  4 Nov 2018 05:04:52 GMT
+
+   atomic compare_exchange_weak
+   https://www.codeproject.com/Articles/808305/Understand-std-atomic-compare-exchange-weak-in-Cpl
+
+---
+Wed  7 Nov 2018 15:45:36 GMT
+
+   PLIP is a thing (I mentioned it above!)
+   https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4489249/
+   A 500 in 1osn - what does this give in pli?
+
+---
+Sun 11 Nov 2018 16:32:37 GMT
+
+   read this before updating hydrogen bonds:
+
+   Kortemme T, Morozov AV, Baker D. An orientation-dependent hydrogen bonding potential improves
+       prediction of specificity and structure for proteins and protein-protein complexes.
+       J Mol Biol. 2003;326:1239–1259.
+
+---
+Sun 25 Nov 2018 12:26:00 BRST
+
+   porting pygtk to python3  PyGI+GTK PyGObject Introspection
+   https://wiki.gnome.org/action/show/Projects/PyGObject/IntrospectionPorting?action=show&redirect=PyGObject%2FIntrospectionPorting
+
+
+---
+Tue 11 Dec 2018 02:47:48 GMT
+
+   differential equation solver
+
+https://github.com/sheljohn/osd
+
+---
+Tue 18 Dec 2018 03:42:49 GMT
+
+   svg problem maybe compile gtk-pixbuf2 with --enable-relocations
+
+   https://github.com/Alexpux/MINGW-packages/issues/818
+
+   This is most probably caused by wrong /usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache file. Try:
+   gdk-pixbuf-query-loaders > $prfx/gdk-pixbuf-2.0/2.10.0/loaders.cache
+   to regenerate it.
+
+----
+Sun 16 Dec 2018 14:48:21 GMT
+
+   set_thread *is* run just once at the start of ctpl.h.
+
+---
+Sun  6 Jan 2019 14:57:30 GMT
+
+   check my blob
+
+   https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty626/5055122
+
+---
+Sun  6 Jan 2019 15:15:22 GMT
+
+   module opticspy does Zernike moments
+
+---
+Tue  8 Jan 2019 14:42:58 GMT
+
+   Here is homebrew's patch for Python
+
+   https://github.com/Homebrew/homebrew-core/blob/master/Formula/python.rb
+
+
+---
+Wed  9 Jan 2019 02:25:27 GMT
+
+   lots of click sounds (just the job?)
+
+   https://freesound.org/people/Jaszunio15/
+
+---
+Wed  9 Jan 2019 15:05:52 GMT
+
+   fragment-based folding
+
+   http://www0.cs.ucl.ac.uk/staff/D.Jones/t42morph.html
+
+---
+Wed  9 Jan 2019 15:09:38 GMT
+
+   Dan Rigdeon talk:
+
+   quark server: fragment based modelling
+
+   https://zhanglab.ccmb.med.umich.edu/QUARK/
+
+   https://onlinelibrary.wiley.com/doi/full/10.1002/prot.24065
+
+   also
+
+   confold2 (not fragment based)
+
+---
+Sun 13 Jan 2019 07:56:23 GMT
+
+  CUDA
+  https://www.sharcnet.ca/help/index.php/CUDA_tips_and_tricks#Overview
+
+---
+Fri 25 Jan 2019 20:54:54 GMT
+
+Software Violations in Binary Code
+https://nixos.org/~eelco/pubs/clones-msr2011-final.pdf
+
+
+----
+Tue  5 Feb 2019 11:44:27 PST
+
+  gettext problems in cj build gtkglext (glib)
+
+  configuration of glib failed because it couldn't find gettext (perhaps msgfmt, actually)
+  That was because cj build didn't install the msgfmt file.
+
+  The solution was to put the directory for msgfmt in the path before running cj (and that
+  directory was provided by homebrew).
+
+  A better solution is for cj to install msgfmt and put the directory into which it installs
+  it into the path itself.
+
+----
+Mon 11 Feb 2019 13:05:44 PST
+
+   compiling readline from  source
+
+https://stackoverflow.com/questions/26670417/how-to-compile-readline-from-source
+
+ldd -r /mypath/lib/libreadline.so.6.2
+        linux-vdso.so.1 =>  (0x00007ffffb186000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f450c62f000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f450cc07000)
+undefined symbol: UP    (/mypath/lib/libreadline.so.6.2)
+undefined symbol: PC    (/mypath/lib/libreadline.so.6.2)
+undefined symbol: BC    (/mypath/lib/libreadline.so.6.2)
+
+--with-curses'
+    This tells readline that it can find the termcap library functions
+    (tgetent, et al.) in the curses library, rather than a separate
+    termcap library.  Readline uses the termcap functions, but does not
+    link with the termcap or curses library itself, allowing applications
+    which link with readline the to choose an appropriate library.
+    This option tells readline to link the example programs with the
+    curses library rather than libtermcap.
+
+make SHLIB_LIBS=/mypath/libncurses.so
+
+
+----
+Sat 16 Feb 2019 06:02:48 PST
+
+LBFGS insights:
+https://www12.cs.fau.de/edu/map/ss12/talks/lbfgs_map_superresolution.pdf
+
+   Does changing the Rama weight make our function more like a rosenbrock function?
+
+   http://en.wikipedia.org/wiki/Rosenbrock_function
+
+---
+Sun 10 Mar 2019 12:39:28 GMT
+
+   use pip to install xmltramp2 to use muscle.py
+
+   https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
+
+
+---
+Tue 12 Mar 2019 17:34:23 GMT
+
+ Is this what I need to test that svg works? (found in gtk3-opengl/Makefile)
+ 
+ rsvg-convert --format png --output $@ $^
+
+
+---
+Mon 29 Apr 2019 12:23:07 BST
+
+   o Converting to GTK3: At some stage Use define (GTK_DISABLE_DEPRECATED) in the gtk2 build
+     gtk_combo_box_get_active_text is deprecated
+
+ * Deprecated: 2.24: If you used this with a #GtkComboBox constructed with 
+ * gtk_combo_box_new_text() then you should now use #GtkComboBoxText and 
+ * gtk_combo_box_text_get_active_text() instead. Or if you used this with a
+ * #GtkComboBoxEntry then you should now use #GtkComboBox with 
+ * #GtkComboBox:has-entry as %TRUE and use
+ * gtk_entry_get_text (GTK_ENTRY (gtk_bin_get_child (GTK_BIN (combobox)))).
+
+---
+Mon 29 Apr 2019 12:37:01 BST
+
+  GPU Optimizations for games:
+
+  https://gist.github.com/silvesthu/505cf0cbf284bb4b971f6834b8fec93d
+
+  interesting stuff
+
+---
+Tue 30 Apr 2019 15:30:25 BST
+
+   rtx/Vulkan with Linux:
+
+   https://iorange.github.io/p01/HappyTriangle.html
+
+   Good stuff - not sure how to get the vulkan directory :-)
+
+   Vulkan Fish! and other things:
+   https://developer.nvidia.com/gameworks-vulkan-and-opengl-samples
+
+---
+Tue  7 May 2019 00:16:49 BST
+
+   deprecated gtk:
+
+-  box_main = gtk_vbox_new (FALSE, 10);
++  box_main = gtk_box_new (GTK_ORIENTATION_VERTICAL, 10);
+
+
+---
+Fri 10 May 2019 05:51:46 BST
+
+   Oh boy:
+
+   On Mac OS X, GTK3+ is only native
+   On Mac OS X, GTK3+ has no connection to OpenGL
+
+   https://apple.stackexchange.com/questions/205404/how-can-i-get-gdk-x11-3-0-on-os-x
+   https://mail.gnome.org/archives/gtk-list/2017-January/msg00020.html
+
+
+---
+Fri 10 May 2019 17:01:54 BST
+
+   It might be that wxFormBuilder can generate C++ from glade-3 output.
+
+---
+Sun 12 May 2019 14:38:04 BST
+
+   Lots of good stuff about how to work with GTK3 on Mac OS X:
+
+   https://wiki.gnome.org/Projects/GTK/OSX
+
+---
+Wed 22 May 2019 11:34:42 BST
+
+    look at this:
+
+    https://wiki.fysik.dtu.dk/ase/
+
+    and this:
+
+    https://www.macinchem.org/blog/files/90966f824efe7fbbf2f0b4f56526b658-2202.php
+    LigandScout 4.2 Released
+
+---
+Thu 23 May 2019 10:38:58 BST
+
+   Javascript viewers:
+
+   https://www.macinchem.org/scientificsoftware/jsmolviewers.php
+
+   https://biasmv.github.io/pv/demo.html # outlined
+
+---
+Fri 24 May 2019 18:12:50 BST
+
+   flatpak for GNOME:
+
+   https://wiki.gnome.org/Newcomers/BuildProject
+
+   Build GTK4 and test Vulkan
+
+---
+Mon 27 May 2019 01:38:52 CEST
+
+   using Vulkan and glm and glfw for pretty pictures:
+
+   https://www.reddit.com/r/vulkan/comments/brvdan/the_story_of_optimizing_a_vulkan_program/
+
+
+----
+Wed  1 May 16:03:37 BST 2019
+
+   https://stackoverflow.com/questions/4305911/opengl-depth-sorting
+   https://stackoverflow.com/questions/6352908/opengl-transparency-translucency?noredirect=1&lq=1
+   http://developer.download.nvidia.com/SDK/10/opengl/src/dual_depth_peeling/doc/DualDepthPeeling.pdf
+   http://www.humus.name/index.php?page=3D&ID=61
+   https://community.khronos.org/t/easy-depth-sorting-almost-maybe/59832
+
+
+----
+Tue  7 May 17:38:42 BST 2019
+
+   SAXS tutorial/envelope info
+   https://situs.biomachina.org/tutorial_saxs.html
+
+
+---
+Thu 13 Jun 2019 08:24:13 BST
+
+   Ray tracing - ends with glass duck
+   https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
+
+---
+Wed 19 Jun 2019 15:38:48 CDT
+
+   To solve the canberra problem:
+
+   sudo apt install libcanberra-gtk-module libcanberra-gtk3-module
+
+
+---
+Thu 20 Jun 2019 15:41:02 CDT
+
+   focus follow mouse:
+
+   gsettings set org.gnome.desktop.wm.preferences focus-mode 'sloppy'
+
+
+---
+Fri 21 Jun 2019 14:31:08 CDT
+
+   o phenix ncs-from-map:
+
+     https://www.phenix-online.org/documentation/reference/find_ncs_from_density.html
+
+
+---
+Fri 21 Jun 2019 14:59:40 CDT
+
+   Conan: the C / C++ Package Manager for Developers
+
+   open source, decentralized and multi-platform package manager to create and
+   share all your native binaries.
+
+---
+
+Mon  8 Jul 18:12:26 BST 2019
+
+  Jiffies, linux ticks, Hz
+
+  $ getconf CLK_TCK
+
+
+---
+Mon 24 Jun 2019 09:41:38 CDT
+
+   PDBe: ccdutils rdkit library
+
+---
+Mon 24 Jun 2019 10:14:03 CDT
+
+   Pavel lecture:
+
+   o 3noq real Rama outlier
+     5a9z lots of Rama outliers.
+     Voth and Shing 2007 for Hydrogen bond definition
+
+---
+Mon 24 Jun 2019 10:15:05 CDT
+
+   o Mac OSX and Gtk: John Ralls https://discourse.gnome.org/t/say-hello-thread/82/35
+
+
+---
+Mon 24 Jun 2019 10:15:28 CDT
+
+   o Dominika OS: Ubuntu 16.04
+
+---
+Wed  3 Jul 2019 04:21:00 BST
+
+   o 26S Proteosome EMDB-4002
+
+---
+Tue 16 Jul 22:59:11 BST 2019
+
+   what is this?
+
+   https://github.com/exokitxr/exokit
+
+---
+Fri 26 Jul 20:51:17 BST 2019
+
+   o OpenGL tutorials: including SSAO:
+
+     http://ogldev.atspace.co.uk/
+
+---
+Tue  9 Jul 2019 18:19:46 BST
+
+   o Interesting (python) opengl stuff:
+
+   http://www.labri.fr/perso/nrougier/python-opengl/
+
+---
+Tue  9 Jul 2019 21:51:00 BST
+
+   RNA Forcefield Hydrogen bonds Amber
+
+   https://pubs.acs.org/doi/abs/10.1021/acs.jctc.8b00955
+
+---
+Tue 16 Jul 2019 00:09:20 BST
+
+     elifesciences.org/articles/16105 for extra examples of big shift molecules
+
+---
+Thu 18 Jul 2019 09:44:15 BST
+
+Scalable parallel programming
+
+   read this https://ieeexplore.ieee.org/abstract/document/7476525
+

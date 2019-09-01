@@ -159,6 +159,10 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
    graph_label += coot::util::int_to_string(imol);
    graph_label += ": ";
    graph_label += graph_label_in;
+   if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
+      graph_label += " fit vs. Map ";
+      graph_label += coot::util::int_to_string(imol_refinement_map());
+   }
 
    // set the window title:
    std::string title("Graph");
@@ -277,7 +281,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    if (extra_distortion.initialised_p()) { 
 	       worst_distortions[rs_1].first = extra_distortion;
 	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
@@ -310,7 +314,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    if (extra_distortion.initialised_p()) { 
 	       worst_distortions[rs_1].first = extra_distortion;
 	       worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
@@ -343,7 +347,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
 		     worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);
 		  }
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  if (extra_distortion.initialised_p()) { 
 		     worst_distortions[rs_1].first = extra_distortion;
 		     worst_distortions[rs_1].second = make_distortion_string(dc.geometry_distortion[i], dc);

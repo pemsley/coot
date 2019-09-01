@@ -267,6 +267,16 @@ sgtk_main_toolbar ()
   return sgtk_wrap_gtkobj ((GObject*)cr_ret);
 }
 
+static char s_main_hbox[] = "main-hbox";
+
+SCM
+sgtk_main_hbox ()
+{
+  GtkWidget* cr_ret;
+  cr_ret = main_hbox();
+  return sgtk_wrap_gtkobj ((GObject*)cr_ret);
+}
+
 void
 coot_init_glue_types ()
 {
@@ -290,6 +300,7 @@ coot_init_glue ()
   scm_c_define_gsubr(s_main_toolbar,   0, 0, 0, sgtk_main_toolbar);
   scm_c_define_gsubr(s_main_menubar,   0, 0, 0, sgtk_main_menubar);
   scm_c_define_gsubr(s_main_statusbar, 0, 0, 0, sgtk_main_statusbar);
+  scm_c_define_gsubr(s_main_hbox,      0, 0, 0, sgtk_main_hbox);
 }
 
 #endif // GTK_MAJOR_VERSION > 1

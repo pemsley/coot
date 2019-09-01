@@ -198,7 +198,8 @@ get_atom_selection(std::string pdb_name,
 	  std::string sgrp(str);
 	  std::cout << "Spacegroup: " << sgrp << "\n";
        } else {
-	  std::cout << "No Spacegroup found for this PDB file\n";
+          // Too noisy, not valuable.
+	  // std::cout << "No Spacegroup found for this PDB file\n";
        } 
     
 //        std::cout << "Cell: "
@@ -588,6 +589,7 @@ std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
 int
 write_atom_selection_file(atom_selection_container_t asc,
 			  const std::string &filename,
+			  bool write_as_cif_flag,
 			  mmdb::byte gz,
 			  bool write_hydrogens,     // optional arg
 			  bool write_aniso_records, // optional arg
@@ -598,8 +600,8 @@ write_atom_selection_file(atom_selection_container_t asc,
    coot::util::remove_wrong_cis_peptides(asc.mol);
    mmdb::Manager *mol = asc.mol;
    bool mol_needs_deleting = false; // unless mol is reassigned...
-   
-   if (coot::is_mmcif_filename(filename)) {
+
+   if (write_as_cif_flag) {
 
       ierr = mol->WriteCIFASCII(filename.c_str());
 
@@ -764,16 +766,16 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
 	 std::cout << "Null rdkit mol ptr m" << std::endl;
       } 
    }
-   catch (RDKit::FileParseException rte) {
+   catch (const RDKit::FileParseException &rte) {
       std::cout << "WARNING:: " << rte.message() << std::endl;
    }
-   catch (RDKit::BadFileException &e) {
+   catch (const RDKit::BadFileException &e) {
       std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING runtime_error in mol_to_asc_rdkit() " << rte.what() << std::endl;
    } 
-   catch (std::exception e) {
+   catch (const std::exception &e) {
       std::cout << "WARNING:: mol_to_asc_rdkit: exception: " << e.what() << std::endl;
    } 
    return asc;
@@ -822,4 +824,46 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m, float b_factor) {
       asc = make_asc(mol);
    }
    return asc;
+}
+
+std::vector<std::string>
+coot::get_compound_lines(mmdb::Manager *mol) {
+
+   std::vector<std::string> compound_lines;
+
+   access_mol *am = static_cast<access_mol *>(mol); // causes indent problem
+
+   const mmdb::Title *tt = am->GetTitle();
+   mmdb::Title *ttmp = const_cast<mmdb::Title *>(tt);
+   access_title *at = static_cast<access_title *> (ttmp);
+   mmdb::TitleContainer *compound = at->GetCompound();
+   int cl = compound->Length();
+
+   if (cl > 0) {
+      for(int i=0; i<cl; i++)  {
+	 mmdb::Compound *CLine = mmdb::PCompound(compound->GetContainerClass(i));
+	 if (CLine) {
+	    std::string line(CLine->Line);
+	    compound_lines.push_back(line);
+	 }
+      }
+   }
+   return compound_lines;
+}
+
+
+std::string coot::get_title(mmdb::Manager *mol) {
+
+   std::string tt;
+
+   char *title = new char[10240];
+
+   char *t = mol->GetStructureTitle(title);
+
+   if (t) {
+      tt = std::string(t);
+   }
+   delete [] title;
+
+   return tt;
 }

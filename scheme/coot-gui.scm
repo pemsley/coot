@@ -1,5 +1,3 @@
-;;;; Copyright 2001 by Neil Jerram
-;;;; Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
 ;;;; Copyright 2007 by Paul Emsley
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
@@ -51,9 +49,9 @@
          (port (make-entry-port entry #:paren-matching-style '(highlight-region)))
          (oport (make-text-output-port text))
          (ifont (gdk-font-load "fixed"))
-         (icolour (gdk-color-parse "red")))
+         (icolour (gdk-color-parse "darkblue")))
     (gtk-window-set-policy window #t #t #f)
-    (gtk-window-set-default-size window 400 250)
+    (gtk-window-set-default-size window 550 250)
     ; (gtk-box-pack-start vbox text #t #t 5)
     (gtk-container-add window vbox)
     (gtk-window-set-title window "Coot Scheme Scripting")
@@ -697,7 +695,7 @@
       (let* ((menu (gtk-option-menu-get-menu option-menu))
 	     (active-item (gtk-menu-get-active menu))
 	     (children (gtk-container-children menu)))
-	
+
 	(if (= (length children) (length item-list))
 	    (begin 
 	      (let loop ((children children)
@@ -731,7 +729,6 @@
 	 (cancel-button (gtk-button-new-with-label " Cancel "))
 	 (h-sep (gtk-hseparator-new))
 	 (model-mol-list (option-menu-fill-function menu)))
-
     (gtk-window-set-default-size window 370 100)
     (gtk-container-add window vbox)
     (gtk-box-pack-start vbox label #f #f 5)
@@ -804,8 +801,15 @@
 ;; 
 (define (generic-chooser-and-entry chooser-label entry-hint-text defaut-entry-text callback-function . always-dismiss-on-ok-clicked?)
 
+  (format #t "---- deal with this: always-dismiss-on-ok-clicked?: ~s~%" always-dismiss-on-ok-clicked?)
+  (generic-chooser-and-entry-and-checkbutton chooser-label entry-hint-text defaut-entry-text #f callback-function always-dismiss-on-ok-clicked?))
+
+;; as above, plus we also have a check-button and an additional argument in the callback
+;; If check-button-label is false, then don't create a check-button.
+(define (generic-chooser-and-entry-and-checkbutton chooser-label entry-hint-text defaut-entry-text check-button-label callback-function . always-dismiss-on-ok-clicked?)
+
   ;; (format #t "always-dismiss-on-ok-clicked? is ~s~% " always-dismiss-on-ok-clicked?)
-  ;; if this function is called without the always-dismiss-on-ok-clicked? then
+  ;; if this function is called withouth the always-dismiss-on-ok-clicked? then
   ;; always-dismiss-on-ok-clicked? here is ().
   ;; otherwise it is a list containing the passed always-dismiss-on-ok-clicked? value.
 
@@ -828,44 +832,58 @@
     (gtk-box-pack-start vbox label #f #f 5)
     (gtk-box-pack-start vbox option-menu #t #t 0)
     (gtk-box-pack-start vbox hbox-for-entry #f #f 5)
-    (gtk-box-pack-start vbox h-sep #t #f 2)
-    (gtk-box-pack-start vbox hbox-buttons #f #f 5)
-    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
-    (gtk-box-pack-start hbox-buttons cancel-button #f #f 5)
-    (gtk-box-pack-start hbox-for-entry entry-label #f #f 4)
-    (gtk-box-pack-start hbox-for-entry entry #t #t 4)
-    (gtk-entry-set-text entry defaut-entry-text)
-    
-    (gtk-option-menu-set-menu option-menu menu)
-    
-    ;; button callbacks:
-    (gtk-signal-connect ok-button "clicked"
-			(lambda args
-			  ;; what is the molecule number of the option menu?
-			  (let ((active-mol-no (get-option-menu-active-molecule 
-						option-menu
-						model-mol-list)))
+    (let ((check-button 
+	   (if (string? check-button-label)
+	       (let ((c-button (gtk-check-button-new-with-label check-button-label)))
+		 (gtk-box-pack-start vbox c-button #f #f 2)
+		 c-button)
+	       #f))) ; the check-button when we don't want to see it
 
-			    (if (number? active-mol-no)
-				(begin
-				  (let* ((text (gtk-entry-get-text entry))
-					 (func-return-value (callback-function active-mol-no text)))
+      (gtk-box-pack-start vbox h-sep #t #f 2)
+      (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+      (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+      (gtk-box-pack-start hbox-buttons cancel-button #f #f 5)
+      (gtk-box-pack-start hbox-for-entry entry-label #f #f 4)
+      (gtk-box-pack-start hbox-for-entry entry #t #t 4)
+      (gtk-entry-set-text entry defaut-entry-text)
+      
+      (gtk-option-menu-set-menu option-menu menu)
+      
+      ;; button callbacks:
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda args
+			    ;; what is the molecule number of the option menu?
+			    (let ((active-mol-no (get-option-menu-active-molecule 
+						  option-menu
+						  model-mol-list)))
 
-				    (format #t "func-return-value: ~s~%" func-return-value)
+			      (if (number? active-mol-no)
+				  (begin
+				    (let* ((text (gtk-entry-get-text entry))
+					   (button-state (if check-button
+							     (gtk-toggle-button-get-active check-button)
+							     'no-check-button)))
 
-				    (if (null? always-dismiss-on-ok-clicked?) ;; default
-					(gtk-widget-destroy window)
-					(if func-return-value
+				      (let ((func-return-value
+					     (if (eq? button-state 'no-check-button)
+						 (callback-function active-mol-no text)
+						 (callback-function active-mol-no text button-state))))
+
+					(format #t "func-return-value: ~s~%" func-return-value)
+
+					(if (null? always-dismiss-on-ok-clicked?) ;; default
 					    (gtk-widget-destroy window)
-					    (begin
-					      ;; (format #t "not going anywhere\n")
-					      #t)))))))))
+					    (if func-return-value
+						(gtk-widget-destroy window)
+						(begin
+						  ;; (format #t "not going anywhere\n")
+						  #t))))))))))
 
-    (gtk-signal-connect cancel-button "clicked"
-			(lambda args
-			  (gtk-widget-destroy window)))
-    
-    (gtk-widget-show-all window)))
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window)))
+
+      (gtk-widget-show-all window))))
 
 ;; Create a window
 ;; 
@@ -1431,29 +1449,28 @@
 
     (define (local-view-name)
       (let loop ((view-count 0))
-	(let ((str (string-append "View"
-				  (if (> view-count 0)
-				      (string-append "-"
-						     (number->string view-count))
-				      ""))))
-	  ;; now is a view already called str?
-	  (let iloop ((jview 0))
-	    (let ((jview-name (view-name jview)))
+        (let ((str (string-append "View"
+                                  (if (> view-count 0)
+                                      (string-append "-" (number->string view-count))
+                                      ""))))
+          ;; now is a view already called str?
+          (let iloop ((jview 0))
+            (let ((jview-name (view-name jview)))
 
-	      (cond 
-	       ((>= jview (n-views)) str)
-	       ((eq? #f jview-name) str)
-	       ((string=? str jview-name) (loop (+ view-count 1)))
-	       (else
-		(iloop (+ jview 1)))))))))
+              (cond
+               ((>= jview (n-views)) str)
+               ((eq? #f jview-name) str)
+               ((string=? str jview-name) (loop (+ view-count 1)))
+               (else
+                (iloop (+ jview 1)))))))))
 
     ;; main line
     ;; 
     (let ((view-name (local-view-name)))
       (generic-single-entry "View Name: " view-name " Add View " 
-			    (lambda (text)
-			      (let ((new-view-number (add-view-here text)))
-				(add-view-to-views-panel text new-view-number)))))))
+                            (lambda (text)
+                              (let ((new-view-number (add-view-here text)))
+                                (add-view-to-views-panel text new-view-number)))))))
 				
 
 ;; 
@@ -1461,16 +1478,14 @@
 
   (if *views-dialog-vbox*
       (let ((button (gtk-button-new-with-label view-name)))
-	(gtk-signal-connect button "clicked" (lambda ()
-					       (go-to-view-number 
-						view-number 0)))
-	(gtk-box-pack-start *views-dialog-vbox* button #f #f 2)
-	(gtk-widget-show button))))
+        (gtk-signal-connect button "clicked" (lambda () (go-to-view-number view-number 0)))
+        (gtk-box-pack-start *views-dialog-vbox* button #f #f 2)
+        (gtk-widget-show button))))
 
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons.
+;; return a list of (h-box-buttons window)
 ;;
 ;; a button is a list of (label callback-thunk text-description)
 ;; where text-description is an option arg (can be omitted)
@@ -1482,7 +1497,7 @@
 
 ;; geometry is an improper list of ints.
 ;; 
-;; return the h-box of the buttons.
+;; return a list of (h-box-buttons window)
 ;;
 ;; a button is a list of (label callback-thunk text-description)
 ;;
@@ -1542,7 +1557,7 @@
 			  (lambda args
 			    (set! inside-vbox #f)))
       (gtk-widget-show-all window)
-      inside-vbox))
+      (list inside-vbox window)))
 
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
@@ -1645,47 +1660,47 @@
   (lambda ()
 
     (let* ((number-of-views (n-views))
-	   (buttons 
+           (buttons
 
-	    (let loop ((button-number 0)
-		       (ls '()))
+            (let loop ((button-number 0)
+                       (ls '()))
 
-	      (cond 
-	       ((= number-of-views button-number) (reverse ls))
-	       (else 
-		(let ((button-label (view-name button-number)))
-		  (if button-label
-		      (let ((desciption (view-description button-number)))
-			(if (eq? #f desciption)
-			    (loop (+ button-number 1) 
-				  (cons 
-				   (list button-label
-					 (lambda ()
-					   (go-to-view-number button-number 0)))
-				   ls))
-			    (loop (+ button-number 1)
-				  (cons 
-				   (list button-label
-					 (lambda ()
-					   (go-to-view-number button-number 0))
-					 desciption)
-					ls))))
+              (cond
+               ((= number-of-views button-number) (reverse ls))
+               (else
+                (let ((button-label (view-name button-number)))
+                  (if button-label
+                      (let ((desciption (view-description button-number)))
+                        (if (eq? #f desciption)
+                            (loop (+ button-number 1)
+                                  (cons
+                                   (list button-label
+                                         (lambda ()
+                                           (go-to-view-number button-number 0)))
+                                   ls))
+                            (loop (+ button-number 1)
+                                  (cons
+                                   (list button-label
+                                         (lambda ()
+                                           (go-to-view-number button-number 0))
+                                         desciption)
+                                   ls))))
 
-		      (loop (+ button-number 1) ls))))))))
+                      (loop (+ button-number 1) ls))))))))
       (let ((all-buttons
-	     (if (> (length buttons) 1)
-		 (let ((view-button (list "  Play Views " 
-					  (lambda ()
-					    (go-to-first-view 1)
-					    (usleep 100000)
-					    (play-views)))))
-		   (reverse (cons view-button (reverse buttons))))
-		 buttons)))
-      
-	(let ((views-vbox
-	       (dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))
+             (if (> (length buttons) 1)
+                 (let ((view-button (list "  Play Views "
+                                          (lambda ()
+                                            (go-to-first-view 1)
+                                            (usleep 100000)
+                                            (play-views)))))
+                   (reverse (cons view-button (reverse buttons))))
+                 buttons)))
 
-	  (set! *views-dialog-vbox* views-vbox))))))
+        (let ((views-vbox
+               (dialog-box-of-buttons " Views " (cons 200 140) all-buttons "  Close  ")))
+
+          (set! *views-dialog-vbox* views-vbox))))))
 
    
 ;   (* nudge (apply + (map * (list-ref tvm 0) ori)))
@@ -1716,7 +1731,7 @@
 		;; rc + tvm*nudge
 		(apply set-rotation-centre 
 		       (map + rc (screen-coords-nudge tvm nudge axes))))))
-	 (buttons 
+	 (buttons
 	  (list 
 	   (list "Nudge +X" (lambda () (f (list  1 0 0))))
 	   (list "Nudge -X" (lambda () (f (list -1 0 0))))
@@ -2138,6 +2153,51 @@
       (gtk-widget-show-all window))))
 
 
+(define *ncs-jumping-time-step* 500)
+
+(define (ncs-jumping-gui)
+
+  ;; main body
+  (let* ((window (gtk-window-new 'toplevel))
+	 (outside-vbox (gtk-vbox-new #f 2))
+	 (inside-hbox (gtk-hbox-new #f 2))
+	 (cancel-hbox (gtk-vbox-new #f 2))
+	 (h-sep (gtk-hseparator-new))
+	 (jump-start-button (gtk-button-new-with-label "NCS Jump Start"))
+	 (jump-stop-button  (gtk-button-new-with-label "Stop"))
+	 (cancel-button     (gtk-button-new-with-label "Cancel"))
+	 (ms-step *ncs-jumping-time-step*)
+	 (timeout-function-token #f))
+
+    (gtk-window-set-title window "Auto NCS Jumping")
+    (gtk-container-add window outside-vbox)
+    (gtk-box-pack-start outside-vbox inside-hbox #f #f 2)
+    (gtk-box-pack-start outside-vbox h-sep #f #f 2)
+    (gtk-box-pack-start outside-vbox cancel-hbox #f #f 2)
+    (gtk-box-pack-start inside-hbox jump-start-button  #f #f 2)
+    (gtk-box-pack-start inside-hbox jump-stop-button   #f #f 2)
+    (gtk-box-pack-start cancel-hbox cancel-button #f #f 2)
+
+    (gtk-signal-connect jump-start-button "clicked"
+			(lambda ()
+			  (if (not (number? timeout-function-token))
+			      (set! timeout-function-token (gtk-timeout-add ms-step (lambda() (skip-to-next-ncs-chain 'forward)))))))
+
+    (gtk-signal-connect jump-stop-button "clicked"
+			(lambda ()
+			  (if (number? timeout-function-token)
+			      (gtk-timeout-remove timeout-function-token))
+			  (set! timeout-function-token #f)))
+
+    (gtk-signal-connect cancel-button "clicked"
+			(lambda ()
+			  (if (number? timeout-function-token)
+			      (gtk-timeout-remove timeout-function-token))
+			  (gtk-widget-destroy window)))
+
+    (gtk-widget-show-all window)))
+
+
 ;; GUI for ligand superpositioning by graph matching
 ;;
 (define (superpose-ligand-gui) 
@@ -2396,7 +2456,7 @@
 	     *key-bindings*))))
       
       (let loop ((items scm+py-keybindings))
-	(cond 
+	(cond
 	 ((null? items) 'done)
 	 (else 
 	  (if (string? (list-ref (car items) 3)) 
@@ -2408,7 +2468,7 @@
 	  (loop (cdr items)))))
       
       (let loop ((items (map (lambda (x) (cons 'dum x)) std-key-bindings)))
-	(cond 
+	(cond
 	 ((null? items) 'done)
 	 (else 
 	  (box-for-binding (car items) std-frame-vbox #f)
@@ -2505,9 +2565,9 @@
 	(insert-string "  Yep - there really is no news\n" text-2))
 	
       ; (format #t "coot-news-info called with args: ~s~%" args)
-      (cond 
+      (cond
        ((= (length args) 1)
-	  (cond 
+	  (cond
 	   ((eq? (car args) 'stop) (stop))
 	   ((eq? (car args) 'status)
 	    status)
@@ -3067,22 +3127,22 @@
 	 (inside-vbox  (gtk-vbox-new #f 2))
 	 (label (gtk-label-new "\nSolvent molecules added to molecule: "))
 	 (menu (gtk-menu-new))
-	 (frame-for-option-menu (gtk-frame-new ""))
-	 (vbox-for-option-menu (gtk-vbox-new #f 2))
+	 (frame-for-option-menu (gtk-frame-new " Choose Molecule "))
+	 (vbox-for-option-menu (gtk-vbox-new #f 6))
 	 (molecule-option-menu (gtk-option-menu-new))
 	 (model-list (fill-option-menu-with-coordinates-mol-options menu))
 	 (add-new-button (gtk-button-new-with-label "  Add a new Residue Type..."))
 	 (h-sep (gtk-hseparator-new))
 	 (close-button (gtk-button-new-with-label "  Close  ")))
     
-    (gtk-window-set-default-size window 250 400)
+    (gtk-window-set-default-size window 250 500)
     (gtk-window-set-title window "Solvent Ligands")
     (gtk-container-border-width window 8)
     (gtk-container-add window outside-vbox)
     (gtk-box-pack-start outside-vbox label #f #f 2)
     (gtk-container-add frame-for-option-menu vbox-for-option-menu)
-    (gtk-box-pack-start vbox-for-option-menu molecule-option-menu #f #f 2)
-    (gtk-container-border-width frame-for-option-menu 4)
+    (gtk-box-pack-start vbox-for-option-menu molecule-option-menu #f #f 8)
+    (gtk-container-border-width frame-for-option-menu 6)
     (gtk-box-pack-start outside-vbox frame-for-option-menu #f #f 2)
     (gtk-box-pack-start outside-vbox scrolled-win #t #t 0)
     (gtk-scrolled-window-add-with-viewport scrolled-win inside-vbox)
@@ -3770,6 +3830,181 @@
 						     buttons)
 						    " Close ")))))))))))))
 
+(define (refmac-multi-sharpen-gui)
+  (let ((window (gtk-window-new 'toplevel))
+	;; boxes
+	(vbox (gtk-vbox-new #f 0))
+	(hbox-1 (gtk-hbox-new #f 0))
+	(hbox-2 (gtk-hbox-new #f 0))
+	(hbox-3 (gtk-hbox-new #f 0))
+	;; menus
+	(option-menu-map (gtk-option-menu-new))
+	(option-menu-b-factor (gtk-option-menu-new))
+	(option-menu-n-levels (gtk-option-menu-new))
+	(menu-map (gtk-menu-new))
+	(menu-b-factor (gtk-menu-new))
+	(menu-n-levels (gtk-menu-new))
+	;; labels
+	(map-label (gtk-label-new "Map "))
+	(sb-label  (gtk-label-new "Sharpen & Blur in "))
+	(levels-label  (gtk-label-new " levels up to "))
+	(A-label  (gtk-label-new " A*A"))
+	;; separate
+	(h-sep (gtk-hseparator-new))
+	;; buttons
+	(ok-button (gtk-button-new-with-label "   OK   "))
+	(cancel-button (gtk-button-new-with-label " Cancel "))
+	(n-levels-list (list 1 2 3 4 5 6))
+	(b-factor-list (list 50 100 200 400 800 2000)))
+
+    (let ((map-molecule-list (fill-option-menu-with-map-mol-options
+				  menu-map)))
+
+      ;; fill option menus
+      (for-each (lambda (item)
+		  (let* ((mlabel-str (number->string item))
+			 (menuitem (gtk-menu-item-new-with-label mlabel-str)))
+		    (gtk-menu-append menu-n-levels menuitem)))
+		n-levels-list)
+      (for-each (lambda (item)
+		  (let* ((mlabel-str (number->string item))
+			 (menuitem (gtk-menu-item-new-with-label mlabel-str)))
+		    (gtk-menu-append menu-b-factor menuitem)))
+		b-factor-list)
+      (gtk-menu-set-active menu-n-levels 3)
+      (gtk-menu-set-active menu-b-factor 2)
+    
+      (gtk-window-set-title window "Refmac for Sharpening & Blurring")
+      (gtk-option-menu-set-menu option-menu-map menu-map)
+      (gtk-option-menu-set-menu option-menu-b-factor menu-b-factor)
+      (gtk-option-menu-set-menu option-menu-n-levels menu-n-levels)
+      (gtk-box-pack-start hbox-1 map-label #f #f 2)
+      (gtk-box-pack-start hbox-1 option-menu-map #f #f 2)
+      (gtk-box-pack-start hbox-2 sb-label #f #f 2)
+      (gtk-box-pack-start hbox-2 option-menu-n-levels #f #f 2)
+      (gtk-box-pack-start hbox-2 levels-label #f #f 2)
+      (gtk-box-pack-start hbox-2 option-menu-b-factor #f #f 2)
+      (gtk-box-pack-end hbox-3 cancel-button #f #f 12)
+      (gtk-box-pack-end hbox-3     ok-button #f #f 12)
+
+      (gtk-box-pack-start vbox hbox-1)
+      (gtk-box-pack-start vbox hbox-2)
+      (gtk-box-pack-start vbox h-sep)
+      (gtk-box-pack-start vbox hbox-3)
+
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda() (gtk-widget-destroy window)))
+
+      (gtk-signal-connect ok-button "clicked"
+			  (lambda()
+
+			    ;; if starting-map.mtz exists, move it.
+
+			    ;; get max-b and n-levels and map file name
+			    (let* ((lb b-factor-list)
+				   (ln n-levels-list)
+				   (lmols map-molecule-list)
+				   (max-b            (get-option-menu-active-item option-menu-b-factor lb))
+				   (n-levels         (get-option-menu-active-item option-menu-n-levels ln))
+				   (active-item-imol (get-option-menu-active-item option-menu-map lmols))
+				   ;; There is no function to get a map file name from a molecule
+				   ;; It is not stored.
+				   (map-file-name (molecule-name active-item-imol))
+				   (map-file-name-stub (strip-path (file-name-sans-extension map-file-name)))
+				   (refmac-output-mtz-file-name (string-append "starting-map-"
+									       map-file-name-stub
+									       ".mtz"))
+				   (log-file-name (string-append
+						   "refmac-multisharp-"
+						   map-file-name-stub
+						   ".log")))
+
+			      (if (not (file-exists? map-file-name))
+				  (begin
+				    (info-dialog (string-append "WARNING:: file not found " map-file-name)))
+
+				  (begin
+
+				    (format #t "active-item-imol: ~s~%" active-item-imol)
+
+				    (let* ((step-size (/ max-b n-levels))
+					   (numbers-string (apply string-append (map (lambda(i)
+										       (let ((lev (* step-size (+ i 1))))
+											 (string-append
+											  (number->string lev) " ")))
+										     (range n-levels))))
+					   (blur-string  (string-append "SFCALC BLUR  " numbers-string))
+					   (sharp-string (string-append "SFCALC SHARP " numbers-string)))
+
+				      (let ((cmd-line-args (list "MAPIN" map-file-name))
+					    (data-lines (list "MODE SFCALC"
+							      blur-string
+							      sharp-string
+							      "END"))
+					    (this-dir (getcwd)))
+					(if (not (directory-is-modifiable? this-dir))
+					    (info-dialog "WARNING:: Current directory is not writable")
+					    (let ((s (goosh-command "refmac5"
+								    cmd-line-args
+								    data-lines
+								    log-file-name
+								    #f)))
+					      (if (not (ok-goosh-status? s))
+
+						  (begin
+						    (info-dialog "WARNING:: refmac5 failed"))
+
+						  ;; Happy path
+						  (begin
+						    (format #t "s: ~s~%" s)
+						    (if (not (file-exists? "starting_map.mtz"))
+							(begin
+							  (format #t "WARNING:: starting_map.mtz does not exist~%"))
+							(begin
+							  (format #t "INFO renaming starting_map.mtz to ~s~%"
+								  refmac-output-mtz-file-name)
+							  (rename-file  "starting_map.mtz" refmac-output-mtz-file-name)
+							  ;; offer a read-mtz dialog
+							  (manage-column-selector refmac-output-mtz-file-name)
+							  ))))))))))
+
+			      (gtk-widget-destroy window))))
+
+    (gtk-container-add window vbox)
+    (gtk-widget-show-all window))))
+
+;;
+(define (add-module-cryo-em)
+  (if (defined? 'coot-main-menubar)
+      (add-module-cryo-em-gui)))
+
+;;
+(define (add-module-ccp4)
+  (if (defined? 'coot-main-menubar)
+      (add-module-ccp4-gui)))
+
+;;
+(define (add-module-cryo-em-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "Cryo-EM")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Multi-sharpen..."
+	 refmac-multi-sharpen-gui)
+
+	(add-simple-coot-menu-menuitem
+	 menu "Interactive Nudge Residues..."
+	 (lambda ()
+	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))
+;;
+(define (add-module-ccp4-gui)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "CCP4")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Make Link via Acedrg"
+	 (lambda ()
+	   (acedrg-link-generation-control-window))))))
 
 
 ;; let the c++ part of coot know that this file was loaded:
@@ -3778,7 +4013,3 @@
 ;;; Local Variables:
 ;;; mode: scheme
 ;;; End:
-
-
-
-

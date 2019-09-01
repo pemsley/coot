@@ -996,6 +996,7 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	    g.molecules[g_mol].assign_hetatms();
 #ifdef HAVE_GSL
 	    if (g.find_ligand_do_real_space_refine_state()) {
+	       set_imol_refinement_map(g.find_ligand_map_mol());
  	       int previous_state = refinement_immediate_replacement_state();
  	       g.refinement_immediate_replacement_flag = 1;
  	       g.refine_residue_range(g_mol, "A", "A", 1, "", 1, "", "", 0);
@@ -1374,10 +1375,11 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    else 
       v = g.Geom_p()->matching_ccp4srs_residues_names(t);
 
-   std::cout << "DEBUG::  " << use_sbase_molecules
-	     << " found " << v.size() << " matching molecules "
-	     << " using string :" << t << ":" 
-	     << std::endl;
+   if (false)
+      std::cout << "DEBUG::  " << use_sbase_molecules
+		<< " found " << v.size() << " matching molecules "
+		<< " using string :" << t << ":" 
+		<< std::endl;
 
    // std::cout << "DEBUG:: " << v.size() << " solutions matching" << std::endl;
 
@@ -3518,7 +3520,8 @@ void coot_all_atom_contact_dots(int imol) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       // spike-length ball-radius
-      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
+      bool ignore_waters = true;
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
       // dot density
       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
 
@@ -3540,7 +3543,7 @@ void coot_all_atom_contact_dots(int imol) {
       colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
       colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
-      
+
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;

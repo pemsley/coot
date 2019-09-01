@@ -287,9 +287,8 @@
 	  "Give an acession code"
 	  
 	  (let* ((stub (string-append 
-			"http://www.cmbi.ru.nl/pdb_redo/"
-			(mid-string text)
-			"/" text "/" text "_final"))
+			"https://pdb-redo.eu/db/"
+			text "/" text "_final"))
 		 (pdb-file-name (string-append text "_final.pdb"))
 		 (mtz-file-name (string-append text "_final.mtz"))
 		 (scm-file-name (string-append text "_final.scm"))
@@ -308,4 +307,6 @@
 	    (format #t "make-and-draw-map with ~s~%" mtz-file-name)
 	    (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
 	    (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)
+	    (let ((anom-map (make-and-draw-map mtz-file-name "FAN" "PHAN" "" 0 1)))
+	      (set-map-colour anom-map 0.5 0.5 0))
 	    (run-script scm-file-name)))))

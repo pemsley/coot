@@ -462,9 +462,14 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	    geom_p->get_monomer_restraints_at_least_minimal(ligand_res_name, imol);
 	 
 	 if (! p.first) {
-	    std::cout << "WARNING:: fle_view_with_rdkit(): "
-		      << "Failed to get monomer_restraints for ligand of type "
-		      << ligand_res_name << std::endl;
+	    std::string s1 = "WARNING:: fle_view_with_rdkit(): ";
+	    std::string s2 = "WARNING:: ";
+	    s1 += "Failed to get \nmonomer_restraints for ligand of type ";
+	    s2 += "Failed to get \nmonomer_restraints for ligand of type ";
+	    s1 += ligand_res_name;
+	    s2 += ligand_res_name;
+	    std::cout << s1 << std::endl;
+	    info_dialog(s2.c_str());
 	 } else {
 	    std::vector<mmdb::Residue *> residues =
 	       coot::residues_near_residue(res_ref, mol_for_res_ref, residues_near_radius);
@@ -497,7 +502,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 	       // assign atom names
 	       if (int(rdkm.getNumAtoms()) < res_ref->GetNumberOfAtoms()) {
-		  std::cout << "oops failure to construct rdkit molecule " << std::endl;
+		  std::cout << "WARNING:: failure to construct rdkit molecule " << std::endl;
 	       } else {
 		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
@@ -1447,7 +1452,7 @@ coot::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom 
 			      named_torsions.push_back(torsion);
 			      found_torsion_for_this_H = 1;
 			   }
-			   catch (std::runtime_error rte) {
+			   catch (const std::runtime_error &rte) {
 			      std::cout << "WARNING:: " << rte.what() << std::endl;
 			   } 
 			} 
@@ -1615,7 +1620,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein(mmdb::Residue *residue_ref
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    }
@@ -1715,7 +1720,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Res
 	       atom_bashes[atoms_with_rotating_hydrogens[irh].first].push_back(bash);
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 } 
       }

@@ -196,4 +196,101 @@ graphics_info_t::get_intermediate_atoms_bonds_representation() {
 }
 
 
+PyObject *
+graphics_info_t::get_intermediate_atoms_distortions_py() {
+
+   PyObject *r = Py_False;
+
+   if (last_restraints) {
+      coot::geometry_distortion_info_container_t gd = last_restraints->geometric_distortions();
+      std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
+      if (gd.size() > 0) {
+
+	 r = PyList_New(gd.size());
+	 for (std::size_t i=0; i<gd.geometry_distortion.size(); i++) {
+
+	    PyList_SetItem(r, i, geometry_distortion_to_py(gd.geometry_distortion[i]));
+
+	    if (false) { // debug to terminal
+	       std::cout << "   " << i << " ";
+	       for (std::size_t j=0; j<gd.geometry_distortion[i].atom_indices.size(); j++)
+		  std::cout << " " << gd.geometry_distortion[i].atom_indices[j];
+	       std::cout << ": ";
+	       std::cout << " " << gd.geometry_distortion[i] << " ";
+	       std::cout << gd.geometry_distortion[i].distortion_score << std::endl;
+	    }
+	 }
+      }
+   }
+   return r; // the PyBool_Check is done in the c-interface of this function
+}
+
+#include "c-interface-geometry-distortion.hh"
+
+#ifdef USE_PYTHON
+PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restraint) {
+
+   PyObject *r = PyDict_New();
+   // restraint_type
+   // target_value
+   // sigma
+   // fixed_atom_flags
+
+   PyObject *fixed_atom_flags_py = PyList_New(restraint.fixed_atom_flags.size());
+   for (std::size_t i=0; i<restraint.fixed_atom_flags.size(); i++)
+      PyList_SetItem(fixed_atom_flags_py, i,   PyInt_FromLong(restraint.fixed_atom_flags[i]));
+   PyDict_SetItemString(r, "restraint_type",   PyString_FromString(restraint.type().c_str()));
+   PyDict_SetItemString(r, "target_value",     PyFloat_FromDouble(restraint.target_value));
+   PyDict_SetItemString(r, "sigma",            PyFloat_FromDouble(restraint.sigma));
+   PyDict_SetItemString(r, "fixed_atom_flags", fixed_atom_flags_py);
+
+   return r;
+}
 #endif // USE_PYTHON
+
+#ifdef USE_PYTHON
+PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distortion_info_t &gd) {
+
+   PyObject *r = Py_False;
+
+   if (gd.initialised_p()) {
+      r = PyDict_New();
+      PyObject *atom_indices_py = PyList_New(gd.atom_indices.size());
+      for (std::size_t i=0; i<gd.atom_indices.size(); i++)
+	 PyList_SetItem(atom_indices_py, i, PyInt_FromLong(gd.atom_indices[i]));
+      PyDict_SetItemString(r, "distortion_score", PyFloat_FromDouble(gd.distortion_score));
+      PyDict_SetItemString(r, "restraint", restraint_to_py(gd.restraint));
+      PyDict_SetItemString(r, "residue_spec", residue_spec_to_py(gd.residue_spec));
+      PyDict_SetItemString(r, "atom_indices", atom_indices_py);
+   }
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+
+   return r;
+}
+#endif // USE_PYTHON
+
+
+#endif // USE_PYTHON (bleugh - it's a long way up, but not at the top)
+
+void
+graphics_info_t::register_extension(const std::string &extension,
+				    const std::string &version) {
+
+   extensions_registry[extension] = version;
+}
+
+std::string
+graphics_info_t::get_version_for_extension(const std::string &extension_name) const {
+
+   std::string r;
+
+   std::map<std::string, std::string>::const_iterator it;
+   it = extensions_registry.find(extension_name);
+   if (it != extensions_registry.end()) {
+      r = it->second;
+   }
+   return r;
+}
+

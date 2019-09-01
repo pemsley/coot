@@ -160,6 +160,7 @@ namespace coot {
    link_by_torsion_base_t pyranose_link_1_6_to_core();
    link_by_torsion_base_t pyranose_link_2_3_to_core();
    link_by_torsion_base_t asn_pyranose_link_to_core();
+   link_by_torsion_base_t ser_pyranose_link_to_core();
    
    link_by_torsion_base_t mannose_decorations(); // need GLC NAG
    link_by_torsion_base_t glucose_decorations(); 

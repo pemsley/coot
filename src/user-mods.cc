@@ -57,9 +57,8 @@ coot::flips_container::parse_set_or_single(const std::string &line) {
 	 atom_name = " CA "; // e.g. for amide.
       try { 
 	 int resno_int = coot::util::string_to_int(resno_string);
-//    if (0) {
-       if (1) {
-       std::cout <<  "chain_id :" << chain_id << ": ";
+	 if (false) { // debug
+	    std::cout <<  "chain_id :" << chain_id << ": ";
 	    std::cout << "resno_string :" << resno_string << ": ";
 	    std::cout << "resno_int :" << resno_int << ": ";
 	    std::cout << "res_type :" << res_type << ": ";
@@ -84,11 +83,11 @@ coot::flips_container::parse_set_or_single(const std::string &line) {
 			    << std::endl;
 	    flips.push_back(fl);
 	 }
-	 catch (std::runtime_error score_err) {
+	 catch (const std::runtime_error &score_err) {
 	    // std::cout << "Ooops " << score_err.what() << std::endl;
 	 } 
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // std::cout << "Ooops " << rte.what() << std::endl;
       }
       // std::cout << "\n";
@@ -129,7 +128,7 @@ coot::flips_container::parse_no_adj(const std::string &line) {
 	    coot::atom_spec_t spec_1(chain_id_1, resno_int_1, "", atom_name_1, "");
 	    specs.push_back(spec_1);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 }
       }

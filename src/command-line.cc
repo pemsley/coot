@@ -110,6 +110,7 @@ parse_command_line(int argc, char ** argv ) {
       {"hklin",  1, 0, 0},
       {"auto",   1, 0, 0},
       {"script", 1, 0, 0},
+      {"command", 1, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
       {"code",       1, 0, 0},
@@ -142,7 +143,7 @@ parse_command_line(int argc, char ** argv ) {
    int option_index = 0; 
 
    while( -1 != 
-	  (ch = getopt_long(argc, argv, optstr, long_options, &option_index) )) {
+	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index) )) {
 
       switch(ch) {
 	 
@@ -174,7 +175,10 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "script") {
 	       cld.script.push_back(optarg);
-	    } 
+	    }
+	    if (arg_str == "command") {
+	       cld.command.push_back(optarg);
+	    }
 	    if (arg_str == "port") {
 	       cld.port = atoi(optarg);
 	    } 
@@ -235,6 +239,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--script script-file-name]\n"
 			       << "            [--em]\n"
 			       << "            [--title some-title]\n"
+			       << "            [--command command-script]\n"
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
@@ -254,13 +259,14 @@ parse_command_line(int argc, char ** argv ) {
 		  } else {
 		     
 		     if (arg_str == "version") {
-			std::cout << VERSION << " " << coot_version_extra_info() << std::endl;
+			std::cout << VERSION << " " << coot_version_extra_info();
 			exit(0);
 		     } else {
 			
 			if (arg_str == "version-full") {
-			   std::cout  << VERSION << " " << coot_version_extra_info() << std::endl;
-			   std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
+			   std::cout  << VERSION << " " << coot_version_extra_info();
+			   // this is in coot_version_extra_info() now
+			   // std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
 			   std::vector<std::string> enableds;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 			   enableds.push_back("Enhanced-ligand-tools");

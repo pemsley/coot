@@ -103,10 +103,25 @@ coot::atom_id_mmdb_expand(const std::string &atomname) {
       r += atomname;
       r += "  ";
    } else {
-      if (ilen == 2) { 
-	 r = " ";
-	 r += atomname;
-	 r += " ";
+      if (ilen == 2) {
+
+	 // 20180512-PE we have to be more clever here for metals.
+	 // But what about CA! - argh! we shouldn't be using this function.
+	 // We need to know the residue name to pad correctly.
+	 //
+	 bool done = false;
+	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
+	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
+	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||
+	     atomname == "SE" || atomname == "BR" || atomname == "RB" || atomname == "SR" || atomname == "RE" || atomname == "OS" ||
+	     atomname == "IR" || atomname == "PT" || atomname == "AU" || atomname == "HG" || atomname == "PB" || atomname == "BI") {
+	    r += atomname;
+	    r += "  ";
+	 } else {
+	    r = " ";
+	    r += atomname;
+	    r += " ";
+	 }
       } else {
 	 if (ilen == 3) {
 	    r = " ";
@@ -1317,10 +1332,10 @@ coot::operator<<(std::ostream &s, const dict_angle_restraint_t &rest) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::dict_torsion_restraint_t &rest) {
    s << "[torsion-restraint: " << rest.id() << " "
-     << rest.atom_id_1_4c() << " "
-     << rest.atom_id_2_4c() <<  " "
-     << rest.atom_id_3_4c() <<  " "
-     << rest.atom_id_4_4c() <<  " "
+     << "\"" << rest.atom_id_1_4c() << "\"" << " "
+     << "\"" << rest.atom_id_2_4c() << "\"" << " "
+     << "\"" << rest.atom_id_3_4c() << "\"" << " "
+     << "\"" << rest.atom_id_4_4c() << "\"" << " "
      << rest.angle() << " " 
      << rest.esd() << " " 
      << rest.periodicity();
@@ -1445,17 +1460,6 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &group_2) const {
 
    bool debug = false;
-   if (debug) { 
-      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
-		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
-		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
-		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
-		<< chem_link_comp_id_2 << ":" << std::endl; 
-      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
-		<< group_1 << " and " << group_2 << " vs ref link-group-1 :"
-		<< chem_link_group_comp_1 << ": ref link-group-2 :"
-		<< chem_link_group_comp_2 << ":" << std::endl;
-   }
 
    bool match = false; // initially
    bool order_switch = false;
@@ -1468,6 +1472,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    // 201201013 (Friday) allow M-peptides to match too.
    if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "P-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "P-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
@@ -1477,6 +1483,18 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
    if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
    
+   if (debug) {
+      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
+		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
+		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
+		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
+		<< chem_link_comp_id_2 << ":" << std::endl;
+      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
+		<< local_group_1 << " and " << local_group_2 << " vs ref link-group-1 :"
+		<< chem_link_group_comp_1 << ": ref link-group-2 :"
+		<< chem_link_group_comp_2 << ":" << std::endl;
+   }
+
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
@@ -1968,10 +1986,16 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    char *s  = getenv("COOT_REFMAC_LIB_DIR");
    char *cmld = getenv("COOT_MONOMER_LIB_DIR");
-   if (! s) {
+
+   if (s) {
+
+   } else {
       s  = getenv("CLIB");
+
       if (! s) {
-	 std::string tmp_string(PKGDATADIR);
+	 std::cout << "DEBUG:: try_dynamic_add() using package_data_dir(): " << package_data_dir()
+		   << std::endl;
+	 std::string tmp_string = package_data_dir();
 	 tmp_string = util::append_dir_dir(tmp_string, "lib");
 	 s = new char[tmp_string.length() + 1];
 	 strcpy(s, tmp_string.c_str());
@@ -1979,15 +2003,20 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 if (verbose_mode)
 	    std::cout << "INFO:: using standard CCP4 Refmac dictionary"
 		      << " to search for \"" << resname << "\"" << std::endl; 
-      } 
+      }
    }
 
-   if (s) {
+   if (!s) {
+
+      std::cout << "debug:: try_dynamic_add() bad news - null s" << std::endl;
+
+   } else {
       std::string filename(s);
-      std::string beta_anomer_name; 
-      std::string alpha_anomer_name; 
-      std::string alt_beta_anomer_name; 
-      std::string alt_alpha_anomer_name; 
+      std::string beta_anomer_name;
+      std::string alpha_anomer_name;
+      std::string alt_beta_anomer_name;
+      std::string alt_alpha_anomer_name;
+
       if (cmld) { 
 	 filename = cmld;
 	 filename += "/";
@@ -2297,42 +2326,73 @@ coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_
 	    if (r[j].atom_id_3_4c() == a2)
 	       match = true;
       }
-      if (! match)
-	 r.push_back(restraints_in[i]);
+      if (! match) {
+	 const dict_torsion_restraint_t &tr = restraints_in[i];
+	 r.push_back(tr);
+      }
    }
 
 
    // why do we crash (on the mac) in the following sort?
    //
    // for (unsigned int i=0; i<restraints_in.size(); i++)
-   // std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
-   //
-   std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   //    std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
+   // 20180227 still crashing.
+   // Because it is running the sort even if r is of length 0? No, not that.
+   // std::cout << " r.size() " << r.size() << std::endl;
+   try {
+      std::sort(r.begin(), r.end(), torsion_restraints_comparer);
+   }
+   catch (const std::bad_alloc &e) {
+      std::cout << "ERROR caught bad alloc when sorting in filter_torsion_restraints()" << std::endl;
+   }
    return r;
 }
 
 // static
 bool
 coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b) {
-   
+
 //    const std::string &a2 = a.atom_id_2_4c();
 //    const std::string &a3 = a.atom_id_3_4c();
 //    const std::string &b2 = b.atom_id_2_4c();
 //    const std::string &b3 = b.atom_id_3_4c();
 
-   const std::string &a2 = a.atom_id_2();
-   const std::string &a3 = a.atom_id_3();
-   const std::string &b2 = b.atom_id_2();
-   const std::string &b3 = b.atom_id_3();
+//    const std::string &a2 = a.atom_id_2();
+//    const std::string &a3 = a.atom_id_3();
+//    const std::string &b2 = b.atom_id_2();
+//    const std::string &b3 = b.atom_id_3();
 
-   if (a2 < b2)
+   // we leave these (debugging/test) copies in for now (was testing if reference was the problem
+   // (it wasn't).
+   //
+   std::string a2 = a.atom_id_2();
+   std::string a3 = a.atom_id_3();
+   std::string b2 = b.atom_id_2();
+   std::string b3 = b.atom_id_3();
+
+   if (a2 < b2) {
       return false;
-   else
-      if (a2 > b2)
-	 return true;
-      else
-	 if (a3 < b3)
+   } else {
+      if (a2 > b2) {
+ 	 return true;
+      } else {
+	 // a2 and b2 are equal
+
+	 if (a3 <= b3) { // 20180227-PE changed to <=, stops crash
+
+	    // std::cout << "a3 " << a3 << std::endl;
+	    // std::cout << "b3 " << b3 << std::endl;
+
 	    return false;
+
+	 }
+      }
+   }
+
+   //       else
+   // 	 if (a3 < b3)
+   // 	    return false;
 
    return true;
 }
@@ -3277,7 +3337,7 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target(const std::vector <di
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // do nothing, it's not really an error if the dictionary
 	 // doesn't have target geometry (the bonding description came
 	 // from a Chemical Component Dictionary entry for example).
@@ -3396,7 +3456,6 @@ coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 void
 coot::protein_geometry::add_planar_peptide_restraint() {
 
-   std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
    mmdb::realtype dist_esd = 0.11;
 
@@ -3408,8 +3467,10 @@ coot::protein_geometry::add_planar_peptide_restraint() {
    v.push_back(std::pair<int, std::string> (2, "N"));
    v.push_back(std::pair<int, std::string> (2, "CA"));
 
-   for (unsigned int i=0; i<v.size(); i++) 
-      link_add_plane(link_id, v[i].second, plane_id, v[i].first, dist_esd); 
+   for (unsigned int i=0; i<v.size(); i++) {
+      link_add_plane("TRANS",  v[i].second, plane_id, v[i].first, dist_esd);
+      link_add_plane("PTRANS", v[i].second, plane_id, v[i].first, dist_esd);
+   }
 }
 
 
@@ -3418,16 +3479,17 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
-   bool ifound = 0;
+   unsigned int ifound = 0;
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
-      if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
+      if ((dict_link_res_restraints[i].link_id ==  "TRANS")  ||
+          (dict_link_res_restraints[i].link_id == "PTRANS")) {
 
 	 std::vector<coot::dict_link_plane_restraint_t>::iterator it;
 	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
 	    if (it->plane_id == plane_id) {
-	       ifound = 1;
+	       ifound++;
 	       if (0)
 		  std::cout << "INFO:: before removal of plane3 TRANS has " 
 			    << dict_link_res_restraints[i].link_plane_restraint.size()
@@ -3444,7 +3506,7 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 	    }
 	 }
       }
-      if (ifound)
+      if (ifound == 2)
 	 break;
    }
 }
@@ -3532,27 +3594,39 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 				       short int allow_minimal_descriptions) const {
 
    std::vector<std::pair<std::string, std::string> > v;
-   std::string test_string_dc = coot::util::downcase(test_string);
    std::map<std::string,coot::dictionary_residue_restraints_t>::const_iterator it;
 
+   std::vector<std::string> test_name_fragments =
+      util::split_string(test_string, " ");
 
-   
    for (it=simple_monomer_descriptions.begin();
 	it!=simple_monomer_descriptions.end();
 	it++) {
-      std::string name_dc = coot::util::downcase(it->second.residue_info.name);
-      std::string::size_type ifound = name_dc.find(test_string_dc);
+      std::string name_dc = util::downcase(it->second.residue_info.name);
+
+      std::string::size_type ifound = std::string::npos;      
+
+      for (unsigned int i=0; i<test_name_fragments.size(); i++) {
+
+	 const std::string &test_string = test_name_fragments[i];
+	 std::string test_string_dc = util::downcase(test_string);
+
+	 ifound = name_dc.find(test_string_dc);
+	 if (ifound == std::string::npos)
+	    break;
+      }
       if (ifound != std::string::npos) {
-// 	 std::cout << "test_string :" << test_string << ": matched :"
-// 		   << it->second.residue_info.comp_id << ": :"
-// 		   << it->second.residue_info.name
-// 		   << ":" << std::endl;
- 	 std::pair<std::string, std::string> p(it->second.residue_info.comp_id,
+
+	 // 	 std::cout << "test_string :" << test_string << ": matched :"
+	 // 		   << it->second.residue_info.comp_id << ": :"
+	 // 		   << it->second.residue_info.name
+	 // 		   << ":" << std::endl;
+
+	 std::pair<std::string, std::string> p(it->second.residue_info.comp_id,
 					       it->second.residue_info.name);
 	 v.push_back(p);
       }
    }
-
    return v;
 }
 
@@ -4570,7 +4644,7 @@ void
 coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
 							     int mmcif_read_number) {
 
- bool minimal = false;
+   bool minimal = false;
    int idx = get_monomer_restraints_index(res_name, imol, minimal);
    if (idx == -1) {
       try_dynamic_add(res_name, mmcif_read_number);
@@ -4608,7 +4682,7 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       if (false)
 	 std::cout << "............... post-delete size: " << torsion_restraints.size()
 		   << " for " << res_name << std::endl;
-      
+
       std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
       for (unsigned int i=0; i<quads.size(); i++) {
 	 const atom_name_torsion_quad &quad = quads[i];
@@ -4619,6 +4693,64 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       }
    }
 }
+
+// pass the atom names and the desired torsion value - sigma is not specified
+// by the user.
+void
+coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
+							     const std::vector<coot::atom_name_torsion_quad> &tors_info_vec,
+							     int mmcif_read_number) {
+
+   bool minimal = false;
+   int idx = get_monomer_restraints_index(res_name, imol, minimal);
+   if (idx == -1) {
+      try_dynamic_add(res_name, mmcif_read_number);
+      idx = get_monomer_restraints_index(res_name, imol, minimal);
+   }
+
+   if (idx != -1) {
+      // continue
+
+      // (first is the imol)
+      std::vector <dict_torsion_restraint_t> &torsion_restraints =
+	 dict_res_restraints[idx].second.torsion_restraint;
+
+      // We don't want to clear all torsion restraints, just the ring torsions
+      //
+      std::set<std::string> ring_atom_names;
+      // we generate the ring atoms names from the atoms in the passed quads
+      for (std::size_t i=0; i<tors_info_vec.size(); i++) {
+	 const atom_name_torsion_quad &q = tors_info_vec[i];
+	 ring_atom_names.insert(q.atom_name(0));
+	 ring_atom_names.insert(q.atom_name(1));
+	 ring_atom_names.insert(q.atom_name(2));
+	 ring_atom_names.insert(q.atom_name(3));
+      }
+
+      if (false) {
+	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+      }
+
+      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
+					      torsion_restraints.end(),
+					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
+
+      if (false)
+	 std::cout << "............... post-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+
+      for (unsigned int i=0; i<tors_info_vec.size(); i++) {
+	 const atom_name_torsion_quad &quad = tors_info_vec[i];
+	 // this could have a nicer interface - using the quad here.
+	 dict_torsion_restraint_t tors(quad.id,
+				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
+				       quad.torsion, 4.0, 1);
+	 torsion_restraints.push_back(tors);
+      }
+   }
+}
+
 
 std::vector<coot::atom_name_torsion_quad>
 coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {

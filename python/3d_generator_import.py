@@ -4,8 +4,27 @@
 global my_favourite_3d_generator
 my_favourite_3d_generator=None
 
-
 cprodrg = "cprodrg"
+
+# if there is a prodrg_xyzin set the current-time to its mtime, else False
+#
+global prodrg_xyzin
+global sbase_to_coot_tlc
+prodrg_xyzin      = "coot-lidia.mdl"
+sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
+
+def get_file_latest_time(file_name):
+    if not os.path.isfile(file_name):
+        return False
+    else:
+        return os.stat(file_name).st_mtime
+
+global mdl_latest_time
+global sbase_transfer_latest_time
+mdl_latest_time = get_file_latest_time(prodrg_xyzin)
+sbase_transfer_latest_time = get_file_latest_time(sbase_to_coot_tlc)
+
+
 # we cannot use full path as cprodrg is spawning refmac...
 #cprodrg = "c:/Programs/CCP4-Packages/ccp4-6.1.13/bin/cprodrg.exe"
 
@@ -34,27 +53,18 @@ if not os.getenv("CLIBD"):
         # i.e. stop here?
     
 
-# these are the files that mdl-latest-time and sbase time-out functions
-# look at.
-# 
-# if there is a prodrg-xyzin set the current-time to its mtime, else False
-#
-global prodrg_xyzin
-global sbase_to_coot_tlc
-prodrg_xyzin      = "coot-lidia.mdl"
-sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
 # this is for BL win machine
 # Mmmh. FIXME!!!!
-home = os.getenv("HOME")
-if (not home and is_windows()):
-    home = os.getenv("COOT_HOME")
-if home:
-    prodrg_xyzin      = os.path.join(home, "Projects",
-                                     "build-xp-python", "lbg", "prodrg-in.mdl")
-else:
-    print "BL WARNING:: Problem: home is", home  # FIXME
-sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id"
+# home = os.getenv("HOME")
+# if (not home and is_windows()):
+#     home = os.getenv("COOT_HOME")
+# if home:
+#     prodrg_xyzin      = os.path.join(home, "Projects",
+#                                      "build-xp-python", "lbg", "prodrg-in.mdl")
+# else:
+#     print "BL WARNING:: Problem: home is", home  # FIXME
+# sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id"
 
 
 # Need to play with the env variables to make sure acedrg runs in
@@ -80,10 +90,6 @@ def acedrg_env():
     
     return my_env
 
-# this is latest!!!!
-prodrg_xyzin      = "prodrg-in.mdl"
-sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
-
 def import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id):
 
     pdb_out_file_name = "acedrg-" + comp_id + ".pdb"
@@ -94,7 +100,7 @@ def import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id):
                            ["-m", mdl_file_name, "-r", comp_id, "-o", stub],
                            [], "acedrg.log", False, local_env=acedrg_env())
     if status:
-        info_dialog("Bad exit status for Acedrg\n - see pyrogen.log")
+        info_dialog("WARNING:: Bad exit status for Acedrg\n - see acedrg.log")
     else:
         handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
         read_cif_dictionary(cif_out_file_name)
@@ -116,14 +122,14 @@ def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
         status = popen_command("pyrogen", args,
                  [], "pyrogen.log", True)
         if status:
-            info_dialog("Bad exit status for pyrogen\n - see pyrogen.log")
+            info_dialog("WARNING:: Bad exit status for pyrogen\n - see pyrogen.log")
         else:
             active_res = active_residue()  # what for?
             pdb_out_file_name = comp_id + "-pyrogen.pdb"
             cif_out_file_name = comp_id + "-pyrogen.cif"
             imol_ligand = handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
             if not valid_model_molecule_qm(imol_ligand):
-                info_dialog("Something bad happened running pyrogen")
+                info_dialog("WARNING:: Something bad happened running pyrogen")
             else:
                 read_cif_dictionary(cif_out_file_name)
                 return imol_ligand   # should return False otherwise? FIXME
@@ -148,11 +154,11 @@ def import_from_3d_generator_from_mdl(mdl_file_name, comp_id):
             import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name,
                                                             comp_id)
         else:
-            if (not my_favourite_3d_generator in "cprodrg"):
-                print "BL WARNING:: couldnt find a matching function for " + \
-                    "your favourite generator, so use prodrg as default!"
-            import_from_prodrg("mini-no", comp_id)
-                
+            if my_favourite_3d_generator == "cprodrg":
+                import_from_prodrg("mini-no", comp_id)
+            else:
+                print "WARNING:: No 3d generator available"
+                info_dialog("WARNING:: No 3d generator available")
 
 
 def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
@@ -519,17 +525,14 @@ def get_file_latest_time(file_name):
     else:
         return os.stat(file_name).st_mtime
 
-# globals should be in the beginning! FIXME
-global mdl_latest_time
-global sbase_transfer_latest_time
-mdl_latest_time = get_file_latest_time(prodrg_xyzin)
-sbase_transfer_latest_time = get_file_latest_time(sbase_to_coot_tlc)
 # FIXME: this is not a proper name
 def mdl_update_timeout_func():
 
     import operator
     global mdl_latest_time
     global sbase_transfer_latest_time
+    global prodrg_xyzin
+    global sbase_to_coot_tlc
     
     mdl_now_time   = get_file_latest_time(prodrg_xyzin)
     sbase_now_time = get_file_latest_time(sbase_to_coot_tlc)
@@ -649,14 +652,16 @@ def prodrg_plain(mode, imol_in, chain_id_in, res_no_in):
                        str(res_no_in)
     imol = new_molecule_by_atom_selection(imol_in, selection_string)
     stub = os.path.join("coot-ccp4", "prodrg-tmp-" + str(os.getpid()))
-    prodrg_xyzin  = stub + "-xyzin.pdb"
+    # make the name different as not to be confused with the global
+    # prodrg_xyzin.
+    prodrg_xyzinX = stub + "-xyzin.pdb"
     prodrg_xyzout = stub + "-xyzout.pdb"
     prodrg_cif    = stub + "-dict.cif"
     prodrg_log    = stub + ".log"
 
-    write_pdb_file(imol, prodrg_xyzin)
+    write_pdb_file(imol, prodrg_xyzinX)
     result = popen_command(cprodrg,
-                           ["XYZIN",  prodrg_xyzin,
+                           ["XYZIN",  prodrg_xyzinX,
                             "XYZOUT", prodrg_xyzout,
                             "LIBOUT", prodrg_cif],
                            ["MINI PREP", "END"],

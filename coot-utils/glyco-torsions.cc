@@ -308,7 +308,7 @@ coot::link_by_torsion_base_t coot::asn_pyranose_link_to_core() {
 
    link_by_torsion_base_t l;
    std::vector<atom_by_torsion_base_t> ats;
-   
+
    ats.push_back(atom_by_torsion_base_t("C1", "C", BS(true,  "ND2"), BS(true,  "CG" ), BS(true,  "CB" )));
    ats.push_back(atom_by_torsion_base_t("C2", "C", BS(false, "C1" ), BS(true,  "ND2"), BS(true,  "CG" )));
    ats.push_back(atom_by_torsion_base_t("C3", "C", BS(false, "C2" ), BS(false, "C1" ), BS(true,  "ND2")));
@@ -318,6 +318,21 @@ coot::link_by_torsion_base_t coot::asn_pyranose_link_to_core() {
    for (unsigned int i=0; i<ats.size(); i++) l.add(ats[i]);
    return l;
 } 
+
+coot::link_by_torsion_base_t coot::ser_pyranose_link_to_core() {
+
+   link_by_torsion_base_t l;
+   std::vector<atom_by_torsion_base_t> ats;
+
+   ats.push_back(atom_by_torsion_base_t("C1", "C", BS(true,  "OG"),  BS(true,  "CB" ), BS(true,  "CA" )));
+   ats.push_back(atom_by_torsion_base_t("C2", "C", BS(false, "C1" ), BS(true,  "OG" ), BS(true,  "CB" )));
+   ats.push_back(atom_by_torsion_base_t("C3", "C", BS(false, "C2" ), BS(false, "C1" ), BS(true,  "OG" )));
+   ats.push_back(atom_by_torsion_base_t("C4", "C", BS(false, "C3" ), BS(false, "C2" ), BS(false, "C1" )));
+   ats.push_back(atom_by_torsion_base_t("C5", "C", BS(false, "C4" ), BS(false, "C3" ), BS(false, "C2" )));
+   ats.push_back(atom_by_torsion_base_t("O5", "O", BS(false, "C5" ), BS(false, "C4" ), BS(false, "C3" )));
+   for (unsigned int i=0; i<ats.size(); i++) l.add(ats[i]);
+   return l;
+}
 
 
 coot::link_by_torsion_base_t coot::pyranose_link_1_6_to_core() {
@@ -508,6 +523,7 @@ coot::get_names_for_link_type(const std::string &link_type) {
    if (link_type == "BETA1-4")  r = pyranose_link_1_4_to_core();
    if (link_type == "BETA1-6")  r = pyranose_link_1_6_to_core();
    if (link_type == "NAG-ASN")  r = asn_pyranose_link_to_core();
+   if (link_type == "NAG-SER")  r = ser_pyranose_link_to_core();
    return r;
 }
    

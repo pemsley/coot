@@ -1,4 +1,4 @@
-/* lbg/lidia-main.cc
+/* src/dynaram-main.cc
  *
  * Author: Bernhard Lohkamp
  * Copyright 2015
@@ -19,7 +19,10 @@
  * 02110-1301, USA
  */
 
-#include <iostream>
+#if !defined _MSC_VER
+#include <unistd.h> // so that getopt declaration in /usr/include/x86_64-linux-gnu/bits/getopt_core.h
+                    // comes before Coot's one
+#endif
 
 #ifdef HAVE_GOOCANVAS
 
@@ -31,11 +34,15 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include <iostream>
+
 #include <sys/stat.h>
 
 #include <gtk/gtk.h>
-#include <goocanvas.h>
 
+#ifdef HAVE_GOOCANVAS
+#include <goocanvas.h>
+#endif
 
 #include "utils/coot-utils.hh"
 #include "rama_plot.hh"
@@ -57,6 +64,10 @@ extern "C" {
    void accept_phi_psi_moving_atoms() {}
    void clear_moving_atoms_object() {}
 }
+
+
+// void accept_phi_psi_moving_atoms() {}
+// void set_dynarama_is_displayed(GtkWidget *dynarama_widget, int imol) {}
 
 void setup_rgb_reps();
 
@@ -153,7 +164,7 @@ main(int argc, char *argv[]) {
    int ch;
    int option_index = 0;
    while ( -1 !=
-           (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
+           (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
       switch(ch) {
 
       case 0:
@@ -513,6 +524,19 @@ main(int argc, char *argv[]) {
 }
 
 #else
+
+#include <gtk/gtk.h>
+// Dummy definitions for stand alone version
+extern "C" {
+   void set_dynarama_is_displayed(GtkWidget *dynarama_widget, int imol) {}
+   void set_go_to_atom_molecule(int imol) {}
+   int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, const char *t3_atom_name)
+   { return 0;}
+   short int is_valid_model_molecule(int imol) { return 0;}
+   void set_moving_atoms(double phi, double psi) {}
+   void accept_phi_psi_moving_atoms() {}
+   void clear_moving_atoms_object() {}
+}
 
 int
 main(int argc, char *argv[]) {

@@ -188,6 +188,9 @@ class rama_plot {
    int imol;  // which molecule in mapview did this come from?
    clipper::Ramachandran rama;
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
+#ifdef CLIPPER_HAS_TOP8000
+   clipper::Ramachandran r_ileval, r_pre_pro, r_non_gly_pro_pre_pro_ileval;
+#endif
 
    //GtkCanvas *canvas;
    GtkWidget *canvas;
@@ -343,15 +346,17 @@ public:
    GtkWidget *selection_checkbutton;
 
    rama_plot() {
+#ifdef HAVE_GOOCANVAS
       green_box_item = NULL;
-      dynawin = NULL;
-      canvas = NULL;
-      stand_alone_flag = 0;
-      resize_it = FALSE;
       current_bg = NULL;
       current_residue = NULL;
       residues_grp = NULL;
       arrow_grp = NULL;
+#endif
+      dynawin = NULL;
+      canvas = NULL;
+      stand_alone_flag = 0;
+      resize_it = FALSE;
       saved_counts = rama_stats_container_t();
       rama_mol_name = "";
       plot_type = -1;
@@ -424,6 +429,11 @@ public:
    GooCanvasItem *bg_gly;
    GooCanvasItem *bg_pro;
    GooCanvasItem *bg_non_gly_pro;
+#ifdef CLIPPER_HAS_TOP8000
+   GooCanvasItem *bg_ileval;
+   GooCanvasItem *bg_pre_pro;
+   GooCanvasItem *bg_non_gly_pro_pre_pro_ileval;
+#endif
    GooCanvasItem *current_bg;
    GooCanvasItem *residues_grp;
    GooCanvasItem *current_residue;
@@ -600,8 +610,10 @@ public:
    
    void write_pdf(std::string &file_name);
    void write_png(std::string &file_name);
+#ifdef HAVE_GOOCANVAS
    void write_png_simple(std::string &file_name, GooCanvasItem *item = NULL);
    void write_svg(std::string &file_name, GooCanvasItem *item = NULL);
+#endif
    void make_bg_images();
 
    void fill_kleywegt_comboboxes(int imol);

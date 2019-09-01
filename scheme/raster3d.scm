@@ -13,7 +13,7 @@
     (format #t "calling render...~%")
 ;     (goosh-command-with-file-input "render" coot-r3d-file-name 
 ; 				   coot-png-file-name)
-    (goosh-command-with-file-input "render" (list "-png") 
+    (goosh-command-with-file-input "render" (list "-png" "-labels") 
 				   coot-r3d-file-name coot-png-file-name)
 		   
     (format #t "calling display...~%")
@@ -29,7 +29,7 @@
     (cond
      ((eq? image-type 'raster3d) 
       (begin
-	(goosh-command-with-file-input "render" (list "-png") 
+	(goosh-command-with-file-input "render" (list "-png" "-labels")
 				       source-file-name image-file-name)
 	(run-concurrently coot-png-display-program image-file-name)))
 

@@ -218,7 +218,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //
    if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
       commands.push_back(state_command("set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
-   
+
    std::vector <std::string> command_strings;
 
    // because the goto_atom_molecule could be 11 with 8 closed
@@ -483,6 +483,15 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	    // Maps:
 	    // 
 	    if (molecules[i].has_xmap()) {  // NXMAP-FIXME
+
+	       // map opacity
+	       float opacity = molecules[i].density_surface_opacity;
+	       command_strings.clear();
+	       command_strings.push_back("set-solid-density-surface-opacity");
+	       command_strings.push_back(int_to_string(molecule_count));
+	       command_strings.push_back(float_to_string(opacity));
+	       commands.push_back(state_command(command_strings, il));
+
 	       command_strings = molecules[i].set_map_colour_strings();
 	       commands.push_back(state_command(command_strings, il));
 	       command_strings = molecules[i].get_map_contour_strings();
@@ -528,6 +537,12 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
 	 molecule_count++; 
       }
+   }
+
+   // rama restraints on?
+   if (do_rama_restraints) {
+      commands.push_back(state_command("set-refine-ramachandran-torsion-angles", 1, il));
+      commands.push_back(state_command("set-refine-ramachandran-restraints-weight", rama_restraints_weight, il));
    }
 
    // last things to do:
@@ -1127,3 +1142,4 @@ graphics_info_t::file_type_coords(const std::string &file_name) {
       state = 1;
    return state;
 } 
+

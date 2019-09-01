@@ -667,7 +667,7 @@ coot::rotamer::set_dihedrals(mmdb::Residue *rres,
 		      << new_angle << std::endl;
 
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "oops! in rotamer::GetResidue() " << rte.what() << std::endl;
       } 
    }

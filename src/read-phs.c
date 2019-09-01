@@ -236,10 +236,7 @@ void do_phs_cell_choice_window() {
 */
 int phs_pdb_cell_symm() {
 
-   int imol; 
    GtkWidget *widget; 
-
-   imol = graphics_n_molecules();
 
    if (file_chooser_selector_state()) {
      GtkWidget *file_filter_button;

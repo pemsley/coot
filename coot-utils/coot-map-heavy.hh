@@ -68,6 +68,15 @@ namespace coot {
 					const std::vector<std::pair<std::string, int> > &atom_number_list,
 					const clipper::Xmap<float> &map_in);
 
+      float z_weighted_density_at_point_linear_interp(const clipper::Coord_orth &pt,
+						      const std::string &ele,
+						      const std::vector<std::pair<std::string, int> > &atom_number_list,
+						      const clipper::Xmap<float> &map_in);
+
+      float z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
+				     const std::vector<std::pair<std::string, int> > &atom_number_list,
+				     const clipper::Xmap<float> &map);
+
       float z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
@@ -78,6 +87,10 @@ namespace coot {
       float z_weighted_density_score(const minimol::molecule &mol,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
+
+      float z_weighted_density_score_linear_interp(const minimol::molecule &mol,
+						   const std::vector<std::pair<std::string, int> > &atom_number_list,
+						   const clipper::Xmap<float> &map);
 
       float biased_z_weighted_density_score(const minimol::molecule &mol,
 					    const std::vector<std::pair<std::string, int> > &atom_number_list,

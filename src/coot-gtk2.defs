@@ -31,6 +31,10 @@
   GtkWidget
   ())
 
+(define-func main_hbox
+  GtkWidget
+  ())
+
 (options
   (includes "#include <c-interface.h>")
   (init-func "coot_init_glue") ; created by build-guile in coot-glue.c

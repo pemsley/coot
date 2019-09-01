@@ -23,26 +23,6 @@
 
 /* svn $Id: c-interface.h 1458 2007-01-26 20:20:18Z emsley $ */
 
-/*! \file 
-  \brief Coot Scripting Interface
-
-  Here is a list of all the scripting interface functions. They are
-  described/formatted in c/python format.
-
-  Usually coot is compiled with the guile interpreter, and in this
-  case these function names and usage are changed a little, e.g.:
-
-  c-format:
-  chain_n_residues("A", 1)
-
-  scheme format:
-  (chain-n-residues "A" 1)
-
-  Note the prefix usage of the parenthesis and the lack of comma to
-  separate the arguments.
-
-*/
-
 #ifndef C_INTERFACE_WIDGETS_HH
 #define C_INTERFACE_WIDGETS_HH
 
@@ -100,5 +80,14 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
 
 /* return a new object number (so that we can set it to be displayed). */
 int add_generic_display_object(const coot::generic_display_object_t &gdo);
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  GUIL Utility Functions                                  */
+/*  ----------------------------------------------------------------------- */
+
+// gui nuts and bolts
+void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
+						 GtkWidget *dialog);
 
 #endif // C_INTERFACE_WIDGETS_HH

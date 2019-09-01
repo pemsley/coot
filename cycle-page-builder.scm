@@ -912,7 +912,7 @@
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
-	 (list "binary-Linux-x86_64-scientific-linux-6.8-python-gtk2"
+	 (list "binary-Linux-x86_64-scientific-linux-7.5-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
@@ -925,6 +925,11 @@
 
 	 (list "binary-Linux-x86_64-ubuntu-14.04-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-ubuntu1404/"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
+	       #t #t)
+
+	 (list "binary-Linux-x86_64-ubuntu-18.04-python-gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-gough-pc-2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 

@@ -1008,7 +1008,6 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
 
 
 
-
 void
 render_as_bonds_button_select(GtkWidget *item, GtkPositionType mol) {
 

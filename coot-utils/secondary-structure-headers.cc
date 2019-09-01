@@ -154,22 +154,42 @@ coot::secondary_structure_header_records::secondary_structure_header_records(mmd
 void
 coot::secondary_structure_header_records::make_helices(mmdb::Manager *mol,
 						       mmdb::Model *model_p,
-						       const std::vector<helix_info_t> &helices) {
+						       const std::vector<helix_info_t> &helices_in) {
 
-   unsigned int n_helices = helices.size();
+   unsigned int n_helices = helices_in.size();
+
+   // static not dynamic
    access_model *am = static_cast<access_model *> (model_p);
-
-   mmdb::ContainerClass *ssc = new mmdb::ContainerClass[n_helices];
 
    for (std::size_t i=0; i<n_helices; i++) {
       mmdb::Helix *h = new mmdb::Helix;
-      mmdb::Residue *first_res = helices[i].start_res;
-      mmdb::Residue *last_res  = helices[i].end_res;
+      mmdb::Residue *first_res = helices_in[i].start_res;
+      mmdb::Residue *last_res  = helices_in[i].end_res;
       std::string helix_id = helix_index_to_helix_id(i);
       int helix_class = 1; // FIXME
 
+      std::size_t size_of_ICode   = 10;
+      std::size_t size_of_ChainID = 10;
+      std::size_t size_of_ResName = 20;
+
       h->serNum = i+1;
       strcpy(h->helixID, helix_id.c_str());
+      int ll = helix_id.size();
+      if (ll < 20)
+	 h->helixID[ll] = 0;
+
+      for (std::size_t ii=0; ii<size_of_ResName; ii++)
+	 h->initResName[ii] = 0;
+      for (std::size_t ii=0; ii<size_of_ChainID; ii++)
+	 h->initChainID[ii] = 0;
+      for (std::size_t ii=0; ii<size_of_ICode; ii++)
+	 h->initICode[ii] = 0;
+      for (std::size_t ii=0; ii<size_of_ResName; ii++)
+	 h->endResName[ii] = 0;
+      for (std::size_t ii=0; ii<size_of_ChainID; ii++)
+	 h->endChainID[ii] = 0;
+      for (std::size_t ii=0; ii<size_of_ICode; ii++)
+	 h->endICode[ii] = 0;
 
       strcpy(h->initResName, first_res->GetResName());
       strcpy(h->initChainID, first_res->GetChainID());
@@ -181,7 +201,7 @@ coot::secondary_structure_header_records::make_helices(mmdb::Manager *mol,
       h->endSeqNum  = last_res->GetSeqNum();
       strcpy(h->endICode, last_res->GetInsCode());
       h->helixClass = helix_class;
-      h->length = helices[i].length;
+      h->length = helices_in[i].length;
 
       am->add_helix(h);
    }

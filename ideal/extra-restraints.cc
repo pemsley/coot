@@ -32,7 +32,7 @@
 void
 coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_name) {
 
-   if (coot::file_exists(file_name)) {
+   if (file_exists(file_name)) {
       std::string line;
       std::vector<std::string> lines;
       std::ifstream f(file_name.c_str());
@@ -41,45 +41,88 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
       }
 
       for (unsigned int i=0; i<lines.size(); i++) { 
-	 std::vector<std::string> words = coot::util::split_string_no_blanks(lines[i], " ");
+	 std::vector<std::string> words = util::split_string_no_blanks(lines[i], " ");
 	 if (matches_bond_template_p(words)) {
 	    try { 
 	       std::string chain_id_1 = words[4];
 	       std::string ins_code_1 = words[8];
 	       std::string atm_name_1 = words[10];
-	       int res_no_1 = coot::util::string_to_int(words[6]);
-	       
+	       int res_no_1 = util::string_to_int(words[6]);
+
 	       std::string chain_id_2 = words[13];
 	       std::string ins_code_2 = words[17];
 	       std::string atm_name_2 = words[19];
-	       int res_no_2 = coot::util::string_to_int(words[15]);
+	       int res_no_2 = util::string_to_int(words[15]);
 
 	       if (ins_code_1 == ".") ins_code_1 = "";
 	       if (ins_code_2 == ".") ins_code_2 = "";
 
-	       double d = coot::util::string_to_float(words[21]);
-	       double e = coot::util::string_to_float(words[23]);
+	       double d = util::string_to_float(words[21]);
+	       double e = util::string_to_float(words[23]);
 
-	       std::string n1 = coot::atom_id_mmdb_expand(atm_name_1);
-	       std::string n2 = coot::atom_id_mmdb_expand(atm_name_2);
+	       std::string n1 = atom_id_mmdb_expand(atm_name_1);
+	       std::string n2 = atom_id_mmdb_expand(atm_name_2);
 
-	       coot::atom_spec_t spec_1(chain_id_1, res_no_1, ins_code_1, n1, "");
-	       coot::atom_spec_t spec_2(chain_id_2, res_no_2, ins_code_2, n2, "");
+	       atom_spec_t spec_1(chain_id_1, res_no_1, ins_code_1, n1, "");
+	       atom_spec_t spec_2(chain_id_2, res_no_2, ins_code_2, n2, "");
 	       extra_bond_restraint_t br(spec_1, spec_2, d, e);
 	       bond_restraints.push_back(br);
 	    }
 	    catch (const std::runtime_error &rte) {
 	       // silently ignore
-	       std::cout << "rte on : " << lines[i] << std::endl;
+	       std::cout << "WARNING:: rte on : " << lines[i] << std::endl;
 	    }
 	 } else {
+
+	    if (matches_angle_template_p(words)) {
+
+	       try {
+		  std::string chain_id_1 = words[4];
+		  std::string ins_code_1 = words[8];
+		  std::string atm_name_1 = words[10];
+		  int res_no_1 = util::string_to_int(words[6]);
+
+		  std::string chain_id_2 = words[13];
+		  std::string ins_code_2 = words[17];
+		  std::string atm_name_2 = words[19];
+		  int res_no_2 = util::string_to_int(words[15]);
+
+		  std::string chain_id_3 = words[22];
+		  std::string ins_code_3 = words[26];
+		  std::string atm_name_3 = words[28];
+		  int res_no_3 = util::string_to_int(words[24]);
+
+		  if (ins_code_1 == ".") ins_code_1 = "";
+		  if (ins_code_2 == ".") ins_code_2 = "";
+		  if (ins_code_3 == ".") ins_code_3 = "";
+
+		  double d = util::string_to_float(words[30]);
+		  double e = util::string_to_float(words[32]);
+
+		  std::string n1 = atom_id_mmdb_expand(atm_name_1);
+		  std::string n2 = atom_id_mmdb_expand(atm_name_2);
+		  std::string n3 = atom_id_mmdb_expand(atm_name_3);
+
+		  atom_spec_t spec_1(chain_id_1, res_no_1, ins_code_1, n1, "");
+		  atom_spec_t spec_2(chain_id_2, res_no_2, ins_code_2, n2, "");
+		  atom_spec_t spec_3(chain_id_3, res_no_3, ins_code_3, n3, "");
+		  extra_angle_restraint_t ar(spec_1, spec_2, spec_3, d, e);
+		  angle_restraints.push_back(ar);
+
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "WARNING:: rte on : " << lines[i] << std::endl;
+	       }
+
+	    } else {
 	    
-	    parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
-	    if (ppr.matches) {
-	       // add parallel plane (aka "stacking") restraint
-	       parallel_plane_restraints.push_back(ppr);
-	    } else { 
-	       std::cout << "INFO:: Failed to match restraint to templates:\n" << lines[i] << std::endl;
+	       parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
+	       if (ppr.matches) {
+		  // add parallel plane (aka "stacking") restraint
+		  parallel_plane_restraints.push_back(ppr);
+	       } else {
+		  std::cout << "INFO:: Failed to match restraint to templates:\n" << lines[i] << std::endl;
+	       }
 	    }
 	 } 
       }
@@ -92,13 +135,109 @@ coot::extra_restraints_t::delete_restraints_for_residue(const residue_spec_t &rs
    bond_restraints.erase(std::remove(bond_restraints.begin(), bond_restraints.end(), rs), bond_restraints.end());
 }
 
+bool
+coot::extra_restraints_t::matches_angle_template_p(const std::vector<std::string> &words) const {
+
+   bool status = false;
+
+   if (words.size() == 33 || words.size() == 35) { // allow type field at the end
+      std::vector<std::string> u(words.size());
+      for (unsigned int i=0; i<words.size(); i++)
+	 u[i] = coot::util::upcase(words[i]);
+      if (u[0].length() > 3) {
+	 if (u[0].substr(0,4) == "EXTE") {
+	    if (u[1].length() > 3) {
+	       if (u[1].substr(0,4) == "ANGL") {
+		  if (u[2].length() > 3) {
+		     if (u[2].substr(0,4) == "FIRS") {
+			if (u[3].length() > 3) {
+			   if (u[3].substr(0,4) == "CHAI") {
+			      if (u[5].length() > 3) {
+				 if (u[5].substr(0,4) == "RESI") {
+				    if (u[7].length() > 2) {
+				       if (u[7].substr(0,3) == "INS") {
+					  if (u[9].length() > 3) {
+					     if (u[9].substr(0,4) == "ATOM") {
+						if (u[11].length() > 3) {
+						   if (u[11].substr(0,4) == "NEXT") {
+						      if (u[12].length() > 3) {
+							 if (u[12].substr(0,4) == "CHAI") {
+							    if (u[14].length() > 3) {
+							       if (u[14].substr(0,4) == "RESI") {
+								  if (u[16].length() > 2) {
+								     if (u[16].substr(0,3) == "INS") {
+									if (u[18].length() > 3) {
+									   if (u[18].substr(0,4) == "ATOM") {
+									      if (u[20].length() > 3) {
+										 if (u[20].substr(0,4) == "NEXT") {
+										    if (u[21].length() > 3) {
+										       if (u[21].substr(0,4) == "CHAI") {
+											  if (u[23].length() > 3) {
+											     if (u[23].substr(0,4) == "RESI") {
+												if (u[25].length() > 2) {
+												   if (u[25].substr(0,3) == "INS") {
+												      if (u[27].length() > 3) {
+													 if (u[27].substr(0,4) == "ATOM") {
+													    if (u[29].length() > 3) {
+													       if (u[29].substr(0,4) == "VALU") {
+														  if (u[31].length() > 3) {
+														     if (u[31].substr(0,4) == "SIGM") {
+															status = true;
+														     }
+														  }
+													       }
+													    }
+													 }
+												      }
+												   }
+												}
+											     }
+											  }
+										       }
+										    }
+										 }
+									      }
+									   }
+									}
+								     }
+								  }
+							       }
+							    }
+							 }
+						      }
+						   }
+						}
+					     }
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (false) { // debugging
+      for (unsigned int i=0; i<words.size(); i++) {
+	 std::cout << " " << words[i] <<  " ";
+      }
+      std::cout << "status: " << status << std::endl;
+   }
+   return status;
+}
 
 
 bool
 coot::extra_restraints_t::matches_bond_template_p(const std::vector<std::string> &words) const {
 
    bool status = false;
-   if (words.size() >= 24) {
+   if (words.size() >= 24 || words.size() == 26) { // allow type field at the end
       std::vector<std::string> u(words.size());
       for (unsigned int i=0; i<words.size(); i++)
 	 u[i] = coot::util::upcase(words[i]);
@@ -177,14 +316,17 @@ coot::restraints_container_t::add_extra_restraints(int imol,
       std::cout << "--------------------- in add_extra_restraints() restraints_vec size() "
 		<< restraints_vec.size() << " extra bond restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() bond "
+      std::cout << "--------------------- in add_extra_restraints() "
 		<< extra_restraints.bond_restraints.size() << " extra bond restraints "
+		<< std::endl;
+      std::cout << "--------------------- in add_extra_restraints() "
+		<< extra_restraints.angle_restraints.size() << " extra angle restraints "
 		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() par-plan "
 		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
 		<< std::endl;
    }
-   
+
    add_extra_bond_restraints(extra_restraints);
    add_extra_angle_restraints(extra_restraints);
    add_extra_torsion_restraints(extra_restraints);

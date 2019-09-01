@@ -273,7 +273,7 @@ void do_refine(short int state) {
          // shouldnt get here any more?!? Only if we destroy the dialog above!
           g.in_range_define_for_refine = 0;
           g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
-          info_dialog("INFO:: Still, no refinement map has been set!");
+          info_dialog("WARNING:: Still, no refinement map has been set!");
       }
    } else { 
       g.normal_cursor();
@@ -376,6 +376,98 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
    return r;
 }
 #endif // USE_PYTHON
+
+
+
+#ifdef USE_PYTHON
+PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_list_py);
+      if (residue_specs.size() > 0) {
+	 std::vector<mmdb::Residue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    int imol_map = g.Imol_Refinement_Map();
+	    if (! is_valid_map_molecule(imol_map)) { 
+	       add_status_bar_text("Refinement map not set");
+	    } else {
+	       // normal
+	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	       graphics_info_t g;
+	       std::vector<std::pair<bool,mmdb::Residue *> > local_residues;  // not fixed.
+	       for (unsigned int i=0; i<residues.size(); i++)
+		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(false, residues[i]));
+	       const coot::protein_geometry &geom = *g.Geom_p();
+	       bool do_residue_internal_torsions = false;
+	       bool do_trans_peptide_restraints = false;
+	       bool do_rama_restraints = false;
+	       float rama_plot_restraint_weight = 1.0;
+	       coot::pseudo_restraint_bond_type pseudo_bonds_type = coot::NO_PSEUDO_BONDS;
+	       const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+	       std::vector<coot::atom_spec_t> fixed_atom_specs;
+	       std::vector<mmdb::Link> links;
+	       coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+
+	       coot::restraints_container_t restraints(local_residues, links, geom, mol, fixed_atom_specs, xmap);
+	       int nrestraints =
+		  restraints.make_restraints(imol, geom, flags,
+					     do_residue_internal_torsions,
+					     do_trans_peptide_restraints,
+					     rama_plot_restraint_weight,
+					     do_rama_restraints,
+					     pseudo_bonds_type);
+	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
+	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
+	       if (gd.size() > 0) {
+
+		  r = PyList_New(gd.size());
+		  for (std::size_t i=0; i<gd.geometry_distortion.size(); i++) {
+
+		     PyList_SetItem(r, i, g.geometry_distortion_to_py(gd.geometry_distortion[i]));
+
+		     if (false) { // debug to terminal
+			std::cout << "   " << i << " ";
+			for (std::size_t j=0; j<gd.geometry_distortion[i].atom_indices.size(); j++)
+			   std::cout << " " << gd.geometry_distortion[i].atom_indices[j];
+			std::cout << ": ";
+			std::cout << " " << gd.geometry_distortion[i] << " ";
+			std::cout << gd.geometry_distortion[i].distortion_score << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *get_intermediate_atoms_distortions_py() {
+
+   graphics_info_t g;
+   PyObject *r = g.get_intermediate_atoms_distortions_py();
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+}
+#endif
+
 
 /*! read in prosmart (typically) extra restraints */
 void add_refmac_extra_restraints(int imol, const char *file_name) {
@@ -513,9 +605,21 @@ void generate_local_self_restraints(int imol, const char *chain_id, float local_
       // like prosmart self restraints
       graphics_info_t::molecules[imol].generate_local_self_restraints(local_dist_max, chain_id,
 								      *graphics_info_t::Geom_p());
+   }
+   graphics_draw();
+}
+
+/*! \brief generate external distance all-molecule self restraints */
+void generate_self_restraints(int imol, float local_dist_max) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].generate_self_restraints(local_dist_max,
+								*graphics_info_t::Geom_p());
    } 
    graphics_draw();
 }
+
+
 
 
 
@@ -953,8 +1057,9 @@ delete_all_extra_restraints(int imol) {
 
    // c.f. clear_extra_restraints()
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].clear_extra_restraints(); 
+      graphics_info_t::molecules[imol].clear_extra_restraints();
    }
+   graphics_draw();
 }
 
 
@@ -1046,6 +1151,60 @@ void use_unimodal_ring_torsion_restraints(const std::string &res_name) {
    graphics_info_t::Geom_p()->use_unimodal_ring_torsion_restraints(imol_enc, res_name, minimal);
 
 }
+
+
+#ifdef USE_PYTHON
+//! \brief use unimodal ring torsion restraints (e.g. for carbohydrate pyranose)
+//
+//         allow user definition of torsions for given residue
+//  @var{torsions_info_list} is a list of item that are of the form
+//  @var{[atom_name_1, atom_name_2, atom_name_3, atom_name_4, double torsion_1234]}
+void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_name, PyObject *torsions_info_list) {
+
+   if (PyList_Check(torsions_info_list)) {
+      unsigned int n_torsions = PyObject_Length(torsions_info_list);
+      std::vector<coot::atom_name_torsion_quad> tors_info_vec;
+      for (unsigned int i=0; i<n_torsions; i++) {
+	 PyObject *tors_info = PyList_GetItem(torsions_info_list, i);
+	 if (PyList_Check(tors_info)) {
+	    unsigned int n_eles = PyObject_Length(tors_info);
+	    if (n_eles == 5) {
+	       PyObject *at_1_py = PyList_GetItem(tors_info, 0);
+	       PyObject *at_2_py = PyList_GetItem(tors_info, 1);
+	       PyObject *at_3_py = PyList_GetItem(tors_info, 2);
+	       PyObject *at_4_py = PyList_GetItem(tors_info, 3);
+	       PyObject *tors_py = PyList_GetItem(tors_info, 4);
+	       if (PyString_Check(at_1_py)) {
+		  if (PyString_Check(at_2_py)) {
+		     if (PyString_Check(at_3_py)) {
+			if (PyString_Check(at_4_py)) {
+			   if (PyFloat_Check(tors_py)) {
+			      std::string at_name_1 = PyString_AsString(at_1_py);
+			      std::string at_name_2 = PyString_AsString(at_2_py);
+			      std::string at_name_3 = PyString_AsString(at_3_py);
+			      std::string at_name_4 = PyString_AsString(at_4_py);
+			      double tors = PyFloat_AsDouble(tors_py);
+			      std::string id = "ring-torsion-";
+			      id += coot::util::int_to_string(tors_info_vec.size()+1);
+			      coot::atom_name_torsion_quad tors_info(id, at_name_1, at_name_2, at_name_3, at_name_4, tors);
+			      tors_info_vec.push_back(tors_info);
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      if (tors_info_vec.size() > 0) {
+	 int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+	 graphics_info_t::Geom_p()->use_unimodal_ring_torsion_restraints(imol_enc, res_name, tors_info_vec, graphics_info_t::cif_dictionary_read_number);
+      }
+   }
+}
+#endif
+
 
 void set_refinement_geman_mcclure_alpha(float alpha) {
 

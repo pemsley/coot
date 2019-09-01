@@ -38,6 +38,7 @@
 (define regularize-residues regularize-residues-scm)
 (define refine-zone-with-score refine-zone-with-score-scm)
 (define regularize-zone-with-score regularize-zone-with-score-scm)
+(define set-merge-molecules-ligand-spec set-merge-molecules-ligand-spec-scm)
 (define map-peaks map-peaks-scm)
 (define map-peaks-near-point map-peaks-near-point-scm)
 (define add-dipole add-dipole-scm)
@@ -116,6 +117,13 @@
 (define new-molecule-by-residue-specs new-molecule-by-residue-specs-scm)
 (define delete-residues delete-residues-scm)
 (define qq-plot-map-and-model qq-plot-map-and-model-scm)
+(define refinement-already-ongoing? (lambda() (= (refinement-already-ongoing-p) 1)))
+(define molecule-atom-overlaps molecule-atom-overlaps-scm)
+(define set-go-to-atom-from-atom-spec set-go-to-atom-from-atom-spec-scm)
+(define chiral-volume-errors chiral-volume-errors-scm)
+(define all-residues-with-serial-numbers all-residues-with-serial-numbers-scm)
+
+;; (define residues-distortions residues-distortions-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)
