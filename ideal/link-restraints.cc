@@ -1199,7 +1199,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2, mol);
 		  } 
 
-		  if (true)
+		  if (false)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
 			std::cout << "   DEBUG:: pre-calling general_link_find_close_link() "
 				  << il << " of " << link_infos_non_peptide.size()
