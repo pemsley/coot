@@ -296,6 +296,8 @@ coot::residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
 // has a flag attached that denotes whether or not it is a fixed
 // residue (it would be set, for example in the case of flanking
 // residues).
+//
+// currently links are ignored.
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 						     const std::vector<mmdb::Link> &links,
 						     const coot::protein_geometry &geom,

@@ -1727,6 +1727,8 @@ namespace coot {
 
       link_restraints_counts make_link_restraints_for_link_ng(const new_linked_residue_t &nlr,
 							      const protein_geometry &geom);
+      void make_header_metal_links_ng(const protein_geometry &geom);
+
 
       std::string find_peptide_link_type_ng(mmdb::Residue *res_1,
 					    mmdb::Residue *res_2,

@@ -492,6 +492,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
+      if (at_1->isTer()) continue;
+
       std::string alt_conf_1(at_1->altLoc);
       // std::cout << "base atom: " << atom_spec_t(at_1) << std::endl;
 
@@ -747,12 +749,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    // needs timing test - might be slow (it isn't)
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atom[i];
-      std::string et = get_type_energy(imol, at, geom);
-      energy_type_for_atom[i] = et;
-      if (H_parent_atom_is_donor(at))
-         H_atom_parent_atom_is_donor_vec[i] = true;
-      if (is_acceptor(et, geom))
-         atom_is_acceptor_vec[i] = true;
+      if (! at->isTer()) {
+	 std::string et = get_type_energy(imol, at, geom);
+	 energy_type_for_atom[i] = et;
+	 if (H_parent_atom_is_donor(at))
+	    H_atom_parent_atom_is_donor_vec[i] = true;
+	 if (is_acceptor(et, geom))
+	    atom_is_acceptor_vec[i] = true;
+      }
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
@@ -1574,6 +1578,11 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 
 }
 
+void
+coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geometry &geom) {
+   // we need to use the links passed to the constructor - currently they are not saved.
+}
+
 
 // non polymer links and carbohydrate links.
 // And metal links
@@ -1593,6 +1602,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 	 std::cout << "   fixed atoms: " << *it << std::endl;
    }
 
+   make_header_metal_links_ng(geom);
 
    new_linked_residue_list_t nlrs;
 
