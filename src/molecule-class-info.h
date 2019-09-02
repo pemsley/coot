@@ -1028,6 +1028,8 @@ public:        //                      public
    // 
    mmdb::Residue *get_residue(const coot::residue_spec_t &rs) const;
 
+   std::string get_residue_name(const coot::residue_spec_t &rs) const;
+
    // Return a copy of the pointer (only) of the residue following
    // that of the given spec.  Return NULL on residue not found.
    // 
