@@ -1139,7 +1139,7 @@
 	   submenu "Molasses Refinement mode"
 	   (lambda ()
 	     (format #t "Molasses...~%")
-	     (set-dragged-refinement-steps-per-frame 20)))
+	     (set-dragged-refinement-steps-per-frame 4)))
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Smooth Refinement mode"

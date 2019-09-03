@@ -141,6 +141,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
 
+      std::cout << ":::: make-restraints: analysis of bad geometry in input model" << std::endl;
       analyze_for_bad_restraints(); // bonds and non-bonded.
 
       // info();  - are the NBCs correct?
@@ -1814,7 +1815,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		     // will return a peptide link (for links that were not made before (perhaps because
 		     // missing atoms)).
 		     if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS")) {
-			std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraints "
+			std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
 				  << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
 				  << " with type " << lt.first << " and order switch " << lt.second
 				  << std::endl;
@@ -1881,9 +1882,9 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
-   double interesting_distortion_limit = 15.0;
-   analyze_for_bad_restraints(CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
-   analyze_for_bad_restraints(BOND_RESTRAINT, interesting_distortion_limit);
+   double interesting_distortion_limit = 10.0;
+   analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
+   analyze_for_bad_restraints(              BOND_RESTRAINT, interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT, interesting_distortion_limit);
 
 }
@@ -1893,31 +1894,34 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      {
-	      const simple_restraint &rest = restraints_vec[i];
-	      if (rest.restraint_type == r_type) {
-	         std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
-	         double distortion_score = distortion_pair.first;
-	         if (distortion_score >= interesting_distortion_limit) {
-	            double n_z = sqrt(distortion_score);
-	            double bl_delta = distortion_pair.second;
-	            std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
-	            distortions.push_back(p);
-	         }
-	      }
+      const simple_restraint &rest = restraints_vec[i];
+      if (rest.restraint_type == r_type) {
+
+         // distortion and bond length delta
+         std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
+         double distortion_score = distortion_pair.first;
+         // std::cout << "restraint " << i << " type " << r_type << " distortion " << distortion_score << std::endl;
+         if (distortion_score >= interesting_distortion_limit) {
+            double n_z = sqrt(distortion_score);
+            double delta = distortion_pair.second;
+            std::tuple<unsigned int, double, double, double> p(i, n_z, delta, distortion_score);
+            distortions.push_back(p);
+         }
       }
    }
 
-  auto distortion_sorter_lambda = // big distortions at the top
+   // std::cout << "in analyze_for_bad_restraints() n-restraints " << size() << " type " << r_type << " count " << distortions.size() << std::endl;
+
+   auto distortion_sorter_lambda = // big distortions at the top
      [] (const std::tuple<unsigned int, double, double, double> &p1,
          const std::tuple<unsigned int, double, double, double> &p2) {
-     return (std::get<1>(p1) > std::get<1>(p2)); };
+     return (std::get<3>(p1) > std::get<3>(p2)); };
 
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies) n_baddies = distortions.size();
    for (unsigned int i=0; i<n_baddies; i++) {
-	   const std::tuple<unsigned int, double, double, double> &d = distortions[i];
+      const std::tuple<unsigned int, double, double, double> &d = distortions[i];
       const simple_restraint &rest = restraints_vec[std::get<0>(d)];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
@@ -1929,24 +1933,25 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_chiral_volume
                    << " sigma "      << rest.sigma
-                   << " distortion " << std::get<3>(d) << std::endl;
-		}
+                   << " distortion " << std::get<3>(d) << "\n";
+      }
 
-		// How can I know if this was a Hydrogen bond restraint?
+      // How can I know if this was a Hydrogen bond restraint?
       if (r_type == BOND_RESTRAINT)
          std::cout << "INFO:: Model: Bad Bond: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " nZ "         << std::get<1>(d)
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
-                   << " distortion " << std::get<3>(d) << std::endl;
+                   << " sigma "      << rest.sigma
+                   << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
          std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
-                   << " distortion " << std::get<3>(d) << std::endl;
+                   << " distortion " << std::get<3>(d) << "\n";
    }
 }
 

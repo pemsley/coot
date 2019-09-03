@@ -2318,15 +2318,16 @@ void handle_get_accession_code(GtkWidget *widget) {
       std::cout << "PDB Accession Code: " << text << std::endl;
       int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
 									"accession_code_window")));
-   int n = *n_p;
 
-   std::cout << "Here with mode n " << n << std::endl;
-   
+      int n = *n_p;
+      std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
+
 #ifdef USE_GUILE
       string scheme_command;
 
       if (n == 1) {
          get_coords_for_accession_code(text);
+         std::cout << "Here with mode n " << n << " guile path " << std::endl;
       } else {
          if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
 	    // 20050725 EDS code:

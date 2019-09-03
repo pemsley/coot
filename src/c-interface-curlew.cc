@@ -135,7 +135,9 @@ void curlew() {
       if (is_empty) {
 	 if (coot::file_exists(dl_fn)) {
 	    std::fstream f(dl_fn);
-	    if (f) {
+	    if (! f) {
+	       std::cout << "WARNING:: Missing/bad curlew info file " << dl_fn << std::endl;
+            } else {
 
 	       std::string s;
 	       f.seekg(0, std::ios::end);
@@ -236,8 +238,6 @@ void curlew() {
 		  }
 	       }
 	    }
-	 } else {
-	    std::cout << "Missing curlew info file " << dl_fn << std::endl;
 	 }
       } // we've done the "empty" message already
    }

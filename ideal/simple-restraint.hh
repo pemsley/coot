@@ -645,6 +645,7 @@ namespace coot {
 					   const protein_geometry &geom);
 
       double torsion_distortion(double model_torsion) const;
+      // distortion (penalty score) and bond length delta from target value
       std::pair<double, double> distortion(mmdb::PAtom *atoms, const double &lj_epsilon) const; // i.e. atom
       std::string type() const; // a string representation of the restraint type
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);

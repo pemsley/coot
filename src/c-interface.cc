@@ -109,9 +109,6 @@
 #include "coot-fileselections.h"
 
 // #include "xmap-interface.h"
-
-#define ENABLE_NLS //added to fix libintl.h:51:14: error: expected unqualified-id before ‘const
-                   // error on importing gtk-manual.h - why now? Why this file? - who knows...
 #include "graphics-info.h"
 
 #include "skeleton/BuildCas.h"
@@ -145,25 +142,6 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-
-#ifdef HAVE_CXX11
-   #if defined(__clang__)
-      #define MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
-   #else
-      #if defined(__GNUC__)
-         #if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 40805
-            // no json usage
-         #else
-            #define MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
-         #endif
-      #endif
-   #endif
-#endif
-
-#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
-#include "json.hpp"
-using json = nlohmann::json;
-#endif
 
 // This is (already) in git-revision-count.cc
 //
@@ -509,132 +487,6 @@ int make_updating_model_molecule(const char *filename) {
    }
    return status;
 }
-
-// do we need to return the imol for the model and the map? If so, this
-// needs to be in cc-interface.hh
-//
-void updating_refmac_refinement_files(const char *updating_refmac_refinement_files_json_file_name) {
-
-#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES // using JSON
-
-   if (updating_refmac_refinement_files_json_file_name) {
-
-      // set a timeout function that looks for this file
-      GSourceFunc f = GSourceFunc(updating_refmac_refinement_json_timeout_function);
-      std::string *fn_p = new std::string(updating_refmac_refinement_files_json_file_name);
-      guint updating_idx = g_timeout_add(500, f, fn_p); // possibly illegal.
-   }
-#else
-   std::cout << "ERROR:: updating_refmac_refinement_files() is just a stub - needs CXX11"
-	     << std::endl;
-#endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES   
-}
-
-int updating_refmac_refinement_json_timeout_function(gpointer data) {
-
-   int status = 1; // keep going
-
-#ifdef MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
-
-   if (! data) return 0;
-
-   std::string *fn = reinterpret_cast<std::string *>(data);
-   std::string json_file_name = *fn;
-
-   std::fstream f(json_file_name);
-   if (f) {
-
-      std::string s;
-      f.seekg(0, std::ios::end);
-      s.reserve(f.tellg());
-      f.seekg(0, std::ios::beg);
-
-      s.assign((std::istreambuf_iterator<char>(f)),
-	       std::istreambuf_iterator<char>());
-      unsigned int n_already_done = 0;
-
-      std::vector<coot::mtz_to_map_info_t> mtz_map_infos;
-
-      try {
-	 json j = json::parse(s);
-         json ls = j["animation"];
-         unsigned int n_cycles = ls.size();
-
-         std::cout << "n_cycles " << n_cycles << std::endl;
-         std::string mtz_file_name, f_col, phi_col;
-         std::string model_file_name;
-
-         json anim_part_id    = ls["id"];
-         json anim_part_map   = ls["map"];
-         json anim_part_model = ls["model"];
-         json anim_part_x     = ls["xmissing"];
-         std::cout << "map: " << anim_part_map << std::endl;
-         std::cout << "x:   " << anim_part_x   << std::endl;
-
-         if (! anim_part_id.is_null() && !anim_part_model.is_null() && !anim_part_map.is_null()) {
-
-            std::string cycle = anim_part_id;
-            model_file_name = anim_part_model["filepath"];
-            mtz_file_name = anim_part_map["filepath"];
-
-            json column_sets = anim_part_map["columns"];
-            std::size_t n_column_sets = column_sets.size();
-            for (std::size_t i=0; i<n_column_sets; i++) {
-               json col_set = column_sets[i];
-               if (col_set["id"] == "2Fo-Fc") {
-                  std::cout << "Found 2Fo-Fc" << std::endl;
-                  json labels = col_set["labels"];
-                  coot::mtz_to_map_info_t mmi;
-                  mmi.mtz_file_name = mtz_file_name;
-                  mmi.f_col         = labels[0];
-                  mmi.phi_col       = labels[1];
-                  mtz_map_infos.push_back(mmi);
-               }
-               if (col_set["id"] == "Fo-Fc") {
-                  std::cout << "Found Fo-Fc" << std::endl;
-                  json labels = col_set["labels"];
-                  coot::mtz_to_map_info_t mmi;
-                  mmi.mtz_file_name = mtz_file_name;
-                  mmi.f_col         = labels[0];
-                  mmi.phi_col       = labels[1];
-                  mmi.is_difference_map = true;
-                  mtz_map_infos.push_back(mmi);
-               }
-            }
-
-
-            if (true) { // debug
-               std::cout << "Here with cycle: " << cycle << std::endl;
-               std::cout << "Here with model_file_name: " << model_file_name << std::endl;
-               std::cout << "Here with mtz_file_name: " << mtz_file_name << std::endl;
-               for (unsigned int i=0; i<mtz_map_infos.size(); i++)
-                  std::cout << mtz_map_infos[i].mtz_file_name << " " << mtz_map_infos[i].f_col << " " << mtz_map_infos[i].phi_col << std::endl;
-            }
-
-            // OK, but which map and which model needs to be updated?
-            std::cout << "Here are the molecules so far " << std::endl;
-            for (int i=0; i<graphics_n_molecules(); i++) {
-               std::cout << "molecule name " << i << " " << graphics_info_t::molecules[i].name_ << std::endl;
-            }
-
-            // Too much effort. Stop this now. Fix the interface the other way. Using the interface I already had.
-
-         }
-      }
-      catch(const nlohmann::detail::type_error &e) {
-	 std::cout << "ERROR:: " << e.what() << std::endl;
-      }
-      catch(const nlohmann::detail::parse_error &e) {
-	 std::cout << "ERROR:: " << e.what() << std::endl;
-      }
-
-      status = 0; // no need to run this function again
-   }
-#endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
-   return status;
-}
-
-
 
 
 void allow_duplicate_sequence_numbers() {

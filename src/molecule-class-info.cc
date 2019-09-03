@@ -2483,9 +2483,21 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 // << std::endl;
 
 	 float zsc = graphics_info_t::zoom;
-	 glPointSize(280.0/zsc);
+         float base_point_size =  280.0/zsc;
+         float current_point_size = base_point_size;
+	 glPointSize(current_point_size);
 
-	 glBegin(GL_POINTS);
+         /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
+             unapply and reapply the mvp matrix. Hmm.
+
+             glPushMatrix();
+             glScalef(1.0, 1.0, -1.0);
+             gluDisk(quad, 0, base, slices, 2);
+             glPopMatrix();
+         */
+
+         glBegin(GL_POINTS);
+
 	 // for a big molecule, it's a factor of 10 or more slower
 	 // to put glColor3f in the middle of the loop.
 	 //
@@ -2502,15 +2514,27 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 	       // no points for hydrogens
-	       if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+               const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+	       if (! gbai.is_hydrogen_atom) {
 
 		  if ((single_model_view_current_model_number == 0) ||
-		      (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+		      (single_model_view_current_model_number == gbai.model_number)) {
 
-		     if ((use_radius_limit.first == false) ||
-			 (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
-		     
-			const coot::Cartesian &fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
+		     if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
+
+                        float this_point_size = base_point_size;
+                        if (gbai.radius_scale != 1.0)
+                           this_point_size = base_point_size * 4.0 * gbai.radius_scale;
+
+                        // This code seems to be doing the right thing - I just don't see that the points
+                        // change size - perhaps I need to put big points into their own loop.
+                        if (current_point_size != this_point_size) {
+                           current_point_size = this_point_size;
+                           // std::cout << "rescale point size " << current_point_size << std::endl;
+                           glPointSize(current_point_size);
+                        }
+
+			const coot::Cartesian &fake_pt = gbai.position;
 			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
 		     }
 		  }
@@ -2518,7 +2542,6 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	    }
 	 }
 	 glEnd();
-
 
 
 	 // highlights?
