@@ -1724,8 +1724,6 @@ namespace coot {
                                                                      // 20161004 we also need to match
                                                                      // imols before deletion occurs
 
-
-
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
@@ -1746,6 +1744,10 @@ namespace coot {
       get_monomer_torsions_from_geometry(const std::string &monomer_type,
 					 int imol_enc,
 					 bool find_hydrogen_torsions) const;
+
+      std::pair<bool, dict_atom> get_monomer_atom_info(const std::string &monomer_name,
+						       const std::string &atom_name,
+						       int imol_enc) const;
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
@@ -1908,6 +1910,12 @@ namespace coot {
       mmdb::Manager *mol_from_dictionary(int monomer_index,
 					 int imol_enc,
 					 bool idealised_flag);
+
+      // find the missing names (if any)
+      // (and then call try_dynamic_add would be the typical usage.)
+      std::vector<std::string> residue_names_with_no_dictionary(mmdb::Manager *mol, int imol) const;
+
+      bool read_extra_dictionaries_for_molecule(mmdb::Manager *mol, int imol, int *read_number_p);
 
       // Used by above (or maybe you just want a residue?)
       // (Can return NULL).
