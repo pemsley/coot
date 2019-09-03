@@ -739,12 +739,13 @@ coot::protein_geometry::get_metal_N_distance(const std::string &metal) const {
 }
 
 bool
-coot::protein_geometry::parse_metal_NO_distance_tables() {
+coot::protein_geometry::parse_metal_NOS_distance_tables() {
 
    bool status = false;
    std::vector<std::string> v;
    v.push_back("metal-O-distance.table");
    v.push_back("metal-N-distance.table");
+   v.push_back("metal-S-distance.table");
 
    for (std::size_t i=0; i<v.size(); i++) {
       std::string d1 = package_data_dir(); // $prefix/share/coot
@@ -760,19 +761,21 @@ coot::protein_geometry::parse_metal_NO_distance_tables() {
 	    std::vector<std::string> ss = util::split_string(line, " ");
 	    if (ss.size() == 2) {
 	       try {
-		       std::string metal_1 = ss[0];
-		       std::string metal = util::upcase(metal_1);
-		       double bl = util::string_to_double(ss[1]);
-		       if (i == 0) // bleugh :-)
-		          metal_O_map[metal] = bl;
-		       if (i == 1)
-		          metal_N_map[metal] = bl;
-	            }
-	            catch (const std::runtime_error &rte) {
-		            std::cout << "ERROR:: rte " << rte.what() << std::endl;
-	            }
-	         }
-	      }
+		  std::string metal_1 = ss[0];
+		  std::string metal = util::upcase(metal_1);
+		  double bl = util::string_to_double(ss[1]);
+		  if (i == 0) // bleugh :-)
+		     metal_O_map[metal] = bl;
+		  if (i == 1)
+		     metal_N_map[metal] = bl;
+		  if (i == 2)
+		     metal_S_map[metal] = bl;
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "ERROR:: rte " << rte.what() << std::endl;
+	       }
+	    }
+	 }
       }
    }
 

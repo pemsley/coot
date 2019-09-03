@@ -1637,7 +1637,7 @@ namespace coot {
       protein_geometry() {
 	 read_number = 0;
 	 set_verbose(1);
-	 parse_metal_NO_distance_tables();
+	 parse_metal_NOS_distance_tables();
 #if HAVE_CCP4SRS	 
 	 ccp4srs = NULL;
 #endif
@@ -2051,7 +2051,8 @@ namespace coot {
       // for example
       std::map<std::string, double> metal_O_map;
       std::map<std::string, double> metal_N_map;
-      bool parse_metal_NO_distance_tables(); // fill the above sets
+      std::map<std::string, double> metal_S_map;
+      bool parse_metal_NOS_distance_tables(); // fill the above sets
       // extract values from these sets - return 0.0 on failure
       double get_metal_O_distance(const std::string &metal) const;
       double get_metal_N_distance(const std::string &metal) const;
