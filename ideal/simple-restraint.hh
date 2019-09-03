@@ -1728,6 +1728,9 @@ namespace coot {
       link_restraints_counts make_link_restraints_for_link_ng(const new_linked_residue_t &nlr,
 							      const protein_geometry &geom);
       void make_header_metal_links_ng(const protein_geometry &geom);
+      void add_header_metal_link_bond_ng(const atom_spec_t &atom_spec_1,
+					 const atom_spec_t &atom_spec_2,
+					 double  dist);
 
 
       std::string find_peptide_link_type_ng(mmdb::Residue *res_1,
@@ -1953,6 +1956,9 @@ namespace coot {
       //
       std::map<mmdb::Atom *, hb_t> H_atom_parent_energy_type_atom_map;
       bool H_parent_atom_is_donor(mmdb::Atom *at); // adds to the above map potentially
+
+      std::vector<mmdb::Link> links; // worry about deleting these. Are they just shall copies?
+      void fill_links(mmdb::Manager *mol); // if they were not passed in the constructor.
 
    public:
 

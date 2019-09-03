@@ -299,7 +299,7 @@ coot::residue_sorter(const std::pair<bool, mmdb::Residue *> &r1,
 //
 // currently links are ignored.
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
-						     const std::vector<mmdb::Link> &links,
+						     const std::vector<mmdb::Link> &links_in,
 						     const coot::protein_geometry &geom,
 						     mmdb::Manager *mol_in,
 						     const std::vector<atom_spec_t> &fixed_atom_specs,
@@ -331,7 +331,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 
    residues_vec = residues_local;
    init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
-
+   fill_links(mol_in);
 
 }
 
@@ -365,8 +365,34 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
       }
    }
 
-   init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs);
+   init_from_residue_vec(residues_local, geom, mol_in, fixed_atom_specs); // sets mol
+   fill_links(mol_in);
 
+}
+
+// if they were not passed in the constructor.
+void
+coot::restraints_container_t::fill_links(mmdb::Manager *mol) {
+
+   // fill std::vector<mmdb::Link> links
+
+   links.clear(); // hmmm!
+
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+	 unsigned int n_links = model_p->GetNumberOfLinks();
+	 for (unsigned int i=1; i<=n_links; i++) {
+	    mmdb::Link *ref_link = model_p->GetLink(i);
+	    if (ref_link) {
+	       mmdb::Link l(*ref_link);
+	       links.push_back(l);
+	    }
+	 }
+      }
+   }
+   if (false)
+      std::cout << "INFO:: refinement transfered " << links.size() << " links" << std::endl;
 }
 
 
@@ -5448,7 +5474,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 	   std::cout << non_bonded_atom_indices[i][j] << " ";
 	} 
 	std::cout << std::endl;
-     } 
+     }
      std::cout << "--------------------------------------------------\n";
   }
 

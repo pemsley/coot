@@ -746,6 +746,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
    std::vector<bool> H_atom_parent_atom_is_donor_vec(n_atoms, false);
    std::vector<bool> atom_is_acceptor_vec(n_atoms, false);
 
+#if 0
+   // bonded_atom_indices is constructed as bonds and angles are added (before calling add()).
+   for (int i=0; i<n_atoms; i++) {
+      const std::set<int> &s = bonded_atom_indices[i];
+      std::cout << i << " : ";
+      for (std::set<int>::const_iterator it=s.begin(); it!=s.end(); it++)
+	 std::cout << *it << " ";
+      std::cout << "\n";
+   }
+#endif
+
    // needs timing test - might be slow (it isn't)
    for (int i=0; i<n_atoms; i++) {
       mmdb::Atom *at = atom[i];
@@ -1578,9 +1589,135 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 
 }
 
+
+void
+coot::restraints_container_t::add_header_metal_link_bond_ng(const coot::atom_spec_t &atom_spec_1,
+							    const coot::atom_spec_t &atom_spec_2,
+							    double  dist) {
+
+   // we know the specs from the link line - we need to find the atom indices
+   //
+   // If speed is needed here, we could group up all the atom metal bonds and call this
+   // function as a vector - then we could cache the atom indices, rather than forget
+   // them every time this function is called.
+   // At the moment, if it's not slow, don't speed it up.
+
+   int index_1 = -1;
+   int index_2 = -1;
+
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      int rn_at = at->GetSeqNum();
+      if (rn_at == atom_spec_1.res_no) {
+	 atom_spec_t s(at);
+	 if (s == atom_spec_1) {
+	    index_1 = i;
+	    continue;
+	 }
+      }
+      if (rn_at == atom_spec_2.res_no) {
+	 atom_spec_t s(at);
+	 if (s == atom_spec_2) {
+	    index_2 = i;
+	 }
+      }
+      if ((index_1 != -1) && (index_2 != -1))
+	 break;
+   }
+
+   if (false)
+      std::cout << "debug:: in add_header_metal_link_bond_ng() indices: " << index_1 << " " << index_2
+		<< std::endl;
+
+   if (index_1 != -1) {
+      if (index_2 != -1) {
+	 bonded_atom_indices[index_1].insert(index_2);
+	 bonded_atom_indices[index_2].insert(index_1);
+	 std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+	 add(BOND_RESTRAINT, index_1, index_2, fixed_flags, dist, 0.1, 1.2);
+      }
+   }
+
+}
+
 void
 coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geometry &geom) {
    // we need to use the links passed to the constructor - currently they are not saved.
+
+   int imol = protein_geometry::IMOL_ENC_ANY;
+   for (std::size_t i=0; i<links.size(); i++) {
+      const mmdb::Link &link = links[i];
+      atom_spec_t a1(link.chainID1, link.seqNum1, link.insCode1, link.atName1, link.aloc1);
+      atom_spec_t a2(link.chainID2, link.seqNum2, link.insCode2, link.atName2, link.aloc2);
+      if ((a1.alt_conf == a2.alt_conf) || a1.alt_conf.empty() || a2.alt_conf.empty()) {
+	 std::string rn_1 = link.resName1;
+	 std::string rn_2 = link.resName2;
+
+	 bool is_oxygen_a1   = false;
+	 bool is_oxygen_a2   = false;
+	 bool is_nitrogen_a1 = false;
+	 bool is_nitrogen_a2 = false;
+	 bool is_sulfur_a1   = false;
+	 bool is_sulfur_a2   = false;
+
+	 std::pair<bool, dict_atom> da_1 = geom.get_monomer_atom_info(rn_1, a1.atom_name, imol);
+	 std::pair<bool, dict_atom> da_2 = geom.get_monomer_atom_info(rn_2, a2.atom_name, imol);
+
+	 if (da_1.first) {
+	    if (da_1.second.type_symbol == "O") is_oxygen_a1   = true;
+	    if (da_1.second.type_symbol == "S") is_sulfur_a1   = true;
+	    if (da_1.second.type_symbol == "N") is_nitrogen_a1 = true;
+	 }
+	 if (da_2.first) {
+	    if (da_2.second.type_symbol == "O") is_oxygen_a1   = true;
+	    if (da_2.second.type_symbol == "S") is_sulfur_a1   = true;
+	    if (da_2.second.type_symbol == "N") is_nitrogen_a1 = true;
+	 }
+
+	 if (is_oxygen_a1) {
+	    std::map<std::string, double>::const_iterator it = geom.metal_N_map.find(rn_2);
+	    if (it != geom.metal_O_map.end()) {
+	       // std::cout << "Yay! Make metal O bond restraint " << a1 << " to metal " << a2 << std::endl;
+	       add_header_metal_link_bond_ng(a1, a2, it->second);
+	    }
+	 }
+	 if (is_nitrogen_a1) {
+	    std::map<std::string, double>::const_iterator it = geom.metal_N_map.find(rn_2);
+	    if (it != geom.metal_N_map.end()) {
+	       // std::cout << "Yay! Make metal N bond restraint " << a1 << " to metal " << a2 << std::endl;
+	       add_header_metal_link_bond_ng(a1, a2, it->second);
+	    }
+	 }
+	 if (is_sulfur_a1) {
+	    std::map<std::string, double>::const_iterator it = geom.metal_S_map.find(rn_2);
+	    if (it != geom.metal_S_map.end()) {
+	       // std::cout << "Yay! Make metal S bond restraint " << a1 << " to metal " << a2 << std::endl;
+	       add_header_metal_link_bond_ng(a1, a2, it->second);
+	    }
+	 }
+	 if (is_oxygen_a2) {
+	    std::map<std::string, double>::const_iterator it = geom.metal_O_map.find(rn_1);
+	    if (it != geom.metal_O_map.end()) {
+	       // std::cout << "Yay! Make metal O bond restraint " << a2 << " to metal " << a1 << std::endl;
+	       add_header_metal_link_bond_ng(a1, a2, it->second);
+	    }
+	 }
+	 if (is_nitrogen_a2) {
+	    std::map<std::string, double>::const_iterator it = geom.metal_N_map.find(rn_1);
+	    if (it != geom.metal_N_map.end()) {
+	       // std::cout << "Yay! Make metal N bond restraint " << a2 << " to metal " << a1 << std::endl;
+	       add_header_metal_link_bond_ng(a1, a2, it->second);
+	    }
+	 }
+	 if (is_sulfur_a2) {
+	    std::map<std::string, double>::const_iterator it = geom.metal_S_map.find(rn_1);
+	    if (it != geom.metal_S_map.end()) {
+	       // std::cout << "Yay! Make metal S bond restraint " << a2 << " to metal " << a1 << std::endl;
+	       add_header_metal_link_bond_ng(a1, a2, it->second);
+	    }
+	 }
+      }
+   }
 }
 
 
