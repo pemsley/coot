@@ -724,8 +724,8 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 	 
-	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size() << " types "
-		   << "with no dictionary " << std::endl;
+	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size()
+		   << " types with no dictionary " << std::endl;
 
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
 	    if (0)
