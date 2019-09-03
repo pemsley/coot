@@ -3070,7 +3070,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
    mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
    if (nSelResidues > 0) {
       for (int i=4; i<nSelResidues; i++) {
-	 // nN -> (n-4)O 2.91
+         // nN -> (n-4)O 2.91
          // nN -> (n-3)O 3.18
          // nO -> (n+3)N 3.18  // symmetric.  No need to specify both forwards
          // nO -> (n+4)N 2.91  // and backwards directions.
@@ -3130,7 +3130,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_auto() {
 
-   float pseudo_bond_esd = 0.05;
+   float pseudo_bond_esd = 0.14; // 0.05 was too tight
    unsigned int n_helical_restraints = 0;
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -3169,7 +3169,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 	    // only add residues that are in the same chain as the first (0th) residue
 	    if (residue_0) {
 	       if (residue_p->GetChain() == residue_0->GetChain()) {
-		  test_helical_residues.push_back(residue_p);
+	          test_helical_residues.push_back(residue_p);
 	       }
 	    }
          }
@@ -3180,22 +3180,22 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
       bool sane_residue_numbers = false;
       if (test_helical_residues.size() == 4)
-	 if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
-	    sane_residue_numbers = true;
+      if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
+         sane_residue_numbers = true;
 
       // maybe we *do* want compare_to_helix() to be run on 5 residues?
       // i -> i+4 is the convention for alpha helical H-bonds, after all.
       //
       if (test_helical_residues.size() == 5)
-	 if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
-	    sane_residue_numbers = true;
+      if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
+         sane_residue_numbers = true;
 
       helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 4 residues
 
       if (false) // useful for debugging helical restraints
-	 std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " "
-		   << hr.sum_delta << " "
-		   << residue_spec_t(sorted_residues[i]) << std::endl;
+         std::cout << "DEBUG:: helix_result " << hr.is_alpha_helix_like << " "
+                   << hr.sum_delta << " "
+                   << residue_spec_t(sorted_residues[i]) << std::endl;
 
       if (hr.is_alpha_helix_like && sane_residue_numbers) {
 
@@ -5238,7 +5238,7 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
 
       double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
       double delta = cv - target_chiral_volume;
-      distortion_pair.first = delta/(sigma * sigma);
+      distortion_pair.first = delta*delta/(sigma * sigma);
       distortion_pair.second = delta;
    }
 

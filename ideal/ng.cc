@@ -141,6 +141,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
 
+      std::cout << ":::: make-restraints: analysis of bad geometry in input model" << std::endl;
       analyze_for_bad_restraints(); // bonds and non-bonded.
 
       // info();  - are the NBCs correct?
@@ -1881,9 +1882,9 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
-   double interesting_distortion_limit = 15.0;
-   analyze_for_bad_restraints(CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
-   analyze_for_bad_restraints(BOND_RESTRAINT, interesting_distortion_limit);
+   double interesting_distortion_limit = 10.0;
+   analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
+   analyze_for_bad_restraints(              BOND_RESTRAINT, interesting_distortion_limit);
    analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT, interesting_distortion_limit);
 
 }
@@ -1899,16 +1900,19 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
          // distortion and bond length delta
          std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
          double distortion_score = distortion_pair.first;
+         // std::cout << "restraint " << i << " type " << r_type << " distortion " << distortion_score << std::endl;
          if (distortion_score >= interesting_distortion_limit) {
             double n_z = sqrt(distortion_score);
-            double bl_delta = distortion_pair.second;
-            std::tuple<unsigned int, double, double, double> p(i, n_z, bl_delta, distortion_score);
+            double delta = distortion_pair.second;
+            std::tuple<unsigned int, double, double, double> p(i, n_z, delta, distortion_score);
             distortions.push_back(p);
          }
       }
    }
 
-  auto distortion_sorter_lambda = // big distortions at the top
+   // std::cout << "in analyze_for_bad_restraints() n-restraints " << size() << " type " << r_type << " count " << distortions.size() << std::endl;
+
+   auto distortion_sorter_lambda = // big distortions at the top
      [] (const std::tuple<unsigned int, double, double, double> &p1,
          const std::tuple<unsigned int, double, double, double> &p2) {
      return (std::get<3>(p1) > std::get<3>(p2)); };
@@ -1928,6 +1932,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << atom_spec_t(at_c) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_chiral_volume
+                   << " sigma "      << rest.sigma
                    << " distortion " << std::get<3>(d) << "\n";
       }
 
@@ -1938,6 +1943,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " nZ "         << std::get<1>(d)
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
+                   << " sigma "      << rest.sigma
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
