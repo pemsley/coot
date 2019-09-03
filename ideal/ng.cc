@@ -1928,6 +1928,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << atom_spec_t(at_c) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_chiral_volume
+                   << " sigma "      << rest.sigma
                    << " distortion " << std::get<3>(d) << std::endl;
 		}
 

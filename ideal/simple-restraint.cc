@@ -5238,7 +5238,7 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
 
       double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
       double delta = cv - target_chiral_volume;
-      distortion_pair.first = delta/(sigma * sigma);
+      distortion_pair.first = delta * delta/(sigma * sigma);
       distortion_pair.second = delta;
    }
 
