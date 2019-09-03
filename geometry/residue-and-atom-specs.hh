@@ -266,7 +266,7 @@ namespace coot {
 	 int_user_data = -1;
       } 
       residue_spec_t(const atom_spec_t &atom_spec) { 
-	 model_number = mmdb::MinInt4;
+	 model_number = atom_spec.model_number;
          chain_id = atom_spec.chain_id;
          res_no = atom_spec.res_no;
          ins_code = atom_spec.ins_code;
