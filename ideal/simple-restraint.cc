@@ -5188,8 +5188,31 @@ coot::simple_restraint::get_nbc_dist(const std::string &atom_1_type,
 std::pair<double, double>
 coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon) const {
 
-   // distortion and bond length delta
+   // distortion and bond length delta - bone-headed recalculation - because interface
+   // is from atoms, not gsl vector x
+
    std::pair<double, double> distortion_pair(-1.0, -1.0);
+
+   if (restraint_type == CHIRAL_VOLUME_RESTRAINT) {
+      mmdb::Atom *at_c = atoms[atom_index_centre];
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      mmdb::Atom *at_3 = atoms[atom_index_3];
+
+      clipper::Coord_orth centre = co(at_c);
+      clipper::Coord_orth a1 = co(at_1);
+      clipper::Coord_orth a2 = co(at_2);
+      clipper::Coord_orth a3 = co(at_3);
+
+      clipper::Coord_orth a = a1 - centre;
+      clipper::Coord_orth b = a2 - centre;
+      clipper::Coord_orth c = a3 - centre;
+
+      double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+      double delta = cv - target_chiral_volume;
+      distortion_pair.first = delta/(sigma * sigma);
+      distortion_pair.second = delta;
+   }
 
    if (restraint_type == BOND_RESTRAINT) {
       mmdb::Atom *at_1 = atoms[atom_index_1];
@@ -5201,11 +5224,11 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
 	 if (false)
 	    std::cout << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
 		      << " d " << d << " target_value " << target_value << std::endl;
-         double distortion = d - target_value;
-         double z = distortion/sigma;
+         double delta = d - target_value;
+         double z = delta/sigma;
          double pen_score = z * z;
          distortion_pair.first = pen_score;
-         distortion_pair.second = distortion;
+         distortion_pair.second = delta;
       }
    }
 

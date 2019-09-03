@@ -1740,7 +1740,6 @@ namespace coot {
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
-      void analyze_for_bad_restraints();
       void analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit);
 #ifndef __NVCC__
       // threaded workpackage
@@ -2503,6 +2502,8 @@ namespace coot {
       // e.g. JED refine, cis-trans, pepflip will set this
       //
       void set_needs_reset() { needs_reset = true; }
+
+      void analyze_for_bad_restraints();
 
    }; 
 
