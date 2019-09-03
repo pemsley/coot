@@ -1838,7 +1838,7 @@ molecule_class_info_t::unskeletonize_map() {
    xskel_is_filled = 0;
    clipper::Xmap<int> empty; 
    xskel_cowtan = empty;
-} 
+}
 
 // Return -1 on error
 int
@@ -1933,16 +1933,20 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    if ( map_file_type == CCP4 ) {
      std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
-     clipper::CCP4MAPfile file;
+     // clipper::CCP4MAPfile file;
+     clipper_map_file_wrapper file;
      try {
 	file.open_read(filename);
 
-	em = is_em_map(file);
+	em = set_is_em_map(file);
 
 	bool use_xmap = true; // not an nxmap
 	if (true) {
 	
 	   clipper::Grid_sampling fgs = file.grid_sampling();
+
+	   std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
+
 	   clipper::Cell fcell = file.cell();
 	   double vol = fcell.volume();
 	   if (vol < 1.0) {
@@ -1988,7 +1992,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	   new_centre.second = m;
            std::cout << "INFO:: map appears to be EM map."<< std::endl;
 	}
-	std::cout << "closing CCP4 map: " << filename << std::endl;
+	std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
 	file.close_read();
 
 	if (new_centre.first) {
@@ -2071,7 +2075,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 // NXmap, not the xmap)
 // 
 bool
-molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
+molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
 
    bool is_em = false;
 
@@ -2086,7 +2090,10 @@ molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
 	  ((file.cell().descr().beta()  - M_PI/2) <  0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) > -0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) <  0.0001)) {
-	 is_em = true;
+	 if (file.starts_at_zero()) {
+	    is_em = true;
+	    is_em_map_cached_flag = true;
+	 }
       }
    }
    return is_em;
@@ -2098,20 +2105,8 @@ molecule_class_info_t::is_EM_map() const {
    bool is_em = false;
 
    if (has_xmap()) {
-      
-      // Even if mapdump says that the spacegroup is 0, file.spacegroup()
-      // will be "P1".  So this returns true for maps with spacegroup 0
-      // (and 90 degrees)
-
-      if (xmap.spacegroup().num_symops() == 1) { // P1
-	 if (((xmap.cell().descr().alpha() - M_PI/2) <  0.0001) && 
-	     ((xmap.cell().descr().alpha() - M_PI/2) > -0.0001) &&
-	     ((xmap.cell().descr().beta()  - M_PI/2) > -0.0001) &&
-	     ((xmap.cell().descr().beta()  - M_PI/2) <  0.0001) &&
-	     ((xmap.cell().descr().gamma() - M_PI/2) > -0.0001) &&
-	     ((xmap.cell().descr().gamma() - M_PI/2) <  0.0001)) {
-	    is_em = true;
-	 }
+      if (is_em_map_cached_flag) {
+	 is_em = true;
       }
    }
    return is_em;

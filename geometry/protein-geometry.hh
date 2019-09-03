@@ -1637,7 +1637,7 @@ namespace coot {
       protein_geometry() {
 	 read_number = 0;
 	 set_verbose(1);
-	 parse_metal_NO_distance_tables();
+	 parse_metal_NOS_distance_tables();
 #if HAVE_CCP4SRS	 
 	 ccp4srs = NULL;
 #endif
@@ -1724,8 +1724,6 @@ namespace coot {
                                                                      // 20161004 we also need to match
                                                                      // imols before deletion occurs
 
-
-
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
@@ -1746,6 +1744,10 @@ namespace coot {
       get_monomer_torsions_from_geometry(const std::string &monomer_type,
 					 int imol_enc,
 					 bool find_hydrogen_torsions) const;
+
+      std::pair<bool, dict_atom> get_monomer_atom_info(const std::string &monomer_name,
+						       const std::string &atom_name,
+						       int imol_enc) const;
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
@@ -1909,6 +1911,12 @@ namespace coot {
 					 int imol_enc,
 					 bool idealised_flag);
 
+      // find the missing names (if any)
+      // (and then call try_dynamic_add would be the typical usage.)
+      std::vector<std::string> residue_names_with_no_dictionary(mmdb::Manager *mol, int imol) const;
+
+      bool read_extra_dictionaries_for_molecule(mmdb::Manager *mol, int imol, int *read_number_p);
+
       // Used by above (or maybe you just want a residue?)
       // (Can return NULL).
       // 
@@ -2051,7 +2059,8 @@ namespace coot {
       // for example
       std::map<std::string, double> metal_O_map;
       std::map<std::string, double> metal_N_map;
-      bool parse_metal_NO_distance_tables(); // fill the above sets
+      std::map<std::string, double> metal_S_map;
+      bool parse_metal_NOS_distance_tables(); // fill the above sets
       // extract values from these sets - return 0.0 on failure
       double get_metal_O_distance(const std::string &metal) const;
       double get_metal_N_distance(const std::string &metal) const;

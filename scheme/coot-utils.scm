@@ -2474,7 +2474,7 @@
     (for-each (lambda (atom-name)
 		(add-lsq-atom-pair (list chain-id-ref res-no-ref ins-code-ref atom-name "")
 				   (list chain-id-mov res-no-mov ins-code-mov atom-name "")))
-	      (list " CA " " N  " " C  "))
+	      (list " CA " " N  " " C  "))  ;; PDBv3 FIXME
     (apply-lsq-matches imol-ref imol-mov))
 
   ;; get-monomer-and-dictionary, now we check to see if we have a
@@ -2534,10 +2534,13 @@
 					     (residue-spec->res-no   new-res-spec)
 					     (residue-spec->ins-code new-res-spec)
 					     resno "")
-		      
+
 		      (format #t "debug:: ------ chain ids : ~s ~s~%" new-chain-id chain-id-in)
 		      (if (not (string=? new-chain-id chain-id-in))
-			  (change-chain-id imol new-chain-id chain-id-in 0 resno resno))
+			  (begin
+			    (format #t "(imol new-chain-id chain-id-in 1 resno resno) ~s~%"
+				    (list imol new-chain-id chain-id-in 1 resno resno))
+			    (change-chain-id imol new-chain-id chain-id-in 1 resno resno)))
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))
