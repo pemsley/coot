@@ -697,6 +697,9 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 					   residues_mol_pair.first,
 					   fixed_atom_specs, &dummy_xmap);
 
+   ctpl::thread_pool thread_pool(2);
+   restraints.thread_pool(&thread_pool, 2);
+
    short int do_rama_restraints = 0;
    short int do_residue_internal_torsions = 1;
    short int do_link_torsions = 0;
