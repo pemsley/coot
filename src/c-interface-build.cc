@@ -255,8 +255,9 @@ int copy_molecule(int imol) {
    if (is_valid_map_molecule(imol)) {
       int new_mol_number = graphics_info_t::create_molecule();
       std::string label = "Copy_of_";
-      label += graphics_info_t::molecules[imol].name_;
-      graphics_info_t::molecules[new_mol_number].new_map(graphics_info_t::molecules[imol].xmap, label);
+      label += graphics_info_t::molecules[imol].name_; // use get_name()
+      bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
+      graphics_info_t::molecules[new_mol_number].install_new_map(graphics_info_t::molecules[imol].xmap, label, is_em_flag);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 	 graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
       }
@@ -4449,7 +4450,8 @@ int fffear_search(int imol_model, int imol_map) {
 
 	 imol_new = graphics_info_t::create_molecule();
 	 std::string name("FFFear search results");
-	 graphics_info_t::molecules[imol_new].new_map(f.get_results_map(), name);
+	 bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+	 graphics_info_t::molecules[imol_new].install_new_map(f.get_results_map(), name, is_em_flag);
 
 	 std::vector<std::pair<float, clipper::RTop_orth> > p = f.scored_orientations();
 	 if (p.size() > 0) {
@@ -5527,9 +5529,10 @@ int laplacian (int imol) {
    if (is_valid_map_molecule(imol)) {
       clipper::Xmap<float> xmap = coot::util::laplacian_transform(graphics_info_t::molecules[imol].xmap);
       int new_molecule_number = graphics_info_t::create_molecule();
+      bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       std::string label = "Laplacian of ";
       label += graphics_info_t::molecules[imol].name_;
-      graphics_info_t::molecules[new_molecule_number].new_map(xmap, label);
+      graphics_info_t::molecules[new_molecule_number].install_new_map(xmap, label, is_em_flag);
       iret = new_molecule_number;
    }
    return iret;

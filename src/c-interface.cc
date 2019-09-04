@@ -503,7 +503,7 @@ void set_convert_to_v2_atom_names(short int state) {
 
 
 int handle_read_draw_molecule_with_recentre(const char *filename,
-					   int recentre_on_read_pdb_flag) {
+					    int recentre_on_read_pdb_flag) {
 
    int r = -1;
    //

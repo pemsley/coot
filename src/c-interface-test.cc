@@ -789,7 +789,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       int imol_new = graphics_info_t::create_molecule();
       const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
       clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap_orig, b_factor);
-      g.molecules[imol_new].new_map(xmap_new, "Blur map map");
+      bool is_em_flag = false;
+      g.molecules[imol_new].install_new_map(xmap_new, "Blur map map", is_em_flag);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
       graphics_draw();
@@ -816,7 +817,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    else
 	       map_name += " Blur ";
 	    map_name += coot::util::float_to_string(b_factor);
-	    g.molecules[imol_new].new_map(xmap_new, map_name);
+	    bool is_em_flag = false;
+	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_flag);
 	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.01*b_factor));
 	 }
       }

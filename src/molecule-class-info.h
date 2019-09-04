@@ -1566,7 +1566,7 @@ public:        //                      public
 			  int swap_difference_map_colours_flag,
 			  float sigma_in);
    
-   void new_map(const clipper::Xmap<float> &mapin, std::string name);
+   void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in);
    void set_name(std::string name); // you are encouraged not to use
 				    // this (only for use after having
 				    // imported an xmap).

@@ -2130,9 +2130,11 @@ molecule_class_info_t::is_em_map_cached_state() {
 
 
 void
-molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string name_in) {
+molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::string name_in, bool is_em_map_flag_in) {
 
-   xmap = map_in; 
+   xmap = map_in;
+   if (is_em_map_flag_in)
+      is_em_map_cached_flag = 1;
    // the map name is filled by using set_name(std::string)
    // sets name_ to name_in:
    initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
