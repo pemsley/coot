@@ -3711,7 +3711,8 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
    short int is_undo_or_redo = 1;
    short int reset_rotation_centre_flag = 0;
    handle_read_draw_molecule(imol_no, backup_file_name,
-			     cwd, 
+			     cwd,
+			     graphics_info_t::Geom_p(),
 			     reset_rotation_centre_flag,
 			     is_undo_or_redo,
 			     allow_duplseqnum,

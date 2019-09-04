@@ -106,6 +106,7 @@ int
 molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 std::string filename,
 						 std::string cwd,
+						 coot::protein_geometry *geom_p,
 						 short int reset_rotation_centre,
 						 short int is_undo_or_redo,
 						 bool allow_duplseqnum,
@@ -147,6 +148,10 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    atom_sel = get_atom_selection(filename, allow_duplseqnum, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
+
+      // update the geometry as needed
+      geom_p->read_extra_dictionaries_for_molecule(atom_sel.mol, imol_no,
+						   &graphics_info_t::cif_dictionary_read_number);
 
       // LINK info:
       int n_models = atom_sel.mol->GetNumberOfModels();
@@ -3556,7 +3561,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 void
-molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
+molecule_class_info_t::make_bonds_type_checked() {
 
    bool debug = false;
    if (debug)
@@ -7108,6 +7113,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 	 std::vector<std::string> save_save_state = save_state_command_strings_;
 	 short int is_undo_or_redo = 1;
 	 handle_read_draw_molecule(imol_no, filename, cwd,
+				   graphics_info_t::Geom_p(),
 				   reset_rotation_centre,
 				   is_undo_or_redo,
 				   allow_duplseqnum,
@@ -9391,6 +9397,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
 	 bool v2_convert_flag = false;
 
 	 handle_read_draw_molecule(imol_no, ucp.pdb_file_name, cwd,
+				   graphics_info_t::Geom_p(),
 				   reset_rotation_centre,
 				   is_undo_or_redo,
 				   allow_duplseqnum,
@@ -9418,13 +9425,14 @@ molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
    bool v2_convert_flag = false;
  
    handle_read_draw_molecule(imol_no, pdb_file_name, cwd,
-				   reset_rotation_centre,
-				   is_undo_or_redo,
-				   allow_duplseqnum,
-				   v2_convert_flag,
-				   bond_width,
-				   Bonds_box_type(),
-				   false);
+			     graphics_info_t::Geom_p(),
+			     reset_rotation_centre,
+			     is_undo_or_redo,
+			     allow_duplseqnum,
+			     v2_convert_flag,
+			     bond_width,
+			     Bonds_box_type(),
+			     false);
 
 }
 

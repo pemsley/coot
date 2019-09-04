@@ -832,6 +832,7 @@ public:        //                      public
    int handle_read_draw_molecule(int imol_no_in,
 				 std::string filename,
 				 std::string cwd,
+				 coot::protein_geometry *geom_p,
 				 short int recentre_rotation_centre,
 				 short int is_undo_or_redo,
 				 bool allow_duplseqnum,
@@ -1124,7 +1125,7 @@ public:        //                      public
    void occupancy_representation();
    void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
 
-   void make_bonds_type_checked(bool add_residue_indices=false);
+   void make_bonds_type_checked();
 
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
 
@@ -2756,7 +2757,7 @@ public:        //                      public
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
-   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(true); return bonds_box; }
+   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(); return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 

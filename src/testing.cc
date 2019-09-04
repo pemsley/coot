@@ -2321,11 +2321,14 @@ int test_relativise_file_name () {
 
 int test_previous_water() {
 
+   coot::protein_geometry geom;
+   geom.init_standard();
    int status = 0;
    molecule_class_info_t mci;
    mci.handle_read_draw_molecule(1,
 				 greg_test("pathological-water-test.pdb"),
 				 coot::util::current_working_dir(),
+				 &geom,
 				 0, 0, true, true, 1, coot::NORMAL_BONDS, false);
    mci.delete_atom("D", 162, "", " O  ", "");
    coot::Cartesian rc(0,0,0); // hack?
