@@ -816,6 +816,8 @@ public:        //                      public
 				 int bonds_box_type,
 				 bool warn_about_missing_symmetry_flag);
 
+   int update_molecule(std::string file_name, std::string cwd);
+
    void label_symmetry_atom(int i);
 
    // used for raster3d (where we need to know the position of the label)
@@ -866,6 +868,8 @@ public:        //                      public
 			  int use_weights,
 			  int is_diff_map, 
 			  float map_sampling_rate);
+
+   void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
 					   std::string cwd,

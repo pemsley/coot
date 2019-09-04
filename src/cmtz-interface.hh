@@ -15,6 +15,7 @@ namespace coot {
 		std::string f_col;
 		std::string phi_col;
 		std::string w_col;
+		std::string id; // used to find the molecule name
 		bool use_weights;
 		bool is_difference_map;
 		mtz_to_map_info_t() { use_weights = false; is_difference_map = false; }
