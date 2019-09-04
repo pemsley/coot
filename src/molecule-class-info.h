@@ -842,7 +842,8 @@ public:        //                      public
    void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
    void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
 
-   std::string name_; // otherwise get and set, so make it public.
+   std::string name_;
+   std::string get_name() const { return name_; }
 
    int MoleculeNumber() const { return imol_no; }
 
