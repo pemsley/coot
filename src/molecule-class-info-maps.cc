@@ -2077,8 +2077,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 bool
 molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
 
-   bool is_em = false;
-
    // Even if mapdump says that the spacegroup is 0, file.spacegroup()
    // will be "P1".  So this returns true for maps with spacegroup 0
    // (and 90 degrees)
@@ -2091,25 +2089,30 @@ molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
 	  ((file.cell().descr().gamma() - M_PI/2) > -0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) <  0.0001)) {
 	 if (file.starts_at_zero()) {
-	    is_em = true;
-	    is_em_map_cached_flag = true;
+	    is_em_map_cached_flag = 1; // yes
+	 } else {
+	    is_em_map_cached_flag = 0;
 	 }
+      } else {
+	 is_em_map_cached_flag = 0;
       }
+   } else {
+      is_em_map_cached_flag = 0;
    }
-   return is_em;
+   return false; // not a useful return values, because flag can have 3 values
 }
 
 bool
 molecule_class_info_t::is_EM_map() const {
 
-   bool is_em = false;
+   bool ret_is_em = false;
 
    if (has_xmap()) {
-      if (is_em_map_cached_flag) {
-	 is_em = true;
+      if (is_em_map_cached_flag == 1) { // -1 means unset
+	 ret_is_em = true;
       }
    }
-   return is_em;
+   return ret_is_em;
 }
 
 short int
