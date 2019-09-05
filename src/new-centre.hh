@@ -10,11 +10,11 @@ namespace coot {
       std::string info_string;
       residue_spec_t residue_spec;
       new_centre_info_t(new_ligand_position_type pt,
-			const clipper::Coord_orth &pos,
-			const residue_spec_t &res_spec_in) {
-	 type = pt;
-	 position = pos;
-	 residue_spec = res_spec_in;
+			               const clipper::Coord_orth &pos,
+			               const residue_spec_t &res_spec_in) {
+         type = pt;
+         position = pos;
+         residue_spec = res_spec_in;
       } 
    };
 

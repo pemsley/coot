@@ -1316,6 +1316,30 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 						 int udd_atom_index_handle,
 						 int atom_colour_type) {
 
+   if (false) {
+      // udd_atom_index_handle is -1 for intermediate atoms
+      std::cout << "in construct_from_model_links() udd_atom_index_handle is " << udd_atom_index_handle
+		<< "\n";
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  mmdb::Atom *at = residue_p->GetAtom(iat);
+		  int atom_index = -1;
+		  int udd_status = at->GetUDData(udd_atom_index_handle, atom_index);
+		  std::cout << "  in construct_from_model_links()"
+			    << coot::atom_spec_t(at) << " " << udd_status << " " << atom_index << "\n";
+	       }
+	    }
+	 }
+      }
+   }
+
    // Interestingly, when we add a LINK to a PDB file, if there are
    // less residues in a chain than is specified in a LINK line, mmdb
    // expands the residue list in a chain with NULL residues!
@@ -1481,6 +1505,7 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
       int udd_status_1 = atom_1->GetUDData(udd_atom_index_handle, atom_index_1);
       int udd_status_2 = atom_2->GetUDData(udd_atom_index_handle, atom_index_2);
 
+#if 0 // lots of errors when drawing intermediate atoms
       if (udd_status_1 != mmdb::UDDATA_Ok) {
 	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 1 using udd_atom_index_handle "
 		   << udd_atom_index_handle << std::endl;
@@ -1489,6 +1514,17 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 2 using udd_atom_index_handle "
 		   << udd_atom_index_handle << std::endl;
       }
+      if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end())
+	 std::cout << "Debug atom_index_1 " << atom_index_1 << " not to be excluded ";
+      else
+	 std::cout << "Debug atom_index_1 " << atom_index_1 << " should be excluded ";
+      if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end())
+	 std::cout << " atom_index_2 " << atom_index_2 << " not to be excluded\n";
+      else
+	 std::cout << " atom_index_2 " << atom_index_2 << " should be excluded\n";
+#endif
+
+
 
       // Even if the atom_index_1 or atom_index_2 were not correctly set, we can still draw
       // the bond - this needs to be fixed however.
@@ -1609,7 +1645,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    // Now, let's not forget that some atoms don't have contacts, so
    // whenever we find a contact for an atom, we mark it with
    // UserDefinedData "found bond".
-   // 
+   //
+
+   // 20190904-PE Note to self udd_atom_index_handle is -1 for an intermediate atoms asc
+   //             All the no_bonds_to_these_atoms test will fail the atom index lookup.
+   //             (that's OK because we don't want to exclude atoms from the intermediate
+   //             atoms)
 
    int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
    int udd_found_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found bond");
@@ -1698,9 +1739,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       }
 
       mmdb::Model *model_p = SelAtom.mol->GetModel(imodel);
+
       if (model_p)
-	 construct_from_model_links(model_p, udd_found_bond_handle, atom_colour_type);
-      
+	 construct_from_model_links(model_p, udd_atom_index_handle, atom_colour_type);
+
       // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
       // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
 
@@ -5037,7 +5079,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       // whenever we find a contact for an atom, we mark it with
       // UserDefinedData "found bond".
       // 
-      int uddHnd = asc.mol->RegisterUDInteger ( mmdb::UDR_ATOM,"found bond" );
+      int uddHnd = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM,"found bond");
       if (uddHnd<0)  {
 	 std::cout << " atom bonding registration failed.\n";
       } else {
@@ -5191,8 +5233,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	       }
 	    }
 	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, atom_colour_type);
-	 
+	 construct_from_model_links(asc.mol->GetModel(imodel), udd_atom_index_handle, atom_colour_type);
       }
       asc.mol->DeleteSelection(SelectionHandle);
       do_disulphide_bonds(asc, imodel);
@@ -5207,7 +5248,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
 void
 Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
-							   int imol,
+							    int imol,
 							    int draw_hydrogens_flag) {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
@@ -5538,8 +5579,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	       }
 	    }
 	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, atom_colour_type);
-
+	 construct_from_model_links(asc.mol->GetModel(imodel), udd_atom_index_handle, atom_colour_type);
       }
       asc.mol->DeleteSelection(SelectionHandle);
       do_disulphide_bonds(asc, imodel);
@@ -5593,6 +5633,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    int col = 0; // atom (segment) colour
 
    int n_models = asc.mol->GetNumberOfModels();
+   int udd_atom_index_handle = asc.UDDAtomIndexHandle;
    
    for (int imodel=1; imodel<=n_models; imodel++) {
 
@@ -5729,7 +5770,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 		  }
 	       }
 	    }
-	    construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, coot::COLOUR_BY_CHAIN);
+	    construct_from_model_links(asc.mol->GetModel(imodel), udd_atom_index_handle, coot::COLOUR_BY_CHAIN);
 	 }
 	 asc.mol->DeleteSelection(SelectionHandle);
 	 add_cis_peptide_markup(asc, imodel);

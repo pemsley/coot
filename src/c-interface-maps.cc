@@ -2277,6 +2277,28 @@ int sharpen_blur_map(int imol_map, float b_factor) {
    return imol_new;
 }
 
+int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resample_factor) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t g;
+      imol_new = g.create_molecule();
+      clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+      clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map_with_resample(xmap, b_factor, resample_factor);
+      std::string map_name = "Map";
+      if (b_factor < 0)
+	 map_name += " Sharpen ";
+      else
+	 map_name += " Blur ";
+      map_name += coot::util::float_to_string(b_factor);
+      g.molecules[imol_new].new_map(xmap_new, map_name);
+      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
+   }
+   return imol_new;
+}
+
 #ifdef USE_GUILE
 //! \brief make many sharpened or blurred maps
 //!
