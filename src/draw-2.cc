@@ -781,6 +781,9 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 
+   // the screen framebuffer needs to be renewed.
+   graphics_info_t::screen_framebuffer.init(width, height);
+
 }
 
 gboolean
