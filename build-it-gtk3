@@ -1105,9 +1105,9 @@ echo update_config_guess_sub: $update_config_guess_sub
 
 
 # check dependencies for Ubuntu.
-case $dist_name in 
+case $dist_name in
    *ubuntu*)
- 
+
       dep_list='
        patch
        m4
@@ -1117,14 +1117,12 @@ case $dist_name in
        libxt-dev
        libc6-dev
        libncurses5-dev
-       libglu1-mesa-dev 
+       libglu1-mesa-dev
        libjpeg-dev
-       mesa-common-dev
-       libgtk2.0-dev
-       libgnomecanvas2-dev'
+       mesa-common-dev'
 
-      for dep in $dep_list 
-      do 
+      for dep in $dep_list
+      do
          echo $dep
          if dpkg-query --status $dep > /dev/null ; then
             echo system has $dep
