@@ -3491,6 +3491,8 @@ create_global_map_properties_window (void)
   // gtk_widget_show (hbox5);
   // gtk_container_add (GTK_CONTAINER (frame4), hbox5);
 
+
+  vbox332 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   table10 = gtk_table_new (2, 4, FALSE);
   gtk_widget_show (table10);
   gtk_box_pack_start (GTK_BOX (vbox332), table10, TRUE, TRUE, 0);
