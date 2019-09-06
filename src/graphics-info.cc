@@ -973,13 +973,13 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
    std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step
              << std::endl;
    if (smooth_scroll_current_step >= smooth_scroll_steps) {
-      std::cout << "smooth_scroll_animation_func - path A - finish\n";
+      std::cout << " smooth_scroll_animation_func - path A - finish\n";
       return G_SOURCE_REMOVE;
    } else {
       double theta = 2.0 * M_PI * frac * smooth_scroll_current_step;
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
       // add_vector_to_rotation_centre(this_step_delta);
-      std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre());
+      std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
       // std::cout << "smooth_scroll_animation_func - path B\n";
       gtk_widget_queue_draw(glarea);
       return G_SOURCE_CONTINUE;

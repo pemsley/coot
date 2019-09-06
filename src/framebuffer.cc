@@ -14,7 +14,7 @@ void
 framebuffer::init(int width, int height) {
 
    GLenum err = glGetError(); std::cout << "--------------------- start screen_framebuffer init() err is " << err << std::endl;
-   generate_framebuffer_object(width, height);
+   generate_framebuffer_object(width, height); // try 2 * width here for multisampling at some stage
 
 }
 

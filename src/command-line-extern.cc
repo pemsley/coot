@@ -63,8 +63,9 @@ handle_command_line_data_argc_argv(int argc, char **argv) {
 
 
 extern "C"
-void 
+void
 handle_command_line_data(command_line_data cld) {
+
 
    // We *should* run scripts first and they can make setting that
    // affect the other command line options (e.g. column labels for
@@ -109,21 +110,21 @@ handle_command_line_data(command_line_data cld) {
    if (cld.em_mode) {
       graphics_info_t::box_radius_xray = graphics_info_t::box_radius_em;
       // what else?
-   } 
+   }
 
    // coordinates
 
-   for (unsigned int i=0; i< cld.coords.size(); i++) { 
-      handle_read_draw_molecule(cld.coords[i].c_str()); 
+   for (unsigned int i=0; i< cld.coords.size(); i++) {
+      handle_read_draw_molecule(cld.coords[i].c_str());
    }
 
 
    // datasets
 
-   for (unsigned int i=0; i< cld.datasets.size(); i++) { 
-      std::cout << "debug: manage_column_selector for file: " 
-	   << cld.datasets[i].c_str() << std::endl; 
-      manage_column_selector(cld.datasets[i].c_str()); 
+   for (unsigned int i=0; i< cld.datasets.size(); i++) {
+      std::cout << "debug: manage_column_selector for file: "
+	   << cld.datasets[i].c_str() << std::endl;
+      manage_column_selector(cld.datasets[i].c_str());
    }
 
    // auto-datasets

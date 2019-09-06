@@ -3608,12 +3608,16 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
    //
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 
-  	// make glsl triangles
-   // shader.init("model.shader", Shader::Entity_t::MODEL);
+   // make glsl triangles
    glUseProgram(graphics_info_t::shader_for_models.get_program_id());
+   std::cout << "make_bonds_type_checked() using model shader program_id is "  << graphics_info_t::shader_for_models.get_program_id() << std::endl;
    GLenum err = glGetError();
-   if (err)
-      std::cout << "Error in glUseProgram()\n";
+   if (err) std::cout << "Error in glUseProgram() in make_bonds_type_checked() " << err << "\n";
+
+   GLint current_program;
+   glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
+   std::cout << "INFO:: current program " << current_program << std::endl;
+
    make_glsl_bonds_type_checked();
 
    // all these will need to be changed or removed
@@ -3629,8 +3633,8 @@ molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
 void
 molecule_class_info_t::make_glsl_bonds_type_checked() {
 
-   unsigned int n_slices = 20;
-   unsigned int n_stacks = 4;
+   unsigned int n_slices = 10;
+   unsigned int n_stacks = 2;
    int sum_n_triangles = 0;
    int sum_n_vertices = 0;
 
@@ -3658,6 +3662,8 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       sum_n_vertices += n_slices * (n_stacks+1) * ll.num_lines;
    }
 
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits = make_generic_vertices_for_atoms(index_to_colour);
 
    unsigned int sum_n_vertices_start_atoms  = sum_n_vertices;
@@ -3677,8 +3683,10 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       generic_vertex *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
 
-      std::cout << "---------------------- n atom vertices:  " << atom_vertices.size() << std::endl;
-      std::cout << "---------------------- n atom triangles: " << atom_triangles.size() << std::endl;
+      std::cout << "---------------------- n atom vertices:  " << atom_vertices.size()
+                << " " << atom_vertices.size()/(1024*1024) << " M" << std::endl;
+      std::cout << "---------------------- n atom triangles: " << atom_triangles.size()
+                << " " << atom_triangles.size()/(1024*1024) << " M" << std::endl;
 
       for(unsigned int i=0; i<atom_vertices.size(); i++){
          const generic_vertex &v = atom_vertices[i];
@@ -3726,6 +3734,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
                }
                for (std::size_t j=0; j<c.vertices.size(); j++) {
                   vertices[iv] = c.vertices[j];
+                  // c.vertices[j].normal.z = -c.vertices[j].normal.z;
                   // set the colour:
                   vertices[iv].colour = index_to_colour[i];
                   iv++;
@@ -3735,6 +3744,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       }
 
       // now the atom parts:
+
 
       glGenVertexArrays(1, &m_VertexArray_for_model_ID);
       GLenum err = glGetError();

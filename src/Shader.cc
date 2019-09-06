@@ -42,6 +42,8 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    if (! VertexSource.empty())
       return;
 
+   std::cout << "::: Shader compile " << file_name << std::endl;
+
    entity_type = e;
    parse(file_name);
    if (! VertexSource.empty()) {
@@ -74,7 +76,11 @@ Shader::set_int_for_uniform(const std::string &uniform_name, int value) const {
 
 void
 Shader::Use() {
+  GLuint err = glGetError();
+  if (err) std::cout << "Shader::Use() pre glUseProgram() err " << err << std::endl;
   glUseProgram(program_id);
+  err = glGetError();
+  if (err) std::cout << "Shader::Use() err " << err << " for program_id " << program_id << std::endl;
 }
 
 void
