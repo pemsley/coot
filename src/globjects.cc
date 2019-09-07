@@ -1863,9 +1863,8 @@ void
 setup_for_mol_triangles() {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 
-   graphics_info_t::mol_tri_renderer    = RendererGLSL::create();
+   graphics_info_t::mol_tri_renderer = RendererGLSL::create();
    graphics_info_t::mol_tri_renderer->init();
 
    graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
@@ -1885,7 +1884,8 @@ setup_for_mol_triangles() {
    simpleLight2->setDrawLight(false);
    simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
 
-#endif
+   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is " << graphics_info_t::mol_tri_scene_setup << std::endl;
+
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 }

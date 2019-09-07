@@ -694,7 +694,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    }
 
    // Martin's Molecular triangles
-   // setup_for_mol_triangles();
+   setup_for_mol_triangles();
 
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    // handle_command_line_data(cld);
