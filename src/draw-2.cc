@@ -749,23 +749,25 @@ on_glarea_render(GtkGLArea *glarea) {
 
    glDisable(GL_DEPTH_TEST);
 
-   graphics_info_t::shader_for_screen.Use();
-   glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
+   {
+      graphics_info_t::shader_for_screen.Use();
+      glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
 
-   glClearColor(0.5, 0.2, 0.2, 1.0);
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      glClearColor(0.5, 0.2, 0.2, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   GLuint pid = graphics_info_t::shader_for_screen.get_program_id();
-   glActiveTexture(GL_TEXTURE0 + 1);
-   glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_colour());
-   glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1);
-   glActiveTexture(GL_TEXTURE0 + 2);
-   glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_depth());
-   glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2);
-   err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
+      GLuint pid = graphics_info_t::shader_for_screen.get_program_id();
+      glActiveTexture(GL_TEXTURE0 + 1);
+      glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_colour());
+      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1);
+      glActiveTexture(GL_TEXTURE0 + 2);
+      glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_depth());
+      glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2);
+      err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
 
-   glDrawArrays(GL_TRIANGLES, 0, 6);
-   err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
+   }
 
    graphics_info_t::frame_counter++;
 

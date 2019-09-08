@@ -33,7 +33,7 @@ float get_weight_xy(float r_sqrd, float tightness) {
 
    float r = sqrt(r_sqrd); // between 0.0 and 1.0
    float t = clamp(tightness, 0.0, 1.0);
-   float f_1 = 1.0 - 0.2 * t * r; // 0.2 needs tweaking
+   float f_1 = 1.0 - 0.24 * t * r; // 0.2 needs tweaking
    float f_2 = clamp(f_1, 0.0, 1.0);
    return f_2;
 
@@ -57,12 +57,16 @@ float get_weight_z_1(float depth_centre) {
 //  What weight should this pixel have to colour that pixel?
 float get_weight_z_2(float depth_this, float depth_centre) {
 
-    float c = 0.52; // 0.66 looks good, but we
-    // need a "protected" z region - say from  0.05 to 0.3
-    float depth_delta = abs(depth_centre - depth_this);
+    float c = 0.52; // 0.66 looks good, but we,
+                    // need a "protected" z region - say from  0.05 to 0.3
+    float depth_delta = depth_this - depth_centre;
     float w = 0.0; // too far, by default.
-    if (depth_delta < c) w = (c - depth_delta)/c;
-    float weight = w;
+    if (depth_delta >= -0.1) {
+       w = (c - depth_delta)/c;
+    } else {
+       w = 0.0;
+    }
+    float weight = clamp(w, 0.0, 1.0);
     return weight;
 }
 
@@ -79,7 +83,7 @@ vec3 sampling_blur() {
     float w_1 = get_weight_z_1(depth_centre); // w_1 is 0.0 at the front/no-blur
     float tightness = 1.0 - w_1;
     vec3 r = vec3(0.0, 0.125, 0.0);
-    if (w_1 > 0.0 && w_1 < 0.3) { // the front (in sceen z) doesn't get blurred
+    if (w_1 > 0.05 && w_1 < 0.3) { // the front (in sceen z) doesn't get blurred
        return texture(screenTexture, TexCoords).rgb;
     } else {
        // most of the image:
@@ -143,14 +147,15 @@ vec3 sampling_blur() {
           }
        }
        if (n_sampled > 0) {
-          // r = 2 * sum/n_sampled;
-          // r = vec3(1.0, 1.0, 0.0);
-          r = sum/sum_weight;
-          if ((3 * n_closer_neighbours) > n_sampled) {
-             float aos = float(n_closer)/float(n_sampled); // 0.33 (least dimming) to 1.0 (most dimming)
-             float f = 1.33 - 1.05 * aos;
+          r = texture(screenTexture, TexCoords).rgb;
+          float f = 1.0;
+          if ((2 * n_closer_neighbours) >= n_sampled) {
+             float aos = float(n_closer_neighbours)/float(n_sampled);
+             float f = 2.0 - 2.0 * aos;
              r  *=  f;
           }
+          r = 0.25 * (r + 3 * sum/sum_weight);
+          // r = sum/sum_weight;
        } else{
           r = vec3(1.0, 0.0, 0.0);
        }
