@@ -2490,6 +2490,9 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
                                                            const coot::Cartesian &front,
                                                            const coot::Cartesian &back,
                                                            bool against_a_dark_background) {
+
+#if 0 // problems with merge - surely I don't want this function now.
+
    bool display_it = display_stick_mode_atoms_flag;
 
    if (display_it) {
@@ -2668,6 +2671,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
     }
       }
    }
+#endif // problems with merge
 }
 
 coot::Cartesian

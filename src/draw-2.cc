@@ -215,11 +215,23 @@ glm::mat4 get_molecule_mvp() {
    // turn off view scaling when tinkering with this?
    // there should not be a concept of "zoom" with perspective view, just translation
    // along screen-Z.
-   float fov = 30.0;
-   glm::vec3 up(0.0, 1.0, 0.0);
+   float fov = 40.0;
+   // glm::vec3 up(0.0, 1.0, 0.0);
    // to use perspective properly, we need to know the eye position. We should
    // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
-   glm::vec3 ep = glm::vec3(get_eye_position());
+
+   // the difference between these after rotation by the mouse quaternion will give us "up"
+   glm::vec3 test_pt_z(0.0, 0.0, 1.0);
+   glm::vec3 test_pt_1(1.0, 0.0, 0.0);
+   glm::vec3 test_pt_2(1.0, 1.0, 0.0);
+
+   glm::vec3 rp_z = get_view_rotation() * glm::vec4(test_pt_1);
+   glm::vec3 rp_1 = get_view_rotation() * glm::vec4(test_pt_1);
+   glm::vec3 rp_2 = get_view_rotation() * glm::vec4(test_pt_2);
+   glm::vec3 up = rp_2 - rp_1;
+   glm::vec3 ep = rp_z;
+
+   // glm::vec3 ep = glm::vec3(get_eye_position());
    view_matrix = glm::lookAt(glm::vec3(ep), rc, up);
    view_matrix = glm::translate(view_matrix, -0.5 * rc);
    float z_front = 30.0;
@@ -258,16 +270,21 @@ glm::vec4 new_unproject(float z) {
    // z is 1 and -1 for front and back (or vice verse).
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   int w = allocation.width;
-   int h = allocation.height;
+   float w = allocation.width;
+   float h = allocation.height;
    graphics_info_t g;
-   float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
-   float mouseY = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
+   float mouseX = 2.0 *    g.GetMouseBeginX()/w  - 1.0f;
+   float mouseY = 2.0 * (h-g.GetMouseBeginY())/h - 1.0f;
+   std::cout << "debug in new_unproject widget w and h " << w << " " << h << std::endl;
+   std::cout << "debug in new_unproject mouse x and y widget  " << g.GetMouseBeginX() << " " << g.GetMouseBeginY() << std::endl;
+   std::cout << "debug in new_unproject mouse x and y GL      " << mouseX << " " << mouseY << std::endl;
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, z, 1.0f);
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
+   // std::cout << "screen_pos " << glm::to_string(screenPos_f) << std::endl;
+   // std::cout << "world_pos " << glm::to_string(worldPos_f) << std::endl;
    return worldPos_f;
 }
 
@@ -986,6 +1003,10 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       adjust_clipping(-0.3);
    }
 
+   if (event->keyval == GDK_KEY_g) {
+      blob_under_pointer_to_screen_centre();
+   }
+
    if (event->keyval == GDK_KEY_i) {
       std::cout << "Debug idle_function_spin_rock_token " << graphics_info_t::idle_function_spin_rock_token
                 << std::endl;
@@ -1000,12 +1021,12 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    }
 
    // GDK_KEY_equals should be the same as GDK_KEY_plus
-   if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus) {
+   if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal) {
       int s = graphics_info_t::scroll_wheel_map;
       if (graphics_info_t::is_valid_map_molecule(s)) {
          if (event->keyval == GDK_KEY_minus)
             graphics_info_t::molecules[s].pending_contour_level_change_count--;
-         if (event->keyval == GDK_KEY_plus)
+         if (event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal)
             graphics_info_t::molecules[s].pending_contour_level_change_count++;
          int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
          g.set_density_level_string(s, g.molecules[s].contour_level);
@@ -1061,12 +1082,14 @@ void my_glarea_add_signals_and_events(GtkWidget *glarea) {
    gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON2_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON3_MOTION_MASK);
+   gtk_widget_add_events(glarea, GDK_POINTER_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON1_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON2_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON3_MASK);
    gtk_widget_add_events(glarea, GDK_KEY_PRESS_MASK);
 
    // key presses for the glarea:
+
    gtk_widget_set_can_focus(glarea, TRUE);
    gtk_widget_grab_focus(glarea);
 

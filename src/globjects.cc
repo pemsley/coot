@@ -871,7 +871,8 @@ float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float grey_level = 0.24;
-glm::vec3 graphics_info_t::background_colour = glm::vec3(grey_level, grey_level, grey_level);
+float norm_255 = 1.0/255.0;
+glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
 
 //
 short int graphics_info_t::delete_item_atom = 0;

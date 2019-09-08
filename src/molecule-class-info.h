@@ -1172,7 +1172,7 @@ public:        //                      public
    void make_bonds_type_checked();
 
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
-
+   void make_glsl_bonds_type_checked();
 
    void label_atoms(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
 

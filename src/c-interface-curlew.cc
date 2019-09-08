@@ -21,6 +21,9 @@
 
 
 #ifdef BUILD_CURLEW
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 #endif
