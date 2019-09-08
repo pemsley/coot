@@ -139,6 +139,8 @@ namespace molecule_map_type {
 
 #include "updating-map-params.hh"
 #include "updating-coordinates-molecule-parameters.hh"
+#include "cmtz-interface.hh" // for udating molecules
+#include "clipper-ccp4-map-file-wrapper.hh"
 
 namespace coot {
 
@@ -599,7 +601,8 @@ class molecule_class_info_t {
    // is the CCP4 map a EM map? (this is so that we can fill the
    // NXmap, not the xmap)
    //
-   bool is_em_map(const clipper::CCP4MAPfile &file) const;
+   // bool is_em_map(const clipper::CCP4MAPfile &file) const;
+   bool set_is_em_map(const clipper_map_file_wrapper &file);
 
    // for quads/triangle strip for the bond representation (rather
    // than gl_lines).
@@ -873,6 +876,7 @@ public:        //                      public
    int handle_read_draw_molecule(int imol_no_in,
 				 std::string filename,
 				 std::string cwd,
+				 coot::protein_geometry *geom_p,
 				 short int recentre_rotation_centre,
 				 short int is_undo_or_redo,
 				 bool allow_duplseqnum,
@@ -1096,6 +1100,8 @@ public:        //                      public
    //
    mmdb::Residue *get_residue(const coot::residue_spec_t &rs) const;
 
+   std::string get_residue_name(const coot::residue_spec_t &rs) const;
+
    // Return a copy of the pointer (only) of the residue following
    // that of the given spec.  Return NULL on residue not found.
    //
@@ -1131,9 +1137,9 @@ public:        //                      public
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) {
-	 draw_hydrogens_flag = i;
-	 make_bonds_type_checked();
-	 update_symmetry();
+	      draw_hydrogens_flag = i;
+	      make_bonds_type_checked();
+	      update_symmetry();
       }
    }
 
@@ -1163,9 +1169,7 @@ public:        //                      public
    void occupancy_representation();
    void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
 
-   void make_bonds_type_checked(bool add_residue_indices=false);
-   void make_glsl_bonds_type_checked();
-   // uses:
+   void make_bonds_type_checked();
 
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
 
@@ -2797,7 +2801,7 @@ public:        //                      public
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
-   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(true); return bonds_box; }
+   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(); return bonds_box; }
    //
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const;
 
@@ -2941,8 +2945,8 @@ public:        //                      public
    bool extra_restraints_representation_for_bonds_go_to_CA;
    void set_extra_restraints_representation_for_bonds_go_to_CA(bool val) {
       if (val != extra_restraints_representation_for_bonds_go_to_CA) {
-	 extra_restraints_representation_for_bonds_go_to_CA = val;
-	 update_extra_restraints_representation();
+	      extra_restraints_representation_for_bonds_go_to_CA = val;
+	      update_extra_restraints_representation();
       }
    }
    coot::extra_restraints_representation_t extra_restraints_representation;
@@ -3388,6 +3392,8 @@ public:        //                      public
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
+	void update_self_from_file(const std::string &file_name);
+	void update_self(const coot::mtz_to_map_info_t &mmi);
 
    static int watch_coordinates_file(gpointer data);
    bool continue_watching_coordinates_file;

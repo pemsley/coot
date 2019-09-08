@@ -1101,9 +1101,36 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			       << non_peptide_close_link_info.first << " "
 			       << non_peptide_close_link_info.second << std::endl;
 
-		  if (non_peptide_close_link_info.first != "") {
-		     link_type = non_peptide_close_link_info.first;
-		     order_switch_flag = non_peptide_close_link_info.second;
+		  if (!non_peptide_close_link_info.first.empty()) {
+
+                     bool is_linked = false;
+                     mmdb::Model *model_p = first->GetModel();
+                     if (model_p) {
+                        int n_links = model_p->GetNumberOfLinks();
+                        // std::cout << "-------------------------------------- n_links " << n_links << std::endl;
+                        if (n_links > 0) {
+                           mmdb::Residue *r_1 = first;
+                           mmdb::Residue *r_2 = second;
+                           residue_spec_t SS_residue_1_spec(r_1);
+                           residue_spec_t SS_residue_2_spec(r_2);
+                           for (int i_link=1; i_link<=n_links; i_link++) {
+                              mmdb::PLink link = model_p->GetLink(i_link);
+                              std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atom_specs = coot::link_atoms(link, model_p);
+                              residue_spec_t link_residue_spec_1(link_atom_specs.first);
+                              residue_spec_t link_residue_spec_2(link_atom_specs.second);
+                              if (link_residue_spec_1  == SS_residue_1_spec) is_linked = true;
+                              if (link_residue_spec_2  == SS_residue_1_spec) is_linked = true;
+                              if (link_residue_spec_1  == SS_residue_2_spec) is_linked = true;
+                              if (link_residue_spec_2  == SS_residue_2_spec) is_linked = true;
+                              if (is_linked) break;
+                           }
+                        }
+                     }
+
+                     if (! is_linked) {
+                        link_type = non_peptide_close_link_info.first;
+                        order_switch_flag = non_peptide_close_link_info.second;
+                     }
 		  }
 	       }
 	       
@@ -1172,7 +1199,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			geom.matching_chem_link_non_peptide(comp_id_1, group_1, comp_id_2, group_2, mol);
 		  } 
 
-		  if (debug)
+		  if (false)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
 			std::cout << "   DEBUG:: pre-calling general_link_find_close_link() "
 				  << il << " of " << link_infos_non_peptide.size()
@@ -1184,11 +1211,47 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		  //
 		  // std::cout << "debug:: calling general_link_find_close_link() here" << std::endl;
 		  std::pair<std::string, bool> non_peptide_close_link_info = 
-		     general_link_find_close_link(link_infos_non_peptide, first, second,
-						  order_switch_flag, geom);
-		  if (non_peptide_close_link_info.first != "") { 
-		     link_type = non_peptide_close_link_info.first;
-		     order_switch_flag = non_peptide_close_link_info.second;
+		     general_link_find_close_link(link_infos_non_peptide, first, second, order_switch_flag, geom);
+		  if (non_peptide_close_link_info.first != "") {
+
+                     // Filter out SS bonds that are to SGs that have links - The Joosten Filter
+                     if (non_peptide_close_link_info.first != "SS") {
+                        std::cout << "-------- assigning BB link_type to " << non_peptide_close_link_info.first << std::endl;
+                        link_type = non_peptide_close_link_info.first;
+                        order_switch_flag = non_peptide_close_link_info.second;
+                     } else {
+                        // SS Bond. Do we have a link in the header?
+
+                        bool is_linked = false;
+                        mmdb::Model *model_p = first->GetModel();
+                        if (model_p) {
+                           int n_links = model_p->GetNumberOfLinks();
+                           std::cout << "-------------------------------------- n_links " << n_links << std::endl;
+                           if (n_links > 0) {
+                              mmdb::Residue *r_1 = first;
+                              mmdb::Residue *r_2 = second;
+                              residue_spec_t SS_residue_1_spec(r_1);
+                              residue_spec_t SS_residue_2_spec(r_2);
+                              for (int i_link=1; i_link<=n_links; i_link++) {
+                                 mmdb::PLink link = model_p->GetLink(i_link);
+                                 std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atom_specs = coot::link_atoms(link, model_p);
+                                 residue_spec_t link_residue_spec_1(link_atom_specs.first);
+                                 residue_spec_t link_residue_spec_2(link_atom_specs.second);
+                                 if (link_residue_spec_1  == SS_residue_1_spec) is_linked = true;
+                                 if (link_residue_spec_2  == SS_residue_1_spec) is_linked = true;
+                                 if (link_residue_spec_1  == SS_residue_2_spec) is_linked = true;
+                                 if (link_residue_spec_2  == SS_residue_2_spec) is_linked = true;
+                                 if (is_linked) break;
+                              }
+                           }
+                        }
+                        // std::cout << "debug:: here with is_linked " << is_linked << " link_type \"" << link_type << "\"" << std::endl;
+
+                        if (! is_linked) {
+                           link_type = non_peptide_close_link_info.first;
+                           order_switch_flag = non_peptide_close_link_info.second;
+                        }
+                     }
 		  }
 	       }
 	    }

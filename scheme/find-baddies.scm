@@ -111,7 +111,7 @@
       (molecule-atom-overlaps imol))
 
     (define (filter-molecule-atom-overlap-baddies mao-baddies)
-      (let ((baddie-limit 2.2)) ;; more than this is marked as a baddie
+      (let ((baddie-limit 2.0)) ;; more than this is marked as a baddie, was 2.2. Is 2.0 good?
 	(let ((fn (lambda(mao-item)
 		    (let ((atom-spec-1 (list-ref mao-item 0))
 			  (atom-spec-2 (list-ref mao-item 1))
@@ -185,15 +185,20 @@
 
     (define (make-buttons)
 
-      (let ((frb (find-rama-baddies))
-	    (fcbb (find-c-beta-baddies))
-	    (filtered-mao-baddies (filter-molecule-atom-overlap-baddies (molecule-atom-overlap-baddies)))
-	    (residue-correlations
-	     (if (not (ok-to-do-density-correlations?))
-		 '()
-		 (map-to-model-correlation-per-residue imol (all-residues-sans-water imol) 0 imol-map))))
+      (let* ((frb (find-rama-baddies))
+	          (fcbb (find-c-beta-baddies))
+	          (maob (molecule-atom-overlap-baddies))
+	          (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob))
+	          (residue-correlations
+	             (if (not (ok-to-do-density-correlations?))
+		             '()
+		             (map-to-model-correlation-per-residue imol (all-residues-sans-water imol) 0 imol-map))))
 
-	(let* (
+        ;; debug
+        ;; (format #t "debug maob: ~s~%" maob)
+        (format #t "debug filtered-mao baddies: ~s~%" filtered-mao-baddies)
+
+	     (let* (
 
 	       ;; rama
 	       (rama-filter-fn (lambda(baddie)

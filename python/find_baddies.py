@@ -98,7 +98,7 @@ def validation_outlier_dialog(imol, imol_map):
         return molecule_atom_overlaps(imol)
 
     def filter_molecule_atom_overlap_baddies(mao_baddies):
-        baddie_limit = 2.2  # more than this is marked as a baddie
+        baddie_limit = 2.0  # more than this is marked as a baddie
         return filter(lambda mao_item: mao_item['overlap-volume'] > baddie_limit, mao_baddies)
 
     def non_pro_cis_peptide_baddies():  # do the filter here - just for consistency

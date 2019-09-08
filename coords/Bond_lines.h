@@ -203,9 +203,12 @@ template<class T> class graphical_bonds_lines_list {
    }
 };
 
+
 class graphical_bonds_atom_info_t {
 public:
    bool is_hydrogen_atom;
+   float radius_scale; // Waters (and perhaps metals) should have big radii, so that
+                       // they are easier to see.
    coot::Cartesian position;
    mmdb::Atom *atom_p; // this should be a shared pointer I think.
                        // we don't want to be looking at this pointer
@@ -218,12 +221,26 @@ public:
       is_hydrogen_atom = is_hydrogen_atom_in;
       atom_index = atom_index_in;
       atom_p = 0;
+      radius_scale = 1.0;
    }
    graphical_bonds_atom_info_t() {
       model_number = -1;
       is_hydrogen_atom = false;
       atom_index = -1; // unset
+      radius_scale = 1.0;
       atom_p = 0;
+   }
+   // this is a bit of a weird construction
+   bool radius_for_atom_should_be_big(mmdb::Atom *atom_p) const {
+
+      // you might like to add other tests here.
+      mmdb::Residue *r = atom_p->GetResidue();
+      if (r) {
+         std::string res_name = r->GetResName();
+         if (res_name == "HOH")
+            return true;
+      }
+      return false;
    }
 };
 
@@ -965,6 +982,10 @@ public:
    void check_graphical_bonds() const; 
    void check_static() const; 
    void do_disulphide_bonds(atom_selection_container_t, int imodel);
+   // which calls either
+   void do_disulphide_bonds_by_header(atom_selection_container_t SelAtom, int imodel);
+   // or
+   void do_disulphide_bonds_by_distance(atom_selection_container_t SelAtom, int imodel);
 
    // This can get called for intermediate atoms before the restraints have been made
    // (and the FixedDuringRefinement UDD is set), so that loops can flash on

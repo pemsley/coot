@@ -125,6 +125,9 @@ namespace coot {
 
       clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
 
+      clipper::Xmap<float> sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in, float b_factor,
+							  float resample_factor);
+
       // pass a pointer to a vector of maps that has the same size as the number of B-factors
       //
       void multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,

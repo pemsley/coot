@@ -436,6 +436,7 @@ src/coot
 python/coot_load_modules.py
 data/Makefile
 data/rama-coeffs/Makefile
+data/metal/Makefile
 data/cho-models/Makefile
 data/cho-acedrg/Makefile
 pixmaps/Makefile

@@ -413,7 +413,7 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
 
       double b_i = sqrt(b_i_sqrd);
       // b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
-      double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+      double constant_part = 2.0*weight * (1.0 - target_val * f_inv_fsqrt(b_i_sqrd));
 
       double x_k_contrib = constant_part*(a1.x()-a2.x());
       double y_k_contrib = constant_part*(a1.y()-a2.y());

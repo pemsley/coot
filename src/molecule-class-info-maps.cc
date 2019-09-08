@@ -1951,16 +1951,20 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    if ( map_file_type == CCP4 ) {
      std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
-     clipper::CCP4MAPfile file;
+     // clipper::CCP4MAPfile file;
+     clipper_map_file_wrapper file;
      try {
 	file.open_read(filename);
 
-	em = is_em_map(file);
+	em = set_is_em_map(file);
 
 	bool use_xmap = true; // not an nxmap
 	if (true) {
 
 	   clipper::Grid_sampling fgs = file.grid_sampling();
+
+	   std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
+
 	   clipper::Cell fcell = file.cell();
 	   double vol = fcell.volume();
 	   if (vol < 1.0) {
@@ -2006,7 +2010,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	   new_centre.second = m;
            std::cout << "INFO:: map appears to be EM map."<< std::endl;
 	}
-	std::cout << "closing CCP4 map: " << filename << std::endl;
+	std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
 	file.close_read();
 
 	if (new_centre.first) {
@@ -2089,9 +2093,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 // NXmap, not the xmap)
 //
 bool
-molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
-
-   bool is_em = false;
+molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
 
    // Even if mapdump says that the spacegroup is 0, file.spacegroup()
    // will be "P1".  So this returns true for maps with spacegroup 0
@@ -2104,35 +2106,31 @@ molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
 	  ((file.cell().descr().beta()  - M_PI/2) <  0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) > -0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) <  0.0001)) {
-	 is_em = true;
+	 if (file.starts_at_zero()) {
+	    is_em_map_cached_flag = 1; // yes
+	 } else {
+	    is_em_map_cached_flag = 0;
+	 }
+      } else {
+	 is_em_map_cached_flag = 0;
       }
+   } else {
+      is_em_map_cached_flag = 0;
    }
-   return is_em;
+   return false; // not a useful return values, because flag can have 3 values
 }
 
 bool
 molecule_class_info_t::is_EM_map() const {
 
-   bool is_em = false;
+   bool ret_is_em = false;
 
    if (has_xmap()) {
-
-      // Even if mapdump says that the spacegroup is 0, file.spacegroup()
-      // will be "P1".  So this returns true for maps with spacegroup 0
-      // (and 90 degrees)
-
-      if (xmap.spacegroup().num_symops() == 1) { // P1
-	 if (((xmap.cell().descr().alpha() - M_PI/2) <  0.0001) &&
-	     ((xmap.cell().descr().alpha() - M_PI/2) > -0.0001) &&
-	     ((xmap.cell().descr().beta()  - M_PI/2) > -0.0001) &&
-	     ((xmap.cell().descr().beta()  - M_PI/2) <  0.0001) &&
-	     ((xmap.cell().descr().gamma() - M_PI/2) > -0.0001) &&
-	     ((xmap.cell().descr().gamma() - M_PI/2) <  0.0001)) {
-	    is_em = true;
-	 }
+      if (is_em_map_cached_flag == 1) { // -1 means unset
+         ret_is_em = true;
       }
    }
-   return is_em;
+   return ret_is_em;
 }
 
 short int
@@ -3994,7 +3992,7 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
 
    int status = 1;
    if (continue_watching_mtz) {
-      
+
       bool update_it = false;
 
       updating_map_params_t ump = ump_in;

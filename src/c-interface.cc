@@ -549,6 +549,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       int bonds_box_type = graphics_info_t::default_bonds_box_type;
       istat = g.molecules[imol].handle_read_draw_molecule(imol, f,
 							  coot::util::current_working_dir(),
+							  graphics_info_t::Geom_p(),
 							  recentre_on_read_pdb_flag, 0,
 							  g.allow_duplseqnum,
 							  g.convert_to_v2_atom_names_flag,
@@ -573,9 +574,9 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
-
-	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size() << " types "
-		   << "with no dictionary " << std::endl;
+	 
+	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size()
+		   << " types with no dictionary " << std::endl;
 
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
 	    if (0)

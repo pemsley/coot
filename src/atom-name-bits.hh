@@ -70,12 +70,18 @@ namespace coot {
 	    res_name = "MG";
 	    filled = true;
 	 }
+	 if (type == "Zn" || type == "ZN") {
+	    atom_name = "ZN  ";
+	    element_name = "ZN";
+	    res_name = "ZN";
+	    filled = true;
+	 }
 	 if (! filled) {
 	    // make up (guess) the residue type and element
 	    std::string at_name = util::upcase(type);
-        atom_name = at_name;
-        res_name = at_name;
-        element_name = at_name;
+            atom_name = at_name;
+            res_name = at_name;
+            element_name = at_name;
 	    if (type.length() > 4)
 	       atom_name = at_name.substr(0,4);
 	    if (type.length() > 3)

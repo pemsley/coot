@@ -1186,7 +1186,7 @@ if (have_coot_python):
        submenu,
        "Molasses Refinement mode", 
        lambda func: (printf("Molasses..."),
-                     set_dragged_refinement_steps_per_frame(20)))
+                     set_dragged_refinement_steps_per_frame(4)))
 
 
      add_simple_coot_menu_menuitem(

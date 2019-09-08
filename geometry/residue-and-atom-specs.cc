@@ -5,6 +5,13 @@
 
 std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) {
 
+   std::string rn = std::to_string(spec.res_no);
+   if (spec.res_no >= 0) {
+      if (rn.size() == 1) rn = "   " + rn;
+      if (rn.size() == 2) rn = "  " + rn;
+      if (rn.size() == 3) rn = " " + rn;
+   }
+
    s << "[spec: ";
    s << "model ";
    s << spec.model_number;
@@ -12,7 +19,7 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) 
    s << "\"";
    s << spec.chain_id;
    s << "\" ";
-   s << spec.res_no;
+   s << rn;
    s << " ";
    s << "\"";
    s << spec.ins_code;

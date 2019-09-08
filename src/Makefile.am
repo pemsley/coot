@@ -109,6 +109,7 @@ EXTRA_DIST = \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
+        fixup-interface.h.sh \
 	coot_wrap_guile_pre.cc dynarama.glade
 
 
@@ -286,6 +287,7 @@ coot_bin_SOURCES = \
 	git-revision-count.cc 	 \
 	scm-boot-guile.hh 	 \
 	scm-boot-guile.cc 	 \
+	clipper-ccp4-map-file-wrapper.hh \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
 	c-interface-bonds.hh	 \
