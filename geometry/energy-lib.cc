@@ -637,26 +637,12 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	 float radius_1 = it_1->second.vdw_radius;
 	 float radius_2 = it_1->second.vdw_radius;
 
+    if (extended_atoms_mode) radius_1 = it_1->second.vdwh_radius;
+    if (extended_atoms_mode) radius_2 = it_2->second.vdwh_radius;
+
 	 if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
 	 if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
 	 r.second = radius_1 + radius_2;
-
-#if 0
-
-	 // This needs more thought.
-	 //
-	 // We want to be able to distinguish if this is actually an O coordination-bonded to the metal
-	 // or is just an oxygen in the environment. We do that by distance. But we don't have
-	 // access to distance here.  If it _is_ coordination bonded, we should not make
-	 // a NBC for this atom pair. Probably we shouldn't even come here.
-	 // Restraint generation needs make_metal_coordination_bond_restraints();
-
-	 if (is_metal_atom_1)
-	    if (energy_type_1[0] == 'O')
-	       double d = get_metal_O_distance(energy_type_2);
-	       if (d != 0.0)
-		  r = std::pair<bool, double> (true, d);
-#endif
 
 	 if (in_same_residue_flag) {
 	    // I need to reject atoms that have bond (done), angle and
