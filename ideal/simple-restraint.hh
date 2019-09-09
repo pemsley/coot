@@ -1199,6 +1199,7 @@ namespace coot {
 				 mmdb::Manager *mol_in,
 				 const std::vector<atom_spec_t> &fixed_atom_specs);
 
+      void set_has_hydrogen_atoms_state(); // unset has hydrogens if there are none in the atoms.
       void init_shared_pre(mmdb::Manager *mol_in);
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
