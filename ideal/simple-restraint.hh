@@ -1759,6 +1759,7 @@ namespace coot {
 							     std::pair<unsigned int, unsigned int> atom_index_range_pair,
 							     const std::set<int> &fixed_atom_indices,
 							     const std::vector<std::string> &energy_type_for_atom,
+                                                             bool use_extended_atom_mode,
 							     mmdb::PPAtom atom,
 							     const std::vector<bool> &atom_is_metal,
 							     const std::vector<bool> &atom_is_hydrogen,
