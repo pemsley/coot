@@ -13,19 +13,23 @@ class framebuffer {
    unsigned int texture_colour;
    unsigned int texture_depth;
    std::vector<GLenum> drawbuffer; // texture attachments
+   bool filled;
+   void tear_down();
 
 public:
    framebuffer();
 
    ~framebuffer(); // delete fbo and the textures
 
-   void init(int width, int height);
+   std::string name;
+
+   void init(int width, int height, unsigned int attachment_index_color_texture, const std::string &name_in="");
 
    void generate_colourtexture(unsigned int width, unsigned int height);
    void generate_depthtexture( unsigned int width, unsigned int height);
-   void generate_framebuffer_object(unsigned int width, unsigned int height);
+   void generate_framebuffer_object(unsigned int width, unsigned int height, unsigned int attachment_index_color_texture);
 
-   void resize(int width, int height) { init(width, height); }
+   void resize(int width, int height, unsigned int attachment_index_color_texture) { init(width, height, attachment_index_color_texture); }
 
    void bind();
 
