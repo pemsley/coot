@@ -59,6 +59,7 @@ void init_shaders() {
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
    graphics_info_t::shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
+   graphics_info_t::shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
 
 }
 
@@ -81,11 +82,31 @@ void init_screen_quads() {
 
 }
 
+void init_blur_quads() {
+
+   graphics_info_t::shader_for_blur.Use();
+   // screen quad VAO
+   unsigned int quadVBO;
+   glGenVertexArrays(1, &graphics_info_t::blur_quad_vertex_array_id);
+   glBindVertexArray(graphics_info_t::blur_quad_vertex_array_id);
+   glGenBuffers(1, &quadVBO);
+   glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), static_cast<void *>(0));
+   glEnableVertexAttribArray(1);
+   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
+   GLenum err = glGetError();
+   if (true) std::cout << "init_blur_quads() err is " << err << std::endl;
+
+}
+
 void init_central_cube();
 
 void init_buffers() {
    init_central_cube();
    init_screen_quads();
+   init_blur_quads();
 }
 
 void init_central_cube() {
@@ -682,18 +703,30 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    err = glGetError(); std::cout << "start on_glarea_realize() err is " << err << std::endl;
 
-   graphics_info_t::screen_framebuffer.init(w,h);
-
-   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_buffer init() err is " << err << std::endl;
+   unsigned int index_offset = 0;
+   graphics_info_t::screen_framebuffer.init(w,h, index_offset, "screen/occlusion");
+   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is " << err << std::endl;
+   index_offset = 1;
+   graphics_info_t::blur_framebuffer.init(w,h, index_offset, "blur");
+   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is " << err << std::endl;
 
    setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
 
    graphics_info_t::shader_for_screen.Use();
-   err = glGetError(); if (err) std::cout << "on_glarea_realize() B err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
    graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
-   err = glGetError(); if (err) std::cout << "on_glarea_realize() C err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() C screen framebuffer err " << err << std::endl;
    graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
-   err = glGetError(); if (err) std::cout << "on_glarea_realize() D err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
+
+   graphics_info_t::shader_for_blur.Use();
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() blur shader-framebuffer B err " << err << std::endl;
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
+   err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
+
+   
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
@@ -702,7 +735,7 @@ on_glarea_realize(GtkGLArea *glarea) {
                               // of the bonds (and atoms, possibly) It's a weird look
    glEnable(GL_BLEND);
 
-   glEnable(GL_LINE_SMOOTH);
+   // glEnable(GL_LINE_SMOOTH);
 
    // Make antialised lines
    if (false) {
@@ -762,10 +795,11 @@ on_glarea_render(GtkGLArea *glarea) {
       glBindVertexArray(0);
    }
 
-   // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
-   gtk_gl_area_attach_buffers(glarea);
 
+   graphics_info_t::blur_framebuffer.bind();
    glDisable(GL_DEPTH_TEST);
+
+   // Screen shader (ambient occlusion)
 
    {
       graphics_info_t::shader_for_screen.Use();
@@ -787,6 +821,31 @@ on_glarea_render(GtkGLArea *glarea) {
       err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
    }
 
+   // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
+   gtk_gl_area_attach_buffers(glarea);
+
+   // z-blur shader
+
+   {
+      graphics_info_t::shader_for_blur.Use();
+      glBindVertexArray(graphics_info_t::blur_quad_vertex_array_id);
+
+      glClearColor(0.5, 0.2, 0.2, 1.0);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+      GLuint pid = graphics_info_t::shader_for_blur.get_program_id();
+      glActiveTexture(GL_TEXTURE0 + 1);
+      glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_colour());
+      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1); // was 1 
+      glActiveTexture(GL_TEXTURE0 + 2);
+      glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
+      glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
+      err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
+
+      glDrawArrays(GL_TRIANGLES, 0, 6);
+      err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
+   }
+
    graphics_info_t::frame_counter++;
 
   return FALSE;
@@ -800,9 +859,10 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-
-   // the screen framebuffer needs to be renewed.
-   graphics_info_t::screen_framebuffer.init(width, height);
+   unsigned int index_offset = 0;
+   g.screen_framebuffer.init(width, height, index_offset, "screen");
+   index_offset = 1;
+   g.blur_framebuffer.init(width, height, index_offset, "blur");
 
 }
 

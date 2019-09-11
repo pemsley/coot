@@ -426,8 +426,8 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0;
 
-float    graphics_info_t::box_radius_xray = 15.4;
-float    graphics_info_t::box_radius_em   = 120;
+float    graphics_info_t::box_radius_xray = 25.4;
+float    graphics_info_t::box_radius_em   = 100;
 
 
 int      graphics_info_t::debug_atom_picking = 0;
@@ -1440,8 +1440,11 @@ GLuint graphics_info_t::central_cube_index_buffer_id = 0;
 GLuint graphics_info_t::hud_text_vertexarray_id = 0;
 GLuint graphics_info_t::hud_text_array_buffer_id = 0;
 GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
-GLuint graphics_info_t::textureColorbuffer = 0;
+GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
+GLuint graphics_info_t::textureColorbuffer_screen = 0;
+GLuint graphics_info_t::textureColorbuffer_blur = 0;
 framebuffer graphics_info_t::screen_framebuffer;
+framebuffer graphics_info_t::blur_framebuffer;
 
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
@@ -1451,6 +1454,7 @@ Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_screen;
+Shader graphics_info_t::shader_for_blur;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;

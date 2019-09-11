@@ -6,7 +6,9 @@
 //
 std::pair<std::vector<generic_vertex>, std::vector<tri_indices> >
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const {
+
    float atom_scale = 0.105; // how big should atoms be?
+   // atom_scale = 1.4;
 
    std::vector<generic_vertex> v1;
    std::vector<tri_indices> v2;

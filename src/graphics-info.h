@@ -3992,7 +3992,9 @@ string   static std::string sessionid;
    static GLuint hud_text_vertexarray_id;
    // static GLuint framebuffer_id;  // now we get access from the framebuffer class
    static GLuint screen_quad_vertex_array_id;
-   static GLuint textureColorbuffer;
+   static GLuint blur_quad_vertex_array_id;
+   static GLuint textureColorbuffer_screen;
+   static GLuint textureColorbuffer_blur;
    static GLuint hud_text_array_buffer_id;
    static Shader shader_for_maps;
    static Shader shader_for_models;
@@ -4000,9 +4002,11 @@ string   static std::string sessionid;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
    static Shader shader_for_screen;
+   static Shader shader_for_blur;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static framebuffer screen_framebuffer;
+   static framebuffer blur_framebuffer;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
 
