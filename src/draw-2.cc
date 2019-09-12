@@ -242,27 +242,27 @@ glm::mat4 get_molecule_mvp() {
    // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
 
    // the difference between these after rotation by the mouse quaternion will give us "up"
-   glm::vec3 test_pt_z(0.0, 0.0, 1.0);
-   glm::vec3 test_pt_1(1.0, 0.0, 0.0);
-   glm::vec3 test_pt_2(1.0, 0.0, 1.0);
+   glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
+   glm::vec4 test_pt_1(1.0, 0.0, 0.0, 1.0);
+   glm::vec4 test_pt_2(1.0, 1.0, 0.0, 1.0);
 
-   glm::vec3 rp_z = glm::inverse(get_view_rotation()) * glm::vec4(test_pt_z, 1.0);
-   glm::vec3 rp_1 = get_view_rotation() * glm::vec4(test_pt_1, 1.0);
-   glm::vec3 rp_2 = get_view_rotation() * glm::vec4(test_pt_2, 1.0);
-   glm::vec3 up = rp_2 - rp_1;
-   glm::vec3 ep = rp_z;
+   glm::mat4 vr = get_view_rotation();
+   glm::vec4 rp_z = vr * test_pt_z;
+   glm::vec4 rp_1 = vr * test_pt_1;
+   glm::vec4 rp_2 = vr * test_pt_2;
+   glm::vec4 up4 = rp_2 - rp_1;
+   glm::vec3 up = glm::vec3(up4);
+   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rp_1);
    ep += rc;
 
-   // glm::vec3 ep = glm::vec3(get_eye_position());
-   view_matrix = glm::lookAt(glm::vec3(ep), rc, up);
-   view_matrix = glm::translate(view_matrix, -0.5 * rc);
-   float z_front =  3.0;
+   std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
+
+   view_matrix = glm::lookAt(ep, rc, up);
+   float z_front =  2.0;
    float z_back = 400.0;
    z_front += 0.2 * graphics_info_t::clipping_front;
    z_back  -= 0.2 * graphics_info_t::clipping_back;
-   // fov /= 0.01 * graphics_info_t::zoom;
    fov = 40.0; // degrees
-   // std::cout << z_front << " " << z_back << " fov " << fov << std::endl;
    glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
    mvp = projection_matrix_persp * view_matrix * model_matrix;
 #endif
@@ -823,6 +823,7 @@ on_glarea_render(GtkGLArea *glarea) {
 
    // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
    gtk_gl_area_attach_buffers(glarea);
+   glEnable(GL_DEPTH_TEST);
 
    // z-blur shader
 
@@ -1013,7 +1014,7 @@ gint
 view_spin_func(gpointer data) {
 
    float delta = -0.002;
-   glm::vec3 EulerAngles(delta, 0, 0);
+   glm::vec3 EulerAngles(0, delta, 0);
    glm::quat quat_delta(EulerAngles);
    glm::quat normalized_quat_delta(glm::normalize(quat_delta));
    glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
