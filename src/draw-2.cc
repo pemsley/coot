@@ -714,16 +714,16 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    graphics_info_t::shader_for_screen.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() C screen framebuffer err " << err << std::endl;
    graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
 
    graphics_info_t::shader_for_blur.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur shader-framebuffer B err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
+   graphics_info_t::shader_for_blur.set_int_for_uniform("screenTexture", 0);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
+   graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
 
    
@@ -797,7 +797,8 @@ on_glarea_render(GtkGLArea *glarea) {
 
 
    graphics_info_t::blur_framebuffer.bind();
-   glDisable(GL_DEPTH_TEST);
+   // glDisable(GL_DEPTH_TEST);
+   glEnable(GL_DEPTH_TEST);
 
    // Screen shader (ambient occlusion)
 
@@ -805,7 +806,9 @@ on_glarea_render(GtkGLArea *glarea) {
       graphics_info_t::shader_for_screen.Use();
       glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
 
-      glClearColor(0.5, 0.2, 0.2, 1.0);
+      // glClearColor(0.5, 0.2, 0.2, 1.0);
+      const glm::vec3 &bg = graphics_info_t::background_colour;
+      glClearColor (bg[0], bg[1], bg[2], 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       GLuint pid = graphics_info_t::shader_for_screen.get_program_id();
@@ -837,7 +840,7 @@ on_glarea_render(GtkGLArea *glarea) {
       GLuint pid = graphics_info_t::shader_for_blur.get_program_id();
       glActiveTexture(GL_TEXTURE0 + 1);
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_colour());
-      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1); // was 1 
+      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1); // was 1
       glActiveTexture(GL_TEXTURE0 + 2);
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
       glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
