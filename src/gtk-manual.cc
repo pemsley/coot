@@ -375,6 +375,55 @@ on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 }
 
 
+void
+on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *combo_box,
+                                                           gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+   gchar *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
+   std::cout << "text: " << txt << " user data " << imol << std::endl;
+
+   if (txt) {
+      std::string at(txt);
+      if (at == _("Bonds (Colour by Atom)")) {
+         std::cout << "display as bonds " <<std::endl;
+         graphics_to_bonds_representation(imol);
+      }
+      if (at == _("C-alphas/Backbone")) {
+         std::cout << "display as CA " <<std::endl;
+         graphics_to_ca_representation(imol);
+      }
+   }
+}
+
+
+// make and show (will need to be packed)
+//
+GtkWidget *selections_and_colours_combobox(int imol) {
+
+   GtkWidget *combobox = gtk_combo_box_text_new();
+
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Atom)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Molecule)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Chain)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Sec. Str.)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("C-alphas/Backbone"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs + Ligands"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs+Ligs SecStr Col"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Jones' Rainbow"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Atom - No Waters"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by B-factor - Backbone"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by B-factor - All"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Occupancy"));
+
+   gpointer user_data = GINT_TO_POINTER(imol);
+   g_signal_connect(G_OBJECT(combobox), "changed", G_CALLBACK(on_display_manager_selections_and_colours_combobox_changed), user_data);
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0); // needs to be dynamic (at some stage)
+   gtk_widget_show(combobox);
+   return combobox;
+
+}
 
 
 /* ------------------------------------------------------------------------ */
@@ -404,7 +453,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   GtkWidget *render_optionmenu_1;
   GtkWidget *render_optionmenu_1_menu;
   GtkWidget *glade_menuitem;
-  GtkWidget *menu;
+  // GtkWidget *menu;
   int bond_type;
   GtkWidget *active_item;
   GtkWidget *mol_label;
@@ -537,142 +586,9 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   // "render_optionmenu_1", render_optionmenu_1,
   // NULL);
 
-  gtk_widget_show (render_optionmenu_1);
-  gtk_box_pack_start (GTK_BOX (hbox32), render_optionmenu_1, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (render_optionmenu_1), 1);
-  render_optionmenu_1_menu = gtk_menu_new ();
-/*   glade_menuitem = gtk_menu_item_new_with_label (_("Render As: Bonds (Colour by Atom)")); */
-  glade_menuitem = gtk_menu_item_new_with_label (_("Bonds (Colour by Atom)"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer to the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_bonds_button_select),
-		     GINT_TO_POINTER(n));
-
-
- /* Now a button for Colour by molecule bonds button: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Bonds (Colour by Molecule)"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_bonds_colored_by_molecule_button_select),
-		     GINT_TO_POINTER(n));
-
- /* Now a button for Colour by segment bonds button: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Bonds (Colour by Chain)"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_bonds_colored_by_chain_button_select),
-		     GINT_TO_POINTER(n));
-
- /* Now a button for Bonds with Sec. Str. Colour: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Bonds (Colour by Sec. Str.)"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_sec_struct_bonds_button_select),
-		     GINT_TO_POINTER(n));
-
- /* Now a button for Ca bonds: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("C-alphas/Backbone"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_ca_bonds_button_select),
-		     GINT_TO_POINTER(n));
-
-
- /* Now a button for Ca + ligands bonds: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("CAs + Ligands"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_ca_plus_ligands_bonds_button_select),
-		     GINT_TO_POINTER(n));
-
- /* Now a button for Ca + ligands bonds, Sec. Str. Colour: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("CAs+Ligs SecStr Col"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_ca_plus_ligands_sec_str_bonds_button_select),
-		     GINT_TO_POINTER(n));
-
- /* Now a button for Ca + ligands bonds, Jones' Rainbow: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Jones' Rainbow"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_rainbow_representation_button_select),
-		     GINT_TO_POINTER(n));
-
-
- /* Now a button for Normal - No Waters: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by Atom - No Waters"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_bonds_no_waters),
-		     GINT_TO_POINTER(n));
-
-
- /* Now a button for B-factor colours: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by B-factors - CAs"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_b_factor_cas_representation_button_select),
-		     GINT_TO_POINTER(n));
-
- /* Now a button for B-factor colours: */
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by B-factors - All"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_b_factor_representation_button_select),
-		     GINT_TO_POINTER(n));
-
-  glade_menuitem = gtk_menu_item_new_with_label (_("Colour by Occupancy"));
-  gtk_widget_show (glade_menuitem);
-  // gtk_menu_append (GTK_MENU (render_optionmenu_1_menu), glade_menuitem);
-/* Notice how this time we attach a pointer to the molecule number -
-   more usually, we attach a pointer tto the menu item position number */
-  g_signal_connect(G_OBJECT(glade_menuitem), "activate",
-		     G_CALLBACK(render_as_occupancy_representation_button_select),
-		     GINT_TO_POINTER(n));
+  GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(n); // imol
+  gtk_box_pack_start(GTK_BOX(hbox32), sel_and_col_combobox, FALSE, FALSE, 0);
+  gtk_container_set_border_width(GTK_CONTAINER(sel_and_col_combobox), 1);
 
 
 /* Set User Data, the molecule which this button(s) is attached to
@@ -707,51 +623,6 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
      too, not the default (1) - "Bonds"  */
 
   bond_type = graphics_molecule_bond_type(n);
-
-  if (bond_type != 1) {
-/*     printf("setting menu to item to other bonds...\n"); */
-     menu = render_optionmenu_1_menu;
-     active_item = gtk_menu_get_active(GTK_MENU(menu));
-
-     /*  The conversion between menu item order and bond type (enum) order */
-     if (bond_type == 1) { /* atom type bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 0);
-     }
-     if (bond_type == 2) { /* CA bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 4);
-     }
-     if (bond_type == 3) { /* segid-coloured bonds */
-       gtk_menu_set_active(GTK_MENU(menu), 2);
-     }
-     if (bond_type == 4) { /* CA_BONDS_PLUS_LIGANDS */
-       gtk_menu_set_active(GTK_MENU(menu), 5);
-     }
-     if (bond_type == 5) { /* BONDS_NO_WATERS */
-       gtk_menu_set_active(GTK_MENU(menu), 8);
-     }
-     if (bond_type == 6) { /* BONDS_SEC_STRUCT_COLOUR */
-       gtk_menu_set_active(GTK_MENU(menu), 3);
-     }
-     if (bond_type == 7) { /* CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR */
-       gtk_menu_set_active(GTK_MENU(menu), 6);
-     }
-     if (bond_type == 8) { /* COLOUR_BY_MOLECULE_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 1);
-     }
-     if (bond_type == 9) { /* COLOUR_BY_RAINBOW_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 7);
-     }
-     if (bond_type == 10) { /* COLOUR_BY_B_FACTOR_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 10);
-     }
-     if (bond_type == 11) { /* COLOUR_BY_OCCUPANCY_BONDS */
-       gtk_menu_set_active(GTK_MENU(menu), 11);
-     }
-     if (bond_type == 14) { /* CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR */
-       gtk_menu_set_active(GTK_MENU(menu), 9);
-     }
-     /* c.f molecule-class-info.h:30 enum */
-  }
 
 /* And finally connect the menu to the optionmenu */
   // gtk_option_menu_set_menu (GTK_OPTION_MENU (render_optionmenu_1),

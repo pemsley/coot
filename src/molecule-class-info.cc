@@ -3392,8 +3392,8 @@ void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
     bool add_residue_indices) {
 
-   // std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
-   //
+   std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
+
    // debug_atom_selection_container(atom_sel);
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
@@ -3402,6 +3402,8 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
+
+   make_glsl_bonds_type_checked();
 
 }
 
@@ -3413,6 +3415,7 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
+   make_glsl_bonds_type_checked();
 }
 
 // we remove the argument for add_residue_indices because they are no longer useful.
@@ -3448,6 +3451,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
+   make_glsl_bonds_type_checked();
 
 }
 
@@ -3461,6 +3465,8 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
    // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
    // << bonds_box_type << std::endl;
 
+   make_glsl_bonds_type_checked();
+
 }
 
 void
@@ -3471,6 +3477,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
+   make_glsl_bonds_type_checked();
 
 }
 
@@ -3488,6 +3495,7 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   make_glsl_bonds_type_checked();
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
@@ -3500,6 +3508,7 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
                                                  0.01, 1.9, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+   make_glsl_bonds_type_checked();
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
@@ -3519,6 +3528,7 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
                                              // stupid when it comes to thining.
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
+   make_glsl_bonds_type_checked();
 
    if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();
@@ -3532,6 +3542,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
    bonds.do_colour_by_molecule_bonds(atom_sel, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_MOLECULE_BONDS;
+   make_glsl_bonds_type_checked();
 
    if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();

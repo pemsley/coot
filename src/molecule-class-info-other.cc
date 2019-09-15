@@ -401,6 +401,8 @@ void
 molecule_class_info_t::ca_representation() {
 
    bonds_box.clear_up();
+
+   std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
    make_ca_bonds(2.4, 4.7);
    bonds_box_type = coot::CA_BONDS;
 }

@@ -213,6 +213,7 @@ on_display_control_map_scroll_radio_button_group_changed (GtkRadioButton *button
 void fill_map_colour_patch(GtkWidget *patch_frame, int imol);
 
 
+GtkWidget *selections_and_colours_combobox();
 
 
 /* ------------------------------------------------------------------------------ */

@@ -25,7 +25,7 @@
 
 // header
 glm::mat4 get_view_rotation();
-glm::vec4 get_eye_position();
+glm::vec3 get_eye_position();
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
@@ -237,19 +237,29 @@ glm::mat4 get_molecule_mvp() {
    // there should not be a concept of "zoom" with perspective view, just translation
    // along screen-Z.
    float fov = 30.0;
-   glm::vec3 up(0.0, 1.0, 0.0);
-   // to use perspective properly, we need to know the eye position. We should
-   // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
-   glm::vec3 ep = glm::vec3(get_eye_position());
+
+   glm::vec3 test_vector_1(1.0, 0.0, 0.0);
+   glm::vec3 test_vector_2(1.0, 1.0, 0.0);
+
+   glm::mat4 vr = get_view_rotation();
+   glm::vec4 rot_test_vector_1 = vr * glm::vec4(test_vector_1, 1.0);
+   glm::vec4 rot_test_vector_2 = vr * glm::vec4(test_vector_2, 1.0);
+
+   glm::vec4 up4 = rot_test_vector_2 - rot_test_vector_1;
+   glm::vec3 up = glm::vec3(up4);
+
+   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
+   ep += rc;
+
    view_matrix = glm::lookAt(glm::vec3(ep), rc, up);
-   view_matrix = glm::translate(view_matrix, -0.5 * rc);
-   float z_front = 30.0;
+
+   float z_front =  3.0;
    float z_back = 300.0;
-   z_front += 0.2 * graphics_info_t::clipping_front;
-   z_back  -= 0.2 * graphics_info_t::clipping_back;
-   fov /= 0.01 * graphics_info_t::zoom;
+
+   // z_front += 0.2 * graphics_info_t::clipping_front;
+   // z_back  -= 0.2 * graphics_info_t::clipping_back;
    fov = 40.0; // degrees
-   std::cout << z_front << " " << z_back << " fov " << fov << std::endl;
+
    glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
    mvp = projection_matrix_persp * view_matrix * model_matrix;
 #endif
@@ -260,16 +270,18 @@ glm::mat4 get_molecule_mvp() {
 // can we work out the eye position without needing to unproject? (because that depends
 // on get_molecule_mvp()...
 //
-glm::vec4 get_eye_position() {
+glm::vec3 get_eye_position() {
 
-   glm::vec4 eye_pos_screen_space(0,0,-10,1);
+   glm::vec3 test_vector_1(1.0, 0.0, 0.0);
+   glm::vec3 test_vector_2(1.0, 1.0, 0.0);
+
    glm::mat4 vr = get_view_rotation();
+   glm::vec4 rot_test_vector_1 = vr * glm::vec4(test_vector_1, 1.0);
+   glm::vec4 rot_test_vector_2 = vr * glm::vec4(test_vector_2, 1.0);
 
-   glm::vec4 ep = eye_pos_screen_space * vr;
-   ep = ep / graphics_info_t::zoom;
-   ep += glm::vec4(graphics_info_t::get_rotation_centre(), 1.0);
-
-   std::cout << " eye position " << glm::to_string(ep) << " with zoom " << graphics_info_t::zoom << std::endl;
+   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   ep += rc;
 
    return ep;
 
@@ -1020,6 +1032,27 @@ view_spin_func(gpointer data) {
 
 #include "c-interface.h" // for update_go_to_atom_from_current_position()
 
+void translate_in_screen_z(float step_size) {
+
+   glm::vec3 ep = get_eye_position();
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+
+   glm::vec3 step = 0.1 * (rc - ep);
+   glm::vec4 step_4(step, 1.0);
+   graphics_info_t::add_to_rotation_centre(step_4);
+
+
+
+}
+
+void move_forwards() {
+   translate_in_screen_z(1.0);
+}
+
+void move_backwards() {
+   translate_in_screen_z(-1.0);
+}
+
 gboolean
 on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
@@ -1044,6 +1077,14 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    if (event->keyval == GDK_KEY_f) {
       adjust_clipping(-0.3);
+   }
+
+   if (event->keyval == GDK_KEY_w) { // "forwards" in perspective view
+      move_forwards();
+   }
+
+   if (event->keyval == GDK_KEY_s) { // "forwards" in perspective view
+      move_backwards();
    }
 
    if (event->keyval == GDK_KEY_i) {
