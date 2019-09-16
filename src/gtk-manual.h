@@ -147,30 +147,23 @@ void on_skeleton_col_sel_cancel_button_clicked (GtkButton       *button,
 
 GtkWidget *get_radio_button_in_scroll_group(GtkWidget *d, int imol_this);
 
-void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
-						       const gchar *name,
-						       int n);
+void update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_window_glade, const gchar *name, int n); 
+void simple_display_control_mol_menu_item(GtkWidget *model_menu, int imol_no, int map_coords_mol_flag);
 
-void simple_display_control_mol_menu_item(GtkWidget *model_menu,
-					 int imol_no,
-					 int map_coords_mol_flag);
+void render_as_bonds_button_select(int imol);
+void render_as_ca_bonds_button_select(int imol);
+void render_as_ca_plus_ligands_bonds_button_select(int imol);
+void render_as_bonds_colored_by_chain_button_select(int imol);
+void render_as_bonds_colored_by_molecule_button_select(int imol);
+void render_as_bonds_no_waters(int imol);
+void render_as_ca_plus_ligands_sec_str_bonds_button_select(int imol);
+void render_as_sec_struct_bonds_button_select(int imol);
+void render_as_rainbow_representation_button_select(int imol);
+void render_as_b_factor_representation_button_select(int imol);
+void render_as_b_factor_cas_representation_button_select(int imol);
+void render_as_occupancy_representation_button_select(int imol);
 
-
-void render_as_bonds_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_ca_bonds_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_ca_plus_ligands_bonds_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_bonds_colored_by_chain_button_select(GtkWidget *item, GtkPositionType mol);
-void render_as_bonds_colored_by_molecule_button_select(GtkWidget *item, GtkPositionType mol);
-void render_as_bonds_no_waters(GtkWidget *item, GtkPositionType mol);
-void render_as_ca_plus_ligands_sec_str_bonds_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_sec_struct_bonds_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos);
-void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositionType pos);
-GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade,
-					 const gchar *name,
-					 int n);
+GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade, const gchar *name, int n);
 
 /* void */
 /* on_display_control_map_displayed_button_clicked   (GtkButton       *button, */

@@ -393,6 +393,36 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
          std::cout << "display as CA " <<std::endl;
          graphics_to_ca_representation(imol);
       }
+      if (at == _("Bonds (Colour by Molecule)")) {
+         render_as_bonds_colored_by_molecule_button_select(imol);
+      }
+      if (at == _("Bonds (Colour by Chain)")) {
+         render_as_bonds_colored_by_chain_button_select(imol);
+      }
+      if (at == _("Bonds (Colour by Sec. Str.)")) {
+         render_as_sec_struct_bonds_button_select(imol);
+      }
+      if (at == _("CAs + Ligands")) {
+         render_as_ca_plus_ligands_bonds_button_select(imol);
+      }
+      if (at ==  _("CAs+Ligs SecStr Col")) {
+         render_as_ca_plus_ligands_sec_str_bonds_button_select(imol);
+      }
+      if (at == _("Jones' Rainbow")) {
+         render_as_rainbow_representation_button_select(imol);
+      }
+      if (at ==  _("Colour by Atom - No Waters")) {
+         render_as_bonds_no_waters(imol);
+      }
+      if (at ==  _("Colour by B-factor - CAs")) {
+         render_as_b_factor_cas_representation_button_select(imol);
+      }
+      if (at ==  _("Colour by B-factor - All")) {
+         render_as_b_factor_representation_button_select(imol);
+      }
+      if (at ==  _("Colour by Occupancy")) {
+         render_as_occupancy_representation_button_select(imol);
+      }
    }
 }
 
@@ -754,67 +784,67 @@ update_name_in_display_control_molecule_combo_box(GtkWidget *display_control_win
 
 
 void
-render_as_bonds_button_select(GtkWidget *item, GtkPositionType mol) {
+render_as_bonds_button_select(int imol) {
 
-   graphics_to_bonds_representation(mol);
+   graphics_to_bonds_representation(imol);
 }
 
 void
-render_as_bonds_colored_by_chain_button_select(GtkWidget *item, GtkPositionType mol) {
+render_as_bonds_colored_by_chain_button_select(int imol) {
 
-  set_colour_by_chain(mol);
+  set_colour_by_chain(imol);
 }
 
 void
-render_as_bonds_colored_by_molecule_button_select(GtkWidget *item, GtkPositionType mol) {
+render_as_bonds_colored_by_molecule_button_select(int imol) {
 
-  set_colour_by_molecule(mol);
+  set_colour_by_molecule(imol);
 }
 
 void
-render_as_bonds_no_waters(GtkWidget *item, GtkPositionType mol) {
+render_as_bonds_no_waters(int imol) {
 
-  graphics_to_bonds_no_waters_representation(mol);
+  graphics_to_bonds_no_waters_representation(imol);
 }
 
 
 void
-render_as_ca_bonds_button_select(GtkWidget *item, GtkPositionType mol) {
+render_as_ca_bonds_button_select(int imol) {
 
-   graphics_to_ca_representation(mol);
+   graphics_to_ca_representation(imol);
 }
 
 void
-render_as_ca_plus_ligands_bonds_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_ca_plus_ligands_representation(pos);
+render_as_ca_plus_ligands_bonds_button_select(int imol) {
+   graphics_to_ca_plus_ligands_representation(imol);
 }
 
 void
-render_as_ca_plus_ligands_sec_str_bonds_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_ca_plus_ligands_sec_struct_representation(pos);
+render_as_ca_plus_ligands_sec_str_bonds_button_select(int imol) {
+   graphics_to_ca_plus_ligands_sec_struct_representation(imol);
 }
 
 void
-render_as_sec_struct_bonds_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_sec_struct_bonds_representation(pos);
+render_as_sec_struct_bonds_button_select(int imol) {
+   graphics_to_sec_struct_bonds_representation(imol);
 }
 
-void render_as_rainbow_representation_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_rainbow_representation(pos);
+void render_as_rainbow_representation_button_select(int imol) {
+   graphics_to_rainbow_representation(imol);
 }
 
-void render_as_b_factor_representation_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_b_factor_representation(pos);
-
-}
-
-void render_as_b_factor_cas_representation_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_b_factor_cas_representation(pos);
+void render_as_b_factor_representation_button_select(int imol) {
+   graphics_to_b_factor_representation(imol);
 
 }
 
-void render_as_occupancy_representation_button_select(GtkWidget *item, GtkPositionType pos) {
-   graphics_to_occupancy_representation(pos);
+void render_as_b_factor_cas_representation_button_select(int imol) {
+   graphics_to_b_factor_cas_representation(imol);
+
+}
+
+void render_as_occupancy_representation_button_select(int imol) {
+   graphics_to_occupancy_representation(imol);
 }
 
 
