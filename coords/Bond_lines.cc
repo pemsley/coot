@@ -1316,6 +1316,30 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 						 int udd_atom_index_handle,
 						 int atom_colour_type) {
 
+   if (false) {
+      // udd_atom_index_handle is -1 for intermediate atoms
+      std::cout << "in construct_from_model_links() udd_atom_index_handle is " << udd_atom_index_handle
+		<< "\n";
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  mmdb::Atom *at = residue_p->GetAtom(iat);
+		  int atom_index = -1;
+		  int udd_status = at->GetUDData(udd_atom_index_handle, atom_index);
+		  std::cout << "  in construct_from_model_links()"
+			    << coot::atom_spec_t(at) << " " << udd_status << " " << atom_index << "\n";
+	       }
+	    }
+	 }
+      }
+   }
+
    // Interestingly, when we add a LINK to a PDB file, if there are
    // less residues in a chain than is specified in a LINK line, mmdb
    // expands the residue list in a chain with NULL residues!
@@ -1481,6 +1505,7 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
       int udd_status_1 = atom_1->GetUDData(udd_atom_index_handle, atom_index_1);
       int udd_status_2 = atom_2->GetUDData(udd_atom_index_handle, atom_index_2);
 
+#if 0 // lots of errors when drawing intermediate atoms
       if (udd_status_1 != mmdb::UDDATA_Ok) {
 	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 1 using udd_atom_index_handle "
 		   << udd_atom_index_handle << std::endl;
@@ -1489,6 +1514,17 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
 	 std::cout << "ERROR:: in add_link_bond_templ() bad atom indexing 2 using udd_atom_index_handle "
 		   << udd_atom_index_handle << std::endl;
       }
+      if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end())
+	 std::cout << "Debug atom_index_1 " << atom_index_1 << " not to be excluded ";
+      else
+	 std::cout << "Debug atom_index_1 " << atom_index_1 << " should be excluded ";
+      if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end())
+	 std::cout << " atom_index_2 " << atom_index_2 << " not to be excluded\n";
+      else
+	 std::cout << " atom_index_2 " << atom_index_2 << " should be excluded\n";
+#endif
+
+
 
       // Even if the atom_index_1 or atom_index_2 were not correctly set, we can still draw
       // the bond - this needs to be fixed however.
@@ -1609,7 +1645,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    // Now, let's not forget that some atoms don't have contacts, so
    // whenever we find a contact for an atom, we mark it with
    // UserDefinedData "found bond".
-   // 
+   //
+
+   // 20190904-PE Note to self udd_atom_index_handle is -1 for an intermediate atoms asc
+   //             All the no_bonds_to_these_atoms test will fail the atom index lookup.
+   //             (that's OK because we don't want to exclude atoms from the intermediate
+   //             atoms)
 
    int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
    int udd_found_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found bond");
@@ -1698,9 +1739,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       }
 
       mmdb::Model *model_p = SelAtom.mol->GetModel(imodel);
+
       if (model_p)
-	 construct_from_model_links(model_p, udd_found_bond_handle, atom_colour_type);
-      
+	 construct_from_model_links(model_p, udd_atom_index_handle, atom_colour_type);
+
       // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
       // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;
 
@@ -3262,8 +3304,22 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 }
 
 void
-Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
-					  int imodel) {
+Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom, int imodel) {
+
+   do_disulphide_bonds_by_distance(SelAtom, imodel);
+}
+
+
+void
+Bond_lines_container::do_disulphide_bonds_by_header(atom_selection_container_t SelAtom,
+                                                    int imodel) {
+
+   // How do I see the SSBond records?
+}
+
+void
+Bond_lines_container::do_disulphide_bonds_by_distance(atom_selection_container_t SelAtom,
+                                                      int imodel) {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
@@ -3296,10 +3352,12 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 
    SelAtom.mol->GetSelIndex(selHnd2, Sulfur_selection, n_sulfurs);
 
-   if (n_sulfurs > 0) { 
+   float max_SS_bond_length = 2.4;
+
+   if (n_sulfurs > 0) {
       SelAtom.mol->SeekContacts(Sulfur_selection, n_sulfurs,
 				Sulfur_selection, n_sulfurs,
-				0.01, 3.0, // min, max dist.
+				0.01, max_SS_bond_length, // min, max dist.
 				0,         // in same res also.
 				contact, ncontacts, 
 				0, &my_matt, i_contact_group);
@@ -3338,7 +3396,29 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 		      (Sulfur_selection[ contact[i].id1 ]->GetChainID() ==
 		       Sulfur_selection[ contact[i].id2 ]->GetChainID()))) {
 		  int model_number = Sulfur_selection[ contact[i].id1 ]->GetModelNum();
-		  addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
+
+                  // only add this bond if the atom is not already linked to something
+                  // A Zn for example
+
+                  bool is_linked = false;
+                  mmdb::Model *model_p = SelAtom.mol->GetModel(model_number);
+                  int n_links = model_p->GetNumberOfLinks();
+                  if (n_links > 0) {
+                     coot::atom_spec_t SS_atom_1_spec(Sulfur_selection[contact[i].id1]);
+                     coot::atom_spec_t SS_atom_2_spec(Sulfur_selection[contact[i].id2]);
+                     for (int i_link=1; i_link<=n_links; i_link++) {
+                        mmdb::PLink link = model_p->GetLink(i_link);
+                        std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atom_specs = coot::link_atoms(link, model_p);
+                        if (link_atom_specs.first  == SS_atom_1_spec) is_linked = true;
+                        if (link_atom_specs.second == SS_atom_1_spec) is_linked = true;
+                        if (link_atom_specs.first  == SS_atom_2_spec) is_linked = true;
+                        if (link_atom_specs.second == SS_atom_2_spec) is_linked = true;
+                        if (is_linked) break;
+                     }
+                  }
+
+                  if (! is_linked)
+                     addBond(col, atom_1, atom_2, cc, model_number, iat_1, iat_2);
 	       }
 	    }
 	 }
@@ -4999,7 +5079,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       // whenever we find a contact for an atom, we mark it with
       // UserDefinedData "found bond".
       // 
-      int uddHnd = asc.mol->RegisterUDInteger ( mmdb::UDR_ATOM,"found bond" );
+      int uddHnd = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM,"found bond");
       if (uddHnd<0)  {
 	 std::cout << " atom bonding registration failed.\n";
       } else {
@@ -5153,8 +5233,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	       }
 	    }
 	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, atom_colour_type);
-	 
+	 construct_from_model_links(asc.mol->GetModel(imodel), udd_atom_index_handle, atom_colour_type);
       }
       asc.mol->DeleteSelection(SelectionHandle);
       do_disulphide_bonds(asc, imodel);
@@ -5169,7 +5248,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
 void
 Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
-							   int imol,
+							    int imol,
 							    int draw_hydrogens_flag) {
 
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
@@ -5500,8 +5579,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	       }
 	    }
 	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, atom_colour_type);
-
+	 construct_from_model_links(asc.mol->GetModel(imodel), udd_atom_index_handle, atom_colour_type);
       }
       asc.mol->DeleteSelection(SelectionHandle);
       do_disulphide_bonds(asc, imodel);
@@ -5555,6 +5633,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    int col = 0; // atom (segment) colour
 
    int n_models = asc.mol->GetNumberOfModels();
+   int udd_atom_index_handle = asc.UDDAtomIndexHandle;
    
    for (int imodel=1; imodel<=n_models; imodel++) {
 
@@ -5691,7 +5770,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 		  }
 	       }
 	    }
-	    construct_from_model_links(asc.mol->GetModel(imodel), uddHnd, coot::COLOUR_BY_CHAIN);
+	    construct_from_model_links(asc.mol->GetModel(imodel), udd_atom_index_handle, coot::COLOUR_BY_CHAIN);
 	 }
 	 asc.mol->DeleteSelection(SelectionHandle);
 	 add_cis_peptide_markup(asc, imodel);
@@ -5831,15 +5910,17 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
       bool is_H_flag = false;
       if (is_hydrogen(std::string(SelAtom.atom_selection[i]->element)))
-	 is_H_flag = true;
+         is_H_flag = true;
       if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
-	 graphical_bonds_atom_info_t p(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						       SelAtom.atom_selection[i]->y,
-						       SelAtom.atom_selection[i]->z), i, is_H_flag);
+         mmdb::Atom *at = SelAtom.atom_selection[i];
+         coot::Cartesian pos(at->x, at->y, at->z);
+	 graphical_bonds_atom_info_t p(pos, i, is_H_flag);
+         if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
+            p.radius_scale = 2.0;
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
-	       p.atom_p = SelAtom.atom_selection[i];
+	       p.atom_p = at;
 	       atom_centres.push_back(p);
-	       atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
+	       atom_centres_colour.push_back(atom_colour(at, atom_colour_type));
          }
       }
    }

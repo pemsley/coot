@@ -1043,126 +1043,129 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
    double distortion = 0.0;
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
-      int atom_index = -1; // initial unset, the atom index used to spec the residue.
-      const simple_restraint &rest = restraints_vec[i];
-      std::vector<int> atom_indices;
-      if (restraints_usage_flag & coot::BONDS_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) { 
-	    distortion = coot::distortion_score_bond(rest, v);
-	    atom_index = restraints_vec[i].atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	 } 
+      {
+	 int atom_index = -1; // initial unset, the atom index used to spec the residue.
+	 const simple_restraint &rest = restraints_vec[i]; // double index here
 
-      if (restraints_usage_flag & coot::ANGLES_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) { 
-	    distortion = coot::distortion_score_angle(rest, v);
-	    atom_index = restraints_vec[i].atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	    atom_indices.push_back(rest.atom_index_3);
+	 std::vector<int> atom_indices;
+	 if (restraints_usage_flag & coot::BONDS_MASK) 
+	    if (rest.restraint_type == coot::BOND_RESTRAINT) { 
+	       distortion = coot::distortion_score_bond(rest, v);
+	       atom_index = rest.atom_index_1;
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	    } 
+
+	 if (restraints_usage_flag & coot::ANGLES_MASK) 
+	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) { 
+	       distortion = coot::distortion_score_angle(rest, v);
+	       atom_index = rest.atom_index_1;
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	       atom_indices.push_back(rest.atom_index_3);
+	    }
+
+	 if (restraints_usage_flag & coot::TORSIONS_MASK) {
+	    if (rest.restraint_type == coot::TORSION_RESTRAINT) {
+	       // distortion_score_torsion can throw a std::runtime_error
+	       try {
+		  distortion = coot::distortion_score_torsion(i, rest, v);
+		  atom_index = rest.atom_index_1;
+		  atom_indices.push_back(rest.atom_index_1);
+		  atom_indices.push_back(rest.atom_index_2);
+		  atom_indices.push_back(rest.atom_index_3);
+		  atom_indices.push_back(rest.atom_index_4);
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "ERROR::" << rte.what() << std::endl;
+	       }
+	    }
 	 }
 
-      if (restraints_usage_flag & coot::TORSIONS_MASK) {
-	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    // distortion_score_torsion can throw a std::runtime_error
-	    try {
-	       distortion = coot::distortion_score_torsion(i, rest, v);
-	       atom_index = restraints_vec[i].atom_index_1;
+	 if (restraints_usage_flag & coot::PLANES_MASK) 
+	    if (rest.restraint_type == coot::PLANE_RESTRAINT) { 
+	       distortion = coot::distortion_score_plane(rest, v);
+	       atom_index = rest.plane_atom_index[0].first;
+	       for (unsigned int ii=0; ii<rest.plane_atom_index.size(); ii++) { 
+		  if (rest.plane_atom_index[ii].first >= 0)
+		     atom_indices.push_back(rest.plane_atom_index[ii].first);
+	       }
+	    }
+
+	 if (restraints_usage_flag & coot::PARALLEL_PLANES_MASK) 
+	    if (rest.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) { 
+	       distortion = coot::distortion_score_parallel_planes(rest, v);
+	       atom_index = rest.plane_atom_index[0].first;
+	    } 
+	 if (restraints_usage_flag & coot::NON_BONDED_MASK)
+	    if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       distortion = coot::distortion_score_non_bonded_contact(rest, lennard_jones_epsilon, v);
+	       atom_index = rest.atom_index_1;
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	       // debugging - yes they (more or less!) match dist_crit in construct_non_bonded_contact_list_by_res_vec
+	       // clipper::Coord_orth pt_1=co(atom[rest.atom_index_1]);
+	       // clipper::Coord_orth pt_2=co(atom[rest.atom_index_2]);
+	       // double dist = sqrt((pt_2-pt_1).lengthsq());
+	       // std::cout << " NBC i " << i << " dist " << dist << " distortion " << distortion << std::endl;
+	    }
+	 if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
+	    if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	       distortion = coot::distortion_score_geman_mcclure_distance(rest, v,
+									  geman_mcclure_alpha);
+	       atom_index = rest.atom_index_1;
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	    }
+
+	 if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK)
+	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	       distortion = coot::distortion_score_chiral_volume(rest, v);
+	       atom_index = rest.atom_index_centre;
+	       atom_indices.push_back(rest.atom_index_centre);
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	       atom_indices.push_back(rest.atom_index_3);
+	    }
+
+	 if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
+	    if (rest.restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
+	       if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+		  distortion = coot::distortion_score_rama(rest, v, ZO_Rama(), get_rama_plot_weight());
+	       } else {
+		  distortion = coot::distortion_score_rama(rest, v, lograma);
+	       }
+	       atom_index = rest.atom_index_1;
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	       atom_indices.push_back(rest.atom_index_3);
+	       atom_indices.push_back(rest.atom_index_4);
+	       atom_indices.push_back(rest.atom_index_5);
+	    }
+
+	 if (restraints_usage_flag & coot::TRANS_PEPTIDE_MASK) {
+	    if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+	       distortion = distortion_score_trans_peptide(i, rest, v);
+	       atom_index = rest.atom_index_1;
 	       atom_indices.push_back(rest.atom_index_1);
 	       atom_indices.push_back(rest.atom_index_2);
 	       atom_indices.push_back(rest.atom_index_3);
 	       atom_indices.push_back(rest.atom_index_4);
 	    }
-	    catch (const std::runtime_error &rte) {
-	       std::cout << "ERROR::" << rte.what() << std::endl;
-	    }
-	 }
-      }
-
-      if (restraints_usage_flag & coot::PLANES_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT) { 
-	    distortion = coot::distortion_score_plane(restraints_vec[i], v);
-	    atom_index = restraints_vec[i].plane_atom_index[0].first;
-	    for (unsigned int ii=0; ii<rest.plane_atom_index.size(); ii++) { 
-	       if (rest.plane_atom_index[ii].first >= 0)
-		  atom_indices.push_back(rest.plane_atom_index[ii].first);
-	    }
 	 }
 
-      if (restraints_usage_flag & coot::PARALLEL_PLANES_MASK) 
-	 if (restraints_vec[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) { 
-	    distortion = coot::distortion_score_parallel_planes(restraints_vec[i], v);
-	    atom_index = restraints_vec[i].plane_atom_index[0].first;
-	 } 
-      if (restraints_usage_flag & coot::NON_BONDED_MASK)
-	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    distortion = coot::distortion_score_non_bonded_contact(restraints_vec[i], lennard_jones_epsilon, v);
-	    atom_index = restraints_vec[i].atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	    // debugging - yes they (more or less!) match dist_crit in construct_non_bonded_contact_list_by_res_vec
-	    // clipper::Coord_orth pt_1=co(atom[rest.atom_index_1]);
-	    // clipper::Coord_orth pt_2=co(atom[rest.atom_index_2]);
-	    // double dist = sqrt((pt_2-pt_1).lengthsq());
-	    // std::cout << " NBC i " << i << " dist " << dist << " distortion " << distortion << std::endl;
-	 }
-      if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
-	 if (restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	    distortion = coot::distortion_score_geman_mcclure_distance(restraints_vec[i], v,
-								       geman_mcclure_alpha);
-	    atom_index = restraints_vec[i].atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	 }
-
-      if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK)
-   	 if (restraints_vec[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-   	    distortion = coot::distortion_score_chiral_volume(restraints_vec[i], v);
-	    atom_index = restraints_vec[i].atom_index_centre;
-	    atom_indices.push_back(rest.atom_index_centre);
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	    atom_indices.push_back(rest.atom_index_3);
-	 }
-
-      if (restraints_usage_flag & coot::RAMA_PLOT_MASK) 
-    	 if (restraints_vec[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) { 
-	    if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-	       distortion = coot::distortion_score_rama(restraints_vec[i], v, ZO_Rama(), get_rama_plot_weight());
-	    } else {
-	       distortion = coot::distortion_score_rama(restraints_vec[i], v, lograma);
-	    }
-	    atom_index = restraints_vec[i].atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	    atom_indices.push_back(rest.atom_index_3);
-	    atom_indices.push_back(rest.atom_index_4);
-	    atom_indices.push_back(rest.atom_index_5);
-	 }
-
-      if (restraints_usage_flag & coot::TRANS_PEPTIDE_MASK) {
-	 if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
-	    distortion = distortion_score_trans_peptide(i, rest, v);
+	 if (rest.restraint_type == coot::TARGET_POS_RESTRAINT) {
+	    distortion = distortion_score_target_pos(rest, log_cosh_target_distance_scale_factor, v);
 	    atom_index = rest.atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	    atom_indices.push_back(rest.atom_index_3);
-	    atom_indices.push_back(rest.atom_index_4);
+	    atom_indices.push_back(atom_index); // for display
 	 }
-      }
 
-      if (rest.restraint_type == coot::TARGET_POS_RESTRAINT) {
-	 distortion = distortion_score_target_pos(rest, log_cosh_target_distance_scale_factor, v);
-	 atom_index = rest.atom_index_1;
-	 atom_indices.push_back(atom_index); // for display
-      }
-
-      if (atom_index != -1) {
-	 coot::residue_spec_t rs(atom[atom_index]->GetResidue());
-	 coot::geometry_distortion_info_t gdi(distortion, rest, rs);
-	 gdi.atom_indices = atom_indices;
-	 distortion_vec_container.geometry_distortion.push_back(gdi);
+	 if (atom_index != -1) {
+	    coot::residue_spec_t rs(atom[atom_index]->GetResidue());
+	    coot::geometry_distortion_info_t gdi(distortion, rest, rs);
+	    gdi.atom_indices = atom_indices;
+	    distortion_vec_container.geometry_distortion.push_back(gdi);
+	 }
       }
    }
 
@@ -1175,29 +1178,33 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
    int min_resno = 999999999;
 
    for (unsigned int i=0; i<distortion_vec_container.geometry_distortion.size(); i++) {
-      if (false)
-	 std::cout << "distortion_vector() restraint " << i << " of "
-		   << distortion_vec_container.geometry_distortion.size() << " "
-		   << restraints_vec[i].restraint_type << std::endl;
-      if (restraints_usage_flag & coot::BONDS_MASK)
-	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) {
-	   const int &idx1 = distortion_vec_container.geometry_distortion[i].atom_indices[0];
-	   const int &idx2 = distortion_vec_container.geometry_distortion[i].atom_indices[1];
+      {
+	 const simple_restraint &rest = restraints_vec[i];
+	 if (false)
+	    std::cout << "distortion_vector() restraint " << i << " of "
+		      << distortion_vec_container.geometry_distortion.size() << " "
+		      << rest.restraint_type << std::endl;
+	 if (restraints_usage_flag & coot::BONDS_MASK) {
+	    if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	       const int &idx1 = distortion_vec_container.geometry_distortion[i].atom_indices[0];
+	       const int &idx2 = distortion_vec_container.geometry_distortion[i].atom_indices[1];
 
-	   // std::cout << "idx1 " << idx1 << std::endl;
-	   // std::cout << "idx2 " << idx2 << std::endl;
+	       // std::cout << "idx1 " << idx1 << std::endl;
+	       // std::cout << "idx2 " << idx2 << std::endl;
 
-	   int this_resno1 = distortion_vec_container.atom[idx1]->GetSeqNum();
-	   int this_resno2 = distortion_vec_container.atom[idx2]->GetSeqNum();
-	   if (this_resno1 < min_resno)
-	      min_resno = this_resno1;
-	   if (this_resno2 < min_resno)
-	      min_resno = this_resno2;
-	   if (this_resno1 > max_resno)
-	      max_resno = this_resno1;
-	   if (this_resno2 > max_resno)
-	      max_resno = this_resno2;
+	       int this_resno1 = distortion_vec_container.atom[idx1]->GetSeqNum();
+	       int this_resno2 = distortion_vec_container.atom[idx2]->GetSeqNum();
+	       if (this_resno1 < min_resno)
+		  min_resno = this_resno1;
+	       if (this_resno2 < min_resno)
+		  min_resno = this_resno2;
+	       if (this_resno1 > max_resno)
+		  max_resno = this_resno1;
+	       if (this_resno2 > max_resno)
+		  max_resno = this_resno2;
+	    }
 	 }
+      }
    }
    distortion_vec_container.set_min_max(min_resno, max_resno);
 

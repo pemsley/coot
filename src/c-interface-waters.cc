@@ -143,6 +143,8 @@ void renumber_waters(int imol) {
    }
 }
 
+#include "draw-2.hh"
+
 /* Put the blob under the cursor to the screen centre.  Check only
    positive blobs.  Useful function if bound to a key. */
 int blob_under_pointer_to_screen_centre() {
@@ -153,14 +155,24 @@ int blob_under_pointer_to_screen_centre() {
       graphics_info_t g;
       if (imol_map != -1) {
 	 // OK we have a map to search.
-	 coot::Cartesian front = unproject(0.0);
-	 coot::Cartesian back  = unproject(1.0);
+	 // coot::Cartesian front = unproject(0.0);
+	 // coot::Cartesian back  = unproject(1.0);
+         glm::vec4 glm_front = new_unproject(-0.3);
+         glm::vec4 glm_back  = new_unproject( 1.0);
+	 coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+	 coot::Cartesian  back(glm_back.x,  glm_back.y,  glm_back.z);
 	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
 	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
-	 try { 
+         std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " " << p2.format() << std::endl;
+         coot::Cartesian rc = g.RotationCentre();
+
+	 try {
 	    clipper::Coord_orth blob =
 	       graphics_info_t::molecules[imol_map].find_peak_along_line_favour_front(p1, p2);
 	    coot::Cartesian cc(blob.x(), blob.y(), blob.z());
+            // coot::Cartesian cc = front.mid_point(back);
+            coot::Cartesian delta = rc - cc;
+            std::cout << "Delta: " << delta << std::endl;
 	    g.setRotationCentre(cc);
 	    for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
 	       graphics_info_t::molecules[ii].update_map();

@@ -645,6 +645,7 @@ namespace coot {
 					   const protein_geometry &geom);
 
       double torsion_distortion(double model_torsion) const;
+      // distortion (penalty score) and bond length delta from target value
       std::pair<double, double> distortion(mmdb::PAtom *atoms, const double &lj_epsilon) const; // i.e. atom
       std::string type() const; // a string representation of the restraint type
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
@@ -1014,6 +1015,7 @@ namespace coot {
       int n_atoms_limit_for_nbc; // the neighbours in non_bonded_contacts_atom_indices are only useful
                                  // for the moving atoms.
       mmdb::PPAtom atom;
+      bool model_has_hydrogen_atoms;
       std::vector<bool> atom_is_metal;
       std::vector<bool> atom_is_hydrogen;
       std::vector<int>  old_atom_index_to_new_atom_index;
@@ -1052,8 +1054,7 @@ namespace coot {
       int nSelResidues_active;
       bool apply_H_non_bonded_contacts;
 
-      // pointless argument - remove later
-      void init(bool unset_deriv_locks) {
+      void init() {
       	 verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
 	 n_atoms = 0;
@@ -1061,6 +1062,7 @@ namespace coot {
 	 mol = 0;
 	 n_atoms = 0;
 	 atom = 0;
+	 model_has_hydrogen_atoms = true;
 	 include_map_terms_flag = 0;
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
@@ -1685,6 +1687,7 @@ namespace coot {
       public:
 	 reduced_angle_info_container_t() {}
 	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+	 reduced_angle_info_container_t(const std::vector<std::vector<simple_restraint> > &rvv); // needs init() also?
 	 void init(const std::vector<simple_restraint> &r);
 	 std::map<int, std::vector<std::pair<int, int> > > angles;
 	 bool is_1_4(int i, int j) const;
@@ -1725,6 +1728,11 @@ namespace coot {
 
       link_restraints_counts make_link_restraints_for_link_ng(const new_linked_residue_t &nlr,
 							      const protein_geometry &geom);
+      void make_header_metal_links_ng(const protein_geometry &geom);
+      void add_header_metal_link_bond_ng(const atom_spec_t &atom_spec_1,
+					 const atom_spec_t &atom_spec_2,
+					 double  dist);
+
 
       std::string find_peptide_link_type_ng(mmdb::Residue *res_1,
 					    mmdb::Residue *res_2,
@@ -1737,7 +1745,6 @@ namespace coot {
                                                        // already been added as a restraint
                                                        // before we add a new one.
 
-      void analyze_for_bad_restraints();
       void analyze_for_bad_restraints(restraint_type_t r_type, double interesting_distortion_limit);
 #ifndef __NVCC__
       // threaded workpackage
@@ -1951,6 +1958,9 @@ namespace coot {
       std::map<mmdb::Atom *, hb_t> H_atom_parent_energy_type_atom_map;
       bool H_parent_atom_is_donor(mmdb::Atom *at); // adds to the above map potentially
 
+      std::vector<mmdb::Link> links; // worry about deleting these. Are they just shall copies?
+      void fill_links(mmdb::Manager *mol); // if they were not passed in the constructor.
+
    public:
 
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
@@ -1994,7 +2004,7 @@ namespace coot {
 
 	 // xmap = xmap_in;
 
-	 init(true); // initially locks pointer should be null
+	 init();
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
@@ -2481,7 +2491,7 @@ namespace coot {
 
       void clear() {
 	 restraints_vec.clear();
-	 init(false);
+	 init();
       }
 
       double log_cosh_target_distance_scale_factor;
@@ -2500,6 +2510,8 @@ namespace coot {
       // e.g. JED refine, cis-trans, pepflip will set this
       //
       void set_needs_reset() { needs_reset = true; }
+
+      void analyze_for_bad_restraints();
 
    }; 
 

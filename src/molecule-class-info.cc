@@ -113,15 +113,16 @@ const double pi = M_PI;
 //
 int
 molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
-    std::string filename,
-    std::string cwd,
-    short int reset_rotation_centre,
-    short int is_undo_or_redo,
-    bool allow_duplseqnum,
-    bool convert_to_v2_atom_names_flag,
-    float bond_width_in,
-    int bonds_box_type_in,
-    bool warn_about_missing_symmetry_flag) {
+						 std::string filename,
+						 std::string cwd,
+						 coot::protein_geometry *geom_p,
+						 short int reset_rotation_centre,
+						 short int is_undo_or_redo,
+						 bool allow_duplseqnum,
+						 bool convert_to_v2_atom_names_flag,
+						 float bond_width_in,
+						 int bonds_box_type_in,
+						 bool warn_about_missing_symmetry_flag) {
 
    //
    graphics_info_t g;
@@ -157,15 +158,20 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
    if (atom_sel.read_success == 1) {
 
-   // LINK info:
-   int n_models = atom_sel.mol->GetNumberOfModels();
-   std::cout << "INFO:: Found " << n_models << " models\n";
-   for (int imod=1; imod<=n_models; imod++) {
-   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-   if (model_p) {
-   int n_links = model_p->GetNumberOfLinks();
-   std::cout << "   Model "  << imod << " had " << n_links
-             << " links\n";}
+      // update the geometry as needed
+      geom_p->read_extra_dictionaries_for_molecule(atom_sel.mol, imol_no,
+						   &graphics_info_t::cif_dictionary_read_number);
+
+      // LINK info:
+      int n_models = atom_sel.mol->GetNumberOfModels();
+      std::cout << "INFO:: Found " << n_models << " models\n";
+      for (int imod=1; imod<=n_models; imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+	         int n_links = model_p->GetNumberOfLinks();
+	         std::cout << "   Model "  << imod << " had " << n_links
+		                << " links\n";
+      }
    }
 
 
@@ -2484,63 +2490,85 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
                                                            const coot::Cartesian &front,
                                                            const coot::Cartesian &back,
                                                            bool against_a_dark_background) {
+
+#if 0 // problems with merge - surely I don't want this function now.
+
    bool display_it = display_stick_mode_atoms_flag;
 
    if (display_it) {
 
       if (bonds_box.atom_centres_) {
 
-         // pass this?
-         const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
+	 // pass this?
+	 const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
-         // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
-         // << std::endl;
+	 // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
+	 // << std::endl;
 
-         float zsc = graphics_info_t::zoom;
-         glPointSize(280.0/zsc);
+	 float zsc = graphics_info_t::zoom;
+         float base_point_size =  280.0/zsc;
+         float current_point_size = base_point_size;
+	 glPointSize(current_point_size);
+
+         /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
+             unapply and reapply the mvp matrix. Hmm.
+
+             glPushMatrix();
+             glScalef(1.0, 1.0, -1.0);
+             gluDisk(quad, 0, base, slices, 2);
+             glPopMatrix();
+         */
 
          glBegin(GL_POINTS);
-         // for a big molecule, it's a factor of 10 or more slower
-         // to put glColor3f in the middle of the loop.
-         //
-         // Hence we use sets of atoms consolidated by their colour index
 
-         // colour by chain atom have atoms of a single colour currently
+	 // for a big molecule, it's a factor of 10 or more slower
+	 // to put glColor3f in the middle of the loop.
+	 //
+	 // Hence we use sets of atoms consolidated by their colour index
 
-         // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
-         // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
-         // Note that this delta for atom interacts with the highlight.
-         //
-         coot::Cartesian z_delta = (front - back) * 0.003;
-         for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-            set_bond_colour_by_mol_no(icol, against_a_dark_background);
-            for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-               // no points for hydrogens
-               if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+	 // colour by chain atom have atoms of a single colour currently
 
-                  if ((single_model_view_current_model_number == 0) ||
-                      (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
+	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+	 // Note that this delta for atom interacts with the highlight.
+	 //
+	 coot::Cartesian z_delta = (front - back) * 0.003;
+	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
+	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+	       // no points for hydrogens
+               const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+	       if (! gbai.is_hydrogen_atom) {
 
-                     if ((use_radius_limit.first == false) ||
-                         (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
+		  if ((single_model_view_current_model_number == 0) ||
+		      (single_model_view_current_model_number == gbai.model_number)) {
 
-                        const coot::Cartesian &fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
-                        glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
-                     }
-                  }
-               }
-            }
-         }
-         glEnd();
+		     if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
 
+                        float this_point_size = base_point_size;
+                        if (gbai.radius_scale != 1.0)
+                           this_point_size = base_point_size * 4.0 * gbai.radius_scale;
+
+                        // This code seems to be doing the right thing - I just don't see that the points
+                        // change size - perhaps I need to put big points into their own loop.
+                        if (current_point_size != this_point_size) {
+                           current_point_size = this_point_size;
+                           // std::cout << "rescale point size " << current_point_size << std::endl;
+                           glPointSize(current_point_size);
+                        }
+
+			const coot::Cartesian &fake_pt = gbai.position;
+			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
+		     }
+		  }
+	       }
+	    }
+	 }
+	 glEnd();
 
     // highlights?
     //
     if (true) {
-
-       zsc = graphics_info_t::zoom;
-
-       if (zsc < 40) { // only draw highlights if we are close enough (zoomed in) to see them
 
           coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
           coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
@@ -2643,6 +2671,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
     }
       }
    }
+#endif // problems with merge
 }
 
 coot::Cartesian
@@ -3552,7 +3581,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 void
-molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
+molecule_class_info_t::make_bonds_type_checked() {
 
    bool debug = false;
    if (debug)
@@ -7361,29 +7390,30 @@ molecule_class_info_t::restore_from_backup(int history_offset,
    << " " << history_index << std::endl;
       std::string save_name = name_;
       if (hist_vec_index < int(history_filename_vec.size()) &&
-     hist_vec_index >= 0) {
-    std::string filename = history_filename_vec[hist_vec_index];
-    //      history_index = hist_index;
-    short int reset_rotation_centre = 0;
-    // handle_read_draw_molecule uses graphics_info_t::n_molecules
-    // to determine its molecule number.  We don't want it to
-    // change.
-    int save_imol = imol_no;
-    // similarly, it messes with the save_state_command_strings_, we
-    // don't want that either:
-    std::vector<std::string> save_save_state = save_state_command_strings_;
-    short int is_undo_or_redo = 1;
-    handle_read_draw_molecule(imol_no, filename, cwd,
-      reset_rotation_centre,
-      is_undo_or_redo,
-      allow_duplseqnum,
-      v2_convert_flag,
-      bond_width,
-      Bonds_box_type(),
-      false);
-    save_state_command_strings_ = save_save_state;
-    imol_no = save_imol;
-    name_ = save_name;
+	  hist_vec_index >= 0) {
+	 std::string filename = history_filename_vec[hist_vec_index];
+	 //      history_index = hist_index;
+	 short int reset_rotation_centre = 0;
+	 // handle_read_draw_molecule uses graphics_info_t::n_molecules
+	 // to determine its molecule number.  We don't want it to
+	 // change.
+	 int save_imol = imol_no;
+	 // similarly, it messes with the save_state_command_strings_, we
+	 // don't want that either:
+	 std::vector<std::string> save_save_state = save_state_command_strings_;
+	 short int is_undo_or_redo = 1;
+	 handle_read_draw_molecule(imol_no, filename, cwd,
+				   graphics_info_t::Geom_p(),
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   allow_duplseqnum,
+				   v2_convert_flag,
+				   bond_width,
+				   Bonds_box_type(),
+				   false);
+	 save_state_command_strings_ = save_save_state;
+	 imol_no = save_imol;
+	 name_ = save_name;
       }
    } else {
       std::cout << "not restoring from backup because "
@@ -9646,6 +9676,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
 	 bool v2_convert_flag = false;
 
 	 handle_read_draw_molecule(imol_no, ucp.pdb_file_name, cwd,
+				   graphics_info_t::Geom_p(),
 				   reset_rotation_centre,
 				   is_undo_or_redo,
 				   allow_duplseqnum,
@@ -9660,4 +9691,31 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
       status = 0;
    }
    return status;
+}
+
+// no redraw
+void
+molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
+
+   std::string cwd = coot::util::current_working_dir();
+   short int reset_rotation_centre = 0;
+   short int is_undo_or_redo = 0;
+   bool allow_duplseqnum = true;
+   bool v2_convert_flag = false;
+
+   handle_read_draw_molecule(imol_no, pdb_file_name, cwd,
+			     graphics_info_t::Geom_p(),
+			     reset_rotation_centre,
+			     is_undo_or_redo,
+			     allow_duplseqnum,
+			     v2_convert_flag,
+			     bond_width,
+			     Bonds_box_type(),
+			     false);
+
+}
+
+void
+molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
+
 }

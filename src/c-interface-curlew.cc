@@ -21,6 +21,9 @@
 
 
 #ifdef BUILD_CURLEW
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 #endif
@@ -39,6 +42,46 @@ using json = nlohmann::json;
 #include "curlew.h"
 #include "curlew.hh"
 
+
+void remove_file_curlew_menu_item_maybe() {
+
+#ifdef BUILD_CURLEW
+
+   // OK, keep the menu item in.
+
+#else
+   GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
+   if (menubar) {
+      // gtk_container_foreach(GTK_CONTAINER(menubar), my_delete_file_curlew_menu_item, menubar);
+
+      GList *dlist_1 = gtk_container_children(GTK_CONTAINER(menubar));
+      while (dlist_1) {
+         GtkWidget *w = static_cast<GtkWidget *>(dlist_1->data);
+         std::string l = gtk_menu_item_get_label(GTK_MENU_ITEM(w));
+         // std::cout << "l: " << l << std::endl;
+         if (l == "_File") {
+            GtkWidget *w_submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(w));
+            GList *dlist_2 = gtk_container_children(GTK_CONTAINER(w_submenu));
+            GtkWidget *curlew_menu = 0;
+            while (dlist_2) {
+               GtkWidget *w_inner = static_cast<GtkWidget *>(dlist_2->data);
+               std::string l_inner = gtk_menu_item_get_label(GTK_MENU_ITEM(w_inner));
+               // std::cout << "l_inner: " << l_inner << std::endl;
+               if (l_inner == "Curlew")
+                  curlew_menu = w_inner;
+               dlist_2 = dlist_2->next;
+            }
+            if (curlew_menu) {
+               gtk_container_remove(GTK_CONTAINER(w_submenu), curlew_menu);
+            }
+         }
+         dlist_1 = dlist_1->next;
+      }
+   } else {
+      std::cout << "WARNING:: remove_file_curlew_menu_item_maybe() ooops no menubar" << std::endl;
+   }
+#endif // BUILD_CURLEW   
+}
 
 // put this in a widget header (maybe its own?)
 GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
@@ -64,29 +107,40 @@ void curlew() {
    GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
    GtkWidget *install_button = lookup_widget(w, "curlew_install_button");
    if (vbox) {
-      std::string download_dir = coot::get_directory("coot-download");
-      if (download_dir.empty()) {
-	 std::cout << "Can't make download directory " << std::endl;
-      } else {
-	 // happy path
-	 std::string dl_fn = coot::util::append_dir_file(download_dir, "info.json");
+      std::string download_dir = "coot-download"; // FIXME
+      std::string dl_fn = download_dir + "/info.json";
 
-	 // not https, that transfers nothing
-	 // (probably a curl configuration/SSL thing)
-	 std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
-	 url_prefix += "extensions";
+      // not https, that transfers nothing
+      // (probably a curl configuration thing)
+      // 2019-07-31 https is the only way now
+      //
+      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      url_prefix += "extensions";
 
-	 std::string url_curlew_prefix = url_prefix + "/curlew";
-	 std::string json_url = url_curlew_prefix + "/info.json";
+      std::string url_curlew_prefix = url_prefix + "/curlew";
+      std::string json_url = url_curlew_prefix + "/info.json";
 
-	 int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
-
-	 if (! coot::file_exists(dl_fn)) {
-	    std::cout << "WARNING:: no directory " << dl_fn << std::endl;
+      int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
+      bool is_empty = true; // now check that it isn't
+      struct stat buf;
+      int istat = stat(dl_fn.c_str(), &buf);
+      if (istat == 0) { // OK, it exists...
+	 if (buf.st_size > 0) {
+	    is_empty = false;
 	 } else {
-	    // Happy path
+	    std::cout << "WARNING:: empty file " << dl_fn << std::endl;
+	    std::cout << "          maybe your curl needs OpenSSL?" << std::endl;
+	    std::string s = "WARNING:: empty file " + dl_fn;
+	    add_status_bar_text(s.c_str());
+	 }
+      }
+
+      if (is_empty) {
+	 if (coot::file_exists(dl_fn)) {
 	    std::fstream f(dl_fn);
-	    if (f) {
+	    if (! f) {
+	       std::cout << "WARNING:: Missing/bad curlew info file " << dl_fn << std::endl;
+            } else {
 
 	       std::string s;
 	       f.seekg(0, std::ios::end);
@@ -188,10 +242,14 @@ void curlew() {
 	       }
 	    }
 	 }
-      }
+      } // we've done the "empty" message already
    }
+
    gtk_widget_show(w);
 
+#else
+   // well take out the menu item then!
+   std::cout << "No curlew with old GCC" << std::endl;
 #endif // BUILD_CURLEW
 }
 

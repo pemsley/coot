@@ -148,7 +148,7 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 short int graphics_info_t::python_at_prompt_flag = 0;
 
 int graphics_info_t::show_paths_in_display_manager_flag = 0;
-std::vector<std::string> *graphics_info_t::command_line_scripts;
+std::vector<std::string> *graphics_info_t::command_line_scripts = 0;
 coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
@@ -871,7 +871,8 @@ float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
 bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float grey_level = 0.24;
-glm::vec3 graphics_info_t::background_colour = glm::vec3(grey_level, grey_level, grey_level);
+float norm_255 = 1.0/255.0;
+glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
 
 //
 short int graphics_info_t::delete_item_atom = 0;
@@ -1867,9 +1868,8 @@ void
 setup_for_mol_triangles() {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 
-   graphics_info_t::mol_tri_renderer    = RendererGLSL::create();
+   graphics_info_t::mol_tri_renderer = RendererGLSL::create();
    graphics_info_t::mol_tri_renderer->init();
 
    graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
@@ -1889,7 +1889,8 @@ setup_for_mol_triangles() {
    simpleLight2->setDrawLight(false);
    simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
 
-#endif
+   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is " << graphics_info_t::mol_tri_scene_setup << std::endl;
+
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 }

@@ -152,14 +152,17 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
                GLenum err = glGetError(); if (true) std::cout << "in " << __FUNCTION__ << " A with err " << err << std::endl;
                auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection, style);
                err = glGetError(); if (true) std::cout << "in " << __FUNCTION__ << " B with err " << err << std::endl;
-               graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
-               err = glGetError(); if (true) std::cout << "in " << __FUNCTION__ << " C with err " << err << std::endl;
-               // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, ss_cs, "//A", "MolecularSurface");
-               // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_2);
+               if (!graphics_info_t::mol_tri_scene_setup) {
+                  std::cout << "ERROR:: null mol_tri_scene_setup" << std::endl;
+               } else {
+                  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
+                  err = glGetError(); if (true) std::cout << "in " << __FUNCTION__ << " C with err " << err << std::endl;
+                  // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, ss_cs, "//A", "MolecularSurface");
+                  // graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_2);
 
-               molrepinsts.push_back(molrepinst_1);
-               status = molrepinsts.size() -1; // index of back
-
+                  molrepinsts.push_back(molrepinst_1);
+                  status = molrepinsts.size() -1; // index of back
+               }
             }
          }
       }

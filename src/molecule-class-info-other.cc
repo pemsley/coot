@@ -2511,6 +2511,17 @@ molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) con
    return res;
 }
 
+std::string
+molecule_class_info_t::get_residue_name(const coot::residue_spec_t &rs) const {
+
+   std::string rn;
+   mmdb::Residue *r = get_residue(rs);
+   if (r) {
+      rn = r->GetResName();
+   }
+   return rn;
+}
+
 // Useful when we know that the molecule is just one residue
 mmdb::Residue *
 molecule_class_info_t::get_first_residue() {
@@ -3703,6 +3714,7 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
    short int reset_rotation_centre_flag = 0;
    handle_read_draw_molecule(imol_no, backup_file_name,
 			     cwd,
+			     graphics_info_t::Geom_p(),
 			     reset_rotation_centre_flag,
 			     is_undo_or_redo,
 			     allow_duplseqnum,

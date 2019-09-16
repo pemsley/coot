@@ -236,28 +236,33 @@ glm::mat4 get_molecule_mvp() {
    // turn off view scaling when tinkering with this?
    // there should not be a concept of "zoom" with perspective view, just translation
    // along screen-Z.
-   float fov = 30.0;
 
-   glm::vec3 test_vector_1(1.0, 0.0, 0.0);
-   glm::vec3 test_vector_2(1.0, 1.0, 0.0);
+   float fov = 40.0;
+   // glm::vec3 up(0.0, 1.0, 0.0);
+   // to use perspective properly, we need to know the eye position. We should
+   // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
+
+   // the difference between these after rotation by the mouse quaternion will give us "up"
+   glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
+   glm::vec4 test_pt_1(1.0, 0.0, 0.0, 1.0);
+   glm::vec4 test_pt_2(1.0, 1.0, 0.0, 1.0);
 
    glm::mat4 vr = get_view_rotation();
-   glm::vec4 rot_test_vector_1 = vr * glm::vec4(test_vector_1, 1.0);
-   glm::vec4 rot_test_vector_2 = vr * glm::vec4(test_vector_2, 1.0);
-
-   glm::vec4 up4 = rot_test_vector_2 - rot_test_vector_1;
+   glm::vec4 rp_z = vr * test_pt_z;
+   glm::vec4 rp_1 = vr * test_pt_1;
+   glm::vec4 rp_2 = vr * test_pt_2;
+   glm::vec4 up4 = rp_2 - rp_1;
    glm::vec3 up = glm::vec3(up4);
-
-   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
+   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rp_1);
    ep += rc;
 
-   view_matrix = glm::lookAt(glm::vec3(ep), rc, up);
+   std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
 
-   float z_front =  3.0;
-   float z_back = 300.0;
-
-   // z_front += 0.2 * graphics_info_t::clipping_front;
-   // z_back  -= 0.2 * graphics_info_t::clipping_back;
+   view_matrix = glm::lookAt(ep, rc, up);
+   float z_front =  2.0;
+   float z_back = 400.0;
+   z_front += 0.2 * graphics_info_t::clipping_front;
+   z_back  -= 0.2 * graphics_info_t::clipping_back;
    fov = 40.0; // degrees
 
    glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
@@ -291,16 +296,21 @@ glm::vec4 new_unproject(float z) {
    // z is 1 and -1 for front and back (or vice verse).
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   int w = allocation.width;
-   int h = allocation.height;
+   float w = allocation.width;
+   float h = allocation.height;
    graphics_info_t g;
-   float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
-   float mouseY = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
+   float mouseX = 2.0 *    g.GetMouseBeginX()/w  - 1.0f;
+   float mouseY = 2.0 * (h-g.GetMouseBeginY())/h - 1.0f;
+   std::cout << "debug in new_unproject widget w and h " << w << " " << h << std::endl;
+   std::cout << "debug in new_unproject mouse x and y widget  " << g.GetMouseBeginX() << " " << g.GetMouseBeginY() << std::endl;
+   std::cout << "debug in new_unproject mouse x and y GL      " << mouseX << " " << mouseY << std::endl;
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, z, 1.0f);
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
+   // std::cout << "screen_pos " << glm::to_string(screenPos_f) << std::endl;
+   // std::cout << "world_pos " << glm::to_string(worldPos_f) << std::endl;
    return worldPos_f;
 }
 
@@ -708,16 +718,16 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    graphics_info_t::shader_for_screen.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
+   graphics_info_t::shader_for_screen.set_int_for_uniform("screenTexture", 0);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() C screen framebuffer err " << err << std::endl;
    graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() D screen framebuffer err " << err << std::endl;
 
    graphics_info_t::shader_for_blur.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur shader-framebuffer B err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screnTexture", 0);
+   graphics_info_t::shader_for_blur.set_int_for_uniform("screenTexture", 0);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
-   graphics_info_t::shader_for_screen.set_int_for_uniform("screenDepth", 1);
+   graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
 
    
@@ -739,7 +749,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    }
 
    // Martin's Molecular triangles
-   // setup_for_mol_triangles();
+   setup_for_mol_triangles();
 
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    // handle_command_line_data(cld);
@@ -791,7 +801,8 @@ on_glarea_render(GtkGLArea *glarea) {
 
 
    graphics_info_t::blur_framebuffer.bind();
-   glDisable(GL_DEPTH_TEST);
+   // glDisable(GL_DEPTH_TEST);
+   glEnable(GL_DEPTH_TEST);
 
    // Screen shader (ambient occlusion)
 
@@ -799,7 +810,9 @@ on_glarea_render(GtkGLArea *glarea) {
       graphics_info_t::shader_for_screen.Use();
       glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
 
-      glClearColor(0.5, 0.2, 0.2, 1.0);
+      // glClearColor(0.5, 0.2, 0.2, 1.0);
+      const glm::vec3 &bg = graphics_info_t::background_colour;
+      glClearColor (bg[0], bg[1], bg[2], 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       GLuint pid = graphics_info_t::shader_for_screen.get_program_id();
@@ -817,6 +830,7 @@ on_glarea_render(GtkGLArea *glarea) {
 
    // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
    gtk_gl_area_attach_buffers(glarea);
+   glEnable(GL_DEPTH_TEST);
 
    // z-blur shader
 
@@ -830,7 +844,7 @@ on_glarea_render(GtkGLArea *glarea) {
       GLuint pid = graphics_info_t::shader_for_blur.get_program_id();
       glActiveTexture(GL_TEXTURE0 + 1);
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_colour());
-      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1); // was 1 
+      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1); // was 1
       glActiveTexture(GL_TEXTURE0 + 2);
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
       glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
@@ -1087,6 +1101,10 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       move_backwards();
    }
 
+   if (event->keyval == GDK_KEY_g) {
+      blob_under_pointer_to_screen_centre();
+   }
+
    if (event->keyval == GDK_KEY_i) {
       std::cout << "Debug idle_function_spin_rock_token " << graphics_info_t::idle_function_spin_rock_token
                 << std::endl;
@@ -1101,12 +1119,12 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    }
 
    // GDK_KEY_equals should be the same as GDK_KEY_plus
-   if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus) {
+   if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal) {
       int s = graphics_info_t::scroll_wheel_map;
       if (graphics_info_t::is_valid_map_molecule(s)) {
          if (event->keyval == GDK_KEY_minus)
             graphics_info_t::molecules[s].pending_contour_level_change_count--;
-         if (event->keyval == GDK_KEY_plus)
+         if (event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal)
             graphics_info_t::molecules[s].pending_contour_level_change_count++;
          int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
          g.set_density_level_string(s, g.molecules[s].contour_level);
@@ -1162,12 +1180,14 @@ void my_glarea_add_signals_and_events(GtkWidget *glarea) {
    gtk_widget_add_events(glarea, GDK_BUTTON1_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON2_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON3_MOTION_MASK);
+   gtk_widget_add_events(glarea, GDK_POINTER_MOTION_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON1_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON2_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON3_MASK);
    gtk_widget_add_events(glarea, GDK_KEY_PRESS_MASK);
 
    // key presses for the glarea:
+
    gtk_widget_set_can_focus(glarea, TRUE);
    gtk_widget_grab_focus(glarea);
 

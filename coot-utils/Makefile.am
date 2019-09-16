@@ -79,7 +79,6 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/geometry/libcoot-geometry.la \
     $(CLIPPER_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
-
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS) $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # shelx

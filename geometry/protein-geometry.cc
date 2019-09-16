@@ -2593,6 +2593,32 @@ coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_typ
    return rv;
 }
 
+std::pair<bool, coot::dict_atom>
+coot::protein_geometry::get_monomer_atom_info(const std::string &monomer_name,
+					      const std::string &atom_name,
+					      int imol_enc) const {
+
+   bool status = false;
+   dict_atom da;
+
+   std::pair<bool, dictionary_residue_restraints_t> dr = get_monomer_restraints(monomer_name, imol_enc);
+   if (dr.first) {
+      const std::vector<dict_atom> &atom_info = dr.second.atom_info;
+      for (std::size_t i=0; i<atom_info.size(); i++) {
+	 dict_atom a = atom_info[i];
+	 // std::cout << "comparing atom names \"" << atom_name << "\" and \""
+	 // << a.atom_id_4c << "\"" << std::endl;
+	 if (atom_name == a.atom_id_4c) {
+	    da = a;
+	    status = true;
+	 }
+      }
+   }
+
+   return std::pair<bool, dict_atom> (status, da);
+}
+
+
 
 
 std::vector <std::string>
@@ -4249,6 +4275,52 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    }
    return group;
 }
+
+
+std::vector<std::string>
+coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int imol_no) const {
+
+   std::vector<std::string> v;
+
+   if (mol) {
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  std::string residue_name = residue_p->GetResName();
+		  if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name))
+		     v.push_back(residue_name);
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+bool
+coot::protein_geometry::read_extra_dictionaries_for_molecule(mmdb::Manager *mol, int imol, int *read_number_p) {
+
+   std::vector<std::string> v = residue_names_with_no_dictionary(mol, imol);
+   bool success = true;
+   for (std::size_t i=0; i<v.size(); i++) {
+      const std::string &rn = v[i];
+      int success_for_residue = try_dynamic_add(rn, *read_number_p);
+      if (success_for_residue == 0)
+	 success = false;
+      *read_number_p += 1;
+   }
+
+   return success;
+}
+
+
 
 // optional arg: bool try_autoload_if_needed=true.
 // optional arg: float b_factor.
