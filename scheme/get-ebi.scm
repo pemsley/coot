@@ -28,7 +28,7 @@
 ;;; file) returns a short file.  So we have to use the uncompressed
 ;;; form which returns a file that had META tags.  Argh.
 
-(define pdbe-server "http://www.ebi.ac.uk")
+(define pdbe-server "https://www.ebi.ac.uk")
 (define pdbe-pdb-file-dir "pdbe-srv/view/files")
 
 (define pdbe-file-name-tail "ent")
@@ -211,9 +211,9 @@
 		      (list imol imol-map imol-map-d))))))))
 
 
-  (define eds-site "http://www.ebi.ac.uk/pdbe/coordinates")
+  (define eds-site "https://www.ebi.ac.uk/pdbe/coordinates")
   (define eds-core "some://thing") ;; for web pages
-  (define eds-coords-site "http://www.ebi.ac.uk/pdbe/entry-files/download")
+  (define eds-coords-site "https://www.ebi.ac.uk/pdbe/entry-files/download")
 
   ;; "1cbds" -> "cb/"
   ;; 

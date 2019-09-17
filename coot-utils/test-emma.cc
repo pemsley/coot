@@ -13,8 +13,8 @@
 #include "emma.hh"
 
 void overlap_map(const std::vector<std::complex<double> > &vp_fft,
-		 float angstroms_per_bin,
-		 const std::string &xmap_file_name) {
+                 float angstroms_per_bin,
+                 const std::string &xmap_file_name) {
    
       clipper::CCP4MAPfile file;
       clipper::Xmap<float> xmap;
@@ -36,35 +36,35 @@ void overlap_map(const std::vector<std::complex<double> > &vp_fft,
 
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = fphi_map.first(); !hri.last(); hri.next()) {
-	 float irs = hri.invresolsq();
-	 float ir = sqrt(irs);
-	 unsigned int bin_idx = static_cast<unsigned int>(ir * max_bin_no / angstroms_per_bin);
-	 float bin_res = bin_idx * (1.0/static_cast<float>(max_bin_no));
-	 std::cout << hri.hkl().format() << " bin_idx " << bin_idx
-		   << " bin resolution " << bin_res
-		   << " vs " << ir << " ir(Angstroms) " << 1.0/ir << "\n";
+	      float irs = hri.invresolsq();
+	      float ir = sqrt(irs);
+	      unsigned int bin_idx = static_cast<unsigned int>(ir * max_bin_no / angstroms_per_bin);
+	      float bin_res = bin_idx * (1.0/static_cast<float>(max_bin_no));
+	      std::cout << hri.hkl().format() << " bin_idx " << bin_idx
+		             << " bin resolution " << bin_res
+		             << " vs " << ir << " ir(Angstroms) " << 1.0/ir << "\n";
 
-	 // We only need to look at the "low" resolution reflections
-	 //
-	 if (bin_idx < max_bin_no) {
-	    float a = fphi_map[hri].a();
-	    float b = fphi_map[hri].b();
-	    std::complex<float> fphi(a,b);
-	    std::complex<float> saft(vp_fft[bin_idx]);
-	    std::complex<float> p = fphi * std::conj(-saft); // or the other way round or negative.
-	    float new_f   = std::abs(p);
-	    float new_phi = std::arg(p);
-	    fphi_map[hri].f()   = new_f;
-	    fphi_map[hri].phi() = new_phi;
-	 } else {
-	    fphi_map[hri].f()   = 0.0;
-	    fphi_map[hri].phi() = 0.0;
-	 }
+	      // We only need to look at the "low" resolution reflections
+	      //
+	      if (bin_idx < max_bin_no) {
+	         float a = fphi_map[hri].a();
+	         float b = fphi_map[hri].b();
+	         std::complex<float> fphi(a,b);
+	         std::complex<float> saft(vp_fft[bin_idx]);
+	         std::complex<float> p = fphi * std::conj(-saft); // or the other way round or negative.
+	         float new_f   = std::abs(p);
+	         float new_phi = std::arg(p);
+	         fphi_map[hri].f()   = new_f;
+	         fphi_map[hri].phi() = new_phi;
+	      } else {
+	         fphi_map[hri].f()   = 0.0;
+	         fphi_map[hri].phi() = 0.0;
+	      }
       }
 
       xmap.fft_from(fphi_map);
       clipper::CCP4MAPfile outmapfile;
-      outmapfile.open_write("overlap-peaks.map");
+      outmapfile.open_write("FFT-convoluted.map");
       outmapfile.export_xmap(xmap);
       outmapfile.close_write();
 
@@ -98,35 +98,35 @@ int main(int argc, char **argv) {
       std::pair<bool, clipper::Coord_orth> centre = coot::centre_of_molecule(asc.mol);
       if (centre.first) {
 
-	 std::cout << "DEBUG:: molecule  centre after recentering: "
-		   << centre.first << " " << centre.second.format() << std::endl;
+         std::cout << "DEBUG:: molecule  centre after recentering: "
+		             << centre.first << " " << centre.second.format() << std::endl;
 
-	 // move to origin (!)
-	 asc.apply_shift(centre.second.x(), centre.second.y(), centre.second.z());
+	      // move to origin (!)
+	      asc.apply_shift(centre.second.x(), centre.second.y(), centre.second.z());
 
-	 std::pair<clipper::Coord_orth, clipper::Coord_orth> e = coot::util::extents(asc.mol, asc.SelectionHandle);
-	 double x_range = e.second.x() - e.first.x();
-	 double y_range = e.second.y() - e.first.y();
-	 double z_range = e.second.z() - e.first.z();
+	      std::pair<clipper::Coord_orth, clipper::Coord_orth> e = coot::util::extents(asc.mol, asc.SelectionHandle);
+	      double x_range = e.second.x() - e.first.x();
+	      double y_range = e.second.y() - e.first.y();
+	      double z_range = e.second.z() - e.first.z();
 
-	 float border = 5.0;
-	 double nr = clipper::Util::d2rad(90.0);
-	 clipper::Cell_descr cell_descr(x_range + 2*border,
-					y_range + 2*border,
-					z_range + 2*border, nr, nr, nr);
-	 clipper::Cell cell = clipper::Cell(cell_descr);
-	 clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
-	 clipper::Resolution reso = clipper::Resolution(3.0);
-	 clipper::Grid_sampling gs(spacegroup, cell, reso);
-	 clipper::Xmap<float> xmap =
-	    coot::util::calc_atom_map(asc.mol, asc.SelectionHandle, cell, spacegroup, gs);
+	      float border = 5.0;
+	      double nr = clipper::Util::d2rad(90.0);
+	      clipper::Cell_descr cell_descr(x_range + 2*border,
+					     y_range + 2*border,
+					     z_range + 2*border, nr, nr, nr);
+	      clipper::Cell cell = clipper::Cell(cell_descr);
+	      clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+	      clipper::Resolution reso = clipper::Resolution(3.0);
+	      clipper::Grid_sampling gs(spacegroup, cell, reso);
+	      clipper::Xmap<float> xmap =
+	         coot::util::calc_atom_map(asc.mol, asc.SelectionHandle, cell, spacegroup, gs);
 
-	 if (true) {
-	    clipper::CCP4MAPfile outmapfile;
-	    outmapfile.open_write("atom_calc.map");
-	    outmapfile.export_xmap(xmap);
-	    outmapfile.close_write();
-	 }
+	      if (true) {
+	         clipper::CCP4MAPfile outmapfile;
+	         outmapfile.open_write("atom_calc.map");
+	         outmapfile.export_xmap(xmap);
+	         outmapfile.close_write();
+	      }
 
 	 // std::vector<std::pair<double, double> > vp =
 	 // coot::util::spherically_averaged_molecule(asc, angstroms_per_bin);

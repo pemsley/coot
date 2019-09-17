@@ -529,10 +529,31 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 }
 
 void
+coot::restraints_container_t::set_has_hydrogen_atoms_state() {
+
+   // in init model_has_hydrogens is set to true;
+
+   bool found = false;
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      if (is_hydrogen(at)) {
+         found = true;
+         break;
+      }
+   }
+   if (! found)
+      model_has_hydrogen_atoms = false;
+
+}
+
+
+void
 coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs) {
 
 
    bonded_atom_indices.resize(n_atoms);
+
+   set_has_hydrogen_atoms_state();
 
    initial_position_params_vec.resize(3*n_atoms); 
    for (int i=0; i<n_atoms; i++) {
@@ -948,6 +969,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 }
       }
    }
+
 
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
@@ -3130,7 +3152,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_auto() {
 
-   float pseudo_bond_esd = 0.14; // 0.05 was too tight
+   float pseudo_bond_esd = 0.2; // 0.05 was too tight
    unsigned int n_helical_restraints = 0;
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
