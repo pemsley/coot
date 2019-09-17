@@ -529,14 +529,18 @@ clipper::Xmap<float>
 coot::util::sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in,
 					   float b_factor,
 					   float resample_factor) {
+
+   // Normal x-ray maps have a resample value of 1.5
+   // Normal EM maps have a resample value of 1.0
+
+   // So to get a "nice" EM map call with (xmap, 0, 1.5)
+
    float mg = coot::util::max_gridding(xmap_in);
-   // resample_factor (say 2) means finner grid and higher resolution
+   // resample_factor (say 2) means finer grid and higher resolution
    clipper::Resolution reso(2.0 * mg); 
-   clipper::Resolution reso_2(2.0 * mg / resample_factor); 
    clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
    clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
-   // clipper::Grid_sampling gs = xmap_in.grid_sampling();
-   clipper::Grid_sampling gs(xmap_in.spacegroup(), xmap_in.cell(), reso_2, resample_factor);
+   clipper::Grid_sampling gs(xmap_in.spacegroup(), xmap_in.cell(), reso, resample_factor);
    clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), gs);
    xmap_in.fft_to(fphis);
    clipper::HKL_info::HKL_reference_index hri;

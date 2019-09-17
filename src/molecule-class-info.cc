@@ -96,6 +96,14 @@
 #include "c-interface.h"
 
 
+int
+molecule_class_info_t::update_molecule(std::string file_name, std::string cwd) {
+
+   return handle_read_draw_molecule(imol_no,
+				    file_name, cwd,
+				    graphics_info_t::Geom_p(),
+				    0, 0, true, false, bond_width, bonds_box_type, false);
+}
 
 
 
@@ -9366,7 +9374,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
 	 } else {
 	    // happy path
 #ifndef _POSIX_SOURCE
-	    ucp.ctime = s.st_ctimespec; // Mac OX X?
+	    ucp.ctime = s.st_ctimespec; // Mac OS X?
 #else
 	    ucp.ctime = s.st_ctim;
 #endif

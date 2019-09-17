@@ -1163,6 +1163,13 @@ molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
    
 }
 
+void
+molecule_class_info_t::map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &cwd, float sampling_rate) {
+
+   map_fill_from_mtz(mmi.mtz_file_name, cwd, mmi.f_col, mmi.phi_col, mmi.w_col, mmi.use_weights, mmi.is_difference_map, sampling_rate);
+
+}
+
 
 // 
 void
@@ -2130,9 +2137,11 @@ molecule_class_info_t::is_em_map_cached_state() {
 
 
 void
-molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string name_in) {
+molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::string name_in, bool is_em_map_flag_in) {
 
-   xmap = map_in; 
+   xmap = map_in;
+   if (is_em_map_flag_in)
+      is_em_map_cached_flag = 1;
    // the map name is filled by using set_name(std::string)
    // sets name_ to name_in:
    initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
