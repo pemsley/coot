@@ -925,8 +925,12 @@ public:
 
    static bool do_expose_swap_buffers_flag;
 
+   static std::queue<std::chrono::time_point<std::chrono::system_clock> > frame_draw_queue;
+
    static void graphics_draw() {
      if (glarea) {
+       std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
+       frame_draw_queue.push(tp_now);
        gtk_widget_queue_draw(glarea);
        if (make_movie_flag)
 	       dump_a_movie_image();

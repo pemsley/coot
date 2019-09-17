@@ -1458,6 +1458,7 @@ Shader graphics_info_t::shader_for_blur;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
+std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
 // --------------------------------------------------------------------------------------------
 
@@ -1983,11 +1984,11 @@ void show_lighting() {
 /* When glarea widget size changes, viewport size is set to match the
    new size */
 
-gint reshape(GtkWidget *widget, GdkEventConfigure *event) { }
+gint reshape(GtkWidget *widget, GdkEventConfigure *event) { return 0; }
 
 /* When widget is exposed it's contents are redrawn. */
 #define DEG_TO_RAD .01745327
-gint expose(GtkWidget *widget, GdkEventExpose *event) { }
+gint expose(GtkWidget *widget, GdkEventExpose *event) { return 0; }
 
 void
 update_things_on_move_and_redraw() {

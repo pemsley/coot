@@ -855,6 +855,15 @@ on_glarea_render(GtkGLArea *glarea) {
    }
 
    graphics_info_t::frame_counter++;
+   if (graphics_info_t::frame_draw_queue.size() > 0) {
+      std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
+      std::chrono::time_point<std::chrono::system_clock> queue_time = graphics_info_t::frame_draw_queue.front();
+      graphics_info_t::frame_draw_queue.pop();
+      auto delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - queue_time).count();
+      if (false)
+         std::cout << "INFO:: ---------- Timing check frame " << delta_time << " milliseconds" << " queue size "
+                   << graphics_info_t::frame_draw_queue.size() << std::endl;
+   }
 
   return FALSE;
 }
@@ -898,7 +907,8 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
       g.update_maps();
-      gtk_widget_queue_draw(widget);
+      //gtk_widget_queue_draw(widget);
+      g.graphics_draw(); // queue
    } else {
       std::cout << "No map" << std::endl;
    }
@@ -1013,7 +1023,8 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    // for next motion
    g.SetMouseBegin(event->x,event->y);
-   gtk_widget_queue_draw(widget);
+   // gtk_widget_queue_draw(widget);
+   g.graphics_draw(); // queue
    return TRUE;
 }
 
@@ -1026,7 +1037,8 @@ view_spin_func(gpointer data) {
    glm::quat normalized_quat_delta(glm::normalize(quat_delta));
    glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
    graphics_info_t::glm_quat = glm::normalize(product);
-   gtk_widget_queue_draw(graphics_info_t::glarea);
+   // gtk_widget_queue_draw(graphics_info_t::glarea);
+   graphics_info_t::graphics_draw(); // queue
 
    std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
    std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time;
@@ -1139,7 +1151,8 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       handled = TRUE;
    }
 
-   gtk_widget_queue_draw(widget);
+   graphics_info_t::graphics_draw(); // queue
+   // gtk_widget_queue_draw(widget);
 
    return handled;
 
