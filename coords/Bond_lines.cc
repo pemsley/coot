@@ -4382,7 +4382,7 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 
 
 // atom_colour_map is an optional arg.  It is passed in the case of
-// long_bonded atoms or MET/MSE residues.
+// long_bonded atoms or MET/MSE residues. Default value 0 (NULL).
 // 
 int
 Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
@@ -4391,7 +4391,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
    int col = 0;
 
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
-      if (atom_colour_map_p) { 
+      if (atom_colour_map_p) {
 	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
 	 if (false)
 	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
@@ -4608,6 +4608,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
       }
    }
+   std::cout << "        returning col " << col << std::endl;
    return col;
 }
 
@@ -5907,6 +5908,11 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
    atom_centres.clear();
    atom_centres_colour.clear();
 
+   coot::my_atom_colour_map_t *atom_colour_map = 0;
+   if (atom_colour_type == coot::COLOUR_BY_CHAIN || atom_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY) {
+      atom_colour_map = new coot::my_atom_colour_map_t;
+   }
+
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
       bool is_H_flag = false;
       if (is_hydrogen(std::string(SelAtom.atom_selection[i]->element)))
@@ -5920,10 +5926,12 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
 	       p.atom_p = at;
 	       atom_centres.push_back(p);
-	       atom_centres_colour.push_back(atom_colour(at, atom_colour_type));
+	       atom_centres_colour.push_back(atom_colour(at, atom_colour_type, atom_colour_map));
          }
       }
    }
+   if (atom_colour_map)
+      delete atom_colour_map;
 }
 
 
