@@ -4608,7 +4608,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
       }
    }
-   std::cout << "        returning col " << col << std::endl;
+   // std::cout << "        returning col " << col << std::endl;
    return col;
 }
 
