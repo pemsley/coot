@@ -55,6 +55,7 @@ namespace coot {
    
    enum bond_colour_t { COLOUR_BY_CHAIN=0,
 			COLOUR_BY_CHAIN_C_ONLY=20,
+			COLOUR_BY_CHAIN_GOODSELL=21,
 			COLOUR_BY_ATOM_TYPE=1,
 			COLOUR_BY_SEC_STRUCT=2,
 			DISULFIDE_COLOUR=3,
@@ -696,6 +697,18 @@ class Bond_lines_container {
    void do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
 					      int imol,
 					      int draw_hydrogens_flag);
+   void do_colour_by_chain_bonds_carbons_only_internals(int imol, int imodel,
+							int chain_idx,
+							mmdb::Atom *at1, mmdb::Atom *at2,
+							int iat_1, int iat_2,
+							std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
+							const std::string &element_1,
+							const std::string &element_2,
+							const coot::Cartesian &atom_1,
+							const coot::Cartesian &atom_2,
+							int atom_colour_type,
+							int uddHnd);
+   
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;

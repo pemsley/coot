@@ -5268,7 +5268,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    // matrix stuff
    mmdb::mat44 my_matt;
    mmdb::SymOps symm;
-   int col = 0; // atom (segment) colour
+   int col_idx = 0; // atom (segment) colour
    coot::my_atom_colour_map_t atom_colour_map;
 
    std::vector<std::pair<bool, mmdb::Residue *> > het_residues; // bond these separately.
@@ -5342,7 +5342,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 
 		  std::string segid1(at1->GetChainID());
 		  std::string segid2(at2->GetChainID());
-		  col = atom_colour_map.index_for_chain(segid1); 
+		  int chain_idx = atom_colour_map.index_for_chain(segid1);
 
 		  if (segid1 == segid2) {
 
@@ -5365,113 +5365,17 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 			// 
 			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
 
-			   bool bond_het_residue_by_dictionary =
-			      add_bond_by_dictionary_maybe(imol, at1, at2, &het_residues); // add to het_residues maybe
-
-			   if (! bond_het_residue_by_dictionary) {
-
-			      if (element1 != element2) {
-			   
-				 // Bonded to different atom elements.
-				 //
-
-				 double d = (atom_1-atom_2).amplitude();
-				 bool is_H = false;
-				 bool draw_it = true;
-				 if (element1 == " H") is_H = true;
-				 if (element2 == " H") is_H = true;
-				 if (is_H)
-				    if (d>1.5)
-				       draw_it = false;
-
-				 if (draw_it) {
-
-				    coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-
-				    if (element1 != " C") {  // PDBv3 FIXME
-
-				       if (element2 != " C") {
-
-					  // half bonds, e.g. N-O, N-H, O-H
-
-					  // add here a test for either being H. In that caes
-					  // we don't want half bonds.
-
-					  if (is_H) {
-					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-					     addBond(HYDROGEN_GREY_BOND, atom_1, atom_2, cc, imodel, iat_1, iat_2);
-					  } else {
-					     int non_c_col = atom_colour(at1, atom_colour_type);
-					     bonds_size_colour_check(non_c_col);
-					     addBond(non_c_col, atom_1, bond_mid_point, cc, imodel, iat_1, iat_2);
-					     non_c_col = atom_colour(at2, atom_colour_type);
-					     bonds_size_colour_check(non_c_col);
-					     addBond(non_c_col, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
-					  }
-
-				       } else {
-					  // frequent
-					  int non_c_col = atom_colour(at1, atom_colour_type);
-					  bonds_size_colour_check(non_c_col);
-					  addBond(non_c_col, atom_1, bond_mid_point, cc, imodel, iat_1, iat_2);
-					  bonds_size_colour_check(col);
-					  addBond(col, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
-				       }
-				 
-				    } else {
-
-				       // element 1 *is* a C
-
-				       if (element2 != " C") {
-
-					  // frequent
-
-					  if (is_H) {
-					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-					     addBond(HYDROGEN_GREY_BOND, atom_1, atom_2, cc, imodel, iat_1, iat_2);
-					  } else {
-					     bonds_size_colour_check(col);
-					     addBond(col, atom_1, bond_mid_point, cc, imodel, iat_1, iat_2);
-					     int non_c_col = atom_colour(at2, atom_colour_type);
-					     bonds_size_colour_check(non_c_col);
-					     addBond(non_c_col, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
-					  }
-
-				       } else {
-					  std::cout << "impossible " << std::endl;
-					  bonds_size_colour_check(col);
-					  addBond(col, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
-				       }
-				    }
-				 }
-			   
-			      } else {
-
-				 // same element
-
-				 if (element1 == " C") { 
-				    bonds_size_colour_check(col);
-				    addBond(col, atom_1, atom_2, cc, imodel, iat_1, iat_2);
-				 } else {
-
-				    // If we are here: same element, not a carbon, and either drawing hydrogens
-				    // or these are not hydrogens, so don't draw bonds between hydrogens
-
-				    // if (element1 != " H") {
-				    if (! is_hydrogen(element1)) { 
-				       col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
-				       bonds_size_colour_check(col);
-				       addBond(col, atom_1, atom_2, cc, imodel, iat_1, iat_2);
-				    }
-				 }
-			      }
-			   }
-
-			   // we drew a bond.  Mark it up.
-			   if (uddHnd>=0) {
-			      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			   }
+			   do_colour_by_chain_bonds_carbons_only_internals(imol, imodel,
+									   chain_idx,
+									   at1, at2,
+									   iat_1, iat_2,
+									   &het_residues,
+									   element1,
+									   element2,
+									   atom_1,
+									   atom_2,
+									   atom_colour_type,
+									   uddHnd);
 			}
 		     } else {
 
@@ -5604,6 +5508,137 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, coot::COLOUR_BY_CHAIN_C_ONLY);
 }
+
+void
+Bond_lines_container::do_colour_by_chain_bonds_carbons_only_internals(int imol, int imodel,
+								      int chain_idx,
+								      mmdb::Atom *at1, mmdb::Atom *at2,
+								      int iat_1, int iat_2,
+								      std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
+								      const std::string &element1,
+								      const std::string &element2,
+								      const coot::Cartesian &atom_1,
+								      const coot::Cartesian &atom_2,
+								      int atom_colour_type,
+								      int uddHnd) {
+
+   bool bond_het_residue_by_dictionary =
+      add_bond_by_dictionary_maybe(imol, at1, at2, het_residues_p); // add to het_residues maybe
+
+   if (! bond_het_residue_by_dictionary) {
+
+      if (element1 != element2) {
+			   
+	 // Bonded to different atom elements.
+	 //
+
+	 bool is_H = false;
+	 bool draw_it = true;
+	 if (element1 == " H") is_H = true;
+	 if (element2 == " H") is_H = true;
+	 if (is_H) {
+	    double d = (atom_1-atom_2).amplitude();
+	    if (d>1.5)
+	       draw_it = false;
+	 }
+
+	 if (draw_it) {
+
+	    coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+
+	    if (element1 != " C") {  // PDBv3 FIXME
+
+	       if (element2 != " C") {
+
+		  // half bonds, e.g. N-O, N-H, O-H
+
+		  // add here a test for either being H. In that caes
+		  // we don't want half bonds.
+
+		  if (is_H) {
+		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		     addBond(HYDROGEN_GREY_BOND, atom_1, atom_2, cc, imodel, iat_1, iat_2);
+		  } else {
+		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		     int non_c_col = atom_colour(at1, atom_colour_type);
+		     bonds_size_colour_check(non_c_col);
+		     addBond(non_c_col, atom_1, bond_mid_point, cc, imodel, iat_1, iat_2);
+		     non_c_col = atom_colour(at2, atom_colour_type);
+		     bonds_size_colour_check(non_c_col);
+		     addBond(non_c_col, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
+		  }
+
+	       } else {
+		  // frequent
+		  graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		  int non_c_col = atom_colour(at1, atom_colour_type);
+		  bonds_size_colour_check(non_c_col);
+		  addBond(non_c_col, atom_1, bond_mid_point, cc, imodel, iat_1, iat_2);
+		  bonds_size_colour_check(chain_idx);
+		  addBond(chain_idx, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
+	       }
+
+	    } else {
+
+	       // element 1 *is* a C
+
+	       if (element2 != " C") {
+
+		  // frequent
+
+		  if (is_H) {
+		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		     addBond(HYDROGEN_GREY_BOND, atom_1, atom_2, cc, imodel, iat_1, iat_2);
+		  } else {
+		     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		     bonds_size_colour_check(chain_idx);
+		     addBond(chain_idx, atom_1, bond_mid_point, cc, imodel, iat_1, iat_2);
+		     int non_c_col = atom_colour(at2, atom_colour_type);
+		     bonds_size_colour_check(non_c_col);
+		     addBond(non_c_col, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
+		  }
+
+	       } else {
+		  std::cout << "impossible " << std::endl;
+		  bonds_size_colour_check(chain_idx);
+		  graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		  addBond(chain_idx, atom_2, bond_mid_point, cc, imodel, iat_1, iat_2);
+	       }
+	    }
+	 }
+			   
+      } else {
+
+	 // same element
+
+	 if (element1 == " C") {
+	    bonds_size_colour_check(chain_idx);
+	    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+	    addBond(chain_idx, atom_1, atom_2, cc, imodel, iat_1, iat_2);
+	 } else {
+
+	    // If we are here: same element, not a carbon, and either drawing hydrogens
+	    // or these are not hydrogens, so don't draw bonds between hydrogens
+
+	    // if (element1 != " H") {
+	    if (! is_hydrogen(element1)) { 
+	       int col = atom_colour(at1, atom_colour_type);
+	       bonds_size_colour_check(col);
+	       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+	       addBond(col, atom_1, atom_2, cc, imodel, iat_1, iat_2);
+	    }
+	 }
+      }
+   }
+
+   // we drew a bond.  Mark it up.
+   if (uddHnd>=0) {
+      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+   }
+
+}
+
 
 void
 Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
