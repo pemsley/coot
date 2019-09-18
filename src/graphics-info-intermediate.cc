@@ -578,3 +578,14 @@ graphics_info_t::rebond_molecule_corresponding_to_moving_atoms() {
       }
    }
 }
+
+void
+graphics_info_t::set_regenerate_bonds_needs_make_bonds_type_checked(bool state) {
+   regenerate_bonds_needs_make_bonds_type_checked_flag = state;
+}
+
+bool
+graphics_info_t::get_regenerate_bonds_needs_make_bonds_type_checked_state() {
+   return regenerate_bonds_needs_make_bonds_type_checked_flag;
+}
+

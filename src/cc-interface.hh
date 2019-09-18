@@ -910,6 +910,9 @@ bool get_cryo_em_refinement();
 void register_post_intermediate_atoms_moved_hook(PyObject *function_name);
 #endif
 
+void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
+bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
+
 //! \}
 
 

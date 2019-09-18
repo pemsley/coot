@@ -3935,6 +3935,10 @@ string   static std::string sessionid;
    static int jed_flip_intermediate_atoms();
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
 
+   static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
+   void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
+   bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
+
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
