@@ -2753,6 +2753,7 @@ if [ "$build_gtkglext" = 1 ] ; then
      # gtk+ 2.20 needs converting GTK_WIDGET_REALIZED to gtk_widget_get_realised, but 
      # gtk+ 2.18 does not (it fails if we add that patch), so use a simpler one.
      if pkg-config gtk+-2.0 --atleast-version 2.16 ; then
+
         patch_file_1=gtk-gtkglwidget.c-for-modern-gtk-for-2.18.patch
         patch_file_2=gtkglext-context-finalize.diff
         patch_file_3=gtkglext-multisample.patch.patch

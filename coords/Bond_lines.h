@@ -68,17 +68,17 @@ namespace coot {
 
     public:
     std::vector<std::string> atom_colour_map;
-     unsigned int index_for_chain(const std::string &chain) { 
+     unsigned int index_for_chain(const std::string &chain_id) {
        unsigned int isize = atom_colour_map.size();
-       for (unsigned int i=0; i<isize; i++) { 
-	  if (atom_colour_map[i] == chain) {
+       for (unsigned int i=0; i<isize; i++) {
+	  if (atom_colour_map[i] == chain_id) {
 	     return i;
 	  }
        }
-       atom_colour_map.push_back(chain);
+       atom_colour_map.push_back(chain_id);
        if (isize == HYDROGEN_GREY_BOND) {
 	  atom_colour_map[isize] = "skip-hydrogen-grey-colour-for-chain";
-	  atom_colour_map.push_back(chain);
+	  atom_colour_map.push_back(chain_id);
 	  isize++;
        }
        return isize;

@@ -3152,7 +3152,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 void
 coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_auto() {
 
-   float pseudo_bond_esd = 0.14; // 0.05 was too tight
+   float pseudo_bond_esd = 0.2; // 0.05 was too tight
    unsigned int n_helical_restraints = 0;
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
