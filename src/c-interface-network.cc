@@ -90,6 +90,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+      curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
       std::string user_agent_str = "Coot-";
       user_agent_str += VERSION;
       user_agent_str += " http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";

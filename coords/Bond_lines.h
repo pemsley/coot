@@ -696,6 +696,7 @@ class Bond_lines_container {
    int set_rainbow_colours(mmdb::Manager *mol);
    void do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
 					      int imol,
+					      int atom_colour_type, // C-only or goodsell
 					      int draw_hydrogens_flag);
    void do_colour_by_chain_bonds_carbons_only_internals(int imol, int imodel,
 							int chain_idx,
@@ -707,6 +708,16 @@ class Bond_lines_container {
 							const coot::Cartesian &atom_1,
 							const coot::Cartesian &atom_2,
 							int atom_colour_type,
+							int uddHnd);
+   void do_colour_by_chain_bonds_internals_goodsell_mode(int imol, int imodel,
+							int chain_idx,
+							mmdb::Atom *at1, mmdb::Atom *at2,
+							int iat_1, int iat_2,
+							std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
+							const std::string &element_1,
+							const std::string &element_2,
+							const coot::Cartesian &atom_1,
+							const coot::Cartesian &atom_2,
 							int uddHnd);
    
 
@@ -1049,7 +1060,8 @@ public:
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
 				 int imol,
 				 int draw_hydrogens_flag,
-				 short int change_c_only_flag);
+				 short int change_c_only_flag,
+				 bool do_goodsell_colour_mode);
    void do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
 				    int draw_hydrogens_flag);
    void do_normal_bonds_no_water(const atom_selection_container_t &asc,

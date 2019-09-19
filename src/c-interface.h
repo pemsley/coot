@@ -2164,6 +2164,9 @@ void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i);
 /*! \brief colour molecule number imol by chain type */
 void set_colour_by_chain(int imol); 
 
+/*! \brief colour molecule number imol by chain type, goodsell-like colour scheme */
+void set_colour_by_chain_goodsell_mode(int imol); 
+
 /*! \brief colour molecule number imol by molecule */
 void set_colour_by_molecule(int imol); 
 
