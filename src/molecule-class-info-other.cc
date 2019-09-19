@@ -401,6 +401,8 @@ void
 molecule_class_info_t::ca_representation() {
 
    bonds_box.clear_up();
+
+   std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
    make_ca_bonds(2.4, 4.7);
    bonds_box_type = coot::CA_BONDS;
 }
@@ -429,6 +431,7 @@ molecule_class_info_t::bonds_no_waters_representation() {
    bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::BONDS_NO_WATERS;
+   make_glsl_bonds_type_checked();
 }
 
 void
@@ -439,6 +442,7 @@ molecule_class_info_t::bonds_sec_struct_representation() {
    bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
+   make_glsl_bonds_type_checked();
 }
 
 
@@ -450,6 +454,7 @@ molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_g
    bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
+   make_glsl_bonds_type_checked();
 }
 
 void
@@ -463,6 +468,7 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
 				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
+   make_glsl_bonds_type_checked();
 }
 
 void
@@ -474,6 +480,7 @@ molecule_class_info_t::b_factor_representation() {
    Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
+   make_glsl_bonds_type_checked();
 }
 
 void
@@ -487,6 +494,7 @@ molecule_class_info_t::b_factor_representation_as_cas() {
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, NULL, 2.4, 4.7, bond_type, draw_hydrogens_flag); // pass a dictionary
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
+   make_glsl_bonds_type_checked();
 }
 
 void
@@ -498,6 +506,7 @@ molecule_class_info_t::occupancy_representation() {
    Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
+   make_glsl_bonds_type_checked();
 }
 
 

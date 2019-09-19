@@ -2351,21 +2351,21 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
       if (bonds_box.bonds_[i].thin_lines_flag) {
- 			if (use_variable_bond_width)
-       		glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
-    	else
-       		glLineWidth(p_bond_width * 0.5);
+         if (use_variable_bond_width)
+            glLineWidth(30.0f * p_bond_width * 0.5 / zsc);
+         else
+            glLineWidth(p_bond_width * 0.5);
       } else {
- 			if (use_variable_bond_width)
-      		glLineWidth(30.0f * p_bond_width / zsc);
-    		else
-       		glLineWidth(p_bond_width);
+         if (use_variable_bond_width)
+            glLineWidth(30.0f * p_bond_width / zsc);
+         else
+            glLineWidth(p_bond_width);
       }
 
       // 20180210 molecules from simulation trajectories can have lots of bonds
       // Let's by-pass this test.
       if (false) {
-    		if (bonds_box.bonds_[i].num_lines > 1024000) {
+         if (bonds_box.bonds_[i].num_lines > 1024000) {
             std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
                       << bonds_box.bonds_[i].num_lines << std::endl;
          }
@@ -2373,111 +2373,112 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
          // if test suggested by Ezra Peisach.
-            if (bonds_box.bonds_[i].num_lines > 0) {
-               if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
-          set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
-       } else {
-          set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
-      }
-   }
+         if (bonds_box.bonds_[i].num_lines > 0) {
+            if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+               set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+            } else {
+               set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+            }
+         }
       } else {
-    set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+         set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
       }
+
       int linesdrawn = 0;
 
       if (with_gl_lines) {
 
-    glBegin(GL_LINES);
-    for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+         glBegin(GL_LINES);
+         for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
-       const coot::CartesianPair &pospair = ll.pair_list[j].positions;
-       const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
-       const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
+            const coot::CartesianPair &pospair = ll.pair_list[j].positions;
+            const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
+            const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
 
-       glVertex3f(start.get_x(),
-          start.get_y(),
-          start.get_z());
-       glVertex3f(finish.get_x(),
-          finish.get_y(),
-          finish.get_z());
-    }
-    glEnd();
+            glVertex3f(start.get_x(),
+                       start.get_y(),
+                       start.get_z());
+            glVertex3f(finish.get_x(),
+                       finish.get_y(),
+                       finish.get_z());
+         }
+         glEnd();
       }
 
       if (! with_gl_lines) {
 
-    float zsc = graphics_info_t::zoom;
+         float zsc = graphics_info_t::zoom;
 
-    if (bonds_box.bonds_[i].thin_lines_flag)
-       zsc *= 0.5;
+         if (bonds_box.bonds_[i].thin_lines_flag)
+            zsc *= 0.5;
 
-    glBegin(GL_QUADS);
+         glBegin(GL_QUADS);
 
-    if (! use_radius_limit.first) {
+         if (! use_radius_limit.first) {
 
-       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+            for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
-          if ((single_model_view_current_model_number == 0) ||
-      (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
+               if ((single_model_view_current_model_number == 0) ||
+                   (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
 
-     // is this slow?
-     coot::Cartesian vec_perp_to_screen_z =
-        get_vector_pependicular_to_screen_z(front, back,
-    ll.pair_list[j].positions.getFinish() -
-    ll.pair_list[j].positions.getStart(),
-    zsc, p_bond_width);
+                  // is this slow?
+                  coot::Cartesian vec_perp_to_screen_z =
+                     get_vector_pependicular_to_screen_z(front, back,
+                                                         ll.pair_list[j].positions.getFinish() -
+                                                         ll.pair_list[j].positions.getStart(),
+                                                         zsc, p_bond_width);
 
-     glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
-        ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
-        ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
-     glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
-        ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
-        ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
+                  glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
+                             ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
+                             ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
+                  glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
+                             ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
+                             ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
 
-     glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
-        ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
-        ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
-     glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
-        ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
-        ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
-          }
-       }
-    } else {
+                  glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
+                             ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
+                             ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
+                  glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
+                             ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
+                             ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
+               }
+            }
+         } else {
 
-       // I am not sure that this (is_within_display_radius) split is necessary...
+            // I am not sure that this (is_within_display_radius) split is necessary...
 
-       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+            for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
-          if ((single_model_view_current_model_number == 0) ||
-      (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
+               if ((single_model_view_current_model_number == 0) ||
+                   (single_model_view_current_model_number == ll.pair_list[j].model_number)) {
 
-     // is this slow?
-     coot::Cartesian vec_perp_to_screen_z =
-        get_vector_pependicular_to_screen_z(front, back,
-    ll.pair_list[j].positions.getFinish() -
-    ll.pair_list[j].positions.getStart(),
-    zsc, p_bond_width);
+                  // is this slow?
+                  coot::Cartesian vec_perp_to_screen_z =
+                     get_vector_pependicular_to_screen_z(front, back,
+                                                         ll.pair_list[j].positions.getFinish() -
+                                                         ll.pair_list[j].positions.getStart(),
+                                                         zsc, p_bond_width);
 
-     if (graphics_info_t::is_within_display_radius(ll.pair_list[j].positions)) {
+                  if (graphics_info_t::is_within_display_radius(ll.pair_list[j].positions)) {
 
-        glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
-   ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
-   ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
-        glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
-   ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
-   ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
+                     glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
+                                ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
+                                ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
+                     glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
+                                ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
+                                ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
 
-        glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
-   ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
-   ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
-        glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
-   ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
-   ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
-     }
-          }
-       }
-    }
-    glEnd();
+                     glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
+                                ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
+                                ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
+                     glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
+                                ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
+                                ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
+                  }
+               }
+            }
+         }
+         glEnd();
       }
    }
 
@@ -3421,8 +3422,8 @@ void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
     bool add_residue_indices) {
 
-   // std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
-   //
+   std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
+
    // debug_atom_selection_container(atom_sel);
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
@@ -3431,6 +3432,8 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
+
+   make_glsl_bonds_type_checked();
 
 }
 
@@ -3442,6 +3445,7 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
+   make_glsl_bonds_type_checked();
 }
 
 // we remove the argument for add_residue_indices because they are no longer useful.
@@ -3477,6 +3481,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
+   make_glsl_bonds_type_checked();
 
 }
 
@@ -3490,6 +3495,8 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
    // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
    // << bonds_box_type << std::endl;
 
+   make_glsl_bonds_type_checked();
+
 }
 
 void
@@ -3500,6 +3507,7 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
+   make_glsl_bonds_type_checked();
 
 }
 
@@ -3517,6 +3525,7 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   make_glsl_bonds_type_checked();
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
@@ -3529,6 +3538,7 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
                                                  0.01, 1.9, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+   make_glsl_bonds_type_checked();
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 }
@@ -3548,6 +3558,7 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
                                              // stupid when it comes to thining.
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
+   make_glsl_bonds_type_checked();
 
    if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();
@@ -3561,6 +3572,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
    bonds.do_colour_by_molecule_bonds(atom_sel, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_MOLECULE_BONDS;
+   make_glsl_bonds_type_checked();
 
    if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();
