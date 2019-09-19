@@ -952,8 +952,8 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
       glm::quat tb_quat =
          g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
-           (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
-           g.get_trackball_size());
+                                   (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
+                                   g.get_trackball_size());
 
       glm::mat4 mat_from_quat = glm::toMat4(tb_quat);
 

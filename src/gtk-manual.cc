@@ -531,11 +531,13 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   tmp_name = widget_name + strlen(widget_name);
   snprintf(tmp_name, 4, "%-d", n);
 
+
   render_optionmenu_1 = NULL; // gtk_option_menu_new ();
   // gtk_widget_ref (render_optionmenu_1);
   // g_object_set_data_full (G_OBJECT (display_control_window_glade),
   // "render_optionmenu_1", render_optionmenu_1,
   // NULL);
+
 
   gtk_widget_show (render_optionmenu_1);
   gtk_box_pack_start (GTK_BOX (hbox32), render_optionmenu_1, FALSE, FALSE, 0);
