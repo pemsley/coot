@@ -4011,6 +4011,7 @@ string   static std::string sessionid;
    static long frame_counter_at_last_display;
    static framebuffer screen_framebuffer;
    static framebuffer blur_framebuffer;
+   static bool perspective_projection_flag;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
 
