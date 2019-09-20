@@ -972,7 +972,7 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
    smooth_scroll_current_step += 1;
    // std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step << std::endl;
    if (smooth_scroll_current_step >= smooth_scroll_steps) {
-      std::cout << " smooth_scroll_animation_func - path A - finish\n";
+      // std::cout << " smooth_scroll_animation_func - path A - finish\n";
       return G_SOURCE_REMOVE;
    } else {
       double theta = 2.0 * M_PI * frac * smooth_scroll_current_step;
@@ -991,7 +991,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
                                                              short int do_zoom_and_move_flag,
                                                              float target_zoom) {
 
-   std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
+   // std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
    // This is more like how PyMOL does it (and is better than stepped
    // acceleration).

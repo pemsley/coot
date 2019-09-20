@@ -399,6 +399,9 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
       if (at == _("Bonds (Colour by Chain)")) {
          render_as_bonds_colored_by_chain_button_select(imol);
       }
+      if (at == _("Bonds (Goodsell Colour by Chain)")) {
+         render_as_bonds_goodsell_colored_by_chain_button_select(imol);
+      }
       if (at == _("Bonds (Colour by Sec. Str.)")) {
          render_as_sec_struct_bonds_button_select(imol);
       }
@@ -436,6 +439,7 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Atom)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Molecule)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Chain)"));
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Goodsell Colour by Chain)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Bonds (Colour by Sec. Str.)"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("C-alphas/Backbone"));
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("CAs + Ligands"));
@@ -796,6 +800,13 @@ render_as_bonds_colored_by_chain_button_select(int imol) {
 
   set_colour_by_chain(imol);
 }
+
+void
+render_as_bonds_goodsell_colored_by_chain_button_select(int imol) {
+
+  set_colour_by_chain_goodsell_mode(imol);
+}
+
 
 void
 render_as_bonds_colored_by_molecule_button_select(int imol) {

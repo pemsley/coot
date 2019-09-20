@@ -154,6 +154,7 @@ void render_as_bonds_button_select(int imol);
 void render_as_ca_bonds_button_select(int imol);
 void render_as_ca_plus_ligands_bonds_button_select(int imol);
 void render_as_bonds_colored_by_chain_button_select(int imol);
+void render_as_bonds_goodsell_colored_by_chain_button_select(int imol);
 void render_as_bonds_colored_by_molecule_button_select(int imol);
 void render_as_bonds_no_waters(int imol);
 void render_as_ca_plus_ligands_sec_str_bonds_button_select(int imol);

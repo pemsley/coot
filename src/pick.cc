@@ -172,11 +172,11 @@ atom_pick_gtk3(GdkEventButton *event){
    front = coot::Cartesian(worldPos_f.x, worldPos_f.y, worldPos_f.z);
    back  = coot::Cartesian(worldPos_b.x, worldPos_b.y, worldPos_b.z);
    if (false) {
-      std::cout << "screenPos_f " << glm::to_string(screenPos_f) << std::endl;
-      std::cout << "mvp:    " << glm::to_string(mvp) << std::endl;
-      std::cout << "vp_inv: " << glm::to_string(vp_inv) << std::endl;
-      std::cout << "mouseX,Y " << mouseX << " " << mouseY << " ";
-      std::cout << "front: " << front << " back " << back << std::endl;
+      std::cout << "atom_pick screenPos_f " << glm::to_string(screenPos_f) << " screenPos_b " << glm::to_string(screenPos_b) << std::endl;
+      std::cout << "atom_pick mvp:    " << glm::to_string(mvp) << std::endl;
+      std::cout << "atom_pick vp_inv: " << glm::to_string(vp_inv) << std::endl;
+      std::cout << "atom_pick mouseX,Y " << mouseX << " " << mouseY << " ";
+      std::cout << "atom_pick front: " << front << " back " << back << std::endl;
    }
 
    // atom_pick() allows event to be null, in that case we don't check pick.

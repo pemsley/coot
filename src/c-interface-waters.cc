@@ -114,7 +114,7 @@ void set_ligand_verbose_reporting(int i) {
 void
 execute_find_waters_real(int imol_for_map,
 			 int imol_for_protein,
-			 short int new_waters_mol_flag, 
+			 short int new_waters_mol_flag,
 			 float sigma_cut_off) {
 
    find_waters(imol_for_map, imol_for_protein, new_waters_mol_flag, sigma_cut_off, 1);
@@ -123,11 +123,11 @@ execute_find_waters_real(int imol_for_map,
 
 
 /* Let's give access to the sigma level (default 4) */
-float check_waters_by_difference_map_sigma_level_state() { 
+float check_waters_by_difference_map_sigma_level_state() {
    return graphics_info_t::check_waters_by_difference_map_sigma_level;
-} 
+}
 
-void set_check_waters_by_difference_map_sigma_level(float f) { 
+void set_check_waters_by_difference_map_sigma_level(float f) {
    graphics_info_t::check_waters_by_difference_map_sigma_level = f;
 }
 
@@ -143,7 +143,9 @@ void renumber_waters(int imol) {
    }
 }
 
+#include <glm/gtx/string_cast.hpp>  // to_string()
 #include "draw-2.hh"
+
 
 /* Put the blob under the cursor to the screen centre.  Check only
    positive blobs.  Useful function if bound to a key. */
@@ -170,8 +172,8 @@ int blob_under_pointer_to_screen_centre() {
 
          float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
          float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
-         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
-         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 0.0f, 1.0f);
+         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
+         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
          glm::vec4 worldPos_1 = vp_inv * screenPos_1;
          glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
@@ -179,7 +181,11 @@ int blob_under_pointer_to_screen_centre() {
 	 coot::Cartesian  back(worldPos_2.x, worldPos_2.y, worldPos_2.z);
 	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
 	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
-         std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " " << p2.format() << std::endl;
+         if (false) {
+            std::cout << "blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " " << glm::to_string(screenPos_2) << std::endl;
+            std::cout << "blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
+            // std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " " << p2.format() << std::endl;
+         }
          coot::Cartesian rc = g.RotationCentre();
 
 	 try {
