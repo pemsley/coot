@@ -925,8 +925,12 @@ public:
 
    static bool do_expose_swap_buffers_flag;
 
+   static std::queue<std::chrono::time_point<std::chrono::system_clock> > frame_draw_queue;
+
    static void graphics_draw() {
      if (glarea) {
+       std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
+       frame_draw_queue.push(tp_now);
        gtk_widget_queue_draw(glarea);
        if (make_movie_flag)
 	       dump_a_movie_image();
@@ -4007,9 +4011,13 @@ string   static std::string sessionid;
    static long frame_counter_at_last_display;
    static framebuffer screen_framebuffer;
    static framebuffer blur_framebuffer;
+   static bool perspective_projection_flag;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
 
+   static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
+   void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
+   bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;

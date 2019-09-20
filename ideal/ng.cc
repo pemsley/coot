@@ -468,6 +468,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 										std::pair<unsigned int, unsigned int> atom_index_range_pair,
 										const std::set<int> &fixed_atom_indices,
 										const std::vector<std::string> &energy_type_for_atom,
+										bool extended_atom_mode,
 										mmdb::PPAtom atom,
 										const std::vector<bool> &atom_is_metal,
 										const std::vector<bool> &atom_is_hydrogen,
@@ -487,7 +488,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
    float dist_max = 8.0; // needed?
 
-   bool extended_atom_mode = false; // turn this on if there are no Hydrogen atoms in the model
+   // bool extended_atom_mode = false; // turn this on if there are no Hydrogen atoms in the model
+	// extended_atom_mode = ! model_has_hydrogen_atoms;
 
    for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
 
@@ -593,7 +595,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	       bool is_O_C_1_5_related = check_for_O_C_1_5_relation(at_1, at_2);
 
 	       if (is_O_C_1_5_related) {
-		  dist_min = 2.84;
+		       dist_min = 2.84;
 	       } else {
 
 		  // Perhaps we don't have angle restraints to both atoms because one
@@ -829,6 +831,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
              << d2a << " start-stop-reserve: " << d2b << " start-stop-push: " << d2c << " milliseconds\n";
 
    std::atomic<unsigned int> done_count(0);
+	bool use_extended_atom_mode = ! model_has_hydrogen_atoms;
 
    auto tp_3 = std::chrono::high_resolution_clock::now();
    for (std::size_t i=0; i<n_threads; i++) {
@@ -841,6 +844,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 			  start_stop_pairs_vec[i],
 			  std::cref(fixed_atom_indices),
 			  std::cref(energy_type_for_atom),
+			  use_extended_atom_mode,
 			  atom,
 			  std::cref(atom_is_metal),
 			  std::cref(atom_is_hydrogen),
@@ -900,6 +904,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
    // to make it: reduced_angle_info_container_t raic(restraints_vec);
 
    bool extended_atom_mode = false; // turn this on if the model has no Hydrogen atoms;
+	extended_atom_mode = ! model_has_hydrogen_atoms;
 
    float dist_max = 8.0;
 

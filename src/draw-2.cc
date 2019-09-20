@@ -232,6 +232,9 @@ glm::mat4 get_molecule_mvp() {
    }
 
 #if 0
+
+   graphics_info_t::perspective_projection_flag = true;
+
    // for fun/testing
    // turn off view scaling when tinkering with this?
    // there should not be a concept of "zoom" with perspective view, just translation
@@ -281,8 +284,8 @@ glm::vec3 get_eye_position() {
    glm::vec3 test_vector_2(1.0, 1.0, 0.0);
 
    glm::mat4 vr = get_view_rotation();
-   glm::vec4 rot_test_vector_1 = vr * glm::vec4(test_vector_1, 1.0);
-   glm::vec4 rot_test_vector_2 = vr * glm::vec4(test_vector_2, 1.0);
+   glm::vec4 rot_test_vector_1 = glm::vec4(test_vector_1, 1.0) * vr;
+   glm::vec4 rot_test_vector_2 = glm::vec4(test_vector_2, 1.0) * vr;
 
    glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
@@ -855,6 +858,15 @@ on_glarea_render(GtkGLArea *glarea) {
    }
 
    graphics_info_t::frame_counter++;
+   if (graphics_info_t::frame_draw_queue.size() > 0) {
+      std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
+      std::chrono::time_point<std::chrono::system_clock> queue_time = graphics_info_t::frame_draw_queue.front();
+      graphics_info_t::frame_draw_queue.pop();
+      auto delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - queue_time).count();
+      if (false)
+         std::cout << "INFO:: ---------- Timing check frame " << delta_time << " milliseconds" << " queue size "
+                   << graphics_info_t::frame_draw_queue.size() << std::endl;
+   }
 
   return FALSE;
 }
@@ -898,7 +910,8 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
       g.update_maps();
-      gtk_widget_queue_draw(widget);
+      //gtk_widget_queue_draw(widget);
+      g.graphics_draw(); // queue
    } else {
       std::cout << "No map" << std::endl;
    }
@@ -954,14 +967,19 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       int w = allocation.width;
       int h = allocation.height;
 
+      float tbs = g.get_trackball_size();
+
+      if (graphics_info_t::perspective_projection_flag)
+         tbs = 1.0;
+
       glm::quat tb_quat =
          g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
                                    (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
-                                   g.get_trackball_size());
-
-      glm::mat4 mat_from_quat = glm::toMat4(tb_quat);
+                                   tbs);
 
       glm::quat product = tb_quat * graphics_info_t::glm_quat;
+      // glm::quat product = graphics_info_t::glm_quat * tb_quat;
+
       graphics_info_t::glm_quat = glm::normalize(product);
    }
 
@@ -977,7 +995,6 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
       glm::mat4 mvp = get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
 
-
       float mouseX_1 = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
       float mouseY_1 = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
       float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
@@ -992,7 +1009,10 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
       glm::vec4 delta(worldPos_1 - worldPos_2);
 
-      g.add_to_rotation_centre(delta);
+      float delta_scale_factor = 1.0;
+      if (graphics_info_t::perspective_projection_flag)
+         delta_scale_factor = 20.0; // move the front a lot more
+      g.add_to_rotation_centre(delta_scale_factor * delta);
       g.update_maps();
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
 
@@ -1013,7 +1033,8 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    // for next motion
    g.SetMouseBegin(event->x,event->y);
-   gtk_widget_queue_draw(widget);
+   // gtk_widget_queue_draw(widget);
+   g.graphics_draw(); // queue
    return TRUE;
 }
 
@@ -1026,7 +1047,8 @@ view_spin_func(gpointer data) {
    glm::quat normalized_quat_delta(glm::normalize(quat_delta));
    glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
    graphics_info_t::glm_quat = glm::normalize(product);
-   gtk_widget_queue_draw(graphics_info_t::glarea);
+   // gtk_widget_queue_draw(graphics_info_t::glarea);
+   graphics_info_t::graphics_draw(); // queue
 
    std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
    std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time;
@@ -1052,7 +1074,7 @@ void translate_in_screen_z(float step_size) {
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
 
    glm::vec3 step = 0.1 * (rc - ep);
-   glm::vec4 step_4(step, 1.0);
+   glm::vec4 step_4(step_size * step, 1.0);
    graphics_info_t::add_to_rotation_centre(step_4);
 
 
@@ -1139,7 +1161,8 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       handled = TRUE;
    }
 
-   gtk_widget_queue_draw(widget);
+   graphics_info_t::graphics_draw(); // queue
+   // gtk_widget_queue_draw(widget);
 
    return handled;
 

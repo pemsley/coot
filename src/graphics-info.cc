@@ -980,7 +980,8 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
       // add_vector_to_rotation_centre(this_step_delta);
       // std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
       // std::cout << "smooth_scroll_animation_func - path B\n";
-      gtk_widget_queue_draw(glarea);
+      // gtk_widget_queue_draw(glarea);
+      graphics_draw(); // adds to the queue
       return G_SOURCE_CONTINUE;
    }
 }

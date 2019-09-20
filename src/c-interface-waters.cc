@@ -157,10 +157,26 @@ int blob_under_pointer_to_screen_centre() {
 	 // OK we have a map to search.
 	 // coot::Cartesian front = unproject(0.0);
 	 // coot::Cartesian back  = unproject(1.0);
-         glm::vec4 glm_front = new_unproject(-0.3);
-         glm::vec4 glm_back  = new_unproject( 1.0);
-	 coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
-	 coot::Cartesian  back(glm_back.x,  glm_back.y,  glm_back.z);
+         // glm::vec4 glm_front = new_unproject(-0.3);
+         // glm::vec4 glm_back  = new_unproject( 1.0);
+
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
+
+         glm::mat4 mvp = get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+         glm::mat4 vp_inv = glm::inverse(mvp);
+
+         float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
+         float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
+         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
+         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 0.0f, 1.0f);
+         glm::vec4 worldPos_1 = vp_inv * screenPos_1;
+         glm::vec4 worldPos_2 = vp_inv * screenPos_2;
+
+         coot::Cartesian front(worldPos_1.x, worldPos_1.y, worldPos_1.z);
+	 coot::Cartesian  back(worldPos_2.x, worldPos_2.y, worldPos_2.z);
 	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
 	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
          std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " " << p2.format() << std::endl;

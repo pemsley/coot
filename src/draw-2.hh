@@ -8,3 +8,5 @@ void draw_central_cube(GtkGLArea *glarea);
 glm::vec4 new_unproject(float z);
 
 glm::vec4 new_unproject(float mouse_x, float mouse_y, float z);
+
+glm::mat4 get_molecule_mvp();

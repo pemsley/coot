@@ -55,6 +55,7 @@ namespace coot {
    
    enum bond_colour_t { COLOUR_BY_CHAIN=0,
 			COLOUR_BY_CHAIN_C_ONLY=20,
+			COLOUR_BY_CHAIN_GOODSELL=21,
 			COLOUR_BY_ATOM_TYPE=1,
 			COLOUR_BY_SEC_STRUCT=2,
 			DISULFIDE_COLOUR=3,
@@ -68,17 +69,17 @@ namespace coot {
 
     public:
     std::vector<std::string> atom_colour_map;
-     unsigned int index_for_chain(const std::string &chain) { 
+     unsigned int index_for_chain(const std::string &chain_id) {
        unsigned int isize = atom_colour_map.size();
-       for (unsigned int i=0; i<isize; i++) { 
-	  if (atom_colour_map[i] == chain) {
+       for (unsigned int i=0; i<isize; i++) {
+	  if (atom_colour_map[i] == chain_id) {
 	     return i;
 	  }
        }
-       atom_colour_map.push_back(chain);
+       atom_colour_map.push_back(chain_id);
        if (isize == HYDROGEN_GREY_BOND) {
 	  atom_colour_map[isize] = "skip-hydrogen-grey-colour-for-chain";
-	  atom_colour_map.push_back(chain);
+	  atom_colour_map.push_back(chain_id);
 	  isize++;
        }
        return isize;
@@ -695,7 +696,30 @@ class Bond_lines_container {
    int set_rainbow_colours(mmdb::Manager *mol);
    void do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
 					      int imol,
+					      int atom_colour_type, // C-only or goodsell
 					      int draw_hydrogens_flag);
+   void do_colour_by_chain_bonds_carbons_only_internals(int imol, int imodel,
+							int chain_idx,
+							mmdb::Atom *at1, mmdb::Atom *at2,
+							int iat_1, int iat_2,
+							std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
+							const std::string &element_1,
+							const std::string &element_2,
+							const coot::Cartesian &atom_1,
+							const coot::Cartesian &atom_2,
+							int atom_colour_type,
+							int uddHnd);
+   void do_colour_by_chain_bonds_internals_goodsell_mode(int imol, int imodel,
+							int chain_idx,
+							mmdb::Atom *at1, mmdb::Atom *at2,
+							int iat_1, int iat_2,
+							std::vector<std::pair<bool, mmdb::Residue *> > *het_residues_p,
+							const std::string &element_1,
+							const std::string &element_2,
+							const coot::Cartesian &atom_1,
+							const coot::Cartesian &atom_2,
+							int uddHnd);
+   
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
@@ -1036,7 +1060,8 @@ public:
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
 				 int imol,
 				 int draw_hydrogens_flag,
-				 short int change_c_only_flag);
+				 short int change_c_only_flag,
+				 bool do_goodsell_colour_mode);
    void do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
 				    int draw_hydrogens_flag);
    void do_normal_bonds_no_water(const atom_selection_container_t &asc,

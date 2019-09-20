@@ -933,7 +933,9 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
       // std::cout << "DEBUG:: calling mask_map\n";
       wlig_p->mask_map(protein_mol, mask_waters_flag); // mask by protein
       // std::cout << "DEBUG:: done mask_map\n";
-      g.molecules[imol].new_map(wlig_p->masked_map(), wlig_p->masked_map_name());
+
+      bool is_em_flag = graphics_info_t::molecules[g.find_ligand_map_mol()].is_EM_map();
+      g.molecules[imol].install_new_map(wlig_p->masked_map(), wlig_p->masked_map_name(), is_em_flag);
 
       // This should not be be scroll map?
       if (0) { 
@@ -1287,9 +1289,11 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       lig.mask_map(g.molecules[coord_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
 	       imol_new_map = graphics_info_t::create_molecule();
-	       std::cout << "INFO:: Creating masked  map in molecule number "
-			 << imol_new_map << std::endl;
-	       g.molecules[imol_new_map].new_map(lig.masked_map(), "Generic Masked Map");
+	       std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
+	       bool is_em_map_flag = graphics_info_t::molecules[map_mol_no].is_EM_map();
+	       std::string old_name = graphics_info_t::molecules[map_mol_no].name_; // use get_name()
+	       std::string new_name = "Masked Map from " + old_name;
+	       g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
 	       graphics_draw();
 	    }
 	 }
@@ -1318,7 +1322,10 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 							 mmdb::SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	 imol_new_map = graphics_info_t::create_molecule();
-	 g.molecules[imol_new_map].new_map(lig.masked_map(), "Generic Masked Map");
+	 std::string name = graphics_info_t::molecules[map_mol_no].name_;
+	 std::string new_name = name + " Masked Map";
+	 bool is_em_map_flag = graphics_info_t::molecules[map_mol_no].is_EM_map();
+	 g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
 	 graphics_draw();
       } else {
 	 std::cout << "No model molecule in " << coords_mol_no << std::endl;
@@ -2129,16 +2136,17 @@ int read_small_molecule_data_cif(const char *file_name) {
       graphics_info_t g;
       imol = g.create_molecule();
 
+      bool is_em_map_flag = false;
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps = smcif.sigmaa_maps();
       if (not (maps.first.is_null())) {
 	 std::string map_name = file_name;
 	 map_name += " SigmaA";
-	 g.molecules[imol].new_map(maps.first, map_name);
+	 g.molecules[imol].install_new_map(maps.first, map_name, is_em_map_flag);
 	 g.scroll_wheel_map = imol;
 	 int imol_diff = g.create_molecule();
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
-	 g.molecules[imol_diff].new_map(maps.second, map_name);
+	 g.molecules[imol_diff].install_new_map(maps.second, map_name, is_em_map_flag);
 	 g.molecules[imol_diff].set_map_is_difference_map();
       }
       graphics_draw();
@@ -2170,12 +2178,12 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 	 imol_map = g.create_molecule();
 	 std::string map_name = file_name;
 	 map_name += " SigmaA";
-	 g.molecules[imol_map].new_map(maps.first, map_name);
+	 g.molecules[imol_map].install_new_map(maps.first, map_name, false);
 	 g.scroll_wheel_map = imol_map;
 	 int imol_diff = g.create_molecule();
 	 map_name = file_name;
 	 map_name += " Diff-SigmaA";
-	 g.molecules[imol_diff].new_map(maps.second, map_name);
+	 g.molecules[imol_diff].install_new_map(maps.second, map_name, false);
 	 g.molecules[imol_diff].set_map_is_difference_map();
       }
    }

@@ -689,7 +689,9 @@ GtkWidget *graphics_info_t::display_control_window_ = NULL;
 
 int graphics_info_t::draw_axes_flag = 1; // on by default now.
 
-//
+bool graphics_info_t::regenerate_bonds_needs_make_bonds_type_checked_flag = true;
+
+// 
 short int graphics_info_t::draw_crosshairs_flag = 0;
 
 // For defining a range (to, say, regularize)
@@ -1445,6 +1447,7 @@ GLuint graphics_info_t::textureColorbuffer_screen = 0;
 GLuint graphics_info_t::textureColorbuffer_blur = 0;
 framebuffer graphics_info_t::screen_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer;
+bool graphics_info_t::perspective_projection_flag = false;
 
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
@@ -1458,6 +1461,7 @@ Shader graphics_info_t::shader_for_blur;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
+std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
 // --------------------------------------------------------------------------------------------
 
@@ -1983,11 +1987,11 @@ void show_lighting() {
 /* When glarea widget size changes, viewport size is set to match the
    new size */
 
-gint reshape(GtkWidget *widget, GdkEventConfigure *event) { }
+gint reshape(GtkWidget *widget, GdkEventConfigure *event) { return 0; }
 
 /* When widget is exposed it's contents are redrawn. */
 #define DEG_TO_RAD .01745327
-gint expose(GtkWidget *widget, GdkEventExpose *event) { }
+gint expose(GtkWidget *widget, GdkEventExpose *event) { return 0; }
 
 void
 update_things_on_move_and_redraw() {

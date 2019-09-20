@@ -1469,23 +1469,24 @@ void segment_map(int imol_map, float low_level) {
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
 
       for (int iseg=0; (iseg<segmented_map.first) && iseg<max_segments; iseg++) {
-    // std::cout << "iseg: " << iseg << std::endl;
-    clipper::Xmap<float> xmap;
-    xmap.init(segmented_map.second.spacegroup(),
-      segmented_map.second.cell(),
-      segmented_map.second.grid_sampling());
-    clipper::Xmap_base::Map_reference_index ix;
-    for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
-       if (segmented_map.second[ix] == iseg)
-          xmap[ix] = xmap_in[ix];
-    }
-    int imol_new = graphics_info_t::create_molecule();
-    std::string name = "Map ";
-    name += coot::util::int_to_string(imol_map);
-    name += " Segment ";
-    name += coot::util::int_to_string(iseg);
-    graphics_info_t::molecules[imol_new].new_map(xmap, name);
-    graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+	 // std::cout << "iseg: " << iseg << std::endl;
+	 clipper::Xmap<float> xmap;
+	 xmap.init(segmented_map.second.spacegroup(),
+		   segmented_map.second.cell(),
+		   segmented_map.second.grid_sampling());
+	 clipper::Xmap_base::Map_reference_index ix;
+	 for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
+	    if (segmented_map.second[ix] == iseg)
+	       xmap[ix] = xmap_in[ix];
+	 }
+	 int imol_new = graphics_info_t::create_molecule();
+	 std::string name = "Map ";
+	 name += coot::util::int_to_string(imol_map);
+	 name += " Segment ";
+	 name += coot::util::int_to_string(iseg);
+	 bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+	 graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_map_flag);
+	 graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
       }
    }
    graphics_draw();
@@ -1500,28 +1501,29 @@ void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, 
       std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap_in, low_level, b_factor_inc, n_rounds);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
       for (int iseg=0; (iseg<segmented_map.first) && iseg<max_segments; iseg++) {
-    clipper::Xmap<float> xmap;
-    xmap.init(segmented_map.second.spacegroup(),
-      segmented_map.second.cell(),
-      segmented_map.second.grid_sampling());
-    clipper::Xmap_base::Map_reference_index ix;
-    int n_points_in_map = 0;
-    for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
-       if (segmented_map.second[ix] == iseg) {
-          float f = xmap_in[ix];
-          xmap[ix] = f;
-          n_points_in_map++;
-       }
-    }
-    if (n_points_in_map) {
-       int imol_new = graphics_info_t::create_molecule();
-       std::string name = "Map ";
-       name += coot::util::int_to_string(imol_map);
-       name += " Segment ";
-       name += coot::util::int_to_string(iseg);
-       graphics_info_t::molecules[imol_new].new_map(xmap, name);
-       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
-    }
+	 clipper::Xmap<float> xmap;
+	 xmap.init(segmented_map.second.spacegroup(),
+		   segmented_map.second.cell(),
+		   segmented_map.second.grid_sampling());
+	 clipper::Xmap_base::Map_reference_index ix;
+	 int n_points_in_map = 0;
+	 for (ix = segmented_map.second.first(); !ix.last(); ix.next()) {
+	    if (segmented_map.second[ix] == iseg) {
+	       float f = xmap_in[ix];
+	       xmap[ix] = f;
+	       n_points_in_map++;
+	    }
+	 }
+	 if (n_points_in_map) { 
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string name = "Map ";
+	    name += coot::util::int_to_string(imol_map);
+	    name += " Segment ";
+	    name += coot::util::int_to_string(iseg);
+	    bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+	    graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+	 }
       }
    }
    graphics_draw();
@@ -1572,7 +1574,8 @@ int transform_map_raw(int imol,
       mean_and_variance<float> mv = map_density_distribution(new_map, 40, 0);
       std::string name = "Transformed map";
       imol_new = graphics_info_t::create_molecule();
-      graphics_info_t::molecules[imol_new].new_map(new_map, name);
+      bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
+      graphics_info_t::molecules[imol_new].install_new_map(new_map, name, is_em_flag);
       graphics_draw();
 
    } else {
@@ -1594,14 +1597,15 @@ int difference_map(int imol1, int imol2, float map_scale) {
  	    coot::util::difference_map(graphics_info_t::molecules[imol1].xmap,
  				       graphics_info_t::molecules[imol2].xmap,
  				       map_scale);
-    int imol = graphics_info_t::create_molecule();
-    std::string name = "difference-map";
-    // int swpcolf = graphics_info_t::swap_difference_map_colours;
-    graphics_info_t::molecules[imol].new_map(dm.first, name);
-    graphics_info_t::molecules[imol].set_map_is_difference_map();
-
-    r = imol;
-    graphics_draw();
+	 int imol = graphics_info_t::create_molecule();
+	 std::string name = "difference-map";
+	 // int swpcolf = graphics_info_t::swap_difference_map_colours;
+	 bool is_em_flag = graphics_info_t::molecules[imol1].is_EM_map();
+	 graphics_info_t::molecules[imol].install_new_map(dm.first, name, is_em_flag);
+	 graphics_info_t::molecules[imol].set_map_is_difference_map();
+	 
+	 r = imol;
+	 graphics_draw();
       }
    }
    return r;
@@ -1613,18 +1617,19 @@ int reinterp_map(int map_no, int reference_map_no) {
    int r = -1;
    if (is_valid_map_molecule(map_no)) {
       if (is_valid_map_molecule(reference_map_no)) {
-    graphics_info_t g;
-    clipper::Xmap<float> new_map =
-       coot::util::reinterp_map(g.molecules[map_no].xmap,
-        g.molecules[reference_map_no].xmap);
-    int imol = graphics_info_t::create_molecule();
-    std::string name = "map ";
-    name += coot::util::int_to_string(map_no);
-    name += " re-interprolated to match ";
-    name += coot::util::int_to_string(reference_map_no);
-    graphics_info_t::molecules[imol].new_map(new_map, name);
-    r = imol;
-    graphics_draw();
+	 graphics_info_t g;
+	 clipper::Xmap<float> new_map =
+	    coot::util::reinterp_map(g.molecules[map_no].xmap,
+				     g.molecules[reference_map_no].xmap);
+	 int imol = graphics_info_t::create_molecule();
+	 std::string name = "map ";
+	 name += coot::util::int_to_string(map_no);
+	 name += " re-interprolated to match ";
+	 name += coot::util::int_to_string(reference_map_no);
+	 bool is_em_flag = graphics_info_t::molecules[map_no].is_EM_map();
+	 graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag);
+	 r = imol;
+	 graphics_draw();
       }
    }
    return r;
@@ -1646,7 +1651,8 @@ int smooth_map(int map_no, float sampling_multiplier) {
       name += coot::util::int_to_string(map_no);
       name += " re-interprolated by factor ";
       name += coot::util::float_to_string(sampling_multiplier);
-      graphics_info_t::molecules[imol].new_map(new_map, name);
+      bool is_em_flag = graphics_info_t::molecules[map_no].is_EM_map();
+      graphics_info_t::molecules[imol].install_new_map(new_map, name, is_em_flag);
       r = imol;
       graphics_draw();
    }
@@ -1663,42 +1669,45 @@ int average_map_scm(SCM map_number_and_scales) {
    int r = -1;
    SCM n_scm = scm_length(map_number_and_scales);
    int n = scm_to_int(n_scm);
+   bool is_em_flag = false;
    std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
    for (int i=0; i<n; i++) {
       SCM number_and_scale = scm_list_ref(map_number_and_scales, SCM_MAKINUM(i));
       SCM ns_scm = scm_length(number_and_scale);
       int ns = scm_to_int(ns_scm);
       if (ns == 2) {
-    SCM map_number_scm = scm_list_ref(number_and_scale, SCM_MAKINUM(0));
-    SCM map_scale_scm  = scm_list_ref(number_and_scale, SCM_MAKINUM(1));
-    if (scm_is_true(scm_integer_p(map_number_scm))) {
-       if (scm_is_true(scm_number_p(map_scale_scm))) {
-          int map_number = scm_to_int(map_number_scm);
-          if (is_valid_map_molecule(map_number)) {
-     float scale = scm_to_double(map_scale_scm);
-     std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
-     maps_and_scales_vec.push_back(p);
-          } else {
-     std::cout << "Invalid map number " << map_number << std::endl;
-          }
-       } else {
-          std::cout << "Bad scale "
-    << scm_to_locale_string(display_scm(map_scale_scm))
-    << " ignoring map "
-    << scm_to_locale_string(display_scm(map_number_scm))
-    << std::endl;
-       }
-    } else {
-       std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
-         << std::endl;
-    }
+	 SCM map_number_scm = scm_list_ref(number_and_scale, SCM_MAKINUM(0));
+	 SCM map_scale_scm  = scm_list_ref(number_and_scale, SCM_MAKINUM(1));
+	 if (scm_is_true(scm_integer_p(map_number_scm))) {
+	    if (scm_is_true(scm_number_p(map_scale_scm))) {
+	       int map_number = scm_to_int(map_number_scm);
+	       if (is_valid_map_molecule(map_number)) {
+		  float scale = scm_to_double(map_scale_scm);
+		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
+		  maps_and_scales_vec.push_back(p);
+		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
+	       } else {
+		  std::cout << "Invalid map number " << map_number << std::endl;
+	       } 
+	    } else {
+	       std::cout << "Bad scale "
+			 << scm_to_locale_string(display_scm(map_scale_scm))
+			 << " ignoring map " 
+			 << scm_to_locale_string(display_scm(map_number_scm))
+			 << std::endl;
+	    }
+	 } else {
+	    std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
+		      << std::endl;
+	 } 
+
       }
    }
    if (maps_and_scales_vec.size() > 0) {
       clipper::Xmap<float> average_map = coot::util::average_map(maps_and_scales_vec);
       int imol = graphics_info_t::create_molecule();
       std::string name = "averaged-map";
-      graphics_info_t::molecules[imol].new_map(average_map, name);
+      graphics_info_t::molecules[imol].install_new_map(average_map, name, is_em_flag);
       r = imol;
       graphics_draw();
    }
@@ -1716,37 +1725,39 @@ int average_map_py(PyObject *map_number_and_scales) {
    int r = -1;
    int n = PyObject_Length(map_number_and_scales);
    std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
+   bool is_em_flag = false;
    for (int i=0; i<n; i++) {
       PyObject *number_and_scale = PyList_GetItem(map_number_and_scales, i);
       int ns = PyObject_Length(number_and_scale);
       if (ns == 2) {
-    PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
-    PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
-    if (PyInt_Check(map_number_py)) {
-      if (PyFloat_Check(map_scale_py) || PyInt_Check(map_scale_py)) {
-          int map_number = PyInt_AsLong(map_number_py);
-          if (is_valid_map_molecule(map_number)) {
-     float scale = PyFloat_AsDouble(map_scale_py);
-     std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
-     maps_and_scales_vec.push_back(p);
-          } else {
-     std::cout << "Invalid map number " << map_number << std::endl;
-          }
-       } else {
-        std::cout << "Bad scale " << PyString_AsString(display_python(map_scale_py))   // FIXME
-        		 << std::endl;
-       }
-    } else {
-      std::cout << "Bad map number " << PyString_AsString(display_python(map_number_py))  // FIXME
-            << std::endl;
-    }
+	 PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
+	 PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
+	 if (PyInt_Check(map_number_py)) {
+	   if (PyFloat_Check(map_scale_py) || PyInt_Check(map_scale_py)) {
+	       int map_number = PyInt_AsLong(map_number_py);
+	       if (is_valid_map_molecule(map_number)) {
+		  float scale = PyFloat_AsDouble(map_scale_py);
+		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
+		  maps_and_scales_vec.push_back(p);
+		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
+	       } else {
+		  std::cout << "Invalid map number " << map_number << std::endl;
+	       } 
+	    } else {
+	     std::cout << "Bad scale " << PyString_AsString(display_python(map_scale_py))   // FIXME
+	     		 << std::endl;
+	    }
+	 } else {
+	   std::cout << "Bad map number " << PyString_AsString(display_python(map_number_py))  // FIXME
+	         << std::endl;
+	 } 
       }
    }
    if (maps_and_scales_vec.size() > 0) {
       clipper::Xmap<float> average_map = coot::util::average_map(maps_and_scales_vec);
       int imol = graphics_info_t::create_molecule();
       std::string name = "averaged-map";
-      graphics_info_t::molecules[imol].new_map(average_map, name);
+      graphics_info_t::molecules[imol].install_new_map(average_map, name, is_em_flag);
       r = imol;
       graphics_draw();
    }
@@ -1768,9 +1779,11 @@ int make_variance_map(std::vector<int> map_molecule_number_vec) {
 
    int imol_map = -1;
 
+   bool is_em_flag = false;
    std::vector<std::pair<clipper::Xmap<float>, float> > xmaps;
    for (unsigned int i=0; i<map_molecule_number_vec.size(); i++) {
       int imol = map_molecule_number_vec[i];
+      is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       if (is_valid_map_molecule(imol)) {
     float scale = 1.0;
     xmaps.push_back(std::pair<clipper::Xmap<float>, float> (graphics_info_t::molecules[imol].xmap, scale));
@@ -1782,7 +1795,7 @@ int make_variance_map(std::vector<int> map_molecule_number_vec) {
       clipper::Xmap<float> variance_map = coot::util::variance_map(xmaps);
       int imol = graphics_info_t::create_molecule();
       std::string name = "variance-map";
-      graphics_info_t::molecules[imol].new_map(variance_map, name);
+      graphics_info_t::molecules[imol].install_new_map(variance_map, name, is_em_flag);
       imol_map = imol;
       graphics_draw();
    }
@@ -2255,13 +2268,14 @@ int sharpen_blur_map(int imol_map, float b_factor) {
       imol_new = g.create_molecule();
       clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
       clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map(xmap, b_factor);
-      std::string map_name = "Map";
+      std::string map_name = g.molecules[imol_map].name_; // use get_name() when it arrives
       if (b_factor < 0)
     map_name += " Sharpen ";
       else
     map_name += " Blur ";
       map_name += coot::util::float_to_string(b_factor);
-      g.molecules[imol_new].new_map(xmap_new, map_name);
+      bool is_em_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+      g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_flag);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
       graphics_draw();
@@ -2277,15 +2291,16 @@ int sharpen_blur_map_with_resampling(int imol_map, float b_factor, float resampl
       imol_new = g.create_molecule();
       clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
       clipper::Xmap<float> xmap_new = coot::util::sharpen_blur_map_with_resample(xmap, b_factor, resample_factor);
-      std::string map_name = "Map";
+      std::string map_name = g.molecules[imol_map].name_; // use get_name() when it arrives
       if (b_factor < 0)
 	 map_name += " Sharpen ";
       else
 	 map_name += " Blur ";
       map_name += coot::util::float_to_string(b_factor);
-      g.molecules[imol_new].new_map(xmap_new, map_name);
-      float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
-      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      bool is_em_map_flag = g.molecules[imol_map].is_EM_map();
+      g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+      float contour_level = g.molecules[imol_map].get_contour_level();
+      g.molecules[imol_new].set_contour_level(contour_level);
       graphics_draw();
    }
    return imol_new;
@@ -2304,32 +2319,34 @@ void multi_sharpen_blur_map_scm(int imol_map, SCM b_factors_list_scm) {
       SCM l_scm = scm_length(b_factors_list_scm);
       int l = scm_to_int(l_scm);
       for (int i=0; i<l; i++) {
-    float f = scm_to_double(scm_list_ref(b_factors_list_scm, SCM_MAKINUM(i)));
-    b_factors.push_back(f);
+         float f = scm_to_double(scm_list_ref(b_factors_list_scm, SCM_MAKINUM(i)));
+         b_factors.push_back(f);
       }
 
       try {
-    graphics_info_t g;
-    const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
-    std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
-    coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
-    float contour_level = g.molecules[imol_map].get_contour_level();
-    for (std::size_t i=0; i<b_factors.size(); i++) {
-       const clipper::Xmap<float> &xmap_new = xmaps[i];
-       float b_factor = b_factors[i];
-       int imol_new = graphics_info_t::create_molecule();
-       std::string map_name = "Map";
-       if (b_factor < 0)
-          map_name += " Sharpen ";
-       else
-          map_name += " Blur ";
-       map_name += coot::util::float_to_string(b_factor);
-       g.molecules[imol_new].new_map(xmap_new, map_name);
-       graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
-    }
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+	 float contour_level = g.molecules[imol_map].get_contour_level();
+	 for (std::size_t i=0; i<b_factors.size(); i++) {
+	    const clipper::Xmap<float> &xmap_new = xmaps[i];
+	    float b_factor = b_factors[i];
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string map_name = "Map";
+	    if (b_factor < 0)
+	       map_name += " Sharpen ";
+	    else
+	       map_name += " Blur ";
+	    map_name += coot::util::float_to_string(b_factor);
+	    bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
+	 }
+
       }
       catch (const std::runtime_error &rte) {
-    std::cout << "ERROR:: " << rte.what() << std::endl;
+         std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
 
@@ -2350,27 +2367,28 @@ void multi_sharpen_blur_map_py(int imol_map, PyObject *b_factors_list_py) {
       }
 
       try {
-    graphics_info_t g;
-    const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
-    std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
-    coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
-    float contour_level = g.molecules[imol_map].get_contour_level();
-    for (std::size_t i=0; i<b_factors.size(); i++) {
-       const clipper::Xmap<float> &xmap_new = xmaps[i];
-       float b_factor = b_factors[i];
-       int imol_new = graphics_info_t::create_molecule();
-       std::string map_name = "Map";
-       if (b_factor < 0)
-          map_name += " Sharpen ";
-       else
-          map_name += " Blur ";
-       map_name += coot::util::float_to_string(b_factor);
-       g.molecules[imol_new].new_map(xmap_new, map_name);
-       graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
-    }
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+	 float contour_level = g.molecules[imol_map].get_contour_level();
+	 for (std::size_t i=0; i<b_factors.size(); i++) {
+	    const clipper::Xmap<float> &xmap_new = xmaps[i];
+	    float b_factor = b_factors[i];
+	    int imol_new = graphics_info_t::create_molecule();
+	    std::string map_name = "Map";
+	    if (b_factor < 0)
+	       map_name += " Sharpen ";
+	    else
+	       map_name += " Blur ";
+	    map_name += coot::util::float_to_string(b_factor);
+	    bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
+	 }
       }
       catch (const std::runtime_error &rte) {
-    std::cout << "ERROR:: " << rte.what() << std::endl;
+         std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
 
