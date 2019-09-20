@@ -426,8 +426,8 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0;
 
-float    graphics_info_t::box_radius_xray = 125.4;
-float    graphics_info_t::box_radius_em   = 125;
+float    graphics_info_t::box_radius_xray =  25.0;
+float    graphics_info_t::box_radius_em   = 125.0;
 
 
 int      graphics_info_t::debug_atom_picking = 0;
