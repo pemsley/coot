@@ -4015,6 +4015,9 @@ string   static std::string sessionid;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
 
+   static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
+   void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
+   bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;

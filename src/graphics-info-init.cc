@@ -426,9 +426,8 @@ graphics_info_t::init() {
 								  1, 1));
 
       do_expose_swap_buffers_flag = 1;
-#ifdef WII_INTERFACE_WIIUSE
-      wiimotes = NULL;
-#endif
+
+      regenerate_bonds_needs_make_bonds_type_checked_flag = true;
 
       refmac_dialog_mtz_file_label = NULL;
       /* set no of refmac cycles */

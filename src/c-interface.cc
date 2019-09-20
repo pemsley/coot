@@ -2758,7 +2758,23 @@ void set_colour_by_chain(int imol) {
    if (is_valid_model_molecule(imol)) {
       std::set<int> s; // dummy
       short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
-      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f);
+      bool g = false; // goodsell_mode
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g);
+      graphics_draw();
+   }
+   std::string cmd = "set-colour-by-chain";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+}
+
+void set_colour_by_chain_goodsell_mode(int imol) { 
+   
+   if (is_valid_model_molecule(imol)) {
+      std::set<int> s; // dummy
+      short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
+      bool g = true; // goodsell_mode
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds(s,f,g);
       graphics_draw();
    }
    std::string cmd = "set-colour-by-chain";

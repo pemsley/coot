@@ -144,7 +144,8 @@ namespace molecule_map_type {
 
 namespace coot {
 
-   enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2, COLOUR_BY_CHAIN_BONDS=3,
+   enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
+	  COLOUR_BY_CHAIN_BONDS=3,
 	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
 	  BONDS_NO_HYDROGENS=15,
 	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
@@ -904,6 +905,8 @@ public:        //                      public
 				  bool against_a_dark_background);  // not const because
 					   	                    // we also set
 						                    // bond_colour_internal.
+   void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
+   
 
    coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
 
@@ -1160,7 +1163,7 @@ public:        //                      public
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
-   void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, short int c_only_flag);
+   void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode);
    void make_colour_by_molecule_bonds();
    void bonds_no_waters_representation();
    void bonds_sec_struct_representation();

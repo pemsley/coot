@@ -1326,7 +1326,8 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
    // now rebond molecule imol without bonds to atoms in atom_set
    if (atom_set.size())
-      molecules[imol_moving_atoms].make_bonds_type_checked(atom_set);
+      if (regenerate_bonds_needs_make_bonds_type_checked_flag)
+         molecules[imol_moving_atoms].make_bonds_type_checked(atom_set);
 
    return local_moving_atoms_asc;
 }

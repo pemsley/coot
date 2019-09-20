@@ -1083,6 +1083,22 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
    }
 }
 
+void
+molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background) {
+
+   bool is_C = !(icol %2);
+   int n_steps = icol/2;
+
+   coot::colour_t col(0.7, 0.3, 0.3);
+   if (is_C) col = coot::colour_t(0.6, 0.35, 0.35); // more pastel
+
+   col.rotate(0.06 * n_steps);
+
+   glColor3f(col[0], col[1], col[2]);
+
+}
+
+
 
 // aka rainbow - or maybe b factor, occupancy or user defined colour index
 //
@@ -2380,14 +2396,18 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
       }
 
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
-         // if test suggested by Ezra Peisach.
-         if (bonds_box.bonds_[i].num_lines > 0) {
-            if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
-               set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
-            } else {
-               set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
-            }
-         }
+	 // if test suggested by Ezra Peisach.
+	 if (bonds_box.bonds_[i].num_lines > 0) {
+	    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+	       set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+	    } else {
+	       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+		  set_bond_colour_for_goodsell_mode(i, against_a_dark_background);
+	       } else {
+		  set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+	       }
+	    }
+	 }
       } else {
          set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
       }
@@ -2543,7 +2563,11 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 //
 	 coot::Cartesian z_delta = (front - back) * 0.003;
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
+	    if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+	       set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
+	    } else {
+	       set_bond_colour_by_mol_no(icol, against_a_dark_background);
+	    }
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 	       // no points for hydrogens
                const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
@@ -3552,13 +3576,13 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 }
 
 void
-
 molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms,
-     short int change_c_only_flag) {
+						  bool change_c_only_flag,
+						  bool goodsell_mode) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag);
+   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag, goodsell_mode);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
 
@@ -3566,8 +3590,13 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
                                              // stupid when it comes to thining.
 
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
+   if (goodsell_mode)
+      bonds_box_type = coot::COLOUR_BY_CHAIN_GOODSELL;
+
    make_glsl_bonds_type_checked();
 
+   // I don't think that this should be here - it should be in caller function
+   //
    if (graphics_info_t::glarea)
       graphics_info_t::graphics_draw();
 }
@@ -3616,11 +3645,14 @@ molecule_class_info_t::make_bonds_type_checked() {
       makebonds(geom_p, dummy);
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
-   if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS) {
+   if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS || bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
       // Baah, we have to use the static in graphics_info_t here as it
       // is not a per-molecule property.
       std::set<int> s;
-      make_colour_by_chain_bonds(s, graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag);
+      bool goodsell_mode = false;
+      if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL)
+	 goodsell_mode = true;
+      make_colour_by_chain_bonds(s, graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode);
    }
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
       make_colour_by_molecule_bonds();
@@ -3951,22 +3983,33 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
 
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
-   if (bonds_box_type == coot::NORMAL_BONDS)
+   if (bonds_box_type == coot::NORMAL_BONDS) {
       makebonds(geom_p, no_bonds_to_these_atom_indices);
-   else
-      if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS)
-    make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
-       g.rotate_colour_map_on_read_pdb_c_only_flag);
-      else
-    if (bonds_box_type == coot::CA_BONDS) {
-       make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
-    } else {
-       if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS) {
-          make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
-       } else {
-          make_bonds_type_checked(); // function above
-       }
-    }
+   } else {
+      if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS) {
+	 bool goodsell_mode = false;
+	 make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
+				    g.rotate_colour_map_on_read_pdb_c_only_flag,
+				    goodsell_mode);
+      } else {
+	 if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+	    bool goodsell_mode = true;
+	    make_colour_by_chain_bonds(no_bonds_to_these_atom_indices,
+				       g.rotate_colour_map_on_read_pdb_c_only_flag,
+				       goodsell_mode);
+	 } else {
+	    if (bonds_box_type == coot::CA_BONDS) {
+	       make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
+	    } else {
+	       if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS) {
+		  make_ca_bonds(2.4, 4.7, no_bonds_to_these_atom_indices);
+	       } else {
+		  make_bonds_type_checked(); // function above
+	       }
+	    }
+	 }
+      }
+   }
 }
 
 

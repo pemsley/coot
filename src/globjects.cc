@@ -689,7 +689,9 @@ GtkWidget *graphics_info_t::display_control_window_ = NULL;
 
 int graphics_info_t::draw_axes_flag = 1; // on by default now.
 
-//
+bool graphics_info_t::regenerate_bonds_needs_make_bonds_type_checked_flag = true;
+
+// 
 short int graphics_info_t::draw_crosshairs_flag = 0;
 
 // For defining a range (to, say, regularize)

@@ -1423,3 +1423,16 @@ int crankshaft_peptide_rotation_optimization_intermediate_atoms() {
    return g.crankshaft_peptide_rotation_optimization_intermediate_atoms();
 
 }
+
+
+void set_regenerate_bonds_needs_make_bonds_type_checked(bool state) {
+   graphics_info_t g;
+   g.set_regenerate_bonds_needs_make_bonds_type_checked(state);
+}
+
+bool get_regenerate_bonds_needs_make_bonds_type_checked_state() {
+   graphics_info_t g;
+   return g.get_regenerate_bonds_needs_make_bonds_type_checked_state();
+}
+
+
