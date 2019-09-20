@@ -55,7 +55,7 @@ layout(location = 0) out vec4 out_col;
 void main() {
 
   vec4 light_colour = vec4(0.4, 0.4, 0.4, 1.0);
-  float specular_strength = 0.7;
+  float specular_strength = 0.8;
   vec3 lightdir_1 = normalize(vec3(-2, -2, 4)); // positive z means light from my side of the screen
   vec3 lightdir_2 = normalize(vec3( 2,  2, 4));
   float dp_l1 = dot(Normal, -lightdir_1);
@@ -64,14 +64,15 @@ void main() {
   float f_1 = 1.0 - gl_FragCoord.z; // because glm::ortho() near and far are reversed?
   // f_1 = gl_FragCoord.z;
   float f_2 = 1.0 - abs(f_1 - 0.7)/0.7;
-  f_2 = f_1; // just testing
+  // f_2 = f_1; // just testing
   vec4 col_1 = vec4(vec3(f_2), 1.0) * tri_color;
   vec4 col_2_1 = col_1 * dp_l1;
   vec4 col_2_2 = col_1 * dp_l2;
   vec4 col_2 = col_2_1; // + col_2_2;
 
-  float flat_frac = 0.2;
-  vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
+  float flat_frac = 0.1;
+  // vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
+  vec4 c_1 = mix(col_2, col_1, flat_frac);
   vec4 c_2 = mix(bg_colour, c_1, f_1);
 
   // is this right?

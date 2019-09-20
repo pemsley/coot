@@ -46,7 +46,7 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
-  float specular_strength = 0.6;
+  float specular_strength = 0.5;
 
   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
   vec3 lightdir = normalize(vec3(-2,-1, 5));
@@ -73,13 +73,13 @@ void main() {
   float dp_view_reflect = dot(view_dir, reflect_dir);
   dp_view_reflect = max(dp_view_reflect, 0.0);
   // float spec = pow(dp_view_reflect, 1.2); shows lots of shape of the density
-  float spec = pow(dp_view_reflect, 1.2);
+  float spec = pow(dp_view_reflect, 3.2);
   vec4 specular = specular_strength * spec * specular_light_colour;
 
   vec4 line_colour_local = line_colour;
 
   vec4 col_1 = line_colour_local;  // ambient
-  float ambient_strength = 0.6;
+  float ambient_strength = 0.5;
   vec4 col_2 = line_colour_local * dp;
   vec4 col_3 = col_2 + col_1 * ambient_strength + specular;
   // col_3 = specular;

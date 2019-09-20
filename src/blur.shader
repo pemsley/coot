@@ -57,11 +57,11 @@ float get_weight_z_1(float depth_centre) {
 //  What weight should this pixel have to colour that pixel?
 float get_weight_z_2(float depth_this, float depth_centre) {
 
-    float c = 0.1652; // 0.66 looks good, but we
+    float c = 0.5652; // 0.66 looks good, but we
                       // need a "protected" z region - say from  0.05 to 0.3
     float depth_delta = abs(depth_centre - depth_this);
     float w = 0.0; // too far, by default.
-    if (depth_delta < c) w = 0.15 + (c - depth_delta)/c;
+    if (depth_delta < c) w = 0.55 + (c - depth_delta)/c;
     return w;
 }
 
@@ -73,7 +73,7 @@ vec3 sampling_blur() {
     // the bigger the z value (it ranges from 0 (front) to 1.0 (back)), the more I want
     // to blur this pixel. Bigger z means more sampling
     vec3 sum = vec3(0,0,0); // return this
-    int n_pixels_max = 8;
+    int n_pixels_max = 6;
     float depth_centre = texture(screenDepth, TexCoords).x;
     float w_1 = get_weight_z_1(depth_centre); // w_1 is 0.0 at the front/no-blur
     float tightness = ((1.0 - 0.158) - w_1)/(1.0 - 0.158); // tightness between 0 (close to rotation centre to 1.0 (at the back)
