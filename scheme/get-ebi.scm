@@ -28,7 +28,7 @@
 ;;; file) returns a short file.  So we have to use the uncompressed
 ;;; form which returns a file that had META tags.  Argh.
 
-(define pdbe-server "http://www.ebi.ac.uk")
+(define pdbe-server "https://www.ebi.ac.uk")
 (define pdbe-pdb-file-dir "pdbe-srv/view/files")
 
 (define pdbe-file-name-tail "ent")
@@ -208,9 +208,11 @@
 		      (list imol imol-map imol-map-d))))))))
 
 
-  (define eds-site "http://www.ebi.ac.uk/pdbe/coordinates")
+  (define eds-site "https://www.ebi.ac.uk/pdbe/coordinates")
   (define eds-core "some://thing") ;; for web pages
-  (define eds-coords-site "http://www.ebi.ac.uk/pdbe/entry-files/download")
+  (define eds-coords-site "https://www.ebi.ac.uk/pdbe/entry-files/download")
+  ;; now the map mtz files are like this:
+  ;; https://www.ebi.ac.uk/pdbe/coordinates/files/zz/4zzn/4zzn_map.mtz
 
   ;; "1cbds" -> "cb/"
   ;; 
@@ -240,7 +242,8 @@
 		     (model-url (string-append eds-coords-site "/" target-pdb-file))
 		     (target-mtz-file (string-append down-id "_map.mtz"))
 		     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-		     (mtz-url (string-append eds-site "/files/" target-mtz-file))
+		     ;; (mtz-url (string-append eds-site "/files/" target-mtz-file)) ;; old
+           (mtz-url (string-append eds-site "/files/" (mid-chars down-id) "/" down-id "/" down-id "_map.mtz"))
 		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
 
 		(print-var model-url)
