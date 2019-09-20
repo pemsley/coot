@@ -96,6 +96,13 @@
 #include "c-interface.h"
 
 
+int
+molecule_class_info_t::update_molecule(std::string file_name, std::string cwd) {
+
+   return handle_read_draw_molecule(imol_no,
+				    file_name, cwd,
+				    0, 0, true, false, bond_width, bonds_box_type, false);
+}
 
 
 
@@ -9143,7 +9150,7 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
 	 } else {
 	    // happy path
 #ifndef _POSIX_SOURCE
-	    ucp.ctime = s.st_ctimespec; // Mac OX X?
+	    ucp.ctime = s.st_ctimespec; // Mac OS X?
 #else
 	    ucp.ctime = s.st_ctim;
 #endif
@@ -9189,3 +9196,31 @@ molecule_class_info_t::update_coordinates_molecule_if_changed(const updating_coo
    }
    return status;
 }
+
+// no redraw
+void
+molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
+
+   std::string cwd = coot::util::current_working_dir();
+   short int reset_rotation_centre = 0;
+   short int is_undo_or_redo = 0;
+   bool allow_duplseqnum = true;
+   bool v2_convert_flag = false;
+ 
+   handle_read_draw_molecule(imol_no, pdb_file_name, cwd,
+				   reset_rotation_centre,
+				   is_undo_or_redo,
+				   allow_duplseqnum,
+				   v2_convert_flag,
+				   bond_width,
+				   Bonds_box_type(),
+				   false);
+
+}
+
+void
+molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
+
+}
+
+

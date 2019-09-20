@@ -2507,6 +2507,17 @@ molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) con
    return res;
 }
 
+std::string
+molecule_class_info_t::get_residue_name(const coot::residue_spec_t &rs) const {
+
+   std::string rn;
+   mmdb::Residue *r = get_residue(rs);
+   if (r) {
+      rn = r->GetResName();
+   }
+   return rn;
+}
+
 // Useful when we know that the molecule is just one residue
 mmdb::Residue *
 molecule_class_info_t::get_first_residue() {

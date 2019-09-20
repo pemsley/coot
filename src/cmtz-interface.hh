@@ -7,6 +7,20 @@
 
 namespace coot {
 
+   // 2019, the info needed for make_and_draw_map
+	//       first example used in extraction of info from refmac updating maps json file
+	class mtz_to_map_info_t {
+		public:
+		std::string mtz_file_name;
+		std::string f_col;
+		std::string phi_col;
+		std::string w_col;
+		std::string id; // used to find the molecule name
+		bool use_weights;
+		bool is_difference_map;
+		mtz_to_map_info_t() { use_weights = false; is_difference_map = false; }
+	};
+
    // --------------------- This is messy ----------------------------
    // what was I thinking?
 

@@ -121,6 +121,7 @@ namespace molecule_map_type {
 #include "merge-molecule-results-info-t.hh"
 #include "updating-map-params.hh"
 #include "updating-coordinates-molecule-parameters.hh"
+#include "cmtz-interface.hh" // for udating molecules
 
 namespace coot {
 
@@ -815,6 +816,8 @@ public:        //                      public
 				 int bonds_box_type,
 				 bool warn_about_missing_symmetry_flag);
 
+   int update_molecule(std::string file_name, std::string cwd);
+
    void label_symmetry_atom(int i);
 
    // used for raster3d (where we need to know the position of the label)
@@ -841,7 +844,8 @@ public:        //                      public
    void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
    void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
 
-   std::string name_; // otherwise get and set, so make it public.
+   std::string name_;
+   std::string get_name() const { return name_; }
 
    int MoleculeNumber() const { return imol_no; }
 
@@ -864,6 +868,8 @@ public:        //                      public
 			  int use_weights,
 			  int is_diff_map, 
 			  float map_sampling_rate);
+
+   void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
 					   std::string cwd,
@@ -1027,6 +1033,8 @@ public:        //                      public
    // 
    mmdb::Residue *get_residue(const coot::residue_spec_t &rs) const;
 
+   std::string get_residue_name(const coot::residue_spec_t &rs) const;
+
    // Return a copy of the pointer (only) of the residue following
    // that of the given spec.  Return NULL on residue not found.
    // 
@@ -1055,9 +1063,9 @@ public:        //                      public
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
-	 draw_hydrogens_flag = i;
-	 make_bonds_type_checked();
-	 update_symmetry();
+	      draw_hydrogens_flag = i;
+	      make_bonds_type_checked();
+	      update_symmetry();
       }
    }
 
@@ -2801,8 +2809,8 @@ public:        //                      public
    bool extra_restraints_representation_for_bonds_go_to_CA;
    void set_extra_restraints_representation_for_bonds_go_to_CA(bool val) {
       if (val != extra_restraints_representation_for_bonds_go_to_CA) { 
-	 extra_restraints_representation_for_bonds_go_to_CA = val;
-	 update_extra_restraints_representation();
+	      extra_restraints_representation_for_bonds_go_to_CA = val;
+	      update_extra_restraints_representation();
       } 
    } 
    coot::extra_restraints_representation_t extra_restraints_representation;
@@ -3189,6 +3197,8 @@ public:        //                      public
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
    int update_map_from_mtz_if_changed(const updating_map_params_t &rump);
+	void update_self_from_file(const std::string &file_name);
+	void update_self(const coot::mtz_to_map_info_t &mmi);
 
    static int watch_coordinates_file(gpointer data);
    bool continue_watching_coordinates_file;
