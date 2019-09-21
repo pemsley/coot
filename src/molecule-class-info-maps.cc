@@ -321,9 +321,8 @@ molecule_class_info_t::update_map_internal() {
 			                graphics_info_t::RotationCentre_y(),
 			                graphics_info_t::RotationCentre_z());
 
-      std::cout << "#### in update_map_internal(), centre is " << rc << std::endl;
-
       update_map_triangles(radius, rc);  // NXMAP-FIXME
+
       if (graphics_info_t::use_graphics_interface_flag) {
          if (graphics_info_t::display_lists_for_maps_flag) {
 	         graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
@@ -659,10 +658,10 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       if (false) {
          // keep this because it uses threads for contouring
-	      clear_draw_vecs();
-	      std::vector<std::thread> threads;
-	      int n_reams = coot::get_max_number_of_threads();
-      	for (int ii=0; ii<n_reams; ii++) {
+         clear_draw_vecs();
+         std::vector<std::thread> threads;
+         int n_reams = coot::get_max_number_of_threads();
+         for (int ii=0; ii<n_reams; ii++) {
 	         int iream_start = ii;
 	         int iream_end   = ii+1;
 	         threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
@@ -671,9 +670,9 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 					  isample_step,
 					  iream_start, iream_end, n_reams, is_em_map,
 					  &draw_vector_sets));
-	      }
-	      for (int ii=0; ii<n_reams; ii++)
-	         threads[ii].join();
+         }
+         for (int ii=0; ii<n_reams; ii++)
+            threads[ii].join();
       }
 
       if (xmap_is_diff_map) {
@@ -689,8 +688,10 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       }
 
       if (true) {
+         std::cout << "calling my_isosurface.GenerateTriangles_from_Xmap()" << std::endl;
          tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-            contour_level, dy_radius, centre, isample_step);
+               contour_level, dy_radius, centre, isample_step);
+         std::cout << "done my_isosurface.GenerateTriangles_from_Xmap()" << std::endl;
 
          if (xmap_is_diff_map) {
             tri_con_diff_map_neg = my_isosurface.GenerateTriangles_from_Xmap(xmap,
