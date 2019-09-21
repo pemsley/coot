@@ -4393,6 +4393,8 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 
    int col = 0;
 
+   if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
+
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       if (atom_colour_map_p) {
 	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
@@ -4413,7 +4415,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
 
       } else {
-      
+
 	 if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
 	    int sse = at->residue->SSE;
 	    switch (sse)  {
@@ -5937,7 +5939,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    }
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
-   int atom_colour_type = coot::COLOUR_BY_CHAIN;
+   int atom_colour_type = coot::COLOUR_BY_MOLECULE;
    add_atom_centres(asc, atom_colour_type);
 }
 
