@@ -1079,8 +1079,8 @@ molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_
    bool is_C = !(icol %2);
    int n_steps = icol/2;
 
-   coot::colour_t col(0.7, 0.3, 0.3);
-   if (is_C) col = coot::colour_t(0.6, 0.35, 0.35); // more pastel
+   coot::colour_t col(0.9, 0.52, 0.52);
+   if (is_C) col = coot::colour_t(0.82, 0.6, 0.6); // more pastel
 
    col.rotate(0.06 * n_steps);
 
@@ -2585,7 +2585,7 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 
 	 // highlights?
 	 // 
-	 if (true) {
+	 if (bonds_box_type != coot::COLOUR_BY_CHAIN_GOODSELL) {
 
 	    zsc = graphics_info_t::zoom;
 
@@ -2642,10 +2642,11 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	       glPointSize(hlit_point_size * 3);
 	       glBegin(GL_POINTS);
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+
 		  coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
-		  // cc.average(coot::colour_t(0.9, 0.9, 0.9));
 		  cc.brighter(1.15);
 		  glColor3f(cc[0], cc[1], cc[2]);
+
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
