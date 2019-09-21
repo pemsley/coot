@@ -3471,7 +3471,7 @@ create_global_map_properties_window (void)
   // tooltips = gtk_tooltips_new ();
 
   global_map_properties_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_window_set_title (GTK_WINDOW (global_map_properties_window), "Global map properties window");
+  gtk_window_set_title (GTK_WINDOW (global_map_properties_window), "Coot: Global map properties window");
 
   map_properties_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_widget_show (map_properties_vbox);
@@ -3493,9 +3493,11 @@ create_global_map_properties_window (void)
   // gtk_container_add (GTK_CONTAINER (frame4), hbox5);
 
   vbox332 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+  gtk_widget_show(vbox332);
   table10 = gtk_table_new (2, 4, FALSE);
   gtk_widget_show (table10);
   gtk_box_pack_start (GTK_BOX (vbox332), table10, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (map_properties_vbox), vbox332, TRUE, TRUE, 0);
 
   label6 = gtk_label_new ("Map Radius x-ray: ");
   gtk_widget_show (label6);
