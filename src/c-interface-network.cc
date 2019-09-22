@@ -56,7 +56,7 @@ int coot_get_url(const char *url, const char *file_name) {
 }
 #endif /* USE_LIBCURL */
 
-   
+
 #ifdef USE_LIBCURL
 int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 					short int activate_curl_hook_flag) {
@@ -82,7 +82,6 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       CURL *c = curl_easy_init();
       long int no_signal = 1;
 
-      std::cout << "------------- no veryifypeer " << std::endl;
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
@@ -90,24 +89,22 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
       std::string user_agent_str = "Coot-";
       user_agent_str += VERSION;
-      user_agent_str += " http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
-      user_agent_str = "Wget/104";
+      user_agent_str += " https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
       curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent_str.c_str());
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
-      std::cout << "             " << url << " " << file_name << std::endl;
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
-      if (activate_curl_hook_flag) { 
+      if (activate_curl_hook_flag) {
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
 #ifdef USE_GUILE
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7) 
+#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	 // good return values (same as the non-wrapped function call)
 	 success = CURLcode(GPOINTER_TO_INT(scm_without_guile(wrapped_curl_easy_perform, c)));
 #else
 	 std::cout << "Can't do this with this old guile" << std::endl;
-#endif 	 
+#endif
 #else
 #ifdef USE_PYTHON
          Py_BEGIN_ALLOW_THREADS;
@@ -120,8 +117,8 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 g.remove_curl_handle_with_file_name(file_name);
       } else {
 	 success = curl_easy_perform(c);
-      } 
-      
+      }
+
       fclose(f);
       curl_easy_cleanup(c);
       return success;
