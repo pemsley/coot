@@ -907,7 +907,7 @@ public:        //                      public
 						                    // bond_colour_internal.
    void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
    
-
+   // return the colour, don't call glColor3f();
    coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
 
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);

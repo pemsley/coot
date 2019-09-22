@@ -2011,8 +2011,7 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
    mmdb::Residue *res = atom->residue;
    int model_number = atom->GetModelNum();
 
-   // std::cout << "handling long bonds for " << atom << std::endl;
-   // std::cout << " ele name :" << element << ":" << std::endl;
+   // std::cout << "handling long bonds for " << atom << " ele " << element << std::endl;
    
    if (atom_name == "AS  ")
       bond_limit = 2.4;
@@ -2065,12 +2064,14 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 		  int udd_status_1 = atom->GetUDData(udd_handle_atom_index, iat_1);
 		  int udd_status_2 = residue_atoms[i]->GetUDData(udd_handle_atom_index, iat_2);
 
-		  addBond(col,  atom_pos, bond_mid_point, cc, model_number, iat_1, iat_2);
-		  addBond(colc, bond_mid_point, res_atom_pos, cc, model_number, iat_2, iat_2);
-		  bond_added_flag = 1;
-		  // mark the atom as bonded.
-		  atom->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
-		  residue_atoms[i]->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
+		  if (true) { // for debugging
+		     addBond(col,  atom_pos, bond_mid_point, cc, model_number, iat_1, iat_2);
+		     addBond(colc, bond_mid_point, res_atom_pos, cc, model_number, iat_2, iat_2);
+		     bond_added_flag = 1;
+		     // mark the atom as bonded.
+		     atom->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
+		     residue_atoms[i]->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
+		  }
 	       }
 	    }
 	 }
@@ -2088,8 +2089,10 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
       int col = atom_colour(atom, atom_colour_type, atom_colour_map_p);
       coot::Cartesian atom_pos(atom->x, atom->y, atom->z);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      // 20171224-PE FIXME lookpu iat_1, iat_1
+      // 20171224-PE FIXME lookup iat_1, iat_1
       int iat_1 = -1;
+      // 20190921-PE Done.
+      int udd_status = atom->GetUDData(udd_handle_atom_index, iat_1);
       addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, model_number, iat_1, iat_1);
       addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, model_number, iat_1, iat_1);
       addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z, cc, model_number, iat_1, iat_1);
@@ -4390,6 +4393,8 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 
    int col = 0;
 
+   if (bond_colour_type == coot::COLOUR_BY_MOLECULE) return col; // one colour fits all
+
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       if (atom_colour_map_p) {
 	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
@@ -4410,7 +4415,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
 
       } else {
-      
+
 	 if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
 	    int sse = at->residue->SSE;
 	    switch (sse)  {
@@ -5445,15 +5450,19 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	 int col;
 	 int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY; // the atoms connected to the SE (say) are Cs.
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != mmdb::UDDATA_Ok ) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != mmdb::UDDATA_Ok) {
 	       std::cout << "ERROR:: do_colour_by_chain_bonds() failed to get ic bond info"
 			 << std::endl;
-	    } else { 
+	    } else {
 	       // std::cout << "debug:: got ic " << ic << " for " << atom_selection[i] << std::endl;
+
+	       // 20190921-PE no longer consider P for additional bonds. Stops bond flashing in Goodsell
+	       //             mode.
 	       if ((ic == NO_BOND) ||
 		   (!strcmp(atom_selection[i]->element, " S")) ||
-		   (!strcmp(atom_selection[i]->element, "SE")) ||
-		   (!strcmp(atom_selection[i]->element, " P"))) {
+		   (!strcmp(atom_selection[i]->element, "SE"))
+		   // (!strcmp(atom_selection[i]->element, " P")
+		   ) {
 
 		  std::string segid(atom_selection[i]->GetChainID());
 		  col = atom_colour_map.index_for_chain(segid);
@@ -5468,9 +5477,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 		  mmdb::Residue *atom_residue_p = atom_selection[i]->residue;
 		  if (atom_residue_p) {
 		     std::string resname = atom_selection[i]->GetResName();
-		     if (1 &&
-			 (resname == "MSE" || resname == "MET" || resname == "MSO"
-			  || resname == "CYS" )) {
+		     if (resname == "MSE" || resname == "MET" || resname == "MSO" || resname == "CYS") {
 			handle_MET_or_MSE_case(atom_selection[i], uddHnd, udd_atom_index_handle,
 					       atom_colour_type, &atom_colour_map);
 		     } else {
@@ -5932,7 +5939,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    }
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
-   int atom_colour_type = coot::COLOUR_BY_CHAIN;
+   int atom_colour_type = coot::COLOUR_BY_MOLECULE;
    add_atom_centres(asc, atom_colour_type);
 }
 

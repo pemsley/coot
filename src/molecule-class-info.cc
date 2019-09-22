@@ -1089,8 +1089,8 @@ molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_
    bool is_C = !(icol %2);
    int n_steps = icol/2;
 
-   coot::colour_t col(0.7, 0.3, 0.3);
-   if (is_C) col = coot::colour_t(0.6, 0.35, 0.35); // more pastel
+   coot::colour_t col(0.9, 0.52, 0.52);
+   if (is_C) col = coot::colour_t(0.82, 0.6, 0.6); // more pastel
 
    col.rotate(0.06 * n_steps);
 
@@ -2636,46 +2636,40 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
              hlit_point_size = (40.0/280.0) * point_size_data[1];
          }
 
-          // the offset doesn't depend on zoom (until it does (implicitly) by the ball size going bigger
-          // than the graphics card wants to draw it).
-          //
-          coot::Cartesian offset = screen_x * off;
-          offset += screen_y * (-off * 1.25);
-          offset += z_delta * 2.0;
+	 // highlights?
+	 // 
+	 if (bonds_box_type != coot::COLOUR_BY_CHAIN_GOODSELL) {
 
-          if (false)
-             std::cout << "got point size range " << point_size_data[0] << " "
-                       << point_size_data[1] << " " << zsc << " "
-                       << hlit_point_size << std::endl;
-         // point_size_data on pc:  -> 1 and  63.375
-         // point_size_data on mbp: -> 1 and 255.875
+	    zsc = graphics_info_t::zoom;
 
-         glPointSize(hlit_point_size * 3);
-         glBegin(GL_POINTS);
-         for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-            coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
-            // cc.average(coot::colour_t(0.9, 0.9, 0.9));
-            cc.brighter(1.15);
-            glColor3f(cc[0], cc[1], cc[2]);
-            for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-               // no points for hydrogens
-               if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+	    if (zsc < 40) { // only draw highlights if we are close enough (zoomed in) to see them
 
-                  if ((single_model_view_current_model_number == 0) ||
-                  (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+	       coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+	       coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+	       coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+	       coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
 
-                     if ((use_radius_limit.first == false) ||
-                     (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
+	       coot::Cartesian screen_x = (right - centre);
+	       coot::Cartesian screen_y = (top   - centre);
+	       coot::Cartesian screen_z = (front - centre);
 
-                        const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
-                        coot::Cartesian pt = pos + offset;
-                        glVertex3f(pt.x(), pt.y(), pt.z());
-                     }
-                  }
-               }
-            }
-         }
-         glEnd();
+	       screen_x.unit_vector_yourself();
+	       screen_y.unit_vector_yourself();
+	       screen_z.unit_vector_yourself();
+
+	       // std::cout << "got point size range " << point_data[0] << " " << point_data[1]
+	       // << zsc << std::endl;  -> 1 and 63.375
+	       //
+
+	       float hlit_point_size =  40.0/zsc;
+	       float ball_point_size = 280.0/zsc;
+
+	       // the position offset should be clamped between point_size_data[0] and point_size_data[1]
+	       //
+	       //
+	       GLdouble point_size_data[2];
+	       glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
+	       float off = 0.03;
 
           // shiny
           glPointSize(hlit_point_size * 0.8);
@@ -2693,15 +2687,73 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
          const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
          coot::Cartesian pt = pos + offset + z_delta;
 
-         glVertex3f(pt.x(), pt.y(), pt.z());
-      }
-   }
-        }
-     }
-          }
-          glEnd();
-       }
-    }
+	       // the offset doesn't depend on zoom (until it does (implicitly) by the ball size going bigger
+	       // than the graphics card wants to draw it).
+	       //
+	       coot::Cartesian offset = screen_x * off;
+	       offset += screen_y * (-off * 1.25);
+	       offset += z_delta * 2.0;
+
+	       if (false)
+		  std::cout << "got point size range " << point_size_data[0] << " "
+			    << point_size_data[1] << " " << zsc << " "
+			    << hlit_point_size << std::endl;
+	       // point_size_data on pc:  -> 1 and  63.375
+	       // point_size_data on mbp: -> 1 and 255.875
+
+	       glPointSize(hlit_point_size * 3);
+	       glBegin(GL_POINTS);
+	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+
+		  coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
+		  cc.brighter(1.15);
+		  glColor3f(cc[0], cc[1], cc[2]);
+
+		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+		     // no points for hydrogens
+		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+
+			if ((single_model_view_current_model_number == 0) ||
+			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+
+			   if ((use_radius_limit.first == false) ||
+			       (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
+
+			      const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+			      coot::Cartesian pt = pos + offset;
+			      glVertex3f(pt.x(), pt.y(), pt.z());
+			   }
+			}
+		     }
+		  }
+	       }
+	       glEnd();
+
+	       // shiny
+	       glPointSize(hlit_point_size * 0.8);
+	       glBegin(GL_POINTS);
+	       glColor3f(0.9, 0.9, 0.9);
+	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+		     // no points for hydrogens
+		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+			if ((single_model_view_current_model_number == 0) ||
+			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
+
+			   if ((use_radius_limit.first == false) ||
+			       (graphics_info_t::is_within_display_radius(bonds_box.consolidated_atom_centres[icol].points[i].position))) {
+			      const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+			      coot::Cartesian pt = pos + offset + z_delta;
+
+			      glVertex3f(pt.x(), pt.y(), pt.z());
+			   }
+			}
+		     }
+		  }
+	       }
+	       glEnd();
+	    }
+	 }
       }
    }
 #endif // problems with merge
