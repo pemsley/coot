@@ -273,11 +273,10 @@
 		     (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file)))
                         (if (not (valid-model-molecule? r-imol))
                            (let ((s1-cif (net-get-url model-cif-url dir-target-cif-file)))
+		              (format #t "INFO:: read cif model status: ~s~%" s1-cif)
                               (if (= s1-cif 0)
 		                 (let ((r-imol (handle-read-draw-molecule dir-target-cif-file)))
                                     r-imol))))))
-
-		  (format #t "INFO:: read cif model status: ~s~%" s1-cif)
 
                   (if (= s2 0)
                      (let ((map-1 (make-and-draw-map dir-target-mtz-file "FWT"    "PHWT"    "" 0 0))
