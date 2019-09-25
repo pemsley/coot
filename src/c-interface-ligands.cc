@@ -97,7 +97,8 @@ go_to_ligand_inner() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
-      if (is_valid_model_molecule(pp.second.first)) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 clipper::Coord_orth rc(graphics_info_t::RotationCentre_x(),
 				graphics_info_t::RotationCentre_y(),
@@ -108,14 +109,17 @@ go_to_ligand_inner() {
 	 if (new_centre.type == coot::NORMAL_CASE) {
 	    // g.setRotationCentre(new_centre.position);
 	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
+            std::string name = g.molecules[imol].get_residue_name(new_centre.residue_spec);
 	    
 	    g.update_things_on_move_and_redraw(); // now not done in perpendicular_ligand_view()
 	    std::string s = "Centred on residue ";
-	    // s += new_centre.residue_spec;
+	    s += new_centre.residue_spec.chain_id;
+	    s+= " ";
 	    s += coot::util::int_to_string(new_centre.residue_spec.res_no);
 	    s += new_centre.residue_spec.ins_code;
 	    s+= " ";
-	    s += new_centre.residue_spec.chain_id;
+	    s+= name;
+	    s+= " ";
 	    s += " in molecule #";
 	    s += coot::util::int_to_string(pp.second.first);
 	    s += ".";

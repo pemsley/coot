@@ -567,17 +567,19 @@ int updating_refmac_refinement_json_timeout_function(gpointer data) {
          json anim_part_id    = ls["id"];
          json anim_part_map   = ls["map"];
          json anim_part_model = ls["model"];
-         json anim_part_x     = ls["xmissing"];
+         json anim_part_x     = ls["xmissing"]; // test
          std::cout << "map: " << anim_part_map << std::endl;
          std::cout << "x:   " << anim_part_x   << std::endl;
 
          if (! anim_part_id.is_null() && !anim_part_model.is_null() && !anim_part_map.is_null()) {
 
-            std::string cycle = anim_part_id;
+            std::string id = anim_part_id;
             model_file_name = anim_part_model["filepath"];
             mtz_file_name = anim_part_map["filepath"];
 
             json column_sets = anim_part_map["columns"];
+	    coot::mtz_to_map_info_t mmi_2fofc;
+	    coot::mtz_to_map_info_t mmi_fofc;
             std::size_t n_column_sets = column_sets.size();
             for (std::size_t i=0; i<n_column_sets; i++) {
                json col_set = column_sets[i];
@@ -585,40 +587,100 @@ int updating_refmac_refinement_json_timeout_function(gpointer data) {
                   std::cout << "Found 2Fo-Fc" << std::endl;
                   json labels = col_set["labels"];
                   coot::mtz_to_map_info_t mmi;
+                  mmi.id = id;
                   mmi.mtz_file_name = mtz_file_name;
                   mmi.f_col         = labels[0];
                   mmi.phi_col       = labels[1];
                   mtz_map_infos.push_back(mmi);
+		  mmi_2fofc = mmi;
                }
                if (col_set["id"] == "Fo-Fc") {
                   std::cout << "Found Fo-Fc" << std::endl;
                   json labels = col_set["labels"];
                   coot::mtz_to_map_info_t mmi;
+                  mmi.id = id;
                   mmi.mtz_file_name = mtz_file_name;
                   mmi.f_col         = labels[0];
                   mmi.phi_col       = labels[1];
                   mmi.is_difference_map = true;
                   mtz_map_infos.push_back(mmi);
+		  mmi_fofc = mmi;
                }
             }
-
-
             if (true) { // debug
-               std::cout << "Here with cycle: " << cycle << std::endl;
+               std::cout << "Here with id: " << id << std::endl;
                std::cout << "Here with model_file_name: " << model_file_name << std::endl;
                std::cout << "Here with mtz_file_name: " << mtz_file_name << std::endl;
                for (unsigned int i=0; i<mtz_map_infos.size(); i++)
-                  std::cout << mtz_map_infos[i].mtz_file_name << " " << mtz_map_infos[i].f_col << " " << mtz_map_infos[i].phi_col << std::endl;
+                  std::cout << mtz_map_infos[i].mtz_file_name << " " << mtz_map_infos[i].id << " "
+                            << mtz_map_infos[i].f_col << " " << mtz_map_infos[i].phi_col << std::endl;
+
+               // OK, but which map and which model needs to be updated?
+               std::cout << "Here are the molecules so far " << std::endl;
+               for (int i=0; i<graphics_n_molecules(); i++) {
+                  std::cout << "molecule name " << i << " " << graphics_info_t::molecules[i].name_
+			    << std::endl;
+               }
             }
 
-            // OK, but which map and which model needs to be updated?
-            std::cout << "Here are the molecules so far " << std::endl;
+            int imol_model_updating = -1;
+            int imol_map_1_updating = -1;
+            int imol_map_2_updating = -1;
             for (int i=0; i<graphics_n_molecules(); i++) {
-               std::cout << "molecule name " << i << " " << graphics_info_t::molecules[i].name_ << std::endl;
+               std::string name = graphics_info_t::molecules[i].get_name();
+               std::string id_model = id + "_model";
+               std::string id_2fofc = id + "_2fofc";
+               std::string id_fofc  = id + "_fofc";
+               if (name == id_model) {
+                  if (is_valid_model_molecule(i)) {
+                     imol_model_updating = i;
+                     break;
+                  }
+               }
+               if (name == id_2fofc) {
+                  if (is_valid_map_molecule(i)) {
+                     imol_map_1_updating = i;
+                     break;
+                  }
+               }
+               if (name == id_fofc) {
+                  if (is_valid_map_molecule(i)) {
+                     imol_map_2_updating = i;
+                     break;
+                  }
+               }
             }
 
-            // Too much effort. Stop this now. Fix the interface the other way. Using the interface I already had.
-
+            if (is_valid_model_molecule(imol_model_updating)) {
+               std::string cwd = coot::util::current_working_dir();
+	       graphics_info_t::molecules[imol_model_updating].update_molecule(model_file_name, cwd);
+            }
+            if (is_valid_map_molecule(imol_map_1_updating)) {
+	       if (! mmi_2fofc.f_col.empty()) {
+		  std::string cwd = coot::util::current_working_dir();
+		  graphics_info_t::molecules[imol_map_1_updating].map_fill_from_mtz(mmi_2fofc.mtz_file_name,
+										    cwd,
+										    mmi_2fofc.f_col,
+										    mmi_2fofc.phi_col,
+										    mmi_2fofc.w_col,
+										    mmi_2fofc.use_weights,
+										    mmi_2fofc.is_difference_map,
+										    graphics_info_t::map_sampling_rate);
+	       }
+            }
+            if (is_valid_map_molecule(imol_map_2_updating)) {
+	       if (! mmi_fofc.f_col.empty()) {
+		  std::string cwd = coot::util::current_working_dir();
+		  graphics_info_t::molecules[imol_map_1_updating].map_fill_from_mtz(mmi_fofc.mtz_file_name,
+										    cwd,
+										    mmi_fofc.f_col,
+										    mmi_fofc.phi_col,
+										    mmi_fofc.w_col,
+										    mmi_fofc.use_weights,
+										    mmi_fofc.is_difference_map,
+										    graphics_info_t::map_sampling_rate);
+	       }
+            }
          }
       }
       catch(const nlohmann::detail::type_error &e) {

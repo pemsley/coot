@@ -816,6 +816,8 @@ public:        //                      public
 				 int bonds_box_type,
 				 bool warn_about_missing_symmetry_flag);
 
+   int update_molecule(std::string file_name, std::string cwd);
+
    void label_symmetry_atom(int i);
 
    // used for raster3d (where we need to know the position of the label)
@@ -842,7 +844,8 @@ public:        //                      public
    void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
    void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
 
-   std::string name_; // otherwise get and set, so make it public.
+   std::string name_;
+   std::string get_name() const { return name_; }
 
    int MoleculeNumber() const { return imol_no; }
 
@@ -865,6 +868,8 @@ public:        //                      public
 			  int use_weights,
 			  int is_diff_map, 
 			  float map_sampling_rate);
+
+   void map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &wcd, float sampling_rate);
 
    void map_fill_from_mtz_with_reso_limits(std::string mtz_file_name,
 					   std::string cwd,
@@ -1027,6 +1032,8 @@ public:        //                      public
    // found.
    // 
    mmdb::Residue *get_residue(const coot::residue_spec_t &rs) const;
+
+   std::string get_residue_name(const coot::residue_spec_t &rs) const;
 
    // Return a copy of the pointer (only) of the residue following
    // that of the given spec.  Return NULL on residue not found.

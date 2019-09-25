@@ -216,10 +216,10 @@ def get_eds_pdb_and_mtz(id):
     # 20161105 update from John Berrisford
     # eds_site = "http://eds.bmc.uu.se/eds"
     # eds_core = "http://eds.bmc.uu.se"
-    eds_site = "http://www.ebi.ac.uk/pdbe/coordinates"
-    eds_core = "http://www.ebi.ac.uk/pdbe" # for web pages
+    eds_site = "https://www.ebi.ac.uk/pdbe/coordinates"
+    eds_core = "https://www.ebi.ac.uk/pdbe" # for web pages
     # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
-    eds_coords_site = 'http://www.ebi.ac.uk/pdbe/entry-files/download'
+    eds_coords_site = 'https://www.ebi.ac.uk/pdbe/entry-files/download'
 
     # "1cbds" -> "cb/"
     #
@@ -251,7 +251,8 @@ def get_eds_pdb_and_mtz(id):
             model_url = eds_coords_site + "/" + target_pdb_file
             target_mtz_file = down_id + "_map.mtz"
             dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
-            mtz_url = eds_site  + "/files/" + target_mtz_file
+            # mtz_url = eds_site  + "/files/" + target_mtz_file
+            mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + down_id + "/" + down_id + "_map.mtz"
             eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
 
             print "model_url:", model_url
@@ -308,7 +309,7 @@ def get_pdb_redo(text):
             print "BL WARNING:: Accession code not 4 chars."
         else:
             text = string.lower(text)
-            stub = "http://pdb-redo.eu/db/" + \
+            stub = "https://pdb-redo.eu/db/" + \
                    text + "/" + text + "_final"
             pdb_file_name = text + "_final.pdb"
             mtz_file_name = text + "_final.mtz"

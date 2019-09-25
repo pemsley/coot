@@ -856,6 +856,13 @@ molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
    
 }
 
+void
+molecule_class_info_t::map_fill_from_mtz(const coot::mtz_to_map_info_t &mmi, const std::string &cwd, float sampling_rate) {
+
+   map_fill_from_mtz(mmi.mtz_file_name, cwd, mmi.f_col, mmi.phi_col, mmi.w_col, mmi.use_weights, mmi.is_difference_map, sampling_rate);
+
+}
+
 
 // 
 void
