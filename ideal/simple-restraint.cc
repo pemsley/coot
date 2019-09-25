@@ -1256,22 +1256,22 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 				       short int print_initial_chi_sq_flag,
 				       const coot::protein_geometry &geom) {
 
-   // std::cout << "------------ ::minimize() " << size() << std::endl;
 
-   unsigned int n_steps_per_relcalc_nbcs = 3000000;
+   unsigned int n_steps_per_relcalc_nbcs = 30000; // seems reasonable ATM
 
    n_times_called++;
    n_small_cycles_accumulator += n_times_called * nsteps_max;
 
+   // std::cout << "------------ ::minimize() " << size() << " " << n_small_cycles_accumulator << std::endl;
+
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
 
-#if 0
+#if 1
 
-   // This doesn't work - and on reflection as to why that is, it *cannot* work.
    // make_non_bonded_contact_restraints_ng() works using the residues of the
-   // input moolecule - and they are not going to change as the atoms in the atom
-   // vector move around.  We need a function that takes the atoms in atom and
+   // input molecule - and they are not going to change as the atoms in the atom
+   // vector move around.  Ideally, we need a function that takes the atoms in atom and
    // finds neighbours in mol - which is extremely not how refinement works in Coot,
    // because we find the residues to refine before refinement.
    //
@@ -1279,6 +1279,11 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    // and let a function in this class work out what the "residues near residues"
    // are. This is quite doable, but not for now - updating NBCs is not as
    // important as OpenGLv3 (shader) graphics.
+
+   // So, for now we can update non-bonded contacts between that atoms that
+   // we have for refinement (including the non-moving atoms).
+   // That should do a lot of work for us in domain-refine and coot-cuda-refine
+   // but not in wonky-N-terminus refine.
 
    if (n_small_cycles_accumulator >= n_steps_per_relcalc_nbcs) {
       auto tp_0 = std::chrono::high_resolution_clock::now();
