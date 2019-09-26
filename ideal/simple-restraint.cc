@@ -1257,7 +1257,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 				       const coot::protein_geometry &geom) {
 
 
-   unsigned int n_steps_per_relcalc_nbcs = 30000; // seems reasonable ATM
+   unsigned int n_steps_per_relcalc_nbcs = 100000; // Hmm.
+   // n_steps_per_relcalc_nbcs *= 1000;
 
    n_times_called++;
    n_small_cycles_accumulator += n_times_called * nsteps_max;
@@ -1293,7 +1294,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
       auto tp_2 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
+      // std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
       n_small_cycles_accumulator = 0;
    }
 #endif
@@ -4805,7 +4806,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 				  type_1, type_2, is_H_non_bonded_contact,
 				  fixed_atom_flags, dist_min);
 
-	       if (true)
+	       if (false)
 		  std::cout << "Adding NBC " << i << " " << filtered_non_bonded_atom_indices[i][j]
 			    << " " << type_1 << " " << type_2 << " " 
 			    << is_H_non_bonded_contact << " "
