@@ -4,6 +4,8 @@
    o Refine a bit of distorted RNA
      Marc Leibundgut 26/06/2019.
 
+   o how about fixing the raster3d install? Make it dependent on having gfortran
+
    o add a function to set the window title (don't for get to check
      for use-graphics)
 
