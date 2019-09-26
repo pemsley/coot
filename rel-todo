@@ -1,6 +1,8 @@
 
    For Release 0.8.9.3
 
+   o how about fixing the raster3d install? Make it dependent on having gfortran
+
    o add a function to set the window title (don't for get to check
      for use-graphics)
 

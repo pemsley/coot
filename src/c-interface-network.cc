@@ -76,6 +76,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    FILE *f = fopen(file_name, "wb");
 
    if (f) {
+
       // If you see a crash in curl_easy_init() then the problem is
       // somewhere else.  Curl_open() doesn't do anything except a bit
       // of mallocing.  So the memory is messed up elsewhere and beforehand.
@@ -117,6 +118,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 	 g.remove_curl_handle_with_file_name(file_name);
       } else {
 	 success = curl_easy_perform(c);
+         // std::cout << "coot_get_url_and_activate_curl_hook() here with status " << success << std::endl;
       }
 
       fclose(f);
