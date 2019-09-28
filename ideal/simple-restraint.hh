@@ -1080,14 +1080,10 @@ namespace coot {
 	 rama_type = RAMA_TYPE_LOGRAMA;
 	 rama_plot_weight = 40.0;
 
-#ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
 	 restraints_lock = false; // not locked
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // __NVCC__
-#endif // HAVE_CXX_THREAD
       }
 
 
@@ -2202,13 +2198,11 @@ namespace coot {
 	 multimin_func.params = (double *) this; 
       }
 
-#ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
       // we should not update the atom pull restraints while the refinement is running.
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
-#endif
 #endif
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()

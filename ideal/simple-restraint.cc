@@ -1258,7 +1258,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 
 
    unsigned int n_steps_per_relcalc_nbcs = 100000; // Hmm.
-   // n_steps_per_relcalc_nbcs *= 1000;
+   // n_steps_per_relcalc_nbcs *= 10000;
 
    n_times_called++;
    n_small_cycles_accumulator += n_times_called * nsteps_max;

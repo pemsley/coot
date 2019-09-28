@@ -110,6 +110,11 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
 void
 coot::restraints_container_t::clear_all_atom_pull_restraints() {
 
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      unlocked = false;
+   }
    unsigned int pre_size = size();
    if (pre_size > 0) {
       restraints_vec.erase(std::remove_if(restraints_vec.begin(),
@@ -121,6 +126,7 @@ coot::restraints_container_t::clear_all_atom_pull_restraints() {
 	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
 		   << post_size << std::endl;
    }
+   restraints_lock = false;
    needs_reset = true; // probably
 }
 
@@ -255,29 +261,6 @@ void coot::my_df_target_pos(const gsl_vector *v,
 }
 
 
-bool
-coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
-
-   // Is this used? From where? Should it be used?
-
-   std::cout << "--------------- Don't use this " << std::endl;
-
-   bool status = false;
-   double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
-                             // sync with below function, or make a data member
-
-   atom_spec_t dum;
-   unsigned int pre_size = size();
-   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dum)),
-			restraints_vec.end());
-   unsigned int post_size = size();
-   if (post_size < pre_size) status = true;
-   return status;
-}
-
-
 std::vector<coot::atom_spec_t>
 coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom_spec) {
 
@@ -290,6 +273,13 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
                              // sync with above function, or make a data member
 
+   // we don't want to do this at the same time as clear_all_atom_pull_retraints
+
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      unlocked = false;
+   }
    // set the return value:
    //
    std::vector<simple_restraint>::const_iterator it;
@@ -310,6 +300,6 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
 				       restraints_vec.end(),
 				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
 			restraints_vec.end());
-
+   restraints_lock = false;
    return v;
 }
