@@ -1735,7 +1735,7 @@ namespace coot {
 					    mmdb::Residue *res_2,
 					    const coot::protein_geometry &geom) const;
 
-      void make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
+      unsigned int  make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
       void make_non_bonded_contact_restraints_using_threads_ng(int imol, const protein_geometry &geom);
       std::vector<std::set<int> > non_bonded_contacts_atom_indices; // these can now get updated on the fly.
                                                        // We need to keep a record of what has

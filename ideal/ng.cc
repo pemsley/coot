@@ -109,19 +109,17 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
       if (do_rama_plot_restraints)
-	 make_rama_plot_restraints(residue_link_vector_map,
-				   residue_pair_link_set,
-				   geom);
+         make_rama_plot_restraints(residue_link_vector_map, residue_pair_link_set, geom);
 
       if (true) {
-	 auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-	 auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
-	 std::cout << "------------------ timings: for make_restraints_ng(): monomers: "
-		   << d10 << " links: " << d21 << " flank: " << d32 << " raic: " << d43 << " nbc: " << d54
-		   << " milliseconds " << std::endl;
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+         auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+         auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+         auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+         std::cout << "------------------ timings: for make_restraints_ng(): monomers: "
+	           << d10 << " links: " << d21 << " flank: " << d32 << " raic: " << d43 << " nbc: " << d54
+	           << " milliseconds " << std::endl;
       }
 
       // probably not needed because plane restraints don't come in a bunch (I don't know why)
@@ -888,9 +886,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 }
 
 
-void
+unsigned int
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 								    const coot::protein_geometry &geom) {
+
+   unsigned int n_nbc_restraints = 0;
 
    // std::cout << "make_non_bonded_contact_restraints_ng() " << size() << " "  << std::endl;
 
@@ -923,9 +923,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       std::string et = get_type_energy(imol, at, geom);
       energy_type_for_atom[i] = et;
       if (H_parent_atom_is_donor(at))
-	 H_atom_parent_atom_is_donor_vec[i] = true;
+         H_atom_parent_atom_is_donor_vec[i] = true;
       if (is_acceptor(et, geom))
-	 atom_is_acceptor_vec[i] = true;
+         atom_is_acceptor_vec[i] = true;
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -950,20 +950,20 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       std::set<unsigned int>::const_iterator it;
       for (it=n_set.begin(); it!=n_set.end(); it++) {
 
-	 const unsigned int &j = *it;
+         const unsigned int &j = *it;
 
-	 if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
-	    continue;
+         if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
+            continue;
 
-	 // for updating non-bonded contacts
-	 if (non_bonded_contacts_atom_indices[i].find(j) != non_bonded_contacts_atom_indices[i].end())
-	    continue;
+         // for updating non-bonded contacts
+         if (non_bonded_contacts_atom_indices[i].find(j) != non_bonded_contacts_atom_indices[i].end())
+            continue;
 
-	 mmdb::Atom *at_2 = atom[j];
+         mmdb::Atom *at_2 = atom[j];
 
-	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
-	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
-	       continue;
+         if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
+            if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+               continue;
 
 	 if (j < i) /* only add NBC one way round */
 	    continue;
@@ -1139,46 +1139,48 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	    }
 	 }
 
-	 bool is_H_non_bonded_contact = false;
+         bool is_H_non_bonded_contact = false;
 
-	 if (is_hydrogen(at_1)) {
-	    is_H_non_bonded_contact = true;
-	    if (H_parent_atom_is_donor(at_1))
-	       if (is_acceptor(type_2, geom))
-		  dist_min -= 0.7;
-	 }
-	 if (is_hydrogen(at_2)) {
-	    is_H_non_bonded_contact = true;
-	    if (H_parent_atom_is_donor(at_2))
-	       if (is_acceptor(type_1, geom))
-		  dist_min -= 0.7;
-	 }
+         if (is_hydrogen(at_1)) {
+            is_H_non_bonded_contact = true;
+            if (H_parent_atom_is_donor(at_1))
+               if (is_acceptor(type_2, geom))
+	          dist_min -= 0.7;
+         }
+         if (is_hydrogen(at_2)) {
+            is_H_non_bonded_contact = true;
+           if (H_parent_atom_is_donor(at_2))
+               if (is_acceptor(type_1, geom))
+	          dist_min -= 0.7;
+         }
 
+         non_bonded_contacts_atom_indices[i].insert(j);
+         simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
+         simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
+                            nbcf, i, *it,
+                            energy_type_for_atom[i],
+                            energy_type_for_atom[*it],
+                            is_H_non_bonded_contact,
+                            fixed_atom_flags, dist_min);
+         if (false) // debug
+            std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " " 
+		              << energy_type_for_atom[*it] << " "
+		              << is_H_non_bonded_contact << " "
+		              << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
+		              << dist_min <<  "\n";
 
-	 non_bonded_contacts_atom_indices[i].insert(j);
-	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
-	 simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
-			    nbcf, i, *it,
-			    energy_type_for_atom[i],
-			    energy_type_for_atom[*it],
-			    is_H_non_bonded_contact,
-			    fixed_atom_flags, dist_min);
-	 if (false) // debug
-	    std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " " 
-		      << energy_type_for_atom[*it] << " "
-		      << is_H_non_bonded_contact << " "
-		      << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
-		      << dist_min <<  "\n";
-
-	 r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
+			n_nbc_restraints++;
+         r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
                                                   // restraints
-	 r.restraints_index = size(); // likewise
-	 restraints_vec.push_back(r); // use push_back_restraint
+         r.restraints_index = size(); // likewise
+         restraints_vec.push_back(r); // use push_back_restraint
 
       }
    }
    make_df_restraints_indices();
    make_distortion_electron_density_ranges();
+
+	return n_nbc_restraints;
 
 }
 

@@ -1257,8 +1257,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 				       const coot::protein_geometry &geom) {
 
 
-   unsigned int n_steps_per_relcalc_nbcs = 100000; // Hmm.
-   // n_steps_per_relcalc_nbcs *= 10000;
+   unsigned int n_steps_per_recalc_nbcs = 300000; // Hmm.
+   // n_steps_per_relcalc_nbcs *= 10;
 
    n_times_called++;
    n_small_cycles_accumulator += n_times_called * nsteps_max;
@@ -1286,15 +1286,19 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    // That should do a lot of work for us in domain-refine and coot-cuda-refine
    // but not in wonky-N-terminus refine.
 
-   if (n_small_cycles_accumulator >= n_steps_per_relcalc_nbcs) {
+   if (n_small_cycles_accumulator >= n_steps_per_recalc_nbcs) {
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      make_non_bonded_contact_restraints_ng(imol, geom);
+      unsigned int n_new = make_non_bonded_contact_restraints_ng(imol, geom);
       auto tp_1 = std::chrono::high_resolution_clock::now();
-      setup_minimize();
-      auto tp_2 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      // std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
+      // setup_minimize(); // needed? (seems not)
+      if (false) {
+         auto tp_2 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+         unsigned int n_restraints = size();
+         std::cout << "minimize() nbc updated made " << n_new << " (new) nbc restraints: " << n_restraints << " total - timings: "
+                   << d10 << " " << d21 << " milliseconds" << std::endl;
+      }
       n_small_cycles_accumulator = 0;
    }
 #endif
