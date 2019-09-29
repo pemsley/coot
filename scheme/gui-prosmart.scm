@@ -234,6 +234,17 @@
 	    (add-prosmart-secondard-structure-restraints aa-imol))))
 
 	(add-simple-coot-menu-menuitem
+	 menu "Save as REFMAC restraints..."
+	 (lambda ()
+	   (generic-chooser-and-file-selector 
+	    "Save REFMAC restraints for molecule " 
+	    valid-model-molecule?
+	    " Restraints file name:  " 
+	    "refmac-restraints.txt"
+	    (lambda (imol file-name)
+	      (extra-restraints->refmac-restraints-file imol file-name)))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "ProSMART..."
 	 (lambda ()
 	   (let ((window (gtk-window-new 'toplevel))

@@ -451,18 +451,6 @@
 				       (using-active-atom
 					(delete-extra-restraints-worse-than aa-imol n))))))))
 
-
-      (add-simple-coot-menu-menuitem
-       menu "Save as REFMAC restraints..."
-       (lambda ()
-	 (generic-chooser-and-file-selector "Save REFMAC restraints for molecule " 
-					    valid-model-molecule?
-					    " Restraints file name:  " 
-					    "refmac-restraints.txt"
-					    (lambda (imol file-name)
-					      (extra-restraints->refmac-restraints-file imol file-name)))))
-
-
     (let ((menu (coot-menubar-menu "Restraints")))
       (add-simple-coot-menu-menuitem 
        menu "Add Parallel Planes restraint..."
