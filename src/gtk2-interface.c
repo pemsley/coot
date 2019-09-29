@@ -5239,7 +5239,7 @@ create_display_control_window_glade (void)
   GtkWidget *label727;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request (display_control_window_glade, 600, 316);
+  gtk_widget_set_size_request (display_control_window_glade, 700, 320);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), "Display Manager");
 
   vbox30 = gtk_vbox_new (FALSE, 0);

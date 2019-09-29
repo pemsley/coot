@@ -9071,8 +9071,8 @@ just the cell and symmetry)
 </widget>
 
 <widget class="GtkWindow" id="display_control_window_glade">
-  <property name="width_request">600</property>
-  <property name="height_request">316</property>
+  <property name="width_request">700</property>
+  <property name="height_request">320</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Display Manager</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
