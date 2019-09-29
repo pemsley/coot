@@ -5408,6 +5408,9 @@ def add_module_cryo_em_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("Cryo-EM")
 
+      add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
+                                    lambda func: sharpen_blur_map_gui())
+
       add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
                                     lambda func: refmac_multi_sharpen_gui())
 

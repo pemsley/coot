@@ -37,7 +37,7 @@ dist_pkgpython_PYTHON = \
    contact_score_isolated_ligand.py          gui_contact_score_isolated_ligand.py \
    dictionary_generators.py cho_restraints_from_models.py interactive_nudge_residues.py \
    pdbe_validation_data.py  pathology_plots.py ligand_validation_sliders.py \
-   enhanced_ligand.py	gui_ligand_sliders.py		      \
+   enhanced_ligand.py	gui_ligand_sliders.py sharpen_blur.py    \
    acedrg_link.py coot_toolbuttons.py rcrane_loader.py add_linked_cho.py find_baddies.py \
    chemical_feature_clusters.py res_spec_utils.py coot_output_to_window.py \
    $(TEXI_FILE)

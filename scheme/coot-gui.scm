@@ -4010,7 +4010,11 @@
       (let ((menu (coot-menubar-menu "Cryo-EM")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Multi-sharpen..."
+	 menu "Sharpen/Blur..."
+	 sharpen-blur-map-gui)
+
+	(add-simple-coot-menu-menuitem
+	 menu "Multi-sharpen using Refmac..."
 	 refmac-multi-sharpen-gui)
 
 	(add-simple-coot-menu-menuitem

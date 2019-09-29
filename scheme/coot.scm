@@ -105,6 +105,7 @@
 								      "enhanced-ligand.scm"
 								      "ligand-check.scm"
 								      "acedrg-link.scm"
+								      "sharpen-blur.scm"
 								      "interactive-nudge-residues.scm"
 								      "gui-ligand-sliders.scm"
 								      "find-baddies.scm"
