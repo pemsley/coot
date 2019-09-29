@@ -396,13 +396,13 @@
 				 (delete-all-extra-restraints imol)))))
 
       (add-simple-coot-menu-menuitem 
-       menu "ProSMART restraints interesting limit to 0.5"
+       menu "Interesting limit to 0.5"
        (lambda ()
 	 (using-active-atom
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -0.5 0.5))))
 
       (add-simple-coot-menu-menuitem 
-       menu "ProSMART restraints interesting limit to 2.5"
+       menu "Interesting limit to 2.5"
        (lambda ()
 	 (using-active-atom
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -2.5 2.5))))
@@ -414,7 +414,7 @@
           (set-show-extra-restraints aa-imol 0))))
          
       (add-simple-coot-menu-menuitem
-       menu "Display ProSMART Extra Restraints"
+       menu "Display Extra Restraints"
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 1))))
@@ -424,7 +424,6 @@
        (lambda ()
          (using-active-atom
           (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 1))))
-
 
       (add-simple-coot-menu-menuitem
        menu "Extra Restraints Standard Representation"

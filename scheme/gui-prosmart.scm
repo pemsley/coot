@@ -105,10 +105,10 @@
 			(info-dialog s))))
 		(list helix-out strand-out)))))
 
-(define (add-module-prosmart) 
+(define (add-module-restraints)
 
   (if (defined? 'coot-main-menubar)
-      (let ((menu (coot-menubar-menu "ProSMART")))
+      (let ((menu (coot-menubar-menu "Restraints")))
 	
 	(add-simple-coot-menu-menuitem
 	 menu "Generate Self Restraints 3.7 for Chain"
@@ -157,54 +157,6 @@
 
 	      (generate-local-self-restraints-by-residues-scm aa-imol residue-specs local-dist-max)))))
 
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add ProSMART Secondary Structure Restraints"
-	 (lambda ()
-	   (using-active-atom
-	    (add-prosmart-secondard-structure-restraints aa-imol))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "ProSMART..."
-	 (lambda ()
-	   (let ((window (gtk-window-new 'toplevel))
-		 (hbox (gtk-hbox-new #f 0))
-		 (vbox (gtk-vbox-new #f 0))
-		 (h-sep (gtk-hseparator-new))
-		 (chooser-hint-text-1 " Target molecule ")
-		 (chooser-hint-text-2 " Reference (high-res) molecule ")
-		 (go-button (gtk-button-new-with-label " ProSMART "))
-		 (cancel-button (gtk-button-new-with-label " Cancel "))
-		 (check-button (gtk-check-button-new-with-label "Include Side-chains")))
-
-	     (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser
-						   vbox chooser-hint-text-1))
-		   (option-menu-mol-list-pair-ref (generic-molecule-chooser
-						   vbox chooser-hint-text-2)))
-
-	       (gtk-box-pack-start vbox check-button  #f #f 2)
-	       (gtk-box-pack-start vbox h-sep         #f #f 2)
-	       (gtk-box-pack-start vbox hbox          #f #f 2)
-	       (gtk-box-pack-start hbox go-button     #f #f 6)
-	       (gtk-box-pack-start hbox cancel-button #f #f 6)
-	       (gtk-container-add window vbox)
-
-	       (gtk-signal-connect cancel-button "clicked"
-				   (lambda ()
-				     (gtk-widget-destroy window)))
-
-	       (gtk-signal-connect go-button "clicked"
-				   (lambda ()
-				     (let ((imol-tar
-					    (apply get-option-menu-active-molecule
-						   option-menu-mol-list-pair-tar))
-					   (imol-ref
-					    (apply get-option-menu-active-molecule
-						   option-menu-mol-list-pair-ref))
-					   (do-side-chains? (gtk-toggle-button-get-active check-button)))
-				       (run-prosmart imol-tar imol-ref do-side-chains?)
-				       (gtk-widget-destroy window))))
-	       (gtk-widget-show-all window)))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Undisplay Extra Restraints"
@@ -260,11 +212,68 @@
 ;	   (using-active-atom
 ;	    (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 0))))
 
+	(load-by-search "user-define-restraints.scm")
+
 	(add-simple-coot-menu-menuitem
 	 menu "Delete All Extra Restraints"
 	 (lambda ()
 	   (using-active-atom
-	    (delete-all-extra-restraints aa-imol))))
+	    (delete-all-extra-restraints aa-imol)))))))
+
+
+
+(define (add-module-prosmart)
+
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "ProSMART")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add ProSMART Secondary Structure Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (add-prosmart-secondard-structure-restraints aa-imol))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "ProSMART..."
+	 (lambda ()
+	   (let ((window (gtk-window-new 'toplevel))
+		 (hbox (gtk-hbox-new #f 0))
+		 (vbox (gtk-vbox-new #f 0))
+		 (h-sep (gtk-hseparator-new))
+		 (chooser-hint-text-1 " Target molecule ")
+		 (chooser-hint-text-2 " Reference (high-res) molecule ")
+		 (go-button (gtk-button-new-with-label " ProSMART "))
+		 (cancel-button (gtk-button-new-with-label " Cancel "))
+		 (check-button (gtk-check-button-new-with-label "Include Side-chains")))
+
+	     (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser
+						   vbox chooser-hint-text-1))
+		   (option-menu-mol-list-pair-ref (generic-molecule-chooser
+						   vbox chooser-hint-text-2)))
+
+	       (gtk-box-pack-start vbox check-button  #f #f 2)
+	       (gtk-box-pack-start vbox h-sep         #f #f 2)
+	       (gtk-box-pack-start vbox hbox          #f #f 2)
+	       (gtk-box-pack-start hbox go-button     #f #f 6)
+	       (gtk-box-pack-start hbox cancel-button #f #f 6)
+	       (gtk-container-add window vbox)
+
+	       (gtk-signal-connect cancel-button "clicked"
+				   (lambda ()
+				     (gtk-widget-destroy window)))
+
+	       (gtk-signal-connect go-button "clicked"
+				   (lambda ()
+				     (let ((imol-tar
+					    (apply get-option-menu-active-molecule
+						   option-menu-mol-list-pair-tar))
+					   (imol-ref
+					    (apply get-option-menu-active-molecule
+						   option-menu-mol-list-pair-ref))
+					   (do-side-chains? (gtk-toggle-button-get-active check-button)))
+				       (run-prosmart imol-tar imol-ref do-side-chains?)
+				       (gtk-widget-destroy window))))
+	       (gtk-widget-show-all window)))))
 
 	)))
 
