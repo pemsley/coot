@@ -612,6 +612,12 @@ apply_lsq_matches_simple(int imol_reference, int imol_moving) {
    return status;
 }
 
+// put this declaration in a header
+void fill_lsq_combobox_with_chain_options(GtkWidget *chain_id_combobox,
+                                          int is_reference_structure_flag,
+                                          const char *active_chain_id);
+
+
 
 
 GtkWidget *wrapped_create_least_squares_dialog() {
@@ -637,13 +643,21 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    GtkWidget *match_type_all_check_button =  lookup_widget(lsq_dialog, "least_squares_match_type_all_radiobutton");
    GtkWidget *match_type_main_check_button = lookup_widget(lsq_dialog, "least_squares_match_type_main_radiobutton");
    GtkWidget *match_type_main_calpha_button =lookup_widget(lsq_dialog, "least_squares_match_type_calpha_radiobutton");
-   GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
-   GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
+
+   // GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
+   // GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
+
+   GtkWidget *ref_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_reference_chain_id_combobox");
+   GtkWidget *mov_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_moving_chain_id_combobox");
    
    graphics_info_t g;
-   GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
-   GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
-   
+   // GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
+   // GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
+   GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(NULL);
+   GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(NULL);
+
+   // this is not useful now - we will look up the imols from the widget when the "OK" button is clicked.
+   //
    int imol_1 = first_coords_imol();
    int imol_2 = first_coords_imol();
    if (! is_valid_model_molecule(graphics_info_t::lsq_ref_imol))
@@ -665,11 +679,14 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    gtk_entry_set_text(GTK_ENTRY(mov_res_range_1), clipper::String(g.lsq_dialog_values.mov_res_range_start).c_str());
    gtk_entry_set_text(GTK_ENTRY(mov_res_range_2), clipper::String(g.lsq_dialog_values.mov_res_range_end).c_str());
 
-   std::string chain_id_ref = g.lsq_dialog_values.chain_id_ref.c_str();
-   std::string chain_id_mov = g.lsq_dialog_values.chain_id_mov.c_str();
+   std::string chain_id_ref = g.lsq_dialog_values.chain_id_ref;
+   std::string chain_id_mov = g.lsq_dialog_values.chain_id_mov;
 
-   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, chain_id_ref.c_str());
-   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, chain_id_mov.c_str());
+   // fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, chain_id_ref.c_str());
+   // fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, chain_id_mov.c_str());
+
+   fill_lsq_combobox_with_chain_options(ref_mol_chain_id_combobox, 1, chain_id_ref.c_str());
+   fill_lsq_combobox_with_chain_options(mov_mol_chain_id_combobox, 0, chain_id_mov.c_str());
 
    return lsq_dialog;
 
@@ -725,8 +742,8 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
 		           1: main
    		           2: all  */
 
-   GtkWidget *mov_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_molecule_optionmenu");
-   GtkWidget *ref_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_molecule_optionmenu");
+   // GtkWidget *mov_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_molecule_optionmenu");
+   // GtkWidget *ref_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_molecule_optionmenu");
    GtkWidget *ref_res_range_1 = lookup_widget(lsq_dialog, "least_squares_reference_range_1_entry");
    GtkWidget *ref_res_range_2 = lookup_widget(lsq_dialog, "least_squares_reference_range_2_entry");
    GtkWidget *mov_res_range_1 = lookup_widget(lsq_dialog, "least_squares_moving_range_1_entry");
@@ -735,12 +752,16 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    GtkWidget *match_type_all_check_button =  lookup_widget(lsq_dialog, "least_squares_match_type_all_radiobutton");
    GtkWidget *match_type_main_check_button = lookup_widget(lsq_dialog, "least_squares_match_type_main_radiobutton");
    GtkWidget *match_type_calpha_check_button =lookup_widget(lsq_dialog, "least_squares_match_type_calpha_radiobutton");
-   GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
-   GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
 
+   // GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
+   // GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
+
+   GtkWidget *ref_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_reference_chain_id_combobox");
+   GtkWidget *mov_mol_chain_id_combobox = lookup_widget(lsq_dialog, "least_squares_moving_chain_id_combobox");
+   
    GtkWidget *copy_checkbutton = lookup_widget(lsq_dialog, "least_squares_move_copy_checkbutton");
    if (copy_checkbutton) { 
-      if (GTK_TOGGLE_BUTTON(copy_checkbutton)->active) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(copy_checkbutton))) {
 	 int new_imol_moving = copy_molecule(imol_moving);
 	 imol_moving = new_imol_moving;
 	 graphics_info_t::lsq_mov_imol = imol_moving;
@@ -758,17 +779,20 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    txt = gtk_entry_get_text(GTK_ENTRY(mov_res_range_2));
    mov_end_resno = atoi(txt);
 
+   // These are calculated on the fly now.
+   // std::string ref_chain_id_str = graphics_info_t::lsq_match_chain_id_ref;
+   // std::string mov_chain_id_str = graphics_info_t::lsq_match_chain_id_mov;
 
-   std::string ref_chain_id_str = graphics_info_t::lsq_match_chain_id_ref;
-   std::string mov_chain_id_str = graphics_info_t::lsq_match_chain_id_mov;
+   std::string ref_chain_id_str = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(ref_mol_chain_id_combobox));
+   std::string mov_chain_id_str = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(mov_mol_chain_id_combobox));
 
-   if (GTK_TOGGLE_BUTTON(match_type_all_check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_all_check_button)))
       match_type = 0;
-   if (GTK_TOGGLE_BUTTON(match_type_main_check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_main_check_button)))
       match_type = 1;
-   if (GTK_TOGGLE_BUTTON(match_type_calpha_check_button)->active)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(match_type_calpha_check_button)))
       match_type = 2;
-   
+
    std::cout << "INFO:: reference from " << ref_start_resno << " to " <<  ref_end_resno << " chain "
 	     << ref_chain_id_str << " moving from " << mov_start_resno << " to "
 	     << mov_end_resno << " chain " <<  mov_chain_id_str << " match type: " << match_type
@@ -843,15 +867,14 @@ fill_lsq_combobox_with_chain_options(GtkWidget *chain_combobox,
    // graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
    // int is_reference_structure_flag) {
 
-   GCallback callback_func;
+   GCallback callback_func = NULL;
    int imol = -1;
    if (is_reference_structure_flag) {  
       imol = graphics_info_t::lsq_ref_imol;
-      callback_func = G_CALLBACK(lsq_reference_chain_option_menu_item_activate);
+      // callback_func = G_CALLBACK(lsq_reference_chain_option_menu_item_activate);
    } else {
       imol = graphics_info_t::lsq_mov_imol;
-       callback_func =
-	 G_CALLBACK(lsq_moving_chain_option_menu_item_activate);
+      // callback_func = G_CALLBACK(lsq_moving_chain_option_menu_item_activate);
    }
 
    if (false) { // debug

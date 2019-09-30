@@ -4200,7 +4200,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -24710,10 +24709,8 @@ create_least_squares_dialog (void)
   GtkWidget *frame170;
   GtkWidget *vbox189;
   GtkWidget *label292;
-  GtkWidget *least_squares_reference_molecule_optionmenu;
   GtkWidget *least_squares_reference_molecule_combobox;
   GtkWidget *label293;
-  GtkWidget *least_squares_moving_molecule_optionmenu;
   GtkWidget *least_squares_moving_molecule_combobox;
   GtkWidget *frame171;
   GtkWidget *vbox190;
@@ -24723,14 +24720,14 @@ create_least_squares_dialog (void)
   GtkWidget *label295;
   GtkWidget *least_squares_reference_range_2_entry;
   GtkWidget *label296;
-  GtkWidget *least_squares_reference_chain_id;
+  GtkWidget *least_squares_reference_chain_id_combobox;
   GtkWidget *hbox148;
   GtkWidget *label297;
   GtkWidget *least_squares_moving_range_1_entry;
   GtkWidget *label298;
   GtkWidget *least_squares_moving_range_2_entry;
   GtkWidget *label299;
-  GtkWidget *least_squares_moving_chain_id;
+  GtkWidget *least_squares_moving_chain_id_combobox;
   GtkWidget *frame169;
   GtkWidget *vbox188;
   GtkWidget *least_squares_match_type_all_radiobutton;
@@ -24783,13 +24780,10 @@ create_least_squares_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label292), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label292), 0, 0.5);
 
-  least_squares_reference_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_reference_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_optionmenu, FALSE, FALSE, 0);
-
   least_squares_reference_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_reference_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_combobox, TRUE, TRUE, 0);
+  GTK_WIDGET_SET_FLAGS (least_squares_reference_molecule_combobox, GTK_CAN_FOCUS);
 
   label293 = gtk_label_new ("Moving Molecule:");
   gtk_widget_show (label293);
@@ -24797,13 +24791,10 @@ create_least_squares_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label293), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label293), 0, 0.5);
 
-  least_squares_moving_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_moving_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_optionmenu, FALSE, FALSE, 0);
-
   least_squares_moving_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_moving_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_combobox, TRUE, TRUE, 0);
+  GTK_WIDGET_SET_FLAGS (least_squares_moving_molecule_combobox, GTK_CAN_FOCUS);
 
   frame171 = gtk_frame_new (NULL);
   gtk_widget_show (frame171);
@@ -24841,9 +24832,9 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox147), label296, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label296), GTK_JUSTIFY_CENTER);
 
-  least_squares_reference_chain_id = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_reference_chain_id);
-  gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_chain_id, FALSE, FALSE, 0);
+  least_squares_reference_chain_id_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (least_squares_reference_chain_id_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_chain_id_combobox, TRUE, TRUE, 0);
 
   hbox148 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox148);
@@ -24872,9 +24863,9 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox148), label299, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label299), GTK_JUSTIFY_CENTER);
 
-  least_squares_moving_chain_id = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_moving_chain_id);
-  gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_chain_id, FALSE, FALSE, 0);
+  least_squares_moving_chain_id_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (least_squares_moving_chain_id_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_chain_id_combobox, TRUE, TRUE, 0);
 
   frame169 = gtk_frame_new (NULL);
   gtk_widget_show (frame169);
@@ -25010,10 +25001,8 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame170, "frame170");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox189, "vbox189");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label292, "label292");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_optionmenu, "least_squares_reference_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_combobox, "least_squares_reference_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label293, "label293");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_optionmenu, "least_squares_moving_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_combobox, "least_squares_moving_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame171, "frame171");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox190, "vbox190");
@@ -25023,14 +25012,14 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label295, "label295");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_range_2_entry, "least_squares_reference_range_2_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label296, "label296");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_chain_id, "least_squares_reference_chain_id");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_chain_id_combobox, "least_squares_reference_chain_id_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox148, "hbox148");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label297, "label297");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_range_1_entry, "least_squares_moving_range_1_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label298, "label298");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_range_2_entry, "least_squares_moving_range_2_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label299, "label299");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_chain_id, "least_squares_moving_chain_id");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_chain_id_combobox, "least_squares_moving_chain_id_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame169, "frame169");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox188, "vbox188");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_match_type_all_radiobutton, "least_squares_match_type_all_radiobutton");
