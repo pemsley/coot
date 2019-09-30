@@ -3477,6 +3477,8 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 	 whole_res_flag = 0;
       }
 
+      if (altconf == "*") whole_res_flag = 1;
+
       r = coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(orig_mol, SelResidues[ires], altconf, whole_res_flag, atom_index_handle, afix_handle_new_mol);
       
       chain->AddResidue(r);
