@@ -617,6 +617,26 @@ void fill_lsq_combobox_with_chain_options(GtkWidget *chain_id_combobox,
                                           int is_reference_structure_flag,
                                           const char *active_chain_id);
 
+void lsq_ref_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   std::cout << "Here in lsq_ref_mol_combobox_changed() " << std::endl;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   std::string ss = "Unset";
+   GtkWidget *chain_id_combobox = reinterpret_cast<GtkWidget *> (data);
+   graphics_info_t::lsq_ref_imol = imol; // meh, I'd pass this in the function these days.
+   fill_lsq_combobox_with_chain_options(chain_id_combobox, 1, ss.c_str());
+      
+}
+
+void lsq_mov_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
+
+   std::cout << "Here in lsq_mov_mol_combobox_changed() " << std::endl;
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   std::string ss = "Unset";
+   GtkWidget *chain_id_combobox = reinterpret_cast<GtkWidget *> (data);
+   graphics_info_t::lsq_mov_imol = imol;
+   fill_lsq_combobox_with_chain_options(chain_id_combobox, 0, ss.c_str());
+}
 
 
 
@@ -653,8 +673,15 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    graphics_info_t g;
    // GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
    // GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
-   GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(NULL);
-   GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(NULL);
+
+   // we need to be able to change the chain combobox items when the molecule combobox changes
+   //
+   GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_combobox_changed);
+   GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_combobox_changed);
+
+   g_signal_connect(ref_combobox, "changed", callback_func1, ref_mol_chain_id_combobox);
+   g_signal_connect(mov_combobox, "changed", callback_func2, mov_mol_chain_id_combobox);
+
 
    // this is not useful now - we will look up the imols from the widget when the "OK" button is clicked.
    //
@@ -672,6 +699,12 @@ GtkWidget *wrapped_create_least_squares_dialog() {
 
    g.fill_combobox_with_coordinates_options(ref_combobox, callback_func1, imol_1);
    g.fill_combobox_with_coordinates_options(mov_combobox, callback_func2, imol_2);
+
+   // make entries smaller
+   gtk_widget_set_size_request(ref_res_range_1, 80, -1);
+   gtk_widget_set_size_request(ref_res_range_2, 80, -1);
+   gtk_widget_set_size_request(mov_res_range_1, 80, -1);
+   gtk_widget_set_size_request(mov_res_range_2, 80, -1);
 
    // fill with 1 to 999
    gtk_entry_set_text(GTK_ENTRY(ref_res_range_1), clipper::String(g.lsq_dialog_values.ref_res_range_start).c_str());
@@ -732,8 +765,15 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
    graphics_info_t g;
    g.lsq_dialog_values.update(lsq_dialog);
 
-   int imol_reference = graphics_info_t::lsq_ref_imol;
-   int imol_moving    = graphics_info_t::lsq_mov_imol;
+   // int imol_reference = graphics_info_t::lsq_ref_imol;
+   // int imol_moving    = graphics_info_t::lsq_mov_imol;
+
+   GtkWidget *ref_combobox = lookup_widget(lsq_dialog, "least_squares_reference_molecule_combobox");
+   GtkWidget *mov_combobox = lookup_widget(lsq_dialog, "least_squares_moving_molecule_combobox");
+   //
+   int imol_reference = my_combobox_get_imol(GTK_COMBO_BOX(ref_combobox));
+   int imol_moving    = my_combobox_get_imol(GTK_COMBO_BOX(mov_combobox));
+
    int ref_start_resno = -9999;
    int ref_end_resno =   -9999;
    int mov_start_resno = -9999;
