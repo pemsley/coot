@@ -822,7 +822,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
       start_stop_pairs_vec.push_back(p);
    }
 
-   if (true) {
+   if (false) { // debugging
       std::cout << "n_per_thread " << n_per_thread << std::endl;
       std::cout << "n_atoms_limit_for_nbc " << n_atoms_limit_for_nbc << std::endl;
       for (std::size_t ii=0; ii<start_stop_pairs_vec.size(); ii++) {
