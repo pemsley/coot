@@ -1058,6 +1058,7 @@ namespace coot {
       	 verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
 	 n_atoms = 0;
+	 n_atoms_limit_for_nbc = 0; // needs to be set in every constructor.
 	 x = 0;
 	 mol = 0;
 	 n_atoms = 0;

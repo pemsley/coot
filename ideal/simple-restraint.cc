@@ -831,9 +831,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // we don't need to calculate the NBC for all atoms - just these ones:
    n_atoms_limit_for_nbc = 0;
-   for (unsigned int i=0; i<residues.size(); i++)
+   for (unsigned int i=0; i<residues.size(); i++) {
       n_atoms_limit_for_nbc += residues[i].second->GetNumberOfAtoms();
-
+      // std::cout << "Here in init_from_residue_vec() with n_atoms_limit_for_nbc " << n_atoms_limit_for_nbc << std::endl;
+   }
 
    // Include only the fixed residues, because they are the flankers,
    // the other residues are the ones in the passed residues vector.
@@ -2290,7 +2291,7 @@ coot::restraints_container_t::resolve_bonds(const gsl_vector *v) const {
 					 std::fabs(b_uv.y()),
 					 std::fabs(b_uv.z()));
 	    clipper::Coord_orth frag(b_uv_abs * delta);
-	    resultant.add(clipper::Coord_orth(b_uv_abs * delta));
+	    resultant.add(delta, clipper::Coord_orth(b_uv_abs * delta));
 	 }
       }
    }
