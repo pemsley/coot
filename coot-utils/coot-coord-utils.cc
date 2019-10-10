@@ -4411,6 +4411,9 @@ coot::util::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) {
       if (atom_name == " CA ") {
 	 return residue_atoms[i];
       }
+      if (atom_name == " C1'") {
+	 return residue_atoms[i];
+      }
    }
 
    if (nResidueAtoms > 0) {
