@@ -1,7 +1,7 @@
 
 # find bad things in the structure - rama, C-beta, rotamer, atom clashes baddies
 #
-def validation_outlier_dialog(imol, imol_map):
+def validation_outliers_dialog(imol, imol_map):
 
     dialog_vbox = False
     window = False
@@ -27,7 +27,7 @@ def validation_outlier_dialog(imol, imol_map):
             return r
 
     def make_window_title(n):
-        return "Coot Interesting/Outliers/Problems: " + str(n-1)
+        return "Coot Interesting/Outliers/Problems: " + str(n)
 
     def find_c_beta_baddies():
         try:
@@ -136,7 +136,7 @@ def validation_outlier_dialog(imol, imol_map):
                 window.set_title(make_window_title(len(buttons)))
             for butt in old_buttons:
                 butt.destroy()
-            validation_outlier_dialog(imol, imol_map)
+            validation_outliers_dialog(imol, imol_map)
 
     def ok_to_do_density_correlations_qm():
         if poor_density_checkbutton:

@@ -3492,12 +3492,18 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 def get_drug_via_wikipedia(drug_name_in):
 
 
-    import urllib2
+    import urllib2, os
     from xml.etree import ElementTree
 
     def get_redirected_drug_name(xml):
         return parse_wiki_drug_xml(xml, '#REDIRECT', True)
-    
+
+    def file_seems_good_qm(file_name):
+        if not os.path.isfile(file_name):
+            return False
+        else:
+            return os.stat(file_name).st_size > 20
+
     def parse_wiki_drug_xml(tree, key, redirect=False):
         key_re = re.compile(key)
         drug_bank_id = False
@@ -3535,41 +3541,79 @@ def get_drug_via_wikipedia(drug_name_in):
             # we want to parse the Etree rather than xml as this is an addurlinfo thingy
             xml = urllib2.urlopen(url)
             xml_tree = ElementTree.parse(xml)
-            
+
+            db_id_list = []
+
             mol_name = parse_wiki_drug_xml(xml_tree, "DrugBank  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["DrugBank", mol_name])
 
-            if not isinstance(mol_name, str):
-                print "WARNING:: mol_name not a string (DrugBank entry from wikipedia)", mol_name
-                # try pubchem as fallback
-                mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
-                if not isinstance(mol_name, str):
+            mol_name = parse_wiki_drug_xml(xml_tree,  "ChemSpider  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["ChemSpider", mol_name])
 
-                    print "WARNING:: mol_name not a string (pubchem entry either)", mol_name
-                    # so was there a redirect?
-                    # if so, get the name and call get_drug_via_wikipedia with it
-                    redirected_drug_name = get_redirected_drug_name(xml_tree)
-                    return get_drug_via_wikipedia(redirected_drug_name)
-                    
-                else:
-		    # old style
-                    pc_mol_uri = "http://pubchem.ncbi.nlm.nih.gov" + \
-                                 "/summary/summary.cgi?cid=" + \
-                                 mol_name + "&disopt=DisplaySDF"
-		    # new style
-		    pc_mol_uri = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + \
-				 mol_name + \
-				 "/record/SDF/?record_type=2d&response_type=display"
+            mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["PubChem", mol_name])
 
-                    file_name = "pc-" + mol_name + ".mol"
-                    coot_get_url(pc_mol_uri, file_name)
-                    
-            else:
-                db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
-                             mol_name + ".mol"
-                file_name = mol_name + ".mol"
-                coot_get_url(db_mol_uri, file_name)
-    return file_name
-                    
+            mol_name = parse_wiki_drug_xml(xml_tree,  "ChEMBL  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["ChEMBL", mol_name])
+
+            # now db_id_list is something like [["DrugBank" , "12234"], ["ChEMBL" , "6789"]]
+            # can we find one of them that works?
+            for db, id in db_id_list:
+                if id:
+                    if db == "DrugBank":
+                        db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
+                                     id + ".mol"
+                        file_name = "drugbank-" + id + ".mol"
+                        print "BL DEBUG:: DrugBank path: getting url:", db_mol_uri
+                        coot_get_url(db_mol_uri, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes db file-name: %s seems good" %file_name
+                            return file_name
+
+                    if db == "ChemSpider":
+                        cs_mol_url = "http://www.chemspider.com/" + \
+                                     "FilesHandler.ashx?type=str&striph=yes&id=" + \
+                                     "cs-" + id + ".mol"
+                        file_name = "cs-" + id + ".mol"
+                        print "BL DEBUG:: DrugBank path: getting url:", cs_mol_ur
+                        coot_get_url(cs_mol_url, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes cs file-name: %s seems good" %file_name
+                            return file_name
+
+                    if db == "ChEMBL":
+                        mol_url = "https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL" + \
+                                     id + ".sdf"
+                        file_name = "chembl-" + id + ".sdf"
+                        print "BL DEBUG:: ChEMBL path: getting url:", mol_url
+                        coot_get_url(mol_url, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes chembl file-name: %s seems good" %file_name
+                            return file_name
+
+                    if db == "PubChem":
+                        pc_mol_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + \
+                                     id + "/record/SDF/?record_type=2d&response_type=display"
+                        file_name = "pc-" + id + ".mol"
+                        print "BL DEBUG:: pubchem path: getting url:", pc_mol_url
+                        coot_get_url(pc_mol_url, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes pc file-name: %s seems good" %file_name
+                            return file_name
+    # last resort, try a redirect
+    new_id = get_redirected_drug_name(xml_tree)
+    if new_id:
+        return get_drug_via_wikipedia(new_id)
+    return False # nothing was found...
+
 
 def get_SMILES_for_comp_id_from_pdbe(comp_id):
 
