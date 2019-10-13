@@ -288,7 +288,7 @@ coot::rotamer_probability_info_t
 coot::rotamer::probability_of_this_rotamer(const std::vector<double> &chi_angle_values,
 					   const std::vector<coot::simple_rotamer> &rots) const {
 
-   std::cout << "probability_of_this_rotamer() " << rots.size() << std::endl;
+   // std::cout << "probability_of_this_rotamer() " << rots.size() << std::endl;
 
    short int state;  // flag for assigned,                    1 
                      // unassigned due to missing atoms,      0 

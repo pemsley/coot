@@ -80,6 +80,24 @@ namespace coot {
 	    return var;
 	 }
 
+	 double skew() const {
+	    double skew = 0;
+	    double sum = 0;
+	    double sum_cubed = 0;
+	    double m = mean();
+	    double var = variance();
+	    double sigma = sqrt(var);
+	    double s3 = sigma * sigma * sigma;
+	    if (v.size() > 0) {
+	       for (unsigned int i=0; i<v.size(); i++) {
+		  double delta = v[i] - m;
+		  sum_cubed += delta * delta * delta;
+	       }
+	       skew = (sum_cubed/double(v.size()))/s3;
+	    }
+	    return skew;
+	 }
+
 	 double kurtosis() const {
 
 	    // recall kurtosis, $k$ of $N$ observations:
