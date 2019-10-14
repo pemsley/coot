@@ -491,10 +491,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
    for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
 
-      const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
+      if (! at_1) {
+	 std::cout << "ERROR:: make_non_bonded_contact_restraints_workpackage_ng()"
+		   << " null atom at index " << i << " in range " << atom_index_range_pair.first
+		   << " " << atom_index_range_pair.second << " with n_atoms (bonded_atom_indices size()) "
+		   << bonded_atom_indices.size() << std::endl;
+	 continue;
+      }
       if (at_1->isTer()) continue;
 
+      const std::set<unsigned int> &n_set = vcontacts[i];
       std::string alt_conf_1(at_1->altLoc);
       // std::cout << "base atom: " << atom_spec_t(at_1) << std::endl;
 
@@ -808,11 +815,21 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 
    for (unsigned int i=0; i<n_threads; i++) {
       unsigned int start = n_per_thread * i;
-      unsigned int stop = n_per_thread * (i+1); // test uses <
+      unsigned int stop  = n_per_thread * (i+1); // test uses <
       if (stop > static_cast<unsigned int>(n_atoms_limit_for_nbc))
         stop = static_cast<unsigned int>(n_atoms_limit_for_nbc);
       std::pair<unsigned int, unsigned int> p(start, stop);
       start_stop_pairs_vec.push_back(p);
+   }
+
+   if (false) { // debugging
+      std::cout << "n_per_thread " << n_per_thread << std::endl;
+      std::cout << "n_atoms_limit_for_nbc " << n_atoms_limit_for_nbc << std::endl;
+      for (std::size_t ii=0; ii<start_stop_pairs_vec.size(); ii++) {
+	 std::cout << "start_stop_pairs_vec: " << ii << ": "
+		   << start_stop_pairs_vec[ii].first << " "
+		   << start_stop_pairs_vec[ii].second << std::endl;
+      }
    }
 
    auto tp_2c = std::chrono::high_resolution_clock::now();

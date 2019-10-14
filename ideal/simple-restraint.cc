@@ -831,9 +831,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // we don't need to calculate the NBC for all atoms - just these ones:
    n_atoms_limit_for_nbc = 0;
-   for (unsigned int i=0; i<residues.size(); i++)
+   for (unsigned int i=0; i<residues.size(); i++) {
       n_atoms_limit_for_nbc += residues[i].second->GetNumberOfAtoms();
-
+      // std::cout << "Here in init_from_residue_vec() with n_atoms_limit_for_nbc " << n_atoms_limit_for_nbc << std::endl;
+   }
 
    // Include only the fixed residues, because they are the flankers,
    // the other residues are the ones in the passed residues vector.
@@ -2290,7 +2291,7 @@ coot::restraints_container_t::resolve_bonds(const gsl_vector *v) const {
 					 std::fabs(b_uv.y()),
 					 std::fabs(b_uv.z()));
 	    clipper::Coord_orth frag(b_uv_abs * delta);
-	    resultant.add(clipper::Coord_orth(b_uv_abs * delta));
+	    resultant.add(delta, clipper::Coord_orth(b_uv_abs * delta));
 	 }
       }
    }
@@ -5966,10 +5967,6 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	       n_bond_restraints++;
 	       rc.n_bond_restraints++;
 	       rc.n_angle_restraints++;
-	       // bonded_atom_indices[atom_index_1].push_back(atom_index_2);
-	       // bonded_atom_indices[atom_index_2].push_back(atom_index_1);
-	       // bonded_atom_indices[atom_index_1].push_back(atom_index_3);
-	       // bonded_atom_indices[atom_index_3].push_back(atom_index_1);
 	       bonded_atom_indices[atom_index_1].insert(atom_index_2);
 	       bonded_atom_indices[atom_index_2].insert(atom_index_1);
 	       bonded_atom_indices[atom_index_1].insert(atom_index_3);
@@ -6000,6 +5997,9 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 
    // Now do the inter-hydrogen angle restraints
 
+   // 20191005-PE we add the bonded_atom_indices for angles between H so that NBCs
+   // are not generted between these Hs.
+
    if (N_index >= 0) {
       std::map<std::string, int>::const_iterator it_1, it_2, it_3;
       for(it_1=h1s.begin(); it_1!=h1s.end(); it_1++) {
@@ -6009,16 +6009,22 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	 if (it_2 != h2s.end()) {
 	    std::vector<bool> fixed_flags_a12 = make_fixed_flags(it_1->second, N_index, it_2->second);
 	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_2->second, fixed_flags_a12, 109.5, 2.0, false);
+            bonded_atom_indices[it_1->second].insert(it_2->second);
+            bonded_atom_indices[it_2->second].insert(it_1->second);
 	 }
 
 	 if (it_3 != h3s.end()) {
 	    std::vector<bool> fixed_flags_a13 = make_fixed_flags(it_1->second, N_index, it_3->second);
 	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_3->second, fixed_flags_a13, 109.5, 2.0, false);
+            bonded_atom_indices[it_1->second].insert(it_3->second);
+            bonded_atom_indices[it_3->second].insert(it_1->second);
 	 }
 
 	 if (it_2 != h2s.end() && it_3 != h3s.end()) {
 	    std::vector<bool> fixed_flags_a23 = make_fixed_flags(it_2->second, N_index, it_3->second);
 	    add(ANGLE_RESTRAINT, it_2->second, N_index, it_3->second, fixed_flags_a23, 109.5, 2.0, false);
+            bonded_atom_indices[it_2->second].insert(it_3->second);
+            bonded_atom_indices[it_3->second].insert(it_2->second);
 	 }
       }
    }

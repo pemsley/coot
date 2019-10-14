@@ -1,0 +1,53 @@
+
+I need to check that the average density is 0 - or thereabouts.
+Otherwise the normalization of the density grid points will not work correctly.
+
+for side-chain-densities:
+
+bash make-side-chain-data-dirs.sh to make the directories
+
+
+# generate grid points suitable to find all side chains (within distance) and not main-chain
+./test-side-chain-densities generate-useable-grid-points 19 gen-pts-19.data  # based on A19
+./test-side-chain-densities generate-useable-grid-points 20 gen-pts-20.data  # based on A20
+
+sed -e 's/ at.*//' -e 's/setting grid point //' gen-pts-19.data > col-19.data
+sed -e 's/ at.*//' -e 's/setting grid point //' gen-pts-20.data > col-20.data
+
+# find the common grid points
+comm -12 col-19.data col-20.data > useable-grid-points-nstep=4,box_radius=4.0.data
+
+# how does gen-pts-19.data or useable-grid-points-nstep=4,box_radius=4.0.data look?
+# are the useable grid points dots in the right place?
+../src/coot-bin --script show-the-grid.py
+
+../src/coot-bin --script show-the-check-points.py
+
+# now we are ready to scan the maps: long time with lots of maps - can be split up.
+
+# or whatever radius and step you are using now
+bash run-side-chain-densities.sh useable-grid-points-nstep=4,box_radius=4.0.data
+
+# now we need to model those distributions and create mean, variance and skew for each grid point
+#
+./test-side-chain-densities combine > combine.out
+#
+# this generates stats.table (mean, variance and skew for every grid point) for every rotamer
+
+# Now I want to look at the distributions:
+Use R to examine the data at each grid point, e.g. side-chain-data/ASP/t70/grid-point-384.data
+   in R: source density-histograms.r  
+      -> skewed distributions - fine.
+
+# testing if this program works:
+# does this rotamer look like the rotamers in the "database"?
+# using test.pdb and blurred-test.map
+./test-side-chain-densities test-residue 18 useable-grid-points-nstep=4,box_radius=4.0.data
+which gives us sum log likelihoods for side chains.
+
+
+# do the stats show the right "shape" for the given rotamer?
+./test-side-chain-densities check-stats TYR m-85 useable-grid-points-nstep=4,box_radius=4.0.data | grep ^check > TYR-m-85.data
+
+../src/coot-bin --script show-the-grid-stats.py
+
