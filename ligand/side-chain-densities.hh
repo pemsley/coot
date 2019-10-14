@@ -88,11 +88,12 @@ namespace coot {
       std::map<std::string, double>
       compare_block_vs_all_rotamers(density_box_t block,
 				    const std::string &data_dir,
-				    const clipper::Xmap<float> &xmap) const;
+				    const clipper::Xmap<float> &xmap);
+      // fills the rotamer grid cache, non-const
       std::pair<bool, double>
       compare_block_vs_rotamer(density_box_t block,
 			       const std::string &rotamer_dir,
-			       const clipper::Xmap<float> &xmap) const;
+			       const clipper::Xmap<float> &xmap);
       bool in_sphere(int grid_idx, const int &n_steps) const; // manhattan - not a good test
       bool in_sphere(const clipper::Coord_orth &pt, // Euclidean
 		     const clipper::Coord_orth &cb,
@@ -105,13 +106,16 @@ namespace coot {
 
       std::map<std::string, double>
       likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-						 const clipper::Xmap<float> &xmap) const;
+						 const clipper::Xmap<float> &xmap);
 
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
 
       // why is this not in utils or something?
       char single_letter_code(const std::string &res_name) const;
+
+      // cache variable
+      std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > > rotamer_dir_grid_stats_map_cache;
 
    public:
 
@@ -146,7 +150,7 @@ namespace coot {
       static void combine_directory(const std::string &dir, int n_steps);
 
       std::map<std::string, double>
-      get_rotamer_likelihoods(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap) const;
+      get_rotamer_likelihoods(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap);
 
       void gen_useable_grid_points(mmdb::Residue *residue_this_p,
 				   mmdb::Residue *residue_next_p,
@@ -165,7 +169,7 @@ namespace coot {
       void probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
 						       const std::string &chain_id,
 						       int resno_start, int resno_end,
-						       const clipper::Xmap<float> &xmap) const;
+						       const clipper::Xmap<float> &xmap);
 
       // Have a guess at the sequence - choose the best fitting residue at every position
       // and turn that into a string.

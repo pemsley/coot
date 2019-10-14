@@ -125,8 +125,9 @@ coot::side_chain_densities::make_pt_in_grid(int ix, int iy, int iz, const float 
 
 void
 coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
-									const std::string &chain_id, int resno_start, int resno_end,
-									const clipper::Xmap<float> &xmap) const {
+									const std::string &chain_id,
+									int resno_start, int resno_end,
+									const clipper::Xmap<float> &xmap) {
 
    std::vector<std::pair<mmdb::Residue *, std::string> > best_guess; // a bit of fun
 
@@ -182,7 +183,7 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
 
 std::map<std::string, double>
 coot::side_chain_densities::likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-									const clipper::Xmap<float> &xmap) const {
+									const clipper::Xmap<float> &xmap) {
    return get_rotamer_likelihoods(residue_p, xmap);
 }
 
@@ -762,7 +763,7 @@ coot::side_chain_densities::map_key_to_residue_and_rotamer_names(const std::stri
 //
 std::map<std::string, double>
 coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
-						    const clipper::Xmap<float> &xmap) const {
+						    const clipper::Xmap<float> &xmap) {
 
    // Make a block of density around the CB
 
@@ -856,7 +857,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 std::map<std::string, double>
 coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
 							  const std::string &data_dir,
-							  const clipper::Xmap<float> &xmap) const {
+							  const clipper::Xmap<float> &xmap) {
 
    std::map<std::string, double> probability_map;
 
@@ -940,10 +941,13 @@ coot::side_chain_densities::in_sphere(const clipper::Coord_orth &pt,
    return ((pt-cb).lengthsq() < (d_max * d_max));
 }
 
+// We fill the rotamer grid cache, so not const.
+// Maybe there should be 2 separate functions
+//
 std::pair<bool, double>
 coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 						     const std::string &rotamer_dir,
-						     const clipper::Xmap<float> &xmap) const {
+						     const clipper::Xmap<float> &xmap) {
 
    // This function is slow - conversion of strings to numbers
    // So, to fix that, in the calling function (compare_block_vs_all_rotamers()),
@@ -953,23 +957,38 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
    bool success = false; // initially
    double sum_log_likelihood = 0.0;
 
-   std::string glob_pattern = "stats.table";
-   std::vector<std::string> tables = coot::util::glob_files(rotamer_dir, glob_pattern);
-   if (tables.size() == 1) {
-      // std::cout << "found the stats files in " << rotamer_dir << std::endl;
-      std::string stats_table_file_name = tables[0];
-      std::ifstream f(stats_table_file_name.c_str());
-      if (f) {
-	 std::string line;
-	 unsigned int n_grid_points = 0;
-	 while (std::getline(f, line)) {
-	    std::vector<std::string> words = coot::util::split_string_no_blanks(line);
-	    if (words.size() == 4) { // 5 with kurtosis
-	       unsigned int grid_idx = util::string_to_int(words[0]);
-	       double mean = util::string_to_double(words[1]);
-	       double var  = util::string_to_double(words[2]);
-	       double skew = util::string_to_double(words[3]);
-	       if (true) {
+   // the length of the type here amuses me.
+   std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
+   if (it != rotamer_dir_grid_stats_map_cache.end()) {
+      success = true;
+      const std::map<unsigned int, std::tuple<double, double, double> > &stats_map = it->second;
+      std::map<unsigned int, std::tuple<double, double, double> >::const_iterator it_inner;
+      for (it_inner=stats_map.begin(); it_inner!=stats_map.end(); it_inner++) {
+	 const unsigned int &grid_idx = it_inner->first;
+	 const std::tuple<double, double, double> &m_v_s = it_inner->second;
+	 const double &mean = std::get<0>(m_v_s);
+	 const double &var  = std::get<1>(m_v_s);
+	 const double &skew = std::get<2>(m_v_s);
+	 double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
+	 sum_log_likelihood += ll;
+      }
+   } else {
+      std::string glob_pattern = "stats.table";
+      std::vector<std::string> tables = coot::util::glob_files(rotamer_dir, glob_pattern);
+      if (tables.size() == 1) {
+	 std::map<unsigned int, std::tuple<double, double, double> > stats_map;
+	 std::string stats_table_file_name = tables[0];
+	 std::ifstream f(stats_table_file_name.c_str());
+	 if (f) {
+	    std::string line;
+	    unsigned int n_grid_points = 0;
+	    while (std::getline(f, line)) {
+	       std::vector<std::string> words = coot::util::split_string_no_blanks(line);
+	       if (words.size() == 4) { // 5 with kurtosis
+		  unsigned int grid_idx = util::string_to_int(words[0]);
+		  double mean = util::string_to_double(words[1]);
+		  double var  = util::string_to_double(words[2]);
+		  double skew = util::string_to_double(words[3]);
 		  if (var < 0.0) std::cout << "ERROR:: negative variance " << var << std::endl;
 		  double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
 		  if (false)
@@ -978,25 +997,30 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 			       << " adding " << ll << std::endl;
 		  sum_log_likelihood += ll;
 		  n_grid_points++;
+
+		  // cache that
+		  std::tuple<double, double, double> t(mean, var, skew);
+		  stats_map[grid_idx] = t;
+		  rotamer_dir_grid_stats_map_cache[rotamer_dir] = stats_map;
 	       }
 	    }
-	 }
 
-	 if (n_grid_points > 0) {
+	    if (n_grid_points > 0) {
 
-	    success = true;
+	       success = true;
 
-	    if (false)
-	       std::cout << "debug:: " << std::left << std::setw(27) << rotamer_dir
-			 << " sum-ll: " << std::right << sum_log_likelihood
-			 << std::endl;
+	       if (false)
+		  std::cout << "debug:: " << std::left << std::setw(27) << rotamer_dir
+			    << " sum-ll: " << std::right << sum_log_likelihood
+			    << std::endl;
+	    } else {
+	       std::cout << "zero grid points " << rotamer_dir << std::endl;
+	    }
+
 	 } else {
-	    std::cout << "zero grid points " << rotamer_dir << std::endl;
+	    std::cout << "ERROR:: failed to open stats file " << stats_table_file_name
+		      << std::endl;
 	 }
-
-      } else {
-	 std::cout << "ERROR:: failed to open stats file " << stats_table_file_name
-		   << std::endl;
       }
    }
    return std::pair<bool, double>(success, sum_log_likelihood);
