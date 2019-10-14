@@ -293,6 +293,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
 		  running_sequence += letter;
 		  sum_score += score;
 		  n_scored_residues++;
+		  std::cout << "debug:: adding " << score << " for " << letter << std::endl;
 	       } else {
 		  running_sequence += '.';
 	       }
@@ -343,9 +344,15 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
    std::string res_name = residue_this_p->GetResName();
    std::string rot_name = get_rotamer_name(residue_this_p); // doesn't matter for SAMPLE_FOR_RESIDUE mode
 
-   if (mode == SAMPLE_FOR_DB)
-      if (rot_name.empty())
-	 return density_box_t(0,0,0);
+   if (mode == SAMPLE_FOR_DB) {
+      if (rot_name.empty()) {
+	 if (res_name == "GLY") {
+	    rot_name = "pseudo";
+	 } else {
+	    return density_box_t(0,0,0);
+	 }
+      }
+   }
 
    clipper::Coord_orth ca_pt;
 
@@ -583,12 +590,12 @@ void coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *
 	 // don't forget that ALA are useful to search, as is GLY, but
 	 // that will need a special function to find an imaginary CB position
 	 //
-         std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > cb_and_axes =
+         std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
 	    get_residue_axes(t);
-         const std::vector<clipper::Coord_orth> &axes = cb_and_axes.second;
+         const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
          if (! axes.empty()) {
             // sample_masked density around 8A around CB
-            clipper::Coord_orth cb_pt = co(cb_and_axes.first);
+            clipper::Coord_orth cb_pt = cb_pos_and_axes.first;
 	    bool gen_flag = false;
 	    mode_t mode = SAMPLE_FOR_DB;
 	    density_box_t db = sample_map(t, 0, mode, cb_pt, axes, xmap);
@@ -599,12 +606,87 @@ void coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *
    }
 }
 
-std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> >
-coot::side_chain_densities::get_residue_axes(mmdb::Residue *this_residue) const {
+#include "coot-utils/c-beta-deviations.hh"
 
-   // only look for atoms with alt conf "" 
+std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> >
+coot::side_chain_densities::get_residue_axes_type_GLY(mmdb::Residue *this_residue) const {
+
+   mmdb::Atom *CA_at = 0;
+   mmdb::Atom *N_at  = 0;
+   mmdb::Atom *C_at  = 0;
+   int n_atoms = this_residue->GetNumberOfAtoms();
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = this_residue->GetAtom(i);
+      std::string atom_name = at->name;
+      std::string alt_loc = at->altLoc;
+      if (! at->isTer()) {
+         if (alt_loc.empty()) {
+            if (atom_name == " CA ") CA_at = at;
+            if (atom_name == " N  ")  N_at = at;
+            if (atom_name == " C  ")  C_at = at;
+	 }
+      }
+   }
+   if (N_at && CA_at && C_at) {
+      atom_quad q(N_at, CA_at, C_at, 0); // only 3 atoms used
+      clipper::Coord_orth cb_pos = make_CB_ideal_pos(q, "ALA");
+      clipper::Coord_orth ca_pos = co(CA_at);
+      clipper::Coord_orth c_pos = co(C_at);
+      clipper::Coord_orth n_pos = co(N_at);
+      std::vector<clipper::Coord_orth> axes = make_axes(ca_pos, cb_pos, c_pos, n_pos);
+      return std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > (cb_pos, axes);
+   } else {
+      std::cout << "ERROR:: BAD GLY " << residue_spec_t(this_residue) << std::endl;
+      std::vector<clipper::Coord_orth> axes;
+      clipper::Coord_orth cb_pos(0,0,0);
+      return std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > (cb_pos, axes);
+   }
+   
+}
+
+std::vector<clipper::Coord_orth>
+coot::side_chain_densities::make_axes(const clipper::Coord_orth &pt_ca_this,
+				      const clipper::Coord_orth &pt_cb_this,
+				      const clipper::Coord_orth &pt_c_this,
+				      const clipper::Coord_orth &pt_n_this) const {
 
    std::vector<clipper::Coord_orth> v;
+   // Here add a bit of noise to pt_cb_this to "sample"
+   // density from non-ideal orientation
+
+   clipper::Coord_orth axis_1((pt_cb_this - pt_ca_this).unit());
+   clipper::Coord_orth nc(pt_c_this - pt_n_this);
+   clipper::Coord_orth nc_uv(nc.unit());
+   clipper::Coord_orth cp_1(clipper::Coord_orth::cross(axis_1, nc_uv));
+   clipper::Coord_orth cp_2(clipper::Coord_orth::cross(cp_1, axis_1));
+
+   clipper::Coord_orth axis_2(cp_1.unit());
+   clipper::Coord_orth axis_3(cp_2.unit());
+
+   double dp = clipper::Coord_orth::dot(nc_uv, axis_3);
+   double theta = acos(dp);
+   // std::cout << residue_spec_t(this_residue) << " "
+   // << clipper::Util::rad2d(theta) << std::endl;
+   v.push_back(axis_1);
+   v.push_back(axis_2);
+   v.push_back(axis_3);
+
+   return v;
+}
+
+
+std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> >
+coot::side_chain_densities::get_residue_axes(mmdb::Residue *residue_p) const {
+
+   // only look for atoms with alt conf ""
+
+   std::string res_name(residue_p->GetResName());
+   if (res_name == "GLY") return get_residue_axes_type_GLY(residue_p);
+
+   // OK, we have a CB (presumably)
+
+   std::vector<clipper::Coord_orth> v;
+   clipper::Coord_orth cb_pos(0,0,0);
 
    mmdb::Atom *CA_at = 0;
    mmdb::Atom *CB_at = 0;
@@ -612,9 +694,9 @@ coot::side_chain_densities::get_residue_axes(mmdb::Residue *this_residue) const 
    mmdb::Atom *C_at  = 0;
    mmdb::Atom *O_at  = 0;
 
-   int n_atoms = this_residue->GetNumberOfAtoms();
+   int n_atoms = residue_p->GetNumberOfAtoms();
    for (int i=0; i<n_atoms; i++) {
-      mmdb::Atom *at = this_residue->GetAtom(i);
+      mmdb::Atom *at = residue_p->GetAtom(i);
       std::string atom_name = at->name;
       std::string alt_loc = at->altLoc;
       if (! at->isTer()) {
@@ -635,27 +717,11 @@ coot::side_chain_densities::get_residue_axes(mmdb::Residue *this_residue) const 
          clipper::Coord_orth pt_c_this = co(C_at);
          clipper::Coord_orth pt_n_this = co(N_at);
 
-         // Here add a bit of noise to pt_cb_this to "sample"
-         // density from non-ideal orientation
+	 v = make_axes(pt_ca_this, pt_cb_this, pt_c_this, pt_n_this);
+	 cb_pos = co(CB_at);
 
-         clipper::Coord_orth axis_1((pt_cb_this - pt_ca_this).unit());
-         clipper::Coord_orth nc(pt_c_this - pt_n_this);
-         clipper::Coord_orth nc_uv(nc.unit());
-         clipper::Coord_orth cp_1(clipper::Coord_orth::cross(axis_1, nc_uv));
-         clipper::Coord_orth cp_2(clipper::Coord_orth::cross(cp_1, axis_1));
-
-         clipper::Coord_orth axis_2(cp_1.unit());
-         clipper::Coord_orth axis_3(cp_2.unit());
-
-         double dp = clipper::Coord_orth::dot(nc_uv, axis_3);
-         double theta = acos(dp);
-         // std::cout << residue_spec_t(this_residue) << " "
-         // << clipper::Util::rad2d(theta) << std::endl;
-         v.push_back(axis_1);
-         v.push_back(axis_2);
-         v.push_back(axis_3);
    }
-   std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > p(CB_at, v);
+   std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > p(cb_pos, v);
    return p;
 }
 
@@ -665,12 +731,12 @@ coot::side_chain_densities::gen_useable_grid_points(mmdb::Residue *residue_this_
 						    int n_steps, float grid_box_radius,
 						    const std::string &gen_pts_file_name) const {
 
-   std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > cb_and_axes =
+   std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
       get_residue_axes(residue_this_p);
-   const std::vector<clipper::Coord_orth> &axes = cb_and_axes.second;
+   const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
    if (! axes.empty()) {
       // sample_masked density around 8A around CB
-      clipper::Coord_orth cb_pt = co(cb_and_axes.first);
+      clipper::Coord_orth cb_pt = cb_pos_and_axes.first;
 
       // make a block
       mode_t mode = GEN_USABLE_POINTS;
@@ -702,12 +768,12 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 
    std::map<std::string, double> bs; // return this, best_score_for_res_type
 
-   std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > cb_and_axes =
+   std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
       get_residue_axes(residue_p);
-   const std::vector<clipper::Coord_orth> &axes = cb_and_axes.second;
+   const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
    if (! axes.empty()) {
       // sample_masked density around CB
-      clipper::Coord_orth cb_pt = co(cb_and_axes.first);
+      clipper::Coord_orth cb_pt = cb_pos_and_axes.first;
 
       // make a block
       mode_t mode = SAMPLE_FOR_RESIDUE;
@@ -879,6 +945,11 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 						     const std::string &rotamer_dir,
 						     const clipper::Xmap<float> &xmap) const {
 
+   // This function is slow - conversion of strings to numbers
+   // So, to fix that, in the calling function (compare_block_vs_all_rotamers()),
+   // read in all the stats files - write and read the stats file as binaries
+   // if it's still slow, so that this function is not needed.
+
    bool success = false; // initially
    double sum_log_likelihood = 0.0;
 
@@ -937,10 +1008,10 @@ coot::side_chain_densities::check_useable_grid_points(mmdb::Residue *residue_p,
 
    int n_per_side = n_steps * 2 + 1;
    float step_size = grid_box_radius/static_cast<float>(n_steps);
-   std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > cb_and_axes =
+   std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
       get_residue_axes(residue_p);
-   const std::vector<clipper::Coord_orth> &axes = cb_and_axes.second;
-   const clipper::Coord_orth &cb_pt = co(cb_and_axes.first);
+   const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
+   const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
 
    std::ofstream f(useable_grid_points_mapped_to_residue_file_name.c_str());
    if (f) {
@@ -978,10 +1049,10 @@ coot::side_chain_densities::check_stats(mmdb::Residue *residue_p,
 
    int n_per_side = n_steps * 2 + 1;
    float step_size = grid_box_radius/static_cast<float>(n_steps);
-   std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > cb_and_axes =
+   std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
       get_residue_axes(residue_p);
-   const std::vector<clipper::Coord_orth> &axes = cb_and_axes.second;
-   const clipper::Coord_orth &cb_pt = co(cb_and_axes.first);
+   const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
+   const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
    if (! axes.empty()) {
       std::string dir = "side-chain-data"; // here use a class data item (which is set on construction)
       std::string rot_dir = dir + "/" + res_name + "/" + rot_name;
@@ -1078,7 +1149,7 @@ coot::side_chain_densities::combine_directory(const std::string &rot_dir, int n_
 
    // OK, files were good
 
-   std::cout << "files were good for " << rot_dir << std::endl;
+   // std::cout << "debug:: files were good for " << rot_dir << std::endl;
 
    // so that we can organize the memory a bit easier - on the stack
    const int nps = 2 * 7 + 1;
@@ -1176,8 +1247,9 @@ coot::side_chain_densities::combine_directory(const std::string &rot_dir, int n_
 	    std::cout << std::endl;
 	 }
       }
-      std::cout << "INFO:: " << rot_dir << " missing " << n_missing_grid_points
-		<< " of " << nnn << std::endl;
+      if (false)
+	 std::cout << "INFO:: " << rot_dir << " missing " << n_missing_grid_points
+		   << " of " << nnn << std::endl;
    }
 
    

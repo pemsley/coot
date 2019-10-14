@@ -47,7 +47,15 @@ namespace coot {
       int n_steps;
       float grid_box_radius;
       std::string data_dir; // we can we find side-chain-data?
-      std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > get_residue_axes(mmdb::Residue *res) const;
+      std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > get_residue_axes(mmdb::Residue *res) const;
+      std::vector<clipper::Coord_orth>
+      make_axes(const clipper::Coord_orth &pt_ca_this,
+		const clipper::Coord_orth &pt_cb_this,
+		const clipper::Coord_orth &pt_c_this,
+		const clipper::Coord_orth &pt_n_this) const;
+      std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> >
+      get_residue_axes_type_GLY(mmdb::Residue *this_residue) const;
+
       void proc_mol(const std::string &id, mmdb::Manager *mol, const clipper::Xmap<float> &xmap);
       void proc_chain(const std::string &id, mmdb::Chain *chain, const clipper::Xmap<float> &xmap);
       void proc_residue(mmdb::Residue *residue, const clipper::Xmap<float> &xmap);
