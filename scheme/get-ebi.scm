@@ -52,7 +52,7 @@
 ; calculate phases.
 ;
 
-
+;; return 0 on success
 (define (net-get-url my-url file-name)
   ;; (format #t "URL:: ~s~%" my-url)
   (coot-get-url my-url file-name))
@@ -238,20 +238,23 @@
 
 	  (if (eq? #f coot-tmp-dir)
 	      (format #t "Can't make coot-download directory~%")
-	      
+
 	      (let* ((down-id (string-downcase id))
 		     (target-pdb-file (string-append "pdb" down-id ".ent"))
+		     (target-cif-file (string-append down-id ".cif"))
 		     (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
-		     (model-url (string-append eds-coords-site "/" target-pdb-file))
-		     (target-mtz-file (string-append down-id "_map.mtz"))
-		     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-		     ;; (mtz-url (string-append eds-site "/files/" target-mtz-file)) ;; old
-           (mtz-url (string-append eds-site "/files/" (mid-chars down-id) "/" down-id "/" down-id "_map.mtz"))
+		     (dir-target-cif-file (string-append coot-tmp-dir "/" target-cif-file))
+		     (model-url     (string-append eds-coords-site "/" target-pdb-file))
+		     (model-cif-url (string-append eds-coords-site "/" target-cif-file))
+                     (target-mtz-file (string-append down-id "_map.mtz"))
+                     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
+                     ;; (mtz-url (string-append eds-site "/files/" target-mtz-file)) ;; old
+                     (mtz-url (string-append eds-site "/files/" (mid-chars down-id) down-id "/" down-id "_map.mtz"))
 		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
 
 		(print-var model-url)
 		(print-var mtz-url)
-		
+
 		(let* ((pre-download-info (coot-get-url-as-string eds-info-page))
 		       ;; (pre-download-info-sxml (xml->sxml pre-download-info))
 		       (s1 (net-get-url model-url dir-target-pdb-file))
@@ -262,25 +265,31 @@
 
 		  (let ((bad-map-status (string-match "No reliable map available" pre-download-info)))
 		    (if bad-map-status
-			(let ((s  (string-append 
+			(let ((s  (string-append
 				   "This map (" down-id ") is marked by the EDS as \"not a reliable map\"")))
 			  (info-dialog s))))
 
-		  (format #t "INFO:: read model status: ~s~%" s1)
-		  (format #t "INFO:: read mtz   status: ~s~%" s2)
-		  
-		  (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
-			(map-1 (make-and-draw-map dir-target-mtz-file "FWT" "PHWT" "" 0 0))
-			(map-2 (make-and-draw-map dir-target-mtz-file  "DELFWT"  "PHDELWT" "" 0 1)))
-		    (set-scrollable-map map-1)
-		    (if (valid-model-molecule? r-imol)
-			(list r-imol map-1 map-2)
-			#f)))))))))
+		  (format #t "INFO:: read pdb model status: ~s~%" s1)
+		  (format #t "INFO:: read mtz data  status: ~s~%" s2)
+
+                  (if (= s1 0)
+		     (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file)))
+                        (if (not (valid-model-molecule? r-imol))
+                           (let ((s1-cif (net-get-url model-cif-url dir-target-cif-file)))
+		              (format #t "INFO:: read cif model status: ~s~%" s1-cif)
+                              (if (= s1-cif 0)
+		                 (let ((r-imol (handle-read-draw-molecule dir-target-cif-file)))
+                                    r-imol))))))
+
+                  (if (= s2 0)
+                     (let ((map-1 (make-and-draw-map dir-target-mtz-file "FWT"    "PHWT"    "" 0 0))
+			   (map-2 (make-and-draw-map dir-target-mtz-file "DELFWT" "PHDELWT" "" 0 1)))
+		        (set-scrollable-map map-1)
+                        (list -1 map-1 map-2) ;; r-imol not in this scope (at the moment)
+                        )))))))))
 
 
-
-
-(define (get-pdb-redo text) 
+(define (get-pdb-redo text)
 
   (define mid-string (lambda (text-in) (substring text-in 1 3)))
 
