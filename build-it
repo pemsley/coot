@@ -1808,35 +1808,18 @@ else
    build_curl=1
 fi
 
-# ---- test system libidn -------------------------------
-if [ -e /usr/lib/libidn.so ] ; then
-   if [ -e /usr/lib/libidn.la ] ; then
-      echo system has libidn devel
-   else
-      if [ -e $install_top_dir/lib/libidn.la ] ; then 
-         echo installation has libidn.la
-      else 
-         echo neither system nor installation has libidn.la, libcurl should be built also
-         build_libidn=1
-         build_curl=1
-      fi
-   fi
-else
+# using system idn is no longer allowed.
+
    # ---- test installation libidn -------------------------------
-   if [ -e $install_top_dir/include/idna.h ] ; then
-      echo installation has libidn devel
-   else
-      # set it up for building then
-      echo system does not have libidn
-      if [ -e $install_top_dir/include/idna.h ] ; then 
+
+      if [ -e $install_top_dir/include/idn2.h ] ; then
          echo installation has libidn
       else 
          echo installation does not have libidn, libcurl should be built also
          build_libidn=1
          build_curl=1
       fi
-   fi
-fi
+
  
 
 # test for pkg-config
