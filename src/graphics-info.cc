@@ -2090,7 +2090,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 
       if (against_a_dark_background) {
 	 // now we want to draw out our bonds in white, 
-	 glColor3f (0.9, 0.9, 0.9);
+	 glColor3f (0.8, 0.8, 0.6);
       } else {
 	 glColor3f (0.4, 0.4, 0.4);
       }
@@ -2109,7 +2109,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	    break;
 	 default:
 	    if (against_a_dark_background)
-	       glColor3f (0.8, 0.8, 0.8);
+	       glColor3f (0.7, 0.7, 0.4);
 	    else
 	       glColor3f (0.5, 0.5, 0.5);
 	 }
