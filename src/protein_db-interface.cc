@@ -17,7 +17,7 @@ mmdb::Manager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::
    }
    add_cbs_and_os(needs_cb_and_o, mol);
    return mol;
-} 
+}
 
 mmdb::Manager *make_mol(const ProteinDB::Chain &chain, const std::string &chain_id, 
 		       int first_res_no, bool preserve_residue_names) { 

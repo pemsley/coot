@@ -10,15 +10,18 @@ namespace coot {
    public:
       // density_box is a copy of a filled pointer
       density_box_t(float *density_box, mmdb::Residue *residue_p, int n_steps);
+      density_box_t() { density_box = 0; residue_p = 0; n_steps = 0; } // needed because it's unsed in a map
       float *density_box;
       mmdb::Residue *residue_p;
       int n_steps; // either side of the middle
       void scale_by(float scale_factor) {
-	 int n = 2 * n_steps + 1;
-	 int nnn = n * n * n;
-	 for (int i=0; i<nnn; i++)
-	    if (density_box[i] > -1000)
-	       density_box[i] *= scale_factor;
+	 if (n_steps > 0) {
+	    int n = 2 * n_steps + 1;
+	    int nnn = n * n * n;
+	    for (int i=0; i<nnn; i++)
+	       if (density_box[i] > -1000)
+		  density_box[i] *= scale_factor;
+	 }
       }
       int nnn() const {
 	 int n = 2 * n_steps + 1;
@@ -93,11 +96,12 @@ namespace coot {
       std::map<std::string, double>
       compare_block_vs_all_rotamers(density_box_t block,
 				    const std::string &data_dir,
-				    const clipper::Xmap<float> &xmap) const;
+				    const clipper::Xmap<float> &xmap);
+      // fills the rotamer grid cache, non-const
       std::pair<bool, double>
       compare_block_vs_rotamer(density_box_t block,
 			       const std::string &rotamer_dir,
-			       const clipper::Xmap<float> &xmap) const;
+			       const clipper::Xmap<float> &xmap);
       bool in_sphere(int grid_idx, const int &n_steps) const; // manhattan - not a good test
       bool in_sphere(const clipper::Coord_orth &pt, // Euclidean
 		     const clipper::Coord_orth &cb,
@@ -111,7 +115,7 @@ namespace coot {
 
       std::map<std::string, double>
       likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-						 const clipper::Xmap<float> &xmap) const;
+						 const clipper::Xmap<float> &xmap);
 
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
@@ -121,6 +125,19 @@ namespace coot {
 
       double null_hypothesis_scale;
       double null_hypothesis_sigma;
+
+      // cache variable
+      std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > > rotamer_dir_grid_stats_map_cache;
+      // cache variable (for better normalization of user/test map/model)
+      std::map<mmdb::Residue *, density_box_t> density_block_map_cache;
+      // a function to fill above:
+      void fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
+                               const clipper::Xmap<float> &xmap);
+      // called by above
+      void normalize_density_blocks();
+      // use the above cache
+      density_box_t get_block(mmdb::Residue *residue_p) const;
+      
 
    public:
 
@@ -162,7 +179,7 @@ namespace coot {
       static void combine_directory(const std::string &dir, int n_steps);
 
       std::map<std::string, double>
-      get_rotamer_likelihoods(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap) const;
+      get_rotamer_likelihoods(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap);
 
       void gen_useable_grid_points(mmdb::Residue *residue_this_p,
 				   mmdb::Residue *residue_next_p,
@@ -181,7 +198,7 @@ namespace coot {
       void probability_of_each_rotamer_at_each_residue(mmdb::Manager *mol,
 						       const std::string &chain_id,
 						       int resno_start, int resno_end,
-						       const clipper::Xmap<float> &xmap) const;
+						       const clipper::Xmap<float> &xmap);
 
       // Have a guess at the sequence - choose the best fitting residue at every position
       // and turn that into a string.

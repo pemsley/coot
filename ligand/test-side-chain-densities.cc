@@ -201,7 +201,16 @@ combine(int n_steps) {
 	 coot::side_chain_densities::combine_directory(dir, n_steps);
       }
    }
+}
 
+void
+generate_null_hypothesis_likelihoods(const std::string &useable_grid_points_file_name,
+				     int n_steps, float grid_box_radius,
+				     double scale, double sigma) {
+
+   coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
+   scd.set_data_dir("side-chain-data");
+   scd.generate_null_hypothesis_likelihoods();
 }
 
 int main(int argc, char **argv) {
@@ -311,6 +320,18 @@ int main(int argc, char **argv) {
 	 }
 	 done = true;
       }
+   }
+
+   if (argc == 5) {
+      std::string a1(argv[1]);
+      if (a1 == "generate-null-hypothesis-likelihoods") {
+	 std::string useable_grid_points_file_name(argv[2]);
+	 float scale = coot::util::string_to_float(argv[3]);
+	 float sigma = coot::util::string_to_float(argv[4]);
+	 generate_null_hypothesis_likelihoods(n_steps, grid_box_radius,
+					      useable_grid_points_file_name, scale, sigma);
+      }
+      done = true;
    }
 
    if (! done) {

@@ -3801,7 +3801,7 @@
 				     (min-max-and-chain-id (min-max-residues-from-atom-specs atom-specs)))
 
 				 (if (not (list? min-max-and-chain-id))
-				     (info-dialog "Picked atoms not in same molecule and chain")
+				     (info-dialog "WARNING:: Picked atoms not in same molecule and chain")
 				     (let ((loop-mols
 					    (protein-db-loops imol residue-specs 
 							      (imol-refinement-map)
