@@ -10,15 +10,18 @@ namespace coot {
    public:
       // density_box is a copy of a filled pointer
       density_box_t(float *density_box, mmdb::Residue *residue_p, int n_steps);
+      density_box_t() { density_box = 0; residue_p = 0; n_steps = 0; } // needed because it's unsed in a map
       float *density_box;
       mmdb::Residue *residue_p;
       int n_steps; // either side of the middle
       void scale_by(float scale_factor) {
-	 int n = 2 * n_steps + 1;
-	 int nnn = n * n * n;
-	 for (int i=0; i<nnn; i++)
-	    if (density_box[i] > -1000)
-	       density_box[i] *= scale_factor;
+	 if (n_steps > 0) {
+	    int n = 2 * n_steps + 1;
+	    int nnn = n * n * n;
+	    for (int i=0; i<nnn; i++)
+	       if (density_box[i] > -1000)
+		  density_box[i] *= scale_factor;
+	 }
       }
       int nnn() const {
 	 int n = 2 * n_steps + 1;
@@ -116,6 +119,16 @@ namespace coot {
 
       // cache variable
       std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > > rotamer_dir_grid_stats_map_cache;
+      // cache variable (for better normalization of user/test map/model)
+      std::map<mmdb::Residue *, density_box_t> density_block_map_cache;
+      // a function to fill above:
+      void fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
+			       const clipper::Xmap<float> &xmap);
+      // called by above
+      void normalize_density_blocks();
+      // use the above cache
+      density_box_t get_block(mmdb::Residue *residue_p) const;
+      
 
    public:
 

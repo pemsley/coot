@@ -1,4 +1,50 @@
 
+ o question: what are the optimal sampling and grid box radius?
+ o question: can I run locscale to get a resolution for every residue?
+ o question: find the worst LL additions (biggest negative) and look as its distribution - is it drawn
+             from a gaussian distribution? How do the mean and sd of the means of the stats compare
+             to the mean and standard deviation of a number of test grids/residues.
+ o improvement: in "combine" mode, now that you have many samples - you can find the outlier residues
+                and remove them.
+                Do this filtering for 2 (or more) rounds? Does that improve the sensitivity?
+                What is the sensitivity?
+ o improvement: log likelihood ratio vs null hyphothesis of a guassian sphere of density.
+                This needs a new mode for test-side-chain-densities "generate-null-hypothesis"
+                scores for each rotamer - put the results in "null-hypothesis-likelihood" in
+                the rotamer directory. What is "sigma" of the spherical gaussian? Choose (search for)
+                a sigma that maximizes the likelihood over all rotamers. The spherical gaussian
+                will have to be scaled - so search for that also. So allow to parse the scale factor
+                and the sigma on the command line.
+ o improvement: now that seaching a fragment is fast, come up with a scoring scheme that fits fragments
+                of various lengths in a number of structures (3 perhaps, to start with). Can we get the
+                probability of a fit using the log likelihoods of all the fits? Try to optimize the sum
+                of the probabilities of the fragments?
+                Run searches in parallel? Get an ASU of a virus capsid.
+ o improvement: don't add the above test molecules to the "database"
+ o improvement: check that the average density of the map is 0 before adding their residues to the database
+ o improvement: check that the average density of the test/search map is 0.
+ o improvement: write and read the stats.table files as binary
+ o improvement: we can adjust/augment the probability of a PRO by looking at phi/psi.
+                If you strip side chains (or better poly-ala) a model and then RSR it - does the residue that
+                was/should be a PRO remain in PRO phi,psi?
+ o addition: test all chains in the EMDB - using the correct sequence, try to find the fragments where the
+             trace is off (by one, two, three?). This could be quite tricky in practice.
+ o addition: find best guess and variants and screen in the database, using blast. How many variants is a
+             useful number?
+ o addition: add a "optimize parameter" mode, that reads a file of test structures e.g.
+             #structure A.pdb A.map
+             A 10 20
+             A 20 26
+             A 30 40
+             #structure B.pdb B.map
+             A 10 20
+             A 20 26
+             A 50 60
+             A 70 90
+
+             find the rank of the correct solution for each of these trials and the sum of the ranks
+             gives us a number that I can optimize
+
 I need to check that the average density is 0 - or thereabouts.
 Otherwise the normalization of the density grid points will not work correctly.
 
@@ -50,4 +96,5 @@ which gives us sum log likelihoods for side chains.
 ./test-side-chain-densities check-stats TYR m-85 useable-grid-points-nstep=4,box_radius=4.0.data | grep ^check > TYR-m-85.data
 
 ../src/coot-bin --script show-the-grid-stats.py
+
 

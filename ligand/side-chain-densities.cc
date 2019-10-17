@@ -256,6 +256,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
 	     << " resiudes in a_run_of_residues" << std::endl;
 
    if (! a_run_of_residues.empty()) {
+      fill_residue_blocks(a_run_of_residues, xmap);
       int n_residues = a_run_of_residues.size();
       std::vector<std::pair<mmdb::Residue *, std::map<std::string, double> > > scored_residues(n_residues);
       for (int i=0; i<n_residues; i++) {
@@ -341,6 +342,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
    int n_box_vol = n_per_side * n_per_side * n_per_side;
 
    if (! residue_this_p) return density_box_t(0,0,0);
+   if (axes.empty())     return density_box_t(0,0,0);
 
    std::string res_name = residue_this_p->GetResName();
    std::string rot_name = get_rotamer_name(residue_this_p); // doesn't matter for SAMPLE_FOR_RESIDUE mode
@@ -755,8 +757,67 @@ coot::side_chain_densities::map_key_to_residue_and_rotamer_names(const std::stri
    std::string rotamer_name = key.substr(pos+1, key.length());
 
    return std::pair<std::string, std::string>(residue_name, rotamer_name);
-
 }
+
+// we can do better normalization of the grids for the user/test structure if
+// we do them all at the same time.
+void
+coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
+						const clipper::Xmap<float> &xmap) {
+   for (std::size_t i=0; i<residues.size(); i++) {
+      mode_t mode = SAMPLE_FOR_RESIDUE;
+      mmdb::Residue *residue_p = residues[i];
+      std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
+	 get_residue_axes(residue_p);
+      const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
+      const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
+      density_box_t block = sample_map(residue_p, 0, mode, cb_pt, axes, xmap);
+      density_block_map_cache[residue_p] = block;
+   }
+
+   normalize_density_blocks();
+}
+
+void
+coot::side_chain_densities::normalize_density_blocks() {
+
+   std::map<mmdb::Residue *, density_box_t>::const_iterator it;
+   unsigned int n_grid_pts = 0;
+   double sum = 0;
+   for(it=density_block_map_cache.begin(); it!=density_block_map_cache.end(); it++) {
+      const density_box_t &block = it->second;
+      if (! block.empty()) {
+	 int nnn = block.nnn();
+	 for (int i=0; i<nnn; i++) {
+	    if (block[i] > 0.0) {
+	       sum += block[i];
+	       n_grid_pts++;
+	    }
+	 }
+      }
+   }
+   if (n_grid_pts > 0) {
+      double av = sum/static_cast<double>(n_grid_pts);
+      double sc = 1.0/av;
+      std::map<mmdb::Residue *, density_box_t>::iterator it_inner;
+      for(it_inner=density_block_map_cache.begin(); it_inner!=density_block_map_cache.end(); it_inner++) {
+	 density_box_t &block = it_inner->second; // because not const
+	 block.scale_by(sc);
+      }
+   }
+}
+
+coot::density_box_t
+coot::side_chain_densities::get_block(mmdb::Residue *residue_p) const {
+
+   std::map<mmdb::Residue *, density_box_t>::const_iterator it;
+   it = density_block_map_cache.find(residue_p); // this cannot (must not) fail - so make
+                                                 // sure that fill_residue_blocks is called
+                                                 // before this function is called.
+   return it->second;
+}
+
+
 
 // the given residue needs to have a CB - caller should check and make one if
 // the model doesn't have one
@@ -769,16 +830,17 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 
    std::map<std::string, double> bs; // return this, best_score_for_res_type
 
+   // are axes needed?
    std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
       get_residue_axes(residue_p);
    const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
    if (! axes.empty()) {
       // sample_masked density around CB
-      clipper::Coord_orth cb_pt = cb_pos_and_axes.first;
+      const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
 
       // make a block
       mode_t mode = SAMPLE_FOR_RESIDUE;
-      density_box_t block = sample_map(residue_p, 0, mode, cb_pt, axes, xmap);
+      density_box_t block = get_block(residue_p);
       if (block.empty()) {
 
 	 std::cout << "WARNING:: failed to get a density block for "
@@ -788,15 +850,13 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 
 	 // Happy Path
 
-	 block.self_normalize();
-
 	 // compare the block of density to every rotamer (of every residue)
 
 	 std::map<std::string, double> probability_map =
 	    compare_block_vs_all_rotamers(block, data_dir, xmap);
 
-	 // std::cout << "debug:: in get_rotamer_likelihoods(): residue "
-	 // << residue_spec_t(residue_p) << " " << residue_p->GetResName() << std::endl;
+	 std::cout << "debug:: in get_rotamer_likelihoods(): residue "
+		   << residue_spec_t(residue_p) << " " << residue_p->GetResName() << std::endl;
 
 	 // find the max value so that I can mark it and close others
 	 double best_score = -999999999999999.9;
@@ -846,7 +906,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 	    }
 	 }
 
-	 block.clear();
+	 // block.clear();
       }
    }
 
@@ -949,7 +1009,7 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 						     const std::string &rotamer_dir,
 						     const clipper::Xmap<float> &xmap) {
 
-   // This function is slow - conversion of strings to numbers
+   // This function (-is-) was slow - conversion of strings to numbers
    // So, to fix that, in the calling function (compare_block_vs_all_rotamers()),
    // read in all the stats files - write and read the stats file as binaries
    // if it's still slow, so that this function is not needed.
