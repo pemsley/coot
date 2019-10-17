@@ -85,6 +85,11 @@ namespace coot {
 				const double &mean,
 				const double &variance,
 				const double &skew) const;
+      double get_log_likelihood_ratio(const unsigned int &grid_idx,
+                                      const density_box_t &block,
+                                      const double &mean,
+                                      const double &variance,
+                                      const double &skew) const;
       std::map<std::string, double>
       compare_block_vs_all_rotamers(density_box_t block,
 				    const std::string &data_dir,
@@ -99,6 +104,7 @@ namespace coot {
 		     const double &d_max) const;
       std::set<int> useable_grid_points;
       void fill_useable_grid_points_vector(const std::string &file_name);
+      double get_grid_point_distance_from_grid_centre(const unsigned int idx) const;
 
       clipper::Coord_orth make_pt_in_grid(int ix, int iy, int iz, const float &step_size,
 					  const std::vector<clipper::Coord_orth> &axes) const;
@@ -113,6 +119,9 @@ namespace coot {
       // why is this not in utils or something?
       char single_letter_code(const std::string &res_name) const;
 
+      double null_hypothesis_scale;
+      double null_hypothesis_sigma;
+
    public:
 
       std::string id;
@@ -125,6 +134,8 @@ namespace coot {
 	 id = id_in;
 	 fill_useable_grid_points_vector(file_name);
 	 proc_mol(id, mol, xmap);
+         null_hypothesis_scale = 1.0;
+         null_hypothesis_sigma = 1.0;
       }
 
       // constructor for testing residues vs the "database" - using
@@ -139,6 +150,11 @@ namespace coot {
 			   const std::string &useable_grid_points_file_name) : n_steps(n_steps_in), grid_box_radius(grid_box_radius_in) { fill_useable_grid_points_vector(useable_grid_points_file_name); }
 
       void set_data_dir(const std::string &dir) { data_dir = dir; }
+
+      void set_null_hypothesis_scale_and_sigma(double scale, double sigma) {
+         null_hypothesis_scale = scale;
+         null_hypothesis_sigma = sigma;
+      }
 
       // we want to find the probability distribution from all the sample of that type
       // of rotamer for that particular residue type.
@@ -174,7 +190,6 @@ namespace coot {
 			     const std::string &chain_id,
 			     int resno_start, int resno_end,
 			     const clipper::Xmap<float> &xmap) const;
-
    };
 }
 

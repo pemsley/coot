@@ -130,6 +130,9 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
 
    std::vector<std::pair<mmdb::Residue *, std::string> > best_guess; // a bit of fun
 
+   bool all_chain = false;
+   if (resno_end < resno_start) all_chain = true;
+
    // What is the probability of each rotamer at each residue?
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
@@ -146,27 +149,32 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
 		  if (residue_p) {
 		     int res_no = residue_p->GetSeqNum();
 		     std::string res_name = residue_p->GetResName();
+                     bool do_it = all_chain;
 		     if (res_no >= resno_start) {
 			if (res_no <= resno_end) {
-			   std::map<std::string, double> likelihood_map =
-			      likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
-			   std::map<std::string, double>::const_iterator it;
-			   double best_score = -999999999999999.9;
-			   std::string best_type;
-			   for (it=likelihood_map.begin(); it!=likelihood_map.end(); it++) {
-			      const std::string &res_name = it->first;
-			      const double &score = it->second;
-			      if (score > best_score) {
-				 best_score = score;
-				 best_type = res_name;
-			      }
-			   }
-			   std::pair<mmdb::Residue *, std::string> p(residue_p, best_type);
-			   best_guess.push_back(p);
-			}
-		     }
-		  }
-	       }
+                           do_it = true;
+                        }
+                     }
+
+                     if (do_it) {
+                        std::map<std::string, double> likelihood_map =
+                           likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
+                        std::map<std::string, double>::const_iterator it;
+                        double best_score = -999999999999999.9;
+                        std::string best_type;
+                        for (it=likelihood_map.begin(); it!=likelihood_map.end(); it++) {
+                           const std::string &res_name = it->first;
+                           const double &score = it->second;
+                           if (score > best_score) {
+                              best_score = score;
+                              best_type = res_name;
+                           }
+                        }
+                        std::pair<mmdb::Residue *, std::string> p(residue_p, best_type);
+                        best_guess.push_back(p);
+                     }
+                  }
+               }
 	    }
 	 }
       }
@@ -902,6 +910,49 @@ coot::side_chain_densities::get_log_likelihood(const unsigned int &grid_idx,
 		<< " grid-idx " << grid_idx << " nz " << a/sqrt(variance) << std::endl;
 
    return c_part + e_part;
+}
+
+double
+coot::side_chain_densities::get_grid_point_distance_from_grid_centre(const unsigned int idx) const {
+
+   return 1.0;
+
+}
+
+// log_likelihood ratio vs the guassian sphere null hypothesis
+double
+coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_idx,
+					       const density_box_t &block,
+					       const double &mean,
+					       const double &variance,
+					       const double &skew) const {
+
+   // my search density
+
+   double x = block[grid_idx];
+   double z = x - mean;
+   double c_part = log(sqrt(1.0/(2.0 * M_PI * variance)));
+   double e_part = -0.5*z*z/variance;
+
+   // null hypothesis
+
+   // distance between grid point and the CB
+   double d = get_grid_point_distance_from_grid_centre(grid_idx);
+   double x0_null_hypothesis = d;
+   double c_part_null_normal = 1.0/(sqrt(2.0 * M_PI * null_hypothesis_sigma * null_hypothesis_sigma));
+   double z_null_normal = d * null_hypothesis_scale;
+   double e_part_null_normal = exp(-((z_null_normal*z_null_normal)/(2.0 * null_hypothesis_sigma * null_hypothesis_sigma)));
+   double x0_fake_density = c_part_null_normal * e_part_null_normal;
+
+   double z_null = x0_fake_density - mean; // z value for the null hypothesis density value
+   double e_part_normal = -0.5 * z_null * z_null / variance;
+   
+
+   if (false)
+      std::cout << "get_log_likelihood() x " << x
+		<< " grid-idx " << grid_idx << " nz " << z/sqrt(variance) << std::endl;
+
+   return e_part - e_part_normal;
 }
 
 bool
