@@ -1254,7 +1254,7 @@ int graphics_info_t::map_line_width = 1;
 
 // bonding stuff
 int   graphics_info_t::bond_thickness_intermediate_value = -1;
-float graphics_info_t::bond_thickness_intermediate_atoms = 4; // (no so) thick white atom bonds
+float graphics_info_t::bond_thickness_intermediate_atoms = 5; // (no so) thick white atom bonds
 
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;

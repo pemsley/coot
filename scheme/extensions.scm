@@ -755,7 +755,19 @@
 
 	;; ---- R ---------
 
-	;; --- Ren --- 
+	;; --- Ren ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rebuild Fragment using DBLoop (Small)"
+	 (lambda ()
+	   (using-active-atom
+            (rebuild-residues-using-db-loop aa-imol aa-res-spec 0))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rebuild Fragment using DBLoop (Bigger)"
+	 (lambda ()
+	   (using-active-atom
+            (rebuild-residues-using-db-loop aa-imol aa-res-spec 1))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Rename Residue..."
