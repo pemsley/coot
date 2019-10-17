@@ -1700,7 +1700,7 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
 	 }
 
 	 if (is_oxygen_a1) {
-	    std::map<std::string, double>::const_iterator it = geom.metal_N_map.find(rn_2);
+	    std::map<std::string, double>::const_iterator it = geom.metal_O_map.find(rn_2);
 	    if (it != geom.metal_O_map.end()) {
 	       // std::cout << "Yay! Make metal O bond restraint " << a1 << " to metal " << a2 << std::endl;
 	       add_header_metal_link_bond_ng(a1, a2, it->second);
