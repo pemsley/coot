@@ -2990,35 +2990,62 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
       }
    }
 
+   // wrap left-right
    if (fabs(phi_1 - phi_2) > 200.0) {
 
       wi.is_wrapped = 1;
 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
+      float phi_tmp, psi_tmp;
+      float swap_factor = 1.;
+      if ((phi_1 - phi_2) < 0.) {
+            // swap values if negative
+            phi_tmp = phi_2;
+            phi_2 = phi_1;
+            phi_1 = phi_tmp;
+            psi_tmp = psi_2;
+            psi_2 = psi_1;
+            psi_1 = psi_tmp;
+            swap_factor = -1.;
+         }
       if (fabs(psi_diff) > 0.000000001)
          psi_gradient = (180.0 - phi_1)/(phi_2 + 360.0 - phi_1);
 
       float psi_critical = psi_1 + psi_gradient * (psi_2 - psi_1);
-      wi.primary_border_point.first = 180.0;
+      wi.primary_border_point.first = 180.0 * swap_factor;
       wi.primary_border_point.second = psi_critical;
-      wi.secondary_border_point.first = -180.0;
+      wi.secondary_border_point.first = -180.0 * swap_factor;
       wi.secondary_border_point.second = psi_critical;
    } 
+
+   // wrap top-bottom
    if (fabs(psi_1 - psi_2) > 200.0) {
 
       wi.is_wrapped = 1;
 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
+      float phi_tmp, psi_tmp;
+      float swap_factor = 1.;
+      if ((psi_1 - psi_2) > 0.) {
+            // swap values if positive
+            phi_tmp = phi_2;
+            phi_2 = phi_1;
+            phi_1 = phi_tmp;
+            psi_tmp = psi_2;
+            psi_2 = psi_1;
+            psi_1 = psi_tmp;
+            swap_factor = -1.;
+         }
       if (fabs(psi_diff) > 0.000000001)
-	 psi_gradient = (-180.0 - (psi_2 - 360.0))/(psi_1 - (psi_2 - 360.0));
+         psi_gradient = (-180.0 - (psi_2 - 360.0))/(psi_1 - (psi_2 - 360.0));
 
       float phi_critical = phi_2 + psi_gradient * (phi_1 - phi_2);
       wi.primary_border_point.first = phi_critical;
-      wi.primary_border_point.second = border_end;
+      wi.primary_border_point.second = border_end * swap_factor;
       wi.secondary_border_point.first = phi_critical;
-      wi.secondary_border_point.second = border_start;
+      wi.secondary_border_point.second = border_start * swap_factor;
    } 
    return wi;
 } 
