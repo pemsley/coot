@@ -447,7 +447,7 @@ public:
 #endif
    guint *current_colour;
    void hide_all_background();
-   void setup_background(bool blocks=1, bool isolines=1);
+   void setup_background(bool blocks=1, bool isolines=1, bool print_image=0);
    std::pair<int, std::vector<float> > make_isolines_internal(const clipper::Ramachandran rama_type,
                                                               double threshold, float x_in, float y_in);
    void setup_canvas(); 
