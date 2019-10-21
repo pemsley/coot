@@ -45,6 +45,14 @@
              find the rank of the correct solution for each of these trials and the sum of the ranks
              gives us a number that I can optimize
 
+  o Note: for the best solution to be 10 times more probable than the next best: the delta log likelihood
+    needs to be +2.3 (log(10)).
+
+  o Note: to match the distributions: the combine step needs to create a file that contains
+          the mean and standard deviations of all density values for all instances of that rotamer.
+          Then on testing, I read that file and match the distribution of the density points for *this*
+          residue to that in that file - call it "summary-stats".
+
 I need to check that the average density is 0 - or thereabouts.
 Otherwise the normalization of the density grid points will not work correctly.
 
@@ -75,6 +83,8 @@ comm -12 col-19.data col-20.data > useable-grid-points-nstep=4,box_radius=4.0.da
 bash run-side-chain-densities.sh useable-grid-points-nstep=4,box_radius=4.0.data
 
 # now we need to model those distributions and create mean, variance and skew for each grid point
+
+rm side-chain-data/*/*/stats.table # may be needed.
 #
 ./test-side-chain-densities combine > combine.out
 #
@@ -92,9 +102,20 @@ Use R to examine the data at each grid point, e.g. side-chain-data/ASP/t70/grid-
 which gives us sum log likelihoods for side chains.
 
 
-# do the stats show the right "shape" for the given rotamer?
-./test-side-chain-densities check-stats TYR m-85 useable-grid-points-nstep=4,box_radius=4.0.data | grep ^check > TYR-m-85.data
+# do the stats show the right "shape" for the given rotamer - now we can specify which residue
+# they should be added over
+./test-side-chain-densities check-stats TYR m-85 test.pdb A 20 useable-grid-points-nstep=4,box_radius=4.0.data > TYR-m-85.data
 
+# edit this script to read the data file:
 ../src/coot-bin --script show-the-grid-stats.py
+
+---
+ 
+  checking the distribution of points for our test side chains vs the means in stats.table for the correct rotamer:
+
+  turn on rotamer_limits in get_rotamer_likelihoods()
+  grep "with x " out > with.tab
+  and use with-x.r
+
 
 

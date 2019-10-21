@@ -65,19 +65,19 @@ check_useable_grid_points(int n_steps, float grid_box_radius,
 }
 
 void
-check_stats(int n_steps, float grid_box_radius, const std::string &res_name, const std::string &rot_name, const std::string &file_name) {
+check_stats(int n_steps, float grid_box_radius, const std::string &res_name,
+	    const std::string &rot_name,
+	    const std::string &pdb_file_name, const std::string &chain_id, int res_no,
+	    const std::string &file_name) {
 
    // do the stats look like the side chain that they are supposed to be?
 
    // Show me a dotted grids where the size is proportional to the mean
 
-   std::string pdb_file_name("test.pdb");
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
-   int res_no = 19;
-   coot::residue_spec_t spec_this("A", res_no, "");
+   coot::residue_spec_t spec_this(chain_id, res_no, "");
    mmdb::Residue *residue_p = coot::util::get_residue(spec_this, asc.mol);
    if (residue_p) {
-
       std::string grid_points_file_name = file_name;
       coot::side_chain_densities scd(n_steps, grid_box_radius, grid_points_file_name);
       scd.check_stats(residue_p, res_name, rot_name);
@@ -180,11 +180,28 @@ void test_sequence(int n_steps, float grid_box_radius,
    }
 }
 
+// generate "stats.table" for every rotamer
 void
 combine(int n_steps) {
 
+   // Set these from parsing the command line.
+   // When optimizing, we need only re-run this combine stage - the grid data
+   // generation stage need not be run multiple times.
+   //
+   unsigned int mn_unreliable_minimum_counts;
+   unsigned int mn_unreliable_minimum_counts_for_low_variance;
+   double mn_unreliable_minimum_variance;
+   double mn_use_this_variance_for_unreliable;
+   mn_unreliable_minimum_counts = 10;
+   mn_unreliable_minimum_counts_for_low_variance = 20;
+   mn_unreliable_minimum_variance = 0.1;
+   mn_use_this_variance_for_unreliable = 4.0;
+
    std::cout << "combine() " << std::endl;
    std::string dir = "side-chain-data";
+
+   // put the globbing in the side_chain_densities class
+   //
    std::string glob_pattern = "*";
    std::vector<std::string> dirs = coot::util::glob_files(dir, glob_pattern);
    std::cout << "found " << dirs.size() << " files in " << dir << std::endl;
@@ -198,19 +215,14 @@ combine(int n_steps) {
       for (std::size_t jdir=0; jdir<rot_dirs.size(); jdir++) {
 	 const std::string &dir = rot_dirs[jdir];
 	 std::cout << "combine(): rot_dir: " << dir << std::endl;
-	 coot::side_chain_densities::combine_directory(dir, n_steps);
+
+	 coot::side_chain_densities::combine_directory(dir, n_steps,
+						       mn_unreliable_minimum_counts,
+						       mn_unreliable_minimum_counts_for_low_variance,
+						       mn_unreliable_minimum_variance,
+						       mn_use_this_variance_for_unreliable);
       }
    }
-}
-
-void
-generate_null_hypothesis_likelihoods(const std::string &useable_grid_points_file_name,
-				     int n_steps, float grid_box_radius,
-				     double scale, double sigma) {
-
-   coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
-   scd.set_data_dir("side-chain-data");
-   scd.generate_null_hypothesis_likelihoods();
 }
 
 int main(int argc, char **argv) {
@@ -264,7 +276,7 @@ int main(int argc, char **argv) {
       }
    }
 
-   if (argc == 5) {
+   if (argc == 8) {
       // Make a 3D dot plot - representing the stats for the given rotamer
       // point (size) represent values in stats.table
       // different rotamers should look different
@@ -272,9 +284,15 @@ int main(int argc, char **argv) {
       if (a1 == "check-stats") {
 	 std::string res_name(argv[2]);
 	 std::string rot_name(argv[3]);
-	 std::string grid_points_file_name(argv[4]);
+	 std::string pdb_file_name(argv[4]);
+	 std::string chain_id(argv[5]);
+	 std::string res_no_str(argv[6]);
+	 std::string grid_points_file_name(argv[7]);
+	 int res_no = coot::util::string_to_int(res_no_str); // protect with try/catch
 	 // the residue to which the grid is matched is set in the function
-	 check_stats(n_steps, grid_box_radius, res_name, rot_name, grid_points_file_name);
+	 check_stats(n_steps, grid_box_radius, res_name, rot_name,
+		     pdb_file_name, chain_id, res_no,
+		     grid_points_file_name);
 	 done = true;
       }
    }
@@ -322,16 +340,17 @@ int main(int argc, char **argv) {
       }
    }
 
-   if (argc == 5) {
+   if (argc == 3) {
       std::string a1(argv[1]);
-      if (a1 == "generate-null-hypothesis-likelihoods") {
+      if (a1 == "test-grid-interconversion") {
 	 std::string useable_grid_points_file_name(argv[2]);
-	 float scale = coot::util::string_to_float(argv[3]);
-	 float sigma = coot::util::string_to_float(argv[4]);
-	 generate_null_hypothesis_likelihoods(n_steps, grid_box_radius,
-					      useable_grid_points_file_name, scale, sigma);
+	 coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
+	 scd.set_data_dir("side-chain-data");
+	 bool success = scd.test_grid_point_to_coords_interconversion();
+	 if (success)
+	    std::cout << "Correct" << std::endl;
+	 done = true;
       }
-      done = true;
    }
 
    if (! done) {
