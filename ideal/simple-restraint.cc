@@ -3347,7 +3347,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
    // this doesn't do the right thing if there are insertion codes. Maybe I could check for that
    // here and jump out at the start if so.
 
-   float pseudo_bond_esd = 0.035; // seems reasonable.
+   float pseudo_bond_esd = 0.02; // 0.035 seems reasonable.
+                                 // 0.035 20191022-PE seems a bit weak now.
 
    // this double loop might be hideous for many hundreds of residues
    //
