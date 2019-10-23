@@ -2505,7 +2505,10 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 						      const coot::Cartesian &back,
 						      bool against_a_dark_background) {
 
-   bool display_it = display_stick_mode_atoms_flag;
+   // We can't jump out early now, because if we are in stick mode, we still want to see waters
+
+   // bool display_it = display_stick_mode_atoms_flag;
+   bool display_it = true;
 
    if (display_it) {
 
@@ -2554,7 +2557,11 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 	       // no points for hydrogens
                const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
-	       if (! gbai.is_hydrogen_atom) {
+	       if (! gbai.is_hydrogen_atom || gbai.is_water) {
+
+		  if (! display_stick_mode_atoms_flag && !gbai.is_water) {
+		     continue;
+		  }
 
 		  if ((single_model_view_current_model_number == 0) ||
 		      (single_model_view_current_model_number == gbai.model_number)) {
@@ -2649,7 +2656,10 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
-		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+		     const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+		     if (! gbai.is_hydrogen_atom) {
+
+			if (! display_stick_mode_atoms_flag && !gbai.is_water) continue;
 
 			if ((single_model_view_current_model_number == 0) ||
 			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
@@ -2674,7 +2684,11 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
-		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+		     const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+		     if (! gbai.is_hydrogen_atom) {
+
+			if (! display_stick_mode_atoms_flag && !gbai.is_water) continue;
+
 			if ((single_model_view_current_model_number == 0) ||
 			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
 
