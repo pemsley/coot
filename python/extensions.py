@@ -295,7 +295,7 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_maps,
-       "Copy Map Molecule...", 
+       "Copy Map...",
        lambda func: map_molecule_chooser_gui("Map to Copy...", 
 		lambda imol: copy_molecule(imol)))
 

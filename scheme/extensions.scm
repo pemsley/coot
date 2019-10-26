@@ -373,7 +373,7 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-maps "Copy Map Molecule...."
+	 submenu-maps "Copy Map..."
 	 (lambda ()
 	   (map-molecule-chooser-gui "Molecule to Copy..."
 				     (lambda (imol)
