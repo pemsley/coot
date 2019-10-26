@@ -5252,8 +5252,6 @@ void export_map_gui(short int export_map_fragment) {
       gtk_widget_hide(hbox);
    }
 
-   GtkWidget *option_menu = lookup_widget(w, "export_map_map_optionmenu");
-
    GtkWidget *combobox = lookup_widget(w, "export_map_map_combobox");
 
    graphics_info_t g;

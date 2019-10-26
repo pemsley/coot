@@ -4200,6 +4200,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -29273,7 +29274,6 @@ create_export_map_dialog (void)
   GtkWidget *export_map_dialog;
   GtkWidget *dialog_vbox132;
   GtkWidget *vbox324;
-  GtkWidget *export_map_map_optionmenu;
   GtkWidget *export_map_map_combobox;
   GtkWidget *export_map_fragment_hbox;
   GtkWidget *label786;
@@ -29293,11 +29293,6 @@ create_export_map_dialog (void)
   vbox324 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox324);
   gtk_box_pack_start (GTK_BOX (dialog_vbox132), vbox324, TRUE, TRUE, 0);
-
-  export_map_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (export_map_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_optionmenu, FALSE, FALSE, 6);
-  gtk_container_set_border_width (GTK_CONTAINER (export_map_map_optionmenu), 6);
 
   export_map_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (export_map_map_combobox);
@@ -29350,7 +29345,6 @@ create_export_map_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, export_map_dialog, "export_map_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_vbox132, "dialog_vbox132");
   GLADE_HOOKUP_OBJECT (export_map_dialog, vbox324, "vbox324");
-  GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_optionmenu, "export_map_map_optionmenu");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_combobox, "export_map_map_combobox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_fragment_hbox, "export_map_fragment_hbox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label786, "label786");
