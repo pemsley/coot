@@ -116,7 +116,7 @@ libcoot_map_utils_la_LIBADD = \
 libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for map things that need mmdb, clipper, gsl and other things
-libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc
+libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc segmap.cc
 
 #   $(top_builddir)/utils/libcoot-utils.la 
 
@@ -132,7 +132,7 @@ libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 #
 check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-elastic test-spherical glyco-torsions \
 	test-tt-morph test-coot-probe test-chem-feat test-cod-atom-types dictionary-atom-types cod-db-access \
-	test-emma test-convolute
+	test-emma test-convolute test-segmap
 
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
@@ -159,6 +159,12 @@ test_emma_LDADD =  libcoot-map-utils.la \
 
 test_convolute_SOURCES = test-convolute.cc
 test_convolute_LDADD = \
+        ./libcoot-map-utils.la \
+	./libcoot-map-heavy.la \
+	$(top_builddir)/coords/libcoot-coords.la
+
+test_segmap_SOURCES = test-segmap.cc
+test_segmap_LDADD = \
         ./libcoot-map-utils.la \
 	./libcoot-map-heavy.la \
 	$(top_builddir)/coords/libcoot-coords.la

@@ -40,9 +40,64 @@ coot::density_box_t::self_normalize() {
    }
 }
 
+bool
+coot::side_chain_densities::like_the_others(const std::map<int, std::string> &chain,
+					    const std::vector<std::map<int, std::string> > &other_chains) const {
+
+   bool is_like_the_others = false;
+   unsigned int n_chain = chain.size();
+   for (std::size_t i=0; i<other_chains.size(); i++) {
+      const std::map<int, std::string> &other_chain = other_chains[i];
+      unsigned int n = n_chain;
+      if (other_chains.size() < n)
+	 n = other_chains.size();
+      unsigned int n_match = 0;
+      std::map<int, std::string>::const_iterator it;
+      for (it=chain.begin(); it!=chain.end(); it++) {
+	 const int &key = it->first;
+	 const std::string &val = it->second;
+
+	 std::map<int, std::string>::const_iterator it_other = other_chain.find(key);
+	 if (it_other != other_chain.end())
+	    if (val == it_other->second)
+	       n_match++;
+      }
+
+      float frac = static_cast<float>(n_match) / static_cast<float>(n);
+      if (frac > 0.7) {
+	 is_like_the_others = true;
+	 break;
+      }
+   }
+
+   return is_like_the_others;
+}
+
+std::map<int, std::string>
+coot::side_chain_densities::make_sequence_for_chain(mmdb::Chain *chain_p) const {
+
+   std::map<int, std::string> m;
+   int n_residues = chain_p->GetNumberOfResidues();
+   for (int i=0; i<n_residues; i++) {
+      mmdb::Residue *residue_p = chain_p->GetResidue(i);
+      if (residue_p) {
+	 int res_no = residue_p->GetSeqNum();
+	 std::string res_name = residue_p->GetResName();
+	 m[res_no] = res_name;
+      }
+   }
+   return m;
+
+}
+
 void coot::side_chain_densities::proc_mol(const std::string &id,
                                           mmdb::Manager *mol,
                                           const clipper::Xmap<float> &xmap) {
+
+   // don't sample chains that have a sequence similar to chains that we've
+   // processed before
+   //
+   std::vector<std::map<int, std::string> > done_chains;
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
@@ -51,7 +106,10 @@ void coot::side_chain_densities::proc_mol(const std::string &id,
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
          if (chain_p) {
-            proc_chain(id, chain_p, xmap);
+	    std::map<int, std::string> sequence_for_chain = make_sequence_for_chain(chain_p);
+	    if (! like_the_others(sequence_for_chain, done_chains))
+	       proc_chain(id, chain_p, xmap);
+	    done_chains.push_back(sequence_for_chain);
          }
       }
    }
@@ -527,7 +585,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
 		  float dv = util::density_at_point_by_linear_interpolation(xmap, pt_grid_point);
 		  density_box[idx] = dv;
 		  block_stats.add(dv);
-		  if (true)
+		  if (false)
 		     std::cout << "sample_map(): for block_stats " << pt_grid_point.format()
 			       <<  " " << idx << " " << dv << "\n";
 	       }

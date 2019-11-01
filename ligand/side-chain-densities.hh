@@ -153,7 +153,11 @@ namespace coot {
       void normalize_density_blocks();
       // use the above cache
       density_box_t get_block(mmdb::Residue *residue_p) const;
-      
+
+      std::map<int, std::string> make_sequence_for_chain(mmdb::Chain *chain_p) const;
+
+      bool like_the_others(const std::map<int, std::string> &chain,
+			   const std::vector<std::map<int, std::string> > &other_chains) const;
 
    public:
 
