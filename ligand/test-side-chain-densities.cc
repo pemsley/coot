@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -239,8 +240,9 @@ check_map_mean(const std::string &map_file_name) {
       float n_sds_0 = mv_0.mean/sqrt(mv_0.variance);
       float n_sds_1 = mv_1.mean/sqrt(mv_1.variance);
       std::cout << map_file_name << " "
-		<< mv_0.mean << " " << sqrt(mv_0.variance) << n_sds_0
-		<< mv_1.mean << " " << sqrt(mv_1.variance) << n_sds_1
+                << std::fixed << std::right << std::setprecision(12)
+		<< mv_0.mean << " " << sqrt(mv_0.variance) << " " << n_sds_0 << "    "
+		<< mv_1.mean << " " << sqrt(mv_1.variance) << " " << n_sds_1
 		<< std::endl;
    }
    catch (const clipper::Message_base &exc) {
@@ -380,8 +382,8 @@ int main(int argc, char **argv) {
    if (argc == 3) {
       std::string a1(argv[1]);
       if (a1 == "calc-mean") {
-	 std::cout << "Here 1 " << std::endl;
 	 std::string map_file_name(argv[2]);
+	 std::cout << "### check means for map " << map_file_name << std::endl;
 	 check_map_mean(map_file_name);
 	 done = true;
       }

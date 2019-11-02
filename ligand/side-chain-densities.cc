@@ -320,8 +320,8 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
       }
    }
 
-   std::cout << "debug in test_sequence() with " << a_run_of_residues.size()
-	     << " resiudes in a_run_of_residues" << std::endl;
+   std::cout << "debug:: in test_sequence() with " << a_run_of_residues.size()
+	     << " residues in a_run_of_residues" << std::endl;
 
    if (! a_run_of_residues.empty()) {
       fill_residue_blocks(a_run_of_residues, xmap);
@@ -332,7 +332,19 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
 	 std::map<std::string, double> likelihood_map =
 	    likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
 	 std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
-	 scored_residues[i] = p;
+         if (true) {
+            std::cout << "transfer to scored_residues " << i<< " " << residue_spec_t(residue_p)
+                      << " with map: ---" << std::endl;
+            std::map<std::string, double>::const_iterator it_debug;
+            for (it_debug=likelihood_map.begin();
+                 it_debug!=likelihood_map.end();
+                 it_debug++) {
+               std::cout << "   " << it_debug->first << " " << it_debug->second
+                         << std::endl;
+            }
+            std::cout << "-----" << std::endl;
+         }
+         scored_residues[i] = p;
       }
 
       std::string true_sequence;
@@ -367,6 +379,16 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
 		     n_scored_residues++;
 		     std::cout << "debug:: adding " << score << " for " << letter << std::endl;
 		  } else {
+                     if (true) { // debug
+                        std::cout << "Failed to find " << res_type << " in this map: " << std::endl;
+                        std::map<std::string, double>::const_iterator it_debug;
+                        for (it_debug=scored_map.begin();
+                             it_debug!=scored_map.end();
+                             it_debug++) {
+                           std::cout << "   " << it_debug->first << " " << it_debug->second
+                                     << std::endl;
+                        }
+                     }
 		     running_sequence += '.';
 		  }
 	       } else {
@@ -587,17 +609,18 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
 		  block_stats.add(dv);
 		  if (false)
 		     std::cout << "sample_map(): for block_stats " << pt_grid_point.format()
-			       <<  " " << idx << " " << dv << "\n";
+		               <<  " " << idx << " " << dv << "\n";
 	       }
 	    }
 	 }
       }
    }
 
-   std::cout << "debug; block stats " << coot::residue_spec_t(residue_this_p)
-	     << " size " << block_stats.size()
-	     << " mean " << block_stats.mean() << " var " << block_stats.variance()<< std::endl;
-   density_box_t db(density_box, residue_next_p, n_steps);
+   if (true)
+      std::cout << "debug: block stats " << coot::residue_spec_t(residue_this_p)
+                << " size " << block_stats.size()
+                << " mean " << block_stats.mean() << " sd " << sqrt(block_stats.variance()) << std::endl;
+   density_box_t db(density_box, residue_this_p, n_steps);
    return db;
 }
 
@@ -711,7 +734,7 @@ coot::side_chain_densities::write_density_box(float *density_box, int n_steps, c
 // stores density boxes - change the name of the function
 void
 coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *chain_p,
-					    const clipper::Xmap<float> &xmap) {
+                                       const clipper::Xmap<float> &xmap) {
 
    int n_residues = chain_p->GetNumberOfResidues();
    int last_res = n_residues - 2;
@@ -723,7 +746,7 @@ coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *chain
 	 // that will need a special function to find an imaginary CB position
 	 //
          std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
-	    get_residue_axes(t);
+            get_residue_axes(t);
          const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
          if (! axes.empty()) {
             // sample_masked density around 8A around CB
@@ -731,8 +754,10 @@ coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *chain
 	    bool gen_flag = false;
 	    mode_t mode = SAMPLE_FOR_DB;
 	    density_box_t db = sample_map(t, 0, mode, cb_pt, axes, xmap);
-	    if (! db.empty())
-	       store_density_box(db); // push back to density_boxes vector
+            if (! db.empty()) {
+               // std::cout << "Storing density box for residue " << residue_spec_t(t) << " " << residue_spec_t(db.residue_p) << std::endl;
+               store_density_box(db); // push back to density_boxes vector
+            }
          }
       }
    }
@@ -950,8 +975,15 @@ coot::side_chain_densities::add_mean_and_variance_to_individual_density_blocks()
       density_box_t &block = it->second;
       if (! block.empty()) {
 	 int nnn = block.nnn();
-	 for (int i=0; i<nnn; i++)
-	    s.add(block[i]);
+	 for (int i=0; i<nnn; i++) {
+            const float &bi = block[i];
+            if (bi> -1000.0) {
+               // std::cout << "" << residue_spec_t(it->first) << " " << i << " " << block[i] << std::endl;
+               s.add(block[i]);
+            }
+         }
+         std::cout << "debug:: in add_mean_and_variance_to_individual_density_blocks() " << residue_spec_t(it->first)
+                   << " mean: " << s.mean() << " variance: " << s.variance() << std::endl;
 	 block.set_stats(s.mean(), s.variance());
       }
    }
@@ -964,6 +996,9 @@ coot::side_chain_densities::get_block(mmdb::Residue *residue_p) const {
    it = density_block_map_cache.find(residue_p); // this cannot (must not) fail - so make
                                                  // sure that fill_residue_blocks is called
                                                  // before this function is called.
+   if (it == density_block_map_cache.end()) {
+      std::cout << "ERROR:: in get_block(): Hideous failure!" << std::endl;
+   }
    return it->second;
 }
 
@@ -991,6 +1026,11 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
       // make a block
       mode_t mode = SAMPLE_FOR_RESIDUE;
       density_box_t block = get_block(residue_p);
+
+      std::cout << "debug:: in get_rotamer_likelihoods() residue: "
+                << residue_spec_t(residue_p) << " block has mean " << block.mean
+                << "and var " << block.var << " sd " << sqrt(block.var) << std::endl;
+      
       if (block.empty()) {
 
 	 std::cout << "WARNING:: failed to get a density block for "
@@ -1006,14 +1046,16 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 	 std::string rot_name = get_rotamer_name(residue_p);
 
 	 std::cout << "debug:: in get_rotamer_likelihoods(): residue "
-		   << residue_spec_t(residue_p) << " " << res_name << std::endl;
+		   << residue_spec_t(residue_p) << " " << res_name << " " << rot_name << std::endl;
 
 	 std::pair<bool, std::vector<std::pair<std::string, std::string> > > rotamer_limits;
 	 rotamer_limits.first = false; // don't apply the limits, production
 
 	 // just test the rotamer that this residue is, combine with
 	 // outputting the likelihoods for the grids in get_log_likelihood_ratio()
+
 	 rotamer_limits.first = true; // testing the likelihoods of the correct rotamers
+         
 	 rotamer_limits.second.push_back(std::pair<std::string, std::string> (res_name, rot_name));
 
 	 std::map<std::string, double> probability_map =
@@ -1100,6 +1142,8 @@ coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
 	 std::string key = res + ":" + rot;
 
 	 bool do_it = false;
+
+         std::cout << "debug:: in compare_block_vs_all_rotamers() rotamer limits first " << rotamer_limits.first << std::endl;
 	 if (! rotamer_limits.first) {
 	    // so, don't apply the limits
 	    do_it = true;
@@ -1123,7 +1167,8 @@ coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
 
 	 if (do_it) {
 
-	    // std::cout << "debug:: in compare_block_vs_all_rotamers(): rot_dir: " << rot_dir << std::endl;
+	    std::cout << "debug:: in compare_block_vs_all_rotamers(): rot_dir: " << rot_dir << std::endl;
+            std::cout << "debug:: in compare_block_vs_all_rotamers(): block var " << block.var << std::endl;
 	    std::pair<bool, double> p = compare_block_vs_rotamer(block, residue_p, rot_dir, xmap);
 	    if (p.first) {
 	       // std::cout << "debug:: in compare_block_vs_rotamer() pr: " << key << " " << p.second
@@ -1131,7 +1176,9 @@ coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
 
 	       probability_map[key] = p.second;
 	    }
-	 }
+	 } else {
+            std::cout << "debug:: in compare_block_vs_rotamer() do_it was false " << rot_dir << std::endl;
+         }
       }
    }
    return probability_map;
@@ -1195,8 +1242,10 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
 
    double var_scale = variance/block.var;
    double sd_scale = sqrt(var_scale);
-   std::cout << "debug variance " << variance << " block.var " << block.var << " sd_scale " << sd_scale << std::endl;
    double mean_offset = mean - block.mean;
+   std::cout << "debug:: variance " << variance << " block.var " << block.var << " sd_scale " << sd_scale << std::endl;
+   std::cout << "debug:: scaling density_val " << density_val << " with " << sd_scale << " and mean offset "
+             << mean_offset << std::endl;
    double x = density_val * sd_scale - mean_offset;
 
    double z = x - mean;
@@ -1237,9 +1286,9 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    if (diff < mn_log_likelihood_ratio_difference_min)
       diff = mn_log_likelihood_ratio_difference_min;
 
-   if (true) // debug/check the engine
-      std::cout << "in get_log_likelihood_ratio() " << grid_idx << " " << std::setw(10)
-		<< e_part << " " << std::setw(9) << e_part_normal
+   if (false) // debug/check the engine
+      std::cout << "in get_log_likelihood_ratio() grid_idx: " << grid_idx << " e_part: " << std::setw(10)
+		<< e_part << " e_part_normal: " << std::setw(9) << e_part_normal
 		<< " with density_val " << density_val
 		<< " with x " << std::right <<  std::setw(11) << x
 		<< " x0_fake_density " << std::setw(10) << x0_fake_density
@@ -1314,9 +1363,10 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
    // I want to match the density mean and sigma of this blocks mean and sigma with the
    // overall stats with a scale (to match sigmas) and offset (to match means)
 
-   std::cout << "debug:: compare_block_vs_rotamer() residue "
-	     << coot::residue_spec_t(residue_p) << " " << rotamer_dir
-	     << std::endl;
+   if (false)
+      std::cout << "debug:: compare_block_vs_rotamer() residue "
+                << coot::residue_spec_t(residue_p) << " " << rotamer_dir
+                << std::endl;
 
    bool do_debug_scoring = false; // count the number of times the the sample map is more than
                                   // the template stats mean. Should be about 50-50?
@@ -1340,6 +1390,7 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 	 const double &mean = std::get<0>(m_v_s);
 	 const double &var  = std::get<1>(m_v_s);
 	 const double &skew = std::get<2>(m_v_s);
+         // std::cout << "debug:: compare_block_vs_rotamer() A var " << var << " block.var " << block.var << std::endl;
 	 // double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
 	 double llr = get_log_likelihood_ratio(grid_idx, block, step_size, mean, var, skew);
 	 sum_log_likelihood += llr;
@@ -1367,6 +1418,8 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 		  double mean = util::string_to_double(words[1]);
 		  double var  = util::string_to_double(words[2]);
 		  double skew = util::string_to_double(words[3]);
+                  std::cout << "debug:: compare_block_vs_rotamer() B var " << var << " block.var " << block.var
+                            << std::endl;
 		  if (var < 0.0) std::cout << "ERROR:: negative variance " << var << std::endl;
 		  // double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
 		  double llr = get_log_likelihood_ratio(grid_idx, block, step_size, mean, var, skew);
@@ -1386,6 +1439,8 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 		  // cache that
 		  std::tuple<double, double, double> t(mean, var, skew);
 		  stats_map[grid_idx] = t;
+
+                  // put this outside the while loop?
 		  rotamer_dir_grid_stats_map_cache[rotamer_dir] = stats_map;
 	       }
 	    }
