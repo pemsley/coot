@@ -27,6 +27,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/atom-selection-container.hh"
+#include "coot-utils/xmap-stats.hh"
 #include "side-chain-densities.hh"
 
 void
@@ -225,6 +226,29 @@ combine(int n_steps) {
    }
 }
 
+void
+check_map_mean(const std::string &map_file_name) {
+
+   clipper::CCP4MAPfile file;
+   try {
+      clipper::Xmap<float> xmap;
+      file.open_read(map_file_name);
+      file.import_xmap(xmap);
+      mean_and_variance<float> mv_0 = map_density_distribution(xmap, 400, false, false);
+      mean_and_variance<float> mv_1 = map_density_distribution(xmap, 400, false, true);
+      float n_sds_0 = mv_0.mean/sqrt(mv_0.variance);
+      float n_sds_1 = mv_1.mean/sqrt(mv_1.variance);
+      std::cout << map_file_name << " "
+		<< mv_0.mean << " " << sqrt(mv_0.variance) << n_sds_0
+		<< mv_1.mean << " " << sqrt(mv_1.variance) << n_sds_1
+		<< std::endl;
+   }
+   catch (const clipper::Message_base &exc) {
+      std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
+   }
+
+}
+
 int main(int argc, char **argv) {
 
    bool done = false;
@@ -349,6 +373,16 @@ int main(int argc, char **argv) {
 	 bool success = scd.test_grid_point_to_coords_interconversion();
 	 if (success)
 	    std::cout << "Correct" << std::endl;
+	 done = true;
+      }
+   }
+
+   if (argc == 3) {
+      std::string a1(argv[1]);
+      if (a1 == "calc-mean") {
+	 std::cout << "Here 1 " << std::endl;
+	 std::string map_file_name(argv[2]);
+	 check_map_mean(map_file_name);
 	 done = true;
       }
    }
