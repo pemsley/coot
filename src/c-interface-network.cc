@@ -153,13 +153,14 @@ std::string coot_get_url_as_string_internal(const char *url) {
    std::string user_agent = PACKAGE;
    user_agent += " ";
    user_agent += VERSION;
-   user_agent += " http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
+   user_agent += " https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
 
    long int no_signal = 1; 
    CURL *c = curl_easy_init();
    curl_easy_setopt(c, CURLOPT_URL, url);
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
    curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_SSL_VERIFYPEER, FALSE);
    curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent.c_str());
    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
    curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
