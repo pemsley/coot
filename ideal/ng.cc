@@ -1778,6 +1778,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    bool only_between_different_residues_flag = true;
    cb.find_the_contacts(&vcontacts, only_between_different_residues_flag);
 
+   std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > tested_but_nothing;
+
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
@@ -1822,7 +1824,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		     std::cout << "Here are the pairs in the linked set " << std::endl;
 		     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it;
 		     for (it=residue_pair_link_set.begin(); it!=residue_pair_link_set.end(); it++)
-			std::cout << "   " << residue_spec_t(it->first) << " " << residue_spec_t(it->second) << std::endl;
+			std::cout << "   " << residue_spec_t(it->first) << " " << residue_spec_t(it->second)
+				  << std::endl;
 		  }
 
 		  mmdb::Residue *res_1 = at_1->residue;
@@ -1831,9 +1834,28 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  if (nlrs.already_added_p(res_1, res_2))
 		     continue;
 
+		  // add a check here for res_1 and res_2 already considered, but not added.
+		  // continue, in that case.
+		  //
+		  std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test(res_1, res_2);
+		  if (std::find(tested_but_nothing.begin(),
+				tested_but_nothing.end(),
+				pair_for_nothing_test) != tested_but_nothing.end())
+		     continue;
+
+		  if (false)
+		     std::cout << "------- considering " << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
+			       << std::endl;
+
 		  // not sure that this is what I want now, really
 		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
 		  // Returns first (link_type) as "" if not found, second is order switch flag
+
+		  if (false)
+		     std::cout << "-------- find_link_type_complicado() returns \"" << lt.first << "\""
+			       << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+			       << std::endl;
+
 		  if (! lt.first.empty()) {
 		     // this is not the place to make peptide links, event though find_link_type_complicado()
 		     // will return a peptide link (for links that were not made before (perhaps because
@@ -1848,6 +1870,11 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 
 			nlrs.insert(at_1, at_2, res_1, res_2, fixed_1, fixed_2, lt.first, lt.second);
 		     }
+		  } else {
+		     std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test_1(res_1, res_2);
+		     std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test_2(res_2, res_1);
+		     tested_but_nothing.push_back(pair_for_nothing_test_1);
+		     tested_but_nothing.push_back(pair_for_nothing_test_2);
 		  }
 	       }
 	    }
