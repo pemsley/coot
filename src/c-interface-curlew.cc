@@ -103,6 +103,7 @@ void curlew() {
 
    GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
    GtkWidget *install_button = lookup_widget(w, "curlew_install_button");
+   // install_button callback:  curlew_dialog_install_extensions()
    if (vbox) {
       std::string download_dir = "coot-download"; // FIXME
       std::string dl_fn = download_dir + "/info.json";
@@ -265,7 +266,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 						const std::string &url_curlew_prefix) {
 
    GtkWidget *item_hbox = gtk_hbox_new(FALSE, 0);
-   
+
    std::string item_hbox_name = "curlew_extension_hbox_";
    item_hbox_name += coot::util::int_to_string(idx);
    g_object_set_data_full(G_OBJECT(dialog),

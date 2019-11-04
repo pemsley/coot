@@ -6310,7 +6310,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 
 		  if (!file_name.empty()) {
 
-		     std::string url_prefix = "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+		     std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
 		     url_prefix += "extensions";
 		     url_prefix += "/";
 		     url_prefix += file_name;
