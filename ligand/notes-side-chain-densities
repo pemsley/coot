@@ -45,6 +45,12 @@
              find the rank of the correct solution for each of these trials and the sum of the ranks
              gives us a number that I can optimize
 
+ o addition: maybe a GLN in a loop doesn't look like a GLN in a strand? Or helix - same for other residue
+             types. Maybe split the probability distributions according to secondary structure.
+
+ o improvement: can you can augment the probabilites by looking at phi,psi for the residue for
+                the various residues types? (consider that plot for GLY doesn't look like PRO)
+
   o Note: for the best solution to be 10 times more probable than the next best: the delta log likelihood
     needs to be +2.3 (log(10)).
 

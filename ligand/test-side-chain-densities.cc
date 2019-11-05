@@ -87,13 +87,17 @@ check_stats(int n_steps, float grid_box_radius, const std::string &res_name,
 }
 
 void
-test_residue_vs_likelihoods(int n_steps, float grid_box_radius, int res_no, const std::string &file_name) {
+test_residue_vs_likelihoods(int n_steps, float grid_box_radius,
+			    const std::string &grid_points_file_name,
+			    const std::string &map_file_name,
+			    const std::string &pdb_file_name,
+			    const std::string &chain_id,
+			    int res_no) {
 
    // Does this look like a TYR m-85 (say)?
 
-   std::string pdb_file_name("test.pdb");
-   std::string map_file_name("blurred-test.map");
-   std::string grid_points_file_name = file_name;
+   bool limit_to_correct_rotamer_flag = false;
+
    clipper::CCP4MAPfile file;
    try {
       file.open_read(map_file_name);
@@ -107,15 +111,23 @@ test_residue_vs_likelihoods(int n_steps, float grid_box_radius, int res_no, cons
 	 coot::side_chain_densities test_ll(n_steps, grid_box_radius, grid_points_file_name);
 
 	 test_ll.set_data_dir("side-chain-data");
-	 coot::residue_spec_t spec_this("A", res_no, "");
+	 coot::residue_spec_t spec_this(chain_id, res_no, "");
 	 mmdb::Residue *residue_this_p = coot::util::get_residue(spec_this, asc.mol);
 	 if (residue_this_p) {
 	    // residue_next_p is only needed when we are making exclusion points
 	    // (or vice versa) the acceptable grid points. In that case the N
 	    // is needed to exclude some grid points.
-	    test_ll.get_rotamer_likelihoods(residue_this_p, xmap);
+
+	    // when we use with limit_to_correct_rotamer_flag = true
+	    // then we should turn on the "engine" debugging - to see all the
+	    // individual contributions to the LLR to see if there are systematic baddies
+	    //
+	    std::vector<mmdb::Residue *> r;
+	    r.push_back(residue_this_p);
+	    test_ll.fill_residue_blocks(r, xmap);
+	    test_ll.get_rotamer_likelihoods(residue_this_p, xmap, limit_to_correct_rotamer_flag);
 	 } else {
-	    std::cout << "residue " << spec_this << " not found in molecule from  "
+	    std::cout << "residue " << spec_this << " not found in molecule from "
 		      << pdb_file_name << std::endl;
 	 }
       }
@@ -290,14 +302,27 @@ int main(int argc, char **argv) {
       }
    }
 
-   if (argc == 4) {
+   if (argc == 7) {
       std::string a1(argv[1]);
       if (a1 == "test-residue") {
 	 // what are the probabilities that this residue is any of the rotamers
 	 // using test.pdb and blurred-test.map
-	 int res_no = coot::util::string_to_int(argv[2]);
-	 std::string grid_points_file_name(argv[3]);
-	 test_residue_vs_likelihoods(n_steps, grid_box_radius, res_no, grid_points_file_name);
+	 std::string map_file_name(argv[2]);
+	 std::string pdb_file_name(argv[3]);
+	 std::string chain_id(argv[4]);
+	 std::string res_no_str(argv[5]);
+	 std::string grid_points_file_name(argv[6]);
+	 try {
+	    int res_no = coot::util::string_to_int(res_no_str);
+	    test_residue_vs_likelihoods(n_steps, grid_box_radius,
+					grid_points_file_name,
+					map_file_name,
+					pdb_file_name,
+					chain_id, res_no);
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "" << rte.what() << std::endl;
+	 }
 	 done = true;
       }
    }
@@ -314,11 +339,16 @@ int main(int argc, char **argv) {
 	 std::string chain_id(argv[5]);
 	 std::string res_no_str(argv[6]);
 	 std::string grid_points_file_name(argv[7]);
-	 int res_no = coot::util::string_to_int(res_no_str); // protect with try/catch
-	 // the residue to which the grid is matched is set in the function
-	 check_stats(n_steps, grid_box_radius, res_name, rot_name,
-		     pdb_file_name, chain_id, res_no,
-		     grid_points_file_name);
+	 try {
+	    int res_no = coot::util::string_to_int(res_no_str);
+	    // the residue to which the grid is matched is set in the function
+	    check_stats(n_steps, grid_box_radius, res_name, rot_name,
+			pdb_file_name, chain_id, res_no,
+			grid_points_file_name);
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "" << rte.what() << std::endl;
+	 }
 	 done = true;
       }
    }

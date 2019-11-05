@@ -14,6 +14,7 @@ namespace coot {
       float *density_box;
       mmdb::Residue *residue_p;
       double mean;
+      double mean_of_positives;
       double var;
       int n_steps; // either side of the middle
       void scale_by(float scale_factor) {
@@ -39,8 +40,9 @@ namespace coot {
 	 return density_box[idx];
       }
       bool empty() const { return (n_steps == 0); }
-      void set_stats(const double &mean_in, const double &var_in) {
+      void set_stats(const double &mean_in, const double &var_in, const double &mean_of_positives_in) {
 	 mean = mean_in;
+	 mean_of_positives = mean_of_positives_in;
 	 var  = var_in;
       }
    };
@@ -131,7 +133,8 @@ namespace coot {
 
       std::map<std::string, double>
       likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-						 const clipper::Xmap<float> &xmap);
+						 const clipper::Xmap<float> &xmap,
+						 bool limit_to_correct_rotamers_only=false);
 
       std::string dir_to_key(const std::string &str) const;
       std::pair<std::string, std::string> map_key_to_residue_and_rotamer_names(const std::string &key) const;
@@ -146,10 +149,7 @@ namespace coot {
       std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > > rotamer_dir_grid_stats_map_cache;
       // cache variable (for better normalization of user/test map/model)
       std::map<mmdb::Residue *, density_box_t> density_block_map_cache;
-      // a function to fill above:
-      void fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
-                               const clipper::Xmap<float> &xmap);
-      // called by above
+      // called by fill_residue_blocks()
       void normalize_density_blocks();
       // use the above cache
       density_box_t get_block(mmdb::Residue *residue_p) const;
@@ -214,6 +214,10 @@ namespace coot {
          null_hypothesis_sigma = sigma;
       }
 
+      // a function to density block map cache
+      void fill_residue_blocks(const std::vector<mmdb::Residue *> &residues,
+			       const clipper::Xmap<float> &xmap);
+
       // we want to find the probability distribution from all the sample of that type
       // of rotamer for that particular residue type.
       //
@@ -224,7 +228,9 @@ namespace coot {
 				    double mn_use_this_variance_for_unreliable);
 
       std::map<std::string, double>
-      get_rotamer_likelihoods(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap);
+      get_rotamer_likelihoods(mmdb::Residue *residue_p,
+			      const clipper::Xmap<float> &xmap,
+			      bool limit_to_correct_rotamers_only=false);
 
       void gen_useable_grid_points(mmdb::Residue *residue_this_p,
 				   mmdb::Residue *residue_next_p,
