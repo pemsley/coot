@@ -6044,7 +6044,7 @@ molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t 
 }
 
 
-// If there is a CA in this residue then return that atom (pointer)
+// If there is a CA or a C1' in this residue then return that atom (pointer)
 // atom, if not, then return the index of the first atom in the
 // residue.
 //
@@ -6063,6 +6063,9 @@ molecule_class_info_t::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) 
 	 for (int i=0; i<nResidueAtoms; i++) {
 	    std::string atom_name(residue_atoms[i]->name);
 	    if (atom_name == " CA ") {
+	       return residue_atoms[i];
+	    }
+	    if (atom_name == " C1'") {
 	       return residue_atoms[i];
 	    }
 	 }
