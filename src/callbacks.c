@@ -11864,8 +11864,6 @@ on_baton_build_params_cancel_button_clicked
 }
 
 
-/* BL says:: comment out whole function for GTK1 as we dont have the dialog */
-#if (GTK_MAJOR_VERSION >1)
 void
 on_baton_build_set_params_button_clicked
                                         (GtkButton       *button,
@@ -11875,20 +11873,16 @@ on_baton_build_set_params_button_clicked
   gtk_widget_show(w);
 
 } 
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coords_toolbutton_clicked           (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
   open_coords_dialog();
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data) { 
@@ -11896,16 +11890,13 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
   GtkWidget *widget = wrapped_create_goto_atom_window(); 
   gtk_widget_show(widget); 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
                                         gpointer         user_data) { 
   go_to_ligand();
 } 
 
-#endif /* GTK_MAJOR_VERSION */
 
 
 void
