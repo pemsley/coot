@@ -200,6 +200,16 @@
 	   (using-active-atom
 	    (set-extra-restraints-prosmart-sigma-limits aa-imol 0 0 ))))
 
+	(add-simple-coot-menu-menuitem
+	 menu "Add Intermediate Atom Rotamer Dodecs"
+	 (lambda ()
+	   (set-show-intermediate-atoms-rota-markup 1)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Intermediate Atom Ramachandran Spheres"
+	 (lambda ()
+	   (set-show-intermediate-atoms-rama-markup 1)))
+
 ;	(add-simple-coot-menu-menuitem
 ;	 menu "Restraint Representation To CA"
 ;	 (lambda ()
