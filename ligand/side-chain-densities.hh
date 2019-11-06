@@ -91,6 +91,8 @@ namespace coot {
       }
       std::vector<density_box_t> density_boxes;
       void normalize_density_boxes(const std::string &id);
+      void normalize_density_boxes_v1(const std::string &id);
+      void normalize_density_boxes_v2(const std::string &id);
       void add_mean_and_variance_to_individual_density_blocks();
       void write_density_boxes() const;
       double get_log_likelihood(const unsigned int &grid_idx,

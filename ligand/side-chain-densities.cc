@@ -629,6 +629,14 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
 void
 coot::side_chain_densities::normalize_density_boxes(const std::string &id) {
 
+   // We are normalizing the boxes from our map/model (not reference data)
+
+   normalize_density_boxes_v2(id);
+}
+
+void
+coot::side_chain_densities::normalize_density_boxes_v1(const std::string &id) {
+
    // hacketty-hack scaling
 
    float sum = 0;
@@ -659,8 +667,53 @@ coot::side_chain_densities::normalize_density_boxes(const std::string &id) {
 	 db.scale_by(scale_factor); // don't scale "below zero" points
       }
    }
-
 }
+
+void
+coot::side_chain_densities::normalize_density_boxes_v2(const std::string &id) {
+
+
+   for (std::size_t i=0; i<density_boxes.size(); i++) {
+      int n_grid_pts = 0;
+      float sum = 0;
+      float sum_sq = 0;
+      int nnn = density_boxes[i].nnn();
+      density_box_t &db = density_boxes[i];
+      for (int j=0; j<nnn; j++) {
+	 if (db[j] > -1000.0) {
+	    sum += db[j];
+	    sum_sq += db[j] * db[j];
+	    n_grid_pts++;
+	 }
+      }
+
+      if (n_grid_pts > 0) {
+	 float mean = sum/static_cast<float>(n_grid_pts);
+	 float var = sum_sq/static_cast<float>(n_grid_pts) - mean * mean;
+	 float sd = sqrt(var);
+	 float scale_factor = 1.0/sd;
+	 for (int j=0; j<nnn; j++) {
+	    if (db[j] > -1000.0) {
+	       db.density_box[j] *= scale_factor;
+	    }
+	 }
+	 sum = 0;
+	 for (int j=0; j<nnn; j++) {
+	    if (db[j] > -1000.0) {
+	       sum += db[j];
+	    }
+	 }
+	 mean = sum/static_cast<float>(n_grid_pts);
+	 for (int j=0; j<nnn; j++) {
+	    if (db[j] > -1000.0) {
+	       db.density_box[j] -= mean;
+	    }
+	 }
+      }
+   }
+}
+
+
 
 void
 coot::side_chain_densities::write_density_boxes() const {
@@ -1269,7 +1322,16 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
 		<< " and mean offset " << mean_offset << std::endl;
    }
    // double x = density_val * sd_scale - mean_offset;
-   double x = density_val;
+   double x = density_val * 4.5;  // 1.6 7
+				  // 2.0 5
+                                  // 1.2 20
+                                  // 2.2 4
+                                  // 2.1 4
+                                  // 2.5 3
+                                  // 2.8 3
+                                  // 3.1 3
+                                  // 3.5 3
+                                  // 4.5 5
 
    double z = x - mean;
    double c_part = log(sqrt(1.0/(2.0 * M_PI * variance)));
@@ -1309,7 +1371,7 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    if (diff < mn_log_likelihood_ratio_difference_min)
       diff = mn_log_likelihood_ratio_difference_min;
 
-   if (true) // debug/check the engine
+   if (false) // debug/check the engine
       std::cout << "engine: idx: " << grid_idx << " e_part: " << std::setw(10)
 		<< e_part << " e_part_normal: " << std::setw(8) << e_part_normal
 		<< " with density_val " << density_val << " x " << x
@@ -1402,6 +1464,9 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
    double step_size = grid_box_radius/static_cast<float>(n_steps);
 
    std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
+
+   std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
+
    if (it != rotamer_dir_grid_stats_map_cache.end()) {
       success = true;
       const std::map<unsigned int, std::tuple<double, double, double> > &stats_map = it->second;
@@ -1429,6 +1494,8 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
       if (tables.size() == 1) {
 	 std::map<unsigned int, std::tuple<double, double, double> > stats_map;
 	 std::string stats_table_file_name = tables[0];
+
+	 std::cout << "stats_table_file_name: " << stats_table_file_name << std::endl;
 	 std::ifstream f(stats_table_file_name.c_str());
 	 if (f) {
 	    std::string line;
