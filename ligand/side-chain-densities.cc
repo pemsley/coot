@@ -586,7 +586,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
 	       (ix + n_steps) * n_per_side * n_per_side +
 	       (iy + n_steps) * n_per_side +
 	       (iz + n_steps);
-	    // note: when generateing useable points, this set is empty
+	    // note: when generating useable points, this set is empty
 	    if (gen_usable_points_flag || useable_grid_points.find(idx) != useable_grid_points.end()) {
 	       clipper::Coord_orth pt_in_grid = make_pt_in_grid(ix, iy, iz, step_size, axes);
 	       clipper::Coord_orth pt_grid_point = cb_pt + pt_in_grid;
@@ -672,6 +672,7 @@ coot::side_chain_densities::normalize_density_boxes_v1(const std::string &id) {
 void
 coot::side_chain_densities::normalize_density_boxes_v2(const std::string &id) {
 
+   // Make the RMSd be 1.0 then the the mean to zero
 
    for (std::size_t i=0; i<density_boxes.size(); i++) {
       int n_grid_pts = 0;
@@ -690,23 +691,25 @@ coot::side_chain_densities::normalize_density_boxes_v2(const std::string &id) {
       if (n_grid_pts > 0) {
 	 float mean = sum/static_cast<float>(n_grid_pts);
 	 float var = sum_sq/static_cast<float>(n_grid_pts) - mean * mean;
-	 float sd = sqrt(var);
-	 float scale_factor = 1.0/sd;
-	 for (int j=0; j<nnn; j++) {
-	    if (db[j] > -1000.0) {
-	       db.density_box[j] *= scale_factor;
+	 if (var > 0.0) {
+	    float sd = sqrt(var);
+	    float scale_factor = 1.0/sd;
+	    for (int j=0; j<nnn; j++) {
+	       if (db[j] > -1000.0) {
+		  db.density_box[j] *= scale_factor;
+	       }
 	    }
-	 }
-	 sum = 0;
-	 for (int j=0; j<nnn; j++) {
-	    if (db[j] > -1000.0) {
-	       sum += db[j];
+	    sum = 0;
+	    for (int j=0; j<nnn; j++) {
+	       if (db[j] > -1000.0) {
+		  sum += db[j];
+	       }
 	    }
-	 }
-	 mean = sum/static_cast<float>(n_grid_pts);
-	 for (int j=0; j<nnn; j++) {
-	    if (db[j] > -1000.0) {
-	       db.density_box[j] -= mean;
+	    mean = sum/static_cast<float>(n_grid_pts);
+	    for (int j=0; j<nnn; j++) {
+	       if (db[j] > -1000.0) {
+		  db.density_box[j] -= mean;
+	       }
 	    }
 	 }
       }
