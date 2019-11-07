@@ -12888,7 +12888,6 @@ create_skeleton_dialog (void)
   GtkWidget *vbox84;
   GtkWidget *ca_baton_mode_needs_skel_label;
   GtkWidget *label117;
-  GtkWidget *frame71;
   GtkWidget *skeleton_map_combobox;
   GtkWidget *skeleton_dialog_on_off_frame;
   GtkWidget *vbox85;
@@ -12924,11 +12923,6 @@ create_skeleton_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox84), label117, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label117), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label117), 0, 5);
-
-  frame71 = gtk_frame_new (NULL);
-  gtk_widget_show (frame71);
-  gtk_box_pack_start (GTK_BOX (vbox84), frame71, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame71), 2);
 
   skeleton_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeleton_map_combobox);
@@ -12993,7 +12987,6 @@ create_skeleton_dialog (void)
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox84, "vbox84");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
-  GLADE_HOOKUP_OBJECT (skeleton_dialog, frame71, "frame71");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_combobox, "skeleton_map_combobox");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_dialog_on_off_frame, "skeleton_dialog_on_off_frame");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox85, "vbox85");
@@ -18271,7 +18264,6 @@ create_skeletonize_map_dialog (void)
   GtkWidget *frame130;
   GtkWidget *vbox134;
   GtkWidget *label218;
-  GtkWidget *skeletonize_map_optionmenu;
   GtkWidget *skeletonize_map_combobox;
   GtkWidget *dialog_action_area72;
   GtkWidget *hbox113;
@@ -18298,11 +18290,6 @@ create_skeletonize_map_dialog (void)
   gtk_widget_show (label218);
   gtk_box_pack_start (GTK_BOX (vbox134), label218, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label218), GTK_JUSTIFY_CENTER);
-
-  skeletonize_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (skeletonize_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (skeletonize_map_optionmenu), 2);
 
   skeletonize_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeletonize_map_combobox);
@@ -18337,7 +18324,6 @@ create_skeletonize_map_dialog (void)
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, frame130, "frame130");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, vbox134, "vbox134");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, label218, "label218");
-  GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_optionmenu, "skeletonize_map_optionmenu");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_combobox, "skeletonize_map_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, hbox113, "hbox113");

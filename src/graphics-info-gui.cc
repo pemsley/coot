@@ -895,7 +895,6 @@ GtkWidget *
 graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) { 
 
    GtkWidget *w = create_skeleton_dialog();
-   GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
    GtkWidget *combobox    = lookup_widget(w, "skeleton_map_combobox");
    GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
    GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");
@@ -920,7 +919,6 @@ graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_lab
       gtk_widget_show(label);
    } 
    set_initial_map_for_skeletonize();
-   // fill_option_menu_with_skeleton_options(option_menu);
    fill_combobox_with_skeleton_options(combobox);
    set_on_off_skeleton_radio_buttons(frame);
    return w;

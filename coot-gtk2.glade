@@ -25886,22 +25886,7 @@ programs to which you may be more accustomed.
 	  </child>
 
 	  <child>
-	    <widget class="GtkFrame" id="frame71">
-	      <property name="border_width">2</property>
-	      <property name="visible">True</property>
-	      <property name="label_xalign">0</property>
-	      <property name="label_yalign">0.5</property>
-	      <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
-
-	      <child>
-		<placeholder/>
-	      </child>
-	    </widget>
-	    <packing>
-	      <property name="padding">0</property>
-	      <property name="expand">True</property>
-	      <property name="fill">True</property>
-	    </packing>
+	    <placeholder/>
 	  </child>
 
 	  <child>
@@ -37276,17 +37261,7 @@ Which map do you want to skeletonize?
 	      </child>
 
 	      <child>
-		<widget class="GtkOptionMenu" id="skeletonize_map_optionmenu">
-		  <property name="border_width">2</property>
-		  <property name="visible">True</property>
-		  <property name="can_focus">True</property>
-		  <property name="history">-1</property>
-		</widget>
-		<packing>
-		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
-		</packing>
+		<placeholder/>
 	      </child>
 
 	      <child>
