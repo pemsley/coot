@@ -6026,7 +6026,7 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 		  if (this_res->GetSeqNum() == (next_res->GetSeqNum()-1)) {
 
 		     try { 
-			coot::util::phi_psi_t pp(prev_res, this_res, next_res);
+			coot::util::phi_psi_t pp(prev_res, this_res, next_res); // coot-rama.hh
 			// std::cout << "   " << coot::residue_spec_t(this_res)
 			//           << " " << pp << std::endl;
 			mmdb::Atom *at = this_res->GetAtom(" CA "); // PDBv3 FIXME
@@ -6169,11 +6169,12 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
         spots[i].second.residue_name() == "VAL" )
        rama = &rc.rama_ileval;
     if (spots[i].second.is_pre_pro())
-       rama = &rc.rama_pre_pro;
+       if (spots[i].second.residue_name() != "GLY")
+	  rama = &rc.rama_pre_pro;
 #endif
-	 
-	 // phi_psi_t needs to contain the next residue type to use
-	 // rama.pre_pro at some stage
+
+    // phi_psi_t needs to contain the next residue type to use
+    // rama.pre_pro at some stage
 
 	 float rama_score = 10;
 	 
