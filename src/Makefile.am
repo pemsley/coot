@@ -405,6 +405,7 @@ coot_bin_SOURCES = \
    density-results-container-t.hh \
    dots-representation.hh   \
 	draw.cc                  \
+	draw.hh                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
