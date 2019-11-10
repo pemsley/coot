@@ -165,6 +165,8 @@ void find_probabilities_of_rotamers(int n_steps, float grid_box_radius,
    }
 }
 
+#include "utils/coot-fasta.hh"
+
 void test_sequence(int n_steps, float grid_box_radius,
 		   const std::string &useable_grid_points_file_name,
 		   const std::string &pdb_file_name,
@@ -172,25 +174,29 @@ void test_sequence(int n_steps, float grid_box_radius,
 		   int resno_start,
 		   int resno_end,
 		   const std::string &map_file_name,
-		   const std::string &sequence) {
+		   const std::string &sequence_file_name) {
 
-   std::cout << "test sequence " << sequence << std::endl;
-   try {
-      clipper::CCP4MAPfile file;
-      file.open_read(map_file_name);
-      clipper::Xmap<float> xmap;
-      file.import_xmap(xmap);
-      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
-      if (asc.read_success) {
-	 // "analysis" constructor
-	 coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
-	 scd.set_data_dir("side-chain-data");
-	 scd.test_sequence(asc.mol, chain_id, resno_start, resno_end, xmap, sequence);
+   coot::fasta_multi fam(sequence_file_name);
+   if (fam.size() > 0) {
+      std::string sequence = fam[0].sequence;
+      std::cout << "test this sequence " << sequence << std::endl;
+      try {
+         clipper::CCP4MAPfile file;
+         file.open_read(map_file_name);
+         clipper::Xmap<float> xmap;
+         file.import_xmap(xmap);
+         atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
+         if (asc.read_success) {
+            // "analysis" constructor
+            coot::side_chain_densities scd(n_steps, grid_box_radius, useable_grid_points_file_name);
+            scd.set_data_dir("side-chain-data");
+            scd.test_sequence(asc.mol, chain_id, resno_start, resno_end, xmap, sequence);
+         }
       }
-   }
-   catch (const clipper::Message_base &exc) {
-      std::cout << "WARNING:: failed to open " << pdb_file_name << std::endl;
-      std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
+      catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: failed to open " << pdb_file_name << std::endl;
+         std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
+      }
    }
 }
 
@@ -383,11 +389,11 @@ int main(int argc, char **argv) {
 	    int resno_start = coot::util::string_to_int(argv[4]);
 	    int resno_end   = coot::util::string_to_int(argv[5]);
 	    std::string map_file_name(argv[6]);
-	    std::string sequence(argv[7]);
+	    std::string sequence_file_name(argv[7]);
 	    std::string useable_grid_points_file_name(argv[8]);
 	    test_sequence(n_steps, grid_box_radius, useable_grid_points_file_name,
 			  pdb_file_name, chain_id, resno_start, resno_end,
-			  map_file_name, sequence);
+			  map_file_name, sequence_file_name);
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: " << rte.what() << std::endl;

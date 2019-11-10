@@ -1142,17 +1142,6 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 	    }
 	 }
 
-	 // some screen output
-	 if (false) {
-	    for (it=probability_map.begin(); it!=probability_map.end(); it++) {
-	       std::string m;
-	       if (it->second > 1.1 * best_score) m = " ooo";
-	       if (it->second == best_score) m = " ***";
-	       std::cout << std::left <<  std::setw(11) << it->first 
-			 << std::right << it->second << m << "\n";
-	    }
-	 }
-
 	 std::map<std::string, double> best_score_for_res_type;
 	 // std::cout << "here with probability_map size " << probability_map.size() << std::endl;
 	 for (it=probability_map.begin(); it!=probability_map.end(); it++) {
@@ -1177,7 +1166,8 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 	       if (it->second == best_score) m = " ***";
 	       const double &score = it->second;
 	       const std::string &res_type = it->first;
-	       std::cout << "   " << res_type << " " << score << m << std::endl;
+	       std::cout << "   " << res_type << " " << std::fixed << std::right << << std::setprecision(4)
+                         << score << m << std::endl;
 	    }
 	 }
 
