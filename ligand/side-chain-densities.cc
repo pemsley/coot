@@ -1169,7 +1169,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 	       if (it->second == best_score) m = " ***";
 	       const double &score = it->second;
 	       const std::string &res_type = it->first;
-	       std::cout << "   " << res_type << " " << std::fixed << std::right << << std::setprecision(4)
+	       std::cout << "   " << res_type << " " << std::fixed << std::right << std::setprecision(4)
                          << score << m << std::endl;
 	    }
 	 }

@@ -3383,6 +3383,7 @@ coot::util::add_atom(mmdb::Residue *res,
 } 
 
 
+        #if 0 // we already have one of these in geometry
 
 std::vector<std::string>
 coot::util::get_residue_alt_confs(mmdb::Residue *res) {
@@ -3406,6 +3407,7 @@ coot::util::get_residue_alt_confs(mmdb::Residue *res) {
    return v;
 } 
 
+#endif
       
 
 
