@@ -65,7 +65,7 @@ coot::chem_feat_clust::chem_feat_clust(const std::vector<residue_spec_t> &protei
 void
 coot::chem_feat_solvated_ligand::init_residue() {
 
-   residue = get_residue(ligand_spec, mol);
+   residue = lidia_utils::get_residue(ligand_spec, mol);
 
    if (!residue) {
       std::cout << "WARNING:: null residue from spec " << ligand_spec << std::endl;
@@ -84,7 +84,7 @@ coot::chem_feat_clust::get_chemical_features(int imol,
    if (! setup_success)
       return v;   
 	 
-   mmdb::Residue *residue_p = get_residue(lig_spec, mol);
+   mmdb::Residue *residue_p = lidia_utils::get_residue(lig_spec, mol);
 
    if (! residue_p) {
       std::cout << "WARNING:: failed to get ligand for molecule " << imol
@@ -228,7 +228,7 @@ coot::chem_feat_clust::fill_waters() {
 
    for (unsigned int ilig=0; ilig<ligands.size(); ilig++) {
       for (unsigned int iw=0; iw<ligands[ilig].waters.size(); iw++) {
-	 mmdb::Residue *res = get_residue(ligands[ilig].waters[iw], ligands[ilig].mol);
+	 mmdb::Residue *res = lidia_utils::get_residue(ligands[ilig].waters[iw], ligands[ilig].mol);
 	 if (res) {
 	    std::string res_name = res->GetResName();
 	    if (res_name == "HOH") {
@@ -237,7 +237,7 @@ coot::chem_feat_clust::fill_waters() {
 		  std::cout << "Missing O at HOH in " << ligands[ilig].waters[iw]
 			    << std::endl;
 	       } else {
-		  clipper::Coord_orth pt = co(at);
+		  clipper::Coord_orth pt = lidia_utils::co(at);
 
 		  if (is_close_to_a_ligand_atom(pt, lig_coords)) {
 
@@ -268,7 +268,7 @@ coot::chem_feat_clust::get_ligands_coords() const {
 	 int n_residue_atoms;
 	 res->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int iat=0; iat<n_residue_atoms; iat++) { 
-	    clipper::Coord_orth pt = co(residue_atoms[iat]);
+	    clipper::Coord_orth pt = lidia_utils::co(residue_atoms[iat]);
 	    v.push_back(pt);
 	 }
       }
