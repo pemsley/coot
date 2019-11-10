@@ -397,11 +397,12 @@ coot_bin_SOURCES = \
 	coot-setup-python.cc     \
 	coot-setup-python.hh     \
 	coot-version.hh          \
-	data-pair-remover.hh     \
 	coot_wrap_guile.cc       \
-        curlew.h                 \
-        curlew.hh                \
-        dots-representation.hh   \
+   curlew.h                 \
+   curlew.hh                \
+	data-pair-remover.hh     \
+   density-results-container-t.hh \
+   dots-representation.hh   \
 	draw.cc                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
