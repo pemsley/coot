@@ -2936,8 +2936,6 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 }
 
 
-#if 0 // in lidia-core also
-
 mmdb::Residue *
 coot::util::get_residue(const residue_spec_t &rs, mmdb::Manager *mol) {
 
@@ -2961,8 +2959,6 @@ coot::util::get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *
    return std::pair<mmdb::Residue *, mmdb::Residue *> (r1, r2);
 }
 
-#endif
-  
 
 // Return NULL on residue not found in this molecule.
 // 
@@ -9303,14 +9299,10 @@ coot::arc_info_type::arc_info_type(mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Ato
 }
 
 
-#if 0 // in lidia core also
-
 clipper::Coord_orth
 coot::co(mmdb::Atom *at) {
    return clipper::Coord_orth(at->x, at->y, at->z);
 }
-
-#endif
 
 void
 coot::update_position(mmdb::Atom *at, const clipper::Coord_orth &pos) {
