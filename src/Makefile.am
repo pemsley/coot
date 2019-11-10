@@ -500,6 +500,7 @@ coot_bin_SOURCES = \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
 	python-classes.cc	 \
+	python-classes.hh	 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
