@@ -522,8 +522,9 @@ coot_bin_SOURCES = \
 	sequence-view.cc         \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
+	sound.hh                 \
 	startup-scripts.hh       \
-	support.c support.h 	 \
+	support.c support.h 	    \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
