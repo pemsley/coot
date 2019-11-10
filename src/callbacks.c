@@ -4152,7 +4152,7 @@ on_run_refmac_map_mtz_radiobutton_toggled
 
   GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_combobox_with_refmac_labels_options(map_combobox);
+    fill_combobox_with_refmac_mtz_file_options(map_combobox);
   }
 }
 

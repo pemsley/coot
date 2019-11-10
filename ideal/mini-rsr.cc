@@ -150,6 +150,7 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
    mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
+      bool done = false;
       chain_p = model_p->GetChain(ichain);
       std::string this_chain_id = chain_p->GetChainID();
       if (this_chain_id == chain_id) { 
@@ -161,10 +162,41 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
 	    int this_res_no = residue_p->GetSeqNum();
 	    if (this_res_no >= resno_start) {
 	       if (this_res_no <= resno_end) { 
-		  std::pair<bool, mmdb::Residue *> p(0, residue_p);
+		  std::pair<bool, mmdb::Residue *> p(false, residue_p);
+		  v.push_back(p);
+		  done = true;
+	       }
+	    }
+
+	    if (!done) {
+	       if ((resno_start == mmdb::MinInt4) && (resno_end == mmdb::MinInt4)) {
+		  std::pair<bool, mmdb::Residue *> p(false, residue_p);
 		  v.push_back(p);
 	       }
 	    }
+	 }
+      }
+   }
+   return v;
+}
+
+std::vector<std::pair<bool,mmdb::Residue *> >
+fill_residues_all_atoms(mmdb::Manager *mol) {
+
+   std::vector<std::pair<bool, mmdb::Residue *> > v;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      if (chain_p) {
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_p;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    std::pair<bool, mmdb::Residue *> p(false, residue_p);
+	    v.push_back(p);
 	 }
       }
    }
@@ -371,9 +403,10 @@ main(int argc, char **argv) {
 	    // 
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
-	    if ((inputs.resno_start != mmdb::MinInt4) && inputs.resno_end != mmdb::MinInt4)
-	       local_residues =
-		  fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
+	    if (inputs.chain_id.empty())
+	       local_residues = fill_residues_all_atoms(asc.mol);
+	    else
+	       local_residues = fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
 
 	    if (inputs.residues_around != mmdb::MinInt4) {
 	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.residues_around);
