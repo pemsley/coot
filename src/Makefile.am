@@ -362,6 +362,7 @@ coot_bin_SOURCES = \
 	cc-interface-png.cc      \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
+	cc-interface-molecular-representation.hh  \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
 	cfc.cc cfc.hh            \
