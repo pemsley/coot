@@ -11642,30 +11642,23 @@ create_run_refmac_dialog (void)
   GtkWidget *vbox278;
   GtkWidget *refmac_dialog_fobs_hbox;
   GtkWidget *label640;
-  GtkWidget *refmac_dialog_fobs_optionmenu;
   GtkWidget *refmac_dialog_fobs_combobox;
   GtkWidget *refmac_dialog_fpm_hbox;
   GtkWidget *label655;
-  GtkWidget *refmac_dialog_fpm_optionmenu;
   GtkWidget *refmac_dialog_fpm_combobox;
   GtkWidget *refmac_dialog_fiobs_hbox;
   GtkWidget *label656;
-  GtkWidget *refmac_dialog_fiobs_optionmenu;
   GtkWidget *refmac_dlalog_fiobs_combobox;
   GtkWidget *refmac_dialog_ipm_hbox;
   GtkWidget *label657;
-  GtkWidget *refmac_dialog_ipm_optionmenu;
   GtkWidget *refmac_dialog_ipm_combobox;
   GtkWidget *hbox344;
   GtkWidget *label642;
-  GtkWidget *refmac_dialog_rfree_optionmenu;
   GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
-  GtkWidget *refmac_dialog_phases_optionmenu;
-  GtkWidget *label648;
-  GtkWidget *refmac_dialog_fom_optionmenu;
   GtkWidget *refmac_dialog_phases_combobox;
+  GtkWidget *label648;
   GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
@@ -11970,10 +11963,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label640), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label640), 6, 0);
 
-  refmac_dialog_fobs_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fobs_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_optionmenu, FALSE, FALSE, 0);
-
   refmac_dialog_fobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_combobox, TRUE, TRUE, 0);
@@ -11986,10 +11975,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), label655, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label655), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label655), 6, 0);
-
-  refmac_dialog_fpm_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fpm_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_fpm_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fpm_combobox);
@@ -12004,10 +11989,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label656), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label656), 6, 0);
 
-  refmac_dialog_fiobs_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fiobs_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dialog_fiobs_optionmenu, FALSE, FALSE, 0);
-
   refmac_dlalog_fiobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dlalog_fiobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dlalog_fiobs_combobox, TRUE, TRUE, 0);
@@ -12020,10 +12001,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), label657, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label657), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label657), 6, 0);
-
-  refmac_dialog_ipm_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_ipm_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_ipm_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_ipm_combobox);
@@ -12039,10 +12016,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label642), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label642), 6, 0);
 
-  refmac_dialog_rfree_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_rfree_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_optionmenu, FALSE, FALSE, 0);
-
   refmac_dialog_rfree_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_rfree_combobox);
   gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_combobox, TRUE, TRUE, 0);
@@ -12056,21 +12029,13 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label649), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label649), 6, 0);
 
-  refmac_dialog_phases_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_phases_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_optionmenu, FALSE, FALSE, 0);
+  refmac_dialog_phases_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (refmac_dialog_phases_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_combobox, TRUE, TRUE, 0);
 
   label648 = gtk_label_new ("FOM");
   gtk_widget_show (label648);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), label648, FALSE, FALSE, 0);
-
-  refmac_dialog_fom_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fom_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_optionmenu, FALSE, FALSE, 0);
-
-  refmac_dialog_phases_combobox = gtk_combo_box_text_new ();
-  gtk_widget_show (refmac_dialog_phases_combobox);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_combobox, TRUE, TRUE, 0);
 
   refmac_dialog_fom_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fom_combobox);
@@ -12268,30 +12233,23 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox278, "vbox278");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_hbox, "refmac_dialog_fobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label640, "label640");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_optionmenu, "refmac_dialog_fobs_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_combobox, "refmac_dialog_fobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_hbox, "refmac_dialog_fpm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label655, "label655");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_optionmenu, "refmac_dialog_fpm_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_combobox, "refmac_dialog_fpm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_hbox, "refmac_dialog_fiobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label656, "label656");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_optionmenu, "refmac_dialog_fiobs_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dlalog_fiobs_combobox, "refmac_dlalog_fiobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_hbox, "refmac_dialog_ipm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label657, "label657");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_optionmenu, "refmac_dialog_ipm_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_combobox, "refmac_dialog_ipm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox344, "hbox344");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label642, "label642");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_optionmenu, "refmac_dialog_rfree_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_combobox, "refmac_dialog_rfree_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_hbox, "refmac_dialog_phases_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label649, "label649");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_optionmenu, "refmac_dialog_phases_optionmenu");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_optionmenu, "refmac_dialog_fom_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_combobox, "refmac_dialog_phases_combobox");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_combobox, "refmac_dialog_fom_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_hbox, "refmac_dialog_hl_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label650, "label650");

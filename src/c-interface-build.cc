@@ -2334,6 +2334,23 @@ int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
    return iseqnum;
 }
 
+//! \brief return the serial number of the specified residue
+//!
+//! @return -1 on failure to find the residue
+//
+int serial_number_from_residue_specs(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   int serial_number = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      serial_number = graphics_info_t::molecules[imol].residue_serial_number(chain_id, res_no, ins_code);
+   }
+
+   return serial_number;
+
+}
+
+
 char *insertion_code_from_serial_number(int imol, const char *chain_id, int serial_num) {
 
    char *r = NULL;

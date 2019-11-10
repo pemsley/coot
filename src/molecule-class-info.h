@@ -2164,7 +2164,7 @@ public:        //                      public
    // return NULL on no last residue.
    mmdb::Residue *last_residue_in_chain(mmdb::Chain *chain_p) const;
 
-   // 
+   //! @return -1 on failure to find residue
    int residue_serial_number(const std::string &chain_id, int reso, const std::string &insertion_code) const;
 
    std::string res_name_from_serial_number(std::string chain_id, unsigned int serial_number) const; 
