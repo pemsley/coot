@@ -78,40 +78,46 @@
     (let* ((ligand-spec (list chain-id res-no ins-code))
 	   (neighbs (residues-near-residue imol ligand-spec 4)))
 
-      (let* ((rn (residue-name imol chain-id res-no ins-code))
-	     (n-ligand-atoms (het-group-n-atoms rn)))
+      (let* ((rn (residue-name imol chain-id res-no ins-code)))
 
-	(if (not (number? n-ligand-atoms))
-	    'fail-n-ligand-atoms-not-a-number
-
-	    ;; 
+	(if (not (string? rn))
 	    (begin
-	      ;; (delete-residue imol chain-id res-no ins-code)
-	      (let ((refmac-out-sfs-file-name (append-dir-file
-					       refmac-dir
-					       (string-append
-						stub-name
-						"-with-ligand-refmac.mtz")))
-		    (with-ligand-pdb-file-name (append-dir-file
-						refmac-dir
-						(string-append
-						 stub-name "-with-ligand.pdb"))))
+	      (format #t "No residue name imol: ~s chain-id ~s res-no ~s~%" imol chain-id res-no)
+	      'fail-no-residue-name)
 
-		(make-directory-maybe refmac-dir)
-		(make-directory-maybe "coot-refmac") ;; XYZOUT goes here
-		(write-pdb-file imol with-ligand-pdb-file-name)
-		(let ((r (refmac-calc-sfs-make-mtz-with-columns with-ligand-pdb-file-name
-								refmac-input-mtz-file-name
-								refmac-out-sfs-file-name
-								fobs-col sig-fobs-col rfree-col)))
-		  (if (eq? r #f)
+	    (let ((n-ligand-atoms (het-group-n-atoms rn)))
 
-		      (begin 
-			;; test if refmac-input-mtz-file-name has intensites
-			'fail-problem-calculating-sfs-using-refmac)
+	      (if (not (number? n-ligand-atoms))
+		  'fail-n-ligand-atoms-not-a-number
 
-		      ;; happy path
-		      refmac-out-sfs-file-name))))))))
+		  ;; 
+		  (begin
+		    ;; (delete-residue imol chain-id res-no ins-code)
+		    (let ((refmac-out-sfs-file-name (append-dir-file
+						     refmac-dir
+						     (string-append
+						      stub-name
+						      "-with-ligand-refmac.mtz")))
+			  (with-ligand-pdb-file-name (append-dir-file
+						      refmac-dir
+						      (string-append
+						       stub-name "-with-ligand.pdb"))))
+
+		      (make-directory-maybe refmac-dir)
+		      (make-directory-maybe "coot-refmac") ;; XYZOUT goes here
+		      (write-pdb-file imol with-ligand-pdb-file-name)
+		      (let ((r (refmac-calc-sfs-make-mtz-with-columns with-ligand-pdb-file-name
+								      refmac-input-mtz-file-name
+								      refmac-out-sfs-file-name
+								      fobs-col sig-fobs-col rfree-col)))
+			(if (eq? r #f)
+
+			    (begin 
+			      ;; test if refmac-input-mtz-file-name has intensites
+			      'fail-problem-calculating-sfs-using-refmac)
+
+			    ;; happy path
+			    refmac-out-sfs-file-name))))))))))
 
   ;; get-correlation at the ligand for the direct (FWT) map 
   ;;
@@ -141,7 +147,7 @@
 	  (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
 					     "FWT" "PHWT" "" 0 0))
 	        (neighbs (residues-near-residue imol ligand-spec 4)))
-          
+
 	    (let ((c (map-to-model-correlation imol (list ligand-spec)
 					       neighbs 0 imol-map)))
 	      (close-molecule imol-map)
@@ -225,19 +231,24 @@
 	      env-residues))
 
     (define (median number-list)
-      (let ((numbers 
-	     (let loop ((number-list number-list)
+      (print-var number-list)
+      (if (not (list? number-list))
+         1.0
+         (let ((numbers
+	        (let loop ((number-list number-list)
 			(nums '()))
-	       (cond
-		((null? number-list) nums)
-		((not (number? (car number-list)))
-		 (loop (cdr number-list) nums))
-		(else 
-		 (loop (cdr number-list) (cons (car number-list) nums)))))))
-	(let* ((sorted-nums (sort-list numbers >))
-	       (n (length sorted-nums))
-	       (mid (/ n 2))
-	       (median (if (= (remainder n 2) 0)
+	          (cond
+	             ((null? number-list) nums)
+                     ((not (number? (car number-list)))
+                        (loop (cdr number-list) nums))
+                  (else
+                     (loop (cdr number-list) (cons (car number-list) nums)))))))
+           (print-var numbers)
+	   (let* ((sorted-nums (sort-list numbers >))
+	          (n (length sorted-nums))
+	          (mid (/ n 2))
+                  (nov (print-var sorted-nums))
+	          (median (if (= (remainder n 2) 0)
 			   (begin
 			     ;; (format #t "averaging mid: ~s  n: ~s ~%" mid n)
 			     ;; (format #t "idx: ~s  idx: ~s ~%" (/ n 2) (- (/ n 2) 1))
@@ -246,7 +257,7 @@
 			   (begin
 			     ;; (format #t "simple take: ~s~%" mid)
 			     (list-ref sorted-nums (/ (- n 1) 2))))))
-	  median)))
+	     median))))
 
 
     ;; Return a list of length 2: 
@@ -282,18 +293,34 @@
     ;; main line of get-b-factor-distribution-metrics
     ;;
     (let ((ligand-spec (list chain-id res-no ins-code)))
-      (let* ((lig-env-temp-factors (ligand-environment-temperature-factors imol ligand-spec 5))
-	     (temp-factor-median-ratio (apply median-ratio lig-env-temp-factors)))
-	
-	(let ((v1 (car lig-env-temp-factors))
-	      (v2 (cadr lig-env-temp-factors)))
-	  (format #t "b-factor kolmogorov-smirnov lig: ~s ~s ~s~%~!" stub-name ligand-spec (car lig-env-temp-factors))
-	  (format #t "b-factor kolmogorov-smirnov env: ~s ~s ~s~%~!" stub-name ligand-spec (cadr lig-env-temp-factors))
-	  (let ((kolmogorov-smirnov-result (kolmogorov-smirnov v1 (apply append v2))))
-	    (list temp-factor-median-ratio 
-		  (median (car lig-env-temp-factors))
-		  (median (apply append (cadr lig-env-temp-factors)))
-		  kolmogorov-smirnov-result))))))
+      (print-var ligand-spec)
+
+      (let* ((lig-env-temp-factors (ligand-environment-temperature-factors imol ligand-spec 5)))
+         (format #t "$$$$$$$$$$$$\n")
+         (print-var lig-env-temp-factors)
+         (if (not (list? lig-env-temp-factors))
+             (begin
+                (format #t  "Ligand env temp factors not a list\n")
+                #f)
+
+             (begin
+                (if (= (length (list-ref lig-env-temp-factors 1)) 0)
+                   (begin
+                      (format #t  "No values in Ligand env temp factors\n")
+                      #f)
+
+                   (let ((mr (apply median-ratio lig-env-temp-factors)))
+                      (let ((temp-factor-median-ratio mr))
+
+                         (let ((v1 (car lig-env-temp-factors))
+	                       (v2 (cadr lig-env-temp-factors)))
+	                    (format #t "b-factor kolmogorov-smirnov lig: ~s ~s ~s~%~!" stub-name ligand-spec (car lig-env-temp-factors))
+	                    (format #t "b-factor kolmogorov-smirnov env: ~s ~s ~s~%~!" stub-name ligand-spec (cadr lig-env-temp-factors))
+	                    (let ((kolmogorov-smirnov-result (kolmogorov-smirnov v1 (apply append v2))))
+	                      (list temp-factor-median-ratio 
+		                    (median (car lig-env-temp-factors))
+		                    (median (apply append (cadr lig-env-temp-factors)))
+		                    kolmogorov-smirnov-result)))))))))))
 
 
 ;   pre-20150803-PE  
