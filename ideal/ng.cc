@@ -140,7 +140,11 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       make_distortion_electron_density_ranges();
 
       std::cout << ":::: make-restraints: analysis of bad geometry in input model" << std::endl;
-      analyze_for_bad_restraints(); // bonds and non-bonded.
+
+      // Now we don't do this here - we do it after all the restraints have been added -
+      // called from graphics-info-modelling.cc
+      //
+      // analyze_for_bad_restraints(); // bonds and non-bonded.
 
       // info();  - are the NBCs correct?
 
@@ -198,16 +202,18 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
          }
       }
    }
-   std::cout << "   Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
+   std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
              << std::endl;
    auto tp_9 = std::chrono::high_resolution_clock::now();
 
-   add_extra_restraints(imol, extra_restraints, geom);
+   if (extra_restraints.has_restraints())
+      add_extra_restraints(imol, "from make_base_pairing_and_stacking_restraints_ng()", extra_restraints, geom);
+
    auto tp_10 = std::chrono::high_resolution_clock::now();
    auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
    auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
    auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
-   auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_8).count();
+   auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_9).count();
    std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
              << d76 << " " << d87 << " " << d98 << " " << d109 << " ms" << std::endl;
 
@@ -1934,9 +1940,10 @@ void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
    double interesting_distortion_limit = 10.0;
-   analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
-   analyze_for_bad_restraints(              BOND_RESTRAINT, interesting_distortion_limit);
-   analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT, interesting_distortion_limit);
+   analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT,     interesting_distortion_limit);
+   analyze_for_bad_restraints(              BOND_RESTRAINT,     interesting_distortion_limit);
+   analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT,     interesting_distortion_limit);
+   analyze_for_bad_restraints(GEMAN_MCCLURE_DISTANCE_RESTRAINT, interesting_distortion_limit);
 
 }
 
@@ -1946,12 +1953,13 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
+
       if (rest.restraint_type == r_type) {
 
          // distortion and bond length delta
          std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
          double distortion_score = distortion_pair.first;
-         // std::cout << "restraint " << i << " type " << r_type << " distortion " << distortion_score << std::endl;
+
          if (distortion_score >= interesting_distortion_limit) {
             double n_z = sqrt(distortion_score);
             double delta = distortion_pair.second;
@@ -1961,7 +1969,9 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       }
    }
 
-   // std::cout << "in analyze_for_bad_restraints() n-restraints " << size() << " type " << r_type << " count " << distortions.size() << std::endl;
+   if (false)
+      std::cout << "DEBUG:: in analyze_for_bad_restraints() n-restraints " << size() << " type " << r_type
+                << " count " << distortions.size() << std::endl;
 
    auto distortion_sorter_lambda = // big distortions at the top
      [] (const std::tuple<unsigned int, double, double, double> &p1,
@@ -1998,6 +2008,13 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
+         std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
+                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                   << " delta "      << std::get<2>(d)
+                   << " target "     << rest.target_value
+                   << " distortion " << std::get<3>(d) << "\n";
+
+      if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
          std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)

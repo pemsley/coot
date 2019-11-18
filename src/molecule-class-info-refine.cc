@@ -87,6 +87,37 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
 }
 
 int
+molecule_class_info_t::add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1,
+                                                         coot::atom_spec_t atom_2,
+                                                         double bond_dist, double esd) {
+   int r = -1; // unset
+   mmdb::Atom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_2 = get_atom(atom_2);
+   if (at_1) {
+      int atom_index = -1;
+      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      atom_1.int_user_data = atom_index;
+   }
+   if (at_2) {
+      int atom_index = -1;
+      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      atom_2.int_user_data = atom_index;
+   }
+   if (at_1 && at_2) {
+      coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond(atom_1, atom_2, bond_dist, esd);
+      extra_restraints.geman_mcclure_restraints.push_back(bond);
+      update_extra_restraints_representation();
+      r = extra_restraints.geman_mcclure_restraints.size() -1;
+   } else {
+      std::cout << "WARNING:: add_extra_bond_restraint() oops: " << at_1 << " " << atom_1 << " "
+		<< at_2 << " " << atom_2 << std::endl;
+   }
+   return r;
+
+}
+
+
+int
 molecule_class_info_t::add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs) {
 
    int r = -1; // unset

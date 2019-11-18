@@ -512,7 +512,7 @@ main(int argc, char **argv) {
                // coot::restraints_container_t restraints_2(residues, geom, mol, &xmap);
 
 	       if (inputs.extra_restraints_file_names.size() > 0) {
-		  restraints.add_extra_restraints(imol, extra_restraints, geom);
+		  restraints.add_extra_restraints(imol, "user-defined restraints", extra_restraints, geom);
 	       }
 
 	       if (! inputs.no_refine) {

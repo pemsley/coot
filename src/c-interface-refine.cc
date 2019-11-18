@@ -774,6 +774,19 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
 
 }
 
+int add_extra_geman_mcclure_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
+      coot::atom_spec_t as_2(chain_id_2, res_no_2, ins_code_2, atom_name_2, alt_conf_2);
+      r = graphics_info_t::molecules[imol].add_extra_geman_mcclure_restraint(as_1, as_2, bond_dist, esd);
+      graphics_draw();
+   }
+   return r;
+}
+
+
 #ifdef USE_GUILE
 int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm) {
 

@@ -2302,9 +2302,11 @@ namespace coot {
       unsigned int n_atom_pull_restraints() const;
 
       void add_extra_restraints(int imol,
+                                const std::string &description,
 				const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);
       // and that calls:
+      void add_extra_geman_mcclure_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
@@ -2315,6 +2317,8 @@ namespace coot {
 					       const protein_geometry &geom);
       // can I find the atoms using the atom indices from the original molecule?
       bool try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr);
+      // ditto
+      bool try_add_using_old_atom_indices(const extra_restraints_t::extra_geman_mcclure_restraint_t &ebr);
 
       // rama_type is public, maybe instead use get_rama_type()
       enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };

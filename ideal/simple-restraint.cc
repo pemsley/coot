@@ -5294,6 +5294,25 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
       }
    }
 
+   if (restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      if (at_1 && at_2) {
+         clipper::Coord_orth p1 = co(at_1);
+         clipper::Coord_orth p2 = co(at_2);
+         double d = sqrt((p2-p1).lengthsq());
+	 if (false)
+	    std::cout << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+		      << " d " << d << " target_value " << target_value << std::endl;
+         double alpha = 0.01; // pass this
+         double delta = d - target_value;
+         double z = delta/sigma;
+         double distortion = z*z/(1+alpha*z*z);
+         distortion_pair.first = distortion;
+         distortion_pair.second = delta;
+      }
+   }
+
    if (restraint_type == NON_BONDED_CONTACT_RESTRAINT) {
       mmdb::Atom *at_1 = atoms[atom_index_1];
       mmdb::Atom *at_2 = atoms[atom_index_2];
@@ -7071,7 +7090,7 @@ coot::restraints_container_t::info() const {
 		   << " with periodicity "
   		   << restraint.periodicity << std::endl;
       }
-      std::cout << "restraint number " << i << " is restraint_type " <<
+      std::cout << "INFO:: restraint number " << i << " is restraint_type " <<
 	 restraint.restraint_type << std::endl;
    }
 } 

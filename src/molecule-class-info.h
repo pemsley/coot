@@ -2922,6 +2922,9 @@ public:        //                      public
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
 				double bond_dist, double esd);
+   int add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1,
+                                         coot::atom_spec_t atom_2,
+                                         double bond_dist, double esd);
    int add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs);
    int add_extra_angle_restraint(coot::atom_spec_t atom_1,
 				 coot::atom_spec_t atom_2,

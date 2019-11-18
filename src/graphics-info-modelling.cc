@@ -1011,8 +1011,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    //
    // last_restraints->set_apply_H_non_bonded_contacts(false);
 
-   if (molecules[imol_moving_atoms].extra_restraints.has_restraints())
-      last_restraints->add_extra_restraints(imol_moving_atoms, molecules[imol_moving_atoms].extra_restraints, *Geom_p());
+   if (molecules[imol_moving_atoms].extra_restraints.has_restraints()) {
+      std::cout << "calling add_extra_restraints() from make_last_restraints() " << std::endl;
+      last_restraints->add_extra_restraints(imol_moving_atoms, "user-defined from make_last_restraints()",
+                                            molecules[imol_moving_atoms].extra_restraints, *Geom_p());
+   }
 
    if (do_numerical_gradients)
       last_restraints->set_do_numerical_gradients();
@@ -1021,6 +1024,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
    if (last_restraints->size() > 0) {
 
+      last_restraints->analyze_for_bad_restraints();
       thread_for_refinement_loop_threaded();
       found_restraints_flag = true;
       // rr.found_restraints_flag = true;

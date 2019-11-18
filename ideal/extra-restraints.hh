@@ -88,6 +88,34 @@ namespace coot {
 	    } 
 	 } 
       };
+
+
+      class extra_geman_mcclure_restraint_t {
+
+      public:
+	 atom_spec_t atom_1;
+	 atom_spec_t atom_2;
+	 double bond_dist;
+	 double esd;
+	 extra_geman_mcclure_restraint_t() {}
+	 extra_geman_mcclure_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) {
+	    atom_1 = a1;
+	    atom_2 = a2;
+	    bond_dist = d;
+	    esd = e;
+	 }
+	 bool operator==(const residue_spec_t &rs) const {
+	    if (residue_spec_t(atom_1) == rs)
+	       return true;
+	    if (residue_spec_t(atom_2) == rs)
+	       return true;
+	    return false;
+	 }
+	 bool is_deviant(const double &real_dist, const double &n_sigma) const {
+	    return (fabs(real_dist-bond_dist)/esd > n_sigma);
+	 }
+      };
+
         
       class extra_angle_restraint_t {
       public:
@@ -154,6 +182,7 @@ namespace coot {
       std::vector<extra_bond_restraint_t> bond_restraints;
       std::vector<extra_angle_restraint_t> angle_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
+      std::vector<extra_geman_mcclure_restraint_t> geman_mcclure_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
       std::vector<extra_target_position_restraint_t> target_position_restraints;
       std::vector<parallel_planes_t> parallel_plane_restraints;
@@ -172,6 +201,8 @@ namespace coot {
 	 else if (parallel_plane_restraints.size() > 0)
 	    return true;
 	 else if (target_position_restraints.size() > 0)
+	    return true;
+	 else if (geman_mcclure_restraints.size() > 0)
 	    return true;
 	 else
 	    return false;

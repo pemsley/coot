@@ -52,7 +52,7 @@
 
 (define (user-defined-add-arbitrary-length-bond-restraint)
   (generic-single-entry "Add a User-defined extra distance restraint"
-			"2.0"
+			"2.8"
 			"OK..."
 			(lambda (text) 
 			  (let ((s  "Now click on 2 atoms to define the additional bond restraint"))
@@ -72,7 +72,7 @@
 						 (list-ref atom-specs 0)
 						 (list-ref atom-specs 1))
 					 
-					 (add-extra-bond-restraint 
+					 (add-extra-bond-restraint
 					  imol
 					  (list-ref (list-ref atom-specs 0) 2)
 					  (list-ref (list-ref atom-specs 0) 3)
