@@ -119,7 +119,7 @@ fi
 # This seems not to be returning the correct value
 # AM_PATH_LIBPNG
 # so try this:
-PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.5])
+PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.2])
 
 # and while we are thinking about images, let's check for Cairo also
 PKG_CHECK_MODULES([CAIRO], [cairo >= 1.14])
