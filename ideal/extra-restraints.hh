@@ -85,35 +85,16 @@ namespace coot {
 	    } else {
 	       std::cout << "not found bond restraint between " << br.atom_1 <<  " " << br.atom_2 << std::endl;
 	       return false;
-	    } 
-	 } 
+	    }
+	 }
       };
 
 
-      class extra_geman_mcclure_restraint_t {
+      class extra_geman_mcclure_restraint_t : public extra_bond_restraint_t {
 
       public:
-	 atom_spec_t atom_1;
-	 atom_spec_t atom_2;
-	 double bond_dist;
-	 double esd;
 	 extra_geman_mcclure_restraint_t() {}
-	 extra_geman_mcclure_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) {
-	    atom_1 = a1;
-	    atom_2 = a2;
-	    bond_dist = d;
-	    esd = e;
-	 }
-	 bool operator==(const residue_spec_t &rs) const {
-	    if (residue_spec_t(atom_1) == rs)
-	       return true;
-	    if (residue_spec_t(atom_2) == rs)
-	       return true;
-	    return false;
-	 }
-	 bool is_deviant(const double &real_dist, const double &n_sigma) const {
-	    return (fabs(real_dist-bond_dist)/esd > n_sigma);
-	 }
+	 extra_geman_mcclure_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) : extra_bond_restraint_t(a1, a2, d, e) {}
       };
 
         
@@ -214,6 +195,7 @@ namespace coot {
 	 torsion_restraints.clear();
 	 start_pos_restraints.clear();
          parallel_plane_restraints.clear();
+	 geman_mcclure_restraints.clear();
       }
 
       void add_restraints(const extra_restraints_t &r) {

@@ -2912,7 +2912,7 @@ public:        //                      public
 	      extra_restraints_representation_for_bonds_go_to_CA = val;
 	      update_extra_restraints_representation();
       } 
-   } 
+   }
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    void draw_parallel_plane_restraints_representation();
@@ -2926,6 +2926,7 @@ public:        //                      public
                                          coot::atom_spec_t atom_2,
                                          double bond_dist, double esd);
    int add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs);
+   int add_extra_geman_mcclure_restraints(const std::vector<coot::extra_restraints_t::extra_geman_mcclure_restraint_t> &bond_specs);
    int add_extra_angle_restraint(coot::atom_spec_t atom_1,
 				 coot::atom_spec_t atom_2,
 				 coot::atom_spec_t atom_3,
@@ -2948,6 +2949,7 @@ public:        //                      public
 
    // the atom specs do not need to be in order for bond restraints only
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
+   void remove_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
    void remove_extra_start_pos_restraint(coot::atom_spec_t atom_1);
    void remove_extra_angle_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
                                       coot::atom_spec_t atom_3);
@@ -2955,6 +2957,7 @@ public:        //                      public
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
    void update_extra_restraints_representation_bonds();
+   void update_extra_restraints_representation_bonds_internal(const coot::extra_restraints_t::extra_bond_restraint_t &res);
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
    void remove_extra_target_position_restraints(coot::atom_spec_t &spec);
