@@ -333,7 +333,7 @@ coot::side_chain_densities::test_sequence(mmdb::Manager *mol,
 	 std::map<std::string, double> likelihood_map =
 	    likelihood_of_each_rotamer_at_this_residue(residue_p, xmap);
 	 std::pair<mmdb::Residue *, std::map<std::string, double> > p(residue_p, likelihood_map);
-         if (true) {
+         if (false) { // debugging
             std::cout << "transfer to scored_residues " << i<< " " << residue_spec_t(residue_p) << " "
 		      << residue_p->GetResName() << " " << " with score map: ---" << std::endl;
             std::map<std::string, double>::const_iterator it_debug;
@@ -1079,7 +1079,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 						    const clipper::Xmap<float> &xmap,
 						    bool limit_to_correct_rotamers_only) {
 
-   // Make a block of density around the CB
+   // fill_residue_blocks() has been called before we get here
 
    std::map<std::string, double> bs; // return this, best_score_for_res_type
 
@@ -1096,7 +1096,7 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
       // sample_masked density around CB
       const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
 
-      // make a block
+      // retrieve the block for this residue (filled in fill_residue_blocks())
       mode_t mode = SAMPLE_FOR_RESIDUE;
       density_box_t block = get_block(residue_p);
 
@@ -1164,11 +1164,15 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 
 	 if (true) {
 	    for (it=best_score_for_res_type.begin(); it!=best_score_for_res_type.end(); it++) {
-	       std::string m;
-	       if (it->second > 1.1 * best_score) m = " ooo";
-	       if (it->second == best_score) m = " ***";
-	       const double &score = it->second;
 	       const std::string &res_type = it->first;
+	       const double &score = it->second;
+	       std::string m;
+	       if (best_score < 0) {
+		  if (score > 1.1 * best_score) m = " ooo";
+	       } else {
+		  if (score > 0) m = " ooo"; // anything positive
+	       }
+	       if (score == best_score) m = " ***";
 	       std::cout << "   " << res_type << " " << std::fixed << std::right << std::setprecision(4)
                          << score << m << std::endl;
 	    }

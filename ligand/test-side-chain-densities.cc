@@ -384,11 +384,11 @@ int main(int argc, char **argv) {
       std::string a1(argv[1]);
       if (a1 == "test-sequence") {
 	 try {
-	    std::string pdb_file_name(argv[2]); // poly-ALA model
-	    std::string chain_id(argv[3]);
-	    int resno_start = coot::util::string_to_int(argv[4]);
-	    int resno_end   = coot::util::string_to_int(argv[5]);
-	    std::string map_file_name(argv[6]);
+	    std::string map_file_name(argv[2]);
+	    std::string pdb_file_name(argv[3]); // poly-ALA model
+	    std::string chain_id(argv[4]);
+	    int resno_start = coot::util::string_to_int(argv[5]);
+	    int resno_end   = coot::util::string_to_int(argv[6]);
 	    std::string sequence_file_name(argv[7]);
 	    std::string useable_grid_points_file_name(argv[8]);
 	    test_sequence(n_steps, grid_box_radius, useable_grid_points_file_name,
