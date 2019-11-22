@@ -10,13 +10,24 @@ namespace coot {
    public:
       // density_box is a copy of a filled pointer
       density_box_t(float *density_box, mmdb::Residue *residue_p, int n_steps);
-      density_box_t() { density_box = 0; residue_p = 0; n_steps = 0; mean=0; var = 0; } // needed because it's unsed in a map
+      density_box_t() { init(); } // needed because it's unsed in a map
       float *density_box;
       mmdb::Residue *residue_p;
       double mean;
       double mean_of_positives;
       double var;
+
+      double mean_around_ca;
+      double mean_of_positives_around_ca;
+      double var_around_ca;
+
       int n_steps; // either side of the middle
+
+      void init() {
+	 density_box = 0; residue_p = 0; n_steps = 0; mean=0; var = -1;
+	 mean_around_ca = 0; mean_of_positives_around_ca = 0;
+	 var_around_ca = -1;
+      }
       void scale_by(float scale_factor) {
 	 if (n_steps > 0) {
 	    int n = 2 * n_steps + 1;
@@ -45,6 +56,13 @@ namespace coot {
 	 mean_of_positives = mean_of_positives_in;
 	 var  = var_in;
       }
+      void set_around_ca_stats(const double &mean_in, const double &var_in, const double &mean_of_positives_in) {
+	 mean_around_ca = mean_in;
+	 var_around_ca = var_in;
+	 mean_of_positives_around_ca = mean_of_positives_in;
+      }
+
+      void normalize_using_ca_stats();
    };
 
 
@@ -93,6 +111,7 @@ namespace coot {
       void normalize_density_boxes(const std::string &id);
       void normalize_density_boxes_v1(const std::string &id);
       void normalize_density_boxes_v2(const std::string &id);
+      void normalize_density_boxes_v3(const std::string &id);
       void add_mean_and_variance_to_individual_density_blocks();
       void write_density_boxes() const;
       double get_log_likelihood(const unsigned int &grid_idx,
@@ -160,6 +179,13 @@ namespace coot {
 
       bool like_the_others(const std::map<int, std::string> &chain,
 			   const std::vector<std::map<int, std::string> > &other_chains) const;
+
+      // return negative values on failure
+      std::tuple<double, double, double>
+      get_stats_around_ca(mmdb::Residue *residue_this,
+			  const std::vector<clipper::Coord_orth> &axes,
+			  float step_size,
+			  const clipper::Xmap<float> &xmap) const;
 
    public:
 
