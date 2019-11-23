@@ -224,17 +224,17 @@ combine(int n_steps) {
    //
    std::string glob_pattern = "*";
    std::vector<std::string> dirs = coot::util::glob_files(dir, glob_pattern);
-   std::cout << "found " << dirs.size() << " files in " << dir << std::endl;
+   std::cout << "found " << dirs.size() << " directories in " << dir << std::endl;
 
    for (std::size_t idir=0; idir<dirs.size(); idir++) {
       const std::string &dir = dirs[idir];
       // std::cout << "dir " << dir << std::endl;
 
       std::vector<std::string> rot_dirs = coot::util::glob_files(dir, glob_pattern);
-      std::cout << "found " << rot_dirs.size() << " files in " << dir << std::endl;
+      std::cout << "found " << rot_dirs.size() << " rotamer-directories in " << dir << std::endl;
       for (std::size_t jdir=0; jdir<rot_dirs.size(); jdir++) {
 	 const std::string &dir = rot_dirs[jdir];
-	 std::cout << "combine(): rot_dir: " << dir << std::endl;
+	 std::cout << "combining for rotamer dir: " << dir << std::endl;
 
 	 coot::side_chain_densities::combine_directory(dir, n_steps,
 						       mn_unreliable_minimum_counts,
