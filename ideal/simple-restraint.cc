@@ -4636,7 +4636,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
 	       // because the non-moving atom doesn't have angle restraints.
 	       //
-	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j]);
+	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j], fixed_atom_flags);
 
 	       if (false)
 		  std::cout << "here C with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
@@ -4972,7 +4972,8 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2,
 						     const reduced_angle_info_container_t &ai) const {
 
    bool is_1_4 = false;
-   is_1_4 = ai.is_1_4(idx_1, idx_2);
+   std::vector<bool> fixed_atom_flags = {false, false};
+   is_1_4 = ai.is_1_4(idx_1, idx_2, fixed_atom_flags);
    // std::cout << "debug:: check_for_1_4_relation(ai) " << idx_1 << " " << idx_2 << " is " << is_1_4
    // << std::endl;
    return is_1_4;
@@ -4996,6 +4997,11 @@ coot::restraints_container_t::reduced_angle_info_container_t::init(const std::ve
 	 std::pair<int, int> p_2(r[ii].atom_index_2, r[ii].atom_index_1);
 	 angles[r[ii].atom_index_1].push_back(p_1);
 	 angles[r[ii].atom_index_3].push_back(p_2);
+      }
+
+      if (r[ii].restraint_type == BOND_RESTRAINT) {
+	 bonds[r[ii].atom_index_1].insert(r[ii].atom_index_2);
+	 bonds[r[ii].atom_index_2].insert(r[ii].atom_index_1);
       }
    }
 }
@@ -5022,43 +5028,110 @@ coot::restraints_container_t::reduced_angle_info_container_t::write_angles_map(c
 } 
 
 bool
-coot::restraints_container_t::reduced_angle_info_container_t::is_1_4(int indx_1, int indx_2) const {
+coot::restraints_container_t::reduced_angle_info_container_t::is_1_4(int indx_1, int indx_2,
+								     const std::vector<bool> &fixed_atom_flags) const {
 
    // this function can be const because we don't use [] operator on the angles map.
-   
+
+   // This doesn't find 1-4 related main-chain when one (or more) of the atoms is in the residue
+   // are fixed atoms (because fixed atoms don't have angle restraints)
+
+   // We could catch some of those by looking to see if one atom (C(n-1)) is fixed and the
+   // others are not (C(n), CA(n), N(n)) and that there is a bond between N(n) and C(n+1).
+
    bool f = false;
 
-   std::map<int, std::vector<std::pair<int, int> > >::const_iterator it_1, it_2;
-   it_1 = angles.find(indx_1);
-   if (it_1 != angles.end()) {
-      const std::vector<std::pair<int, int> > &v = it_1->second;
-      for (unsigned int ii=0; ii<v.size(); ii++) {
-	 
-	 // what are the angles that have atom_mid as atom_1?  We can ask this because angles
-	 // go into this object both way rounds: A-B-C, C-B-A.
-	 
-	 int idx_mid = v[ii].first;
+   bool has_a_fixed_atom = false;
 
-	 it_2 = angles.find(idx_mid);
-	 if (it_2 != angles.end()) {
-	    const std::vector<std::pair<int, int> > &v_2 = it_2->second;
-	    // are any of these indx_2?
-	    for (unsigned int jj=0; jj<v_2.size(); jj++) { 
-	       if (v_2[jj].second == indx_2) {
-		  f = true;
-		  break;
+   if (fixed_atom_flags.size() != 2) {
+      std::cout << "ERROR:: in reduced_angle_info_container_t is_1_4(): " << fixed_atom_flags.size()
+		<< std::endl;
+      return false;
+   }
+
+   if (fixed_atom_flags[0]) has_a_fixed_atom = true;
+   if (fixed_atom_flags[1]) has_a_fixed_atom = true;
+
+   if (! has_a_fixed_atom) {
+      std::map<int, std::vector<std::pair<int, int> > >::const_iterator it_1, it_2;
+      it_1 = angles.find(indx_1);
+      if (it_1 != angles.end()) {
+	 const std::vector<std::pair<int, int> > &v = it_1->second;
+	 for (unsigned int ii=0; ii<v.size(); ii++) {
+	 
+	    // what are the angles that have atom_mid as atom_1?  We can ask this because angles
+	    // go into this object both way rounds: A-B-C, C-B-A.
+	 
+	    int idx_mid = v[ii].first;
+
+	    it_2 = angles.find(idx_mid);
+	    if (it_2 != angles.end()) {
+	       const std::vector<std::pair<int, int> > &v_2 = it_2->second;
+	       // are any of these indx_2?
+	       for (unsigned int jj=0; jj<v_2.size(); jj++) {
+		  if (v_2[jj].second == indx_2) {
+		     f = true;
+		     break;
+		  }
+	       }
+	    }
+
+	    if (f)
+	       break;
+
+	 }
+      }
+   } else {
+
+      // *Does* have a fixed atom index
+
+      bool fixed_1 = false;
+      bool fixed_2 = false;
+      if (fixed_atom_flags[0]) fixed_1 = true;
+      if (fixed_atom_flags[1]) fixed_2 = true;
+
+      if (fixed_2 && ! fixed_1) {
+	 // key: atom index, data: a vector of the other 2 atoms in the angle restraints
+	 std::map<int, std::vector<std::pair<int, int> > >::const_iterator it = angles.find(indx_1);
+	 if (it != angles.end()) {
+	    const std::vector<std::pair<int, int> > &v = it->second;
+	    for (unsigned int ii=0; ii<v.size(); ii++) {
+	       int idx_other_end = v[ii].second;
+	       // is there a bond between idx_other_end and idx_2?
+	       std::map<int, std::set<int> >::const_iterator it_bonds = bonds.find(idx_other_end);
+	       if (it_bonds != bonds.end()) {
+		  const std::set<int> &s = it_bonds->second;
+		  if (s.find(indx_2) != s.end()) {
+		     f = true;
+		     break;
+		  }
 	       }
 	    }
 	 }
+      }
 
-	 if (f)
-	    break;
-
+      // same as above, but reversed indices
+      if (fixed_1 && ! fixed_2) {
+	 std::map<int, std::vector<std::pair<int, int> > >::const_iterator it = angles.find(indx_2);
+	 if (it != angles.end()) {
+	    const std::vector<std::pair<int, int> > &v = it->second;
+	    for (unsigned int ii=0; ii<v.size(); ii++) {
+	       int idx_other_end = v[ii].second;
+	       // is there a bond between idx_other_end and idx_1?
+	       std::map<int, std::set<int> >::const_iterator it_bonds = bonds.find(idx_other_end);
+	       if (it_bonds != bonds.end()) {
+		  const std::set<int> &s = it_bonds->second;
+		  if (s.find(indx_1) != s.end()) {
+		     f = true;
+		     break;
+		  }
+	       }
+	    }
+	 }
       }
    }
-
    return f;
-} 
+}
 
 bool
 coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2) const {

@@ -563,9 +563,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	    in_same_residue_flag = false;
 	 }
 
+	 std::string atom_name_1(at_1->GetAtomName());
+	 std::string atom_name_2(at_2->GetAtomName());
+
 	 if (in_same_ring_flag) {
-	    std::string atom_name_1 = at_1->GetAtomName();
-	    std::string atom_name_2 = at_2->GetAtomName();
 
 	    // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
 	    //                                                                       atom_name_2);
@@ -577,18 +578,45 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 	 // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
 	 // because the non-moving atom doesn't have angle restraints.
+	 // 
+	 // 20191122-PE It should do now because we have bond restraints in a raic (and other fixes).
 	 //
-	 bool is_1_4_related = raic.is_1_4(i, j);
+	 bool is_1_4_related = raic.is_1_4(i, j, fixed_atom_flags);
 
 	 if (false)
 	    std::cout << "here with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
 		      << " is_1_4_related " << is_1_4_related << std::endl;
 
+	 bool mc_atoms_tandem = false;
+	 if (! is_1_4_related) {
+	    // hacky case for C in a helix. Also N.
+	    // (because fixed atoms don't have angle restraints - so raic.is_1_4_related()
+	    // will not work)
+
+	    if (atom_name_1 == " C  ")
+	       if (atom_name_2 == " C  ")
+		  if (at_2->residue->index - at_1->residue->index == 1)
+		     mc_atoms_tandem = true;
+	    if (atom_name_1 == " N  ")
+	       if (atom_name_2 == " N  ")
+		  if (at_2->residue->index - at_1->residue->index == -1)
+		     mc_atoms_tandem = true;
+	 }
+
+	 if (mc_atoms_tandem)
+	    is_1_4_related = true;
+
 	 if (is_1_4_related) {
 
 	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
-	    if (atom_is_hydrogen[i]) dist_min -= 0.7;
-	    if (atom_is_hydrogen[j]) dist_min -= 0.7;
+
+	    if (mc_atoms_tandem) dist_min = 2.99;
+
+	    // Hydrogens are handled below this if() also - I am not sure
+	    // that this delta should be applied here
+
+	    if (at_1) dist_min -= 0.7;
+	    if (at_2) dist_min -= 0.7;
 
 	 } else {
 
@@ -852,7 +880,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
              << d2a << " start-stop-reserve: " << d2b << " start-stop-push: " << d2c << " milliseconds\n";
 
    std::atomic<unsigned int> done_count(0);
-	bool use_extended_atom_mode = ! model_has_hydrogen_atoms;
+   bool use_extended_atom_mode = ! model_has_hydrogen_atoms;
 
    auto tp_3 = std::chrono::high_resolution_clock::now();
    for (std::size_t i=0; i<n_threads; i++) {
@@ -1012,9 +1040,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	    in_same_residue_flag = false;
 	 }
 
+	 std::string atom_name_1 = at_1->GetAtomName();
+	 std::string atom_name_2 = at_2->GetAtomName();
+
 	 if (in_same_ring_flag) {
-	    std::string atom_name_1 = at_1->GetAtomName();
-	    std::string atom_name_2 = at_2->GetAtomName();
 
 	    // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
 	    //                                                                       atom_name_2);
@@ -1027,14 +1056,41 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	 // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
 	 // because the non-moving atom doesn't have angle restraints.
 	 //
-	 bool is_1_4_related = raic.is_1_4(i, j);
+	 bool is_1_4_related = raic.is_1_4(i, j, fixed_atom_flags);
 
 	 if (false)
-	    std::cout << "here C with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
+	    std::cout << "here with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
 		      << " is_1_4_related " << is_1_4_related << std::endl;
+
+	 bool mc_atoms_tandem = false;
+	 if (! is_1_4_related) {
+	    // hacky case for C in a helix.
+	    // Also N.
+
+	    if (atom_name_1 == " C  ")
+	       if (atom_name_2 == " C  ")
+		  if (at_2->residue->index - at_1->residue->index == 1) {
+		     std::cout << "-------- Here 1 " << at_1->residue->index << " " << at_2->residue->index
+			       << std::endl;
+		     mc_atoms_tandem = true;
+		  }
+	    if (atom_name_1 == " N  ")
+	       if (atom_name_2 == " N  ")
+		  if (at_2->residue->index - at_1->residue->index == -1) {
+		     mc_atoms_tandem = true;
+		     std::cout << "-------- Here 2 " << at_1->residue->index << " " << at_2->residue->index
+			       << std::endl;
+		  }
+	 }
+
+	 if (mc_atoms_tandem)
+	    is_1_4_related = true;
 
 	 if (is_1_4_related) {
 	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+
+	    if (mc_atoms_tandem) dist_min = 2.99;
+
 	    if (is_hydrogen(at_1))
 	       dist_min -= 0.7;
 	    if (is_hydrogen(at_2))

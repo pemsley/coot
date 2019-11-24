@@ -1687,8 +1687,9 @@ namespace coot {
 	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
 	 reduced_angle_info_container_t(const std::vector<std::vector<simple_restraint> > &rvv); // needs init() also?
 	 void init(const std::vector<simple_restraint> &r);
+	 std::map<int, std::set<int> > bonds;
 	 std::map<int, std::vector<std::pair<int, int> > > angles;
-	 bool is_1_4(int i, int j) const;
+	 bool is_1_4(int i, int j, const std::vector<bool> &fixed_atom_flags) const;
 	 void write_angles_map(const std::string &file_name) const;
       };
 
