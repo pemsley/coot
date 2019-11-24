@@ -2160,6 +2160,7 @@ public:        //                      public
 
    std::pair<bool, int>  last_residue_in_chain(const std::string &chain_id) const;
    std::pair<bool, int> first_residue_in_chain(const std::string &chain_id) const;
+   std::pair<bool, int>  last_protein_residue_in_chain(const std::string &chain_id) const;
 
    // return NULL on no last residue.
    mmdb::Residue *last_residue_in_chain(mmdb::Chain *chain_p) const;
