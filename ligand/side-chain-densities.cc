@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iomanip>
 
+#include <boost/math/distributions/skew_normal.hpp>
 
 #include "analysis/stats.hh"
 #include "utils/coot-utils.hh"
@@ -252,8 +253,8 @@ coot::side_chain_densities::probability_of_each_rotamer_at_each_residue(mmdb::Ma
 
 std::map<std::string, double>
 coot::side_chain_densities::likelihood_of_each_rotamer_at_this_residue(mmdb::Residue *residue_p,
-								       const clipper::Xmap<float> &xmap,
-								       bool limit_to_correct_rotamers_only) {
+                                                                       const clipper::Xmap<float> &xmap,
+                                                                       bool limit_to_correct_rotamers_only) {
    return get_rotamer_likelihoods(residue_p, xmap, limit_to_correct_rotamers_only);
 }
 
@@ -494,11 +495,11 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
 
    if (mode == SAMPLE_FOR_DB) {
       if (rot_name.empty()) {
-	 if (res_name == "GLY") {
-	    rot_name = "pseudo";
-	 } else {
-	    return density_box_t(0,0,0);
-	 }
+         if (res_name == "GLY") {
+            rot_name = "pseudo";
+         } else {
+            return density_box_t(0,0,0);
+         }
       }
    }
 
@@ -628,7 +629,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
    density_box_t db(density_box, residue_this_p, n_steps);
 
    // return negative values on failure
-   std::tuple<double, double, double> ca_stats = get_stats_around_ca(residue_this_p, axes, step_size, xmap);
+   std::tuple<double, double, double> ca_stats = get_stats_around_ca(residue_this_p, axes, 2 * step_size, xmap);
    if (std::get<1>(ca_stats) > 0)
       db.set_around_ca_stats(std::get<0>(ca_stats), std::get<1>(ca_stats), std::get<2>(ca_stats));
 
@@ -764,19 +765,19 @@ coot::side_chain_densities::normalize_density_boxes_v2(const std::string &id) {
 	    float scale_factor = 1.0/sd;
 	    for (int j=0; j<nnn; j++) {
 	       if (db[j] > -1000.0) {
-		  db.density_box[j] *= scale_factor;
+	          db.density_box[j] *= scale_factor;
 	       }
 	    }
 	    sum = 0;
 	    for (int j=0; j<nnn; j++) {
 	       if (db[j] > -1000.0) {
-		  sum += db[j];
+	          sum += db[j];
 	       }
 	    }
 	    mean = sum/static_cast<float>(n_grid_pts);
 	    for (int j=0; j<nnn; j++) {
 	       if (db[j] > -1000.0) {
-		  db.density_box[j] -= mean;
+	          db.density_box[j] -= mean;
 	       }
 	    }
 	 }
@@ -799,14 +800,32 @@ coot::density_box_t::normalize_using_ca_stats() {
 
    if (var_around_ca > 0) {
       int n = nnn();
-      float sf = 1.0/mean_of_positives_around_ca;
-      for (int j=0; j<n; j++) {
-	 if (density_box[j] > -1000.0) {
-	    density_box[j] *= sf;
-	 }
+      if (mean_of_positives_around_ca > 0.0) {
+         std::cout << "Debug: normalizing with mean of CA positives "
+                   << mean_of_positives_around_ca << " for "
+                   << residue_spec_t(residue_p) << std::endl;
+         float sf = 0.995 * 1.0/mean_of_positives_around_ca;
+         unsigned int n_scaled = 0;
+         for (int j=0; j<n; j++) {
+            if (density_box[j] > -1000.0) {
+               density_box[j] *= sf;
+               n_scaled++;
+            }
+         }
+         std::cout << "DEBUG:: n_scaled " << n_scaled << std::endl;
+      } else {
+         // mark as a baddie - perhaps this
+         // should have its own flag?
+         var_around_ca = -1.0;
+         is_weird = true;
       }
    } else {
-      std::cout << "ERROR:: Failed variance in normalize_using_ca_stats()" << std::endl;
+      std::string rn;
+      is_weird = true;
+      if (residue_p)
+         rn = residue_p->GetResName();
+      std::cout << "ERROR:: Failed variance in normalize_using_ca_stats() "
+                << residue_spec_t(residue_p) << " " << rn << std::endl;
    }
 
 }
@@ -817,9 +836,11 @@ void
 coot::side_chain_densities::write_density_boxes() const {
 
    for (std::size_t i=0; i<density_boxes.size(); i++) {
-      write_density_box(density_boxes[i].density_box,
-			density_boxes[i].n_steps, id,
-			density_boxes[i].residue_p);
+      const density_box_t &db = density_boxes[i];
+      // don't write boxes with weird/non-filled stats
+      if (db.var_around_ca > 0.0)
+         if (! db.is_weird)
+            write_density_box(db, id);
    }
 }
 
@@ -850,7 +871,11 @@ coot::density_box_t::mean_and_variance() const {
 }
 
 void
-coot::side_chain_densities::write_density_box(float *density_box, int n_steps, const std::string &id, mmdb::Residue * residue_p) const {
+coot::side_chain_densities::write_density_box(const coot::density_box_t &db, const std::string &id) const {
+
+   float *density_box = db.density_box;
+   int n_steps = db.n_steps;
+   mmdb::Residue *residue_p = db.residue_p;
 
    if (! residue_p) return;
    std::string res_name = residue_p->GetResName();
@@ -862,7 +887,7 @@ coot::side_chain_densities::write_density_box(float *density_box, int n_steps, c
       std::string file_name = rot_dir + "/" + id + "-" + residue_p->GetChainID() + util::int_to_string(residue_p->GetSeqNum()) + ".tab";
 
       if (! file_exists(rot_dir))
-	 util::create_directory(rot_dir);
+         util::create_directory(rot_dir);
       // std::cout << "write_density_box() to filename " << file_name << std::endl;
 
       std::ofstream f(file_name.c_str());
@@ -870,20 +895,26 @@ coot::side_chain_densities::write_density_box(float *density_box, int n_steps, c
 	 int n_per_side = 2 * n_steps + 1;
 	 int n_box_vol = n_per_side * n_per_side * n_per_side;
 	 for (int i=0; i<n_box_vol; i++) {
-	    f << density_box[i] << " ";
-	    if (i%n_per_side == 0)
-	       f << "\n";
+            float v = density_box[i];
+            if (clipper::Util::is_nan(v)) {
+               std::cout << "ERROR:: " << file_name << " found a nan " << i << std::endl;
+               exit(1);
+            } else {
+	       f << v << " ";
+	       if (i%n_per_side == 0)
+	          f << "\n";
+            }
 	 }
 	 f << "\n";
       } else {
-	 std::cout << "WARNING:: cannot open file " << file_name << std::endl;
+         std::cout << "WARNING:: cannot open file " << file_name << std::endl;
       }
    } else {
       // these need investigation - Coot bug?
       bool verbose = false;
       if (verbose)
 	 std::cout << "WARNING:: no rotamer name for " << id << " " << residue_spec_t(residue_p)
-		   << " " << res_name << std::endl;
+	           << " " << res_name << std::endl;
    }
 }
 
@@ -898,6 +929,11 @@ coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *chain
       mmdb::Residue *t = chain_p->GetResidue(ires);
       if (t) {
 
+        std::string rn = t->GetResName();
+        if (rn == "UNK") continue;
+
+        if (! util::is_standard_amino_acid_name(rn)) continue;
+
 	 // don't forget that ALA are useful to search, as is GLY, but
 	 // that will need a special function to find an imaginary CB position
 	 //
@@ -907,12 +943,12 @@ coot::side_chain_densities::proc_chain(const std::string &id, mmdb::Chain *chain
          if (! axes.empty()) {
             // sample_masked density around 8A around CB
             clipper::Coord_orth cb_pt = cb_pos_and_axes.first;
-	    bool gen_flag = false;
-	    mode_t mode = SAMPLE_FOR_DB;
-	    density_box_t db = sample_map(t, 0, mode, cb_pt, axes, xmap);
+            bool gen_flag = false;
+            mode_t mode = SAMPLE_FOR_DB;
+            density_box_t db = sample_map(t, 0, mode, cb_pt, axes, xmap);
             if (! db.empty()) {
                // std::cout << "Storing density box for residue " << residue_spec_t(t) << " "
-	       //           << residue_spec_t(db.residue_p) << std::endl;
+               //           << residue_spec_t(db.residue_p) << std::endl;
                store_density_box(db); // push back to density_boxes vector
             }
          }
@@ -1080,16 +1116,17 @@ coot::side_chain_densities::fill_residue_blocks(const std::vector<mmdb::Residue 
       mmdb::Residue *residue_p = residues[i];
       mode_t mode = SAMPLE_FOR_RESIDUE;
       std::pair<clipper::Coord_orth, std::vector<clipper::Coord_orth> > cb_pos_and_axes =
-	 get_residue_axes(residue_p);
+         get_residue_axes(residue_p);
       const clipper::Coord_orth &cb_pt = cb_pos_and_axes.first;
       const std::vector<clipper::Coord_orth> &axes = cb_pos_and_axes.second;
       density_box_t block = sample_map(residue_p, 0, mode, cb_pt, axes, xmap);
+      std::cout << "Normalize 1 ... " << std::endl;
       block.normalize_using_ca_stats();
+      std::cout << "Normalize 1 done " << std::endl;
       density_block_map_cache[residue_p] = block;
    }
 
    add_mean_and_variance_to_individual_density_blocks();
-   normalize_density_blocks();
 
 }
 
@@ -1207,74 +1244,79 @@ coot::side_chain_densities::get_rotamer_likelihoods(mmdb::Residue *residue_p,
 
       } else {
 
-	 // Happy Path
+         if (block.is_weird) {
+            // do nothing
+            std::cout << "WARNING:: weird density block for "
+                      << residue_spec_t(residue_p) << std::endl;
+         } else {
 
-	 // compare the block of density to every rotamer (of every residue)
+	    // Happy Path
 
-	 std::string res_name = residue_p->GetResName();
-	 std::string rot_name = get_rotamer_name(residue_p);
+	    // compare the block of density to every rotamer (of every residue)
 
-	 std::cout << "debug:: in get_rotamer_likelihoods(): residue "
-		   << residue_spec_t(residue_p) << " " << res_name << " " << rot_name << std::endl;
+	    std::string res_name = residue_p->GetResName();
+	    std::string rot_name = get_rotamer_name(residue_p);
 
-	 std::pair<bool, std::vector<std::pair<std::string, std::string> > > rotamer_limits;
-	 rotamer_limits.first = false;
+	    std::cout << "debug:: in get_rotamer_likelihoods(): residue "
+	              << residue_spec_t(residue_p) << " " << res_name << " " << rot_name << std::endl;
 
-	 // just test the rotamer that this residue is, combine with
-	 // outputting the likelihoods for the grids in get_log_likelihood_ratio()
-	 // in the "check the engine" ouput.
+	    std::pair<bool, std::vector<std::pair<std::string, std::string> > > rotamer_limits;
+	    rotamer_limits.first = false;
 
-	 if (limit_to_correct_rotamers_only)
-	    rotamer_limits.first = true; // testing the likelihoods of the correct rotamers
-         
-	 rotamer_limits.second.push_back(std::pair<std::string, std::string> (res_name, rot_name));
+	    // just test the rotamer that this residue is, combine with
+	    // outputting the likelihoods for the grids in get_log_likelihood_ratio()
+	    // in the "check the engine" ouput.
 
-	 std::map<std::string, double> probability_map =
-	    compare_block_vs_all_rotamers(block, residue_p, data_dir, rotamer_limits, xmap);
+	    if (limit_to_correct_rotamers_only)
+	       rotamer_limits.first = true; // testing the likelihoods of the correct rotamers
 
-	 // find the max value so that I can mark it and close others for screen output
-	 double best_score = -999999999999999.9;
-	 std::map<std::string, double>::const_iterator it;
-	 for (it=probability_map.begin(); it!=probability_map.end(); it++) {
-	    if (it->second > best_score) {
-	       best_score = it->second;
-	    }
-	 }
+	    rotamer_limits.second.push_back(std::pair<std::string, std::string> (res_name, rot_name));
 
-	 std::map<std::string, double> best_score_for_res_type;
-	 std::cout << "here with probability_map size " << probability_map.size() << std::endl;
-	 for (it=probability_map.begin(); it!=probability_map.end(); it++) {
-	    std::string m;
-	    std::pair<std::string, std::string> rrp = map_key_to_residue_and_rotamer_names(it->first);
-	    const std::string &res_name = rrp.first;
-	    const std::string &rot_name = rrp.second;
-	    const double &score = it->second;
-	    if (best_score_for_res_type.find(res_name) == best_score_for_res_type.end()) {
-	       best_score_for_res_type[res_name] = score;
-	    } else {
-	       if (score > best_score_for_res_type[res_name])
-		  best_score_for_res_type[res_name] = score;
-	    }
-	 }
-	 bs = best_score_for_res_type;
+	    std::map<std::string, double> probability_map =
+	       compare_block_vs_all_rotamers(block, residue_p, data_dir, rotamer_limits, xmap);
 
-	 if (true) {
-	    for (it=best_score_for_res_type.begin(); it!=best_score_for_res_type.end(); it++) {
-	       const std::string &res_type = it->first;
-	       const double &score = it->second;
-	       std::string m;
-	       if (best_score < 0) {
-		  if (score > 1.1 * best_score) m = " ooo";
-	       } else {
-		  if (score > 0) m = " ooo"; // anything positive
+	    // find the max value so that I can mark it and close others for screen output
+	    double best_score = -999999999999999.9;
+	    std::map<std::string, double>::const_iterator it;
+	    for (it=probability_map.begin(); it!=probability_map.end(); it++) {
+	       if (it->second > best_score) {
+	          best_score = it->second;
 	       }
-	       if (score == best_score) m = " ***";
-	       std::cout << "   " << res_type << " " << std::fixed << std::right << std::setprecision(4)
-                         << score << m << std::endl;
 	    }
-	 }
 
-	 // block.clear();
+	    std::map<std::string, double> best_score_for_res_type;
+	    std::cout << "here with probability_map size " << probability_map.size() << std::endl;
+	    for (it=probability_map.begin(); it!=probability_map.end(); it++) {
+	       std::string m;
+	       std::pair<std::string, std::string> rrp = map_key_to_residue_and_rotamer_names(it->first);
+	       const std::string &res_name = rrp.first;
+	       const std::string &rot_name = rrp.second;
+	       const double &score = it->second;
+	       if (best_score_for_res_type.find(res_name) == best_score_for_res_type.end()) {
+	          best_score_for_res_type[res_name] = score;
+	       } else {
+	          if (score > best_score_for_res_type[res_name])
+	             best_score_for_res_type[res_name] = score;
+	       }
+	    }
+	    bs = best_score_for_res_type;
+
+	    if (true) {
+	       for (it=best_score_for_res_type.begin(); it!=best_score_for_res_type.end(); it++) {
+	          const std::string &res_type = it->first;
+	          const double &score = it->second;
+	          std::string m;
+	          if (best_score < 0) {
+	             if (score > 1.1 * best_score) m = " ooo";
+	          } else {
+	             if (score > 0) m = " ooo"; // anything positive
+	          }
+	          if (score == best_score) m = " ***";
+	          std::cout << "   " << res_type << " " << std::fixed << std::right << std::setprecision(4)
+                            << score << m << std::endl;
+               }
+            }
+         }
       }
    }
 
@@ -1300,17 +1342,17 @@ coot::side_chain_densities::compare_block_vs_all_rotamers(density_box_t block,
 
       std::vector<std::string> rot_dirs = coot::util::glob_files(res_dir, glob_pattern);
       for (std::size_t jdir=0; jdir<rot_dirs.size(); jdir++) {
-	 const std::string &rot_dir = rot_dirs[jdir];
+         const std::string &rot_dir = rot_dirs[jdir];
 
-	 std::string res = util::file_name_non_directory(res_dir);
-	 std::string rot = util::file_name_non_directory(rot_dir);
-	 std::string key = res + ":" + rot;
+         std::string res = util::file_name_non_directory(res_dir);
+         std::string rot = util::file_name_non_directory(rot_dir);
+         std::string key = res + ":" + rot;
 
-	 bool do_it = false;
+         bool do_it = false;
 
 	 if (false)
 	    std::cout << "debug:: in compare_block_vs_all_rotamers() rotamer limits first "
-		      << rotamer_limits.first << std::endl;
+	              << rotamer_limits.first << std::endl;
 	 if (! rotamer_limits.first) {
 	    // so, don't apply the limits
 	    do_it = true;
@@ -1464,7 +1506,6 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
 		<< " e_part_normal: " << std::setw(8) << e_part_normal
       */
 		<< " with density_val " << density_val
-		<< " x " << x
 		<< " z " << z
 		<< " x0_fake_density " << std::setw(8) << x0_fake_density
 		<< " mean " << std::setw(5) << mean << " sigma " << sqrt(variance)
@@ -1823,13 +1864,13 @@ coot::side_chain_densities::combine_directory(const std::string &rot_dir, int n_
 	    for (std::size_t ii=0; ii<words.size(); ii++) {
 	       const std::string &w = words[ii];
 	       try {
-		  float f = util::string_to_float(w);
-		  if (f > -1000.0) { // mask value
-		     x[word_count].push_back(f);
-		  }
+	          float f = util::string_to_float(w);
+	          if (f > -1000.0) { // mask value
+	             x[word_count].push_back(f);
+	          }
 	       }
 	       catch (const std::runtime_error &rte) {
-		  std::cout << "rte: " << rte.what() << std::endl;
+                  std::cout << "ERROR:: rte: combine_directory() " << fn << " " << rte.what() << std::endl;
 	       }
 	       word_count++;
 	    }

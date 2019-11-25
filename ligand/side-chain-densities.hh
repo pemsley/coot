@@ -21,12 +21,15 @@ namespace coot {
       double mean_of_positives_around_ca;
       double var_around_ca;
 
+      bool is_weird;
+
       int n_steps; // either side of the middle
 
       void init() {
 	 density_box = 0; residue_p = 0; n_steps = 0; mean=0; var = -1;
 	 mean_around_ca = 0; mean_of_positives_around_ca = 0;
 	 var_around_ca = -1;
+         is_weird = false;
       }
       void scale_by(float scale_factor) {
 	 if (n_steps > 0) {
@@ -104,6 +107,8 @@ namespace coot {
 			     const clipper::Coord_orth &test_position) const;
       void write_density_box(float *density_box, int n_steps, const std::string &id,
 			     mmdb::Residue * residue_p) const;
+      void write_density_box(const density_box_t &db, const std::string &id) const;
+
       void store_density_box(const density_box_t &density_box) {
 	 density_boxes.push_back(density_box);
       }
