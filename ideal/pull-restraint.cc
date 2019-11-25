@@ -300,6 +300,11 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
 				       restraints_vec.end(),
 				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
 			restraints_vec.end());
+
    restraints_lock = false;
+
+   if (v.size() > 0)
+      needs_reset = true;
+
    return v;
 }
