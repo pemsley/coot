@@ -1783,13 +1783,7 @@ graphics_info_t::clear_up_moving_atoms() {
    // it seems that the test is always true and we never enter the while loop
    // and wait - even if restraints_lock is true when we start.
 
-   bool unlocked = false; // wait for restraints_lock to be false...
-   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-      std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms() - refinement restraints locked on "
-                << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      unlocked = false;
-   }
+   get_restraints_lock(__FUNCTION__);
 
    // We must not delete the moving atoms if they are being used to manipulate pull restraints
    //
@@ -1846,9 +1840,11 @@ graphics_info_t::clear_up_moving_atoms() {
       last_restraints = 0;
       unset_moving_atoms_currently_dragged_atom_index();
    }
-   graphics_info_t::restraints_lock = false; // refinement ended and cleared up.
+
+   release_restraints_lock(__FUNCTION__); // refinement ended and cleared up.
 
 #endif // HAVE_GSL
+
 
    moving_atoms_lock  = false;
    graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();

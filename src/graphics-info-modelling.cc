@@ -103,6 +103,29 @@
 
 #include "utils/coot-utils.hh"
 
+ 
+void
+graphics_info_t::get_restraints_lock(const std::string &calling_function_name) {
+
+   bool unlocked = false;
+   while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      std::cout << "WARNING:: calling function: " << calling_function_name << " restraints locked by "
+                << restraints_locking_function_name << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      unlocked = false;
+   }
+  std::cout << "debug:: Got the lock for " << calling_function_name << std::endl;
+   restraints_locking_function_name = calling_function_name;
+}
+
+void
+graphics_info_t::release_restraints_lock(const std::string &calling_function_name) {
+
+   std::cout << "debug:: release the restraints lock: " << calling_function_name << std::endl;
+   restraints_lock = false;
+
+}
+
 
 // Idealize the geometry without considering the map.
 //
@@ -342,6 +365,7 @@ graphics_info_t::copy_model_molecule(int imol) {
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::restraints_lock(false);
 std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
+std::string graphics_info_t::restraints_locking_function_name = "unset";
 int  graphics_info_t::threaded_refinement_loop_counter = 0;
 int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
                                                                        // the regeneration is activated.
@@ -350,6 +374,7 @@ bool graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = false; 
 bool graphics_info_t::continue_threaded_refinement_loop = true; // also for Esc usage
 int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
 bool graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
+
 
 // put this in graphics-info-intermediate-atoms?
 //
@@ -368,12 +393,7 @@ graphics_info_t::refinement_loop_threaded() {
       return;
    }
 
-   bool unlocked = false;
-   while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
-      std::cout << "WARNING:: refinement_loop_threaded() refinement loop locked " << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      unlocked = 0;
-   }
+   get_restraints_lock(__FUNCTION__);
 
    graphics_info_t::threaded_refinement_needs_to_clear_up = false; // set on Esc press
                                                                    // from the main loop
@@ -427,7 +447,7 @@ graphics_info_t::refinement_loop_threaded() {
    }
 
    // std::cout << "DEBUG:: refinement_loop_threaded() unlocking restraints_lock" << std::endl;
-   graphics_info_t::restraints_lock = false; // unlock! - is this safe? (I think so, we had the lock)
+   release_restraints_lock(__FUNCTION__);
 
    // when this function exits, the (detached) thread in which it's running ends
 }
@@ -772,13 +792,10 @@ graphics_info_t::debug_refinement() {
    if (env) {
       if (last_restraints) {
 
-	 bool unlocked = false;
-	 while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
-	    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	    unlocked = 0;
-	 }
+         get_restraints_lock(__FUNCTION__);
          tabulate_geometric_distortions(*last_restraints);
-	 graphics_info_t::restraints_lock = false;
+         release_restraints_lock(__FUNCTION__);
+
       }
    }
    //   auto tp_1 = std::chrono::high_resolution_clock::now();

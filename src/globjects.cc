@@ -1169,6 +1169,7 @@ coot::restraints_container_t *graphics_info_t::last_restraints = 0;
 // clipper::Xmap<float> blank_dummy_xmap;
 // ref version: coot::restraints_container_t(blank_dummy_xmap);
 #endif // HAVE_GSL
+
 // 
 // 
 bool graphics_info_t::draw_zero_occ_spots_flag = true; // on by default

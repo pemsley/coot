@@ -862,6 +862,10 @@ class graphics_info_t {
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
    void debug_refinement();
+   static void get_restraints_lock(const std::string &calling_function_name);
+   static void release_restraints_lock(const std::string &calling_function_name);
+   static std::string restraints_locking_function_name; //  static because it is set by above
+
 
    // 201803004:
    // refinement now uses references to Xmaps.
