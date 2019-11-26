@@ -114,14 +114,14 @@ graphics_info_t::get_restraints_lock(const std::string &calling_function_name) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       unlocked = false;
    }
-  std::cout << "debug:: Got the lock for " << calling_function_name << std::endl;
+   // std::cout << "debug:: Got the lock for " << calling_function_name << std::endl;
    restraints_locking_function_name = calling_function_name;
 }
 
 void
 graphics_info_t::release_restraints_lock(const std::string &calling_function_name) {
 
-   std::cout << "debug:: release the restraints lock: " << calling_function_name << std::endl;
+   // std::cout << "debug:: release the restraints lock: " << calling_function_name << std::endl;
    restraints_lock = false;
 
 }
