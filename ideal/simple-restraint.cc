@@ -60,6 +60,17 @@
 zo::rama_table_set coot::restraints_container_t::zo_rama;
 
 
+void
+coot::restraints_container_t::clear() {
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+      unlocked = false;
+   }
+   restraints_vec.clear();
+   init(); // resets lock, fwiw
+}
+
 
 coot::restraints_container_t::~restraints_container_t() {
    if (from_residue_vector) {
@@ -1376,13 +1387,12 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 // we should not update the atom pull restraints while the refinement is running.
 	 // we shouldn't refine when the atom pull restraints are being updated.
 
-#ifdef HAVE_CXX_THREAD
 	 bool unlocked = false;
-	 while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 // while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(10));
 	    unlocked = false;
 	 }
-#endif
 
          if (m_s == 0) {
             std::cout << "ERROR:: !! m_s has disappeared! " << std::endl;
@@ -1391,9 +1401,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    status = gsl_multimin_fdfminimizer_iterate(m_s);
          }
 
-#ifdef HAVE_CXX_THREAD
-	 restraints_lock = false; // unlock
-#endif
 	 // this might be useful for debugging rama restraints
 
 	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
@@ -1461,6 +1468,8 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
 	 if (verbose_geometry_reporting == VERBOSE)
 	    std::cout << "iteration number " << iter << " " << m_s->f << std::endl;
+
+	 restraints_lock = false; // unlock
 
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));

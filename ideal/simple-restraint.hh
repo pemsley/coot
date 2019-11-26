@@ -2491,10 +2491,7 @@ namespace coot {
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-      void clear() {
-	 restraints_vec.clear();
-	 init();
-      }
+      void clear();
 
       double log_cosh_target_distance_scale_factor;
       void set_log_cosh_target_distance_scale_factor(double sf) {
