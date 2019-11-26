@@ -52,15 +52,17 @@
 	    (format #t "Reading ProSMART restraints from ~s~%" prosmart-out)
 	    (add-refmac-extra-restraints imol-target prosmart-out))))))
 
-(define (add-prosmart-secondard-structure-restraints imol)
+(define (add-prosmart-secondary-structure-restraints imol do-mc-h-bonds-also-flag)
 
   (let ((dir-stub (get-directory "coot-ccp4"))
 	(stub-name (molecule-name-stub imol 0)))
 
-    (let* ((helix-pdb-file-name-rwd  (string-append stub-name "-helix.pdb"))
+    (let* ((helix-pdb-file-name-rwd (string-append stub-name "-helix.pdb"))
 	   (helix-pdb-file-name (append-dir-file dir-stub helix-pdb-file-name-rwd))
 	   (strand-pdb-file-name-rwd (string-append stub-name "-strand.pdb"))
 	   (strand-pdb-file-name (append-dir-file dir-stub strand-pdb-file-name-rwd))
+	   (h-bonds-pdb-file-name-rwd (string-append stub-name "-h-bonds.pdb"))
+	   (h-bonds-pdb-file-name (append-dir-file dir-stub h-bonds-pdb-file-name-rwd))
 	   (helix-out (join-dir-file
 		       (list dir-stub
 			     "ProSMART_Output"
@@ -69,19 +71,26 @@
 			(list
 			 dir-stub
 			 "ProSMART_Output"
-			 (string-append "LIB_" stub-name "-strand" ".txt")))))
+			 (string-append "LIB_" stub-name "-strand" ".txt"))))
+	   (h-bonds-out (join-dir-file
+			(list
+			 dir-stub
+			 "ProSMART_Output"
+			 (string-append stub-name "-h-bonds" ".txt"))))) ;; not LIB_
 
       (write-pdb-file imol  helix-pdb-file-name)
       (write-pdb-file imol strand-pdb-file-name)
+      (if do-mc-h-bonds-also-flag
+	  (write-pdb-file imol h-bonds-pdb-file-name))
 
       ;; Prosmart writes results in ProSMART_Output, so we change to the coot-ccp4 directory
       ;; so that it puts it in the place we expect it
 
       (let ((current-dir (getcwd)))
 
-	(format #t "dir-stub: ~s~%" dir-stub)
+	(format #t "DEBUG:: dir-stub: ~s~%" dir-stub)
 	(chdir dir-stub)
-	(format #t "(getcwd): ~s~%" (getcwd))
+	(format #t "DEBUG:: (getcwd): ~s~%" (getcwd))
 
 	(for-each (lambda (p)
 		    (goosh-command "prosmart"
@@ -89,11 +98,14 @@
 				   '()
 				   (string-append "prosmart-" stub-name "-" (caddr p) ".log")
 				   #f))
-		  (list (list helix-pdb-file-name-rwd   "-helix" "helix")
+		  (list (list  helix-pdb-file-name-rwd  "-helix" "helix")
 			(list strand-pdb-file-name-rwd "-strand" "strand")))
 
-	;; (format #t "helix-out:  ~s~%" helix-out)
-	;; (format #t "strand-out: ~s~%" strand-out)
+	(if do-mc-h-bonds-also-flag
+	    (goosh-command "prosmart"
+			   (list "-p1" h-bonds-pdb-file-name-rwd "-h")
+			   '()
+			   (string-append "prosmart-" stub-name "-h-bond.log") #f))
 
 	(chdir current-dir))
 
@@ -103,7 +115,15 @@
 		      (add-refmac-extra-restraints imol fn)
 		      (let ((s (string-append "Missing file: " fn)))
 			(info-dialog s))))
-		(list helix-out strand-out)))))
+		(list helix-out strand-out))
+
+      (if do-mc-h-bonds-also-flag
+	  (begin
+	    (format #t "INFO:: reading ProSMART output file fn: ~s~%" h-bonds-out)
+	    (if (file-exists? h-bonds-out)
+		(add-refmac-extra-restraints imol h-bonds-out)
+		(info-dialog (string-append "Missing file " h-bonds-out))))))))
+
 
 (define (add-module-restraints)
 
@@ -238,10 +258,16 @@
       (let ((menu (coot-menubar-menu "ProSMART")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add ProSMART Secondary Structure Restraints"
+	 menu "Add ProSMART Secondary Structure & H-bond Restraints"
 	 (lambda ()
 	   (using-active-atom
-	    (add-prosmart-secondard-structure-restraints aa-imol))))
+	    (add-prosmart-secondary-structure-restraints aa-imol #t))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add ProSMART (Only) Secondary Structure Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (add-prosmart-secondary-structure-restraints aa-imol #f))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Save as REFMAC restraints..."
