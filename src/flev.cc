@@ -724,10 +724,10 @@ coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
       coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id,
  					 COOT_LSQ_ALL);
        matches.push_back(match);
-       std::pair<short int, clipper::RTop_orth> lsq_mat = 
+       std::pair<short int, clipper::RTop_orth> lsq_mat =
 	  coot::util::get_lsq_matrix(flat_mol, mol_containing_residue_ligand, matches, every_nth);
       // Now make the residues
-      
+
       // std::vector<coot::fle_residues_helper_t> centres(residues.size());
       centres.resize(residues.size());
       for (unsigned int ires=0; ires<residues.size(); ires++) { 

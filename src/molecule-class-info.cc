@@ -1246,19 +1246,15 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
 
 	       if (res.esd > 0) {
+		  double nz = (sqrt(d_sqd) - res.target_dist)/res.esd;
+
 		  /*
-		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.002;
-		  if (b >  0.4999) b =  0.4999;
-		  if (b < -0.4999) b = -0.4999;
-		  double b_green = b;
-		  if (b > 0) b_green *= 0.2;
-		  glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
+		    std::cout << "debug:: nz " << nz << " target " << res.target_dist << " model "
+			      << sqrt(d_sqd) << " esd " << res.esd << std::endl;
 		  */
 
-		  double b_1 = (res.target_dist*res.target_dist - d_sqd)/(res.esd*res.esd);
-		  // b_1 ~ from a distribution mean 0 sd 1
 		  // we want to make short be green and long be purple
-		  float b_2 = 0.1 * b_1;
+		  float b_2 = 0.05 * nz;
 		  if (b_2 >  0.4999) b_2 =  0.4999;
 		  if (b_2 < -0.4999) b_2 = -0.4999;
 		  // b_2 is now between -0.5 and +0.5
@@ -1267,12 +1263,8 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 		  float b = 0.5 - b_2;
 		  glColor3f(r, g, b);
 	       }
-	       glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
-			  extra_restraints_representation.bonds[ib].first.y(),
-			  extra_restraints_representation.bonds[ib].first.z());
-	       glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
-			  extra_restraints_representation.bonds[ib].second.y(),
-			  extra_restraints_representation.bonds[ib].second.z());
+	       glVertex3f(res.first.x(), res.first.y(), res.first.z());
+	       glVertex3f(res.second.x(), res.second.y(), res.second.z());
 	    }
 	    glEnd();
 	 }

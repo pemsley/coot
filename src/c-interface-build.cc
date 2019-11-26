@@ -1654,29 +1654,24 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *res_specs_py,
 /* Used by on_accept_reject_refinement_reject_button_clicked() */
 void stop_refinement_internal() {
 
-   // c.f. GDK_Escape key press:
-
-   if (graphics_info_t::continue_threaded_refinement_loop) {
-      graphics_info_t::continue_threaded_refinement_loop = false;
-      graphics_info_t::threaded_refinement_needs_to_clear_up = true;
-   }
+   graphics_info_t g;
+   g.stop_refinement_internal();
 
 }
 
 
 #ifdef USE_PYTHON
 std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *r) {
-  std::vector<coot::residue_spec_t> residue_specs;
-  int r_length = PyObject_Length(r);
-  for (int i=0; i<r_length; i++) {
-    PyObject *res_spec_py = PyList_GetItem(r, i);
-    std::pair<bool, coot::residue_spec_t> res_spec =
-      make_residue_spec_py(res_spec_py);
-    if (res_spec.first) {
-      residue_specs.push_back(res_spec.second);
-    } 
-  }
-  return residue_specs;
+   std::vector<coot::residue_spec_t> residue_specs;
+   int r_length = PyObject_Length(r);
+   for (int i=0; i<r_length; i++) {
+      PyObject *res_spec_py = PyList_GetItem(r, i);
+      std::pair<bool, coot::residue_spec_t> res_spec = make_residue_spec_py(res_spec_py);
+      if (res_spec.first) {
+	 residue_specs.push_back(res_spec.second);
+      } 
+   }
+   return residue_specs;
 }
 #endif // USE_PYTHON
 

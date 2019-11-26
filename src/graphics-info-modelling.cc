@@ -108,9 +108,14 @@ void
 graphics_info_t::get_restraints_lock(const std::string &calling_function_name) {
 
    bool unlocked = false;
-   while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
-      std::cout << "WARNING:: calling function: " << calling_function_name << " restraints locked by "
-                << restraints_locking_function_name << std::endl;
+
+   // 20191127-PE not this formulation:
+   // while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+
+   while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::cout << "WARNING:: calling function: " << calling_function_name
+		<< " restraints locked by " << restraints_locking_function_name
+		<< std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       unlocked = false;
    }
@@ -125,6 +130,25 @@ graphics_info_t::release_restraints_lock(const std::string &calling_function_nam
    restraints_lock = false;
 
 }
+
+void
+graphics_info_t::stop_refinement_internal() {
+
+   // c.f. GDK_Escape key press:
+
+   if (continue_threaded_refinement_loop) {
+      continue_threaded_refinement_loop = false;
+      threaded_refinement_needs_to_clear_up = true;
+   }
+   // now wait until refinement stops... (before we call clear_up_moving_atoms (from the
+   // function that calls this function))
+   // std::cout << "debug:: stop_refinement_internal() waiting for refinement to stop" << std::endl;
+   get_restraints_lock(__FUNCTION__);
+   release_restraints_lock(__FUNCTION__);
+   // std::cout << "debug:: stop_refinement_internal() refinement stopped" << std::endl;
+
+}
+
 
 
 // Idealize the geometry without considering the map.
@@ -407,7 +431,6 @@ graphics_info_t::refinement_loop_threaded() {
    // continue_threaded_refinement_loop = true; not here - set it in the calling function
    while (continue_threaded_refinement_loop) {
 
-      // std::cout << "refinement_loop_threaded(): new minimize() round" << std::endl;
       g.update_restraints_with_atom_pull_restraints();
 
       bool pr_chi_sqds = false; // print inital chi squareds
@@ -441,13 +464,15 @@ graphics_info_t::refinement_loop_threaded() {
 	 }
       }
       graphics_info_t::threaded_refinement_loop_counter++;
-      // std::cout << "threaded_refinement_loop_counter "
-      // << graphics_info_t::threaded_refinement_loop_counter << std::endl;
-      // std::cout << "refinement_loop_threaded(): done minimize() round" << std::endl;
+
+      if (false)
+	 std::cout << "threaded_refinement_loop_counter "
+		   << threaded_refinement_loop_counter << std::endl;
    }
 
    // std::cout << "DEBUG:: refinement_loop_threaded() unlocking restraints_lock" << std::endl;
    release_restraints_lock(__FUNCTION__);
+   // std::cout << "debug:: refinement_loop_threaded() goodbye" << std::endl;
 
    // when this function exits, the (detached) thread in which it's running ends
 }
@@ -460,22 +485,22 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // get called several times when the refine loop ends
    // (with success?).
 
-   if (graphics_info_t::restraints_lock) {
+   if (restraints_lock) {
       // std::cout << "thread_for_refinement_loop_threaded() restraints locked " << std::endl;
       return;
    } else {
 
       if (use_graphics_interface_flag) {
 
-         if (!graphics_info_t::refinement_immediate_replacement_flag) {
+         if (!refinement_immediate_replacement_flag) {
 
             // if there's not a refinement redraw function already running start up a new one.
-            if (graphics_info_t::threaded_refinement_redraw_timeout_fn_id == -1) {
+            if (threaded_refinement_redraw_timeout_fn_id == -1) {
 
 	       int id = gtk_timeout_add(15,
 			       (GtkFunction)(regenerate_intermediate_atoms_bonds_timeout_function_and_draw),
                                NULL);
-               graphics_info_t::threaded_refinement_redraw_timeout_fn_id = id;
+               threaded_refinement_redraw_timeout_fn_id = id;
             }
          }
       }
@@ -642,7 +667,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
       if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
 	 std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
                    << std::endl;
-	 g.clear_up_moving_atoms(); // deletes last_restraints
+	 g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
 	 g.clear_moving_atoms_object();
       }
 
@@ -1414,12 +1439,13 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
                   double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
                   double esd = 0.05;
 
-                  double b = (res.target_dist*res.target_dist - d_sqd)/esd * 0.001;
+                  double b = 0.005 * (res.target_dist*res.target_dist - d_sqd)/esd;
                   if (b >  0.4999) b =  0.4999;
                   if (b < -0.4999) b = -0.4999;
                   double b_green = b;
                   if (b > 0) b_green *= 0.2;
-                  glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
+		  // std::cout << "b " << b << " b_green " << b_green << std::endl;
+                  glColor3d(0.5-b, 0.5+b_green*0.9, 0.5-b);
 
                   glVertex3f(res.first.x(), res.first.y(), res.first.z());
                   glVertex3f(res.second.x(), res.second.y(), res.second.z());

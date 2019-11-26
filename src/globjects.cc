@@ -2703,10 +2703,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       // poke a value into the threaded refinement loop, to stop
       if (graphics_info_t::continue_threaded_refinement_loop) {
-	 graphics_info_t::continue_threaded_refinement_loop = false;
 	 // and tell it to clear up the moving atoms
-	 std::cout << ".... Esc key tells refinement to clean up" << std::endl;
 	 graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+	 std::cout << ".... Esc key tells refinement to clean up" << std::endl;
+	 graphics_info_t::continue_threaded_refinement_loop = false;
       } else {
 
 	 // refinement was not running. we can clear up the atoms ourselves

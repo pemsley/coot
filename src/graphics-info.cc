@@ -1761,7 +1761,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 
 
 void
-graphics_info_t::clear_up_moving_atoms() { 
+graphics_info_t::clear_up_moving_atoms() {
 
    // Note to self: why don't I do a delete moving_atoms_asc somewhere here?
    // Where does the moving_atoms_asc->mol go?
@@ -1783,6 +1783,9 @@ graphics_info_t::clear_up_moving_atoms() {
    // it seems that the test is always true and we never enter the while loop
    // and wait - even if restraints_lock is true when we start.
 
+   // is this useful?
+   // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
    get_restraints_lock(__FUNCTION__);
 
    // We must not delete the moving atoms if they are being used to manipulate pull restraints
@@ -1790,7 +1793,7 @@ graphics_info_t::clear_up_moving_atoms() {
    bool unlocked_atoms = false;
    while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, true) && !unlocked_atoms) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      unlocked_atoms = 0;
+      unlocked_atoms = false;
    }
 
    continue_update_refinement_atoms_flag = false;
@@ -1835,7 +1838,6 @@ graphics_info_t::clear_up_moving_atoms() {
 
    if (last_restraints) {
       last_restraints->clear();
-      std::cout << "DEBUG:: ------ clear_up_moving_atoms() - delete last_restraints ---" << std::endl;
       delete last_restraints;
       last_restraints = 0;
       unset_moving_atoms_currently_dragged_atom_index();
@@ -1847,7 +1849,7 @@ graphics_info_t::clear_up_moving_atoms() {
 
 
    moving_atoms_lock  = false;
-   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms();
+   graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
 
 }
 
@@ -5109,6 +5111,8 @@ graphics_info_t::draw_atom_pull_restraint() {
 void
 graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
 
+   std::cout << "debug:: in clear_all_atom_pull_restraints() " << refine_again_flag << std::endl;
+
    all_atom_pulls_off();
    if (last_restraints) {
       last_restraints->clear_all_atom_pull_restraints();
@@ -5120,6 +5124,7 @@ graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
 // this is not static
 void
 graphics_info_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag) {
+
    if (last_restraints) {
       last_restraints->clear_atom_pull_restraint(spec);
       atom_pull_off(spec);

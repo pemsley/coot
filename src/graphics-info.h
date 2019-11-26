@@ -866,7 +866,6 @@ class graphics_info_t {
    static void release_restraints_lock(const std::string &calling_function_name);
    static std::string restraints_locking_function_name; //  static because it is set by above
 
-
    // 201803004:
    // refinement now uses references to Xmaps.
    // A dummy_map is created and a reference to that is created. Then
@@ -1649,6 +1648,8 @@ public:
    // file filter should be on?
    static short int sticky_file_filter;
    
+   void stop_refinement_internal();
+
    // 
    void show_refine_params_dialog(); // not used for map selection now.
    void show_select_map_dialog();
