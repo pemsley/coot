@@ -107,6 +107,7 @@ void curlew() {
    if (vbox) {
       std::string download_dir = "coot-download"; // FIXME
       std::string dl_fn = download_dir + "/info.json";
+      make_directory_maybe(download_dir.c_str());
 
       // not https, that transfers nothing
       // (probably a curl configuration thing)
