@@ -3660,6 +3660,7 @@ public:
 
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
+   static bool residue_type_selection_was_user_picked_residue_range;
 
    // --- electrostatic charnge range scale (typically 0.5)
    static float electrostatic_surface_charge_range;

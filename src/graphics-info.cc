@@ -1951,11 +1951,19 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 	        << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
                 << std::endl;
 
+   bool do_ca_mode = false;
+
    if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS ||
        molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR ||
-       molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
+       molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)
+      do_ca_mode = true;
+
+   if (residue_type_selection_was_user_picked_residue_range)
+      do_ca_mode = false;
+
+   if (do_ca_mode) {
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
 
@@ -2090,7 +2098,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	 // now we want to draw out our bonds in white, 
 	 glColor3f (0.8, 0.8, 0.6);
       } else {
-	 glColor3f (0.4, 0.4, 0.4);
+	 glColor3f (0.3, 0.3, 0.3);
       }
 
       float bw = graphics_info_t::bond_thickness_intermediate_atoms;

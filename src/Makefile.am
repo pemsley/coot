@@ -444,9 +444,10 @@ coot_bin_SOURCES = \
 	graphics-info-pick.cc	 \
 	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
-	graphics-info-residues.cc	 \
+	graphics-info-residues.cc	\
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
+	graphics-info-statics.cc \
 	graphics-info-superpose.cc	\
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \

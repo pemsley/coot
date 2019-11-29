@@ -1449,6 +1449,7 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
+      g.residue_type_selection_was_user_picked_residue_range = false;
       coot::refinement_results_t rr =
 	 refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
       rv = g.refinement_results_to_scm(rr);
@@ -1489,6 +1490,7 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM res_spec_scm, const char
 	 if (residues.size() > 0) {
 	    graphics_info_t g;
 	    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	    g.residue_type_selection_was_user_picked_residue_range = false;
 	    coot::refinement_results_t rr =
 	       g.regularize_residues_vec(imol, residues, alt_conf, mol);
             g.conditionally_wait_for_refinement_to_finish();
@@ -1596,6 +1598,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 // 		// rv = g.refinement_results_to_py(rr);
 	     } else {
 		// normal
+		g.residue_type_selection_was_user_picked_residue_range = false;
 		coot::refinement_results_t rr =
 		   g.refine_residues_vec(imol, residues, alt_conf, mol);
 		rv = g.refinement_results_to_py(rr);
