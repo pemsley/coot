@@ -308,7 +308,15 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 	         // if we can find the key and the neighb is in the vector (set) of
 	         // residues to whicih this residue is already linked.
 
-				if (neighb->chain != residue_p->chain) continue;
+		 if (neighb->chain != residue_p->chain) continue;
+
+		 // this kills links for insertion codes, but also kills links
+		 // across gaps (this is the feature that we want).
+		 //
+		 int rn_1 = neighb->GetSeqNum();
+		 int rn_2 = residue_p->GetSeqNum();
+		 int rn_delta = abs(rn_2 - rn_1);
+		 if (rn_delta != 1) continue;
 
 	         std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
 	         itm = residue_link_vector_map_p->find(residue_p);
@@ -338,25 +346,25 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 			                << residue_spec_t(pair_2.second) << " fixed: " << pair_2.first << "  "
 			                << std::endl;
 
-            std::pair<bool, link_restraints_counts> link_result =
-		         try_make_peptide_link_ng(geom,
-					   pair_1,
-					   pair_2,
-					   do_rama_plot_restraints,
-					   do_trans_peptide_restraints);
+		 std::pair<bool, link_restraints_counts> link_result =
+		    try_make_peptide_link_ng(geom,
+					     pair_1,
+					     pair_2,
+					     do_rama_plot_restraints,
+					     do_trans_peptide_restraints);
 
-	       if (! link_result.first)
-		       link_result = try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
+		 if (! link_result.first)
+		    link_result = try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
 
-	       if (link_result.first) {
-		       flank_restraints.add(link_result.second);
-		       (*residue_link_vector_map_p)[residue_p].push_back(neighb);
-		       (*residue_link_vector_map_p)[neighb   ].push_back(residue_p);
+		 if (link_result.first) {
+		    flank_restraints.add(link_result.second);
+		    (*residue_link_vector_map_p)[residue_p].push_back(neighb);
+		    (*residue_link_vector_map_p)[neighb   ].push_back(residue_p);
 
-		       std::pair<mmdb::Residue *, mmdb::Residue *> p1(residue_p, neighb);
-		       std::pair<mmdb::Residue *, mmdb::Residue *> p2(neighb, residue_p);
-		       residue_pair_link_set_p->insert(p1);
-		       residue_pair_link_set_p->insert(p2);
+		    std::pair<mmdb::Residue *, mmdb::Residue *> p1(residue_p, neighb);
+		    std::pair<mmdb::Residue *, mmdb::Residue *> p2(neighb, residue_p);
+		    residue_pair_link_set_p->insert(p1);
+		    residue_pair_link_set_p->insert(p2);
 	       }
 	    }
 	 }

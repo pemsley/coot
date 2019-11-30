@@ -23,6 +23,9 @@
 #define INCLUDE_STATS_HH
 
 #include <vector>
+#include <utility>
+#include <algorithm>
+
 #include <math.h>
 
 #include <gsl/gsl_sf_erf.h>
@@ -129,6 +132,25 @@ namespace coot {
 	       }
 	    }
 	    return k;
+	 }
+
+	 std::pair<double, double> median_and_iqr() const {
+
+	    std::vector<double> vv = v;
+	    std::sort(vv.begin(), vv.end());
+	    int n = vv.size();
+
+	    int idx_q1 = static_cast<int>(0.25 * static_cast<double>(n));
+	    int idx_q2 = static_cast<int>(0.50 * static_cast<double>(n));
+	    int idx_q3 = static_cast<int>(0.75 * static_cast<double>(n));
+	    double iqr = vv[idx_q3] - vv[idx_q1];
+	    double m = vv[idx_q2];
+	    if (n%2 == 0) {
+	       int idx_q2a = idx_q2 + 1;
+	       if (idx_q2a < n)
+		  m = (m + vv[idx_q2a]) * 0.5;
+	    }
+	    return std::pair<double, double> (m,iqr);
 	 }
       };
 
