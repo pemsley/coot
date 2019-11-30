@@ -109,6 +109,7 @@ void refine_zone(int imol, const char *chain_id,
 		 const char *altconf) {
 
    graphics_info_t g;
+   g.residue_type_selection_was_user_picked_residue_range = false;
    if (is_valid_model_molecule(imol)) {
       mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
       mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");

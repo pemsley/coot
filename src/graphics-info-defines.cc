@@ -359,6 +359,8 @@ graphics_info_t::check_if_in_refine_define(GdkEventButton *event) {
 						   // mouse behaviour (we
 						   // don't want to rotate
 						   // the atoms)
+
+	       residue_type_selection_was_user_picked_residue_range = true;
 	       refine(residue_range_mol_no,
 		      auto_range_flag,
 		      residue_range_atom_index_1,

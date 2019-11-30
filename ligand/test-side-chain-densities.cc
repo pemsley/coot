@@ -179,7 +179,7 @@ void test_sequence(int n_steps, float grid_box_radius,
    coot::fasta_multi fam(sequence_file_name);
    if (fam.size() > 0) {
       std::string sequence = fam[0].sequence;
-      std::cout << "test this sequence " << sequence << std::endl;
+      std::cout << "Input Sequence:\n" << sequence << std::endl;
       try {
          clipper::CCP4MAPfile file;
          file.open_read(map_file_name);
