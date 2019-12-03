@@ -18,7 +18,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 
 	    // wait until you get the lock
 	    bool unlocked = false;
-	    while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
 	       std::this_thread::sleep_for(std::chrono::nanoseconds(10));
 	       unlocked = false;
 	    }
@@ -65,7 +65,7 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 #ifdef HAVE_CXX_THREAD
    // wait until you get the lock
    bool unlocked = false;
-   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       // std::cout << "waiting in add_target_position_restraint()" << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       unlocked = false;
@@ -111,7 +111,7 @@ void
 coot::restraints_container_t::clear_all_atom_pull_restraints() {
 
    bool unlocked = false;
-   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::this_thread::sleep_for(std::chrono::nanoseconds(100));
       unlocked = false;
    }
@@ -276,7 +276,7 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    // we don't want to do this at the same time as clear_all_atom_pull_retraints
 
    bool unlocked = false;
-   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::this_thread::sleep_for(std::chrono::nanoseconds(100));
       unlocked = false;
    }
@@ -294,6 +294,8 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
 	 }
       }
    }
+
+   // no need to remove the pull restraint! Just turn it off.
 
    // now do the remove
    restraints_vec.erase(std::remove_if(restraints_vec.begin(),

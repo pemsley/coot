@@ -408,7 +408,7 @@ coot::restraints_container_t::geometric_distortions() {
       // evaluation
 
       bool unlocked = false;
-      while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }
