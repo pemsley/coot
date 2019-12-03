@@ -3252,6 +3252,9 @@ void add_omega_torsion_restriants();
 /*! \brief remove omega restraints on CIS and TRANS linked residues. */
 void remove_omega_torsion_restriants(); 
 
+/*! \brief add or remove auto H-bond restraints */
+void set_auto_h_bond_restraints(int state);
+
 /*! \brief set immediate replacement mode for refinement and
   regularization.  You need this (call with istate=1) if you are
   scripting refinement/regularization  */

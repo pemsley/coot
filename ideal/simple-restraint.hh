@@ -1636,6 +1636,7 @@ namespace coot {
       void make_strand_pseudo_bond_restraints();
       void make_helix_pseudo_bond_restraints_from_res_vec();
       void make_helix_pseudo_bond_restraints_from_res_vec_auto();
+      void make_h_bond_restraints_from_res_vec_auto(const protein_geometry &geom);
 
       bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
 
@@ -2271,6 +2272,7 @@ namespace coot {
 			  bool do_rama_plot_retraints,
 			  bool do_auto_helix_restraints,
 			  bool do_auto_strand_restraints,
+			  bool do_auto_h_bond_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
@@ -2284,6 +2286,7 @@ namespace coot {
 			  bool do_rama_plot_retraints,
 			  bool do_auto_helix_restraints,
 			  bool do_auto_strand_restraints,
+			  bool do_auto_h_bond_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);

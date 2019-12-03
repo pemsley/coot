@@ -2676,6 +2676,7 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_rama_plot_restraints,
 					      bool do_auto_helix_restraints,
 					      bool do_auto_strand_restraints,
+					      bool do_auto_h_bond_restraints,
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 					      bool do_link_restraints,
 					      bool do_flank_restraints) {
@@ -2685,6 +2686,7 @@ coot::restraints_container_t::make_restraints(int imol,
    make_restraints_ng(imol, geom, flags_in, do_residue_internal_torsions, do_trans_peptide_restraints,
 		      rama_plot_target_weight, do_rama_plot_restraints,
 		      do_auto_helix_restraints, do_auto_strand_restraints,
+                      do_auto_helix_restraints,
 		      sec_struct_pseudo_bonds, do_link_restraints, do_flank_restraints);
 
    return size();
@@ -3594,6 +3596,66 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
       }
    }
    mol->DeleteSelection(selHnd);
+}
+
+#include "coot-utils/coot-h-bonds.hh"
+
+void
+coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coot::protein_geometry &geom) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   int SelHnd = mol->NewSelection(); // d
+   h_bonds hbs;
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   for(unsigned int i=0; i<residues_vec.size(); i++) {
+      mmdb::Residue *r = residues_vec[i].second;
+      residue_spec_t(r).select_atoms(mol, SelHnd, mmdb::SKEY_OR);
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   std::vector<h_bond> v = hbs.get(SelHnd, SelHnd, mol, geom);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+
+   unsigned int n_bonds = 0;
+
+   for (unsigned int i=0; i<v.size(); i++) {
+      const h_bond &hb = v[i];
+      if (hb.donor) {
+         if (hb.acceptor) {
+            clipper::Coord_orth b(co(hb.donor) - co(hb.acceptor));
+
+            int index_1 = -1, index_2 = -1;
+            int udd_get_data_status_1 = hb.donor->GetUDData(   udd_atom_index_handle, index_1);
+            int udd_get_data_status_2 = hb.acceptor->GetUDData(udd_atom_index_handle, index_2);
+
+
+            if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
+                udd_get_data_status_2 == mmdb::UDDATA_Ok) {
+
+               std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+               add(BOND_RESTRAINT, index_1, index_2,
+                   fixed_flags,
+                   sqrt(b.lengthsq()), 0.1,
+                   1.2);  // junk value
+
+               add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
+                                          sqrt(b.lengthsq()), 0.1);
+                                          
+               n_bonds++;
+            }
+         }
+      }
+   }
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
+             <<  " milliseconds to find " << v.size() << " H-bonds " << std::endl;
+   std::cout << "DEBUG:: made " << n_bonds << " hydrogen bonds " << std::endl;
+
+   mol->DeleteSelection(SelHnd);
+
 }
 
 
@@ -7217,7 +7279,7 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 bool do_internal_torsions = true;
 	 bool do_trans_peptide_restraints = true;
 	 restraints.make_restraints(imol, geom, flags, do_internal_torsions,
-				    do_trans_peptide_restraints, 0, 0, true, true, pseudos);
+				    do_trans_peptide_restraints, 0, 0, true, true, false, pseudos);
 	 restraints.minimize(flags, 3000, 1);
       }
    }

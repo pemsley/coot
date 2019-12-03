@@ -13,6 +13,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 						 bool do_rama_plot_restraints,
 						 bool do_auto_helix_restraints,
 						 bool do_auto_strand_restraints,
+						 bool do_auto_h_bond_restraints,
 						 coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 						 bool do_link_restraints,
 						 bool do_flank_restraints) {
@@ -133,6 +134,9 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
       if (do_auto_helix_restraints)
 	      make_helix_pseudo_bond_restraints_from_res_vec_auto();
+
+		if (do_auto_h_bond_restraints)
+          make_h_bond_restraints_from_res_vec_auto(geom);
 
       make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
@@ -316,7 +320,13 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 		 int rn_1 = neighb->GetSeqNum();
 		 int rn_2 = residue_p->GetSeqNum();
 		 int rn_delta = abs(rn_2 - rn_1);
-		 if (rn_delta != 1) continue;
+		 if (rn_delta != 1) {
+          std::string ins_1(residue_p->GetInsCode());
+          std::string ins_2(neighb->GetInsCode());
+			 if (ins_1.empty())
+			    if (ins_2.empty())
+                continue;
+		 }
 
 	         std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
 	         itm = residue_link_vector_map_p->find(residue_p);

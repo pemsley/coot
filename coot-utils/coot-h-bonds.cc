@@ -92,12 +92,22 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
    int n_contacts;
    long i_contact_group = 1;
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    mol->SeekContacts(sel_1_atoms, n_sel_1_atoms,
 		     sel_2_atoms, n_sel_2_atoms,
 		     min_dist, max_dist,
 		     0, // seqDist 0 -> also in same res.
 		     pscontact, n_contacts,
 		     0, &my_matt, i_contact_group);
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+
+   // small
+   // std::cout << "------------------- timing: " << d10 <<  " milliseconds for SeekContacts "
+   //            << std::endl;
 
    std::cout << "h_bonds:: get(): found n_contacts between atom selections: " << n_contacts << std::endl;
 
@@ -115,24 +125,20 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 	    at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	    at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-	    bool match = 0;
-	    bool swap = 0;
-	    bool ligand_atom_is_donor = 1;
+	    bool match = false;
+	    bool swap = false;
+	    bool ligand_atom_is_donor = true;
 
-	    if ((hb_type_1 == coot::HB_DONOR ||
-		 hb_type_1 == coot::HB_BOTH) &&
-		(hb_type_2 == coot::HB_ACCEPTOR ||
-		 hb_type_2 == coot::HB_BOTH)) {
-	       match = 1;
+	    if ((hb_type_1 == coot::HB_DONOR || hb_type_1 == coot::HB_BOTH) &&
+           (hb_type_2 == coot::HB_ACCEPTOR || hb_type_2 == coot::HB_BOTH)) {
+             match = true;
 	    }
 
-	    if ((hb_type_1 == coot::HB_ACCEPTOR ||
-		 hb_type_1 == coot::HB_BOTH) &&
-		(hb_type_2 == coot::HB_DONOR ||
-		 hb_type_2 == coot::HB_BOTH)) {
-	       match = 1;
-	       swap = 1;
-	       ligand_atom_is_donor = 0;
+	    if ((hb_type_1 == coot::HB_ACCEPTOR || hb_type_1 == coot::HB_BOTH) &&
+           (hb_type_2 == coot::HB_DONOR || hb_type_2 == coot::HB_BOTH)) {
+           match = 1;
+           swap = 1;
+           ligand_atom_is_donor = 0;
 	    }
 
 	    if (0) { 
@@ -145,12 +151,13 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 
 	    if (match) {
 
-	       std::cout << "MATCH (pre-swap) H-bond donor acceptor match "
-			 << coot::atom_spec_t(at_1) << " " << at_1->GetResName() 
-			 << " to " << coot::atom_spec_t(at_2) << " " << at_2->GetResName() << "\n";
-	       
+          if (false)
+             std::cout << "MATCH (pre-swap) H-bond donor acceptor match "
+		                 << coot::atom_spec_t(at_1) << " " << at_1->GetResName()
+		                 << " to " << coot::atom_spec_t(at_2) << " " << at_2->GetResName() << "\n";
+
 	       if (swap) { 
-		  std::swap(at_1, at_2);
+             std::swap(at_1, at_2);
 	       }
 
 	       // donor first: xxx_1
@@ -164,11 +171,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 	       double angle_1_0 = -1; // assigned later
 	       double angle_2_0 = -1; // assigned later
 	       
-	       std::cout << "   #donor-neighbs: " << nm_1.size()
-			 << " #acceptor-neighbs: " << nm_2.size()
-			 << " res_type_1 " << res_type_1
-			 << " res_type_2 " << res_type_2
-			 << std::endl;
+	       // std::cout << "   #donor-neighbs: " << nm_1.size()
+			 // << " #acceptor-neighbs: " << nm_2.size()
+			 // << " res_type_1 " << res_type_1
+			 // << " res_type_2 " << res_type_2
+			 // << std::endl;
 	       
 	       if (((nm_1.size() > 0) || (res_type_1 == "HOH")) &&
 		   ((nm_2.size() > 0) || (res_type_2 == "HOH"))) {
@@ -274,11 +281,10 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 
    if (0) { 
       std::cout << "returning these h bonds: " << std::endl;
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 std::cout << "   " << i << "  " << v[i] << std::endl;
-      }
+      for (unsigned int i=0; i<v.size(); i++)
+         std::cout << "   " << i << "  " << v[i] << std::endl;
    }
-   
+
    return v;
 }
 

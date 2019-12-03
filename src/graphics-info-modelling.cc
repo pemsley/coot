@@ -1030,7 +1030,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       do_trans_peptide_restraints,
 						       rama_plot_restraint_weight,
 						       do_rama_restraints,
-						       true, true,
+						       true, true, make_auto_h_bond_restraints_flag,
 						       pseudo_bonds_type);
    // link and flank args default true
 
