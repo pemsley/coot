@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#include <chrono>
+
 #include "coot-h-bonds.hh"
 
 
