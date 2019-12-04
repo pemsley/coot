@@ -4992,7 +4992,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 	       std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
 							       moving_atoms_asc->n_selected_atoms);
 	       if (spec.first) {
-		  clipper::Coord_orth pt_start = coot::co(graphics_info_t::moving_atoms_asc->atom_selection[spec.second]);
+		  clipper::Coord_orth pt_start = coot::co(moving_atoms_asc->atom_selection[spec.second]);
 		  clipper::Coord_orth pt_end = atom_pull.pos;
 
 		  bool do_gl_lines = false;

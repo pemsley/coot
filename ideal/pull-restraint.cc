@@ -27,6 +27,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
             if (d2 < 0.0001)
                is_different = false;
 	    it->atom_pull_target_pos = pos;
+            it->is_closed = false; // if it had been closed before, it's active again
             if (is_different)
                needs_reset = true;
 	    restraints_lock = false; // unlocked
@@ -141,6 +142,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
 				  double scale_factor,
 				  const gsl_vector *v) {
 
+   if (rest.is_closed) return 0.0;
+
    // void *params, no longer passed
 
    // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
@@ -211,6 +214,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
    for (int i=0; i<restraints_size; i++) {
       const simple_restraint &rest = (*restraints_p)[i];
       if (rest.restraint_type == TARGET_POS_RESTRAINT) {
+         if (rest.is_closed) continue;
 	 double sigma = 0.03; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 
@@ -282,15 +286,17 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    }
    // set the return value:
    //
-   std::vector<simple_restraint>::const_iterator it;
+   std::vector<simple_restraint>::iterator it;
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 mmdb::Atom *at = atom[it->atom_index_1];
 	 if (atom_spec_t(at) != dragged_atom_spec) {
 	    clipper::Coord_orth pos(at->x, at->y, at->z);
 	    double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
-	    if (d < close_dist)
+	    if (d < close_dist) {
+               it->close();
 	       v.push_back(it->atom_spec);
+	    }
 	 }
       }
    }
@@ -298,10 +304,10 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    // no need to remove the pull restraint! Just turn it off.
 
    // now do the remove
-   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
-			restraints_vec.end());
+//    restraints_vec.erase(std::remove_if(restraints_vec.begin(),
+// 				       restraints_vec.end(),
+// 				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
+// 			restraints_vec.end());
 
    restraints_lock = false;
 
