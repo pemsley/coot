@@ -77,7 +77,7 @@ void remove_file_curlew_menu_item_maybe() {
    } else {
       std::cout << "WARNING:: remove_file_curlew_menu_item_maybe() ooops no menubar" << std::endl;
    }
-#endif // BUILD_CURLEW   
+#endif // BUILD_CURLEW
 }
 
 // put this in a widget header (maybe its own?)
@@ -132,7 +132,7 @@ void curlew() {
 	 }
       }
 
-      if (is_empty) {
+      if (! is_empty) {
 	 if (coot::file_exists(dl_fn)) {
 	    std::fstream f(dl_fn);
 	    if (f) {

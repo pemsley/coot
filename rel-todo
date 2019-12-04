@@ -3,6 +3,10 @@
 
    o Fix the representation of charges in the residue restraints notebook
 
+   o how about fixing the raster3d install? Make it dependent on having gfortran
+
+
+
    o Fix the H5' problem
 
 * Coot works - the dictionary is wrong.
