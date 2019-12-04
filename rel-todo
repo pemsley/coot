@@ -1,6 +1,12 @@
 
    For Release 0.8.9.3
 
+   o Fix the representation of charges in the residue restraints notebook
+
+   o Fix the H5' problem
+
+* Coot works - the dictionary is wrong.
+
    o add a function to set the window title (don't for get to check
      for use-graphics)
 
