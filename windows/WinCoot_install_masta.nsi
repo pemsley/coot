@@ -823,6 +823,7 @@ Section Uninstall
   RMDir "$INSTDIR\share\coot\data\rama\zo-tables"
   RMDir "$INSTDIR\share\coot\data\rama\zo-tables"
   RMDir "$INSTDIR\share\coot\data\rama"
+  RMDir "$INSTDIR\share\coot\data"
   RMDir "$INSTDIR\share\coot"
   RMDir "$INSTDIR\share\guile\site"
   RMDir "$INSTDIR\share\guile\gui"
@@ -1164,14 +1165,14 @@ FunctionEnd
 Function FinishPagePreFunction
    ; first apply changes to wincoot.bat
    Var /GLOBAL GUILE_INST_DIR
-   ${WordReplace} "$INSTDIR" "\" "/" "+" $GUILE_INST_DIR
+;   ${WordReplace} "$INSTDIR" "\" "/" "+" $GUILE_INST_DIR
    !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\wincoot.bat.tmp"
-   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\wincoot.bat.tmp"
+;   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\wincoot.bat.tmp"
    ;we want to change more for Vista (and possibly for Windows 7 too FIXME!)
    ; Maybe not too much any more... (since graphics card issue)
    ${If} ${AtLeastWinVista}
        ; change to run on 1 core only (to enable compositing!)
-       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\wincoot.bat.tmp"
+       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /wait /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\wincoot.bat.tmp"
      ${EndIf}
 
    ; if we have an old bat file
@@ -1230,9 +1231,9 @@ ${If} $update = 0
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
   SetOutPath "$STARTDIR"
-  CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico"
+  CreateShortCut "$QUICKLAUNCH\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico" 0 SW_SHOWMINIMIZED
+  CreateShortCut "$DESKTOP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico" 0 SW_SHOWMINIMIZED
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\WinCoot.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\wincoot.bat"' "$INSTDIR\bin\coot-icon.ico" 0 SW_SHOWMINIMIZED
   Sleep 10
   SetOutPath "$INSTDIR"
   CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\DynaRama.lnk" "$SYSDIR\cmd.exe" '/c "$INSTDIR\bin\dynarama.bat"' "$INSTDIR\bin\rama_all.ico"
