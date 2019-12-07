@@ -444,8 +444,6 @@ graphics_info_t::refinement_loop_threaded() {
       // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
       coot::refinement_results_t rr = g.last_restraints->minimize(imol_moving_atoms, flags,
 								  spf, pr_chi_sqds, *Geom_p());
-      // std::cout << "refinement_loop_threaded() minimize() returned" << std::endl;
-
       graphics_info_t::saved_dragged_refinement_results = rr;
 
       if (rr.progress == GSL_SUCCESS) {
@@ -463,6 +461,7 @@ graphics_info_t::refinement_loop_threaded() {
 	    }
 	 }
       }
+
       graphics_info_t::threaded_refinement_loop_counter++;
 
       if (false)
@@ -486,7 +485,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // (with success?).
 
    if (restraints_lock) {
-      // std::cout << "thread_for_refinement_loop_threaded() restraints locked " << std::endl;
+      std::cout << "debug:: thread_for_refinement_loop_threaded() restraints locked by " << restraints_locking_function_name
+                << std::endl;
       return;
    } else {
 
@@ -525,7 +525,8 @@ graphics_info_t::conditionally_wait_for_refinement_to_finish() {
    if (refinement_immediate_replacement_flag || !use_graphics_interface_flag) {
       while (restraints_lock) {
          // this is the main thread - it better be! :-)
-	 // std::cout << "conditionally_wait_for_refinement_to_finish()\n";
+	 // std::cout << "conditionally_wait_for_refinement_to_finish() "
+         //           << restraints_locking_function_name << std::endl;
          std::this_thread::sleep_for(std::chrono::milliseconds(30));
       }
    }
@@ -1020,7 +1021,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    if (n_threads > 0)
       last_restraints->thread_pool(&static_thread_pool, n_threads);
 
-   if (true)
+   if (false)
       std::cout << "---------- debug:: in generate_molecule_and_refine() "
 		<< " calling restraints.make_restraints() with imol "
 		<< imol_moving_atoms << " "
@@ -1078,8 +1079,10 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
       if (refinement_immediate_replacement_flag) {
 	 // wait until refinement finishes
-	 while (restraints_lock)
-	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	 while (restraints_lock) {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::cout << "restrainst locked by " << restraints_locking_function_name << std::endl;
+         }
       }
 
    } else {
@@ -2366,7 +2369,7 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_like_flag) {
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: ================ refine_residue_range: "
 		<< imol << " " << chain_id_1
 		<< " " <<  resno_1 << ":" << ins_code_1 << ":"

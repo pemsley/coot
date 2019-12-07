@@ -1189,7 +1189,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 
    short int print_chi_sq_flag = 1;
    refinement_results_t rr = minimize(usage_flags, 1000, print_chi_sq_flag);
-   // std::cout << "minimize() returns " << rr.progress << std::endl;
+   // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
    return rr;
 
 }
@@ -1317,6 +1317,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
 
+   // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
+
    return rr;
 }
 
@@ -1421,7 +1423,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 			    << " pnorm " << pnorm << " g0norm " << g0norm << "\n";
 
 	       // write out gradients here - with numerical gradients for comparison
-
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
 	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
@@ -1442,6 +1443,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
                // useful - but not for everyone
                // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
+            restraints_lock = false;
 	    break;
 	 }
 
@@ -1474,8 +1476,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));
 
-   // std::cout << "Debug:: post loop status is " << status << std::endl;
-
    if (! done_final_chi_squares) {
       if (status != GSL_CONTINUE) {
 	 lights = chi_squareds("Final Estimated RMS Z Scores:", m_s->x);
@@ -1493,23 +1493,24 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       std::cout << "Hit nsteps_max " << nsteps_max << " " << m_s->f << std::endl;
 
    update_atoms(m_s->x); // do OXT here
+   // std::cout << "After update atoms " << std::endl;
 
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
 
-   if (status != GSL_CONTINUE) {
+   // std::cout << "After rr" << std::endl;
 
-#ifdef HAVE_CXX_THREAD
+   if (status != GSL_CONTINUE) {
 
       // protection so that clearing of the vectors doesn't coincide with geometric_distortions()
       // evaluation
 
       bool unlocked = false;
       while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+         // std::cout << "debug:: in minimize_inner() waiting for restraints_lock" << std::endl;
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
-	 }
-#endif
+      }
 
       std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
       gsl_multimin_fdfminimizer_free(m_s);
@@ -1517,16 +1518,18 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       m_s = 0;
       x = 0;
       needs_reset = true;
-#ifdef HAVE_CXX_THREAD
+
+      // std::cout << "debug:: unlocking restraints in minimize_inner()"  << std::endl;
       restraints_lock = false; // unlock
-#endif
    }
 
    // the bottom line from the timing test is the only thing that matters
    // is the time spend in the core minimization iterations
 
-   // std::cout << "-------------- Finally returning from minimize_inner() with rr with status "
-   //           << rr.progress << std::endl;
+   if (false)
+      std::cout << "-------------- Finally returning from minimize_inner() with rr with status "
+                << rr.progress << std::endl;
+
    n_refiners_refining--;
    return rr;
 }

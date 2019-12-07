@@ -393,7 +393,7 @@ coot::process_dfs_bond(const coot::simple_restraint &restraint,
 
    double weight = 1.0/(restraint.sigma * restraint.sigma);
 
-   double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+   double constant_part = 2.0*weight * (1.0 - target_val * f_inv_fsqrt(b_i_sqrd));
 
    double x_k_contrib = constant_part*(a1.x()-a2.x());
    double y_k_contrib = constant_part*(a1.y()-a2.y());
@@ -402,6 +402,11 @@ coot::process_dfs_bond(const coot::simple_restraint &restraint,
    double x_l_contrib = constant_part*(a2.x()-a1.x());
    double y_l_contrib = constant_part*(a2.y()-a1.y());
    double z_l_contrib = constant_part*(a2.z()-a1.z());
+
+#if 0 // debugging
+   std::this_thread::sleep_for(std::chrono::microseconds(100));
+   std::cout << "derivs " << x_k_contrib << " " << y_k_contrib << " " << z_k_contrib <<  " " << x_l_contrib << " " << y_l_contrib << " " << z_l_contrib << std::endl;
+#endif
 
    if (! restraint.fixed_atom_flags[0]) {
       results[idx_1  ] += x_k_contrib;
@@ -472,7 +477,7 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
    }
    if (b < 0.01) {
       b = 0.01;
-      b_vec = clipper::Coord_orth(0.01, 0.01, 0.01);
+      b_vec = clipper::Coord_orth(0.01, 0.01, -0.01);
    }
 	    
    double l_over_a_sqd = 1.0/(a*a);
