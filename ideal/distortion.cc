@@ -409,7 +409,7 @@ coot::restraints_container_t::geometric_distortions() {
       // evaluation
 
       bool unlocked = false;
-      while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }
@@ -1217,18 +1217,23 @@ double
 coot::distortion_score_bond(const coot::simple_restraint &bond_restraint,
 			    const gsl_vector *v) {
 
-   int idx = 3*(bond_restraint.atom_index_1 - 0); 
+   int idx = 3*bond_restraint.atom_index_1;
    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(bond_restraint.atom_index_2 - 0); 
+   idx = 3*bond_restraint.atom_index_2;
    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
    
    double weight = 1.0/(bond_restraint.sigma * bond_restraint.sigma);
-   double bit = (clipper::Coord_orth::length(a1,a2) - bond_restraint.target_value);
-   
+
+   double b_i_sqrd = (a1-a2).lengthsq();
+   b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
+   double bit = sqrt(b_i_sqrd) - bond_restraint.target_value;
+
+   // std::cout << "distortion_score_bond " << weight * bit * bit << std::endl;
+
    return weight * bit *bit;
 }
 
@@ -1296,16 +1301,16 @@ coot::distortion_score_angle(const coot::simple_restraint &angle_restraint,
    } 
    if (len2 < 0.01) {
       len2 = 0.01;
-      d2 = clipper::Coord_orth(0.01, 0.01, 0.01);
+      d2 = clipper::Coord_orth(0.01, 0.01, -0.01);
    } 
 
    double cos_theta = clipper::Coord_orth::dot(d1,d2)/(len1*len2);
-   if (cos_theta < -1) cos_theta = -1.0;
-   if (cos_theta >  1) cos_theta =  1.0;
+   if (cos_theta < -1.0) cos_theta = -1.0;
+   if (cos_theta >  1.0) cos_theta =  1.0;
    double theta = acos(cos_theta);
    double bit = clipper::Util::rad2d(theta) - angle_restraint.target_value;
    double weight = 1.0/(angle_restraint.sigma * angle_restraint.sigma);
-   if (0)
+   if (false)
       std::cout << "actual: " << clipper::Util::rad2d(theta)
 		<< " cos_theta " << cos_theta
 		<< " target: "

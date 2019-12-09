@@ -3,7 +3,7 @@ title WinCoot
 
 
 set COOT_PREFIX=yourWinCootdirectory
-set COOT_GUILE_PREFIX=yourWinCootdirectoryGUILE
+set COOT_GUILE_PREFIX=%COOT_PREFIX:\=/%
 
 set COOT_HOME=%COOT_PREFIX%
 set COOT_BACKUP_DIR=%COOT_PREFIX%\coot-backup

@@ -26,6 +26,8 @@ check up to dateness of supplied manuals
 
 Windows bat use %~dp0 to replace coot prefix and fiddling with installer files
 
+Windows bat use %~dp0 to replace coot prefix and fiddling with installer files
+
 refinement selection with insertion code not working
 
 Fix installer guile warning for windows feel.

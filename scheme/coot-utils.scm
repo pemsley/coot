@@ -2542,10 +2542,9 @@
 
 		      (format #t "debug:: ------ chain ids : ~s ~s~%" new-chain-id chain-id-in)
 		      (if (not (string=? new-chain-id chain-id-in))
-			  (begin
-			    (format #t "(imol new-chain-id chain-id-in 1 resno resno) ~s~%"
-				    (list imol new-chain-id chain-id-in 1 resno resno))
-			    (change-chain-id imol new-chain-id chain-id-in 1 resno resno)))
+			  (change-chain-id imol new-chain-id chain-id-in 1
+					   (residue-spec->res-no new-res-spec)
+					   (residue-spec->res-no new-res-spec)))
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))

@@ -804,7 +804,9 @@ coot::util::extension_is_for_coords(const std::string &ext) {
 
    bool r = false;
    if ((ext == ".pdb") ||
+       (ext == ".pdb.gz") ||
        (ext == ".ent") ||
+       (ext == ".ent.gz") ||
        (ext == ".PDB"))
       r = true;
    return r; 

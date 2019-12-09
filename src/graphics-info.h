@@ -3911,6 +3911,8 @@ string   static std::string sessionid;
    static bool is_within_display_radius(const coot::CartesianPair &p);
    static bool is_within_display_radius(const coot::Cartesian &p);
 
+   static bool make_auto_h_bond_restraints_flag;
+
    static bool cif_dictionary_file_selector_create_molecule_flag;
 
    static double geman_mcclure_alpha;

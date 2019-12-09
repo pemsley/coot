@@ -285,6 +285,7 @@ main(int argc, char *argv[]) {
          do_help = true;
          break;
 
+      // This is used to make background images
       case 'x':
          print_help(argv[0]);
          n_used_args++;

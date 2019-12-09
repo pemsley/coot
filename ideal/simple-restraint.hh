@@ -288,6 +288,7 @@ namespace coot {
 
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
+      bool is_closed; // so that we can "remove" restraints without deleting them
       // index and weight
       std::vector <std::pair<int, double> > plane_atom_index; // atom_index values can return negative (-1) for planes
       std::vector <std::pair<int, double> > atom_index_other_plane; // for the second plane in parallel planes
@@ -324,6 +325,7 @@ namespace coot {
       simple_restraint() {
 	 is_user_defined_restraint = 0;
 	 chiral_hydrogen_index = -1;
+         is_closed = true;
       }
 
       // Bond
@@ -621,6 +623,7 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
+         is_closed = false;
 
 	 if (rest_type != START_POS_RESTRAINT) { 
 	    std::cout << "ERROR:: START POS ERROR" << std::endl; 
@@ -635,10 +638,13 @@ namespace coot {
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
+         is_closed = false;
 	 if (rest_type != TARGET_POS_RESTRAINT) {
 	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
 	 }
       }
+
+      void close() { is_closed = true; }
 
       std::pair<bool, double> get_nbc_dist(const std::string &atom_1_type,
 					   const std::string &atom_2_type, 
@@ -1636,6 +1642,7 @@ namespace coot {
       void make_strand_pseudo_bond_restraints();
       void make_helix_pseudo_bond_restraints_from_res_vec();
       void make_helix_pseudo_bond_restraints_from_res_vec_auto();
+      void make_h_bond_restraints_from_res_vec_auto(const protein_geometry &geom);
 
       bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
 
@@ -2271,6 +2278,7 @@ namespace coot {
 			  bool do_rama_plot_retraints,
 			  bool do_auto_helix_restraints,
 			  bool do_auto_strand_restraints,
+			  bool do_auto_h_bond_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
@@ -2284,6 +2292,7 @@ namespace coot {
 			  bool do_rama_plot_retraints,
 			  bool do_auto_helix_restraints,
 			  bool do_auto_strand_restraints,
+			  bool do_auto_h_bond_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);

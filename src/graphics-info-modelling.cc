@@ -444,8 +444,6 @@ graphics_info_t::refinement_loop_threaded() {
       // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
       coot::refinement_results_t rr = g.last_restraints->minimize(imol_moving_atoms, flags,
 								  spf, pr_chi_sqds, *Geom_p());
-      // std::cout << "refinement_loop_threaded() minimize() returned" << std::endl;
-
       graphics_info_t::saved_dragged_refinement_results = rr;
 
       if (rr.progress == GSL_SUCCESS) {
@@ -463,6 +461,7 @@ graphics_info_t::refinement_loop_threaded() {
 	    }
 	 }
       }
+
       graphics_info_t::threaded_refinement_loop_counter++;
 
       if (false)
@@ -486,7 +485,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // (with success?).
 
    if (restraints_lock) {
-      // std::cout << "thread_for_refinement_loop_threaded() restraints locked " << std::endl;
+      std::cout << "debug:: thread_for_refinement_loop_threaded() restraints locked by " << restraints_locking_function_name
+                << std::endl;
       return;
    } else {
 
@@ -525,7 +525,8 @@ graphics_info_t::conditionally_wait_for_refinement_to_finish() {
    if (refinement_immediate_replacement_flag || !use_graphics_interface_flag) {
       while (restraints_lock) {
          // this is the main thread - it better be! :-)
-	 // std::cout << "conditionally_wait_for_refinement_to_finish()\n";
+	 // std::cout << "conditionally_wait_for_refinement_to_finish() "
+         //           << restraints_locking_function_name << std::endl;
          std::this_thread::sleep_for(std::chrono::milliseconds(30));
       }
    }
@@ -630,6 +631,11 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
          std::vector<coot::atom_spec_t> specs_for_removed_restraints =
 	    last_restraints->turn_off_atom_pull_restraints_when_close_to_target_position(except_dragged_atom);
          if (specs_for_removed_restraints.size()) {
+            if (true) {
+               for (unsigned int i=0; i<specs_for_removed_restraints.size(); i++) {
+                  std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i] << std::endl;
+               }
+            }
             unsigned int unlocked = false;
             while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
                  std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -1015,7 +1021,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    if (n_threads > 0)
       last_restraints->thread_pool(&static_thread_pool, n_threads);
 
-   if (true)
+   if (false)
       std::cout << "---------- debug:: in generate_molecule_and_refine() "
 		<< " calling restraints.make_restraints() with imol "
 		<< imol_moving_atoms << " "
@@ -1030,7 +1036,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       do_trans_peptide_restraints,
 						       rama_plot_restraint_weight,
 						       do_rama_restraints,
-						       true, true,
+						       true, true, make_auto_h_bond_restraints_flag,
 						       pseudo_bonds_type);
    // link and flank args default true
 
@@ -1073,8 +1079,10 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
       if (refinement_immediate_replacement_flag) {
 	 // wait until refinement finishes
-	 while (restraints_lock)
-	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	 while (restraints_lock) {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::cout << "restrainst locked by " << restraints_locking_function_name << std::endl;
+         }
       }
 
    } else {
@@ -2361,7 +2369,7 @@ graphics_info_t::refine_residue_range(int imol,
 				      const std::string &altconf,
 				      short int is_water_like_flag) {
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: ================ refine_residue_range: "
 		<< imol << " " << chain_id_1
 		<< " " <<  resno_1 << ":" << ins_code_1 << ":"

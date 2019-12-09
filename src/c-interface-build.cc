@@ -5952,3 +5952,12 @@ add_residue_with_atoms_py(int imol, PyObject *residue_spec_py, const std::string
 #endif // USE_PYTHON
 
 
+/*! \brief add or remove auto H-bond restraints */
+void set_auto_h_bond_restraints(int state) {
+
+   graphics_info_t g;
+   g.make_auto_h_bond_restraints_flag = state;
+
+}
+
+

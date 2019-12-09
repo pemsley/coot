@@ -3078,7 +3078,7 @@
 (define *solvent-ligand-list* 
   (append
    *additional-solvent-ligands*
-   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM" "PG4" "EBE" "BTB")))
+   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM" "PEG" "PG4" "PE8" "EBE" "BTB")))
 
 (define *random-jiggle-n-trials* 50)
 

@@ -106,7 +106,7 @@ int test_parallel_plane_restraints() {
 				 do_residue_internal_torsions,
 				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
-				 do_rama_restraints, false, false,
+				 do_rama_restraints, false, false, false,
 				 pseudos);
 
    std::string extra_restraints_file_name("test-base-pairing-extras-I-chain.txt");

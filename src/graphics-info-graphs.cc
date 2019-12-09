@@ -723,7 +723,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 						flags,
 						do_residue_internal_torsions,
 						do_trans_peptide_restraints,
-						0.0, 0, false, false,
+						0.0, 0, false, false, false,
 						pseudos);
 
 		  if (nrestraints > 0) {
