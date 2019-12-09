@@ -59,10 +59,10 @@ coot::fast_eigens(clipper::Matrix<double> &m, bool sort_eigenvalues) {
    float z[3];
 
    // Set evec to identity, eval & b to diagonal, z to 0.
-   for (p = 0; p < n; p++)
-      for (j = 0; q < n; q++)
-         evec(p,q) = 0.0;
-      
+   for (unsigned int i = 0; i < n; i++)
+      for (unsigned int j = 0; j < n; j++)
+         evec(i,j) = 0.0;
+
    for (p = 0; p < n; p++) {
       evec(p,p) = 1.0;
       eval[p] = b[p] = m(p,p);
