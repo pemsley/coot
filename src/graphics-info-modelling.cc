@@ -485,8 +485,8 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // (with success?).
 
    if (restraints_lock) {
-      std::cout << "debug:: thread_for_refinement_loop_threaded() restraints locked by " << restraints_locking_function_name
-                << std::endl;
+      std::cout << "debug:: thread_for_refinement_loop_threaded() restraints locked by "
+                << restraints_locking_function_name << std::endl;
       return;
    } else {
 
@@ -633,13 +633,14 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
          if (specs_for_removed_restraints.size()) {
             if (true) {
                for (unsigned int i=0; i<specs_for_removed_restraints.size(); i++) {
-                  std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i] << std::endl;
+                  std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i]
+                            << std::endl;
                }
             }
             unsigned int unlocked = false;
             while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
                  std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                 unlocked = 0;
+                 unlocked = false;
             }
 
 	    atom_pulls_off(specs_for_removed_restraints);
