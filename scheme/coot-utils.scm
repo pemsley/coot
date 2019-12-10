@@ -802,39 +802,39 @@
   (if (not (command-in-path-or-absolute? cmd))
       
       (begin 
-	(format #t "command ~s not found~%" cmd)
-	255)
+        (format #t "command ~s not found~%" cmd)
+        255)
 
       (let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
-	     (pid (car cmd-ports))
-	     (output-port (car (cdr cmd-ports)))
-	     (input-port  (cdr (cdr cmd-ports))))
-	
-	(let loop ((data-list data-list))
-	  (if (null? data-list)
-	      (begin 
-		(close input-port))
-	      
-	      (begin
-		(format input-port "~a~%" (car data-list))
-		(loop (cdr data-list)))))
-	
-	(call-with-output-file log-file-name
-	  (lambda (log-file-port)
-	    
-	    (let f ((obj (read-line output-port)))
-	      (if (eof-object? obj)
-		  (begin 
-		    (let* ((status-info (waitpid pid))
-			   (status (status:exit-val (cdr status-info))))
-		      ;; (format #t "exit status: ~s~%" status) silence
-		      status)) ; return status 
-		  
-		  (begin
-		    (if (eq? screen-output-also? #t)
-			(format #t ":~a~%" obj))
-		    (format log-file-port "~a~%" obj)
-		    (f (read-line output-port))))))))))
+             (pid (car cmd-ports))
+             (output-port (car (cdr cmd-ports)))
+             (input-port  (cdr (cdr cmd-ports))))
+
+        (let loop ((data-list data-list))
+          (if (null? data-list)
+              (begin
+                (close input-port))
+
+              (begin
+                (format input-port "~a~%" (car data-list))
+                (loop (cdr data-list)))))
+
+        (call-with-output-file log-file-name
+          (lambda (log-file-port)
+
+            (let f ((obj (read-line output-port)))
+              (if (eof-object? obj)
+                  (begin
+                    (let* ((status-info (waitpid pid))
+                           (status (status:exit-val (cdr status-info))))
+                      ;; (format #t "exit status: ~s~%" status) silence
+                      status)) ; return status
+
+                  (begin
+                    (if (eq? screen-output-also? #t)
+                        (format #t ":~a~%" obj))
+                    (format log-file-port "~a~%" obj)
+                    (f (read-line output-port))))))))))
 
 (define (ok-goosh-status? status)
 
