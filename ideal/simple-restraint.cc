@@ -2686,10 +2686,12 @@ coot::restraints_container_t::make_restraints(int imol,
 
 
 #if 1
+
    make_restraints_ng(imol, geom, flags_in, do_residue_internal_torsions, do_trans_peptide_restraints,
 		      rama_plot_target_weight, do_rama_plot_restraints,
-		      do_auto_helix_restraints, do_auto_strand_restraints,
-                      do_auto_helix_restraints,
+		      do_auto_helix_restraints,
+                      do_auto_strand_restraints,
+                      do_auto_h_bond_restraints,
 		      sec_struct_pseudo_bonds, do_link_restraints, do_flank_restraints);
 
    return size();

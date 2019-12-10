@@ -133,21 +133,20 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	      make_strand_pseudo_bond_restraints();
 
       if (do_auto_helix_restraints)
-	      make_helix_pseudo_bond_restraints_from_res_vec_auto();
+         make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
-      // if (do_auto_h_bond_restraints)
-      // make_h_bond_restraints_from_res_vec_auto(geom);
+      if (do_auto_h_bond_restraints)
+         make_h_bond_restraints_from_res_vec_auto(geom);
 
       make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
 
-      std::cout << ":::: make-restraints: analysis of bad geometry in input model" << std::endl;
-
       // Now we don't do this here - we do it after all the restraints have been added -
       // called from graphics-info-modelling.cc
       //
+      // std::cout << "DEBUG:: make-restraints(): analysis of bad geometry in input model" << std::endl;
       // analyze_for_bad_restraints(); // bonds and non-bonded.
 
       // info();  - are the NBCs correct?

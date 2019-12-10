@@ -112,7 +112,7 @@ graphics_info_t::get_restraints_lock(const std::string &calling_function_name) {
    // 20191127-PE not this formulation:
    // while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
 
-   while (! graphics_info_t::restraints_lock.compare_exchange_weak(unlocked, true)) {
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       std::cout << "WARNING:: calling function: " << calling_function_name
 		<< " restraints locked by " << restraints_locking_function_name
 		<< std::endl;
@@ -1030,6 +1030,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 		<< std::endl;
 
    all_atom_pulls_off();
+
    int n_restraints = last_restraints->make_restraints(imol_moving_atoms,
 						       *Geom_p(), flags,
 						       do_residue_internal_torsions,
