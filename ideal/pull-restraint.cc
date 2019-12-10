@@ -135,10 +135,6 @@ coot::restraints_container_t::clear_all_atom_pull_restraints() {
          if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
             restraints_vec[i].close();
       }
-      unsigned int post_size = size();
-      if (false)
-	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-		   << post_size << std::endl;
    }
    restraints_lock = false;
    needs_reset = true; // probably
@@ -302,6 +298,7 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    std::vector<simple_restraint>::iterator it;
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+         if (it->is_closed) continue;
 	 mmdb::Atom *at = atom[it->atom_index_1];
 	 if (atom_spec_t(at) != dragged_atom_spec) {
 	    clipper::Coord_orth pos(at->x, at->y, at->z);
