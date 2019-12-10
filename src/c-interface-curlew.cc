@@ -105,9 +105,9 @@ void curlew() {
    GtkWidget *install_button = lookup_widget(w, "curlew_install_button");
    // install_button callback:  curlew_dialog_install_extensions()
    if (vbox) {
-      std::string download_dir = "coot-download"; // FIXME
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
       std::string dl_fn = download_dir + "/info.json";
-      make_directory_maybe(download_dir.c_str());
 
       // not https, that transfers nothing
       // (probably a curl configuration thing)
