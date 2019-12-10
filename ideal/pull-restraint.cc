@@ -95,10 +95,17 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
    unsigned int pre_size = size();
    if (pre_size > 0) {
       // extra loop needed.
+      /*
       restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 					  restraints_vec.end(),
 					  target_position_for_atom_eraser(spec)),
 			   restraints_vec.end());
+      */
+      for (unsigned int i=0; i<restraints_vec.size(); i++) {
+         if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
+            if (restraints_vec[i].atom_spec == spec)
+               restraints_vec[i].close();
+      }
       unsigned int post_size = size();
       if (false)
 	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
@@ -118,10 +125,16 @@ coot::restraints_container_t::clear_all_atom_pull_restraints() {
    }
    unsigned int pre_size = size();
    if (pre_size > 0) {
+      /*
       restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 					  restraints_vec.end(),
 					  target_position_eraser),
 			   restraints_vec.end());
+      */
+      for (unsigned int i=0; i<restraints_vec.size(); i++) {
+         if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
+            restraints_vec[i].close();
+      }
       unsigned int post_size = size();
       if (false)
 	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "

@@ -135,8 +135,8 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       if (do_auto_helix_restraints)
 	      make_helix_pseudo_bond_restraints_from_res_vec_auto();
 
-		if (do_auto_h_bond_restraints)
-          make_h_bond_restraints_from_res_vec_auto(geom);
+      // if (do_auto_h_bond_restraints)
+      // make_h_bond_restraints_from_res_vec_auto(geom);
 
       make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
