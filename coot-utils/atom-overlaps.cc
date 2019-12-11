@@ -2057,7 +2057,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
       if (! molecule_has_hydrogens_flag) {
 	 if (hbi.is_h_bond_donor_and_acceptor) {
 	    done = true;
-	    delta -= 0.6;
+	    delta -= 0.6; // where does this number come from?
 	    if (delta > 0.4) {
 	       type = "clash";
 	       colour = "hotpink";
