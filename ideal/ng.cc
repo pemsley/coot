@@ -1,4 +1,5 @@
 
+#include <iomanip>
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
@@ -751,12 +752,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 		  if (! strange_exception)
 		     dist_min = nbc_dist.second;
+
 	       }
 	    } else {
 	       // short/standard value
 	       dist_min = 2.8;
 	    }
+
 	 }
+
 
 	 bool is_H_non_bonded_contact = false;
 
@@ -772,7 +776,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	       if (atom_is_acceptor_vec[i])
 		  dist_min -= 0.7;
 	 }
-
 
 	 non_bonded_contacts_atom_indices[i].insert(j);
 	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
@@ -2054,6 +2057,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies) n_baddies = distortions.size();
+	std::cout << std::setw(3) << std::endl;
    for (unsigned int i=0; i<n_baddies; i++) {
       const std::tuple<unsigned int, double, double, double> &d = distortions[i];
       const simple_restraint &rest = restraints_vec[std::get<0>(d)];
