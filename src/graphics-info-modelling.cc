@@ -128,6 +128,7 @@ graphics_info_t::release_restraints_lock(const std::string &calling_function_nam
 
    // std::cout << "debug:: release the restraints lock: " << calling_function_name << std::endl;
    restraints_lock = false;
+   restraints_locking_function_name = "";
 
 }
 
