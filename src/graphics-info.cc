@@ -5133,6 +5133,8 @@ graphics_info_t::clear_all_atom_pull_restraints(bool refine_again_flag) {
 void
 graphics_info_t::clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag) {
 
+   // clear_atom_pull_restraints() is a simple wrapper around this (currently in the header)
+
    if (last_restraints) {
       last_restraints->clear_atom_pull_restraint(spec);
       atom_pull_off(spec);

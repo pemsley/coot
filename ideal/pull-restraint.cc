@@ -92,25 +92,11 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
       std::cout << "restraints_container_t clear_atom_pull_restraint for " << spec
 		<< " called " << std::endl;
 
-   unsigned int pre_size = size();
-   if (pre_size > 0) {
-      // extra loop needed.
-      /*
-      restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-					  restraints_vec.end(),
-					  target_position_for_atom_eraser(spec)),
-			   restraints_vec.end());
-      */
-      for (unsigned int i=0; i<restraints_vec.size(); i++) {
-         if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
-            if (restraints_vec[i].atom_spec == spec)
-               restraints_vec[i].close();
-      }
-      unsigned int post_size = size();
-      if (false)
-	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-		   << post_size << std::endl;
-   }
+   for (unsigned int i=0; i<restraints_vec.size(); i++)
+      if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
+         if (restraints_vec[i].atom_spec == spec)
+            restraints_vec[i].close();
+
 }
 
 
@@ -298,14 +284,21 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    std::vector<simple_restraint>::iterator it;
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
-         if (it->is_closed) continue;
-	 mmdb::Atom *at = atom[it->atom_index_1];
-	 if (atom_spec_t(at) != dragged_atom_spec) {
-	    clipper::Coord_orth pos(at->x, at->y, at->z);
-	    double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
-	    if (d < close_dist) {
-               it->close();
-	       v.push_back(it->atom_spec);
+         if (it->is_closed) {
+            // the return value is used (eventually) by atom_pull_off(), used
+            // to remove the drawn atom-pull
+            // v.push_back(it->atom_spec);
+            // std::cout << "debug:: turn_off_atom_pull_restraints_when_close_to_target_position() adding closed " << it->atom_spec << std::endl;
+         } else {
+	    mmdb::Atom *at = atom[it->atom_index_1];
+	    if (atom_spec_t(at) != dragged_atom_spec) {
+	       clipper::Coord_orth pos(at->x, at->y, at->z);
+	       double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
+	       if (d < close_dist) {
+                  it->close();
+	          v.push_back(it->atom_spec);
+                  // std::cout << "debug:: turn_off_atom_pull_restraints_when_close_to_target_position() adding " << it->atom_spec << std::endl;
+	       }
 	    }
 	 }
       }
