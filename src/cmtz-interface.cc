@@ -249,11 +249,14 @@ coot::setup_refmac_parameters(GtkWidget *window,
 /* used when the column label widget is being created   */
 void
 coot::setup_refmac_parameters_from_file(GtkWidget *window) {
+
+  std::cout << "-------------------- setup_refmac_parameters_from_file ----------- " << std::endl;
   
   GtkWidget *option_menu;
   std::string filename;
   GtkWidget *file_mtz_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
   if (GTK_TOGGLE_BUTTON(file_mtz_radiobutton)->active) {
+    std::cout << "debug:: setup_refmac_parameters_from_file() path A" << std::endl;
     // twin/mtz filename given
     GtkWidget *file_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
     // in twin we use the label as a dummy widget
@@ -269,6 +272,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
       filename = "";
     }
   } else {
+    std::cout << "debug:: setup_refmac_parameters_from_file() path B" << std::endl;
     // not twin/mtz filename but map
     // first get the filename from the currently selected mtz/map
     option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
@@ -310,6 +314,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 
    /* Stuff a pointer to mtz info into the dialog: */
    GtkWidget *refmac_dialog = lookup_widget(window, "run_refmac_dialog");
+   std::cout << "debug:: adding to refmac_dialog " << refmac_dialog << " user data " << f_phi_columns << std::endl;
    gtk_object_set_user_data(GTK_OBJECT(refmac_dialog), f_phi_columns);
 
    unsigned int i;
@@ -971,6 +976,8 @@ refmac_dialog_hl_button_select(GtkWidget *item, GtkPositionType pos) {
 GtkWidget *
 coot::column_selector_using_cmtz(const std::string &filename) { 
 
+   std::cout << "debug:: in coot::column_selector_using_cmtz " << filename << std::endl;
+
    unsigned int i;
    GtkWidget *column_label_window;
    GtkWidget *optionmenu2_menu, *optionmenu3_menu;
@@ -1024,24 +1031,16 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    /* Else filename was OK */
 
-
-/*    printf("The F columns: \n"); */
-/*    for (i=0; i< a.n_f_cols; i++) {  */
-/*       printf("%s\n", a.f_cols[i].column_label); */
-/*    } */
-
-/*    printf("The P columns: \n"); */
-/*    for (i=0; i< a.n_phi_cols; i++) {  */
-/*       printf("%s\n", a.phi_cols[i].column_label); */
-/*    } */
-
-
 /* Recall that save_f_phi_columns is now attached to this widget */
 
    /* Stuff a pointer to mtz info into the dialog: */
    column_label_window = create_column_label_window();
    set_transient_and_position(COOT_MTZ_COLUMN_SELECTOR_DIALOG, column_label_window);
-   g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
+
+   // modern: g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
+   // old but consistend with gtk_object_get_user_data
+   gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns);
+
 
 
    // ----------------------- comboboxes! ----------------------
