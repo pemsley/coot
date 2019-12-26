@@ -177,8 +177,8 @@ if [ $make_installer_only == 0 ] ; then
       echo BUILDING:: python WinCoot
 
       # do the build
-      echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_enhanced_ligand $build_it $extra_flag
-      run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_enhanced_ligand $build_it $extra_flag
+      echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} build_enhanced_ligand=$build_enhanced_ligand $build_it $extra_flag
+      run_tests=true build_coot_prerelease=${build_coot_prerelease} build_enhanced_ligand=$build_enhanced_ligand $build_it $extra_flag
       python_build_status=$?
       echo "python build (and test) status: " $python_build_status
       copy_logs python

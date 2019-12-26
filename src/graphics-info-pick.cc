@@ -539,7 +539,7 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
    } else {
       in_moving_atoms_drag_atom_mode_flag = 0;
-   } 
+   }
 }
 
 
@@ -768,22 +768,14 @@ graphics_info_t::add_target_position_restraint_for_intermediate_atom(const coot:
 
    // get the restraints lock before adding these
 
-   bool unlocked = false; // wait for restraints_lock to be false...
-   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-      std::cout << "INFO:: graphics_info_t::add_target_position_restraint_for_intermediate_atom() "
-		<< "- refinement restraints locked on " << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      unlocked = false;
-   }
+   get_restraints_lock(__FUNCTION__);
 
    atom_pull_info_t atom_pull_local = atom_pull_info_t(spec, target_pos);
    add_or_replace_current(atom_pull_local);
    if (last_restraints) {
       last_restraints->add_atom_pull_restraint(spec, target_pos);
    }
-
-   // unlock restraints
-   restraints_lock = false;
+   release_restraints_lock(__FUNCTION__);
 
    thread_for_refinement_loop_threaded();
 
@@ -797,14 +789,7 @@ graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std
 
    if (last_restraints) {
 
-      bool unlocked = false; // wait for restraints_lock to be false...
-      while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-	 std::cout << "INFO:: add_target_position_restraints_for_intermediate_atoms() "
-		   << "- refinement restraints locked on" << std::endl;
-	 std::this_thread::sleep_for(std::chrono::milliseconds(40));
-	 unlocked = false;
-      }
-
+      get_restraints_lock(__FUNCTION__);
       for (std::size_t i=0; i<atom_spec_position_vec.size(); i++) {
 	 coot::atom_spec_t spec  = atom_spec_position_vec[i].first;
 	 clipper::Coord_orth pos = atom_spec_position_vec[i].second;
@@ -814,7 +799,7 @@ graphics_info_t::add_target_position_restraints_for_intermediate_atoms(const std
       }
 
       // unlock restraints and start refinement again
-      restraints_lock = false;
+      release_restraints_lock(__FUNCTION__);
       thread_for_refinement_loop_threaded();
 
    } else {

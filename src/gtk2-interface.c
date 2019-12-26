@@ -5239,7 +5239,7 @@ create_display_control_window_glade (void)
   GtkWidget *label727;
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  gtk_widget_set_size_request (display_control_window_glade, 600, 316);
+  gtk_widget_set_size_request (display_control_window_glade, 700, 320);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), "Display Manager");
 
   vbox30 = gtk_vbox_new (FALSE, 0);
@@ -11642,30 +11642,23 @@ create_run_refmac_dialog (void)
   GtkWidget *vbox278;
   GtkWidget *refmac_dialog_fobs_hbox;
   GtkWidget *label640;
-  GtkWidget *refmac_dialog_fobs_optionmenu;
   GtkWidget *refmac_dialog_fobs_combobox;
   GtkWidget *refmac_dialog_fpm_hbox;
   GtkWidget *label655;
-  GtkWidget *refmac_dialog_fpm_optionmenu;
   GtkWidget *refmac_dialog_fpm_combobox;
   GtkWidget *refmac_dialog_fiobs_hbox;
   GtkWidget *label656;
-  GtkWidget *refmac_dialog_fiobs_optionmenu;
   GtkWidget *refmac_dlalog_fiobs_combobox;
   GtkWidget *refmac_dialog_ipm_hbox;
   GtkWidget *label657;
-  GtkWidget *refmac_dialog_ipm_optionmenu;
   GtkWidget *refmac_dialog_ipm_combobox;
   GtkWidget *hbox344;
   GtkWidget *label642;
-  GtkWidget *refmac_dialog_rfree_optionmenu;
   GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
-  GtkWidget *refmac_dialog_phases_optionmenu;
-  GtkWidget *label648;
-  GtkWidget *refmac_dialog_fom_optionmenu;
   GtkWidget *refmac_dialog_phases_combobox;
+  GtkWidget *label648;
   GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
@@ -11970,10 +11963,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label640), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label640), 6, 0);
 
-  refmac_dialog_fobs_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fobs_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_optionmenu, FALSE, FALSE, 0);
-
   refmac_dialog_fobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fobs_hbox), refmac_dialog_fobs_combobox, TRUE, TRUE, 0);
@@ -11986,10 +11975,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), label655, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label655), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label655), 6, 0);
-
-  refmac_dialog_fpm_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fpm_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fpm_hbox), refmac_dialog_fpm_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_fpm_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fpm_combobox);
@@ -12004,10 +11989,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label656), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label656), 6, 0);
 
-  refmac_dialog_fiobs_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fiobs_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dialog_fiobs_optionmenu, FALSE, FALSE, 0);
-
   refmac_dlalog_fiobs_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dlalog_fiobs_combobox);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_fiobs_hbox), refmac_dlalog_fiobs_combobox, TRUE, TRUE, 0);
@@ -12020,10 +12001,6 @@ create_run_refmac_dialog (void)
   gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), label657, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label657), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label657), 6, 0);
-
-  refmac_dialog_ipm_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_ipm_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_ipm_hbox), refmac_dialog_ipm_optionmenu, FALSE, FALSE, 0);
 
   refmac_dialog_ipm_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_ipm_combobox);
@@ -12039,10 +12016,6 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label642), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label642), 6, 0);
 
-  refmac_dialog_rfree_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_rfree_optionmenu);
-  gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_optionmenu, FALSE, FALSE, 0);
-
   refmac_dialog_rfree_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_rfree_combobox);
   gtk_box_pack_start (GTK_BOX (hbox344), refmac_dialog_rfree_combobox, TRUE, TRUE, 0);
@@ -12056,21 +12029,13 @@ create_run_refmac_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label649), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label649), 6, 0);
 
-  refmac_dialog_phases_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_phases_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_optionmenu, FALSE, FALSE, 0);
+  refmac_dialog_phases_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (refmac_dialog_phases_combobox);
+  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_combobox, TRUE, TRUE, 0);
 
   label648 = gtk_label_new ("FOM");
   gtk_widget_show (label648);
   gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), label648, FALSE, FALSE, 0);
-
-  refmac_dialog_fom_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (refmac_dialog_fom_optionmenu);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_fom_optionmenu, FALSE, FALSE, 0);
-
-  refmac_dialog_phases_combobox = gtk_combo_box_text_new ();
-  gtk_widget_show (refmac_dialog_phases_combobox);
-  gtk_box_pack_start (GTK_BOX (refmac_dialog_phases_hbox), refmac_dialog_phases_combobox, TRUE, TRUE, 0);
 
   refmac_dialog_fom_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (refmac_dialog_fom_combobox);
@@ -12268,30 +12233,23 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, vbox278, "vbox278");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_hbox, "refmac_dialog_fobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label640, "label640");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_optionmenu, "refmac_dialog_fobs_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fobs_combobox, "refmac_dialog_fobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_hbox, "refmac_dialog_fpm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label655, "label655");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_optionmenu, "refmac_dialog_fpm_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fpm_combobox, "refmac_dialog_fpm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_hbox, "refmac_dialog_fiobs_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label656, "label656");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fiobs_optionmenu, "refmac_dialog_fiobs_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dlalog_fiobs_combobox, "refmac_dlalog_fiobs_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_hbox, "refmac_dialog_ipm_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label657, "label657");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_optionmenu, "refmac_dialog_ipm_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_ipm_combobox, "refmac_dialog_ipm_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, hbox344, "hbox344");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label642, "label642");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_optionmenu, "refmac_dialog_rfree_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_combobox, "refmac_dialog_rfree_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_hbox, "refmac_dialog_phases_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label649, "label649");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_optionmenu, "refmac_dialog_phases_optionmenu");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_optionmenu, "refmac_dialog_fom_optionmenu");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_combobox, "refmac_dialog_phases_combobox");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_combobox, "refmac_dialog_fom_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_hbox, "refmac_dialog_hl_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label650, "label650");
@@ -12888,7 +12846,6 @@ create_skeleton_dialog (void)
   GtkWidget *vbox84;
   GtkWidget *ca_baton_mode_needs_skel_label;
   GtkWidget *label117;
-  GtkWidget *frame71;
   GtkWidget *skeleton_map_combobox;
   GtkWidget *skeleton_dialog_on_off_frame;
   GtkWidget *vbox85;
@@ -12924,11 +12881,6 @@ create_skeleton_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox84), label117, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label117), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label117), 0, 5);
-
-  frame71 = gtk_frame_new (NULL);
-  gtk_widget_show (frame71);
-  gtk_box_pack_start (GTK_BOX (vbox84), frame71, TRUE, TRUE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (frame71), 2);
 
   skeleton_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeleton_map_combobox);
@@ -12993,7 +12945,6 @@ create_skeleton_dialog (void)
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox84, "vbox84");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, ca_baton_mode_needs_skel_label, "ca_baton_mode_needs_skel_label");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, label117, "label117");
-  GLADE_HOOKUP_OBJECT (skeleton_dialog, frame71, "frame71");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_map_combobox, "skeleton_map_combobox");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, skeleton_dialog_on_off_frame, "skeleton_dialog_on_off_frame");
   GLADE_HOOKUP_OBJECT (skeleton_dialog, vbox85, "vbox85");
@@ -18271,7 +18222,6 @@ create_skeletonize_map_dialog (void)
   GtkWidget *frame130;
   GtkWidget *vbox134;
   GtkWidget *label218;
-  GtkWidget *skeletonize_map_optionmenu;
   GtkWidget *skeletonize_map_combobox;
   GtkWidget *dialog_action_area72;
   GtkWidget *hbox113;
@@ -18298,11 +18248,6 @@ create_skeletonize_map_dialog (void)
   gtk_widget_show (label218);
   gtk_box_pack_start (GTK_BOX (vbox134), label218, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label218), GTK_JUSTIFY_CENTER);
-
-  skeletonize_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (skeletonize_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox134), skeletonize_map_optionmenu, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (skeletonize_map_optionmenu), 2);
 
   skeletonize_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (skeletonize_map_combobox);
@@ -18337,7 +18282,6 @@ create_skeletonize_map_dialog (void)
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, frame130, "frame130");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, vbox134, "vbox134");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, label218, "label218");
-  GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_optionmenu, "skeletonize_map_optionmenu");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, skeletonize_map_combobox, "skeletonize_map_combobox");
   GLADE_HOOKUP_OBJECT_NO_REF (skeletonize_map_dialog, dialog_action_area72, "dialog_action_area72");
   GLADE_HOOKUP_OBJECT (skeletonize_map_dialog, hbox113, "hbox113");
@@ -24710,10 +24654,8 @@ create_least_squares_dialog (void)
   GtkWidget *frame170;
   GtkWidget *vbox189;
   GtkWidget *label292;
-  GtkWidget *least_squares_reference_molecule_optionmenu;
   GtkWidget *least_squares_reference_molecule_combobox;
   GtkWidget *label293;
-  GtkWidget *least_squares_moving_molecule_optionmenu;
   GtkWidget *least_squares_moving_molecule_combobox;
   GtkWidget *frame171;
   GtkWidget *vbox190;
@@ -24723,14 +24665,14 @@ create_least_squares_dialog (void)
   GtkWidget *label295;
   GtkWidget *least_squares_reference_range_2_entry;
   GtkWidget *label296;
-  GtkWidget *least_squares_reference_chain_id;
+  GtkWidget *least_squares_reference_chain_id_combobox;
   GtkWidget *hbox148;
   GtkWidget *label297;
   GtkWidget *least_squares_moving_range_1_entry;
   GtkWidget *label298;
   GtkWidget *least_squares_moving_range_2_entry;
   GtkWidget *label299;
-  GtkWidget *least_squares_moving_chain_id;
+  GtkWidget *least_squares_moving_chain_id_combobox;
   GtkWidget *frame169;
   GtkWidget *vbox188;
   GtkWidget *least_squares_match_type_all_radiobutton;
@@ -24783,13 +24725,10 @@ create_least_squares_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label292), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label292), 0, 0.5);
 
-  least_squares_reference_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_reference_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_optionmenu, FALSE, FALSE, 0);
-
   least_squares_reference_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_reference_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_combobox, TRUE, TRUE, 0);
+  GTK_WIDGET_SET_FLAGS (least_squares_reference_molecule_combobox, GTK_CAN_FOCUS);
 
   label293 = gtk_label_new ("Moving Molecule:");
   gtk_widget_show (label293);
@@ -24797,13 +24736,10 @@ create_least_squares_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label293), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label293), 0, 0.5);
 
-  least_squares_moving_molecule_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_moving_molecule_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_optionmenu, FALSE, FALSE, 0);
-
   least_squares_moving_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_moving_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_combobox, TRUE, TRUE, 0);
+  GTK_WIDGET_SET_FLAGS (least_squares_moving_molecule_combobox, GTK_CAN_FOCUS);
 
   frame171 = gtk_frame_new (NULL);
   gtk_widget_show (frame171);
@@ -24841,9 +24777,9 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox147), label296, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label296), GTK_JUSTIFY_CENTER);
 
-  least_squares_reference_chain_id = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_reference_chain_id);
-  gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_chain_id, FALSE, FALSE, 0);
+  least_squares_reference_chain_id_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (least_squares_reference_chain_id_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_chain_id_combobox, TRUE, TRUE, 0);
 
   hbox148 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox148);
@@ -24872,9 +24808,9 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox148), label299, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label299), GTK_JUSTIFY_CENTER);
 
-  least_squares_moving_chain_id = gtk_option_menu_new ();
-  gtk_widget_show (least_squares_moving_chain_id);
-  gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_chain_id, FALSE, FALSE, 0);
+  least_squares_moving_chain_id_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (least_squares_moving_chain_id_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox148), least_squares_moving_chain_id_combobox, TRUE, TRUE, 0);
 
   frame169 = gtk_frame_new (NULL);
   gtk_widget_show (frame169);
@@ -25010,10 +24946,8 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame170, "frame170");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox189, "vbox189");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label292, "label292");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_optionmenu, "least_squares_reference_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_molecule_combobox, "least_squares_reference_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label293, "label293");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_optionmenu, "least_squares_moving_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_molecule_combobox, "least_squares_moving_molecule_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame171, "frame171");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox190, "vbox190");
@@ -25023,14 +24957,14 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label295, "label295");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_range_2_entry, "least_squares_reference_range_2_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label296, "label296");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_chain_id, "least_squares_reference_chain_id");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_reference_chain_id_combobox, "least_squares_reference_chain_id_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox148, "hbox148");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label297, "label297");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_range_1_entry, "least_squares_moving_range_1_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label298, "label298");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_range_2_entry, "least_squares_moving_range_2_entry");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label299, "label299");
-  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_chain_id, "least_squares_moving_chain_id");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_moving_chain_id_combobox, "least_squares_moving_chain_id_combobox");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, frame169, "frame169");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, vbox188, "vbox188");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_match_type_all_radiobutton, "least_squares_match_type_all_radiobutton");
@@ -29284,7 +29218,6 @@ create_export_map_dialog (void)
   GtkWidget *export_map_dialog;
   GtkWidget *dialog_vbox132;
   GtkWidget *vbox324;
-  GtkWidget *export_map_map_optionmenu;
   GtkWidget *export_map_map_combobox;
   GtkWidget *export_map_fragment_hbox;
   GtkWidget *label786;
@@ -29304,11 +29237,6 @@ create_export_map_dialog (void)
   vbox324 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox324);
   gtk_box_pack_start (GTK_BOX (dialog_vbox132), vbox324, TRUE, TRUE, 0);
-
-  export_map_map_optionmenu = gtk_option_menu_new ();
-  gtk_widget_show (export_map_map_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox324), export_map_map_optionmenu, FALSE, FALSE, 6);
-  gtk_container_set_border_width (GTK_CONTAINER (export_map_map_optionmenu), 6);
 
   export_map_map_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (export_map_map_combobox);
@@ -29361,7 +29289,6 @@ create_export_map_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, export_map_dialog, "export_map_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (export_map_dialog, dialog_vbox132, "dialog_vbox132");
   GLADE_HOOKUP_OBJECT (export_map_dialog, vbox324, "vbox324");
-  GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_optionmenu, "export_map_map_optionmenu");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_map_combobox, "export_map_map_combobox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, export_map_fragment_hbox, "export_map_fragment_hbox");
   GLADE_HOOKUP_OBJECT (export_map_dialog, label786, "label786");

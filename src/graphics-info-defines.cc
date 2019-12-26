@@ -359,6 +359,8 @@ graphics_info_t::check_if_in_refine_define(GdkEventButton *event) {
 						   // mouse behaviour (we
 						   // don't want to rotate
 						   // the atoms)
+
+	       residue_type_selection_was_user_picked_residue_range = true;
 	       refine(residue_range_mol_no,
 		      auto_range_flag,
 		      residue_range_atom_index_1,
@@ -1226,15 +1228,15 @@ graphics_info_t::check_if_in_rot_trans_define(GdkEventButton *event) {
    graphics_info_t g;
    if (g.in_rot_trans_object_define) {
       if (g.rot_trans_object_type == ROT_TRANS_TYPE_ZONE) { 
-	 pick_info naii = atom_pick(event); 
-	 if (naii.success == GL_TRUE) { 
-	    molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
-	    if (g.in_rot_trans_object_define == 1) { 
+         pick_info naii = atom_pick(event);
+         if (naii.success == GL_TRUE) {
+            molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
+            if (g.in_rot_trans_object_define == 1) {
 	       g.rot_trans_atom_index_1 = naii.atom_index;
 	       g.in_rot_trans_object_define = 2;
 	       g.imol_rot_trans_object = naii.imol;
-	    } else { 
-	       
+	    } else {
+
 	       if (g.in_rot_trans_object_define == 2) { 
 		  if (naii.imol == g.imol_rot_trans_object) { 
 		     g.rot_trans_atom_index_2 = naii.atom_index;

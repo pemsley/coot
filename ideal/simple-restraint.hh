@@ -288,6 +288,7 @@ namespace coot {
 
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
+      bool is_closed; // so that we can "remove" restraints without deleting them
       // index and weight
       std::vector <std::pair<int, double> > plane_atom_index; // atom_index values can return negative (-1) for planes
       std::vector <std::pair<int, double> > atom_index_other_plane; // for the second plane in parallel planes
@@ -324,6 +325,7 @@ namespace coot {
       simple_restraint() {
 	 is_user_defined_restraint = 0;
 	 chiral_hydrogen_index = -1;
+         is_closed = true;
       }
 
       // Bond
@@ -621,6 +623,7 @@ namespace coot {
 	 is_user_defined_restraint = 0;
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
+         is_closed = false;
 
 	 if (rest_type != START_POS_RESTRAINT) { 
 	    std::cout << "ERROR:: START POS ERROR" << std::endl; 
@@ -635,10 +638,13 @@ namespace coot {
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
+         is_closed = false;
 	 if (rest_type != TARGET_POS_RESTRAINT) {
 	    std::cout << "ERROR:: TARGET POS ERROR" << std::endl;
 	 }
       }
+
+      void close() { is_closed = true; }
 
       std::pair<bool, double> get_nbc_dist(const std::string &atom_1_type,
 					   const std::string &atom_2_type, 
@@ -1058,6 +1064,7 @@ namespace coot {
       	 verbose_geometry_reporting = NORMAL;
          n_refiners_refining = 0;
 	 n_atoms = 0;
+	 n_atoms_limit_for_nbc = 0; // needs to be set in every constructor.
 	 x = 0;
 	 mol = 0;
 	 n_atoms = 0;
@@ -1080,14 +1087,10 @@ namespace coot {
 	 rama_type = RAMA_TYPE_LOGRAMA;
 	 rama_plot_weight = 40.0;
 
-#ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
 	 restraints_lock = false; // not locked
-#ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 	 thread_pool_p = 0; // null pointer
-#endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // __NVCC__
-#endif // HAVE_CXX_THREAD
       }
 
 
@@ -1639,6 +1642,7 @@ namespace coot {
       void make_strand_pseudo_bond_restraints();
       void make_helix_pseudo_bond_restraints_from_res_vec();
       void make_helix_pseudo_bond_restraints_from_res_vec_auto();
+      void make_h_bond_restraints_from_res_vec_auto(const protein_geometry &geom);
 
       bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
 
@@ -1690,8 +1694,9 @@ namespace coot {
 	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
 	 reduced_angle_info_container_t(const std::vector<std::vector<simple_restraint> > &rvv); // needs init() also?
 	 void init(const std::vector<simple_restraint> &r);
+	 std::map<int, std::set<int> > bonds;
 	 std::map<int, std::vector<std::pair<int, int> > > angles;
-	 bool is_1_4(int i, int j) const;
+	 bool is_1_4(int i, int j, const std::vector<bool> &fixed_atom_flags) const;
 	 void write_angles_map(const std::string &file_name) const;
       };
 
@@ -1739,7 +1744,7 @@ namespace coot {
 					    mmdb::Residue *res_2,
 					    const coot::protein_geometry &geom) const;
 
-      void make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
+      unsigned int  make_non_bonded_contact_restraints_ng(int imol, const protein_geometry &geom);
       void make_non_bonded_contact_restraints_using_threads_ng(int imol, const protein_geometry &geom);
       std::vector<std::set<int> > non_bonded_contacts_atom_indices; // these can now get updated on the fly.
                                                        // We need to keep a record of what has
@@ -2202,13 +2207,11 @@ namespace coot {
 	 multimin_func.params = (double *) this; 
       }
 
-#ifdef HAVE_CXX_THREAD
 #ifndef __NVCC__
       // we should not update the atom pull restraints while the refinement is running.
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
-#endif
 #endif
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()
@@ -2275,6 +2278,7 @@ namespace coot {
 			  bool do_rama_plot_retraints,
 			  bool do_auto_helix_restraints,
 			  bool do_auto_strand_restraints,
+			  bool do_auto_h_bond_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
@@ -2288,6 +2292,7 @@ namespace coot {
 			  bool do_rama_plot_retraints,
 			  bool do_auto_helix_restraints,
 			  bool do_auto_strand_restraints,
+			  bool do_auto_h_bond_restraints,
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
@@ -2307,9 +2312,11 @@ namespace coot {
       unsigned int n_atom_pull_restraints() const;
 
       void add_extra_restraints(int imol,
+                                const std::string &description,
 				const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);
       // and that calls:
+      void add_extra_geman_mcclure_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
@@ -2320,6 +2327,8 @@ namespace coot {
 					       const protein_geometry &geom);
       // can I find the atoms using the atom indices from the original molecule?
       bool try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr);
+      // ditto
+      bool try_add_using_old_atom_indices(const extra_restraints_t::extra_geman_mcclure_restraint_t &ebr);
 
       // rama_type is public, maybe instead use get_rama_type()
       enum { RAMA_TYPE_ZO, RAMA_TYPE_LOGRAMA };
@@ -2491,10 +2500,7 @@ namespace coot {
 
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
-      void clear() {
-	 restraints_vec.clear();
-	 init();
-      }
+      void clear();
 
       double log_cosh_target_distance_scale_factor;
       void set_log_cosh_target_distance_scale_factor(double sf) {

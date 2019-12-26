@@ -862,6 +862,9 @@ class graphics_info_t {
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
    void debug_refinement();
+   static void get_restraints_lock(const std::string &calling_function_name);
+   static void release_restraints_lock(const std::string &calling_function_name);
+   static std::string restraints_locking_function_name; //  static because it is set by above
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -1645,6 +1648,8 @@ public:
    // file filter should be on?
    static short int sticky_file_filter;
    
+   void stop_refinement_internal();
+
    // 
    void show_refine_params_dialog(); // not used for map selection now.
    void show_select_map_dialog();
@@ -2478,7 +2483,7 @@ public:
 
    void fill_combobox_with_refmac_methods_options(GtkWidget *combobox);
    void fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox);
-   void fill_combobox_with_refmac_labels_options(GtkWidget *combobox);
+   void fill_combobox_with_refmac_mtz_file_options(GtkWidget *combobox);
    void fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox); 
    void fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox);
 
@@ -3655,6 +3660,7 @@ public:
 
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
+   static bool residue_type_selection_was_user_picked_residue_range;
 
    // --- electrostatic charnge range scale (typically 0.5)
    static float electrostatic_surface_charge_range;
@@ -3904,6 +3910,8 @@ string   static std::string sessionid;
    // - maybe this is not the best place for this function?
    static bool is_within_display_radius(const coot::CartesianPair &p);
    static bool is_within_display_radius(const coot::Cartesian &p);
+
+   static bool make_auto_h_bond_restraints_flag;
 
    static bool cif_dictionary_file_selector_create_molecule_flag;
 

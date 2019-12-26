@@ -1,4 +1,5 @@
 
+#include <iomanip>
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
@@ -13,6 +14,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 						 bool do_rama_plot_restraints,
 						 bool do_auto_helix_restraints,
 						 bool do_auto_strand_restraints,
+						 bool do_auto_h_bond_restraints,
 						 coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 						 bool do_link_restraints,
 						 bool do_flank_restraints) {
@@ -109,19 +111,17 @@ coot::restraints_container_t::make_restraints_ng(int imol,
       auto tp_5 = std::chrono::high_resolution_clock::now();
 
       if (do_rama_plot_restraints)
-	 make_rama_plot_restraints(residue_link_vector_map,
-				   residue_pair_link_set,
-				   geom);
+         make_rama_plot_restraints(residue_link_vector_map, residue_pair_link_set, geom);
 
       if (true) {
-	 auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-	 auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-	 auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-	 auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-	 auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
-	 std::cout << "------------------ timings: for make_restraints_ng(): monomers: "
-		   << d10 << " links: " << d21 << " flank: " << d32 << " raic: " << d43 << " nbc: " << d54
-		   << " milliseconds " << std::endl;
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+         auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+         auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+         auto d54 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_5 - tp_4).count();
+         std::cout << "------------------ timings: for make_restraints_ng(): monomers: "
+	           << d10 << " links: " << d21 << " flank: " << d32 << " raic: " << d43 << " nbc: " << d54
+	           << " milliseconds " << std::endl;
       }
 
       // probably not needed because plane restraints don't come in a bunch (I don't know why)
@@ -134,15 +134,21 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 	      make_strand_pseudo_bond_restraints();
 
       if (do_auto_helix_restraints)
-	      make_helix_pseudo_bond_restraints_from_res_vec_auto();
+         make_helix_pseudo_bond_restraints_from_res_vec_auto();
+
+      if (do_auto_h_bond_restraints)
+         make_h_bond_restraints_from_res_vec_auto(geom);
 
       make_base_pairing_and_stacking_restraints_ng(imol, geom);
 
       make_df_restraints_indices();
       make_distortion_electron_density_ranges();
 
-      std::cout << ":::: make-restraints: analysis of bad geometry in input model" << std::endl;
-      analyze_for_bad_restraints(); // bonds and non-bonded.
+      // Now we don't do this here - we do it after all the restraints have been added -
+      // called from graphics-info-modelling.cc
+      //
+      // std::cout << "DEBUG:: make-restraints(): analysis of bad geometry in input model" << std::endl;
+      // analyze_for_bad_restraints(); // bonds and non-bonded.
 
       // info();  - are the NBCs correct?
 
@@ -200,16 +206,18 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
          }
       }
    }
-   std::cout << "   Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
+   std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
              << std::endl;
    auto tp_9 = std::chrono::high_resolution_clock::now();
 
-   add_extra_restraints(imol, extra_restraints, geom);
+   if (extra_restraints.has_restraints())
+      add_extra_restraints(imol, "from make_base_pairing_and_stacking_restraints_ng()", extra_restraints, geom);
+
    auto tp_10 = std::chrono::high_resolution_clock::now();
    auto d76  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_7  - tp_6).count();
    auto d87  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_8  - tp_7).count();
    auto d98  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_9  - tp_8).count();
-   auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_8).count();
+   auto d109 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_10 - tp_9).count();
    std::cout << "------------------ timings: for make_restraints_ng(): stacking and pairing: "
              << d76 << " " << d87 << " " << d98 << " " << d109 << " ms" << std::endl;
 
@@ -304,7 +312,21 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 	         // if we can find the key and the neighb is in the vector (set) of
 	         // residues to whicih this residue is already linked.
 
-				if (neighb->chain != residue_p->chain) continue;
+		 if (neighb->chain != residue_p->chain) continue;
+
+		 // this kills links for insertion codes, but also kills links
+		 // across gaps (this is the feature that we want).
+		 //
+		 int rn_1 = neighb->GetSeqNum();
+		 int rn_2 = residue_p->GetSeqNum();
+		 int rn_delta = abs(rn_2 - rn_1);
+		 if (rn_delta != 1) {
+          std::string ins_1(residue_p->GetInsCode());
+          std::string ins_2(neighb->GetInsCode());
+			 if (ins_1.empty())
+			    if (ins_2.empty())
+                continue;
+		 }
 
 	         std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
 	         itm = residue_link_vector_map_p->find(residue_p);
@@ -334,25 +356,25 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 			                << residue_spec_t(pair_2.second) << " fixed: " << pair_2.first << "  "
 			                << std::endl;
 
-            std::pair<bool, link_restraints_counts> link_result =
-		         try_make_peptide_link_ng(geom,
-					   pair_1,
-					   pair_2,
-					   do_rama_plot_restraints,
-					   do_trans_peptide_restraints);
+		 std::pair<bool, link_restraints_counts> link_result =
+		    try_make_peptide_link_ng(geom,
+					     pair_1,
+					     pair_2,
+					     do_rama_plot_restraints,
+					     do_trans_peptide_restraints);
 
-	       if (! link_result.first)
-		       link_result = try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
+		 if (! link_result.first)
+		    link_result = try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
 
-	       if (link_result.first) {
-		       flank_restraints.add(link_result.second);
-		       (*residue_link_vector_map_p)[residue_p].push_back(neighb);
-		       (*residue_link_vector_map_p)[neighb   ].push_back(residue_p);
+		 if (link_result.first) {
+		    flank_restraints.add(link_result.second);
+		    (*residue_link_vector_map_p)[residue_p].push_back(neighb);
+		    (*residue_link_vector_map_p)[neighb   ].push_back(residue_p);
 
-		       std::pair<mmdb::Residue *, mmdb::Residue *> p1(residue_p, neighb);
-		       std::pair<mmdb::Residue *, mmdb::Residue *> p2(neighb, residue_p);
-		       residue_pair_link_set_p->insert(p1);
-		       residue_pair_link_set_p->insert(p2);
+		    std::pair<mmdb::Residue *, mmdb::Residue *> p1(residue_p, neighb);
+		    std::pair<mmdb::Residue *, mmdb::Residue *> p2(neighb, residue_p);
+		    residue_pair_link_set_p->insert(p1);
+		    residue_pair_link_set_p->insert(p2);
 	       }
 	    }
 	 }
@@ -493,10 +515,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
    for (unsigned int i=atom_index_range_pair.first; i<atom_index_range_pair.second; i++) {
 
-      const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
+      if (! at_1) {
+	 std::cout << "ERROR:: make_non_bonded_contact_restraints_workpackage_ng()"
+		   << " null atom at index " << i << " in range " << atom_index_range_pair.first
+		   << " " << atom_index_range_pair.second << " with n_atoms (bonded_atom_indices size()) "
+		   << bonded_atom_indices.size() << std::endl;
+	 continue;
+      }
       if (at_1->isTer()) continue;
 
+      const std::set<unsigned int> &n_set = vcontacts[i];
       std::string alt_conf_1(at_1->altLoc);
       // std::cout << "base atom: " << atom_spec_t(at_1) << std::endl;
 
@@ -552,9 +581,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	    in_same_residue_flag = false;
 	 }
 
+	 std::string atom_name_1(at_1->GetAtomName());
+	 std::string atom_name_2(at_2->GetAtomName());
+
 	 if (in_same_ring_flag) {
-	    std::string atom_name_1 = at_1->GetAtomName();
-	    std::string atom_name_2 = at_2->GetAtomName();
 
 	    // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
 	    //                                                                       atom_name_2);
@@ -566,18 +596,45 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 	 // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
 	 // because the non-moving atom doesn't have angle restraints.
+	 // 
+	 // 20191122-PE It should do now because we have bond restraints in a raic (and other fixes).
 	 //
-	 bool is_1_4_related = raic.is_1_4(i, j);
+	 bool is_1_4_related = raic.is_1_4(i, j, fixed_atom_flags);
 
 	 if (false)
 	    std::cout << "here with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
 		      << " is_1_4_related " << is_1_4_related << std::endl;
 
+	 bool mc_atoms_tandem = false;
+	 if (! is_1_4_related) {
+	    // hacky case for C in a helix. Also N.
+	    // (because fixed atoms don't have angle restraints - so raic.is_1_4_related()
+	    // will not work)
+
+	    if (atom_name_1 == " C  ")
+	       if (atom_name_2 == " C  ")
+		  if (at_2->residue->index - at_1->residue->index == 1)
+		     mc_atoms_tandem = true;
+	    if (atom_name_1 == " N  ")
+	       if (atom_name_2 == " N  ")
+		  if (at_2->residue->index - at_1->residue->index == -1)
+		     mc_atoms_tandem = true;
+	 }
+
+	 if (mc_atoms_tandem)
+	    is_1_4_related = true;
+
 	 if (is_1_4_related) {
 
 	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
-	    if (atom_is_hydrogen[i]) dist_min -= 0.7;
-	    if (atom_is_hydrogen[j]) dist_min -= 0.7;
+
+	    if (mc_atoms_tandem) dist_min = 2.99;
+
+	    // Hydrogens are handled below this if() also - I am not sure
+	    // that this delta should be applied here
+
+	    if (at_1) dist_min -= 0.7;
+	    if (at_2) dist_min -= 0.7;
 
 	 } else {
 
@@ -695,12 +752,15 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 		  if (! strange_exception)
 		     dist_min = nbc_dist.second;
+
 	       }
 	    } else {
 	       // short/standard value
 	       dist_min = 2.8;
 	    }
+
 	 }
+
 
 	 bool is_H_non_bonded_contact = false;
 
@@ -716,7 +776,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 	       if (atom_is_acceptor_vec[i])
 		  dist_min -= 0.7;
 	 }
-
 
 	 non_bonded_contacts_atom_indices[i].insert(j);
 	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
@@ -810,11 +869,21 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 
    for (unsigned int i=0; i<n_threads; i++) {
       unsigned int start = n_per_thread * i;
-      unsigned int stop = n_per_thread * (i+1); // test uses <
+      unsigned int stop  = n_per_thread * (i+1); // test uses <
       if (stop > static_cast<unsigned int>(n_atoms_limit_for_nbc))
         stop = static_cast<unsigned int>(n_atoms_limit_for_nbc);
       std::pair<unsigned int, unsigned int> p(start, stop);
       start_stop_pairs_vec.push_back(p);
+   }
+
+   if (false) { // debugging
+      std::cout << "n_per_thread " << n_per_thread << std::endl;
+      std::cout << "n_atoms_limit_for_nbc " << n_atoms_limit_for_nbc << std::endl;
+      for (std::size_t ii=0; ii<start_stop_pairs_vec.size(); ii++) {
+	 std::cout << "start_stop_pairs_vec: " << ii << ": "
+		   << start_stop_pairs_vec[ii].first << " "
+		   << start_stop_pairs_vec[ii].second << std::endl;
+      }
    }
 
    auto tp_2c = std::chrono::high_resolution_clock::now();
@@ -831,7 +900,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
              << d2a << " start-stop-reserve: " << d2b << " start-stop-push: " << d2c << " milliseconds\n";
 
    std::atomic<unsigned int> done_count(0);
-	bool use_extended_atom_mode = ! model_has_hydrogen_atoms;
+   bool use_extended_atom_mode = ! model_has_hydrogen_atoms;
 
    auto tp_3 = std::chrono::high_resolution_clock::now();
    for (std::size_t i=0; i<n_threads; i++) {
@@ -888,9 +957,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_using_threads_n
 }
 
 
-void
+unsigned int
 coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 								    const coot::protein_geometry &geom) {
+
+   unsigned int n_nbc_restraints = 0;
 
    // std::cout << "make_non_bonded_contact_restraints_ng() " << size() << " "  << std::endl;
 
@@ -923,9 +994,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       std::string et = get_type_energy(imol, at, geom);
       energy_type_for_atom[i] = et;
       if (H_parent_atom_is_donor(at))
-	 H_atom_parent_atom_is_donor_vec[i] = true;
+         H_atom_parent_atom_is_donor_vec[i] = true;
       if (is_acceptor(et, geom))
-	 atom_is_acceptor_vec[i] = true;
+         atom_is_acceptor_vec[i] = true;
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -950,20 +1021,20 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       std::set<unsigned int>::const_iterator it;
       for (it=n_set.begin(); it!=n_set.end(); it++) {
 
-	 const unsigned int &j = *it;
+         const unsigned int &j = *it;
 
-	 if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
-	    continue;
+         if (bonded_atom_indices[i].find(j) != bonded_atom_indices[i].end())
+            continue;
 
-	 // for updating non-bonded contacts
-	 if (non_bonded_contacts_atom_indices[i].find(j) != non_bonded_contacts_atom_indices[i].end())
-	    continue;
+         // for updating non-bonded contacts
+         if (non_bonded_contacts_atom_indices[i].find(j) != non_bonded_contacts_atom_indices[i].end())
+            continue;
 
-	 mmdb::Atom *at_2 = atom[j];
+         mmdb::Atom *at_2 = atom[j];
 
-	 if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
-	    if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
-	       continue;
+         if (fixed_atom_indices.find(i) != fixed_atom_indices.end())
+            if (fixed_atom_indices.find(*it) != fixed_atom_indices.end())
+               continue;
 
 	 if (j < i) /* only add NBC one way round */
 	    continue;
@@ -989,9 +1060,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	    in_same_residue_flag = false;
 	 }
 
+	 std::string atom_name_1 = at_1->GetAtomName();
+	 std::string atom_name_2 = at_2->GetAtomName();
+
 	 if (in_same_ring_flag) {
-	    std::string atom_name_1 = at_1->GetAtomName();
-	    std::string atom_name_2 = at_2->GetAtomName();
 
 	    // in_same_ring_flag = restraints_map[at_2->residue].second.in_same_ring(atom_name_1,
 	    //                                                                       atom_name_2);
@@ -1004,14 +1076,41 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	 // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
 	 // because the non-moving atom doesn't have angle restraints.
 	 //
-	 bool is_1_4_related = raic.is_1_4(i, j);
+	 bool is_1_4_related = raic.is_1_4(i, j, fixed_atom_flags);
 
 	 if (false)
-	    std::cout << "here C with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
+	    std::cout << "here with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
 		      << " is_1_4_related " << is_1_4_related << std::endl;
+
+	 bool mc_atoms_tandem = false;
+	 if (! is_1_4_related) {
+	    // hacky case for C in a helix.
+	    // Also N.
+
+	    if (atom_name_1 == " C  ")
+	       if (atom_name_2 == " C  ")
+		  if (at_2->residue->index - at_1->residue->index == 1) {
+		     std::cout << "-------- Here 1 " << at_1->residue->index << " " << at_2->residue->index
+			       << std::endl;
+		     mc_atoms_tandem = true;
+		  }
+	    if (atom_name_1 == " N  ")
+	       if (atom_name_2 == " N  ")
+		  if (at_2->residue->index - at_1->residue->index == -1) {
+		     mc_atoms_tandem = true;
+		     std::cout << "-------- Here 2 " << at_1->residue->index << " " << at_2->residue->index
+			       << std::endl;
+		  }
+	 }
+
+	 if (mc_atoms_tandem)
+	    is_1_4_related = true;
 
 	 if (is_1_4_related) {
 	    dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
+
+	    if (mc_atoms_tandem) dist_min = 2.99;
+
 	    if (is_hydrogen(at_1))
 	       dist_min -= 0.7;
 	    if (is_hydrogen(at_2))
@@ -1139,46 +1238,48 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	    }
 	 }
 
-	 bool is_H_non_bonded_contact = false;
+         bool is_H_non_bonded_contact = false;
 
-	 if (is_hydrogen(at_1)) {
-	    is_H_non_bonded_contact = true;
-	    if (H_parent_atom_is_donor(at_1))
-	       if (is_acceptor(type_2, geom))
-		  dist_min -= 0.7;
-	 }
-	 if (is_hydrogen(at_2)) {
-	    is_H_non_bonded_contact = true;
-	    if (H_parent_atom_is_donor(at_2))
-	       if (is_acceptor(type_1, geom))
-		  dist_min -= 0.7;
-	 }
+         if (is_hydrogen(at_1)) {
+            is_H_non_bonded_contact = true;
+            if (H_parent_atom_is_donor(at_1))
+               if (is_acceptor(type_2, geom))
+	          dist_min -= 0.7;
+         }
+         if (is_hydrogen(at_2)) {
+            is_H_non_bonded_contact = true;
+           if (H_parent_atom_is_donor(at_2))
+               if (is_acceptor(type_1, geom))
+	          dist_min -= 0.7;
+         }
 
+         non_bonded_contacts_atom_indices[i].insert(j);
+         simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
+         simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
+                            nbcf, i, *it,
+                            energy_type_for_atom[i],
+                            energy_type_for_atom[*it],
+                            is_H_non_bonded_contact,
+                            fixed_atom_flags, dist_min);
+         if (false) // debug
+            std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " " 
+		              << energy_type_for_atom[*it] << " "
+		              << is_H_non_bonded_contact << " "
+		              << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
+		              << dist_min <<  "\n";
 
-	 non_bonded_contacts_atom_indices[i].insert(j);
-	 simple_restraint::nbc_function_t nbcf = simple_restraint::LENNARD_JONES;
-	 simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
-			    nbcf, i, *it,
-			    energy_type_for_atom[i],
-			    energy_type_for_atom[*it],
-			    is_H_non_bonded_contact,
-			    fixed_atom_flags, dist_min);
-	 if (false) // debug
-	    std::cout << "Adding NBC " << i << " " << *it << " " << energy_type_for_atom[i] << " " 
-		      << energy_type_for_atom[*it] << " "
-		      << is_H_non_bonded_contact << " "
-		      << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << " "
-		      << dist_min <<  "\n";
-
-	 r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
+			n_nbc_restraints++;
+         r.n_atoms_from_all_restraints = n_atoms; // for debugging crash in non-bonded contact
                                                   // restraints
-	 r.restraints_index = size(); // likewise
-	 restraints_vec.push_back(r); // use push_back_restraint
+         r.restraints_index = size(); // likewise
+         restraints_vec.push_back(r); // use push_back_restraint
 
       }
    }
    make_df_restraints_indices();
    make_distortion_electron_density_ranges();
+
+	return n_nbc_restraints;
 
 }
 
@@ -1681,7 +1782,7 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
 	 }
 
 	 if (is_oxygen_a1) {
-	    std::map<std::string, double>::const_iterator it = geom.metal_N_map.find(rn_2);
+	    std::map<std::string, double>::const_iterator it = geom.metal_O_map.find(rn_2);
 	    if (it != geom.metal_O_map.end()) {
 	       // std::cout << "Yay! Make metal O bond restraint " << a1 << " to metal " << a2 << std::endl;
 	       add_header_metal_link_bond_ng(a1, a2, it->second);
@@ -1759,6 +1860,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    bool only_between_different_residues_flag = true;
    cb.find_the_contacts(&vcontacts, only_between_different_residues_flag);
 
+   std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > tested_but_nothing;
+
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
@@ -1803,7 +1906,8 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		     std::cout << "Here are the pairs in the linked set " << std::endl;
 		     std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it;
 		     for (it=residue_pair_link_set.begin(); it!=residue_pair_link_set.end(); it++)
-			std::cout << "   " << residue_spec_t(it->first) << " " << residue_spec_t(it->second) << std::endl;
+			std::cout << "   " << residue_spec_t(it->first) << " " << residue_spec_t(it->second)
+				  << std::endl;
 		  }
 
 		  mmdb::Residue *res_1 = at_1->residue;
@@ -1812,9 +1916,28 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  if (nlrs.already_added_p(res_1, res_2))
 		     continue;
 
+		  // add a check here for res_1 and res_2 already considered, but not added.
+		  // continue, in that case.
+		  //
+		  std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test(res_1, res_2);
+		  if (std::find(tested_but_nothing.begin(),
+				tested_but_nothing.end(),
+				pair_for_nothing_test) != tested_but_nothing.end())
+		     continue;
+
+		  if (false)
+		     std::cout << "------- considering " << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
+			       << std::endl;
+
 		  // not sure that this is what I want now, really
 		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
 		  // Returns first (link_type) as "" if not found, second is order switch flag
+
+		  if (false)
+		     std::cout << "-------- find_link_type_complicado() returns \"" << lt.first << "\""
+			       << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+			       << std::endl;
+
 		  if (! lt.first.empty()) {
 		     // this is not the place to make peptide links, event though find_link_type_complicado()
 		     // will return a peptide link (for links that were not made before (perhaps because
@@ -1829,6 +1952,11 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 
 			nlrs.insert(at_1, at_2, res_1, res_2, fixed_1, fixed_2, lt.first, lt.second);
 		     }
+		  } else {
+		     std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test_1(res_1, res_2);
+		     std::pair<mmdb::Residue *, mmdb::Residue *> pair_for_nothing_test_2(res_2, res_1);
+		     tested_but_nothing.push_back(pair_for_nothing_test_1);
+		     tested_but_nothing.push_back(pair_for_nothing_test_2);
 		  }
 	       }
 	    }
@@ -1888,9 +2016,10 @@ void
 coot::restraints_container_t::analyze_for_bad_restraints() {
 
    double interesting_distortion_limit = 10.0;
-   analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT, interesting_distortion_limit);
-   analyze_for_bad_restraints(              BOND_RESTRAINT, interesting_distortion_limit);
-   analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT, interesting_distortion_limit);
+   analyze_for_bad_restraints(     CHIRAL_VOLUME_RESTRAINT,     interesting_distortion_limit);
+   analyze_for_bad_restraints(              BOND_RESTRAINT,     interesting_distortion_limit);
+   analyze_for_bad_restraints(NON_BONDED_CONTACT_RESTRAINT,     interesting_distortion_limit);
+   analyze_for_bad_restraints(GEMAN_MCCLURE_DISTANCE_RESTRAINT, interesting_distortion_limit);
 
 }
 
@@ -1900,12 +2029,13 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
    std::vector<std::tuple<unsigned int, double, double, double> > distortions; // index n_z bl_delta, target-value distortion
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &rest = restraints_vec[i];
+
       if (rest.restraint_type == r_type) {
 
          // distortion and bond length delta
          std::pair<double, double> distortion_pair = rest.distortion(atom, lennard_jones_epsilon); // 2nd arg is not used for bonds
          double distortion_score = distortion_pair.first;
-         // std::cout << "restraint " << i << " type " << r_type << " distortion " << distortion_score << std::endl;
+
          if (distortion_score >= interesting_distortion_limit) {
             double n_z = sqrt(distortion_score);
             double delta = distortion_pair.second;
@@ -1915,7 +2045,9 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       }
    }
 
-   // std::cout << "in analyze_for_bad_restraints() n-restraints " << size() << " type " << r_type << " count " << distortions.size() << std::endl;
+   if (false)
+      std::cout << "DEBUG:: in analyze_for_bad_restraints() n-restraints " << size() << " type " << r_type
+                << " count " << distortions.size() << std::endl;
 
    auto distortion_sorter_lambda = // big distortions at the top
      [] (const std::tuple<unsigned int, double, double, double> &p1,
@@ -1925,6 +2057,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
    std::sort(distortions.begin(), distortions.end(), distortion_sorter_lambda);
    unsigned int n_baddies = 10;
    if (distortions.size() < n_baddies) n_baddies = distortions.size();
+	std::cout << std::setw(3) << std::endl;
    for (unsigned int i=0; i<n_baddies; i++) {
       const std::tuple<unsigned int, double, double, double> &d = distortions[i];
       const simple_restraint &rest = restraints_vec[std::get<0>(d)];
@@ -1952,6 +2085,13 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
+         std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
+                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+                   << " delta "      << std::get<2>(d)
+                   << " target "     << rest.target_value
+                   << " distortion " << std::get<3>(d) << "\n";
+
+      if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
          std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)

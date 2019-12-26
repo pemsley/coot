@@ -501,7 +501,7 @@ void apply_add_OXT_from_widget(GtkWidget *ok_button) {
       if (is_valid_model_molecule(imol)) {
 	 std::cout << "in apply_add_OXT_from_widget() here with chain_id :" << chain_id <<  ":" << std::endl;
 	 graphics_info_t g;
-	 std::pair<bool, int> p = g.molecules[imol].last_residue_in_chain(chain_id);
+	 std::pair<bool, int> p = g.molecules[imol].last_protein_residue_in_chain(chain_id);
 	 std::cout << "here with last_residue_in_chain " << p.first << " " << p.second << std::endl;
 	 if (p.first) {
 	    resno = p.second;

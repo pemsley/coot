@@ -1,0 +1,132 @@
+
+ o question: what are the optimal sampling and grid box radius?
+ o question: can I run locscale to get a resolution for every residue?
+ o question: find the worst LL additions (biggest negative) and look as its distribution - is it drawn
+             from a gaussian distribution? How do the mean and sd of the means of the stats compare
+             to the mean and standard deviation of a number of test grids/residues.
+ o improvement: in "combine" mode, now that you have many samples - you can find the outlier residues
+                and remove them.
+                Do this filtering for 2 (or more) rounds? Does that improve the sensitivity?
+                What is the sensitivity?
+ o improvement: log likelihood ratio vs null hyphothesis of a guassian sphere of density.
+                This needs a new mode for test-side-chain-densities "generate-null-hypothesis"
+                scores for each rotamer - put the results in "null-hypothesis-likelihood" in
+                the rotamer directory. What is "sigma" of the spherical gaussian? Choose (search for)
+                a sigma that maximizes the likelihood over all rotamers. The spherical gaussian
+                will have to be scaled - so search for that also. So allow to parse the scale factor
+                and the sigma on the command line.
+ o improvement: now that seaching a fragment is fast, come up with a scoring scheme that fits fragments
+                of various lengths in a number of structures (3 perhaps, to start with). Can we get the
+                probability of a fit using the log likelihoods of all the fits? Try to optimize the sum
+                of the probabilities of the fragments?
+                Run searches in parallel? Get an ASU of a virus capsid.
+ o improvement: don't add the above test molecules to the "database"
+ o improvement: check that the average density of the map is 0 before adding their residues to the database
+ o improvement: check that the average density of the test/search map is 0.
+ o improvement: write and read the stats.table files as binary
+ o improvement: we can adjust/augment the probability of a PRO by looking at phi/psi.
+                If you strip side chains (or better poly-ala) a model and then RSR it - does the residue that
+                was/should be a PRO remain in PRO phi,psi?
+ o addition: test all chains in the EMDB - using the correct sequence, try to find the fragments where the
+             trace is off (by one, two, three?). This could be quite tricky in practice.
+ o addition: find best guess and variants and screen in the database, using blast. How many variants is a
+             useful number?
+ o addition: add a "optimize parameter" mode, that reads a file of test structures e.g.
+             #structure A.pdb A.map
+             A 10 20
+             A 20 26
+             A 30 40
+             #structure B.pdb B.map
+             A 10 20
+             A 20 26
+             A 50 60
+             A 70 90
+
+             find the rank of the correct solution for each of these trials and the sum of the ranks
+             gives us a number that I can optimize
+
+ o addition: maybe a GLN in a loop doesn't look like a GLN in a strand? Or helix - same for other residue
+             types. Maybe split the probability distributions according to secondary structure.
+
+ o improvement: can you can augment the probabilites by looking at phi,psi for the residue for
+                the various residues types? (consider that plot for GLY doesn't look like PRO)
+
+  o Note: for the best solution to be 10 times more probable than the next best: the delta log likelihood
+    needs to be +2.3 (log(10)).
+
+  o Note: to match the distributions: the combine step needs to create a file that contains
+          the mean and standard deviations of all density values for all instances of that rotamer.
+          Then on testing, I read that file and match the distribution of the density points for *this*
+          residue to that in that file - call it "summary-stats".
+
+I need to check that the average density is 0 - or thereabouts.
+Otherwise the normalization of the density grid points will not work correctly.
+
+for side-chain-densities:
+
+bash make-side-chain-data-dirs.sh to make the directories
+
+
+# generate grid points suitable to find all side chains (within distance) and not main-chain
+./test-side-chain-densities generate-useable-grid-points 19 gen-pts-19.data  # based on A19
+./test-side-chain-densities generate-useable-grid-points 20 gen-pts-20.data  # based on A20
+
+sed -e 's/ at.*//' -e 's/setting grid point //' gen-pts-19.data > col-19.data
+sed -e 's/ at.*//' -e 's/setting grid point //' gen-pts-20.data > col-20.data
+
+# find the common grid points
+comm -12 col-19.data col-20.data > useable-grid-points-nstep=4,box_radius=4.0.data
+
+# how does gen-pts-19.data or useable-grid-points-nstep=4,box_radius=4.0.data look?
+# are the useable grid points dots in the right place?
+../src/coot-bin --script show-the-grid.py
+
+../src/coot-bin --script show-the-check-points.py
+
+# now we are ready to scan the maps: long time with lots of maps - can be split up.
+
+# or whatever radius and step you are using now
+bash run-side-chain-densities.sh useable-grid-points-nstep=4,box_radius=4.0.data
+
+# now we need to model those distributions and create mean, variance and skew for each grid point
+
+rm side-chain-data/*/*/stats.table # may be needed.
+#
+./test-side-chain-densities combine > combine.out
+#
+# this generates stats.table (mean, variance and skew for every grid point) for every rotamer
+
+# Now I want to look at the distributions:
+Use R to examine the data at each grid point, e.g. side-chain-data/ASP/t70/grid-point-384.data
+   in R: source density-histograms.r  
+      -> skewed distributions - fine.
+
+# testing if this program works:
+# does this rotamer look like the rotamers in the "database"?
+# using test.pdb and blurred-test.map
+./test-side-chain-densities test-residue 18 useable-grid-points-nstep=4,box_radius=4.0.data
+which gives us sum log likelihoods for side chains.
+
+
+# do the stats show the right "shape" for the given rotamer - now we can specify which residue
+# they should be added over
+./test-side-chain-densities check-stats TYR m-85 test.pdb A 20 useable-grid-points-nstep=4,box_radius=4.0.data > TYR-m-85.data
+
+# edit this script to read the data file:
+../src/coot-bin --script show-the-grid-stats.py
+
+---
+ 
+  checking the distribution of points for our test side chains vs the means in stats.table for the correct rotamer:
+
+  turn on rotamer_limits in get_rotamer_likelihoods()
+  grep "with x " out > with.tab
+  and use with-x.r
+
+
+---
+
+   side chain data structures: read the notes here:  /d/emsley/EMDB
+
+
+

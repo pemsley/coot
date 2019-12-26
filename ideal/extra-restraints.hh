@@ -85,9 +85,18 @@ namespace coot {
 	    } else {
 	       std::cout << "not found bond restraint between " << br.atom_1 <<  " " << br.atom_2 << std::endl;
 	       return false;
-	    } 
-	 } 
+	    }
+	 }
       };
+
+
+      class extra_geman_mcclure_restraint_t : public extra_bond_restraint_t {
+
+      public:
+	 extra_geman_mcclure_restraint_t() {}
+	 extra_geman_mcclure_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) : extra_bond_restraint_t(a1, a2, d, e) {}
+      };
+
         
       class extra_angle_restraint_t {
       public:
@@ -154,6 +163,7 @@ namespace coot {
       std::vector<extra_bond_restraint_t> bond_restraints;
       std::vector<extra_angle_restraint_t> angle_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
+      std::vector<extra_geman_mcclure_restraint_t> geman_mcclure_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
       std::vector<extra_target_position_restraint_t> target_position_restraints;
       std::vector<parallel_planes_t> parallel_plane_restraints;
@@ -173,6 +183,8 @@ namespace coot {
 	    return true;
 	 else if (target_position_restraints.size() > 0)
 	    return true;
+	 else if (geman_mcclure_restraints.size() > 0)
+	    return true;
 	 else
 	    return false;
       }
@@ -183,6 +195,7 @@ namespace coot {
 	 torsion_restraints.clear();
 	 start_pos_restraints.clear();
          parallel_plane_restraints.clear();
+	 geman_mcclure_restraints.clear();
       }
 
       void add_restraints(const extra_restraints_t &r) {

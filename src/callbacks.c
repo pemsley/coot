@@ -2360,7 +2360,7 @@ on_accept_reject_refinement_dialog_destroy
                                         gpointer         user_data)
 {
 
-  /* Pressing Esc while focus is on the Accept/Reject dialog brings us here. */
+  /* Pressing Escape while focus is on the Accept/Reject dialog brings us here. */
 
   /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
      reset the value for graphics_info_t::accept_reject_dialog (it's
@@ -2371,7 +2371,9 @@ on_accept_reject_refinement_dialog_destroy
   set_accept_reject_dialog(NULL);
   stop_refinement_internal();
   /* I want to merely clear the stick restraint, not refine again after I did that */
-  clear_atom_pull_restraint_on_accept_reject_destroy();
+
+  /* clear_atom_pull_restraint_on_accept_reject_destroy(); */
+
   clear_up_moving_atoms();
 }
 
@@ -4152,7 +4154,7 @@ on_run_refmac_map_mtz_radiobutton_toggled
 
   GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_combobox_with_refmac_labels_options(map_combobox);
+    fill_combobox_with_refmac_mtz_file_options(map_combobox);
   }
 }
 
@@ -11864,8 +11866,6 @@ on_baton_build_params_cancel_button_clicked
 }
 
 
-/* BL says:: comment out whole function for GTK1 as we dont have the dialog */
-#if (GTK_MAJOR_VERSION >1)
 void
 on_baton_build_set_params_button_clicked
                                         (GtkButton       *button,
@@ -11875,20 +11875,16 @@ on_baton_build_set_params_button_clicked
   gtk_widget_show(w);
 
 } 
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_coords_toolbutton_clicked           (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
   open_coords_dialog();
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data) { 
@@ -11896,16 +11892,13 @@ on_go_to_atom_toolbutton_clicked       (GtkToolButton   *toolbutton,
   GtkWidget *widget = wrapped_create_goto_atom_window(); 
   gtk_widget_show(widget); 
 }
-#endif /* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
                                         gpointer         user_data) { 
   go_to_ligand();
 } 
 
-#endif /* GTK_MAJOR_VERSION */
 
 
 void

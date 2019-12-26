@@ -6026,7 +6026,7 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 		  if (this_res->GetSeqNum() == (next_res->GetSeqNum()-1)) {
 
 		     try { 
-			coot::util::phi_psi_t pp(prev_res, this_res, next_res);
+			coot::util::phi_psi_t pp(prev_res, this_res, next_res); // coot-rama.hh
 			// std::cout << "   " << coot::residue_spec_t(this_res)
 			//           << " " << pp << std::endl;
 			mmdb::Atom *at = this_res->GetAtom(" CA "); // PDBv3 FIXME
@@ -6086,6 +6086,8 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
          if (p.radius_for_atom_should_be_big(at)) // maybe put this in the constructor.
             p.radius_scale = 2.0;
          if (no_bonds_to_these_atoms.find(i) == no_bonds_to_these_atoms.end()) {
+               if (std::string(at->residue->GetResName()) == "HOH") p.is_water = true;
+               if (is_H_flag) p.is_hydrogen_atom = true;
 	       p.atom_p = at;
 	       atom_centres.push_back(p);
 	       int icol = atom_colour(at, atom_colour_type, atom_colour_map);
@@ -6167,11 +6169,12 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
         spots[i].second.residue_name() == "VAL" )
        rama = &rc.rama_ileval;
     if (spots[i].second.is_pre_pro())
-       rama = &rc.rama_pre_pro;
+       if (spots[i].second.residue_name() != "GLY")
+	  rama = &rc.rama_pre_pro;
 #endif
-	 
-	 // phi_psi_t needs to contain the next residue type to use
-	 // rama.pre_pro at some stage
+
+    // phi_psi_t needs to contain the next residue type to use
+    // rama.pre_pro at some stage
 
 	 float rama_score = 10;
 	 

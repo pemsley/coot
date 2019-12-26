@@ -60,6 +60,17 @@
 zo::rama_table_set coot::restraints_container_t::zo_rama;
 
 
+void
+coot::restraints_container_t::clear() {
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+      unlocked = false;
+   }
+   restraints_vec.clear();
+   init(); // resets lock, fwiw
+}
+
 
 coot::restraints_container_t::~restraints_container_t() {
    if (from_residue_vector) {
@@ -831,9 +842,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // we don't need to calculate the NBC for all atoms - just these ones:
    n_atoms_limit_for_nbc = 0;
-   for (unsigned int i=0; i<residues.size(); i++)
+   for (unsigned int i=0; i<residues.size(); i++) {
       n_atoms_limit_for_nbc += residues[i].second->GetNumberOfAtoms();
-
+      // std::cout << "Here in init_from_residue_vec() with n_atoms_limit_for_nbc " << n_atoms_limit_for_nbc << std::endl;
+   }
 
    // Include only the fixed residues, because they are the flankers,
    // the other residues are the ones in the passed residues vector.
@@ -1177,7 +1189,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 
    short int print_chi_sq_flag = 1;
    refinement_results_t rr = minimize(usage_flags, 1000, print_chi_sq_flag);
-   // std::cout << "minimize() returns " << rr.progress << std::endl;
+   // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
    return rr;
 
 }
@@ -1257,8 +1269,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 				       const coot::protein_geometry &geom) {
 
 
-   unsigned int n_steps_per_relcalc_nbcs = 100000; // Hmm.
-   // n_steps_per_relcalc_nbcs *= 1000;
+   unsigned int n_steps_per_recalc_nbcs = 300000; // Hmm.
+   // n_steps_per_relcalc_nbcs *= 10;
 
    n_times_called++;
    n_small_cycles_accumulator += n_times_called * nsteps_max;
@@ -1286,20 +1298,26 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    // That should do a lot of work for us in domain-refine and coot-cuda-refine
    // but not in wonky-N-terminus refine.
 
-   if (n_small_cycles_accumulator >= n_steps_per_relcalc_nbcs) {
+   if (n_small_cycles_accumulator >= n_steps_per_recalc_nbcs) {
       auto tp_0 = std::chrono::high_resolution_clock::now();
-      make_non_bonded_contact_restraints_ng(imol, geom);
+      unsigned int n_new = make_non_bonded_contact_restraints_ng(imol, geom);
       auto tp_1 = std::chrono::high_resolution_clock::now();
-      setup_minimize();
-      auto tp_2 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-      // std::cout << "minimize() nbc updates " << d10 << " " << d21 << " milliseconds" << std::endl;
+      // setup_minimize(); // needed? (seems not)
+      if (false) {
+         auto tp_2 = std::chrono::high_resolution_clock::now();
+         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+         unsigned int n_restraints = size();
+         std::cout << "minimize() nbc updated made " << n_new << " (new) nbc restraints: " << n_restraints << " total - timings: "
+                   << d10 << " " << d21 << " milliseconds" << std::endl;
+      }
       n_small_cycles_accumulator = 0;
    }
 #endif
 
    refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+
+   // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
 
    return rr;
 }
@@ -1371,13 +1389,12 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 // we should not update the atom pull restraints while the refinement is running.
 	 // we shouldn't refine when the atom pull restraints are being updated.
 
-#ifdef HAVE_CXX_THREAD
 	 bool unlocked = false;
-	 while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 // while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	 while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(10));
 	    unlocked = false;
 	 }
-#endif
 
          if (m_s == 0) {
             std::cout << "ERROR:: !! m_s has disappeared! " << std::endl;
@@ -1386,9 +1403,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	    status = gsl_multimin_fdfminimizer_iterate(m_s);
          }
 
-#ifdef HAVE_CXX_THREAD
-	 restraints_lock = false; // unlock
-#endif
 	 // this might be useful for debugging rama restraints
 
 	 conjugate_pr_state_t *state = (conjugate_pr_state_t *) m_s->state;
@@ -1409,7 +1423,6 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 			    << " pnorm " << pnorm << " g0norm " << g0norm << "\n";
 
 	       // write out gradients here - with numerical gradients for comparison
-
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores (ENOPROG)", m_s->x);
 	       done_final_chi_squares = true;
 	       refinement_lights_info_t::the_worst_t worst_of_all = find_the_worst(lights_vec);
@@ -1430,6 +1443,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
                // useful - but not for everyone
                // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
+            restraints_lock = false;
 	    break;
 	 }
 
@@ -1457,10 +1471,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	 if (verbose_geometry_reporting == VERBOSE)
 	    std::cout << "iteration number " << iter << " " << m_s->f << std::endl;
 
+	 restraints_lock = false; // unlock
+
       }
    while ((status == GSL_CONTINUE) && (iter < nsteps_max));
-
-   // std::cout << "Debug:: post loop status is " << status << std::endl;
 
    if (! done_final_chi_squares) {
       if (status != GSL_CONTINUE) {
@@ -1479,23 +1493,24 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       std::cout << "Hit nsteps_max " << nsteps_max << " " << m_s->f << std::endl;
 
    update_atoms(m_s->x); // do OXT here
+   // std::cout << "After update atoms " << std::endl;
 
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
 
-   if (status != GSL_CONTINUE) {
+   // std::cout << "After rr" << std::endl;
 
-#ifdef HAVE_CXX_THREAD
+   if (status != GSL_CONTINUE) {
 
       // protection so that clearing of the vectors doesn't coincide with geometric_distortions()
       // evaluation
 
       bool unlocked = false;
-      while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+         // std::cout << "debug:: in minimize_inner() waiting for restraints_lock" << std::endl;
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
-	 }
-#endif
+      }
 
       std::cout << "DEBUG:: ---- free/delete/reset m_s and x" << std::endl; // works fine
       gsl_multimin_fdfminimizer_free(m_s);
@@ -1503,16 +1518,18 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       m_s = 0;
       x = 0;
       needs_reset = true;
-#ifdef HAVE_CXX_THREAD
+
+      // std::cout << "debug:: unlocking restraints in minimize_inner()"  << std::endl;
       restraints_lock = false; // unlock
-#endif
    }
 
    // the bottom line from the timing test is the only thing that matters
    // is the time spend in the core minimization iterations
 
-   // std::cout << "-------------- Finally returning from minimize_inner() with rr with status "
-   //           << rr.progress << std::endl;
+   if (false)
+      std::cout << "-------------- Finally returning from minimize_inner() with rr with status "
+                << rr.progress << std::endl;
+
    n_refiners_refining--;
    return rr;
 }
@@ -2286,7 +2303,7 @@ coot::restraints_container_t::resolve_bonds(const gsl_vector *v) const {
 					 std::fabs(b_uv.y()),
 					 std::fabs(b_uv.z()));
 	    clipper::Coord_orth frag(b_uv_abs * delta);
-	    resultant.add(clipper::Coord_orth(b_uv_abs * delta));
+	    resultant.add(delta, clipper::Coord_orth(b_uv_abs * delta));
 	 }
       }
    }
@@ -2662,15 +2679,19 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_rama_plot_restraints,
 					      bool do_auto_helix_restraints,
 					      bool do_auto_strand_restraints,
+					      bool do_auto_h_bond_restraints,
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 					      bool do_link_restraints,
 					      bool do_flank_restraints) {
 
 
 #if 1
+
    make_restraints_ng(imol, geom, flags_in, do_residue_internal_torsions, do_trans_peptide_restraints,
 		      rama_plot_target_weight, do_rama_plot_restraints,
-		      do_auto_helix_restraints, do_auto_strand_restraints,
+		      do_auto_helix_restraints,
+                      do_auto_strand_restraints,
+                      do_auto_h_bond_restraints,
 		      sec_struct_pseudo_bonds, do_link_restraints, do_flank_restraints);
 
    return size();
@@ -3342,7 +3363,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec() {
    // this doesn't do the right thing if there are insertion codes. Maybe I could check for that
    // here and jump out at the start if so.
 
-   float pseudo_bond_esd = 0.035; // seems reasonable.
+   float pseudo_bond_esd = 0.02; // 0.035 seems reasonable.
+                                 // 0.035 20191022-PE seems a bit weak now.
 
    // this double loop might be hideous for many hundreds of residues
    //
@@ -3579,6 +3601,66 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
       }
    }
    mol->DeleteSelection(selHnd);
+}
+
+#include "coot-utils/coot-h-bonds.hh"
+
+void
+coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coot::protein_geometry &geom) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+   int SelHnd = mol->NewSelection(); // d
+   h_bonds hbs;
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   for(unsigned int i=0; i<residues_vec.size(); i++) {
+      mmdb::Residue *r = residues_vec[i].second;
+      residue_spec_t(r).select_atoms(mol, SelHnd, mmdb::SKEY_OR);
+   }
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   std::vector<h_bond> v = hbs.get(SelHnd, SelHnd, mol, geom);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
+
+   unsigned int n_bonds = 0;
+
+   for (unsigned int i=0; i<v.size(); i++) {
+      const h_bond &hb = v[i];
+      if (hb.donor) {
+         if (hb.acceptor) {
+            clipper::Coord_orth b(co(hb.donor) - co(hb.acceptor));
+
+            int index_1 = -1, index_2 = -1;
+            int udd_get_data_status_1 = hb.donor->GetUDData(   udd_atom_index_handle, index_1);
+            int udd_get_data_status_2 = hb.acceptor->GetUDData(udd_atom_index_handle, index_2);
+
+
+            if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
+                udd_get_data_status_2 == mmdb::UDDATA_Ok) {
+
+               std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+               add(BOND_RESTRAINT, index_1, index_2,
+                   fixed_flags,
+                   sqrt(b.lengthsq()), 0.1,
+                   1.2);  // junk value
+
+               add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
+                                          sqrt(b.lengthsq()), 0.1);
+                                          
+               n_bonds++;
+            }
+         }
+      }
+   }
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   std::cout << "------------------- timing: " << d10 << " " << d21 << " " << d32
+             <<  " milliseconds to find " << v.size() << " H-bonds " << std::endl;
+   std::cout << "DEBUG:: made " << n_bonds << " hydrogen bonds " << std::endl;
+
+   mol->DeleteSelection(SelHnd);
+
 }
 
 
@@ -4630,7 +4712,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
 	       // because the non-moving atom doesn't have angle restraints.
 	       //
-	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j]);
+	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j], fixed_atom_flags);
 
 	       if (false)
 		  std::cout << "here C with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
@@ -4966,7 +5048,8 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2,
 						     const reduced_angle_info_container_t &ai) const {
 
    bool is_1_4 = false;
-   is_1_4 = ai.is_1_4(idx_1, idx_2);
+   std::vector<bool> fixed_atom_flags = {false, false};
+   is_1_4 = ai.is_1_4(idx_1, idx_2, fixed_atom_flags);
    // std::cout << "debug:: check_for_1_4_relation(ai) " << idx_1 << " " << idx_2 << " is " << is_1_4
    // << std::endl;
    return is_1_4;
@@ -4990,6 +5073,11 @@ coot::restraints_container_t::reduced_angle_info_container_t::init(const std::ve
 	 std::pair<int, int> p_2(r[ii].atom_index_2, r[ii].atom_index_1);
 	 angles[r[ii].atom_index_1].push_back(p_1);
 	 angles[r[ii].atom_index_3].push_back(p_2);
+      }
+
+      if (r[ii].restraint_type == BOND_RESTRAINT) {
+	 bonds[r[ii].atom_index_1].insert(r[ii].atom_index_2);
+	 bonds[r[ii].atom_index_2].insert(r[ii].atom_index_1);
       }
    }
 }
@@ -5016,43 +5104,110 @@ coot::restraints_container_t::reduced_angle_info_container_t::write_angles_map(c
 } 
 
 bool
-coot::restraints_container_t::reduced_angle_info_container_t::is_1_4(int indx_1, int indx_2) const {
+coot::restraints_container_t::reduced_angle_info_container_t::is_1_4(int indx_1, int indx_2,
+								     const std::vector<bool> &fixed_atom_flags) const {
 
    // this function can be const because we don't use [] operator on the angles map.
-   
+
+   // This doesn't find 1-4 related main-chain when one (or more) of the atoms is in the residue
+   // are fixed atoms (because fixed atoms don't have angle restraints)
+
+   // We could catch some of those by looking to see if one atom (C(n-1)) is fixed and the
+   // others are not (C(n), CA(n), N(n)) and that there is a bond between N(n) and C(n+1).
+
    bool f = false;
 
-   std::map<int, std::vector<std::pair<int, int> > >::const_iterator it_1, it_2;
-   it_1 = angles.find(indx_1);
-   if (it_1 != angles.end()) {
-      const std::vector<std::pair<int, int> > &v = it_1->second;
-      for (unsigned int ii=0; ii<v.size(); ii++) {
-	 
-	 // what are the angles that have atom_mid as atom_1?  We can ask this because angles
-	 // go into this object both way rounds: A-B-C, C-B-A.
-	 
-	 int idx_mid = v[ii].first;
+   bool has_a_fixed_atom = false;
 
-	 it_2 = angles.find(idx_mid);
-	 if (it_2 != angles.end()) {
-	    const std::vector<std::pair<int, int> > &v_2 = it_2->second;
-	    // are any of these indx_2?
-	    for (unsigned int jj=0; jj<v_2.size(); jj++) { 
-	       if (v_2[jj].second == indx_2) {
-		  f = true;
-		  break;
+   if (fixed_atom_flags.size() != 2) {
+      std::cout << "ERROR:: in reduced_angle_info_container_t is_1_4(): " << fixed_atom_flags.size()
+		<< std::endl;
+      return false;
+   }
+
+   if (fixed_atom_flags[0]) has_a_fixed_atom = true;
+   if (fixed_atom_flags[1]) has_a_fixed_atom = true;
+
+   if (! has_a_fixed_atom) {
+      std::map<int, std::vector<std::pair<int, int> > >::const_iterator it_1, it_2;
+      it_1 = angles.find(indx_1);
+      if (it_1 != angles.end()) {
+	 const std::vector<std::pair<int, int> > &v = it_1->second;
+	 for (unsigned int ii=0; ii<v.size(); ii++) {
+	 
+	    // what are the angles that have atom_mid as atom_1?  We can ask this because angles
+	    // go into this object both way rounds: A-B-C, C-B-A.
+	 
+	    int idx_mid = v[ii].first;
+
+	    it_2 = angles.find(idx_mid);
+	    if (it_2 != angles.end()) {
+	       const std::vector<std::pair<int, int> > &v_2 = it_2->second;
+	       // are any of these indx_2?
+	       for (unsigned int jj=0; jj<v_2.size(); jj++) {
+		  if (v_2[jj].second == indx_2) {
+		     f = true;
+		     break;
+		  }
+	       }
+	    }
+
+	    if (f)
+	       break;
+
+	 }
+      }
+   } else {
+
+      // *Does* have a fixed atom index
+
+      bool fixed_1 = false;
+      bool fixed_2 = false;
+      if (fixed_atom_flags[0]) fixed_1 = true;
+      if (fixed_atom_flags[1]) fixed_2 = true;
+
+      if (fixed_2 && ! fixed_1) {
+	 // key: atom index, data: a vector of the other 2 atoms in the angle restraints
+	 std::map<int, std::vector<std::pair<int, int> > >::const_iterator it = angles.find(indx_1);
+	 if (it != angles.end()) {
+	    const std::vector<std::pair<int, int> > &v = it->second;
+	    for (unsigned int ii=0; ii<v.size(); ii++) {
+	       int idx_other_end = v[ii].second;
+	       // is there a bond between idx_other_end and idx_2?
+	       std::map<int, std::set<int> >::const_iterator it_bonds = bonds.find(idx_other_end);
+	       if (it_bonds != bonds.end()) {
+		  const std::set<int> &s = it_bonds->second;
+		  if (s.find(indx_2) != s.end()) {
+		     f = true;
+		     break;
+		  }
 	       }
 	    }
 	 }
+      }
 
-	 if (f)
-	    break;
-
+      // same as above, but reversed indices
+      if (fixed_1 && ! fixed_2) {
+	 std::map<int, std::vector<std::pair<int, int> > >::const_iterator it = angles.find(indx_2);
+	 if (it != angles.end()) {
+	    const std::vector<std::pair<int, int> > &v = it->second;
+	    for (unsigned int ii=0; ii<v.size(); ii++) {
+	       int idx_other_end = v[ii].second;
+	       // is there a bond between idx_other_end and idx_1?
+	       std::map<int, std::set<int> >::const_iterator it_bonds = bonds.find(idx_other_end);
+	       if (it_bonds != bonds.end()) {
+		  const std::set<int> &s = it_bonds->second;
+		  if (s.find(indx_1) != s.end()) {
+		     f = true;
+		     break;
+		  }
+	       }
+	    }
+	 }
       }
    }
-
    return f;
-} 
+}
 
 bool
 coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2) const {
@@ -5284,6 +5439,25 @@ coot::simple_restraint::distortion(mmdb::PAtom *atoms, const double &lj_epsilon)
          double z = delta/sigma;
          double pen_score = z * z;
          distortion_pair.first = pen_score;
+         distortion_pair.second = delta;
+      }
+   }
+
+   if (restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+      mmdb::Atom *at_1 = atoms[atom_index_1];
+      mmdb::Atom *at_2 = atoms[atom_index_2];
+      if (at_1 && at_2) {
+         clipper::Coord_orth p1 = co(at_1);
+         clipper::Coord_orth p2 = co(at_2);
+         double d = sqrt((p2-p1).lengthsq());
+	 if (false)
+	    std::cout << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+		      << " d " << d << " target_value " << target_value << std::endl;
+         double alpha = 0.01; // pass this
+         double delta = d - target_value;
+         double z = delta/sigma;
+         double distortion = z*z/(1+alpha*z*z);
+         distortion_pair.first = distortion;
          distortion_pair.second = delta;
       }
    }
@@ -5962,10 +6136,6 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	       n_bond_restraints++;
 	       rc.n_bond_restraints++;
 	       rc.n_angle_restraints++;
-	       // bonded_atom_indices[atom_index_1].push_back(atom_index_2);
-	       // bonded_atom_indices[atom_index_2].push_back(atom_index_1);
-	       // bonded_atom_indices[atom_index_1].push_back(atom_index_3);
-	       // bonded_atom_indices[atom_index_3].push_back(atom_index_1);
 	       bonded_atom_indices[atom_index_1].insert(atom_index_2);
 	       bonded_atom_indices[atom_index_2].insert(atom_index_1);
 	       bonded_atom_indices[atom_index_1].insert(atom_index_3);
@@ -5996,6 +6166,9 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 
    // Now do the inter-hydrogen angle restraints
 
+   // 20191005-PE we add the bonded_atom_indices for angles between H so that NBCs
+   // are not generted between these Hs.
+
    if (N_index >= 0) {
       std::map<std::string, int>::const_iterator it_1, it_2, it_3;
       for(it_1=h1s.begin(); it_1!=h1s.end(); it_1++) {
@@ -6005,16 +6178,22 @@ coot::restraints_container_t::add_N_terminal_residue_bonds_and_angles_to_hydroge
 	 if (it_2 != h2s.end()) {
 	    std::vector<bool> fixed_flags_a12 = make_fixed_flags(it_1->second, N_index, it_2->second);
 	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_2->second, fixed_flags_a12, 109.5, 2.0, false);
+            bonded_atom_indices[it_1->second].insert(it_2->second);
+            bonded_atom_indices[it_2->second].insert(it_1->second);
 	 }
 
 	 if (it_3 != h3s.end()) {
 	    std::vector<bool> fixed_flags_a13 = make_fixed_flags(it_1->second, N_index, it_3->second);
 	    add(ANGLE_RESTRAINT, it_1->second, N_index, it_3->second, fixed_flags_a13, 109.5, 2.0, false);
+            bonded_atom_indices[it_1->second].insert(it_3->second);
+            bonded_atom_indices[it_3->second].insert(it_1->second);
 	 }
 
 	 if (it_2 != h2s.end() && it_3 != h3s.end()) {
 	    std::vector<bool> fixed_flags_a23 = make_fixed_flags(it_2->second, N_index, it_3->second);
 	    add(ANGLE_RESTRAINT, it_2->second, N_index, it_3->second, fixed_flags_a23, 109.5, 2.0, false);
+            bonded_atom_indices[it_2->second].insert(it_3->second);
+            bonded_atom_indices[it_3->second].insert(it_2->second);
 	 }
       }
    }
@@ -7060,7 +7239,7 @@ coot::restraints_container_t::info() const {
 		   << " with periodicity "
   		   << restraint.periodicity << std::endl;
       }
-      std::cout << "restraint number " << i << " is restraint_type " <<
+      std::cout << "INFO:: restraint number " << i << " is restraint_type " <<
 	 restraint.restraint_type << std::endl;
    }
 } 
@@ -7105,7 +7284,7 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 bool do_internal_torsions = true;
 	 bool do_trans_peptide_restraints = true;
 	 restraints.make_restraints(imol, geom, flags, do_internal_torsions,
-				    do_trans_peptide_restraints, 0, 0, true, true, pseudos);
+				    do_trans_peptide_restraints, 0, 0, true, true, false, pseudos);
 	 restraints.minimize(flags, 3000, 1);
       }
    }

@@ -635,13 +635,14 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 
 	 // Use vdwh_radius of called in "No hydrogens in the model" mode.
 	 float radius_1 = it_1->second.vdw_radius;
-	 float radius_2 = it_1->second.vdw_radius;
+	 float radius_2 = it_2->second.vdw_radius;
 
-    if (extended_atoms_mode) radius_1 = it_1->second.vdwh_radius;
-    if (extended_atoms_mode) radius_2 = it_2->second.vdwh_radius;
+         if (extended_atoms_mode) radius_1 = it_1->second.vdwh_radius;
+         if (extended_atoms_mode) radius_2 = it_2->second.vdwh_radius;
 
-	 if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
-	 if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
+         if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
+         if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
+
 	 r.second = radius_1 + radius_2;
 
 	 if (in_same_residue_flag) {
@@ -683,8 +684,9 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	      it_2->second.hb_type == coot::HB_BOTH)) {
 	    r.second -= 0.5;
 	    // actual hydrogens to acceptors can be shorter still
-	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN) {
 	       r.second -=0.3;
+	    }
 	 }
 
 	 if ((it_2->second.hb_type == coot::HB_DONOR ||
@@ -694,8 +696,9 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	      it_1->second.hb_type == coot::HB_BOTH)) {
 	    r.second -= 0.5;
 	    // as above
-	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN) {
 	       r.second -=0.3;
+	    }
 	 }
 
          r.first = true;

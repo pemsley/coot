@@ -481,8 +481,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 myWireCube (1.0);
       }
 
-     // Now we have finished displaying our annotation objects and
-     // making transformations, lets put the matrix back how it used
+      // Now we have finished displaying our annotation objects and
+      // making transformations, lets put the matrix back how it used
       // to be.
       glPopMatrix();
 

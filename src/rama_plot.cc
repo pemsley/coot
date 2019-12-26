@@ -337,9 +337,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
 #ifdef HAVE_GOOCANVAS
 
-   // or just use?!
-   // fixed_font_str = "Sans 9"
-   fixed_font_str = coot::get_fixed_font();
+   fixed_font_str = "Sans 9";
 
    dragging = FALSE;
    drag_x = 0;
@@ -681,9 +679,9 @@ coot::rama_plot::draw_it(mmdb::Manager *mol, int SelHnd, int primary) {
 }
 
 void
-coot::rama_plot::setup_background(bool blocks, bool isolines) {
+coot::rama_plot::setup_background(bool blocks, bool isolines, bool print_image) {
 
-   int take_bg_image = 0;
+   int take_bg_image = 1;
 
 #ifdef HAVE_GOOCANVAS
 
@@ -691,48 +689,43 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
    bg_gly = goo_canvas_group_new(root, NULL);
    bg_pro = goo_canvas_group_new(root, NULL);
    bg_non_gly_pro = goo_canvas_group_new(root, NULL);
+#ifdef CLIPPER_HAS_TOP8000
+   bg_ileval = goo_canvas_group_new(root, NULL);
+   bg_pre_pro = goo_canvas_group_new(root, NULL);
+   bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
+#endif
 
    // if default we use images otherwise we make blocks
 
-   // use a pre-made rama picture if we have standard settings,
-   // otherwise make a block background to specifications
-   if (fabs(rama_threshold_preferred - 0.02) < 0.000001 &&
-       fabs(rama_threshold_allowed - 0.002) < 0.000001 &&
-       psi_axis_mode == PSI_CLASSIC)
-   {
+   if (!print_image) {
+      // use a pre-made rama picture if we have standard settings,
+      // otherwise make a block background to specifications
+      if (fabs(rama_threshold_preferred - 0.02) < 0.000001 &&
+          fabs(rama_threshold_allowed - 0.002) < 0.000001 &&
+          psi_axis_mode == PSI_CLASSIC)
+      {
 #ifdef CLIPPER_HAS_TOP8000
-      bg_ileval = goo_canvas_group_new(root, NULL);
-      bg_pre_pro = goo_canvas_group_new(root, NULL);
-      bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
-
-      take_bg_image = make_background_from_image(rama, bg_all, "rama2_all.png");
-      take_bg_image += make_background_from_image(r_gly, bg_gly, "rama2_gly.png");
-      take_bg_image += make_background_from_image(r_pro, bg_pro, "rama2_pro.png");
-      take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
-                                 "rama2_non_gly_pro.png");
-      take_bg_image += make_background_from_image(r_ileval, bg_ileval,
-                                                  "rama2_ileval.png");
-      take_bg_image += make_background_from_image(r_pre_pro, bg_pre_pro,
-                                                  "rama2_pre_pro.png");
-      take_bg_image += make_background_from_image(r_non_gly_pro_pre_pro_ileval,
-                                                  bg_non_gly_pro_pre_pro_ileval,
-                                                  "rama2_non_gly_pro_pre_pro_ileval.png");
+         take_bg_image = make_background_from_image(rama, bg_all, "rama2_all.png");
+         take_bg_image += make_background_from_image(r_gly, bg_gly, "rama2_gly.png");
+         take_bg_image += make_background_from_image(r_pro, bg_pro, "rama2_pro.png");
+         take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
+                                                     "rama2_non_gly_pro.png");
+         take_bg_image += make_background_from_image(r_ileval, bg_ileval,
+                                                     "rama2_ileval.png");
+         take_bg_image += make_background_from_image(r_pre_pro, bg_pre_pro,
+                                                     "rama2_pre_pro.png");
+         take_bg_image += make_background_from_image(r_non_gly_pro_pre_pro_ileval,
+                                                     bg_non_gly_pro_pre_pro_ileval,
+                                                     "rama2_non_gly_pro_pre_pro_ileval.png");
 #else
-      take_bg_image  = make_background_from_image(rama, bg_all, "rama_all.png");
-      take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
-      take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
-      take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
-                                 "rama_non_gly_pro.png");
+         take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
+         take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
+         take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
+         take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
+                                                     "rama_non_gly_pro.png");
 #endif
-   } else {
-#ifdef CLIPPER_HAS_TOP8000
-      bg_ileval = goo_canvas_group_new(root, NULL);
-      bg_pre_pro = goo_canvas_group_new(root, NULL);
-      bg_non_gly_pro_pre_pro_ileval = goo_canvas_group_new(root, NULL);
-#endif
+      }
    }
-
-   std::cout << "---      here with take_bg_image " << take_bg_image << std::endl;
 
    // no bg done, so lets make the "classic" way
    if (take_bg_image) {
@@ -779,6 +772,38 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
 }
 
 #ifdef HAVE_GOOCANVAS
+
+// return the merge colour based on start and end colour as well as probability
+// in c++11 array<int, 5> fillarr(int arr[])
+guint
+coot::rama_plot::get_intermediate_bg_colour(guint start_colour[4],
+                                            guint end_colour[4],
+                                            float prob_min, float prob_max,
+                                            float probability,
+                                            int quad_channel) {
+
+   static guint new_colour[4];
+   float x;
+   guint rgba_bg;
+
+   x = (probability - prob_min) / (prob_max - prob_min);
+
+   for (int i=0; i<4; i++) {
+      if (i == quad_channel)
+         new_colour[i] = (int)((1. - sqrt(x)) * (float)start_colour[i] +
+                               sqrt(x) * (float)end_colour[i]);
+      else
+         new_colour[i] = (int)((1. - x) * (float)start_colour[i] +
+                               x * (float)end_colour[i]);
+   }
+
+   // do some byte shift
+   rgba_bg = (new_colour[0] << 24) + (new_colour[1] << 16) +
+         (new_colour[2] << 8) + new_colour[3];
+
+   return rgba_bg;
+}
+
 // pass Ramachandran by type, e.g. r_gly...
 void
 coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
@@ -792,6 +817,9 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
    std::string colour;
    int start_angle;
    int end_angle;
+   guint bg_colour_rgba;
+   float prob_max;
+
 
    if (psi_axis_mode == PSI_CLASSIC) {
       start_angle = -180.0;
@@ -799,6 +827,19 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
    } else {
       start_angle = -240.0;
       end_angle = 120.0;
+   }
+
+   // find max probability of plot
+   float max_prob = 0.;
+   float prob;
+   for (float i= -180.0; i<180.0; i += step) {
+      for (float j= start_angle; j<end_angle; j += step) {
+         x =  clipper::Util::d2rad(i+((float) step)/2.0);
+         y =  clipper::Util::d2rad(-(j+((float) step)/2.0));
+          prob = rama_type.probability(x,y);
+          if (prob > max_prob)
+             max_prob = prob;
+      }
    }
 
    for (float i= -180.0; i<180.0; i += step) {
@@ -809,6 +850,7 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
          d2step = clipper::Util::d2rad(step);
          doit = 0;
 
+         guint bg_colour_start [4] = {255, 240, 220, 255};
          if ( rama_type.favored(x,y) ) {
             colour = "grey";
             colour = "red";
@@ -819,13 +861,21 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
             colour = "LightSalmon";
             colour = "MistyRose";
 
+            guint bg_colour_end [4] = {210, 150, 190, 255};
+
+            bg_colour_rgba = get_intermediate_bg_colour(bg_colour_start, bg_colour_end,
+                                                        rama_threshold_preferred,
+                                                        max_prob,
+                                                        rama_type.probability(x,y),
+                                                        1);
+
             item = goo_canvas_rect_new(bg_group,
                                        i+0.0,
                                        j+0.0,
                                        step+0.0,
                                        step+0.0,
-                                       "fill-color", colour.c_str(),
-                                       "stroke-color", colour.c_str(),
+                                       "fill-color-rgba", bg_colour_rgba,
+                                       "stroke-color-rgba", bg_colour_rgba,
                                        "line-width", 0.5,
                                        NULL);
          } else {
@@ -839,13 +889,23 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
                colour = "LemonChiffon";
                colour = "LightYellow2";
 
+//               guint bg_colour_start2 [4] = {255, 255, 153, 255}; // LightYellow2
+               guint bg_colour_start2 [4] = {255, 255, 255, 255};
+               //guint bg_colour_end2 [4] = bg_colour_start;
+
+               bg_colour_rgba = get_intermediate_bg_colour(bg_colour_start2, bg_colour_start,
+                                                           rama_threshold_allowed,
+                                                           rama_threshold_preferred,
+                                                           rama_type.probability(x,y),
+                                                           2);
+
                item = goo_canvas_rect_new(bg_group,
                                           i+0.0,
                                           j+0.0,
                                           step+0.0,
                                           step+0.0,
-                                          "fill-color", colour.c_str(),
-                                          "stroke-color", colour.c_str(),
+                                          "fill-color-rgba", bg_colour_rgba,
+                                          "stroke-color-rgba", bg_colour_rgba,
                                           "line-width",0.5,
                                           NULL);
             }
@@ -853,6 +913,7 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
          }
       }
    }
+
 }
 #endif
 
@@ -1143,7 +1204,8 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
             item = goo_canvas_polyline_new_line(bg_group,
                                                 x1,y1,
                                                 x2,y2,
-                                                "stroke-color", "black",
+//                                                "stroke-color", "black",
+                                                "stroke-color", "grey60",
                                                 "line-width", 0.5,
 				NULL);
          }
@@ -1232,20 +1294,24 @@ coot::rama_plot::basic_white_underlay() {
    GooCanvasItem *item;
 
    float corner;
+
    if (psi_axis_mode == PSI_CLASSIC) {
       corner = -180.0;
    } else {
       corner = -240.0;
    }
-   // FIMXE:: think if not an outline on top later
+   // we dont do an outline around the white canvas
+   // but make a box later
    item = goo_canvas_rect_new(root,
             -180.0,
             corner,
             360.0,
             360.0,
-            "fill-color", "grey97",
+            "fill-color", "white",
             "stroke-color", "black",
+            "line-width", 0.0,
             NULL);  
+   // 12/12/18 was grey97
    // orig grey 90; grey 100 is white; 95 was good
 
 #endif
@@ -1291,6 +1357,8 @@ coot::rama_plot::black_border() {
    border_group = goo_canvas_group_new(root, NULL);
 
    float psi_start, psi_end;
+   // now we make the black box around the canvas.
+   float line_thickness = 2.0;
    
    // maybe make these global!?
    if (psi_axis_mode == PSI_CLASSIC) {
@@ -1317,7 +1385,7 @@ coot::rama_plot::black_border() {
                                      TRUE, 0,
                                      "points", points,
                                      "stroke-color", "black",
-                                     "line-width", 2.0,
+                                     "line-width", line_thickness,
             NULL);
       goo_canvas_points_unref (points);
 
@@ -1475,6 +1543,19 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                         colour = "DodgerBlue";
                         if (r_non_gly_pro_pre_pro_ileval.favored(clipper::Util::d2rad(phi),
                                                                  clipper::Util::d2rad(psi))) {
+                           region = coot::rama_plot::RAMA_PREFERRED;
+                        }
+                     } else {
+                        colour = "red3";
+                        region = coot::rama_plot::RAMA_OUTLIER;
+                     }
+#else
+                     if (r_non_gly_pro.allowed(clipper::Util::d2rad(phi),
+                                               clipper::Util::d2rad(psi))) {
+                        region = coot::rama_plot::RAMA_ALLOWED;
+                        colour = "DodgerBlue";
+                        if (r_non_gly_pro.favored(clipper::Util::d2rad(phi),
+                                                  clipper::Util::d2rad(psi))) {
                            region = coot::rama_plot::RAMA_PREFERRED;
                         }
                      } else {
@@ -2951,35 +3032,62 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
       }
    }
 
+   // wrap left-right
    if (fabs(phi_1 - phi_2) > 200.0) {
 
       wi.is_wrapped = 1;
 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
+      float phi_tmp, psi_tmp;
+      float swap_factor = 1.;
+      if ((phi_1 - phi_2) < 0.) {
+            // swap values if negative
+            phi_tmp = phi_2;
+            phi_2 = phi_1;
+            phi_1 = phi_tmp;
+            psi_tmp = psi_2;
+            psi_2 = psi_1;
+            psi_1 = psi_tmp;
+            swap_factor = -1.;
+         }
       if (fabs(psi_diff) > 0.000000001)
          psi_gradient = (180.0 - phi_1)/(phi_2 + 360.0 - phi_1);
 
       float psi_critical = psi_1 + psi_gradient * (psi_2 - psi_1);
-      wi.primary_border_point.first = 180.0;
+      wi.primary_border_point.first = 180.0 * swap_factor;
       wi.primary_border_point.second = psi_critical;
-      wi.secondary_border_point.first = -180.0;
+      wi.secondary_border_point.first = -180.0 * swap_factor;
       wi.secondary_border_point.second = psi_critical;
    } 
+
+   // wrap top-bottom
    if (fabs(psi_1 - psi_2) > 200.0) {
 
       wi.is_wrapped = 1;
 
       float psi_diff = psi_2 - psi_1; 
       float psi_gradient = 999999999.9;
+      float phi_tmp, psi_tmp;
+      float swap_factor = 1.;
+      if ((psi_1 - psi_2) > 0.) {
+            // swap values if positive
+            phi_tmp = phi_2;
+            phi_2 = phi_1;
+            phi_1 = phi_tmp;
+            psi_tmp = psi_2;
+            psi_2 = psi_1;
+            psi_1 = psi_tmp;
+            swap_factor = -1.;
+         }
       if (fabs(psi_diff) > 0.000000001)
-	 psi_gradient = (-180.0 - (psi_2 - 360.0))/(psi_1 - (psi_2 - 360.0));
+         psi_gradient = (-180.0 - (psi_2 - 360.0))/(psi_1 - (psi_2 - 360.0));
 
       float phi_critical = phi_2 + psi_gradient * (phi_1 - phi_2);
       wi.primary_border_point.first = phi_critical;
-      wi.primary_border_point.second = border_end;
+      wi.primary_border_point.second = border_end * swap_factor;
       wi.secondary_border_point.first = phi_critical;
-      wi.secondary_border_point.second = border_start;
+      wi.secondary_border_point.second = border_start * swap_factor;
    } 
    return wi;
 } 
@@ -3384,7 +3492,7 @@ coot::rama_plot::make_bg_images() {
 
    std::string fn;
    clear_canvas_items(1);
-   setup_background();
+   setup_background(1, 1, 1);
 
    show_background(bg_all);
 //   fn = "rama_all.svg";

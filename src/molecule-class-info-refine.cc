@@ -87,6 +87,36 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
 }
 
 int
+molecule_class_info_t::add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1,
+                                                         coot::atom_spec_t atom_2,
+                                                         double bond_dist, double esd) {
+   int r = -1; // unset
+   mmdb::Atom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_2 = get_atom(atom_2);
+   if (at_1) {
+      int atom_index = -1;
+      at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      atom_1.int_user_data = atom_index;
+   }
+   if (at_2) {
+      int atom_index = -1;
+      at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+      atom_2.int_user_data = atom_index;
+   }
+   if (at_1 && at_2) {
+      coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond(atom_1, atom_2, bond_dist, esd);
+      extra_restraints.geman_mcclure_restraints.push_back(bond);
+      update_extra_restraints_representation();
+      r = extra_restraints.geman_mcclure_restraints.size() -1;
+   } else {
+      std::cout << "WARNING:: add_extra_geman_mcclure_restraint() oops: " << at_1 << " " << atom_1 << " "
+		<< at_2 << " " << atom_2 << std::endl;
+   }
+   return r;
+}
+
+
+int
 molecule_class_info_t::add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs) {
 
    int r = -1; // unset
@@ -117,6 +147,37 @@ molecule_class_info_t::add_extra_bond_restraints(const std::vector<coot::extra_r
    return r;
 }
 
+int
+molecule_class_info_t::add_extra_geman_mcclure_restraints(const std::vector<coot::extra_restraints_t::extra_geman_mcclure_restraint_t> &bond_specs) {
+
+   int r = -1; // unset
+   for (unsigned int i=0; i<bond_specs.size(); i++) {
+      coot::extra_restraints_t::extra_geman_mcclure_restraint_t bond_spec = bond_specs[i]; // gets modified by addition of atom indices
+      mmdb::Atom *at_1 = get_atom(bond_spec.atom_1);
+      mmdb::Atom *at_2 = get_atom(bond_spec.atom_2);
+      if (at_1) {
+	 int atom_index = -1;
+	 at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 bond_spec.atom_1.int_user_data = atom_index;
+      }
+      if (at_2) {
+	 int atom_index = -1;
+	 at_2->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
+	 bond_spec.atom_2.int_user_data = atom_index;
+      }
+      if (at_1 && at_2) {
+	 extra_restraints.geman_mcclure_restraints.push_back(bond_spec);
+	 r = extra_restraints.geman_mcclure_restraints.size() -1;
+      } else {
+	 std::cout << "WARNING:: add_extra_bond_restraint() oops: " << at_1 << " "
+		   << bond_spec.atom_1 << " " << at_2 << " " << bond_spec.atom_2 << std::endl;
+      }
+   }
+   update_extra_restraints_representation();
+   return r;
+}
+
+
 
 
 void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2) {
@@ -136,6 +197,28 @@ void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1
    }
    int n_bonds_post = extra_restraints.bond_restraints.size();
    std::cout << "DEBUG:: pre: " << n_bonds_pre << " post " << n_bonds_post << std::endl;
+   update_extra_restraints_representation();
+}
+
+
+void
+molecule_class_info_t::remove_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2) {
+
+   int n_bonds_pre = extra_restraints.geman_mcclure_restraints.size();
+   std::vector<coot::extra_restraints_t::extra_geman_mcclure_restraint_t>::iterator it;
+   for (it=extra_restraints.geman_mcclure_restraints.begin(); it != extra_restraints.geman_mcclure_restraints.end(); it++) { 
+      if (((it->atom_1 == atom_1) &&
+	   (it->atom_2 == atom_2)) ||
+	  ((it->atom_2 == atom_1) &&
+	   (it->atom_1 == atom_2))) {
+	 extra_restraints.geman_mcclure_restraints.erase(it);
+	 std::cout << "deleted extra bond restraint " << atom_1 << " to " << atom_2 << std::endl;
+	 break; // this break was commented out, but it must not be, because the iterator
+	        // is no longer valid after we erase from a vector.
+      }
+   }
+   int n_bonds_post = extra_restraints.geman_mcclure_restraints.size();
+   std::cout << "DEBUG:: pre: GM bonds " << n_bonds_pre << " post " << n_bonds_post << std::endl;
    update_extra_restraints_representation();
 }
 
@@ -603,9 +686,16 @@ molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_di
 		  at_2->GetUDData(atom_sel.UDDAtomIndexHandle, idx_2);
 		  atom_spec_1.int_user_data = idx_1;
 		  atom_spec_2.int_user_data = idx_2;
-		  coot::extra_restraints_t::extra_bond_restraint_t br(atom_spec_1, atom_spec_2,
-								      dist, esd);
-		  extra_restraints.bond_restraints.push_back(br);
+		  coot::extra_restraints_t::extra_geman_mcclure_restraint_t gmr(atom_spec_1, atom_spec_2,
+										dist, esd);
+		  
+		  // 20191120-PE self restraints are GM restraints, not bond
+		  // restraints (previously bond restraints were GM only)
+		  //
+		  // extra_restraints.bond_restraints.push_back(br);
+
+		  extra_restraints.geman_mcclure_restraints.push_back(gmr);
+
 	       } 
 	    }
 	 }

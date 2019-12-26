@@ -1246,19 +1246,15 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
 
 	       if (res.esd > 0) {
+		  double nz = (sqrt(d_sqd) - res.target_dist)/res.esd;
+
 		  /*
-		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.002;
-		  if (b >  0.4999) b =  0.4999;
-		  if (b < -0.4999) b = -0.4999;
-		  double b_green = b;
-		  if (b > 0) b_green *= 0.2;
-		  glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
+		    std::cout << "debug:: nz " << nz << " target " << res.target_dist << " model "
+			      << sqrt(d_sqd) << " esd " << res.esd << std::endl;
 		  */
 
-		  double b_1 = (res.target_dist*res.target_dist - d_sqd)/(res.esd*res.esd);
-		  // b_1 ~ from a distribution mean 0 sd 1
 		  // we want to make short be green and long be purple
-		  float b_2 = 0.1 * b_1;
+		  float b_2 = 0.05 * nz;
 		  if (b_2 >  0.4999) b_2 =  0.4999;
 		  if (b_2 < -0.4999) b_2 = -0.4999;
 		  // b_2 is now between -0.5 and +0.5
@@ -1267,12 +1263,8 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 		  float b = 0.5 - b_2;
 		  glColor3f(r, g, b);
 	       }
-	       glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
-			  extra_restraints_representation.bonds[ib].first.y(),
-			  extra_restraints_representation.bonds[ib].first.z());
-	       glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
-			  extra_restraints_representation.bonds[ib].second.y(),
-			  extra_restraints_representation.bonds[ib].second.z());
+	       glVertex3f(res.first.x(), res.first.y(), res.first.z());
+	       glVertex3f(res.second.x(), res.second.y(), res.second.z());
 	    }
 	    glEnd();
 	 }
@@ -2505,7 +2497,10 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 						      const coot::Cartesian &back,
 						      bool against_a_dark_background) {
 
-   bool display_it = display_stick_mode_atoms_flag;
+   // We can't jump out early now, because if we are in stick mode, we still want to see waters
+
+   // bool display_it = display_stick_mode_atoms_flag;
+   bool display_it = true;
 
    if (display_it) {
 
@@ -2554,7 +2549,11 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 	       // no points for hydrogens
                const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
-	       if (! gbai.is_hydrogen_atom) {
+	       if (! gbai.is_hydrogen_atom || gbai.is_water) {
+
+		  if (! display_stick_mode_atoms_flag && !gbai.is_water) {
+		     continue;
+		  }
 
 		  if ((single_model_view_current_model_number == 0) ||
 		      (single_model_view_current_model_number == gbai.model_number)) {
@@ -2649,7 +2648,10 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
-		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+		     const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+		     if (! gbai.is_hydrogen_atom) {
+
+			if (! display_stick_mode_atoms_flag && !gbai.is_water) continue;
 
 			if ((single_model_view_current_model_number == 0) ||
 			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
@@ -2674,7 +2676,11 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 		     // no points for hydrogens
-		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+		     const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+		     if (! gbai.is_hydrogen_atom) {
+
+			if (! display_stick_mode_atoms_flag && !gbai.is_water) continue;
+
 			if ((single_model_view_current_model_number == 0) ||
 			    (single_model_view_current_model_number == bonds_box.consolidated_atom_centres[icol].points[i].model_number)) {
 
@@ -3891,6 +3897,129 @@ molecule_class_info_t::get_fixed_atoms() const {
 }
 
 void
+molecule_class_info_t::update_extra_restraints_representation_bonds_internal(const coot::extra_restraints_t::extra_bond_restraint_t &res) {
+
+   mmdb::Atom *at_1 = NULL;
+   mmdb::Atom *at_2 = NULL;
+   clipper::Coord_orth p1(0,0,0);
+   clipper::Coord_orth p2(0,0,0);
+   bool ifound_1 = false;
+   bool ifound_2 = false;
+   int ifast_index_1 = res.atom_1.int_user_data;
+   int ifast_index_2 = res.atom_2.int_user_data;
+
+   // set p1 from ifast_index_1 (if possible)
+   //
+   if (ifast_index_1 != -1) {
+      if (ifast_index_1 < atom_sel.n_selected_atoms) {
+	 at_1 = atom_sel.atom_selection[ifast_index_1];
+	 if (res.atom_1.matches_spec(at_1)) {
+	    p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+	    ifound_1 = true;
+	 }
+      }
+   }
+   if (! ifound_1) {
+      int idx = full_atom_spec_to_atom_index(res.atom_1);
+      if (idx != -1) {
+	 at_1 = atom_sel.atom_selection[idx];
+	 if (res.atom_1.matches_spec(at_1)) {
+	    p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+	    ifound_1 = true;
+	 }
+      }
+   }
+
+   // set p2 from ifast_index_2 (if possible)
+   //
+   if (ifast_index_2 != -1) {
+      if (ifast_index_2 < atom_sel.n_selected_atoms) {
+	 at_2 = atom_sel.atom_selection[ifast_index_2];
+	 if (res.atom_2.matches_spec(at_2)) {
+	    p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+	    ifound_2 = true;
+	 }
+      }
+   }
+   if (! ifound_2) {
+      int idx = full_atom_spec_to_atom_index(res.atom_2);
+      if (idx != -1) {
+	 at_2 = atom_sel.atom_selection[idx];
+	 if (res.atom_2.matches_spec(at_2)) {
+	    p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+	    ifound_2 = 1;
+	 }
+      }
+   }
+
+   // std::cout << "post: debug ifound_1 and ifound_2 " << ifound_1 << " " << ifound_2 << std::endl;
+
+   if (! ifound_1) {
+      std::cout << "no spec for " << res.atom_1 << std::endl;
+   }
+
+   if (ifound_1 && ifound_2) {
+
+      // if the distance (actually, n-sigma) is within limits, draw it.
+      //
+      double dist_sq = (p1-p2).lengthsq();
+      double dist = sqrt(dist_sq);
+      double this_n_sigma = (dist - res.bond_dist)/res.esd;
+
+      if (0)
+	 std::cout << "comparing this_n_sigma " << this_n_sigma << " with "
+		   << extra_restraints_representation.prosmart_restraint_display_limit_low << " "
+		   << extra_restraints_representation.prosmart_restraint_display_limit_high << " and to-CA-mode "
+		   << extra_restraints_representation_for_bonds_go_to_CA
+		   << "\n";
+
+      if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
+	  this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) {
+	 if (extra_restraints_representation_for_bonds_go_to_CA) {
+	    if (at_1->residue != at_2->residue) {
+	       int idx_1 = intelligent_this_residue_atom(at_1->residue);
+	       int idx_2 = intelligent_this_residue_atom(at_2->residue);
+	       if (idx_1 >= 0 && idx_2 >= 0) {
+		  clipper::Coord_orth ca_p1 = coot::co(atom_sel.atom_selection[idx_1]);
+		  clipper::Coord_orth ca_p2 = coot::co(atom_sel.atom_selection[idx_2]);
+		  // hack a distance.
+		  double d = sqrt((ca_p2-ca_p1).lengthsq());
+
+		  // undashed:
+		  // extra_restraints_representation.add_bond(ca_p1, ca_p2, d, res.esd);
+
+		  // dashed:
+		  //
+		  double dash_density = 4.0;
+		  int n_dashes = int(dash_density * d);
+		  bool visible = true;
+		  for (int idash=0; idash<(n_dashes-1); idash++) {
+		     if (0)
+			std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
+				  << visible << std::endl;
+		     if (visible) {
+			double frac_s = double(idash  )/double(n_dashes);
+			double frac_e = double(idash+1)/double(n_dashes);
+			clipper::Coord_orth dash_pos_1 = ca_p1 + frac_s * (ca_p2 - ca_p1);
+			clipper::Coord_orth dash_pos_2 = ca_p1 + frac_e * (ca_p2 - ca_p1);
+			std::cout << "   " << dash_pos_1.format() << " " << dash_pos_2.format() << " "
+				  << d << " " << res.esd << std::endl;
+			double fake_d = d/double(n_dashes);
+			extra_restraints_representation.add_bond(dash_pos_1, dash_pos_2, fake_d, res.esd);
+		     }
+		     visible = !visible;
+		  }
+	       }
+	    }
+	 } else {
+	    // Normal case - not CA exception
+	    extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
+	 }
+      }
+   }
+}
+
+void
 molecule_class_info_t::update_extra_restraints_representation() {
 
    extra_restraints_representation.clear();
@@ -3910,126 +4039,12 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
       return;
 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
-      mmdb::Atom *at_1 = NULL;
-      mmdb::Atom *at_2 = NULL;
-      clipper::Coord_orth p1(0,0,0);
-      clipper::Coord_orth p2(0,0,0);
-      bool ifound_1 = false;
-      bool ifound_2 = false;
-      int ifast_index_1 = extra_restraints.bond_restraints[i].atom_1.int_user_data;
-      int ifast_index_2 = extra_restraints.bond_restraints[i].atom_2.int_user_data;
-      const coot::extra_restraints_t::extra_bond_restraint_t &res =
-	 extra_restraints.bond_restraints[i];
-
-      // set p1 from ifast_index_1 (if possible)
-      //
-      if (ifast_index_1 != -1) {
-	 if (ifast_index_1 < atom_sel.n_selected_atoms) {
-	    at_1 = atom_sel.atom_selection[ifast_index_1];
-	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
-	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-	       ifound_1 = true;
-	    }
-	 }
-      }
-      if (! ifound_1) {
-	 int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_1);
-	 if (idx != -1) {
-	    at_1 = atom_sel.atom_selection[idx];
-	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
-	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-	       ifound_1 = true;
-	    }
-	 }
-      }
-
-      // set p2 from ifast_index_2 (if possible)
-      //
-      if (ifast_index_2 != -1) {
-	 if (ifast_index_2 < atom_sel.n_selected_atoms) {
-	    at_2 = atom_sel.atom_selection[ifast_index_2];
-	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
-	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
-	       ifound_2 = true;
-	    }
-	 }
-      }
-      if (! ifound_2) {
-	 int idx = full_atom_spec_to_atom_index(extra_restraints.bond_restraints[i].atom_2);
-	 if (idx != -1) {
-	    at_2 = atom_sel.atom_selection[idx];
-	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
-	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
-	       ifound_2 = 1;
-	    }
-	 }
-      }
-
-      // std::cout << "post: debug ifound_1 and ifound_2 " << ifound_1 << " " << ifound_2 << std::endl;
-
-      if (! ifound_1) {
-	 std::cout << "no spec for " << extra_restraints.bond_restraints[i].atom_1 << std::endl;
-      }
-
-      if (ifound_1 && ifound_2) {
-
-	 // if the distance (actually, n-sigma) is within limits, draw it.
-	 //
-	 double dist_sq = (p1-p2).lengthsq();
-	 double dist = sqrt(dist_sq);
-	 double this_n_sigma = (dist - res.bond_dist)/res.esd;
-
-	 if (0)
-	    std::cout << "comparing this_n_sigma " << this_n_sigma << " with "
-		      << extra_restraints_representation.prosmart_restraint_display_limit_low << " "
-		      << extra_restraints_representation.prosmart_restraint_display_limit_high << " and to-CA-mode "
-		      << extra_restraints_representation_for_bonds_go_to_CA
-		      << "\n";
-
-	 if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
-	     this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) {
-	    if (extra_restraints_representation_for_bonds_go_to_CA) {
-	       if (at_1->residue != at_2->residue) {
-		  int idx_1 = intelligent_this_residue_atom(at_1->residue);
-		  int idx_2 = intelligent_this_residue_atom(at_2->residue);
-		  if (idx_1 >= 0 && idx_2 >= 0) {
-		     clipper::Coord_orth ca_p1 = coot::co(atom_sel.atom_selection[idx_1]);
-		     clipper::Coord_orth ca_p2 = coot::co(atom_sel.atom_selection[idx_2]);
-		     // hack a distance.
-		     double d = sqrt((ca_p2-ca_p1).lengthsq());
-
-		     // undashed:
-		     // extra_restraints_representation.add_bond(ca_p1, ca_p2, d, res.esd);
-
-		     // dashed:
-		     //
-		     double dash_density = 4.0;
-		     int n_dashes = int(dash_density * d);
-		     bool visible = true;
-		     for (int idash=0; idash<(n_dashes-1); idash++) {
-			if (0)
-			   std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
-				     << visible << std::endl;
-			if (visible) {
-			   double frac_s = double(idash  )/double(n_dashes);
-			   double frac_e = double(idash+1)/double(n_dashes);
-			   clipper::Coord_orth dash_pos_1 = ca_p1 + frac_s * (ca_p2 - ca_p1);
-			   clipper::Coord_orth dash_pos_2 = ca_p1 + frac_e * (ca_p2 - ca_p1);
-			   std::cout << "   " << dash_pos_1.format() << " " << dash_pos_2.format() << " "
-				     << d << " " << res.esd << std::endl;
-			   double fake_d = d/double(n_dashes);
-			   extra_restraints_representation.add_bond(dash_pos_1, dash_pos_2, fake_d, res.esd);
-			}
-			visible = !visible;
-		     }
-		  }
-	       }
-	    } else {
-	       // Normal case - not CA exception
-	       extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
-	    }
-	 }
-      }
+      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.bond_restraints[i];
+      update_extra_restraints_representation_bonds_internal(res);
+   }
+   for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
+      const coot::extra_restraints_t::extra_bond_restraint_t &res = extra_restraints.geman_mcclure_restraints[i];
+      update_extra_restraints_representation_bonds_internal(res);
    }
 }
 
@@ -5962,7 +5977,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 }
 
 
-// If there is a CA in this residue then return the index of that
+// If there is a CA or C1' in this residue then return the index of that
 // atom, if not, then return the index of the first atom in the
 // residue.
 //
@@ -5980,6 +5995,16 @@ molecule_class_info_t::intelligent_this_residue_atom(mmdb::Residue *res_p) const
       for (int i=0; i<nResidueAtoms; i++) {
 	 std::string atom_name(residue_atoms[i]->name);
 	 if (atom_name == " CA ") {
+	    ir = atom_to_atom_index(residue_atoms[i]);
+	    if (ir == -1)
+	       ir = full_atom_spec_to_atom_index(residue_atoms[i]->GetChainID(),
+						 residue_atoms[i]->GetSeqNum(),
+						 residue_atoms[i]->GetInsCode(),
+						 residue_atoms[i]->name,
+						 residue_atoms[i]->altLoc);
+	 }
+         // likewise C1'
+	 if (atom_name == " C1'") {
 	    ir = atom_to_atom_index(residue_atoms[i]);
 	    if (ir == -1)
 	       ir = full_atom_spec_to_atom_index(residue_atoms[i]->GetChainID(),
@@ -6020,7 +6045,7 @@ molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t 
 }
 
 
-// If there is a CA in this residue then return that atom (pointer)
+// If there is a CA or a C1' in this residue then return that atom (pointer)
 // atom, if not, then return the index of the first atom in the
 // residue.
 //
@@ -6039,6 +6064,9 @@ molecule_class_info_t::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) 
 	 for (int i=0; i<nResidueAtoms; i++) {
 	    std::string atom_name(residue_atoms[i]->name);
 	    if (atom_name == " CA ") {
+	       return residue_atoms[i];
+	    }
+	    if (atom_name == " C1'") {
 	       return residue_atoms[i];
 	    }
 	 }
@@ -6085,12 +6113,18 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 	 if (nResidueAtoms == 0) {
 	    std::cout << "INFO:: No atoms in residue" << std::endl;
 	 } else {
-	    short int found_it = 0;
-	    std::string CA = " CA "; // PDBv3 FIXME
+	    bool found_it = false;
+	    std::string CA       = " CA "; // PDBv3 FIXME
+	    std::string C1_prime = " C1'";
 	    for (int i=0; i<nResidueAtoms; i++) {
 	       if (std::string(residue_atoms[i]->name) == CA) {
 		  at = residue_atoms[i];
-		  found_it = 1;
+		  found_it = true;
+		  break;
+	       }
+	       if (std::string(residue_atoms[i]->name) == C1_prime) {
+		  at = residue_atoms[i];
+		  found_it = true;
 		  break;
 	       }
 	    }

@@ -35,7 +35,7 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const std::string &terminus,
 					     const std::string &chain_id_in, 
 					     const std::string &res_type,
 					     float b_factor_in) {
-   
+
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    thread_pool_p = 0;
    n_threads = 0;

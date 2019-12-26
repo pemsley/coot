@@ -70,6 +70,8 @@
 #include "simple-restraint.hh"
 #include "crankshaft.hh"
 
+#include "model-bond-deltas.hh"
+
 // for debugging (the density_around_point function)
 #include "coot-utils/coot-map-utils.hh"
 
@@ -88,6 +90,7 @@ public:
       is_good = false;
       is_debug_mode = false;
       given_map_flag = false;
+      bond_length_deltas = false;
       radius = 4.2;
       residues_around = mmdb::MinInt4;
       resno_start = mmdb::MinInt4;
@@ -105,7 +108,8 @@ public:
       crankshaft_n_peptides = 7;
    }
    bool is_good;
-   bool is_debug_mode; 
+   bool is_debug_mode;
+   bool bond_length_deltas;
    bool given_map_flag;
    bool use_rama_targets;
    bool use_torsion_targets;
@@ -146,6 +150,7 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
    mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
+      bool done = false;
       chain_p = model_p->GetChain(ichain);
       std::string this_chain_id = chain_p->GetChainID();
       if (this_chain_id == chain_id) { 
@@ -157,10 +162,41 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
 	    int this_res_no = residue_p->GetSeqNum();
 	    if (this_res_no >= resno_start) {
 	       if (this_res_no <= resno_end) { 
-		  std::pair<bool, mmdb::Residue *> p(0, residue_p);
+		  std::pair<bool, mmdb::Residue *> p(false, residue_p);
+		  v.push_back(p);
+		  done = true;
+	       }
+	    }
+
+	    if (!done) {
+	       if ((resno_start == mmdb::MinInt4) && (resno_end == mmdb::MinInt4)) {
+		  std::pair<bool, mmdb::Residue *> p(false, residue_p);
 		  v.push_back(p);
 	       }
 	    }
+	 }
+      }
+   }
+   return v;
+}
+
+std::vector<std::pair<bool,mmdb::Residue *> >
+fill_residues_all_atoms(mmdb::Manager *mol) {
+
+   std::vector<std::pair<bool, mmdb::Residue *> > v;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
+   int nchains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      if (chain_p) {
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_p;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    std::pair<bool, mmdb::Residue *> p(false, residue_p);
+	    v.push_back(p);
 	 }
       }
    }
@@ -199,6 +235,7 @@ void show_usage() {
 	     << "       --no-trans-peptide-restraints\n"
 	     << "       --tabulate-distortions\n"
 	     << "       --extra-restraints extra-restraints-file-name\n"
+	     << "       --bond-length-deltas\n"
 	     << "       --correlations\n"
 	     << "       --crankshaft\n"
 	     << "       --no-refine\n"
@@ -275,14 +312,32 @@ main(int argc, char **argv) {
       
       input_data_t inputs = get_input_details(argc, argv);
 
-      if (inputs.is_good) { 
+      // Testing/debugging command line parsing
+      // std::cout << "Here with good inputs " << std::endl;
+      // inputs.input_pdb_file_name = "../src/test.pdb";
+      // inputs.bond_length_deltas = true;
+      // inputs.is_good = true;
+
+      if (inputs.is_good) {
 
 	 std::string pdb_file_name(inputs.input_pdb_file_name);
 	 bool map_is_good = false; // currently
 
 	 // if pdb_file_name does not exist -> crash?
 	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
-      
+
+	 if (! asc.read_success) {
+	    std::cout << "coordinates read failure " << pdb_file_name << std::endl;
+	 }
+
+	 if (inputs.bond_length_deltas) {
+	    int imol = 0; // dummy
+	    std::cout << "----------- bond length delta --------" << std::endl;
+	    coot::model_bond_deltas mbd(asc.mol, imol, &geom);
+	    mbd.resolve(); // not a good function name
+	    return 0;
+	 }
+
 	 const char *chain_id = inputs.chain_id.c_str();
 	 clipper::Xmap<float> xmap;
 
@@ -348,9 +403,10 @@ main(int argc, char **argv) {
 	    // 
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
-	    if ((inputs.resno_start != mmdb::MinInt4) && inputs.resno_end != mmdb::MinInt4)
-	       local_residues =
-		  fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
+	    if (inputs.chain_id.empty())
+	       local_residues = fill_residues_all_atoms(asc.mol);
+	    else
+	       local_residues = fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
 
 	    if (inputs.residues_around != mmdb::MinInt4) {
 	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.residues_around);
@@ -441,9 +497,13 @@ main(int argc, char **argv) {
 	       if (inputs.use_trans_peptide_restraints)
 		  make_trans_peptide_restraints = true;
 
+	       int n_threads = coot::get_max_number_of_threads();
+	       ctpl::thread_pool thread_pool(n_threads);
+	       restraints.thread_pool(&thread_pool, n_threads);
+
 	       int imol = 0; // dummy
 	       restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
-	       				  1.0, do_rama_plot_restraints, true, true, pseudos);
+	       				  1.0, do_rama_plot_restraints, true, true, false, pseudos);
 
                // std::vector<std::pair<bool,mmdb::Residue *> > residues;
                // coot::protein_geometry geom;
@@ -452,7 +512,7 @@ main(int argc, char **argv) {
                // coot::restraints_container_t restraints_2(residues, geom, mol, &xmap);
 
 	       if (inputs.extra_restraints_file_names.size() > 0) {
-		  restraints.add_extra_restraints(imol, extra_restraints, geom);
+		  restraints.add_extra_restraints(imol, "user-defined restraints", extra_restraints, geom);
 	       }
 
 	       if (! inputs.no_refine) {
@@ -615,6 +675,7 @@ get_input_details(int argc, char **argv) {
    input_data_t d;
    d.is_debug_mode = 0;
    d.is_good = 0;
+   d.bond_length_deltas = false;
    d.given_map_flag = 0;
    d.resno_start = UNSET;
    d.resno_end   = UNSET;
@@ -657,6 +718,7 @@ get_input_details(int argc, char **argv) {
       {"no-planar-peptide-restraints", 0, 0, 0},
       {"no-trans-peptide-restraints",  0, 0, 0},
       {"tabulate-distortions", 0, 0, 0},
+      {"bond-length-deltas", 0, 0, 0},
       {"no-refine", 0, 0, 0},
       {"correlations", 0, 0, 0},
       {"crankshaft", 0, 0, 0},
@@ -670,20 +732,27 @@ get_input_details(int argc, char **argv) {
    while (-1 !=
 	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
-      switch (ch) { 
+      // std::cout << "here 1 ch " << ch << std::endl;
+
+      switch (ch) {
       case 0:
+	 if (! optarg) std::cout << "No optarg" << std::endl;
 	 if (optarg) {
+
+	    // std::cout << "here 2 optarg " << optarg << std::endl;
+
 	    std::string arg_str = long_options[option_index].name;
 
-	    if (arg_str == "pdbin") { 
+	    if (arg_str == "pdbin") {
+	       // std::cout << "found pdbin " << optarg << std::endl;
 	       d.input_pdb_file_name = optarg;
-	    } 
+	    }
 	    if (arg_str == "pdbout") { 
 	       d.output_pdb_file_name = optarg;
-	    } 
+	    }
 	    if (arg_str == "hklin") { 
 	       d.mtz_file_name = optarg;
-	    } 
+	    }
 	    if (arg_str == "f") { 
 	       d.f_col = optarg;
 	    } 
@@ -757,6 +826,9 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "version") {
 	       print_version();
 	       exit(0);
+	    }
+	    if (arg_str == "bond-length-deltas") {
+	       d.bond_length_deltas = true;
 	    }
 	    if (arg_str == "rama") {
 	       d.use_rama_targets = 1;

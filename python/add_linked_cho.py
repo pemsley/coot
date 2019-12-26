@@ -372,7 +372,7 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
                     print "----------- That was not well fitting. Deleting:", preped_new_res_spec
                     delete_extra_restraints_for_residue_spec(imol,
                                                              preped_new_res_spec)
-                    delete_residue_by_spec(imol, preped_new_res_spec)
+                    delete_residue_by_spec(*preped_new_res_spec)
                     # restore glyco-tree residues from imol_save
                     replace_fragment(imol, imol_save, "//")
                     return False

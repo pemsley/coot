@@ -208,6 +208,8 @@ template<class T> class graphical_bonds_lines_list {
 class graphical_bonds_atom_info_t {
 public:
    bool is_hydrogen_atom;
+   bool is_water; // don't not display this in sticks-only mode - or the water
+                  // will disappear (needs rebonding otherwise - not just a display flag)
    float radius_scale; // Waters (and perhaps metals) should have big radii, so that
                        // they are easier to see.
    coot::Cartesian position;
@@ -220,6 +222,7 @@ public:
       model_number = -1;
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
+      is_water = false;
       atom_index = atom_index_in;
       atom_p = 0;
       radius_scale = 1.0;
@@ -230,6 +233,7 @@ public:
       atom_index = -1; // unset
       radius_scale = 1.0;
       atom_p = 0;
+      is_water = false;
    }
    // this is a bit of a weird construction
    bool radius_for_atom_should_be_big(mmdb::Atom *atom_p) const {
