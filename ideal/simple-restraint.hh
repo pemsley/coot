@@ -42,6 +42,7 @@
 #ifdef HAVE_BOOST
 #ifdef HAVE_CXX_THREAD
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#include "compat/coot-getopt.h"
 #include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
 #endif // HAVE_BOOST
