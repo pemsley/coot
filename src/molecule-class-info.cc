@@ -674,7 +674,7 @@ molecule_class_info_t::anisotropic_atoms() {
 
 		  // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
 		  if (draw_hydrogens_flag || ele != " H") {
-	 
+
 		     glLineWidth(1.0);
 		     glPushMatrix();
 

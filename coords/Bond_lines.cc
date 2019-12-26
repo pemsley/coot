@@ -1029,7 +1029,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) {
 	    std::string res_name = het_residues[ires].second->GetResName();
-	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
+	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
 	       geom->get_monomer_restraints_at_least_minimal(res_name, imol);
 
 	    if (false)
@@ -1052,7 +1052,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 		  std::string atom_name_2 = restraints.second.bond_restraint[ib].atom_id_2_4c();
 		  std::string bt = restraints.second.bond_restraint[ib].type();
 
-		  bool added_bond = 0; 
+		  bool added_bond = 0;
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     std::string residue_atom_name_1(residue_atoms[iat]->name);
 		     if (atom_name_1 == residue_atom_name_1) {
@@ -1082,7 +1082,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 				 std::string element_2 = residue_atoms[jat]->element;
 
 				 if (element_1 != element_2) {
-		  
+
 				    // Bonded to different atom elements.
 
 				    // if ((element_1 != " H") && (element_2 != " H")) {
@@ -1097,8 +1097,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 							     udd_atom_index_handle, restraints.second.bond_restraint, is_deloc);
 					  } else {
 
-					     if (bt == "triple") { 
-						add_triple_bond(imol, model_number, iat, jat, residue_atoms, n_atoms, 
+					     if (bt == "triple") {
+						add_triple_bond(imol, model_number, iat, jat, residue_atoms, n_atoms,
 								atom_colour_type, udd_atom_index_handle,
 								restraints.second.bond_restraint);
 					     } else {
@@ -1109,11 +1109,11 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 							       model_number,
 							       iat_1_atom_index, iat_2_atom_index,
 							       atom_colour_type);
-					     } 
+					     }
 					  }
-				       } 
+				       }
 				    } else {
-				       if (do_bonds_to_hydrogens) { 
+				       if (do_bonds_to_hydrogens) {
 					  if (res_name == "HOH" || res_name == "DOD") {
 					     add_half_bonds(p1, p2,
 							    residue_atoms[iat],
@@ -1129,12 +1129,12 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 				    }
 
 				 } else {
-				    
+
 				    // Bonded to an atom of the same element.
 				    // add_double_bond() uses residue-atom indexing.
 				    // addBond uses all-molecule atom indexing.
 				    int col = atom_colour(residue_atoms[iat], atom_colour_type);
-				    if (bt == "double") { 
+				    if (bt == "double") {
 				       add_double_bond(imol, model_number, iat, jat, residue_atoms, n_atoms, atom_colour_type,
 						       udd_atom_index_handle,
 						       restraints.second.bond_restraint);
@@ -1571,6 +1571,44 @@ coot::model_bond_atom_info_t::non_Hydrogen_atoms() const {
    return non_H_atoms;
 }
 
+void
+Bond_lines_container::atom_selection_missing_loops(const atom_selection_container_t &asc,
+                                                   int udd_atom_index_handle, int udd_fixed_during_refinement_handle) {
+
+   mmdb::Manager *mol = asc.mol;
+   int imodel= 1;
+   mmdb::Model *model_p = mol->GetModel(imodel);
+   if (model_p) {
+      int n_chains= model_p->GetNumberOfChains();
+      for (int ich=0; ich<n_chains; ich++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ich);
+         if (! chain_p) continue;
+         int nres = chain_p->GetNumberOfResidues();
+         if (nres < 2) continue;
+         for (int ires=1; ires<nres; ires++) {
+            mmdb::Residue *residue_this = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_prev = chain_p->GetResidue(ires-1);
+            if (residue_this && residue_prev) {
+
+               int n_atoms_prev = residue_prev->GetNumberOfAtoms();
+               int n_atoms_this = residue_this->GetNumberOfAtoms();
+
+               if (n_atoms_prev == 0) continue;
+               if (n_atoms_this == 0) continue;
+
+               int res_no_1 = residue_prev->GetSeqNum();
+               int res_no_2 = residue_this->GetSeqNum();
+               int res_no_delta = res_no_2 - res_no_1;
+               if (res_no_delta > 1) {
+                  do_Ca_loop(imodel, ires, nres, chain_p, residue_prev, residue_this,
+                             udd_atom_index_handle, udd_fixed_during_refinement_handle);
+               }
+            }
+         }
+      }
+   }
+}
+
 // we rely on SelAtom.atom_selection being properly constructed to
 // contain all atoms
 void
@@ -1659,16 +1697,16 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       std::cout << " atom bonding registration failed.\n";
       have_udd_atoms = 0;
    } else {
-      for (int i=0; i<SelAtom.n_selected_atoms; i++) { 
+      for (int i=0; i<SelAtom.n_selected_atoms; i++) {
 	 SelAtom.atom_selection[i]->PutUDData(udd_found_bond_handle, NO_BOND);
-      } 
+      }
    }
 
    // We need to loop over each model.  Currently the SelAtom is not
    // selected on model.
    //
    // consider a vector (over all models) of these:
-   // 
+   //
    // class model_bond_atom_info_t {
    //       std::vector<mmdb::PAtom> hydrogen_atoms_;
    //       std::vector<mmdb::PAtom> non_hydrogen_atoms_;
@@ -1678,14 +1716,14 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    //    int n_H();
    //    int n_non_H();
    // }
-   
+
    int imodel = -1;
    int n_models = SelAtom.mol->GetNumberOfModels(); // models start at number 1
    std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
-   
+
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
       imodel = SelAtom.atom_selection[i]->GetModelNum();
-      if ((imodel <= n_models) && (imodel > 0)) { 
+      if ((imodel <= n_models) && (imodel > 0)) {
 	 atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
       }
    }
@@ -1702,7 +1740,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       }
    }
 
-   for (int imodel=imodel_start; imodel<=imodel_end; imodel++) { 
+   for (int imodel=imodel_start; imodel<=imodel_end; imodel++) {
+
+      if (imodel == 1) {
+         int udd_fixed_during_refinement_handle = -1; // fixme
+         atom_selection_missing_loops(SelAtom, udd_atom_index_handle, udd_fixed_during_refinement_handle);
+      }
 
       mmdb::PPAtom     Hydrogen_atoms = atom_stuff_vec[imodel].Hydrogen_atoms();
       mmdb::PPAtom non_Hydrogen_atoms = atom_stuff_vec[imodel].non_Hydrogen_atoms();
@@ -3455,13 +3498,12 @@ Bond_lines_container::Bond_lines_container(symm_keys key) {
 		<< " no such key as " << key << std::endl;
    }
 }
-      
-   
+
 
 void Bond_lines_container::check_static() const {
 
-   graphical_bonds_container pot; 
-	
+   graphical_bonds_container pot;
+
    std::cout << "check: num_colours:"     << pot.num_colours << std::endl;
    std::cout << "check: bonds:"           << pot.bonds_ << std::endl;
    std::cout << "check: bonds::numlines " << pot.bonds_[12].num_lines << std::endl;
@@ -3481,6 +3523,8 @@ Bond_lines_container::make_graphical_bonds_no_thinning() const {
 
 graphical_bonds_container
 Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_flag) const {
+
+   std::cout << "debug in make_graphical_bonds_with_thinning_flag " << do_thinning_flag << std::endl;
 
    graphical_bonds_container box;
 
@@ -3957,6 +4001,9 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 		  }
 	       }
 
+               if (udd_fixed_during_refinement_handle == -1)
+                  loop_is_possible = true;
+
 	       if (loop_is_possible) {
 		  for (int ipp_2=0; ipp_2<n_atoms_pp_2; ipp_2++) {
 		     mmdb::Atom *at = residue_atoms_pp_2[ipp_2];
@@ -4049,7 +4096,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 			coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
 		     for (unsigned int jj=0; jj<lp.second.size(); jj++) {
 			const coot::CartesianPair &cp = lp.second[jj];
-			int col = HYDROGEN_GREY_BOND; // just grey, really.
+			int col = GREY_BOND; // just grey, really.
 			graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 			int iat_1 = -1;
 			int iat_2 = -1;
@@ -4531,7 +4578,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			}
 		     }
 		  }
-		  return GREY_BOND;	       
+		  return GREY_BOND;
 
 	       } else {
 
