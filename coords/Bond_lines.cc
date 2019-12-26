@@ -384,7 +384,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	       if (chain_id1 == chain_id2) {
 
 		  // alternate location test
-		  // 
+		  //
 		  if ( (aloc_1=="") || (aloc_2=="") || (aloc_1==aloc_2) ) {
 
 		     int res_1 = atom_p_1->GetSeqNum();
@@ -395,14 +395,14 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		     if (0)
 			std::cout << atom_p_1 <<  " " << atom_p_2 << " bonded by dictionary: "
 				  << bond_het_residue_by_dictionary << std::endl;
-		  
+
 		     if (bond_het_residue_by_dictionary) {
 
 			std::string res_name = atom_p_1->GetResName();
 			if (res_name == "HOH" || res_name == "DOD")
 			   add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &hoh_residues);
-		     
-		     } else { 
+
+		     } else {
 
 			// this +/- 1 residue test, or are DUM atoms.
 
@@ -414,12 +414,12 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			      is_neighbour = true;
 
 			// Maybe DUM-DUM needs it's own bonding selection and drawing function
-		     
+
 			// 		     if (! is_neighbour)
 			// 			if (strncmp(atom_p_1->name, "DUM", 3))
 			// 			   if (strncmp(atom_p_2->name, "DUM", 3))
 			// 			      is_neighbour = true;
-		     
+
 			if (is_neighbour) {
 
 			   //  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
@@ -442,7 +442,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
 				 // Bonded to different atom elements.
 
-				 if (! is_hydrogen(element_1) && ! is_hydrogen(element_2)) { 
+				 if (! is_hydrogen(element_1) && ! is_hydrogen(element_2)) {
 				    add_half_bonds(atom_1_pos, atom_2_pos,
 						   atom_selection_1[contact[i].id1],
 						   atom_selection_2[contact[i].id2],
@@ -485,7 +485,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 					     done_h_bond = true;
 					  }
 				       }
-				 
+
 				       if (element_2 == " O") {
 					  int bond_udd = NO_BOND;
 					  atom_p_2->GetUDData(udd_done_bond_handle, bond_udd);
@@ -498,7 +498,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 							    atom_index_1, atom_index_2,
 							    atom_colour_type);
 					     done_h_bond = true;
-					  } 
+					  }
 				       }
 
 				       if (! done_h_bond) {
@@ -526,7 +526,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				 //
 
 				 if (is_hydrogen(element_1)) { // both are hydrogen
-				    float len2 = (atom_1_pos - atom_2_pos).amplitude_squared(); 
+				    float len2 = (atom_1_pos - atom_2_pos).amplitude_squared();
 				    if (len2 < 1) { // protection for weirdness
 				       col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
 				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
@@ -553,7 +553,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	    // 	 }
 
 	 } // i over ncontacts
-      
+
 	 delete [] contact;
 
 	 // OK, now we can handle the het_residues: But we don't want to
@@ -561,7 +561,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 	 // So do it only on X-X.
 	 //
 	 // het_residues is filled for by X-X for everything except HOHs.
-	 // 
+	 //
 	 if (! are_different_atom_selections) {
 	    add_bonds_het_residues(het_residues, imol, atom_colour_type, have_udd_atoms, udd_done_bond_handle, udd_atom_index_handle);
 	 }
@@ -576,7 +576,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 //
 // to be used in conjunction with
 // add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle)
-// 
+//
 bool
 Bond_lines_container::add_bond_by_dictionary_maybe(int imol,
 						   mmdb::Atom *atom_p_1,
@@ -3860,7 +3860,7 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
       std::cout << "ERROR getting udd_has_ca_handle\n";
    }
    coot::my_atom_colour_map_t atom_colour_map_in;
-   coot::my_atom_colour_map_t atom_colour_map = 
+   coot::my_atom_colour_map_t atom_colour_map =
       do_Ca_or_P_bonds_internal(SelAtom, " CA ", atom_colour_map_in,  // PDBv3 FIXME
 				min_dist, max_dist, coot::COLOUR_BY_CHAIN);
    do_Ca_or_P_bonds_internal(SelAtom, " P  ",  atom_colour_map,
@@ -4081,12 +4081,12 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 }
 
 
-// where bond_colour_type is one of 
+// where bond_colour_type is one of
 // COLOUR_BY_CHAIN=0, COLOUR_BY_SEC_STRUCT=1
 //
 // Don't show HETATMs (but allow MSE in CA mode).
 //
-coot::my_atom_colour_map_t 
+coot::my_atom_colour_map_t
 Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
 						const char *backbone_atom_id,
 						coot::my_atom_colour_map_t atom_colour_map,
@@ -4102,7 +4102,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    // positive means that it was OK!
 
    // heuristic cut off for when user has omitted GAP cards.
-   // 
+   //
    float dist_max_CA_CA = 5.0;
    float dist_max_P_P   = 8.5; // seems reasonable.
 
@@ -4122,15 +4122,16 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = SelAtom.mol->GetModel(imod);
-      if (model_p) { 
+      if (model_p) {
 	 mmdb::Chain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
+            if (nres < 2) continue;
 	    mmdb::Atom *at_1;
 	    mmdb::Atom *at_2;
-	    for (int ires=1; ires<nres; ires++) { 
+	    for (int ires=1; ires<nres; ires++) {
 	       mmdb::Residue *residue_this = chain_p->GetResidue(ires);
 	       mmdb::Residue *residue_prev = chain_p->GetResidue(ires-1);
 	       if (residue_this && residue_prev) {
