@@ -4,6 +4,8 @@
    o Refine a bit of distorted RNA
      Marc Leibundgut 26/06/2019.
 
+   o how about fixing the raster3d install? Make it dependent on having gfortran
+
    o Fix the representation of charges in the residue restraints notebook
 
    o how about fixing the raster3d install? Make it dependent on having gfortran
