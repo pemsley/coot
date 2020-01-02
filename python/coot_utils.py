@@ -2303,7 +2303,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         return False
 
     #
-    def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_move,
+    def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
                               imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
 
         print "BL DEBUG:: in overlap_by_main_chain : ---------------- imol-mov: %s imol-ref: %s" %(imol_mov, imol_ref)
