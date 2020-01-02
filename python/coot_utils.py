@@ -2289,12 +2289,12 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     #
     # BL says:: maybe this can/should be a global function
     #
-    def is_amino_acid(imol, chain_id, res_no):
+    def is_amino_acid(imol, ch_id, res_no):
 
         aa_list = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLY", "GLU", "GLN",
                    "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
                    "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
-        rn = residue_name(imol. chain_id, res_no, "")
+        rn = residue_name(imol, ch_id, res_no, "")
         if not isinstance(rn, string):
             return False
         else:
