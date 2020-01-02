@@ -403,10 +403,12 @@ manage_column_selector(const char *filename) {
 }
 
 void
-manage_refmac_column_selection(GtkWidget *w) {
+manage_refmac_column_selection(GtkWidget *run_refmac_dialog) {
+
+   // called by an mtz file chooser response
 
    if (graphics_info_t::use_graphics_interface_flag) {
-     coot::setup_refmac_parameters_from_file(w);
+     coot::setup_refmac_parameters_from_file(run_refmac_dialog);
    }
 }
 

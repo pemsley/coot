@@ -245,14 +245,10 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     GtkWidget *file_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
     // in twin we use the label as a dummy widget
     option_menu = file_mtz_label;
-#if (GTK_MAJOR_VERSION > 1)
+
     const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(file_mtz_label));
     filename = mtz_filename;
-#else
-    gchar **mtz_filename = 0;
-    gtk_label_get(GTK_LABEL(file_mtz_label), mtz_filename);
-    filename = (char *)mtz_filename;
-#endif // GTK
+
     if (coot::file_exists(filename)) {
       std::cout <<"BL DEBUG:: have filename from label "<< filename<<std::endl;
       graphics_info_t::saved_refmac_file_filename = filename.c_str();
