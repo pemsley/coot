@@ -2295,7 +2295,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                    "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
                    "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
         rn = residue_name(imol, ch_id, res_no, "")
-        if not isinstance(rn, string):
+        if not isinstance(rn, str):
             return False
         else:
             if rn in aa_list:
