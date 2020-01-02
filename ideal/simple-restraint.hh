@@ -42,7 +42,22 @@
 #ifdef HAVE_BOOST
 #ifdef HAVE_CXX_THREAD
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
-#include "compat/coot-getopt.h"
+
+
+/*
+  if I comment out the #include "compat/coot-getopt.h"
+  then this compilation error goes away:
+
+In file included from /Users/pemsley/autobuild/build-refinement-pre-release-gtk2-python/include/boost/config/posix_features.hpp:18:
+/usr/include/unistd.h:503:6: error: conflicting types for 'getopt'
+int      getopt(int, char * const [], const char *) __DARWIN_ALIAS(getopt);
+         ^
+../../coot/compat/coot-getopt.h:153:12: note: previous declaration is here
+extern int getopt ();
+           ^
+*/
+
+// #include "compat/coot-getopt.h"
 #include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
 #endif // HAVE_BOOST
