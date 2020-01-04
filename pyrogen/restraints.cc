@@ -22,6 +22,7 @@
 
 #include <boost/python.hpp>
 // #include "rdkit/RDBoost/Exceptions.h"
+#include <lidia-core/use-rdkit.hh>
 #include "restraints.hh"
 #include "py-restraints.hh"
 #include <lidia-core/rdkit-interface.hh>

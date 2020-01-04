@@ -26,6 +26,7 @@
 
 #include "compat/coot-sysdep.h"
 #include <boost/python.hpp>
+#include <lidia-core/use-rdkit.hh>
 #include "restraints.hh"
 #include "py-restraints.hh"
 #include <lidia-core/rdkit-interface.hh>
