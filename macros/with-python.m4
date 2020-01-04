@@ -47,6 +47,11 @@ if test x$with_python != x; then
    #
    if test x$PYTHON_CONFIG = x ; then
       PYTHON_CONFIG=python-config
+      command -v $PYTHON_CONFIG
+      if test $? != 0 ; then
+         echo python-config not found
+         PYTHON_CONFIG=
+      fi
    fi
 
    # Check to see if python exists:
