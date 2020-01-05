@@ -4788,3 +4788,7 @@ gboolean
 on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
                                         GdkEventKey     *event,
                                         gpointer         user_data);
+
+void
+on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

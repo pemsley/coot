@@ -217,7 +217,7 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 
 void draw_hud_text(int widget_width, int widget_height, Shader &shader) {
    // this puts the text top right.
-   float x = widget_width  - 230.0;
+   float x = widget_width  - float(widget_width)/180.0 * 130.0;
    float y = widget_height -  30.0;
    // std::cout << "x " << x << " y " << y << std::endl;
    RenderText(shader, "Welcome to Coot",  x, y, 0.5f, glm::vec3(0.6, 0.7, 0.7f));

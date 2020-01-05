@@ -7059,6 +7059,8 @@ void wii_status();
 #endif
 
 void full_screen(int mode);
+void set_use_perspective_projection(int state);
+
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

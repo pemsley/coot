@@ -1744,7 +1744,7 @@ void graphics_to_phenix_geo_representation(int imol, int mode,
 #ifdef USE_PYTHON
 void set_python_draw_function(const std::string &command_string);
 #endif // USE_PYTHON
- 
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pathology Plots                                         */

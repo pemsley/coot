@@ -12653,3 +12653,13 @@ on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
    add_molecular_representation_test();
 #endif
 }
+
+void
+on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+   set_use_perspective_projection(1);
+
+}
+
