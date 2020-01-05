@@ -142,12 +142,12 @@
 	      (turn-off-backup imol)
 	      (for-each 
 	       (lambda (resno)
-		 (let ((clash 1)
-		       (altloc "")
-		       (inscode ""))
-		   (format #t "auto-fit-best-rotamer ~s ~s ~s ~s ~s ~s ~s 0.5~%"
-			   resno altloc inscode chain-id imol mol-for-map clash)
-		   (let ((score (auto-fit-best-rotamer resno altloc inscode 
+             (let ((clash 1)
+                   (altloc "")
+                   (inscode ""))
+               (format #t "auto-fit-best-rotamer ~s ~s ~s ~s ~s ~s ~s 0.5~%"
+                       resno altloc inscode chain-id imol mol-for-map clash)
+               (let ((score (auto-fit-best-rotamer resno altloc inscode
 						       chain-id imol mol-for-map
 						       clash 0.5)))
 		     (format #t "   Best score: ~s~%" score))))

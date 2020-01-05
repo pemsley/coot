@@ -276,6 +276,8 @@ int
 graphics_info_t::fill_combobox_with_map_options(GtkWidget *combobox,
 						GCallback signal_func,
 						int imol_active_position) {
+
+   // delete this function on merge - hmm what did I mean by that?
    std::vector<int> maps_vec;
    for (int i=0; i<n_molecules(); i++)
       if (is_valid_map_molecule(i))
@@ -387,9 +389,17 @@ graphics_info_t::fill_combobox_with_refmac_phase_input_options(GtkWidget *combob
 		    G_CALLBACK(refmac_refinement_phase_info_combobox_changed), NULL);
 }
 
+// put this in the class
+void
+fill_combobox_with_refmac_mtz_file_options_changed(GtkWidget *combobox, gpointer data) {
+
+   std::cout << "mtz file option changed " << data << std::endl;
+
+}
+
 // These are mtz files actually.  Change the name of this function
 void
-graphics_info_t::fill_combobox_with_refmac_labels_options(GtkWidget *combobox) {
+graphics_info_t::fill_combobox_with_refmac_mtz_file_options(GtkWidget *combobox) {
 
    // maybe we need gtk_combo_box_text_remove_all here.
 
@@ -420,6 +430,10 @@ graphics_info_t::fill_combobox_with_refmac_labels_options(GtkWidget *combobox) {
       }
 
       gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+
+      GCallback signal_func = G_CALLBACK(fill_combobox_with_refmac_mtz_file_options_changed);
+      g_signal_connect(combobox, "changed", signal_func, NULL);
+
    }
 
 }

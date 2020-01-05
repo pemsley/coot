@@ -1463,6 +1463,7 @@ pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/pre-releases/
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases
+pre_release_server_dir=https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/0.9-pre
 #
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
@@ -1808,35 +1809,18 @@ else
    build_curl=1
 fi
 
-# ---- test system libidn -------------------------------
-if [ -e /usr/lib/libidn.so ] ; then
-   if [ -e /usr/lib/libidn.la ] ; then
-      echo system has libidn devel
-   else
-      if [ -e $install_top_dir/lib/libidn.la ] ; then 
-         echo installation has libidn.la
-      else 
-         echo neither system nor installation has libidn.la, libcurl should be built also
-         build_libidn=1
-         build_curl=1
-      fi
-   fi
-else
+# using system idn is no longer allowed.
+
    # ---- test installation libidn -------------------------------
-   if [ -e $install_top_dir/include/idna.h ] ; then
-      echo installation has libidn devel
-   else
-      # set it up for building then
-      echo system does not have libidn
-      if [ -e $install_top_dir/include/idna.h ] ; then 
+
+      if [ -e $install_top_dir/include/idn2.h ] ; then
          echo installation has libidn
       else 
          echo installation does not have libidn, libcurl should be built also
          build_libidn=1
          build_curl=1
       fi
-   fi
-fi
+
  
 
 # test for pkg-config
@@ -2107,6 +2091,8 @@ fi #  ENABLE_GUILE_COOT
 #
 python_version=python2.7
 pver=2.7.15
+numpy_version=1.7.1
+
 #
 # but more modern pythons do not compile (at least on my mac)
 if [ $OS = Darwin ] ; then
@@ -2165,7 +2151,7 @@ if [ $ENABLE_PYTHON_COOT = yes ] ; then
       else 
          echo pygtk demo NOT exists, pygtk should be built
          build_pygtk=1
-      fi      
+      fi
    fi
 fi
 
@@ -3142,8 +3128,57 @@ if test -n "$build_pygtk" ; then
    export DYLD_LIBRARY_PATH=$save_dllp
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
-   echo not building pytgtk
+   echo not building pygtk
 fi
+
+echo done pygtk
+
+build_numpy=true
+
+# Let's stop at the beginning if we need a fortran compiler and don't have it.
+#
+if [ "$build_numpy" = true ] ; then
+   if gfortran --version > /dev/null ; then
+      echo found fortran compiler
+   else
+      echo fortran compiler not found.
+      exit 2
+   fi
+fi
+
+if [ true = true ] ; then
+   skip_this=false
+   echo Here 1
+   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy/lib/info.py ] ;  then
+         echo numpy is found, skip
+         skip_this=true
+   fi
+   echo Here 2 $skip_this
+   if [ $skip_this = false ] ;  then
+      echo building ========================= numpy ==============================
+      # this needs fortran compiler gfortran
+      #
+      tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      cd numpy-$numpy_version/
+      # we need to check that we have a fortran compiler, in this case gnu95
+      #
+      if gfortran --version ; then
+        echo found fortran compiler
+      else
+        echo fortran compiler not found.
+        exit 2
+      fi
+      python setup.py build --fcompiler=gfortran
+      python setup.py install
+      if [ ! $? ] ; then
+         echo something bad about numpy.
+         exit 2
+      fi
+      cd - 
+   fi
+fi
+
+
 
 
 # Now we need:
@@ -3224,7 +3259,7 @@ if test -n "$build_readline" ; then
        # need a patch (for debian only) to add curses to the additional libs line
        patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
     fi
-    if [ "$dist_name" = debian ] ; then 
+    if [ "$dist_name" = debian ] ; then
        echo applying debian sed patch for shared-lib libreadline
        # thanks for the quoting help tony duan @ stackoverflow 
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
@@ -3277,7 +3312,7 @@ fi
 # <unnamed port>: In expression (substring (symbol->string sym) 1):
 # <unnamed port>: Stack overflow
 
-if test -n "$build_guile" ; then 
+if test -n "$build_guile" ; then
     echo BUILDING guile:
 #
 
@@ -3319,7 +3354,7 @@ cd guile-${guile_version_dir}
 # ncurses-dev needs to be installed (that is on this Fed 15 machine,
 # at least - I presume others also).
 
-if [ "$need_guile_unused_values_patch" = true ] ; then 
+if [ "$need_guile_unused_values_patch" = true ] ; then
    # 20130820-PE Ubuntu 12.04 also needs -Wno-unused-result
    additional_unused_arg="-Wno-unused-but-set-variable -Wno-unused-result"
 else
@@ -3337,7 +3372,7 @@ fi
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
-if [ "$need_guile_unused_values_patch" = true ] ; then 
+if [ "$need_guile_unused_values_patch" = true ] ; then
    echo =========== post-configure patching for unused-values ====================
    patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.7-updated.patch
 else
@@ -3650,6 +3685,43 @@ else
     echo not building gsl:
 fi
 
+###############################################################################
+##########         build boost                                    #############
+###############################################################################
+
+build_boost=true
+test_for_already_installed_dependencies=true
+
+if [ "$build_boost" = true ] ; then 
+   (
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
+         echo boost is found, skip
+         skip_this=true
+      fi
+   fi
+
+   if [ $skip_this = false ] ;  then
+      echo building ========================= boost $boost_version =========================
+
+      boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
+      boost_version=1_71_0
+      echo wgetting $boost_home_url/boost_$boost_version.tar.gz
+      ${WGET} $boost_home_url/boost_$boost_version.tar.gz
+
+      gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
+      cd boost_$boost_version
+      # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
+      ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
+      # bjam no longer exists
+      ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
+      cd - 
+   fi
+   ) > $HOSTLOGDIR/16-boost.log
+fi
+
+
 
 #################################################################
 # Raster3D
@@ -3692,6 +3764,8 @@ else
 	      bash ./configure --prefix=$install_top_dir SHELL=/bin/bash
 	      if $MAKE ; then
 	         make install
+              else
+                 echo info: $MAKE failed for libgd
 	      fi
 	      cd - 
           else
@@ -3742,7 +3816,19 @@ else
   	     make prefix=$install_top_dir install
 	     # did that work?  I doubt it. Let's do it by hand
              if [ ! -e $install_top_dir/bin/render ] ; then
+  	        echo Hand copy: cp render $install_top_dir/bin/
   	        cp render $install_top_dir/bin/
+             fi
+          else
+             echo info $MAKE failed for render
+             # warning make exit status false, but the binary may well have been built
+             if [ -e render ] ; then
+                if [ ! -e $install_top_dir/bin/render ] ; then
+  	           echo Hand copy: cp render $install_top_dir/bin/
+  	           cp render $install_top_dir/bin/
+                fi
+             else
+                echo no render built in `pwd`
              fi
           fi
           cd -
@@ -3846,7 +3932,6 @@ fi
 # fi
 
 
-
 ###############################################################################
 ##########         build Coot                                     #############
 ###############################################################################
@@ -3929,9 +4014,11 @@ echo ./configure $coot_prefix \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
+      --with-boost=$prfx  \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
+      --with-modern-language-tools     \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
@@ -3942,9 +4029,11 @@ echo ./configure $coot_prefix \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
+      --with-boost=$prfx  \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
+      --with-modern-language-tools     \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
@@ -3985,7 +4074,7 @@ else
       cp src/coot.py $install_top_dir/share/coot/python
    fi
 fi
-) > $HOSTLOGDIR/16-coot.txt 2>&1
+) > $HOSTLOGDIR/20-coot.txt 2>&1
 
 #         --with-gsl-prefix=$install_top_dir \
 #        --with-glib-prefix=$install_top_dir \

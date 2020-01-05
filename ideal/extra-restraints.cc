@@ -308,16 +308,21 @@ coot::extra_restraints_t::matches_bond_template_p(const std::vector<std::string>
 
 void
 coot::restraints_container_t::add_extra_restraints(int imol,
+                                                   const std::string &description,
 						   const extra_restraints_t &extra_restraints,
 						   const protein_geometry &geom) {
 
 
    if (true) {
-      std::cout << "--------------------- in add_extra_restraints() "
+      std::cout << "INFO:: extra restraints origin: " << description << std::endl;
+      std::cout << "--------------------- in add_extra_restraints() we have "
 		<< restraints_vec.size() << " standard restraints "
 		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() adding "
 		<< extra_restraints.bond_restraints.size() << " extra bond restraints "
+		<< std::endl;
+      std::cout << "--------------------- in add_extra_restraints() adding "
+		<< extra_restraints.geman_mcclure_restraints.size() << " extra GM restraints "
 		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() adding "
 		<< extra_restraints.angle_restraints.size() << " extra angle restraints "
@@ -331,6 +336,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
    }
 
    add_extra_bond_restraints(extra_restraints);
+   add_extra_geman_mcclure_restraints(extra_restraints);
    add_extra_angle_restraints(extra_restraints);
    add_extra_torsion_restraints(extra_restraints);
    add_extra_start_pos_restraints(extra_restraints);
@@ -419,8 +425,39 @@ coot::restraints_container_t::add_extra_target_position_restraints(const extra_r
 
 // can I find the atoms using the atom indices from the original molecule?
 bool
-coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr) 
-{
+coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restraints_t::extra_bond_restraint_t &ebr) {
+   bool success = false;
+   bool debug = false;
+
+   int idx_1_old = ebr.atom_1.int_user_data; // where do these get set? (they seem to work though!)
+   int idx_2_old = ebr.atom_2.int_user_data;
+
+   if (debug)
+      std::cout << "debug:: idx_1_old: " << idx_1_old << " idx_2_old: " << idx_2_old << "\n";
+
+   if (idx_1_old >= 0 && idx_1_old < ATOM_INDEX_MAX) {
+      if (idx_2_old >= 0 && idx_2_old < ATOM_INDEX_MAX) {
+	 int index_1 = old_atom_index_to_new_atom_index[idx_1_old];
+	 int index_2 = old_atom_index_to_new_atom_index[idx_2_old];
+	 if (debug)
+	    std::cout << "debug:: index_1: " << index_1 << " index_2: " << index_2 << "\n";
+	 if ((index_1 != -1) && (index_2 != -1)) {
+	    std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+
+            add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ebr.bond_dist, ebr.esd, 1.2 /* dummy value */);
+
+	    if (debug)
+	       std::cout << "DEBUG:: extra bond restraint done fast\n";
+	    success = true;
+	 }
+      }
+   }
+   return success;
+}
+
+bool
+coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restraints_t::extra_geman_mcclure_restraint_t &ebr) {
+
    bool success = false;
    bool debug = false;
 
@@ -441,13 +478,15 @@ coot::restraints_container_t::try_add_using_old_atom_indices(const extra_restrai
 	    add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
 				       ebr.bond_dist, ebr.esd);
 	    if (debug)
-	       std::cout << "GM done fast" << std::endl;
+	       std::cout << "DEBUG:: GM done fast\n";
 	    success = true;
 	 }
       }
    }
    return success;
+
 }
+
 
 
 void
@@ -464,6 +503,7 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       residues_vec_residue_specs[ir] = residue_spec_t(residues_vec[ir].second);
 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
+
       mmdb::Residue *r_1 = NULL;
       mmdb::Residue *r_2 = NULL;
       mmdb::Atom *at_1 = 0;
@@ -472,12 +512,12 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       bool fixed_2 = false;
 
       const extra_restraints_t::extra_bond_restraint_t &ebr = extra_restraints.bond_restraints[i];
+
       bool done = try_add_using_old_atom_indices(ebr);
       if (done) continue;
-      
       if (from_residue_vector) {
-	 residue_spec_t br_res_atom_1(extra_restraints.bond_restraints[i].atom_1);
-	 residue_spec_t br_res_atom_2(extra_restraints.bond_restraints[i].atom_2);
+	 residue_spec_t br_res_atom_1(ebr.atom_1);
+	 residue_spec_t br_res_atom_2(ebr.atom_2);
 	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 	    if (!r_1) {
 	       if (br_res_atom_1 == residues_vec_residue_specs[ir]) {
@@ -511,12 +551,146 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	 mmdb::PPResidue SelResidue_local= 0;
 	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
 	 for (int ir=0; ir<nSelResidues_local; ir++) {
-	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
+	    if (coot::residue_spec_t(ebr.atom_1) == coot::residue_spec_t(SelResidue_local[ir])) {
+	       r_1 = SelResidue_local[ir];
+	       fixed_1 = fixed_check(ir);
+	    }
+	    if (coot::residue_spec_t(ebr.atom_2) == coot::residue_spec_t(SelResidue_local[ir])) {
+	       r_2 = SelResidue_local[ir];
+	       fixed_1 = fixed_check(ir);
+	    }
+	 } 
+	 mol->DeleteSelection(selHnd);
+
+      }
+      
+      if (r_1 && r_2) {
+	 if (! (fixed_1 && fixed_2)) {
+	    mmdb::PPAtom residue_atoms_1 = 0;
+	    mmdb::PPAtom residue_atoms_2 = 0;
+	    int n_residue_atoms_1;
+	    int n_residue_atoms_2;
+	    r_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+	    r_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+
+	    for (int iat=0; iat<n_residue_atoms_1; iat++) { 
+	       std::string atom_name_1(residue_atoms_1[iat]->name);
+	       if (atom_name_1 == ebr.atom_1.atom_name) {
+		  std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
+		  if (alt_loc_1 == ebr.atom_1.alt_conf) {
+		     at_1 = residue_atoms_1[iat];
+		     break;
+		  }
+	       }
+	    }
+	    for (int iat=0; iat<n_residue_atoms_2; iat++) { 
+	       std::string atom_name_2(residue_atoms_2[iat]->name);
+	       if (atom_name_2 == ebr.atom_2.atom_name) {
+		  std::string alt_loc_2(residue_atoms_2[iat]->altLoc);
+		  if (alt_loc_2 == ebr.atom_2.alt_conf) {
+		     at_2 = residue_atoms_2[iat];
+		     break;
+		  }
+	       }
+	    }
+
+	    if (at_1 && at_2) {
+	       int index_1 = -1;
+	       int index_2 = -1;
+	       at_1->GetUDData(udd_atom_index_handle, index_1);
+	       at_2->GetUDData(udd_atom_index_handle, index_2);
+	       if ((index_1 != -1) && (index_2 != -1)) {
+		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
+
+                  add(BOND_RESTRAINT, index_1, index_2, fixed_flags, ebr.bond_dist, ebr.esd, 1.2 /* dummy value */);
+
+		  n_extra_bond_restraints++;
+
+		  //mark these atoms as bonded so that we don't add a non-bonded restraint between them.
+		  // 20170423 - But we *do* want NBC between these atoms...
+		  //          otherwise we get horrid crunching.
+                  // 20191119 However, if there is a *bond* restraint (not a GM restraint)
+                  // then we don't also want a NBC.
+
+		  bonded_atom_indices[index_1].insert(index_2);
+		  bonded_atom_indices[index_2].insert(index_1);
+	       }
+	    }
+	 }
+      }
+   }
+   if (true)
+      std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
+		<< " extra bond restraints" << std::endl;
+}
+
+void
+coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_restraints_t &extra_restraints) {
+
+   int n_extra_bond_restraints = 0;
+   // don't add the restraint if both the residues are fixed.
+   //
+
+   fill_old_to_new_index_vector();
+   // pre-calculate the residue specs for speed
+   std::vector<residue_spec_t> residues_vec_residue_specs(residues_vec.size());
+   for (unsigned int ir=0; ir<residues_vec.size(); ir++)
+      residues_vec_residue_specs[ir] = residue_spec_t(residues_vec[ir].second);
+
+   for (unsigned int i=0; i<extra_restraints.geman_mcclure_restraints.size(); i++) {
+      mmdb::Residue *r_1 = NULL;
+      mmdb::Residue *r_2 = NULL;
+      mmdb::Atom *at_1 = 0;
+      mmdb::Atom *at_2 = 0;
+      bool fixed_1 = false;
+      bool fixed_2 = false;
+
+      const extra_restraints_t::extra_geman_mcclure_restraint_t &ebr = extra_restraints.geman_mcclure_restraints[i];
+      bool done = try_add_using_old_atom_indices(ebr);
+      if (done) continue;
+
+      if (from_residue_vector) {
+	 residue_spec_t br_res_atom_1(extra_restraints.geman_mcclure_restraints[i].atom_1);
+	 residue_spec_t br_res_atom_2(extra_restraints.geman_mcclure_restraints[i].atom_2);
+	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+	    if (!r_1) {
+	       if (br_res_atom_1 == residues_vec_residue_specs[ir]) {
+		  r_1 = residues_vec[ir].second;
+		  fixed_1 = residues_vec[ir].first;
+	       }
+	    }
+	    if (! r_2) {
+	       if (br_res_atom_2 == residues_vec_residue_specs[ir]) {
+		  r_2 = residues_vec[ir].second;
+		  fixed_2 = residues_vec[ir].first;
+	       }
+	    }
+	    if (r_1 && r_2) break;
+	 }
+      } else {
+
+	 // bleugh.
+	 int selHnd = mol->NewSelection();  // d
+	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
+		      chain_id_save.c_str(), // Chain(s)
+		      istart_res, "*", // starting res
+		      iend_res,   "*", // ending   res
+		      "*",  // residue name
+		      "*",  // Residue must contain this atom name?
+		      "*",  // Residue must contain this Element?
+		      "*",  // altLocs
+		      mmdb::SKEY_NEW // selection key
+		      );
+	 int nSelResidues_local = 0;
+	 mmdb::PPResidue SelResidue_local= 0;
+	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
+	 for (int ir=0; ir<nSelResidues_local; ir++) {
+	    if (coot::residue_spec_t(ebr.atom_1) ==
 		coot::residue_spec_t(SelResidue_local[ir])) {
 	       r_1 = SelResidue_local[ir];
 	       fixed_1 = fixed_check(ir);
 	    }
-	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
+	    if (coot::residue_spec_t(ebr.atom_2) ==
 		coot::residue_spec_t(SelResidue_local[ir])) {
 	       r_2 = SelResidue_local[ir];
 	       fixed_1 = fixed_check(ir);
@@ -537,9 +711,9 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 
 	    for (int iat=0; iat<n_residue_atoms_1; iat++) { 
 	       std::string atom_name_1(residue_atoms_1[iat]->name);
-	       if (atom_name_1 == extra_restraints.bond_restraints[i].atom_1.atom_name) {
+	       if (atom_name_1 == ebr.atom_1.atom_name) {
 		  std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
-		  if (alt_loc_1 == extra_restraints.bond_restraints[i].atom_1.alt_conf) {
+		  if (alt_loc_1 == ebr.atom_1.alt_conf) {
 		     at_1 = residue_atoms_1[iat];
 		     break;
 		  }
@@ -547,9 +721,9 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	    }
 	    for (int iat=0; iat<n_residue_atoms_2; iat++) { 
 	       std::string atom_name_2(residue_atoms_2[iat]->name);
-	       if (atom_name_2 == extra_restraints.bond_restraints[i].atom_2.atom_name) {
+	       if (atom_name_2 == ebr.atom_2.atom_name) {
 		  std::string alt_loc_2(residue_atoms_2[iat]->altLoc);
-		  if (alt_loc_2 == extra_restraints.bond_restraints[i].atom_2.alt_conf) {
+		  if (alt_loc_2 == ebr.atom_2.alt_conf) {
 		     at_2 = residue_atoms_2[iat];
 		     break;
 		  }
@@ -565,30 +739,20 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
 
  		  add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
- 					     extra_restraints.bond_restraints[i].bond_dist,
- 					     extra_restraints.bond_restraints[i].esd);
+ 					     ebr.bond_dist, ebr.esd);
 		  n_extra_bond_restraints++;
 
-		  if (0) 
-		     add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
-			 extra_restraints.bond_restraints[i].bond_dist,
-			 extra_restraints.bond_restraints[i].esd,
-			 1.2 /* dummy value */);
-                  
-		  //mark these atoms as bonded so that we don't add a non-bonded restraint between them.
-		  // 20170423 - But we *do* want NBC between these atoms...
-		  //          otherwise we get horrid crunching.
-		  // bonded_atom_indices[index_1].push_back(index_2);
-		  // bonded_atom_indices[index_2].push_back(index_1);
 	       }
 	    } 
 	 } 
       } 
    }
-   if (0) 
+   if (true)
       std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
-		<< " extra bond restraints" << std::endl;
+		<< " extra GM restraints" << std::endl;
+
 }
+
 
 void
 coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraints_t &extra_restraints) {

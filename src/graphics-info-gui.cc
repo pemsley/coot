@@ -901,36 +901,6 @@ graphics_info_t::show_select_map_dialog() {
 	 }
       }
 
-      // GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(widget),
-      // "select_map_for_fitting_optionmenu");
-
-      // note that this uses one of 2 similarly named function:
-      // fill_option_menu_with_map_options(optionmenu,
-      // GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
-      // imol_refinement_map);
-
-      // Old notes:
-      // now activate the first menu item, i.e. creating this menu is as
-      // if the first item in the menu was activated:
-      //    for (int i=0; i<n_molecules; i++) {
-      //       if (molecules[i].xmap_is_filled[0] == 1) {
-      // 	 set_refinement_map(i);
-      // 	 break;
-      //       }
-      //    }
-      //
-      // 10/6/2004: Well, that is in fact totally crap.  What the *user*
-      // expects is that when they open this dialog that the default map
-      // (the one they have previously chosen) will be in the active
-      // position. i.e. the mechanism described above was totaly wrong.
-      //
-      // What we really want to do is call
-      // fill_option_menu_with_map_options and pass it the active item
-      // as an argument.
-      //
-      //gtk_widget_show(widget);
-      // BL says:: run as dialog to block for input
-
       GtkWidget *combobox = lookup_widget(widget, "select_map_for_fitting_combobox");
       GCallback callback = G_CALLBACK(select_refinement_map_combobox_changed);
       fill_combobox_with_map_options(combobox, callback, imol_refinement_map);
@@ -952,7 +922,6 @@ GtkWidget *
 graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) {
 
    GtkWidget *w = create_skeleton_dialog();
-   GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
    GtkWidget *combobox    = lookup_widget(w, "skeleton_map_combobox");
    GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
    GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");

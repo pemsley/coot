@@ -1,8 +1,11 @@
 
+#ifdef USE_PYTHON
 #include "Python.h"
+#endif
+
 #include "graphics-info.h"
 
-// static 
+// static
 gint
 graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
@@ -13,7 +16,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    thread_for_refinement_loop_threaded();
 
    //    g.run_post_intermediate_atoms_moved_hook_maybe();  // put this somewhere else
-   //   (after the refinement has finished.)                          
+   //   (after the refinement has finished.)
 
 #endif // HAVE_GSL
 

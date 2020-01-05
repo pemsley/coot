@@ -43,11 +43,15 @@
 
 
 // v needs to be non-const
+//
+// gradients_file_name is a option arguement, if blank, then write to the screen, rather
+// that into the file.
 void
 coot::numerical_gradients(gsl_vector *v,
 			  void *params, 
 			  gsl_vector *df,
                           std::string gradients_file_name) {
+
 
    // Note that (at present) user-only fixed atoms re removed from numerical gradient calculations,
    // Other fixed atom (in flanking residues) continue to have numerical gradients calculated for them.
@@ -131,26 +135,21 @@ coot::numerical_gradients(gsl_vector *v,
 
    bool done_by_file = false;
    if (! gradients_file_name.empty()) {
-      done_by_file = true;
       if (! file_exists(gradients_file_name)) {
-	 /*
-	   commented because compilation error:
-           /usr/include/c++/4.8.2/fstream:599:11: note: 'std::basic_ofstream<char>::basic_ofstream(const std::basic_ofstream<char>&)'
-               is implicitly deleted because the default definition would be ill-formed:
-           class basic_ofstream : public basic_ostream<_CharT,_Traits>
-           ^
+         done_by_file = true;
 
-	 std::ofstream f = std::ofstream(gradients_file_name.c_str());
+	 std::ofstream f(gradients_file_name.c_str());
 	 for (unsigned int i=0; i<v->size; i++) {
 	    f << std::setw(3) << i << " analytical: "
 	      << std::setw(9) << std::right << std::setprecision(5) << std::fixed << analytical_derivs[i]
 	      << " numerical: "
 	      << std::setw(9) << std::setprecision(5) << std::fixed << numerical_derivs[i] << "\n";
-	      }
-        */
+         }
+      } else {
+         std::cout << "WARNING:: gradients file \"" << gradients_file_name << "\" already exists" << std::endl;
       }
    } else {
-      std::cout << "WARNING:: gradients file " << gradients_file_name << " already exists" << std::endl;
+      std::cout << "WARNING:: gradients file \"" << gradients_file_name << "\" is blank" << std::endl;
    }
 
    if (!done_by_file) {

@@ -135,14 +135,6 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
-// Including python needs to come after graphics-info.h, because
-// something in Python.h (2.4 - chihiro) is redefining FF1 (in
-// ssm_superpose.h) to be 0x00004000 (Grrr).
-//
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
 
 // This is (already) in git-revision-count.cc
 //

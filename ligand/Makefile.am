@@ -34,7 +34,8 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
 	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh ligands-db.hh \
-        scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh
+   scored-coord.hh ligand-score-card.hh scored-molecule.hh map-point-cluster.hh \
+	side-chain-densities.hh
 
 pkgincludedir = $(includedir)/coot/ligand
 
@@ -44,7 +45,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
-        ligands-db.cc joining-residues.cc ligand-score-card.cc
+        ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords
@@ -91,7 +92,7 @@ endif
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql
 
-check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles
+check_PROGRAMS = test-fffear-in-coot test-trace ligand-percentiles test-side-chain-densities
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
@@ -105,6 +106,12 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-
 
 ligand_percentiles_SOURCES = ligand-percentiles.cc
 ligand_percentiles_LDADD = ./libcoot-ligand.la $(top_builddir)/compat/libcoot-compat.la
+
+test_side_chain_densities_SOURCES = test-side-chain-densities.cc
+test_side_chain_densities_LDADD = \
+  ./libcoot-ligand.la \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la \
+   $(top_builddir)/coords/libcoot-coords.la
 
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc

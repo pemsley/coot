@@ -63,7 +63,7 @@ coot::util::get_phi_psi(mmdb::PResidue *SelResidue) {
    return get_phi_psi(SelResidue[0], SelResidue[1], SelResidue[2]);
 } 
 
-// SelResidue is guaranteed to have 3 residues (there is no protection
+// each residue needs to be non-null (there is no protection
 // for that in this function).
 std::pair<bool, coot::util::phi_psi_with_residues_t>
 coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb::Residue *residue_2) {
@@ -149,7 +149,7 @@ coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb
 				      label.c_str(),
 				      ires,
 				      inscode,
-                  segid,
+                                      segid,
                                       is_pre_pro);
       // peptide bonding atoms have to be within 2.0A, or this is not
       // a valid peptide.

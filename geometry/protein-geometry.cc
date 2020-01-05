@@ -3650,7 +3650,9 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
    target_volume_ = volume_sign * a*b*c*sqrt(param);
 
    // volume_sigma_ = 0.2;  // seems reasonable give target voluemes of about 2.6
-   volume_sigma_ = 0.3; // test
+   // volume_sigma_ = 0.3; // test
+   volume_sigma_ = 0.18; // meh, 0.3 seemed to give "too many" chiral errors when
+                         // refining large numbers of atoms in poor/EM maps.
 
    if (false)
       std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "

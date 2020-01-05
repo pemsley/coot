@@ -86,7 +86,8 @@ namespace exptl {
 #else
       GnomeCanvas *canvas;
 #endif
-      void setup_canvas(mmdb::Manager *mol);
+      // return the canvas y size
+      int setup_canvas(mmdb::Manager *mol);
       std::vector<chain_length_residue_units_t> get_residue_counts(mmdb::Manager *mol) const;
       bool use_graphics_interface_flag;
       static void on_nsv_close_button_clicked (GtkButton *button,

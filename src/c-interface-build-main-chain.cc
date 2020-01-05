@@ -590,6 +590,12 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       SCM mol_list_scm = SCM_EOL;
       // add backwards (for scheme)
+
+      std::cout << "debug:: protein_db_loops() here are the results from protein_db_loops()" << std::endl;
+      for (std::size_t ii=0; ii<p.second.size(); ii++) {
+	 std::cout << "     " << p.second[ii] << std::endl;
+      }
+
       for (int i=(p.second.size()-1); i>=0; i--)
 	 mol_list_scm = scm_cons(SCM_MAKINUM(p.second[i]), mol_list_scm);
       SCM first_pair_scm = scm_list_2(SCM_MAKINUM(p.first.first), SCM_MAKINUM(p.first.second));
@@ -640,8 +646,8 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 // return -1 in the first of the pair on failure
 // 
 std::pair<std::pair<int, int> , std::vector<int> > 
-protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags,
-		 bool preserve_residue_names) {
+protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map,
+		 int nfrags, bool preserve_residue_names) {
    
    int imol_consolodated = -1;
    int imol_loop_orig = -1; // set later hopefully
@@ -662,8 +668,8 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	    std::vector<coot::residue_spec_t> rs = residue_specs;
 	    std::sort(rs.begin(), rs.end());
 	    int first_res_no = rs[0].res_no;
-	    
-	    clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+
+	    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
 
 	    std::vector<ProteinDB::Chain> chains =
 	       graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
@@ -677,7 +683,9 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 		  coot::util::delete_anomalous_atoms(mol); //CBs in GLY etc
 		  int imol = graphics_info_t::create_molecule();
 		  std::string name = "Loop candidate #"; 
-		  name += coot::util::int_to_string(ich+1);
+		  name += coot::util::int_to_string(ich);
+		  std::cout << "INFO:: installing molecule number " << imol
+			    << " with name " << name << std::endl;
 		  g.molecules[imol].install_model(imol, mol, g.Geom_p(), name, 1);
 		  vec_chain_mols.push_back(imol);
 		  set_mol_displayed(imol, 0);
@@ -697,10 +705,12 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	       // copy of the original coordinates
 	       // 
 	       std::string ass = protein_db_loop_specs_to_atom_selection_string(residue_specs);
-	       imol_loop_orig = new_molecule_by_atom_selection(imol_coords, ass.c_str());
-	       set_mol_active(imol_loop_orig, 0);
-	       set_mol_displayed(imol_loop_orig, 0);
 
+	       if (true) {
+		  imol_loop_orig = new_molecule_by_atom_selection(imol_coords, ass.c_str());
+		  set_mol_active(imol_loop_orig, 0);
+		  set_mol_displayed(imol_loop_orig, 0);
+	       }
 	       graphics_draw();
 	    }
 	 }

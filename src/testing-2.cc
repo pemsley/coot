@@ -106,13 +106,13 @@ int test_parallel_plane_restraints() {
 				 do_residue_internal_torsions,
 				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
-				 do_rama_restraints, false, false,
+				 do_rama_restraints, false, false, false,
 				 pseudos);
 
    std::string extra_restraints_file_name("test-base-pairing-extras-I-chain.txt");
    coot::extra_restraints_t er;
    er.read_refmac_extra_restraints(extra_restraints_file_name);
-   restraints.add_extra_restraints(imol, er, t.geom); // we need a geom to look up expansions
+   restraints.add_extra_restraints(imol, "testing extras", er, t.geom); // we need a geom to look up expansions
                                                 // for restraint atom names.
    restraints.minimize(flags);
    mol->WritePDBASCII("3tu4-test-37,38-par-planes-out.pdb");

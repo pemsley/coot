@@ -32,26 +32,26 @@ namespace coot {
    class rotamer_probability_info_t {
    public:
       enum {OK=1, // assigned
-	    MISSING_ATOMS = 0,
-	    ROTAMER_NOT_FOUND = -1,
-	    RESIDUE_IS_GLY_OR_ALA = -2 };
+            MISSING_ATOMS = 0,
+            ROTAMER_NOT_FOUND = -1,
+            RESIDUE_IS_GLY_OR_ALA = -2 };
       short int state;
       float probability;
       std::string alt_conf;
 
       std::string rotamer_name;
       rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name) {
-	 state = state_in;
-	 probability = prob_in;
-	 rotamer_name = name;
-	 alt_conf = "";
+         state = state_in;
+         probability = prob_in;
+         rotamer_name = name;
+         alt_conf = "";
       }
       rotamer_probability_info_t(short int state_in, float prob_in, const std::string &name,
-				 const std::string alt_conf_in) {
-	 state = state_in;
-	 probability = prob_in;
-	 rotamer_name = name;
-	 alt_conf = alt_conf_in;
+                                 const std::string alt_conf_in) {
+         state = state_in;
+         probability = prob_in;
+         rotamer_name = name;
+         alt_conf = alt_conf_in;
       }
       friend std::ostream &operator<<(std::ostream &s, const rotamer_probability_info_t &rpi);
    }; 
@@ -207,7 +207,7 @@ namespace coot {
       // caller needs to delete returned residue and its chain.
       // 
       mmdb::Residue *GetResidue(const dictionary_residue_restraints_t &rest,
-			   const std::string &rotamer_name) const;
+                                const std::string &rotamer_name) const;
       
       mmdb::Residue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 

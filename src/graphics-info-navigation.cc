@@ -920,10 +920,14 @@ graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
       gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
       if (state) {
 	 GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
-	 GValue label_as_value = { 0, };
-	 gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
-	 imol = g_value_get_int(&label_as_value);
-	 std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
+	 bool g_value_holds_int_flag = true;
+	 // adjust the value of g_value_holds_int_flag here
+	 if (g_value_holds_int_flag) {
+	    GValue label_as_value = { 0, };
+	    gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
+	    imol = g_value_get_int(&label_as_value);
+	    std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
+	 }
       } else {
 	 std::cout << "DEBUG:: combobox_get_imol(): bad state (no active itier)" << std::endl;
       }

@@ -399,10 +399,12 @@ manage_column_selector(const char *filename) {
 }
 
 void
-manage_refmac_column_selection(GtkWidget *w) {
+manage_refmac_column_selection(GtkWidget *run_refmac_dialog) {
+
+   // called by an mtz file chooser response
 
    if (graphics_info_t::use_graphics_interface_flag) {
-     coot::setup_refmac_parameters_from_file(w);
+     coot::setup_refmac_parameters_from_file(run_refmac_dialog);
    }
 }
 
@@ -4909,8 +4911,6 @@ void export_map_gui(short int export_map_fragment) {
       gtk_widget_hide(hbox);
    }
 
-   GtkWidget *option_menu = lookup_widget(w, "export_map_map_optionmenu");
-
    GtkWidget *combobox = lookup_widget(w, "export_map_map_combobox");
 
    graphics_info_t g;
@@ -5964,7 +5964,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 
 		  if (!file_name.empty()) {
 
-		     std::string url_prefix = "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+		     std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
 		     url_prefix += "extensions";
 		     url_prefix += "/";
 		     url_prefix += file_name;

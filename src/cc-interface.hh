@@ -601,6 +601,13 @@ std::string resname_from_serial_number(int imol, const char *chain_id, int seria
 //! \brief return the residue name of the specified residue
 std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
 
+//! \brief return the serial number of the specified residue
+//!
+//! @return -1 on failure to find the residue
+//
+int serial_number_from_residue_specs(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
+
+
 #ifdef USE_GUILE
 //! \brief Return a list of atom info for each atom in the specified residue.
 //! 

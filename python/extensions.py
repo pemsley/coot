@@ -56,6 +56,20 @@ if (have_coot_python):
        add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: water_coordination_gui())
 
+       def validation_outliers_func():
+         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+           imol_map = imol_refinement_map()
+           if not valid_map_molecule_qm(imol_map):
+             info_dialog_and_text("Refinement Map is currently not set")
+           else:
+             validation_outliers_dialog(aa_imol, imol_map)
+       add_simple_coot_menu_menuitem(menu, "Validation Outliers",
+                                     lambda func: validation_outliers_func())
+
+       add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
+                                     lambda func: rama_outlier_gui())
+
 
      # --------------------------------------------------
      #           user_define_restraints plugin
@@ -295,7 +309,7 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_maps,
-       "Copy Map Molecule...", 
+       "Copy Map...",
        lambda func: map_molecule_chooser_gui("Map to Copy...", 
 		lambda imol: copy_molecule(imol)))
 
@@ -1725,6 +1739,11 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu_refine, "Question Accept Refinement", 
        lambda func: set_refinement_immediate_replacement(0))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_settings, "Save Graphics Size and Positions",
+       lambda func: graphics_window_size_and_position_to_preferences())
 
 
      def save_dialog_func():

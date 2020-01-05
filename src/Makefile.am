@@ -367,6 +367,7 @@ coot_bin_SOURCES = \
 	cc-interface-png.cc      \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
+	cc-interface-molecular-representation.hh  \
 	callbacks.c callbacks.h	 \
    canvas-fixes.hh          \
    cfc.cc cfc.hh            \
@@ -402,13 +403,15 @@ coot_bin_SOURCES = \
 	coot-setup-python.cc     \
 	coot-setup-python.hh     \
 	coot-version.hh          \
-	data-pair-remover.hh     \
 	coot_wrap_guile.cc       \
         curlew.h                 \
         curlew.hh                \
+	data-pair-remover.hh     \
+        density-results-container-t.hh \
         dots-representation.hh   \
 	draw.cc                  \
 	draw-2.cc                \
+	draw.hh                  \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
@@ -449,9 +452,10 @@ coot_bin_SOURCES = \
 	graphics-info-pick.cc	 \
 	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
-	graphics-info-residues.cc	 \
+	graphics-info-residues.cc	\
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
+	graphics-info-statics.cc \
 	graphics-info-superpose.cc	\
 	graphics-info-trackball.cc	\
 	graphics-ligand-view.cc	 \
@@ -509,6 +513,7 @@ coot_bin_SOURCES = \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
 	python-classes.cc	 \
+	python-classes.hh	 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
@@ -535,6 +540,8 @@ coot_bin_SOURCES = \
 	Shader.cc Shader.hh      \
 	startup-scripts.hh       \
 	support.c support.h      \
+	sound.hh                 \
+	startup-scripts.hh       \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \

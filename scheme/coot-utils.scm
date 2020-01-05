@@ -501,10 +501,15 @@
 	      (cadr atom-spec)))))
 
 (define (residue-spec->residue-name imol spec)
-  (residue-name imol 
-		(list-ref spec 1)
-		(list-ref spec 2)
-		(list-ref spec 3)))
+  (if (= (length spec) 4)
+      (residue-name imol
+		    (list-ref spec 1)
+		    (list-ref spec 2)
+		    (list-ref spec 3))
+      (residue-name imol
+		    (list-ref spec 0)
+		    (list-ref spec 1)
+		    (list-ref spec 2))))
 
 ;; for sorting residue specs
 (define (residue-spec-less-than spec-1 spec-2)
@@ -797,39 +802,39 @@
   (if (not (command-in-path-or-absolute? cmd))
       
       (begin 
-	(format #t "command ~s not found~%" cmd)
-	255)
+        (format #t "command ~s not found~%" cmd)
+        255)
 
       (let* ((cmd-ports (apply run-with-pipe (append (list "r+" cmd) args)))
-	     (pid (car cmd-ports))
-	     (output-port (car (cdr cmd-ports)))
-	     (input-port  (cdr (cdr cmd-ports))))
-	
-	(let loop ((data-list data-list))
-	  (if (null? data-list)
-	      (begin 
-		(close input-port))
-	      
-	      (begin
-		(format input-port "~a~%" (car data-list))
-		(loop (cdr data-list)))))
-	
-	(call-with-output-file log-file-name
-	  (lambda (log-file-port)
-	    
-	    (let f ((obj (read-line output-port)))
-	      (if (eof-object? obj)
-		  (begin 
-		    (let* ((status-info (waitpid pid))
-			   (status (status:exit-val (cdr status-info))))
-		      ;; (format #t "exit status: ~s~%" status) silence
-		      status)) ; return status 
-		  
-		  (begin
-		    (if (eq? screen-output-also? #t)
-			(format #t ":~a~%" obj))
-		    (format log-file-port "~a~%" obj)
-		    (f (read-line output-port))))))))))
+             (pid (car cmd-ports))
+             (output-port (car (cdr cmd-ports)))
+             (input-port  (cdr (cdr cmd-ports))))
+
+        (let loop ((data-list data-list))
+          (if (null? data-list)
+              (begin
+                (close input-port))
+
+              (begin
+                (format input-port "~a~%" (car data-list))
+                (loop (cdr data-list)))))
+
+        (call-with-output-file log-file-name
+          (lambda (log-file-port)
+
+            (let f ((obj (read-line output-port)))
+              (if (eof-object? obj)
+                  (begin
+                    (let* ((status-info (waitpid pid))
+                           (status (status:exit-val (cdr status-info))))
+                      ;; (format #t "exit status: ~s~%" status) silence
+                      status)) ; return status
+
+                  (begin
+                    (if (eq? screen-output-also? #t)
+                        (format #t ":~a~%" obj))
+                    (format log-file-port "~a~%" obj)
+                    (f (read-line output-port))))))))))
 
 (define (ok-goosh-status? status)
 
@@ -2537,10 +2542,9 @@
 
 		      (format #t "debug:: ------ chain ids : ~s ~s~%" new-chain-id chain-id-in)
 		      (if (not (string=? new-chain-id chain-id-in))
-			  (begin
-			    (format #t "(imol new-chain-id chain-id-in 1 resno resno) ~s~%"
-				    (list imol new-chain-id chain-id-in 1 resno resno))
-			    (change-chain-id imol new-chain-id chain-id-in 1 resno resno)))
+			  (change-chain-id imol new-chain-id chain-id-in 1
+					   (residue-spec->res-no new-res-spec)
+					   (residue-spec->res-no new-res-spec)))
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))
@@ -4173,6 +4177,77 @@
 			      (copy-file ref-scm pref-file)
 			      (if (file-exists? pref-file)
 				  (load pref-file))))))))))))))
+
+
+
+;; something like this for intermediate atoms also?
+;;
+;; n-neighbs is either 0 or 1
+;;
+(define (rebuild-residues-using-db-loop imol middle-residue-spec n-neighbs)
+
+  ;; utility function
+  ;;
+  (define (remove-any-GLY-CBs imol-db-loop saved-residue-names ch-id resno-low)
+
+    (for-each (lambda (residue-idx res-name)
+		(if (string? res-name) ;; might be #f for missing residues
+		    (if (string=? res-name "GLY")
+			(let ((res-no-gly (+ resno-low residue-idx)))
+			  (delete-atom imol-db-loop ch-id res-no-gly "" " CB " "")))))
+	      (range (length saved-residue-names)) saved-residue-names))
+
+   ;; main line
+
+   (let* ((resno-mid (residue-spec->res-no middle-residue-spec))
+	  (resno-low  (- resno-mid n-neighbs))
+	  (resno-high (+ resno-mid n-neighbs))
+          (r (append (range (- resno-mid 4 n-neighbs) (+ resno-mid n-neighbs 0))
+		     (range (+ resno-mid 1 n-neighbs) (+ resno-mid 3 n-neighbs))))
+          (nov (print-var r))
+          (ch-id (residue-spec->chain-id middle-residue-spec))
+          (residue-specs (map (lambda(res-no)
+                                (list ch-id res-no ""))
+                              r)))
+
+     (let ((loop-mols (protein-db-loops
+		       imol residue-specs (imol-refinement-map) 1 *db-loop-preserve-residue-names*)))
+        (let ((residue-spec-of-residues-to-be-replaced (if (= n-neighbs 0)
+                                                           (list middle-residue-spec)
+							   (map (lambda (r)
+								  (list ch-id r ""))
+								(range resno-low
+								       (+ resno-high 1))))))
+
+          (let ((saved-residue-names (map (lambda (r) (residue-spec->residue-name imol r))
+					  residue-spec-of-residues-to-be-replaced)))
+	    (if (> (length loop-mols) 0)
+
+		;; loop-mols have the correct residue numbering but the wrong chain-id and
+		;; residue type
+
+		(let ((imol-db-loop (car (list-ref loop-mols 1)))
+		      (tmp-loop-mols (car loop-mols)))
+		  (let ((chain-id-db-loop (chain-id imol-db-loop 0)))
+		    (if (not (string=? ch-id chain-id-db-loop))
+			(change-chain-id imol-db-loop chain-id-db-loop ch-id 0 0 0))
+		    (let ((selection (string-append "//" ch-id "/"
+						    (number->string resno-low)
+						    "-"
+						    (number->string resno-high)
+						    )))
+
+		      ;; if the original residue was a GLY, the imol-db-loop might (probably
+		      ;; will) have CB. If that is the case, then we should remove the CBs now
+		      ;;
+		      (remove-any-GLY-CBs imol-db-loop saved-residue-names ch-id resno-low)
+
+		      ;; this moves atoms, adds atoms if needed, doesn't change the residue name
+		      ;;
+		      (replace-fragment imol imol-db-loop selection)
+		      ;; tidy up
+		      (for-each (lambda (i) (close-molecule i)) tmp-loop-mols))))))))))
+
 
 	
 ;; Americans...

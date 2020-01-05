@@ -1,5 +1,9 @@
 
+
+#ifdef USE_PYTHON
 #include "Python.h"
+#endif
+
 #include "graphics-info.h"
 #include "molecule-class-info.h"
 

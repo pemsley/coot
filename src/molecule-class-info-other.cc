@@ -6306,6 +6306,43 @@ molecule_class_info_t::last_residue_in_chain(const std::string &chain_id) const 
    return p;
 }
 
+std::pair<bool, int>
+molecule_class_info_t::last_protein_residue_in_chain(const std::string &chain_id) const {
+
+   std::pair<short int, int> p(false,0);
+   int biggest_resno = -99999;
+
+   if (atom_sel.n_selected_atoms > 0) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 chain_p = model_p->GetChain(i_chain);
+	 std::string mol_chain(chain_p->GetChainID());
+	 if (mol_chain == chain_id) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *residue_p;
+	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  std::string rn = residue_p->GetResName();
+		  if (coot::util::is_standard_amino_acid_name(rn)) {
+		     if (residue_p->GetSeqNum() > biggest_resno) {
+			biggest_resno = residue_p->GetSeqNum();
+			p.first = true;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   p.second = biggest_resno;
+   return p;
+
+}
+
+
 
 std::pair<bool, int>
 molecule_class_info_t::first_residue_in_chain(const std::string &chain_id) const {

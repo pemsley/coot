@@ -135,6 +135,8 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
 		      mod_bond.new_value_dist,
 		      mod_bond.new_value_dist_esd,
 		      1.2);  // junk value
+		  bonded_atom_indices[index_1].insert(index_2);
+		  bonded_atom_indices[index_2].insert(index_1);
 	       }
 	    }
 	 }
@@ -247,8 +249,7 @@ coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angl
 		     if (((alt_1 == alt_2) && (alt_1 == alt_3)) ||
 			 ((alt_1 == ""   ) && (alt_2 == alt_3)) ||
 			 ((alt_2 == ""   ) && (alt_1 == alt_3)) ||
-			 ((alt_3 == ""   ) && (alt_1 == alt_2)))
-			{
+			 ((alt_3 == ""   ) && (alt_1 == alt_2))) {
 			   
 			   residue_atoms[iat_1]->GetUDData(udd_atom_index_handle, index_1);
 			   residue_atoms[iat_2]->GetUDData(udd_atom_index_handle, index_2);
@@ -266,7 +267,11 @@ coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angl
 			       mod_angle.new_value_angle,
 			       mod_angle.new_value_angle_esd,
 			       is_single_Hydrogen_atom_angle_restraint);  // junk value
-			}
+
+			   bonded_atom_indices[index_1].insert(index_3);
+			   bonded_atom_indices[index_3].insert(index_1);
+
+		     }
 		  }
 	       }
 	    }

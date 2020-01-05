@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-pdbe_server = "http://www.ebi.ac.uk"
+pdbe_server = "https://www.ebi.ac.uk"
 pdbe_pdb_file_dir = "pdbe-srv/view/files"
 
 pdbe_file_name_tail = "ent"
@@ -219,7 +219,7 @@ def get_eds_pdb_and_mtz(id):
     eds_site = "https://www.ebi.ac.uk/pdbe/coordinates"
     eds_core = "https://www.ebi.ac.uk/pdbe" # for web pages
     # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
-    eds_coords_site = 'https://www.ebi.ac.uk/pdbe/entry-files/download'
+    eds_coords_site = "https://www.ebi.ac.uk/pdbe/entry-files/download"
 
     # "1cbds" -> "cb/"
     #
@@ -242,17 +242,17 @@ def get_eds_pdb_and_mtz(id):
 
         if (r):
             down_id = string.lower(id)
-            # eds_url = eds_site + "/dfs/"
-            # target_pdb_file = down_id + ".ent"
             target_pdb_file = "pdb" + down_id + ".ent"
+            target_cif_file = down_id + ".cif"
             dir_target_pdb_file = coot_tmp_dir + "/" + target_pdb_file
-            mc = mid_chars(down_id)
-            # model_url = eds_site + "/" + target_pdb_file
+            dir_target_cif_file = coot_tmp_dir + "/" + target_cif_file
             model_url = eds_coords_site + "/" + target_pdb_file
+            model_cif_url = eds_coords_site + "/" + target_cif_file
             target_mtz_file = down_id + "_map.mtz"
             dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
             # mtz_url = eds_site  + "/files/" + target_mtz_file
-            mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + down_id + "/" + down_id + "_map.mtz"
+            mtz_url = eds_site + "/files/" + mid_chars(down_id) + "/" + \
+                      down_id + "/" + down_id + "_map.mtz"
             eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
 
             print "model_url:", model_url
@@ -271,10 +271,9 @@ def get_eds_pdb_and_mtz(id):
                 print "BL ERROR:: could not get pre_download_info from", eds_core
                 # we probably wont get anything else, so bail out.
                 return False
+
             s1 = coot_urlretrieve(model_url, dir_target_pdb_file)
-            print "INFO:: read model status: ",s1
             s2 = coot_urlretrieve(mtz_url, dir_target_mtz_file)
-            print "INFO:: read mtz   status: ",s2
 
             if bad_map_status:
                 s = "This map (" + down_id + \
@@ -283,20 +282,36 @@ def get_eds_pdb_and_mtz(id):
 
             # maybe should then not load the map!?
 
-            r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-            map_1 = make_and_draw_map(dir_target_mtz_file, "FWT", "PHWT","",0,0)
-            map_2 = make_and_draw_map(dir_target_mtz_file, "DELFWT", "PHDELWT",
+            print "INFO:: read pdb model status: ",s1
+            print "INFO:: read mtz data  status: ",s2
+
+            if os.path.isfile(s1):
+                r_imol = handle_read_draw_molecule(dir_target_pdb_file)
+                if not valid_model_molecule_qm(r_imol):
+                    s1_cif = coot_urlretrieve(model_cif_url, dir_target_cif_file)
+                    print "INFO:: read cif model status: ",s1_cif
+                    if (s1_cif == 0):
+                        r_imol = handle_read_draw_molecule(dir_target_pdb_file)
+                        if not valid_model_molecule_qm(r_imol):
+                            return False
+                        else:
+                            return r_imol
+                    else:
+                        return False
+            if os.path.isfile(s2):
+                map_1 = make_and_draw_map(dir_target_mtz_file, "FWT", "PHWT","",0,0)
+                map_2 = make_and_draw_map(dir_target_mtz_file, "DELFWT", "PHDELWT",
                               "", 0, 1)
-            set_scrollable_map(map_1)
-            if (valid_model_molecule_qm(r_imol)):
-                return [r_imol, map_1, map_2]
+                set_scrollable_map(map_1)
+                return [map_1, map_2]  # r_imol not in this scope (at the moment)
             else:
                 return False
 
         else:
             print "Can't make directory ",coot_tmp_dir
 
-# not sure if coot functio better or python script function coot_urlretrieve
+# not sure if coot function is better or python script function coot_urlretrieve
+# return 0 on success
 def net_get_url(my_url, file_name):
     coot_get_url(my_url, file_name)
 

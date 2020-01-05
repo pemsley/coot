@@ -80,7 +80,7 @@ void remove_file_curlew_menu_item_maybe() {
    } else {
       std::cout << "WARNING:: remove_file_curlew_menu_item_maybe() ooops no menubar" << std::endl;
    }
-#endif // BUILD_CURLEW   
+#endif // BUILD_CURLEW
 }
 
 // put this in a widget header (maybe its own?)
@@ -106,8 +106,10 @@ void curlew() {
 
    GtkWidget *vbox = lookup_widget(w, "curlew_vbox_for_extensions");
    GtkWidget *install_button = lookup_widget(w, "curlew_install_button");
+   // install_button callback:  curlew_dialog_install_extensions()
    if (vbox) {
-      std::string download_dir = "coot-download"; // FIXME
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
       std::string dl_fn = download_dir + "/info.json";
 
       // not https, that transfers nothing
@@ -135,7 +137,7 @@ void curlew() {
 	 }
       }
 
-      if (is_empty) {
+      if (! is_empty) {
 	 if (coot::file_exists(dl_fn)) {
 	    std::fstream f(dl_fn);
 	    if (! f) {
@@ -268,7 +270,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
 						const std::string &url_curlew_prefix) {
 
    GtkWidget *item_hbox = gtk_hbox_new(FALSE, 0);
-   
+
    std::string item_hbox_name = "curlew_extension_hbox_";
    item_hbox_name += coot::util::int_to_string(idx);
 //    g_object_set_data_full(G_OBJECT(dialog),

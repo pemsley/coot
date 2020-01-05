@@ -1266,7 +1266,7 @@ int graphics_info_t::map_line_width = 1;
 
 // bonding stuff
 int   graphics_info_t::bond_thickness_intermediate_value = -1;
-float graphics_info_t::bond_thickness_intermediate_atoms = 4; // (no so) thick white atom bonds
+float graphics_info_t::bond_thickness_intermediate_atoms = 5; // (no so) thick white atom bonds
 
 // merge molecules
 int graphics_info_t::merge_molecules_master_molecule = -1;
@@ -2739,10 +2739,10 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
       // poke a value into the threaded refinement loop, to stop
       if (graphics_info_t::continue_threaded_refinement_loop) {
-	 graphics_info_t::continue_threaded_refinement_loop = false;
 	 // and tell it to clear up the moving atoms
-	 std::cout << ".... Esc key tells refinement to clean up" << std::endl;
 	 graphics_info_t::threaded_refinement_needs_to_clear_up = true;
+	 std::cout << ".... Esc key tells refinement to clean up" << std::endl;
+	 graphics_info_t::continue_threaded_refinement_loop = false;
       } else {
 
 	 // refinement was not running. we can clear up the atoms ourselves

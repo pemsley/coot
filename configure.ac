@@ -253,15 +253,16 @@ AX_BOOST_BASE(,,[AC_MSG_ERROR([No boost found])])
 # we currently have. And in that case, it should be
 # AX_BOOST_PYTHON(,,[AC_MSG_ERROR([No boost-python found])]) because it is required.
 # FIXME Later.
-AX_BOOST_PYTHON
+#
+# AX_BOOST_PYTHON
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
-# How do we use that?  At the moment we want to only use 
+# How do we use that?  At the moment we want to only use
 # -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
 
 if test -z "$RDKIT_LIBS" ; then
    :
-else 
+else
    if test -z "$BOOST_PYTHON_LIB" ; then
       :
    else
@@ -366,8 +367,8 @@ COOT_CURL
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating
-# Coot.  THe build type will be set by COOT_SYS_BUILD_TYPE.  Which is 
-# for now one variable.  I may split it into os/os-ver/python/arch etc 
+# Coot.  THe build type will be set by COOT_SYS_BUILD_TYPE.  Which is
+# for now one variable.  I may split it into os/os-ver/python/arch etc
 # later.
 AM_COOT_SYS_BUILD_TYPE
 

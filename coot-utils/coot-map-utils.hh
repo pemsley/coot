@@ -318,6 +318,29 @@ namespace coot {
       
 
       //
+      class simple_residue_triple_t {
+      public:
+	 mmdb::Residue *this_residue;
+	 mmdb::Residue *next_residue;
+	 mmdb::Residue *prev_residue;
+	 std::string alt_conf;
+	 simple_residue_triple_t() {
+	    this_residue = 0;
+	    prev_residue = 0;
+	    next_residue = 0;
+	 }
+	 simple_residue_triple_t(mmdb::Residue *this_residue_in,
+			         mmdb::Residue *prev_residue_in,
+			         mmdb::Residue *next_residue_in,
+			         std::string alt_conf_in) {
+	    alt_conf = alt_conf_in;
+	    this_residue = this_residue_in;
+	    prev_residue = prev_residue_in;
+	    next_residue = next_residue_in;
+         }
+      };
+
+      //
       class residue_triple_t {
       public:
 	 mmdb::Residue *this_residue;

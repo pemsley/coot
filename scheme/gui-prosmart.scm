@@ -52,15 +52,17 @@
 	    (format #t "Reading ProSMART restraints from ~s~%" prosmart-out)
 	    (add-refmac-extra-restraints imol-target prosmart-out))))))
 
-(define (add-prosmart-secondard-structure-restraints imol)
+(define (add-prosmart-secondary-structure-restraints imol do-mc-h-bonds-also-flag)
 
   (let ((dir-stub (get-directory "coot-ccp4"))
 	(stub-name (molecule-name-stub imol 0)))
 
-    (let* ((helix-pdb-file-name-rwd  (string-append stub-name "-helix.pdb"))
+    (let* ((helix-pdb-file-name-rwd (string-append stub-name "-helix.pdb"))
 	   (helix-pdb-file-name (append-dir-file dir-stub helix-pdb-file-name-rwd))
 	   (strand-pdb-file-name-rwd (string-append stub-name "-strand.pdb"))
 	   (strand-pdb-file-name (append-dir-file dir-stub strand-pdb-file-name-rwd))
+	   (h-bonds-pdb-file-name-rwd (string-append stub-name "-h-bonds.pdb"))
+	   (h-bonds-pdb-file-name (append-dir-file dir-stub h-bonds-pdb-file-name-rwd))
 	   (helix-out (join-dir-file
 		       (list dir-stub
 			     "ProSMART_Output"
@@ -69,19 +71,26 @@
 			(list
 			 dir-stub
 			 "ProSMART_Output"
-			 (string-append "LIB_" stub-name "-strand" ".txt")))))
+			 (string-append "LIB_" stub-name "-strand" ".txt"))))
+	   (h-bonds-out (join-dir-file
+			(list
+			 dir-stub
+			 "ProSMART_Output"
+			 (string-append stub-name "-h-bonds" ".txt"))))) ;; not LIB_
 
       (write-pdb-file imol  helix-pdb-file-name)
       (write-pdb-file imol strand-pdb-file-name)
+      (if do-mc-h-bonds-also-flag
+	  (write-pdb-file imol h-bonds-pdb-file-name))
 
       ;; Prosmart writes results in ProSMART_Output, so we change to the coot-ccp4 directory
       ;; so that it puts it in the place we expect it
 
       (let ((current-dir (getcwd)))
 
-	(format #t "dir-stub: ~s~%" dir-stub)
+	(format #t "DEBUG:: dir-stub: ~s~%" dir-stub)
 	(chdir dir-stub)
-	(format #t "(getcwd): ~s~%" (getcwd))
+	(format #t "DEBUG:: (getcwd): ~s~%" (getcwd))
 
 	(for-each (lambda (p)
 		    (goosh-command "prosmart"
@@ -89,11 +98,14 @@
 				   '()
 				   (string-append "prosmart-" stub-name "-" (caddr p) ".log")
 				   #f))
-		  (list (list helix-pdb-file-name-rwd   "-helix" "helix")
+		  (list (list  helix-pdb-file-name-rwd  "-helix" "helix")
 			(list strand-pdb-file-name-rwd "-strand" "strand")))
 
-	;; (format #t "helix-out:  ~s~%" helix-out)
-	;; (format #t "strand-out: ~s~%" strand-out)
+	(if do-mc-h-bonds-also-flag
+	    (goosh-command "prosmart"
+			   (list "-p1" h-bonds-pdb-file-name-rwd "-h")
+			   '()
+			   (string-append "prosmart-" stub-name "-h-bond.log") #f))
 
 	(chdir current-dir))
 
@@ -103,12 +115,20 @@
 		      (add-refmac-extra-restraints imol fn)
 		      (let ((s (string-append "Missing file: " fn)))
 			(info-dialog s))))
-		(list helix-out strand-out)))))
+		(list helix-out strand-out))
 
-(define (add-module-prosmart) 
+      (if do-mc-h-bonds-also-flag
+	  (begin
+	    (format #t "INFO:: reading ProSMART output file fn: ~s~%" h-bonds-out)
+	    (if (file-exists? h-bonds-out)
+		(add-refmac-extra-restraints imol h-bonds-out)
+		(info-dialog (string-append "Missing file " h-bonds-out))))))))
+
+
+(define (add-module-restraints)
 
   (if (defined? 'coot-main-menubar)
-      (let ((menu (coot-menubar-menu "ProSMART")))
+      (let ((menu (coot-menubar-menu "Restraints")))
 	
 	(add-simple-coot-menu-menuitem
 	 menu "Generate Self Restraints 3.7 for Chain"
@@ -159,10 +179,106 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add ProSMART Secondary Structure Restraints"
+	 menu "Undisplay Extra Restraints"
 	 (lambda ()
 	   (using-active-atom
-	    (add-prosmart-secondard-structure-restraints aa-imol))))
+	    (set-show-extra-restraints aa-imol 0))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Display Extra Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (set-show-extra-restraints aa-imol 1))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Show Only Deviant Distances Beyond 6"
+	 (lambda ()
+	   (using-active-atom
+	    (set-extra-restraints-prosmart-sigma-limits aa-imol -6 6))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Show Only Deviant Distances Beyond 4"
+	 (lambda ()
+	   (using-active-atom
+	    (set-extra-restraints-prosmart-sigma-limits aa-imol -4 4))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Show Only Deviant Distances Beyond 2.0"
+	 (lambda ()
+	   (using-active-atom
+	    (set-extra-restraints-prosmart-sigma-limits aa-imol -2.0 2.0))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Show Only Deviant Distances Beyond 1.0"
+	 (lambda ()
+	   (using-active-atom
+	    (set-extra-restraints-prosmart-sigma-limits aa-imol -1.0 1.0))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Undisplay All Extra Distance Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (set-extra-restraints-prosmart-sigma-limits aa-imol 0 0 ))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Intermediate Atom Rotamer Dodecs"
+	 (lambda ()
+	   (set-show-intermediate-atoms-rota-markup 1)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Intermediate Atom Ramachandran Spheres"
+	 (lambda ()
+	   (set-show-intermediate-atoms-rama-markup 1)))
+
+;	(add-simple-coot-menu-menuitem
+;	 menu "Restraint Representation To CA"
+;	 (lambda ()
+;	   (using-active-atom
+;	    (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 1))))
+
+;	(add-simple-coot-menu-menuitem
+;	 menu "Restraint Representation To Home Atom"
+;	 (lambda ()
+;	   (using-active-atom
+;	    (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 0))))
+
+	(load-by-search "user-define-restraints.scm")
+
+	(add-simple-coot-menu-menuitem
+	 menu "Delete All Extra Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (delete-all-extra-restraints aa-imol)))))))
+
+
+
+(define (add-module-prosmart)
+
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "ProSMART")))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add ProSMART Secondary Structure & H-bond Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (add-prosmart-secondary-structure-restraints aa-imol #t))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add ProSMART (Only) Secondary Structure Restraints"
+	 (lambda ()
+	   (using-active-atom
+	    (add-prosmart-secondary-structure-restraints aa-imol #f))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Save as REFMAC restraints..."
+	 (lambda ()
+	   (generic-chooser-and-file-selector 
+	    "Save REFMAC restraints for molecule " 
+	    valid-model-molecule?
+	    " Restraints file name:  " 
+	    "refmac-restraints.txt"
+	    (lambda (imol file-name)
+	      (extra-restraints->refmac-restraints-file imol file-name)))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "ProSMART..."
@@ -205,66 +321,6 @@
 				       (run-prosmart imol-tar imol-ref do-side-chains?)
 				       (gtk-widget-destroy window))))
 	       (gtk-widget-show-all window)))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Undisplay Extra Restraints"
-	 (lambda ()
-	   (using-active-atom
-	    (set-show-extra-restraints aa-imol 0))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Display Extra Restraints"
-	 (lambda ()
-	   (using-active-atom
-	    (set-show-extra-restraints aa-imol 1))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Show Only Deviant Distances Beyond 6"
-	 (lambda ()
-	   (using-active-atom
-	    (set-extra-restraints-prosmart-sigma-limits aa-imol -6 6))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Show Only Deviant Distances Beyond 4"
-	 (lambda ()
-	   (using-active-atom
-	    (set-extra-restraints-prosmart-sigma-limits aa-imol -4 4))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Show Only Deviant Distances Beyond 2.0"
-	 (lambda ()
-	   (using-active-atom
-	    (set-extra-restraints-prosmart-sigma-limits aa-imol -2.0 2.0))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Show Only Deviant Distances Beyond 1.0"
-	 (lambda ()
-	   (using-active-atom
-	    (set-extra-restraints-prosmart-sigma-limits aa-imol -1.0 1.0))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Undisplay All Extra Distance Restraints"
-	 (lambda ()
-	   (using-active-atom
-	    (set-extra-restraints-prosmart-sigma-limits aa-imol 0 0 ))))
-
-;	(add-simple-coot-menu-menuitem
-;	 menu "Restraint Representation To CA"
-;	 (lambda ()
-;	   (using-active-atom
-;	    (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 1))))
-
-;	(add-simple-coot-menu-menuitem
-;	 menu "Restraint Representation To Home Atom"
-;	 (lambda ()
-;	   (using-active-atom
-;	    (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 0))))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Delete All Extra Restraints"
-	 (lambda ()
-	   (using-active-atom
-	    (delete-all-extra-restraints aa-imol))))
 
 	)))
 

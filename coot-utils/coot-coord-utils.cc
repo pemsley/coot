@@ -2936,7 +2936,6 @@ coot::util::get_residue_by_binary_search(const std::string &chain_id,
 }
 
 
-
 mmdb::Residue *
 coot::util::get_residue(const residue_spec_t &rs, mmdb::Manager *mol) {
 
@@ -2960,7 +2959,6 @@ coot::util::get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *
    return std::pair<mmdb::Residue *, mmdb::Residue *> (r1, r2);
 }
 
-  
 
 // Return NULL on residue not found in this molecule.
 // 
@@ -3385,6 +3383,7 @@ coot::util::add_atom(mmdb::Residue *res,
 } 
 
 
+        #if 0 // we already have one of these in geometry
 
 std::vector<std::string>
 coot::util::get_residue_alt_confs(mmdb::Residue *res) {
@@ -3408,6 +3407,7 @@ coot::util::get_residue_alt_confs(mmdb::Residue *res) {
    return v;
 } 
 
+#endif
       
 
 
@@ -3476,6 +3476,8 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
       } else { 
 	 whole_res_flag = 0;
       }
+
+      if (altconf == "*") whole_res_flag = 1;
 
       r = coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(orig_mol, SelResidues[ires], altconf, whole_res_flag, atom_index_handle, afix_handle_new_mol);
       
@@ -4675,6 +4677,9 @@ coot::util::intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) {
    for (int i=0; i<nResidueAtoms; i++) {
       std::string atom_name(residue_atoms[i]->name);
       if (atom_name == " CA ") {
+	 return residue_atoms[i];
+      }
+      if (atom_name == " C1'") {
 	 return residue_atoms[i];
       }
    }
@@ -9300,7 +9305,6 @@ clipper::Coord_orth
 coot::co(mmdb::Atom *at) {
    return clipper::Coord_orth(at->x, at->y, at->z);
 }
-
 
 void
 coot::update_position(mmdb::Atom *at, const clipper::Coord_orth &pos) {

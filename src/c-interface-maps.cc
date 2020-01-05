@@ -2278,6 +2278,8 @@ int sharpen_blur_map(int imol_map, float b_factor) {
       g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_flag);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      float cl = 5.0; // rmsd
+      graphics_info_t::molecules[imol_new].set_contour_level_by_sigma(cl);
       graphics_draw();
    }
    return imol_new;
