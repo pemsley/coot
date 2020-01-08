@@ -3524,8 +3524,6 @@ Bond_lines_container::make_graphical_bonds_no_thinning() const {
 graphical_bonds_container
 Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_flag) const {
 
-   std::cout << "debug in make_graphical_bonds_with_thinning_flag " << do_thinning_flag << std::endl;
-
    graphical_bonds_container box;
 
    int n_bond_colours = bonds.size();
