@@ -97,9 +97,9 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
 
-# should libcoot-coord-utils link $CLIPPER_LIBS?
+# should libcoot-coord-utils link $CLIPPER_LIBS? Yes, I think so.
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la 
+   libcoot-coord-utils.la  $(CLIPPER_LIBS)
 
 libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
