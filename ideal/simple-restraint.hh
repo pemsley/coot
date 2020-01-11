@@ -33,6 +33,7 @@
 
 #ifndef __NVCC__
 #ifdef HAVE_CXX_THREAD
+
 #include <thread>
 #include <atomic>
 #endif // HAVE_CXX_THREAD
