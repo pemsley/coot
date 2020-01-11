@@ -5279,7 +5279,7 @@ def refmac_multi_sharpen_gui():
          map_file_name = map_file_name[:map_file_name.find(" ")]
       map_file_name_stub = strip_path(file_name_sans_extension(map_file_name))
       refmac_output_mtz_file_name = "starting_map-" + map_file_name_stub + ".mtz"
-      log_file_name = "refmac-sharp" + map_file_name_stub + ".log"
+      log_file_name = "refmac-multisharp-" + map_file_name_stub + ".log"
       if not os.path.isfile(map_file_name):
          info_dialog("WARNING:: file not found %s" %map_file_name)
       else:
@@ -5298,25 +5298,31 @@ def refmac_multi_sharpen_gui():
                        blur_string,
                        sharp_string,
                        "END"]
-         refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
-         s = popen_command(refmac_execfile,
-                           cmd_line_args,
-                           data_lines,
-                           log_file_name)
-         
-         try:
-            if s != 0:
-               info_dialog("WARNING:: refmac5 failed")
-            else:
-               # Happy path
-               print "BL DEBUG:: s", s
-               if os.path.isfile("starting_map.mtz"):
-                  os.rename("starting_map.mtz", refmac_output_mtz_file_name)
-                  # offer a read-mtz dialog
-                  manage_column_selector(refmac_output_mtz_file_name)
+         this_dir = os.getcwd()
+         if not directory_is_modifiable_qm(this_dir):
+            info_dialog("WARNING:: Current directory is not writable")
+         else:
+            refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
+            s = popen_command(refmac_execfile,
+                              cmd_line_args,
+                              data_lines,
+                              log_file_name,
+                              False)
 
-         except:
-            pass
+            try:
+               if s != 0:
+                  info_dialog("WARNING:: refmac5 failed")
+               else:
+                  # Happy path
+                  print "BL DEBUG:: s", s
+                  if os.path.isfile("starting_map.mtz"):
+                     os.rename("starting_map.mtz", refmac_output_mtz_file_name)
+                     # offer a read-mtz dialog
+                     manage_column_selector(refmac_output_mtz_file_name)
+
+            except:
+               print "BL DEBUG:: tried to rename starting-map.mtz but failed."
+               pass
          delete_event(widget)
 
    print "BL DEBUG:: now make a windwo"

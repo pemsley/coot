@@ -15,23 +15,35 @@ def acedrg_link_generation_control_window():
     def delete_event(*args):
         window.destroy()
         return False
-    
+
     # main body
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     vbox = gtk.VBox(False, 4)
     inside_hbox_1 = gtk.HBox(False, 4)
     inside_hbox_2 = gtk.HBox(False, 4)
+    inside_hbox_3 = gtk.HBox(False, 4)
+    inside_hbox_4 = gtk.HBox(False, 4)
     cancel_hbox = gtk.HBox(False, 2)
     order_label = gtk.Label("  Order: ")
-    delete_label = gtk.Label("  Delete: ")
+    delete_atom_label = gtk.Label("  Delete Atom: ")
+    change_bond_order_label = gtk.Label("  Change Bond Order of the Bond between Atoms")
+    delete_bond_label = gtk.Label("  Delete Bond: ")
     other_label = gtk.Label(" from First Residue ")
-    option_menu_order = gtk.combo_box_new_text()
-    string_list = ["Single", "Double"]
-    fill_option_menu_with_string_options(option_menu_order,
-                                         string_list,
+    to_order_label = gtk.Label(" to order")
+    right_space_label = gtk.Label(" ")  # PE hackey
+    option_menu_bond_order = gtk.combo_box_new_text()  # for the newly-formed bond
+    option_menu_change_bond_order = gtk.combo_box_new_text()  # for a bond already in the ligand
+    bond_list = ["Single", "Double"]
+    fill_option_menu_with_string_options(option_menu_bond_order,
+                                         bond_list,
+                                         "Single")
+    fill_option_menu_with_string_options(option_menu_change_bond_order,
+                                         bond_list,
                                          "Single")
     tt = gtk.Tooltips()
-    entry = gtk.Entry()
+    delete_atom_entry = gtk.Entry()
+    delete_bond_entry = gtk.Entry()
+    change_bond_order_entry = gtk.Entry()
     h_sep = gtk.HSeparator()
     cancel_button = gtk.Button("  Cancel  ")
     pick_button = gtk.Button("Start (Pick 2 Atoms)...")
@@ -39,26 +51,43 @@ def acedrg_link_generation_control_window():
     window.set_title("Make a Link using Acedrg and Atom Click Click")
     vbox.pack_start(inside_hbox_1, False, False, 2)
     vbox.pack_start(inside_hbox_2, False, False, 2)
+    vbox.pack_start(inside_hbox_3, False, False, 2)
+    vbox.pack_start(inside_hbox_4, False, False, 2)
     inside_hbox_1.pack_start(order_label, False, False, 2)
-    inside_hbox_1.pack_start(option_menu_order, False, False, 2)
-    inside_hbox_2.pack_start(delete_label, False, False, 2)
-    inside_hbox_2.pack_start(entry, False, False, 2)
+    inside_hbox_1.pack_start(option_menu_bond_order, False, False, 2)
+    inside_hbox_2.pack_start(delete_atom_label, False, False, 2)
+    inside_hbox_2.pack_start(delete_atom_entry, False, False, 2)
     inside_hbox_2.pack_start(other_label, False, False, 2)
+    inside_hbox_3.pack_start(change_bond_order_label, False, False, 2)
+    inside_hbox_3.pack_start(change_bond_order_entry, False, False, 2)
+    inside_hbox_3.pack_start(to_order_label, False, False, 2)
+    inside_hbox_3.pack_start(option_menu_change_bond_order, False, False, 2)
+    inside_hbox_3.pack_start(right_space_label, False, False, 2)
+    inside_hbox_4.pack_start(delete_bond_label, False, False, 2)
+    inside_hbox_4.pack_start(delete_bond_entry, False, False, 2)
     vbox.pack_start(h_sep)
     vbox.pack_start(cancel_hbox, False, False, 6)
     cancel_hbox.pack_start(pick_button, False, False, 6)
     cancel_hbox.pack_start(cancel_button, False, False, 6)
-    entry.set_usize(80, -1)
+    delete_atom_entry.set_usize(80, -1)
+    delete_bond_entry.set_usize(80, -1)
+    change_bond_order_entry.set_usize(80, -1)
 
-    tt.set_tip(entry, "Type the atom name to be deleted")
-    tt.set_tip(option_menu_order, "Like a cheeseburger - you can only have single or double")
+    tt.set_tip(delete_atom_entry, "Type the atom name to be deleted (leave blank if unsure)")
+    tt.set_tip(option_menu_bond_order, "Like a cheeseburger - you can only have single or double")
     tt.set_tip(pick_button, "Click on 2 atoms, Acedrg starts after the second click")
+    tt.set_tip(delete_bond_entry, "Delete a bond between atoms (leave blank if unsure)")
+    tt.set_tip(change_bond_order_entry, "Change the bond order of the bond between atoms (leave blank if unsure)")
+
     cancel_button.connect("clicked", delete_event)
 
     pick_button.connect("clicked", lambda func:
                         click_select_residues_for_acedrg(window,
-                                                         option_menu_order,
-                                                         entry))
+                                                         option_menu_bond_order,
+                                                         delete_atom_entry,
+                                                         delete_bond_entry,
+                                                         change_bond_order_entry,
+                                                         option_menu_change_bond_order))
 
     window.add(vbox)
     window.show_all()
@@ -77,15 +106,40 @@ def hack_link(fn):
                 fout.write(line.replace("L-PEPTIDE", "L-peptide"))
     return new_file_name
 
-def click_select_residues_for_acedrg(window, option_menu, entry):
+def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
+                                     delete_bond_entry, change_bond_order_entry,
+                                     change_bond_order_option_menu):
 
-    print "BL DEBUG:: window", window
+    # return a 3-member list: is-correct atom-name-1 atom-name-2)
+    # is-correct can either be
+    # True or False or None
+    # False  means that there was a blank or empty string
+    # True mean we found 2 atom names
+    # None  means that we found 1 or 3 or more atom names
+    # Typicall this will return [False, "", ""]
+    def extract_atom_names_from_string(str_in):
+        atom_name_1 = ""
+        atom_name_2 = ""
+        is_correct = False
+
+        sl = len(str_in)
+        if (sl == 0):
+            return [is_correct, atom_name_1, atom_name_2]
+        else:
+            parts = str_in.split("")
+            if (not len(parts) == 2):
+                return [None, atom_name_1, atom_name_2]  #
+            else:
+                return [True] + parts
 
     def make_acedrg_bond(*clicks):
         print "BL DEBUG:: we received these clicks:", clicks
 
+        bond_list = ['single', 'double']
         bond_order = get_option_menu_active_item(option_menu,
-                                                 ['single', 'double']) # could be enums
+                                                 bond_list) # could be enums
+        change_bond_order = get_option_menu_active_item(change_bond_order_option_menu,
+                                                        bond_list)
         if (len(clicks) == 2):
             click_1 = clicks[0]
             click_2 = clicks[1]
@@ -101,7 +155,9 @@ def click_select_residues_for_acedrg(window, option_menu, entry):
                 spec_2 = click_2[1:]
                 imol_click_1 = click_1[1]
                 imol_click_2 = click_2[1]
-                delete_atom_text = entry.get_text()
+                delete_atom_text = delete_atom_entry.get_text()
+                delete_bond_entry_text = delete_bond_entry.get_text()
+                change_bond_order_entry_text = change_bond_order_entry.get_text()
 
                 if not (isinstance(resname_1, str) and
                         isinstance(resname_2, str)):
@@ -116,6 +172,8 @@ def click_select_residues_for_acedrg(window, option_menu, entry):
                         delete_atom_txt = " DELETE ATOM " + delete_stripped_1  + " 1 " \
                                           if len(delete_stripped_1) > 0 else \
                                              ""
+                        delete_bond_info = extract_atom_names_from_string(delete_bond_entry_text)
+                        change_bond_order_info = extract_atom_names_from_string(change_bond_order_entry_text)
                         s = "LINK:" + \
                             " RES-NAME-1 " + resname_1 + " ATOM-NAME-1 " + at_name_1 + \
                             " RES-NAME-2 " + resname_2 + " ATOM-NAME-2 " + at_name_2
@@ -143,8 +201,28 @@ def click_select_residues_for_acedrg(window, option_menu, entry):
                         if (resname_2 in ns):
                             s += " FILE-2 " + cif_fn_2
 
-                        # and finally delete atom
+                        # delete atom?
                         s += delete_atom_txt
+
+                        # change bond order?
+                        if change_bond_order_info[0]:
+                            ss = " CHANGE BOND " + \
+                                 change_bond_order_info[1] + \
+                                 " " + \
+                                 change_bond_order_info[2] + \
+                                 " " + \
+                                 ("DOUBLE" if change_bond_order == 'double' else "SINGLE") + \
+                                 " 1 "
+                            s += ss
+
+                        # delete bond?
+                        if delete_bond_info[0]:
+                            ss = " DELETE BOND " + \
+                                 delete_bond_info[1] + \
+                                 " " + \
+                                 delete_bond_info[2] + \
+                                 " 1 "
+                            s += ss
 
                         print "BL DEBUG:: LINK string:", s
                         st_1 = "acedrg-link-from-coot-" + \
@@ -175,7 +253,7 @@ def click_select_residues_for_acedrg(window, option_menu, entry):
                             hack_link_file_name = hack_link(link_file_name)
                             dict_read_status = read_cif_dictionary(hack_link_file_name)
                             # dict_read_status is the number of bonds read
-                            if dict_read_status > 0:
+                            if (dict_read_status > -2):
                                 make_link(imol_click_1, spec_1, spec_2, "dummy-name", 1.0)
                     window.destroy()  # when?
                     

@@ -81,6 +81,14 @@ SOFTWARE.
 
 #include <cstddef> // size_t
 
+#ifdef WINDOWS_MINGW
+  #if defined snprintf
+    #undef snprintf
+    #define snprintf snprintf
+  #endif
+#endif
+
+
 namespace nlohmann
 {
 namespace detail

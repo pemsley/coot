@@ -1,7 +1,7 @@
 
 # find bad things in the structure - rama, C-beta, rotamer, atom clashes baddies
 #
-def validation_outlier_dialog(imol, imol_map):
+def validation_outliers_dialog(imol, imol_map):
 
     dialog_vbox = False
     window = False
@@ -27,7 +27,7 @@ def validation_outlier_dialog(imol, imol_map):
             return r
 
     def make_window_title(n):
-        return "Coot Interesting/Outliers/Problems: " + str(n-1)
+        return "Coot Interesting/Outliers/Problems: " + str(n)
 
     def find_c_beta_baddies():
         try:
@@ -81,7 +81,7 @@ def validation_outlier_dialog(imol, imol_map):
                 pass
             else:
                 # if spec is a het-group then no rotamers for that (return False)
-                is_het = any(map(lambda item: residue_specs_match_qm(item, spec),
+                is_het = any(map(lambda item: residue_spec_match_qm(item, spec),
                                  het_groups_in_mol))
                 if is_het:
                     pass
@@ -108,6 +108,9 @@ def validation_outlier_dialog(imol, imol_map):
                                                    peptide[1]),
                       cis_peps)
 
+    def twisted_trans_peptide_baddies():
+        return twisted_trans_peptides(imol)
+
     def destroy_buttons_with_label(label_fragment_txt, dialog_vbox):
         current_buttons = dialog_vbox.get_children()
         for button in current_buttons:
@@ -133,7 +136,7 @@ def validation_outlier_dialog(imol, imol_map):
                 window.set_title(make_window_title(len(buttons)))
             for butt in old_buttons:
                 butt.destroy()
-            validation_outlier_dialog(imol, imol_map)
+            validation_outliers_dialog(imol, imol_map)
 
     def ok_to_do_density_correlations_qm():
         if poor_density_checkbutton:
@@ -173,7 +176,7 @@ def validation_outlier_dialog(imol, imol_map):
         sorted_filtered_rama_baddies = baddies
 
         # c-beta
-        c_beta_baddies = filter(lambda baddie: baddie[1][0][1] > 0.3, fcbb)
+        c_beta_baddies = filter(lambda baddie: baddie[1][0][1] > 0.25, fcbb)
         def get_c_beta_score(val):
             return val[1][0][1]
         c_beta_baddies.sort(key=get_c_beta_score, reverse=True)
@@ -213,6 +216,8 @@ def validation_outlier_dialog(imol, imol_map):
                            str(residue_spec_to_res_no(spec)) + \
                            residue_spec_to_ins_code(spec) + \
                            " " + \
+                           residue_spec_to_residue_name(imol, spec) + \
+                           " " + \
                            score_string
             rama_buttons.append([button_label,
                                  [[set_go_to_atom_molecule, imol],
@@ -225,6 +230,8 @@ def validation_outlier_dialog(imol, imol_map):
             score_string = '{:6.2f}'.format(score)
             button_label = "C-beta deviant " + \
                            residue_spec_to_string(spec) + \
+                           " " + \
+                           residue_spec_to_residue_name(imol, spec) + \
                            " " + \
                            score_string + u'\u212B'.encode('utf-8')
             c_beta_buttons.append([button_label,
@@ -243,6 +250,19 @@ def validation_outlier_dialog(imol, imol_map):
             non_pro_cis_peptide_buttons.append([button_label,
                                                 [[set_go_to_atom_molecule, imol],
                                                  [set_go_to_atom_from_res_spec, spec_1]]])
+
+        twisted_trans_peptide_buttons = []
+        for baddie in twisted_trans_peptide_baddies():
+            spec_1 = baddie[0]
+            spec_2 = baddie[1]
+            omega = baddie[2]
+            button_label = "Twisted trans-peptide " + \
+                           residue_spec_to_string(spec_1) + \
+                           " - " + \
+                           residue_spec_to_string(spec_2)
+            twisted_trans_peptide_buttons.append([button_label,
+                                                  [[set_go_to_atom_molecule, imol],
+                                                   [set_go_to_atom_from_res_spec, spec_1]]])
 
         rota_buttons = []
         for baddie in filtered_rotamer_baddies:
@@ -318,6 +338,7 @@ def validation_outlier_dialog(imol, imol_map):
                    rama_buttons + \
                    rota_buttons + \
                    non_pro_cis_peptide_buttons + \
+                   twisted_trans_peptide_buttons + \
                    density_baddies_buttons + \
                    c_beta_buttons + \
                    cg_torsion_buttons + \
@@ -328,11 +349,6 @@ def validation_outlier_dialog(imol, imol_map):
 
     buttons = make_buttons()
 
-    # It would be nice to regenerate this box of buttons (it's fast to do so)
-    # but that would mean changing it to a "dynamic" dialog
-    # update_dialog_with_new_buttons(dialog, new_buttons)
-    # So, OK, let's do that...
-    #
     dialog_vbox, window = dialog_box_of_buttons(make_window_title(len(buttons)),
                                                 [350, 400], buttons, " Close ")
 

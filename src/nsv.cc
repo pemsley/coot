@@ -114,7 +114,9 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
    sequence_letter_background_colour = "white";
-   setup_canvas(mol);  
+   int y_size_initial = setup_canvas(mol);
+
+   gtk_window_set_default_size(GTK_WINDOW(top_lev), 700, y_size_initial + 100);
 		      
    if (use_graphics_interface_flag) { 
       gtk_widget_show(aa);
@@ -151,7 +153,10 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
 } 
 
 
-void
+// return the height (y-size) of the canvas (which will be used to set the default size
+// of the window
+//
+int
 exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
 #ifdef HAVE_GOOCANVAS
@@ -166,11 +171,14 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
    bool debug = true;
 
+   int canvas_x_size = 0;
+   int canvas_y_size = 0;
+
    if (! scrolled_window)
-      return;
+      return 0;
    
    if (! mol)
-      return;
+      return 0;
 
    std::vector<chain_length_residue_units_t> rcv = get_residue_counts(mol);
    if (rcv.size() > 0) {
@@ -205,6 +213,8 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
       // If there are no insertion codes, let's go.  Work directly
       // from the residue number
+
+      
       
       if (ins_code_residues.size() == 0) { 
 
@@ -224,15 +234,23 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 // 100 is good for 2 chains
 	 // 
 
-	 int canvas_x_size =  5 + total_res_range * pixels_per_letter + 140;
+	 canvas_x_size =  5 + total_res_range * pixels_per_letter + 140;
 	 // 50 is good for 2 chains.
 	 // int canvas_y_size =  5 + n_limited_chains * 50; 
-	 int canvas_y_size = 65 + n_limited_chains * 20; 
+	 // int canvas_y_size = 65 + n_limited_chains * 20; 
+	 canvas_y_size = 72 + n_limited_chains * 12; 
 
 	 // the size of the widget on the screens
-	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
-	 // the size of the canvas (e.g. long chain, we see only part
-	 // of it at one time).
+	 // gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
+	 // gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 12*(3+n_limited_chains));
+	 // gtk_widget_set_size_request(GTK_WIDGET(scrolled_window), 700, 12*(3+n_limited_chains));
+
+         // this sets the minimum size.  This is not what we want - we want to set the size, but
+         // allow the widget to be resized - if the user wants that, and gtk_window_set_default_size()
+         // will do that.
+	 // gtk_widget_set_size_request(GTK_WIDGET(scrolled_window), 700, 15*(3+n_limited_chains));
+	 // the size of the canvas (e.g. long chain, we see only part of it at one time).
+
 
 	 if (debug) {
 	    std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
@@ -240,7 +258,8 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 		      << canvas_y_size << std::endl;
 	    std::cout << "DEBUG:: n_limited_chains: " << n_limited_chains << std::endl;
 	 }
-	 gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
+	 // gtk_widget_set_usize(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
+	 gtk_widget_set_size_request(GTK_WIDGET(canvas), canvas_x_size, canvas_y_size);
 
 	 double left_limit = 0.0;
 	 double upper_limit = 0.0;
@@ -282,7 +301,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 
 	 if (scroll_width > scroll_width_max) {
 	    // std::cout << "setting scroll width max to " << scroll_width_max << std::endl;
-	    scroll_width= scroll_width_max;
+	    scroll_width = scroll_width_max;
 	 }
 
 	 // bring the items on the canvas leftwards, no empty big
@@ -327,6 +346,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 		   << " yet\n";
       }
    }
+   return canvas_y_size;
 }
 
 void
