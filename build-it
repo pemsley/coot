@@ -3622,6 +3622,9 @@ if test -n "$build_curl" ; then
    #
    # this implicitly uses OpenSSL if it can be configured via pkg-config
    #
+   # 20191211-PE on modern ubuntu: apt install libssl-dev, so that curl's configure finds it
+   #             It's OK to depend on system libssl rather than build it myself.
+   #
    echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
