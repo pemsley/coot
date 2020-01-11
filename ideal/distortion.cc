@@ -1391,64 +1391,19 @@ coot::distortion_score_torsion(unsigned int idx_restraint,
 
    // I don't like this escape at all
    //
-   if (cos_a1 > 0.9 || cos_a2> 0.9) {
+   if (cos_a1 > 0.99 || cos_a2> 0.99) {
       return 0;
    }
 
    if (theta < 0.0) theta += 360.0;
 
-   //if (torsion_restraint.periodicity == 1) {
-   // }
-   // 
-   //    double diff = theta - torsion_restraint.target_value;
+   double sf = 1.0;
+   double per = torsion_restraint.periodicity;
+   double theta_0 = clipper::Util::d2rad(torsion_restraint.target_value);
+   double theta_r = clipper::Util::d2rad(theta); // what a mess
+   double pen = 0.5 * sf * (1.0 - cos(per * (theta_r - theta_0)));
 
-   double diff = 99999.9; 
-   double tdiff; 
-   double trial_target; 
-   int per = torsion_restraint.periodicity;
-   for(int i=0; i<per; i++) { 
-      // trial_target = torsion_restraint.target_value + double(i)*360.0/double(per);  ??
-      trial_target = torsion_restraint.target_value + double(i)*360.0/double(per); 
-      if (trial_target >= 360.0) trial_target -= 360.0; 
-      tdiff = theta - trial_target;
-      if (tdiff < -180) tdiff += 360;
-      if (tdiff >  180) tdiff -= 360;
-      if (fabs(tdiff) < fabs(diff)) {
-	 diff = tdiff;
-      }
-   }
-
-   if (false)
-      std::cout << "DEBUG:: atom index: " << torsion_restraint.atom_index_1
-		<< " target " << torsion_restraint.target_value
-		<< ", theta: " << theta << " \tdiff: " << diff << std::endl;
-
-   if (diff >= 99999.0) { 
-      std::cout << "Error in periodicity (" << per << ") check" << std::endl;
-      std::cout << "target_value: " << torsion_restraint.target_value
-		<< ", theta: " << theta << std::endl;
-   }
-   if (diff < -180.0) { 
-      diff += 360.; 
-   } else { 
-      if (diff > 180.0) { 
-	 diff -= 360.0; 
-      }
-   }
-
-
-   if (false) { // debug
-      double pen = diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
-      std::cout << "distortion_torsion " << idx_restraint << " theta (calc): " << theta
-		<< " periodicity " << torsion_restraint.periodicity
-		<< " target "      << torsion_restraint.target_value
-		<< " diff: " << diff << " distortion " << pen << std::endl ;
-      std::cout << "   in distortion_torsion: sigma = " << torsion_restraint.sigma
-		<< ", weight=" << pow(torsion_restraint.sigma,-2.0)
-		<< " and diff is " << diff << std::endl;
-   }
-   
-   return diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
+   return pen;
 
 }
 

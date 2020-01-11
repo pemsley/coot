@@ -601,8 +601,8 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 			  gsl_vector_get(v,idx+2));
 
    try {
-      coot::distortion_torsion_gradients_t dtg =
-	 fill_distortion_torsion_gradients(P1, P2, P3, P4);
+
+      distortion_torsion_gradients_t dtg = fill_distortion_torsion_gradients(P1, P2, P3, P4);
 
       if (dtg.zero_gradients) {
 
@@ -610,71 +610,33 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
       } else {
 
-	 //
-	 // use period
+         double V_jk = 1.0;
+         double n_jk = this_restraint.periodicity;
+         double phi     = clipper::Util::d2rad(dtg.theta); // variable name change
+         double phi0_jk = clipper::Util::d2rad(this_restraint.target_value);
+         double dV_dphi = 0.5 * V_jk * (sin(n_jk*(phi - phi0_jk))) * n_jk;
+         double tt = dtg.tan_theta; // variable name change
+         double scale = dV_dphi/(1.0 + tt*tt);
 
-	 double diff = 99999.9;
-	 double tdiff;
-	 double trial_target;
-	 int per = this_restraint.periodicity;
+	 double xP1_contrib = scale * dtg.dD_dxP1;
+	 double xP2_contrib = scale * dtg.dD_dxP2;
+	 double xP3_contrib = scale * dtg.dD_dxP3;
+	 double xP4_contrib = scale * dtg.dD_dxP4;
 
-	 if (dtg.theta < 0.0) dtg.theta += 360.0; 
+	 double yP1_contrib = scale * dtg.dD_dyP1;
+	 double yP2_contrib = scale * dtg.dD_dyP2;
+	 double yP3_contrib = scale * dtg.dD_dyP3;
+	 double yP4_contrib = scale * dtg.dD_dyP4;
 
-	 for(int iper=0; iper<per; iper++) { 
-	    trial_target = this_restraint.target_value + double(iper)*360.0/double(per); 
-	    if (trial_target >= 360.0) trial_target -= 360.0; 
-	    tdiff = dtg.theta - trial_target;
-	    if (tdiff < -180) tdiff += 360;
-	    if (tdiff >  180) tdiff -= 360;
-	    // std::cout << "   iper: " << iper << "   " << dtg.theta << "   " << trial_target << "   " << tdiff << "   " << diff << std::endl;
-	    if (fabs(tdiff) < fabs(diff)) { 
-	       diff = tdiff;
-	    }
-	 }
-	 if (diff < -180.0) { 
-	    diff += 360.; 
-	 } else { 
-	    if (diff > 180.0) { 
-	       diff -= 360.0; 
-	    }
-	 }
-		  
-	 if (false)
-	    std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
-		      <<  " and target is " << this_restraint.target_value 
-		      << " and diff is " << diff
-		      << " and periodicity: " << this_restraint.periodicity << std::endl;
-
-	 double tt = tan(clipper::Util::d2rad(dtg.theta));
-	 double torsion_scale = (1.0/(1+tt*tt)) *
-	    clipper::Util::rad2d(1.0);
-
-	 double weight = 1/(this_restraint.sigma * this_restraint.sigma);
-
-	 // 	       std::cout << "torsion weight: " << weight << std::endl;
-	 // 	       std::cout << "torsion_scale : " << torsion_scale << std::endl; 
-	 // 	       std::cout << "diff          : " << torsion_scale << std::endl; 	       
-
-	 double xP1_contrib = 2.0*diff*dtg.dD_dxP1*torsion_scale * weight;
-	 double xP2_contrib = 2.0*diff*dtg.dD_dxP2*torsion_scale * weight;
-	 double xP3_contrib = 2.0*diff*dtg.dD_dxP3*torsion_scale * weight;
-	 double xP4_contrib = 2.0*diff*dtg.dD_dxP4*torsion_scale * weight;
-
-	 double yP1_contrib = 2.0*diff*dtg.dD_dyP1*torsion_scale * weight;
-	 double yP2_contrib = 2.0*diff*dtg.dD_dyP2*torsion_scale * weight;
-	 double yP3_contrib = 2.0*diff*dtg.dD_dyP3*torsion_scale * weight;
-	 double yP4_contrib = 2.0*diff*dtg.dD_dyP4*torsion_scale * weight;
-
-	 double zP1_contrib = 2.0*diff*dtg.dD_dzP1*torsion_scale * weight;
-	 double zP2_contrib = 2.0*diff*dtg.dD_dzP2*torsion_scale * weight;
-	 double zP3_contrib = 2.0*diff*dtg.dD_dzP3*torsion_scale * weight;
-	 double zP4_contrib = 2.0*diff*dtg.dD_dzP4*torsion_scale * weight;
+	 double zP1_contrib = scale * dtg.dD_dzP1;
+	 double zP2_contrib = scale * dtg.dD_dzP2;
+	 double zP3_contrib = scale * dtg.dD_dzP3;
+	 double zP4_contrib = scale * dtg.dD_dzP4;
 	    
 	 if (! this_restraint.fixed_atom_flags[0]) { 
 	    idx = 3*(this_restraint.atom_index_1);
-	    // *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP1_contrib;
+
+            // std::cout << "torsion deriv " << idx/3 << " " << xP1_contrib << " " << yP1_contrib << " " << zP1_contrib << std::endl;
 
 	    results[idx  ] += xP1_contrib;
 	    results[idx+1] += yP1_contrib;
@@ -683,9 +645,8 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
 	 if (! this_restraint.fixed_atom_flags[1]) { 
 	    idx = 3*(this_restraint.atom_index_2);
-	    // *gsl_vector_ptr(df, idx  ) += xP2_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP2_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP2_contrib;
+
+            // std::cout << "torsion deriv " << idx/3 << " " << xP2_contrib << " " << yP2_contrib << " " << zP2_contrib << std::endl;
 
 	    results[idx  ] += xP2_contrib;
 	    results[idx+1] += yP2_contrib;
@@ -694,9 +655,8 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
 	 if (! this_restraint.fixed_atom_flags[2]) { 
 	    idx = 3*(this_restraint.atom_index_3);
-	    // *gsl_vector_ptr(df, idx  ) += xP3_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP3_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP3_contrib;
+
+            // std::cout << "torsion deriv " << idx/3 << " " << xP3_contrib << " " << yP3_contrib << " " << zP3_contrib << std::endl;
 
 	    results[idx  ] += xP3_contrib;
 	    results[idx+1] += yP3_contrib;
@@ -705,9 +665,8 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
 	 if (! this_restraint.fixed_atom_flags[3]) { 
 	    idx = 3*(this_restraint.atom_index_4);
-	    // *gsl_vector_ptr(df, idx  ) += xP4_contrib;
-	    // *gsl_vector_ptr(df, idx+1) += yP4_contrib;
-	    // *gsl_vector_ptr(df, idx+2) += zP4_contrib;
+
+            // std::cout << "torsion deriv " << idx/3 << " " << xP4_contrib << " " << yP4_contrib << " " << zP4_contrib << std::endl;
 
 	    results[idx  ] += xP4_contrib;
 	    results[idx+1] += yP4_contrib;

@@ -122,6 +122,7 @@ namespace coot {
    public:
       bool zero_gradients;
       double theta; // the torsion angle
+      double tan_theta; // store the tan too
       // x
       double dD_dxP1;
       double dD_dxP2;
