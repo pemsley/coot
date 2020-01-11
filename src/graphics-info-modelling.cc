@@ -3907,6 +3907,9 @@ graphics_info_t::execute_db_main(int imol,
 	 iresno_start = tmp;
       }
 
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      if (!mol) return imol_new; // -1
+
       // mt is a minimol of the Baton Atoms:
       coot::minimol::molecule mt(molecules[imol].atom_sel.mol);
       coot::minimol::molecule target_ca_coords;
@@ -3995,20 +3998,20 @@ graphics_info_t::execute_db_main(int imol,
 
       float bf = default_new_atoms_b_factor;
       main_chain.merge_fragments();
-      coot::minimol::molecule mol;
-      mol.fragments.push_back(main_chain.mainchain_fragment());
+      coot::minimol::molecule mmol;
+      mmol.fragments.push_back(main_chain.mainchain_fragment());
 
       // if (direction_string == "backwards")
       // 	 mol.write_file("db-mainchain-backwards.pdb", bf);
 
       // std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
-      std::vector<coot::minimol::atom *> serial_atoms = mol.select_atoms_serial();
+      std::vector<coot::minimol::atom *> serial_atoms = mmol.select_atoms_serial();
       // std::cout << "DEBUG:: serial_atoms.size() returns " << serial_atoms.size() << std::endl;
       
       if (serial_atoms.size() > 0) {
 	 std::pair<std::vector<float>, std::string> cell_spgr = 
 	    molecules[imol].get_cell_and_symm();
-	 atom_selection_container_t asc = make_asc(mol.pcmmdbmanager());
+	 atom_selection_container_t asc = make_asc(mmol.pcmmdbmanager());
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.
 	 imol_new = create_molecule();

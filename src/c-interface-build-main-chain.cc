@@ -425,12 +425,12 @@ db_mainchain(int imol,
 	     const char *direction_string) {
 
    int imol_new = -1;
-   if (imol < graphics_n_molecules()) {
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       imol_new = g.execute_db_main(imol, std::string(chain_id), iresno_start, iresno_end,
 				   std::string(direction_string));
    } else {
-      std::cout << "WARNING molecule index error" << std::endl;
+      std::cout << "WARNING:: molecule index error" << std::endl;
    } 
    std::string cmd = "db-mainchain";
    std::vector<coot::command_arg_t> args;
