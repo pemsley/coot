@@ -504,7 +504,7 @@ coot::side_chain_densities::sample_map(mmdb::Residue *residue_this_p,
       }
    }
 
-   clipper::Coord_orth ca_pt;
+   clipper::Coord_orth ca_pt(-1,-1,-1);
 
    int n_atoms = residue_this_p->GetNumberOfAtoms();
    std::vector<clipper::Coord_orth> residue_atom_positions;
