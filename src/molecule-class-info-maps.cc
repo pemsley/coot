@@ -724,7 +724,7 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 						  iream_start, iream_end, n_reams,
 						  is_em_map);
       bool unlocked = false;
-      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }

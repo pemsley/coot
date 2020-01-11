@@ -796,6 +796,7 @@ public:        //                      public
 
       // draw vectors
       draw_vector_sets.reserve(120);
+      draw_vector_sets.resize(120);
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;

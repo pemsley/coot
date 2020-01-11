@@ -636,6 +636,8 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
    clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
 			  box1.coord_grid(crystal_map.grid_sampling()));
 
+   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, iream_end, n_reams);
+
    if (false) { // debug
       std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
       std::cout << "    box_radius " << box_radius << std::endl;
@@ -647,9 +649,16 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
       std::cout << "    box0: " << box0.format() << std::endl;
       std::cout << "    box1: " << box1.format() << std::endl;
       std::cout << "    grid: " << grid.format() << std::endl;
+      std::cout << " limit thing 1: " << (grid.nu()-1)/isample_step << std::endl;
+      std::cout << " limit thing 2: " << (grid.nv()-1)/isample_step << std::endl;
+      std::cout << " limit thing 3: " << (rt.second-rt.first-1)/isample_step << std::endl;
    }
 
-   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, iream_end, n_reams);
+   // sanity check
+   if ((grid.nu()-1)/isample_step < 1) return coot::CartesianPairInfo();
+   if ((grid.nv()-1)/isample_step < 1) return coot::CartesianPairInfo();
+   if ((rt.second-rt.first-1)/isample_step < 1) return coot::CartesianPairInfo();
+
    clipper::Coord_grid base_grid = grid.min();
    base_grid.w() = rt.first;
 
