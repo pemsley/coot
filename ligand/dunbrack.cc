@@ -36,7 +36,7 @@ coot::dunbrack::probabilities() const {
    std::string rt = Residue_Type();
    if (rt == "MSE")
       rt = "MET";
-   std::vector<coot::simple_rotamer> rots = rotamers(rt, Probability_limit());
+   std::vector<coot::simple_rotamer> rots = get_rotamers(rt, Probability_limit());
 
    for(unsigned int i=0; i<rots.size(); i++)
       p.push_back(rots[i].P_r1234());
@@ -115,6 +115,7 @@ coot::dunbrack::info() const {
 
 std::vector<coot::simple_rotamer>
 coot::dunbrack_rotamer::get_sorted_rotamers(float prob_cut) const {
+
    std::vector<coot::simple_rotamer> rots;
    for(unsigned int i=0; i< rotamers.size(); i++) {
       if (rotamers[i].P_r1234() > prob_cut) {

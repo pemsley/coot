@@ -567,10 +567,9 @@ coot::rotamer::chi_torsion(const std::vector<int> &chi_angle_atoms_indices,
 std::vector<coot::simple_rotamer>
 coot::rotamer::get_all_rotamers(const std::string &res_type) const {
 
-   
    for(unsigned int i=0; i< typed_rotamers.size(); i++) {
       if (typed_rotamers[i].Type() == res_type) {
-	 return typed_rotamers[i].simple_rotamers();
+	 return typed_rotamers[i].get_simple_rotamers();
       }
    }
    std::vector<coot::simple_rotamer> r;
@@ -592,7 +591,7 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
    mmdb::Residue *rres = deep_copy_residue(Residue()); 
    std::string rt = Residue_Type();
 
-   std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
+   std::vector<simple_rotamer> rots = get_rotamers(rt, probability_limit);
 
    if (debug) { // debug
       mmdb::PPAtom residue_atoms;
@@ -621,7 +620,7 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
    mmdb::Residue *rres = deep_copy_residue(Residue());
    if (rres) { 
       std::string rt = Residue_Type();
-      std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
+      std::vector<simple_rotamer> rots = get_rotamers(rt, probability_limit);
       for (unsigned int i=0; i<rots.size(); i++) { 
 	 if (rots[i].rotamer_name() == rotamer_name) {
 	    const simple_rotamer &this_rot = rots[i];
@@ -694,7 +693,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
    std::string rt = Residue_Type();
    if (rt == "MSE")
       rt = "MET";
-   std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
+   std::vector<simple_rotamer> rots = get_rotamers(rt, probability_limit);
 
    if ((rots.size() == 0) || (ui_rot >= rots.size())) { 
       return rres; // or should this be null? 
@@ -1113,7 +1112,7 @@ coot::rotamer::ordered_residue_atoms(mmdb::Residue *residue_p) const {
 } 
 
 std::vector<coot::simple_rotamer>
-coot::rotamer::rotamers(const std::string &res_type, float prob_cut) const {
+coot::rotamer::get_rotamers(const std::string &res_type, float prob_cut) const {
 
    std::vector<coot::simple_rotamer> rots;
 
@@ -1138,12 +1137,12 @@ coot::rotamer::Chi1(int irot) const {
    for (unsigned int i=0; i<typed_rotamers.size(); i++) {
       std::string rt = Residue_Type();
       if (typed_rotamers[i].Type() == rt) {
-	 if (irot<int(rotamers(rt, Probability_limit()).size())) { 
-	    v = rotamers(rt, Probability_limit())[irot].Chi1();
+	 if (irot<int(get_rotamers(rt, Probability_limit()).size())) { 
+	    v = get_rotamers(rt, Probability_limit())[irot].Chi1();
 	    return v;
 	 } else {
 	    std::cout << "ERROR: asked for index " << irot << " but max rotamers was "
-		      << rotamers(rt, Probability_limit()).size() << std::endl;
+		      << get_rotamers(rt, Probability_limit()).size() << std::endl;
 	 }
       }
    }
@@ -1159,12 +1158,12 @@ coot::rotamer::rotamer_name(int irot) {
    for (unsigned int i=0; i<typed_rotamers.size(); i++) {
       std::string rt = Residue_Type();
       if (typed_rotamers[i].Type() == rt) {
-	 if (irot<int(rotamers(rt, Probability_limit()).size())) { 
-	    n = rotamers(rt, Probability_limit())[irot].rotamer_name();
+	 if (irot<int(get_rotamers(rt, Probability_limit()).size())) { 
+	    n = get_rotamers(rt, Probability_limit())[irot].rotamer_name();
 	    break;
 	 } else {
 	    std::cout << "ERROR: asked for index " << irot << " but max rotamers was "
-		      << rotamers(rt, Probability_limit()).size() << std::endl;
+		      << get_rotamers(rt, Probability_limit()).size() << std::endl;
 	 }
       }
    }
@@ -1172,4 +1171,50 @@ coot::rotamer::rotamer_name(int irot) {
 } 
 
 
+coot::closest_rotamer_info_t
+coot::rotamer::get_closest_rotamer(const std::string &residue_name) const {
+
+   std::cout << "debug:: in get_closest_rotamer() " << residue_name << std::endl;
+
+   short int state = 0;
+   float prob = 0.0;
+   std::string rotamer_name;
+   std::vector<std::pair<int, float> > ca = get_chi_angles();
+
+   rotamer_probability_info_t rpi(state, prob, rotamer_name);
+   closest_rotamer_info_t cr(rpi);
+   cr.residue_chi_angles = ca;
+
+   // typed_rotamers is a vector of dunbrack_rotamers
+   // a dunbrack_rotamer is a type (a std::string) and a std::vector<simple_rotamer>
+   for (unsigned int i=0; i<typed_rotamers.size(); i++) {
+      if (typed_rotamers[i].Type() == residue_name) {
+         // std::cout << " compare with this: " << typed_rotamers[i].Type() << std::endl;
+         std::vector<simple_rotamer> srs = typed_rotamers[i].get_simple_rotamers();
+         float sum_delta_best = 99999999.9;
+         unsigned idx_best = 0;
+         if (false)
+            for (unsigned int j=0; j<srs.size(); j++)
+               std::cout << " " << j << " " << srs[j] << std::endl;
+         for (unsigned int j=0; j<srs.size(); j++) {
+            float sum_delta = 0.0;
+            for (unsigned int k=0; k<ca.size(); k++) {
+               float d = srs[j].get_chi(k+1)-ca[k].second;
+               if (d >  180.0) d -= 360.0;
+               if (d < -180.0) d += 360.0;
+               sum_delta += fabs(d);
+            }
+            // std::cout << "    " << sum_delta << std::endl;
+            if (sum_delta < sum_delta_best) {
+               sum_delta_best = sum_delta;
+               idx_best = j;
+            }
+         }
+         std::cout << "idx_best " << idx_best << "  " << srs[idx_best].rotamer_name() << std::endl;
+      }
+   }
+
+   return cr;
+
+}
 

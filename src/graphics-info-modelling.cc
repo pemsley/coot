@@ -4244,16 +4244,13 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    std::string alt_conf = g.molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
    mmdb::Residue *residue = g.molecules[imol].atom_sel.atom_selection[atom_index]->residue;
       
-#ifdef USE_DUNBRACK_ROTAMERS			
-      coot::dunbrack d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
-#else
-      coot::richardson_rotamer d(residue, alt_conf,
-				 g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
-#endif // USE_DUNBRACK_ROTAMERS
+   coot::richardson_rotamer d(residue, alt_conf,
+                              g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
 
    std::vector<float> probabilities = d.probabilities();
-   // std::cout << "There are " << probabilities.size() << " probabilities"
-   // << std::endl;
+
+   if (false)
+      std::cout << "debug:: in fill_rotamer_selection_buttons():: There are " << probabilities.size() << " probabilities" << std::endl;
 
    // Attach the number of residues to the dialog so that we can get
    // that data item when we make a synthetic key press due to
