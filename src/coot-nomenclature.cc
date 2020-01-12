@@ -546,7 +546,7 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *resi
 	       }
 	    } 
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: missing atoms " << rte.what() << std::endl;
 	 } 
       }
