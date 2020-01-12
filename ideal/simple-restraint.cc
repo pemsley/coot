@@ -6439,31 +6439,29 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
    return n_angle_restr;
 }
 
-int
-coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
-					   int i_no_res_atoms,
-					   mmdb::PResidue SelRes,
-					   const coot::protein_geometry &geom) {
+bool
+coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
+                                                   mmdb::PPAtom res_selection, int i_no_res_atoms) {
 
-   int n_torsion_restr = 0; 
+   bool status = false;
 
-   for (unsigned int ib=0; ib<geom[idr].second.torsion_restraint.size(); ib++) {
+   { // cut and paste
 
       // Joel Bard fix: Don't add torsion restraints for torsion that
       // have either s.d. or period 0
 
-      if (geom[idr].second.torsion_restraint[ib].periodicity() > 0) { // we had this test most inner
-	 if (geom[idr].second.torsion_restraint[ib].esd() > 0.000001) { // new test
+      if (torsion_restraint.periodicity() > 0) { // we had this test most inner
+	 if (torsion_restraint.esd() > 0.000001) { // new test
 	 
 	    // now find the atoms
 	    for (int iat=0; iat<i_no_res_atoms; iat++) {
 	       std::string pdb_atom_name1(res_selection[iat]->name);
 
-	       if (pdb_atom_name1 == geom[idr].second.torsion_restraint[ib].atom_id_1_4c()) {
+	       if (pdb_atom_name1 == torsion_restraint.atom_id_1_4c()) {
 		  for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
 		     std::string pdb_atom_name2(res_selection[iat2]->name);
-		     if (pdb_atom_name2 == geom[idr].second.torsion_restraint[ib].atom_id_2_4c()) {
+		     if (pdb_atom_name2 == torsion_restraint.atom_id_2_4c()) {
 				    
 			// 		  std::cout << "atom match 1 " << pdb_atom_name1;
 			// 		  std::cout << " atom match 2 " << pdb_atom_name2
@@ -6472,12 +6470,12 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 			for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
 		     
 			   std::string pdb_atom_name3(res_selection[iat3]->name);
-			   if (pdb_atom_name3 == geom[idr].second.torsion_restraint[ib].atom_id_3_4c()) {
+			   if (pdb_atom_name3 == torsion_restraint.atom_id_3_4c()) {
 		  
 			      for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
 		     
 				 std::string pdb_atom_name4(res_selection[iat4]->name);
-				 if (pdb_atom_name4 == geom[idr].second.torsion_restraint[ib].atom_id_4_4c()) {
+				 if (pdb_atom_name4 == torsion_restraint.atom_id_4_4c()) {
 		  
 				    // now we need the indices of
 				    // pdb_atom_name1 and
@@ -6493,31 +6491,30 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
 				    res_selection[iat4]->GetUDData(udd_atom_index_handle, index4);
 
-				    double torsion_angle = geom[idr].second.torsion_restraint[ib].angle();
+				    double torsion_angle = torsion_restraint.angle();
 				    if (torsion_angle < 0)
 				       torsion_angle += 360;
 				    if (torsion_angle > 360)
 				       torsion_angle -= 360;
 
-				    std::vector<bool> fixed_flags =
-				       make_fixed_flags(index1, index2, index3, index4);
+				    std::vector<bool> fixed_flags = make_fixed_flags(index1, index2, index3, index4);
 				    add(TORSION_RESTRAINT, index1, index2, index3, index4,
 					fixed_flags,
 					torsion_angle,
-					geom[idr].second.torsion_restraint[ib].esd(),
+					torsion_restraint.esd(),
 					1.2,  // junk value
-					geom[idr].second.torsion_restraint[ib].periodicity());
+					torsion_restraint.periodicity());
 				    if (0) // debug
 				       std::cout << "Adding monomer torsion restraint: "
 						 << index1 << " "
 						 << index2 << " "
 						 << index3 << " "
 						 << index4 << " angle "
-						 << geom[idr].second.torsion_restraint[ib].angle() << " esd " 
-						 << geom[idr].second.torsion_restraint[ib].esd() << " period " 
-						 << geom[idr].second.torsion_restraint[ib].periodicity()
+						 << torsion_restraint.angle() << " esd "
+						 << torsion_restraint.esd() << " period "
+						 << torsion_restraint.periodicity()
 						 << std::endl;
-				    n_torsion_restr++;
+				    status = true;
 				 }
 			      }
 			   }
@@ -6528,6 +6525,24 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 	    }
 	 }
       }
+   }
+   return status;
+}
+
+int
+coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
+					   int i_no_res_atoms,
+					   mmdb::PResidue SelRes,
+					   const coot::protein_geometry &geom) {
+
+   int n_torsion_restr = 0;
+   const std::vector<dict_torsion_restraint_t> &torsion_restraints = geom[idr].second.torsion_restraint;
+
+   for (unsigned int ib=0; ib<torsion_restraints.size(); ib++) {
+      const dict_torsion_restraint_t &torsion_restraint = torsion_restraints[ib];
+      bool status = add_torsion_internal(torsion_restraint, res_selection, i_no_res_atoms);
+      if (status)
+         n_torsion_restr++;
    }
 
    return n_torsion_restr;

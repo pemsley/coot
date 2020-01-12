@@ -1461,6 +1461,9 @@ namespace coot {
 		       mmdb::PResidue SelRes,
 		       const protein_geometry &geom);
 
+      bool add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
+                                mmdb::PPAtom res_selection, int i_no_res_atoms);
+
       int add_chirals(int idr, mmdb::PPAtom res_selection,
 		      int i_no_res_atoms,
 		      mmdb::PResidue SelRes,
