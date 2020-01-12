@@ -144,8 +144,6 @@ namespace coot {
       probability_of_this_rotamer(const std::vector<double> &chi_angles,
 				  const std::vector<coot::simple_rotamer> &rots) const;
       
-      std::vector<std::vector<std::string> >
-      rotamer_atoms(const std::string &residue_name) const;
       std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms,
                                                                    mmdb::PAtom *residue_atoms,
                                                                    int n_residue_atoms) const;
@@ -202,6 +200,8 @@ namespace coot {
 
       rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
                                                                 // mmdb::Residue issues...
+
+      std::vector<std::vector<std::string> > rotamer_atoms(const std::string &residue_name) const;
 
       // Return a manipulated deep copy of input residue.
       // 

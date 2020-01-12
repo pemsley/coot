@@ -1211,6 +1211,11 @@ coot::rotamer::get_closest_rotamer(const std::string &residue_name) const {
             }
          }
          std::cout << "idx_best " << idx_best << "  " << srs[idx_best].rotamer_name() << std::endl;
+         // transfer target chi angles into closest rotamer cr
+         for (unsigned int k=0; k<ca.size(); k++) {
+            float d = srs[idx_best].get_chi(k+1);
+            cr.residue_chi_angles[k].second = d;
+         }
       }
    }
 

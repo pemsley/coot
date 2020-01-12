@@ -1833,8 +1833,11 @@ public:
    static bool do_rama_restraints;
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
+   static bool do_rotamer_restraints;
    static int  restraints_rama_type;
    static float rama_restraints_weight;
+
+   std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
    coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);

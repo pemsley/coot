@@ -5954,6 +5954,11 @@ int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }
 
+void set_refine_rotamers(int state) {
+   graphics_info_t::do_rotamer_restraints = state;
+}
+
+
 
 #include "c-interface-refine.hh"
 

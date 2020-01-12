@@ -3451,6 +3451,9 @@ void set_refine_ramachandran_restraints_weight(float w);
 @return weight as a float */
 float refine_ramachandran_restraints_weight();
 
+/* \brief set the state for using rotamer restraints "drive" mode */
+void set_refine_rotamers(int state);
+
 void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
 void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
 void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
