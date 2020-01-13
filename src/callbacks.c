@@ -345,7 +345,7 @@ on_column_label_ok_button_clicked      (GtkButton       *button,
 
   GtkWidget *column_label_window = lookup_widget(GTK_WIDGET(button), "column_label_window");
 
-  handle_column_label_make_fourier(column_label_window);
+  handle_column_label_make_fourier_v2(column_label_window);
 
 }
 

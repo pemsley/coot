@@ -1039,7 +1039,8 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    // modern: g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
    // old but consistend with gtk_object_get_user_data
-   gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns);
+   // gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns);
+   g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
 
 
 
