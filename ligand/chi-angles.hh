@@ -154,7 +154,7 @@ namespace coot {
 
       static short int compare_rotamers(const simple_rotamer &a,
 					const simple_rotamer &b);
-      std::vector<simple_rotamer> simple_rotamers() const { return rotamers; }
+      std::vector<simple_rotamer> get_simple_rotamers() const { return rotamers; }
       std::vector<simple_rotamer> get_sorted_rotamers(float prob_cut) const;
    };
 
@@ -271,9 +271,8 @@ namespace coot {
 			const std::string &atom_name_2,
 			const std::string &atom_name_3,
 			const std::string &atom_name_4);
-	 
-      std::vector<simple_rotamer> rotamers(const std::string &res_type,
-					   float prob_cut) const;
+
+      // std::vector<simple_rotamer> get_simple_rotamers(const std::string &res_type, float prob_cut) const;
 
 #ifdef USE_DUNBRACK_ROTAMERS			
       std::vector<dunbrack_rotamer> typed_rotamers;

@@ -965,6 +965,60 @@ graphics_info_t::generate_molecule_from_molecule_and_refine(int imol, mmdb::Mana
    return rr;
 }
 
+#include "ligand/rotamer.hh"
+
+std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > >
+graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const {
+
+   std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > v;
+   for (unsigned int i=0; i<local_residues.size(); i++) {
+      if (! local_residues[i].first) {
+         mmdb::Residue *residue_p = local_residues[i].second;
+         std::string rn(residue_p->GetResName());
+         if (coot::util::is_standard_amino_acid_name(rn)) {
+            std::string alt_conf; // run through them all, ideally.
+            coot::rotamer rot(residue_p, alt_conf, 1);
+            coot::closest_rotamer_info_t cri = rot.get_closest_rotamer(rn);
+            if (cri.residue_chi_angles.size() > 0) {
+               std::vector<coot::dict_torsion_restraint_t> dictionary_vec;
+               std::vector<std::vector<std::string> > rotamer_atom_names = rot.rotamer_atoms(rn);
+
+               std::cout << "debug:: in make_rotamer_torsions(): comparing vector lengths " << cri.residue_chi_angles.size() << " and " << rotamer_atom_names.size() << std::endl;
+
+               if (cri.residue_chi_angles.size() != rotamer_atom_names.size()) {
+
+                  std::cout << "-------------- mismatch for " << coot::residue_spec_t(residue_p) << " " << cri.residue_chi_angles.size() << " "  << rotamer_atom_names.size()
+                            << " ---------------" << std::endl;
+
+               } else {
+
+                  for (unsigned int ichi=0; ichi<cri.residue_chi_angles.size(); ichi++) {
+                     // we have to convert chi angles to atom names
+                     double esd = 10.0;
+                     int per = 1;
+                     std::string id = "chi " + coot::util::int_to_string(cri.residue_chi_angles[ichi].first);
+                     const std::string &atom_name_1 = rotamer_atom_names[ichi][0];
+                     const std::string &atom_name_2 = rotamer_atom_names[ichi][1];
+                     const std::string &atom_name_3 = rotamer_atom_names[ichi][2];
+                     const std::string &atom_name_4 = rotamer_atom_names[ichi][3];
+                     double torsion = cri.residue_chi_angles[ichi].second;
+                     coot::dict_torsion_restraint_t dr(id, atom_name_1, atom_name_2, atom_name_3, atom_name_4, torsion, esd, per);
+                     dictionary_vec.push_back(dr);
+                  }
+
+                  if (dictionary_vec.size() > 0) {
+                     std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > p(residue_p, dictionary_vec);
+                     v.push_back(p);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
+
+
 #ifdef  HAVE_GSL
 
 // return the state of having found restraints.
@@ -1062,8 +1116,14 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    //
    // last_restraints->set_apply_H_non_bonded_contacts(false);
 
+   if (do_rotamer_restraints) {
+      std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > rotamer_torsions = make_rotamer_torsions(local_residues);
+      std::cout << "debug:: calling add_or_replace_torsion_restraints_with_closest_rotamer_restraints() from make_last_restraints() " << std::endl;
+      last_restraints->add_or_replace_torsion_restraints_with_closest_rotamer_restraints(rotamer_torsions);
+   }
+
    if (molecules[imol_moving_atoms].extra_restraints.has_restraints()) {
-      std::cout << "calling add_extra_restraints() from make_last_restraints() " << std::endl;
+      std::cout << "debug:: calling add_extra_restraints() from make_last_restraints() " << std::endl;
       last_restraints->add_extra_restraints(imol_moving_atoms, "user-defined from make_last_restraints()",
                                             molecules[imol_moving_atoms].extra_restraints, *Geom_p());
    }
@@ -4244,16 +4304,13 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
    std::string alt_conf = g.molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
    mmdb::Residue *residue = g.molecules[imol].atom_sel.atom_selection[atom_index]->residue;
       
-#ifdef USE_DUNBRACK_ROTAMERS			
-      coot::dunbrack d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
-#else
-      coot::richardson_rotamer d(residue, alt_conf,
-				 g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
-#endif // USE_DUNBRACK_ROTAMERS
+   coot::richardson_rotamer d(residue, alt_conf,
+                              g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
 
    std::vector<float> probabilities = d.probabilities();
-   // std::cout << "There are " << probabilities.size() << " probabilities"
-   // << std::endl;
+
+   if (false)
+      std::cout << "debug:: in fill_rotamer_selection_buttons():: There are " << probabilities.size() << " probabilities" << std::endl;
 
    // Attach the number of residues to the dialog so that we can get
    // that data item when we make a synthetic key press due to

@@ -57,6 +57,13 @@ namespace coot {
    }; 
    std::ostream &operator<<(std::ostream &s, const rotamer_probability_info_t &rpi);
 
+   class closest_rotamer_info_t {
+   public:
+       rotamer_probability_info_t rotamer_probability_info;
+       std::vector<std::pair<int,float> > residue_chi_angles;  // uses get_chi_angles() const;
+       closest_rotamer_info_t(const rotamer_probability_info_t &rpi) : rotamer_probability_info(rpi) {}
+   };
+
    class a_rotamer_table {
       void fill_chi_1(const std::string &file_name);
       void fill_chi_1_2(const std::string &file_name);
@@ -137,13 +144,12 @@ namespace coot {
       probability_of_this_rotamer(const std::vector<double> &chi_angles,
 				  const std::vector<coot::simple_rotamer> &rots) const;
       
-      std::vector<std::vector<std::string> >
-      rotamer_atoms(const std::string &residue_name) const;
-      std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, mmdb::PAtom *residue_atoms, int n_residue_atoms) const;
+      std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms,
+                                                                   mmdb::PAtom *residue_atoms,
+                                                                   int n_residue_atoms) const;
       double chi_torsion(const std::vector<int> &chi_angle_atom_indices,
 			 mmdb::PAtom *residue_atoms);
-      std::vector<coot::simple_rotamer>
-      get_all_rotamers(const std::string &res_type) const;
+      std::vector<simple_rotamer> get_all_rotamers(const std::string &res_type) const;
       std::vector<mmdb::Atom *> ordered_residue_atoms(mmdb::Residue *residue_p) const;
 
       // move the atoms of rres
@@ -195,6 +201,8 @@ namespace coot {
       rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
                                                                 // mmdb::Residue issues...
 
+      std::vector<std::vector<std::string> > rotamer_atoms(const std::string &residue_name) const;
+
       // Return a manipulated deep copy of input residue.
       // 
       // caller needs to delete returned residue and its chain.
@@ -210,9 +218,11 @@ namespace coot {
                                 const std::string &rotamer_name) const;
       
       mmdb::Residue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
-      std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
+      std::vector<simple_rotamer> get_rotamers(const std::string &res_type, float prob_cut) const; 
       float Chi1(int i) const; // chi1 for the ith rotamer
       std::string rotamer_name(int irot);
+      // passing the residue name? Perhaps that could be done better.
+      closest_rotamer_info_t get_closest_rotamer(const std::string &residue_name) const;
    };
 }
 

@@ -404,6 +404,9 @@ int test_function(int i, int j) {
 
 #include "coot-utils/c-beta-deviations.hh"
 
+#include "ligand/richardson-rotamer.hh"
+
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
@@ -411,6 +414,38 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+      int imol   = scm_to_int(i_scm);
+      int res_no = scm_to_int(j_scm);
+      if (is_valid_model_molecule(imol)) {
+         std::string chain_id = "A";
+         coot::residue_spec_t spec("A", res_no, "");
+         mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(spec);
+         if (r) {
+            mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+            std::string alt_conf("");
+            coot::richardson_rotamer d(r, alt_conf, mol, 0.0, 1);
+            coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+            std::string rn = residue_name(imol, chain_id, res_no, "");
+            std::cout << "INFO:: " << coot::residue_spec_t(r) << " " << rn << " "
+                      << prob << " with rotamer name \"" << prob.rotamer_name << "\"" << std::endl;
+            // ------------------------
+            short int add_extra_PHE_and_TYR_rotamers_flag = 1; // true
+            coot::rotamer rotamer(r, alt_conf, add_extra_PHE_and_TYR_rotamers_flag);
+            std::vector<std::pair<int,float> > chi_angles = rotamer.get_chi_angles();
+            std::cout << "current chi angles ";
+            for (unsigned int i=0; i<chi_angles.size(); i++)
+               std::cout << " " << chi_angles[i].first << " " << chi_angles[i].second << " ";
+            std::cout << " " << std::endl;
+            coot::closest_rotamer_info_t closest_rotamer = rotamer.get_closest_rotamer(rn);
+            std::cout << " drive to " << closest_rotamer.rotamer_probability_info.rotamer_name << " ";
+            for (unsigned int i=0; i<closest_rotamer.residue_chi_angles.size(); i++)
+               std::cout << " " << closest_rotamer.residue_chi_angles[i].first << " " << closest_rotamer.residue_chi_angles[i].second << " ";
+            std::cout << std::endl;
+         }
+      }
+   }
+
+   if (false) {
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadPDBASCII("test.pdb");
       coot::get_c_beta_deviations(mol);
@@ -797,7 +832,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    }
 
 
-   if (true) {
+   if (false) {
 
       try {
 	 int imol_map   = scm_to_int(i_scm);

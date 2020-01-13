@@ -1464,6 +1464,20 @@ namespace coot {
       bool add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
                                 mmdb::PPAtom res_selection, int i_no_res_atoms);
 
+      bool
+      replace_torsion_restraint(const dict_torsion_restraint_t &new_torsion_restraint,
+                                mmdb::PPAtom res_selection, int i_no_res_atoms,
+                                const std::vector<unsigned int> &torsion_restraint_indices);
+
+      std::vector<unsigned int> make_torsion_restraint_indices_vector() const;
+
+
+      // helper function for that:
+      int get_atom_index_for_restraint_using_alt_conf(const std::string &atom_name,
+                                                      const std::string &alt_conf,
+                                                      mmdb::PPAtom res_selection, int num_res_atoms) const;
+
+
       int add_chirals(int idr, mmdb::PPAtom res_selection,
 		      int i_no_res_atoms,
 		      mmdb::PResidue SelRes,
@@ -2317,6 +2331,8 @@ namespace coot {
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
 			  bool do_link_restraints=true,
 			  bool do_flank_restraints=true);
+
+      bool add_or_replace_torsion_restraints_with_closest_rotamer_restraints(const std::vector<std::pair<mmdb::Residue *, std::vector<dict_torsion_restraint_t> > > &rotamer_torsions);
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
