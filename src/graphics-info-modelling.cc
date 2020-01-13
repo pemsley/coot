@@ -4485,9 +4485,6 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
 
    bool debug = false;
    coot::rotamer_probability_info_t r(coot::rotamer_probability_info_t::MISSING_ATOMS,0,"");
-#ifdef USE_DUNBRACK_ROTAMERS			
-   coot::dunbrack d(res, mol, rotamer_lowest_probability, 1);
-#else
    if (!rot_prob_tables.is_well_formatted()) {
       rot_prob_tables.fill_tables();
    }
@@ -4508,7 +4505,6 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
       coot::richardson_rotamer d(res, altconf, mol, rotamer_lowest_probability, 1);
       r  = d.probability_of_this_rotamer();
    } 
-#endif // USE_DUNBRACK_ROTAMERS
 
    // flag for assigned,                    1 
    // unassigned due to missing atoms,      0 
