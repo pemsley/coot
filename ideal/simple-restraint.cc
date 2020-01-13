@@ -6480,8 +6480,8 @@ coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rot
                   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
                   bool replaced = replace_torsion_restraint(new_torsion_restraint, residue_atoms, n_residue_atoms, tri);
                   std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() replaced flag " << replaced << " for " << new_torsion_restraint << std::endl;
-                  if (! replaced) 
-                     add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms);
+                  if (! replaced)
+                     status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms);
                }
             }
          }
