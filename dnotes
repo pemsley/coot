@@ -9239,3 +9239,12 @@ Fri  6 Dec 2019 14:32:43 GMT
 
    Kevin says that structure factor calculation is in csfcalc.cpp
 
+---
+Tue  3 Dec 11:03:55 GMT 2019
+
+   threaded sort:
+
+   http://quick-bench.com/n55SzmJ2k-FowEP_ERhre56ODWA
+   https://hastebin.com/uceyumepis.cpp
+
+
