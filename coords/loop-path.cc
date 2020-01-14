@@ -30,7 +30,7 @@ coot::loop_path(mmdb::Atom *start_back_2,
    int res_no_end   =   end->residue->GetSeqNum();
    int res_no_delta = res_no_end - res_no_start;
    n_line_segments = 2 * res_no_delta; // don't listen to call parameter!
-   if (n_line_segments < 4) n_line_segments = 4; // sanitize
+   if (n_line_segments < 8) n_line_segments = 8; // sanitize
 
    clipper::Coord_orth P0 = co(start_back_2);
    clipper::Coord_orth P1 = co(start);
@@ -45,9 +45,12 @@ coot::loop_path(mmdb::Atom *start_back_2,
    bool sird = is_sane_inter_residue_distance(d2, res_no_delta);
 
    if (sird) {
-      double d = 0.4 * (d2); // this number could be optimized
+      double loopiness = res_no_delta * 0.1;
+      if (loopiness > 100.0) loopiness = 100.0;
+      if (loopiness <   0.1) loopiness =   0.1;
+      double d = 0.2 * d2 * loopiness; // this number could be optimized
       if (d < 0.50) d = 0.50; // and this one
-      if (d > 30.0) d = 10.0; // and this one
+      if (d > 60.0) d = 60.0; // and this one
 
       double s = sqrt(d);
       clipper::Coord_orth P2 = P1 + s * P1 - s * P0;
