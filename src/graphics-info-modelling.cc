@@ -983,8 +983,6 @@ graphics_info_t::make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::R
                std::vector<coot::dict_torsion_restraint_t> dictionary_vec;
                std::vector<std::vector<std::string> > rotamer_atom_names = rot.rotamer_atoms(rn);
 
-               std::cout << "debug:: in make_rotamer_torsions(): comparing vector lengths " << cri.residue_chi_angles.size() << " and " << rotamer_atom_names.size() << std::endl;
-
                if (cri.residue_chi_angles.size() != rotamer_atom_names.size()) {
 
                   std::cout << "-------------- mismatch for " << coot::residue_spec_t(residue_p) << " " << cri.residue_chi_angles.size() << " "  << rotamer_atom_names.size()

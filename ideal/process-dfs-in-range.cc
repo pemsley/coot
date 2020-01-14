@@ -610,7 +610,7 @@ coot::process_dfs_torsion(const coot::simple_restraint &this_restraint,
 
       } else {
 
-         double V_jk = 111.0;
+         double V_jk = 11.0;
          double n_jk = this_restraint.periodicity;
          double phi     = clipper::Util::d2rad(dtg.theta); // variable name change
          double phi0_jk = clipper::Util::d2rad(this_restraint.target_value);

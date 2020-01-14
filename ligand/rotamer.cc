@@ -1174,8 +1174,6 @@ coot::rotamer::rotamer_name(int irot) {
 coot::closest_rotamer_info_t
 coot::rotamer::get_closest_rotamer(const std::string &residue_name) const {
 
-   std::cout << "debug:: in get_closest_rotamer() " << residue_name << std::endl;
-
    short int state = 0;
    float prob = 0.0;
    std::string rotamer_name;
@@ -1204,13 +1202,12 @@ coot::rotamer::get_closest_rotamer(const std::string &residue_name) const {
                if (d < -180.0) d += 360.0;
                sum_delta += fabs(d);
             }
-            // std::cout << "    " << sum_delta << std::endl;
             if (sum_delta < sum_delta_best) {
                sum_delta_best = sum_delta;
                idx_best = j;
             }
          }
-         std::cout << "idx_best " << idx_best << "  " << srs[idx_best].rotamer_name() << std::endl;
+         // std::cout << "idx_best " << idx_best << "  " << srs[idx_best].rotamer_name() << std::endl;
          // transfer target chi angles into closest rotamer cr
          for (unsigned int k=0; k<ca.size(); k++) {
             float d = srs[idx_best].get_chi(k+1);

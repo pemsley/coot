@@ -6458,6 +6458,7 @@ bool
 coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rotamer_restraints(const std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > &rotamer_torsions) {
 
    bool status = false;
+   bool debug = false;
 
    // we have a book-keeping problem: the torsions in the monomer library (ie. the definintion of chi1 (for example)
    // is not the same in the monomer libary and the atoms from rotamer_atoms() (and presumably molprobity dictionary).
@@ -6474,12 +6475,16 @@ coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rot
             if (residue_p == rotamer_residue) {
                for (unsigned int j=0; j<rotamer_torsions[ir].second.size(); j++) {
                   const dict_torsion_restraint_t &new_torsion_restraint = rotamer_torsions[ir].second[j];
-                  std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() consider " << new_torsion_restraint << std::endl;
+                  if (debug)
+                     std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() consider "
+                               << new_torsion_restraint << std::endl;
                   mmdb::Atom **residue_atoms = 0;
                   int n_residue_atoms;
                   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
                   bool replaced = replace_torsion_restraint(new_torsion_restraint, residue_atoms, n_residue_atoms, tri);
-                  std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() replaced flag " << replaced << " for " << new_torsion_restraint << std::endl;
+                  if (debug)
+                     std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() replaced flag " << replaced << " for "
+                               << new_torsion_restraint << std::endl;
                   if (! replaced)
                      status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms);
                }
@@ -6488,7 +6493,8 @@ coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rot
       }
    }
 
-   std::cout << "add_or_replace_torsion_restraints_with_closest_rotamer_restraints() returning " << status << std::endl;
+   if (debug)
+      std::cout << "add_or_replace_torsion_restraints_with_closest_rotamer_restraints() returning " << status << std::endl;
 
    return status;
 }
@@ -6526,16 +6532,12 @@ coot::restraints_container_t::replace_torsion_restraint(const coot::dict_torsion
    std::string alt_conf; // run through all alt confs in the residue ideally.
    if (true) {
       int idx_1 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_1_4c(), alt_conf, res_selection, num_res_atoms);
-      std::cout << "   " << new_torsion_restraint << " idx_1 " << idx_1 << std::endl;
       if (idx_1 >= 0) {
          int idx_2 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_2_4c(), alt_conf, res_selection, num_res_atoms);
-         std::cout << "   " << new_torsion_restraint << " idx_2 " << idx_2 << std::endl;
          if (idx_2 >= 0) {
             int idx_3 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_3_4c(), alt_conf, res_selection, num_res_atoms);
-            std::cout << "   " << new_torsion_restraint << " idx_3 " << idx_3 << std::endl;
             if (idx_3 >= 0) {
                int idx_4 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_4_4c(), alt_conf, res_selection, num_res_atoms);
-               std::cout << "   " << new_torsion_restraint << " idx_4 " << idx_4 << std::endl;
                if (idx_4 >= 0) {
                   // OK, so we have real atoms for a restraints, does a torsion for that set of atoms exist already?
                   for (unsigned int it=0; it<n; it++) {
@@ -6605,6 +6607,17 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 				    // pdb_atom_name1 and
 				    // pdb_atom_name2 in asc.atom_selection:
 
+                                    // kill off weird dictionary torsions here
+                                    if (pdb_atom_name1 == " O  ")
+                                       if (pdb_atom_name2 == " C  ")
+                                          if (pdb_atom_name3 == " CA ")
+                                             continue;
+                                    if (pdb_atom_name1 == " CB ")
+                                       if (pdb_atom_name2 == " CA  ")
+                                          if (pdb_atom_name3 == " N ")
+                                             if (pdb_atom_name4 == " H ")
+                                                continue;
+
 				    int index1;
 				    int index2;
 				    int index3;
@@ -6641,8 +6654,8 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 					   1.2,  // junk value
 					   torsion_restraint.periodicity());
 
-				       if (true)
-				          std::cout << "Adding monomer torsion restraint: "
+				       if (false)
+				          std::cout << "debug:: Adding monomer torsion restraint: "
 						    << index1 << " "
 						    << index2 << " "
 						    << index3 << " "

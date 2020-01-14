@@ -1397,7 +1397,7 @@ coot::distortion_score_torsion(unsigned int idx_restraint,
 
    if (theta < 0.0) theta += 360.0;
 
-   double V_jk = 111.0;
+   double V_jk = 11.0;
    double per = torsion_restraint.periodicity;
    double theta_0 = clipper::Util::d2rad(torsion_restraint.target_value);
    double theta_r = clipper::Util::d2rad(theta); // what a mess
