@@ -1834,6 +1834,7 @@ public:
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
    static bool do_rotamer_restraints;
+   static bool do_debug_refinement;
    static int  restraints_rama_type;
    static float rama_restraints_weight;
 

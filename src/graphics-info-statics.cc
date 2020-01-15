@@ -8,3 +8,5 @@ bool graphics_info_t::make_auto_h_bond_restraints_flag = false;
 
 bool graphics_info_t::do_rotamer_restraints = false;
 
+bool graphics_info_t::do_debug_refinement = false;
+
