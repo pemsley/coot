@@ -1,6 +1,6 @@
 
-
 #include <set>
+#include <chrono>
 #include "occlusion.hh"
 
 void coot::set_lower_left_and_range(const std::vector<occlusion_triangle> &tris, const std::vector<clipper::Coord_orth> &positions,
@@ -21,9 +21,10 @@ void coot::set_lower_left_and_range(const std::vector<occlusion_triangle> &tris,
          if (t.mid_point.z() > tr.z()) tr = clipper::Coord_orth(tr.x(), tr.y(), t.mid_point.z());
       }
       *lower_left_p = ll;
+      std::cout << tr.format() << " " << ll.format() << " " << brick_size << std::endl;
       brick_range[0] = static_cast<int>((tr.x() - ll.x())/brick_size) + 1;
       brick_range[1] = static_cast<int>((tr.y() - ll.y())/brick_size) + 1;
-      brick_range[2] = static_cast<int>((tr.z() - ll.x())/brick_size) + 1;
+      brick_range[2] = static_cast<int>((tr.z() - ll.z())/brick_size) + 1;
    }
 }
 
@@ -44,6 +45,11 @@ void coot::set_lower_left_and_range(const std::vector<augmented_position> &posit
          if (p.y() > tr.y()) tr = clipper::Coord_orth(tr.x(), p.y(), tr.z());
          if (p.z() > tr.z()) tr = clipper::Coord_orth(tr.x(), tr.y(), p.z());
       }
+      *lower_left_p = ll;
+      std::cout << "ll: " << ll.format() << " tr: " << tr.format() << " " << brick_size << std::endl;
+      brick_range[0] = static_cast<int>((tr.x() - ll.x())/brick_size) + 1;
+      brick_range[1] = static_cast<int>((tr.y() - ll.y())/brick_size) + 1;
+      brick_range[2] = static_cast<int>((tr.z() - ll.z())/brick_size) + 1;
    }
 }
 
@@ -58,6 +64,7 @@ void coot::set_occlusions(std::vector<occlusion_triangle> &tris, const std::vect
 
    clipper::Coord_orth lower_left;
    int brick_range[3]; // how many bricks in each dimension
+   brick_range[0] = 0; brick_range[1] = 0; brick_range[2] = 0;
 
    set_lower_left_and_range(tris, positions, brick_size, &lower_left, brick_range);
    std::cout << "brick ranges: " << brick_range[0] << " " << brick_range[1] << " " << brick_range[2] << std::endl;
@@ -79,14 +86,17 @@ void coot::set_occlusions(std::vector<occlusion_triangle> &tris, const std::vect
 
 // set the occlusion factor on the positions - we don't care about triangles
 //
-void coot::set_occlusions(std::vector<augmented_position>  &positions) {
+void coot::set_occlusions(std::vector<augmented_position> &positions) {
 
    // double because we are using lengths of clipper Coord_orths
    double occlusion_limit = 8.8; // only consider triangles that are closer than this distance
-   float brick_size = 10.0;
+   float brick_size = 8.9;
 
    clipper::Coord_orth lower_left;
    int brick_range[3]; // how many bricks in each dimension
+   brick_range[0] = 0; brick_range[1] = 0; brick_range[2] = 0;
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
 
    set_lower_left_and_range(positions, brick_size, &lower_left, brick_range);
    std::cout << "brick ranges: " << brick_range[0] << " " << brick_range[1] << " " << brick_range[2] << std::endl;
@@ -94,9 +104,22 @@ void coot::set_occlusions(std::vector<augmented_position>  &positions) {
    positions_in_bricks.resize(brick_range[0] * brick_range[1] * brick_range[2]);
 
    float inv_brick_size = 1.0/brick_size;
+   auto tp_1 = std::chrono::high_resolution_clock::now();
    fill_the_bricks(positions, brick_size, brick_range, lower_left, &positions_in_bricks);
+   auto tp_2 = std::chrono::high_resolution_clock::now();
    occlusion_of_positions_within_bricks(positions_in_bricks, positions, occlusion_limit);
+   auto tp_3 = std::chrono::high_resolution_clock::now();
    occlusion_of_positions_between_bricks(positions_in_bricks, positions, occlusion_limit, brick_range);
+   auto tp_4 = std::chrono::high_resolution_clock::now();
+
+
+   auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+   auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+   std::cout << "set_bounds " << d10 <<  " fill_the_bricks() " << d21 << " with-bricks " << d32 << " between-bricks " << d43 
+                << " ms" << std::endl;
+
 }
 
 unsigned int
@@ -130,6 +153,7 @@ coot::occlusion_of_positions_between_bricks(const std::vector<std::set<unsigned 
                                             std::vector<augmented_position> &positions,
                                             double occlusion_limit, const int *brick_range_p) {
 
+   unsigned int every_nth = 10;
    int brick_index_max = brick_range_p[0] * brick_range_p[1] * brick_range_p[2];
 
    double occ_lim_sqrd = occlusion_limit * occlusion_limit;
@@ -139,6 +163,7 @@ coot::occlusion_of_positions_between_bricks(const std::vector<std::set<unsigned 
       for (int iz=-1; iz<2; iz++) {
          for (int iy= -1; iy<2; iy++) {
             for (int ix= -1; ix<2; ix++) {
+               if (ix == 0 && iy == 0 && iz == 0) continue;
                int ib_neighb = ib + ix + iy * brick_range_p[0] + iz * brick_range_p[0] * brick_range_p[1];
                if ((ib_neighb >= 0) && (ib_neighb != ib)) {
                   if (ib_neighb < brick_index_max) {
@@ -147,7 +172,11 @@ coot::occlusion_of_positions_between_bricks(const std::vector<std::set<unsigned 
                      const std::set<unsigned int> &brick_neighb = bricks[ib];
                      for (it_base=brick_base.begin(); it_base!=brick_base.end(); it_base++) {
                         const clipper::Coord_orth &pt_1 = positions[*it_base].position;
+                        unsigned int n_count = 0;
                         for (it_neighb=brick_neighb.begin(); it_neighb!=brick_neighb.end(); it_neighb++) {
+                           n_count++;
+                           if (n_count  < every_nth) continue;
+                           if (n_count == every_nth) n_count = 0;
                            const clipper::Coord_orth &pt_2 = positions[*it_neighb].position;
                            clipper::Coord_orth delta_vector(pt_2-pt_1);
                            double dd = delta_vector.lengthsq();
