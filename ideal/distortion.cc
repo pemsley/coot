@@ -721,6 +721,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
    // first extract the object from params
    //
    coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
+   double local_sum = 0.0;
 
    double d = 0;
    for (int i=idx_start; i<idx_end; i++) {
@@ -738,7 +739,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	    if (! this_restraint.is_H_non_bonded_contact || restraints->apply_H_non_bonded_contacts_state()) {
 	       d = coot::distortion_score_non_bonded_contact(this_restraint, restraints->lennard_jones_epsilon, v);
 	       // std::cout << "dsm: nbc  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
-	       *distortion += d;
+	       local_sum += d;
 	       continue;
 	    }
 	 }
@@ -747,7 +748,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       if (restraints->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) {
          if (this_restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    d = coot::distortion_score_geman_mcclure_distance(this_restraint, v, restraints->geman_mcclure_alpha);
-	    *distortion += d;
+	    local_sum += d;
 	    continue;
 	 }
       }
@@ -756,7 +757,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	 if (this_restraint.restraint_type == coot::BOND_RESTRAINT) {
 	    d = coot::distortion_score_bond(this_restraint, v);
 	    // std::cout << "dsm: bond  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
-	    *distortion += d;
+	    local_sum += d;
 	    continue;
 	 }
       }
@@ -765,7 +766,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	 if (this_restraint.restraint_type == coot::ANGLE_RESTRAINT) {
 	    d = coot::distortion_score_angle(this_restraint, v);
 	    // std::cout << "dsm: angle thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
-	    *distortion += d;
+	    local_sum += d;
 	    continue;
 	 }
       }
@@ -773,7 +774,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( this_restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
 	    double d =  coot::distortion_score_trans_peptide(i, this_restraint, v);
-	    *distortion += d;
+	    local_sum += d;
 	    // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
 	 }
@@ -783,7 +784,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	 if (this_restraint.restraint_type == coot::TORSION_RESTRAINT) {
 	    double d =  coot::distortion_score_torsion(i, this_restraint, v);
 	    // std::cout << "dsm: torsion " << thread_id << " idx " << i << " " << d << std::endl;
-	    *distortion += d;
+	    local_sum += d;
 	    continue;
 	 }
       }
@@ -791,7 +792,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       if (restraints->restraints_usage_flag & coot::PLANES_MASK) { // 8: planes
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 	    d =  coot::distortion_score_plane((*restraints)[i], v);
-	    *distortion += d;
+	    local_sum += d;
 	    // std::cout << "dsm: plane " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
 	 }
@@ -800,7 +801,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) { // 128
 	 if (this_restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    d =  coot::distortion_score_parallel_planes(this_restraint, v);
-	    *distortion += d;
+	    local_sum += d;
 	    // std::cout << "dsm: parallel plane thread: " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
 	 }
@@ -809,7 +810,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
             d = coot::distortion_score_chiral_volume(this_restraint, v);
-   	    *distortion += d;
+   	    local_sum += d;
 	    // std::cout << "dsm: chiral " << thread_id << " idx " << i << " " << d << std::endl;
 	    continue;
    	 }
@@ -824,7 +825,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 	    } else {
 	       d = coot::distortion_score_rama(this_restraint, v, restraints->LogRama());
 	    }
-   	    *distortion += d; // positive is bad...  negative is good.
+   	    local_sum += d; // positive is bad...  negative is good.
 	    continue;
    	 }
       }
@@ -832,7 +833,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       if (restraints->restraints_usage_flag & coot::START_POS_RESTRAINT_MASK) {
 	 if (this_restraint.restraint_type == coot::START_POS_RESTRAINT) {
 	    d = coot::distortion_score_start_pos(this_restraint, params, v);
-	    *distortion += d;
+	    local_sum += d;
 	    // std::cout << "dsm: start-pos " << thread_id << " idx " << i << " " << d << std::endl;
 	 }
       }
@@ -843,9 +844,10 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
          d = coot::distortion_score_target_pos(this_restraint,
 					       restraints->log_cosh_target_distance_scale_factor,
 					       v);
-	 *distortion += d;
+	 local_sum += d;
       }
    }
+   *distortion = local_sum;
    done_count_for_threads++; // atomic operation
 }
 #endif // HAVE_CXX_THREAD
