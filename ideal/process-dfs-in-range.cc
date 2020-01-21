@@ -164,6 +164,8 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 
    //x auto tp_1 = std::chrono::high_resolution_clock::now();
 
+   // std::vector<std::chrono::time_point<std::chrono::system_clock> > timings(restraints_p->restraints_indices.size());
+
    std::atomic<unsigned int> done_count_for_threads(0);
    for (std::size_t ii=0; ii<restraints_p->restraints_indices.size(); ii++) {
 
@@ -173,6 +175,10 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 					std::ref(restraints_p->df_by_thread_results[ii]),
 					std::ref(done_count_for_threads)
 					);
+      // we don't store the threads, so this won't work - we need to put the
+      // timing for process_dfs_in_range inside that function, and that fills
+      // a vector class member of type std::vector<std::chrono::time_point<std::chrono::system_clock> > >
+      // timings[ii] = std::chrono::high_resolution_clock::now();
    }
    //x auto tp_2 = std::chrono::high_resolution_clock::now();
 
