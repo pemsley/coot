@@ -1743,7 +1743,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    for (int imodel=imodel_start; imodel<=imodel_end; imodel++) {
 
       if (imodel == 1) {
-         int udd_fixed_during_refinement_handle = -1; // fixme
+         int udd_fixed_during_refinement_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
          atom_selection_missing_loops(SelAtom, udd_atom_index_handle, udd_fixed_during_refinement_handle);
       }
 
@@ -5593,6 +5593,11 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 
    std::cout << "in " << __FUNCTION__ << " with atom_colour_type " << atom_colour_type << std::endl;
    add_atom_centres(asc, atom_colour_type);
+
+   int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
+   atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
+
+
 }
 
 void
