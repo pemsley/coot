@@ -6387,14 +6387,14 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			      char *home = getenv("HOME");
 			      if (home) {
 				 std::string home_directory(home);
-				 std::string preferences_dir =
-				    coot::util::append_dir_dir(home_directory, ".coot-preferences");
-				 std::string preferences_file_name =
-				    coot::util::append_dir_file(preferences_dir, file_name);
+				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+                                 std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
 				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
 				 if (status != 0) {
-				    std::cout << "WARNING:: failed to install " << file_name << std::endl;
+				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
 				 } else {
+                                    std::cout << "debug:: renaming successful" << std::endl;
 				    std::cout << "run_script on " << preferences_file_name << std::endl;
 				    run_script(preferences_file_name.c_str());
 				    // make the hbox insensitive
@@ -6402,7 +6402,9 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 				       gtk_widget_set_sensitive(hbox, FALSE);
 				    }
 				 }
-			      }
+			      } else {
+                                 std::cout << "No HOME env var" << std::endl;
+                              }
 			   } else {
 			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
 			   }
