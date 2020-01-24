@@ -1435,18 +1435,20 @@ coot::side_chain_densities::get_grid_point_distance_from_grid_centre(const unsig
    return l;
 }
 
-// log_likelihood ratio vs the guassian sphere null hypothesis
+// log_likelihood ratio vs the gaussian sphere null hypothesis
 double
 coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_idx,
 						     const density_box_t &block,
 						     const double &step_size,
 						     const double &mean,
-						     const double &variance,
+						     const double &variance_in,
 						     const double &skew) const {
 
    double density_val = block[grid_idx];
    if (density_val > mn_density_block_sample_x_max)
       density_val = mn_density_block_sample_x_max;
+
+   double variance = 0.1;
 
    double var_scale = variance/block.var;
    double sd_scale = sqrt(var_scale);
@@ -1495,12 +1497,11 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
 
    double diff = e_part - e_part_normal;
 
-
    // remove this hideous baddies: Magic number - needs optimizing
    if (diff < mn_log_likelihood_ratio_difference_min)
       diff = mn_log_likelihood_ratio_difference_min;
 
-   if (false) // debug/check the engine
+   if (true) // debug/check the engine
       std::cout << "engine: idx: " << grid_idx
        /*
 		<< " e_part: " << std::setw(10) << e_part

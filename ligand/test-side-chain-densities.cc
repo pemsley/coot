@@ -280,8 +280,8 @@ int main(int argc, char **argv) {
       // generate the stats from the sampled maps.
       std::string a1(argv[1]);
       if (a1 == "combine") {
-	 combine(n_steps);
-	 done = true;
+          combine(n_steps);
+          done = true;
       }
    }
 
@@ -289,10 +289,10 @@ int main(int argc, char **argv) {
       std::string a1(argv[1]);
       // make a file that includes grid_idx x y z
       if (a1 == "generate-useable-grid-points") {
-	 int res_no = coot::util::string_to_int(argv[2]);
-	 std::string grid_points_file_name(argv[3]);
-	 make_useable_grid_points(n_steps, grid_box_radius, res_no, grid_points_file_name);
-	 done = true;
+         int res_no = coot::util::string_to_int(argv[2]);
+         std::string grid_points_file_name(argv[3]);
+         make_useable_grid_points(n_steps, grid_box_radius, res_no, grid_points_file_name);
+         done = true;
       }
    }
 
@@ -311,25 +311,25 @@ int main(int argc, char **argv) {
    if (argc == 7) {
       std::string a1(argv[1]);
       if (a1 == "test-residue") {
-	 // what are the probabilities that this residue is any of the rotamers
-	 // using test.pdb and blurred-test.map
-	 std::string map_file_name(argv[2]);
-	 std::string pdb_file_name(argv[3]);
-	 std::string chain_id(argv[4]);
-	 std::string res_no_str(argv[5]);
-	 std::string grid_points_file_name(argv[6]);
-	 try {
-	    int res_no = coot::util::string_to_int(res_no_str);
-	    test_residue_vs_likelihoods(n_steps, grid_box_radius,
-					grid_points_file_name,
-					map_file_name,
-					pdb_file_name,
-					chain_id, res_no);
-	 }
-	 catch (const std::runtime_error &rte) {
-	    std::cout << "" << rte.what() << std::endl;
-	 }
-	 done = true;
+          // what are the probabilities that this residue is any of the rotamers
+          // using test.pdb and blurred-test.map
+          std::string map_file_name(argv[2]);
+          std::string pdb_file_name(argv[3]);
+          std::string chain_id(argv[4]);
+          std::string res_no_str(argv[5]);
+          std::string grid_points_file_name(argv[6]);
+          try {
+             int res_no = coot::util::string_to_int(res_no_str);
+             test_residue_vs_likelihoods(n_steps, grid_box_radius,
+     				    grid_points_file_name,
+	     			    map_file_name,
+		     		    pdb_file_name,
+			     	    chain_id, res_no);
+          }
+	       catch (const std::runtime_error &rte) {
+	          std::cout << "" << rte.what() << std::endl;
+	       }
+	       done = true;
       }
    }
 
