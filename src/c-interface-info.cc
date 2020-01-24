@@ -2756,6 +2756,9 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    std::string spgr_text_string;
    std::string reso_text_string;
 
+   std::string title = "Properties for Map " + coot::util::int_to_string(imol);
+   gtk_window_set_title(GTK_WINDOW(window), title.c_str());
+
    // 20180924-PE FIXME needs to consider NXmaps
    //
    const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol].xmap;
