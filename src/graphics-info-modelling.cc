@@ -820,21 +820,23 @@ graphics_info_t::debug_refinement() {
    // the refinement and it updated the restraints_container_t's internal flags
    //
 
-   // auto tp_0 = std::chrono::high_resolution_clock::now();
+   bool do_tabulate_geometric_distortions_flag = false;
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env) {
       if (last_restraints) {
-
-         get_restraints_lock(__FUNCTION__);
-         tabulate_geometric_distortions(*last_restraints);
-         release_restraints_lock(__FUNCTION__);
-
+         do_tabulate_geometric_distortions_flag = true;
       }
    }
-   //   auto tp_1 = std::chrono::high_resolution_clock::now();
-   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-   // std::cout << "INFO:: ---------- Timing check DEBUG env " << d10 << " microseconds" << std::endl;
-   // 1-12 us when not used.
+
+   if (do_debug_refinement)
+      do_tabulate_geometric_distortions_flag = true;
+
+
+   if (do_tabulate_geometric_distortions_flag) {
+      get_restraints_lock(__FUNCTION__);
+      tabulate_geometric_distortions(*last_restraints);
+      release_restraints_lock(__FUNCTION__);
+   }
 }
 
 

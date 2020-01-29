@@ -3463,6 +3463,8 @@ int refine_ramachandran_angles_state();
 
 void set_numerical_gradients(int istate);
 
+void set_debug_refinement(int state);
+
 
 /*! \brief correct the sign of chiral volumes before commencing refinement?
    

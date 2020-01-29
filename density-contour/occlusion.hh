@@ -20,6 +20,10 @@ namespace coot {
             clipper::Coord_orth position;
             clipper::Coord_orth normal; // normalized normal
             float occlusion_factor;
+            augmented_position(const clipper::Coord_orth &p, const clipper::Coord_orth &n) : position(p), normal(n) {
+              occlusion_factor = 0.0;
+            }
+            augmented_position() {}
          };
 
         // this presumes that the surface area and the normal have been calculated/set for the triangles

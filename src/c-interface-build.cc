@@ -1048,6 +1048,9 @@ void set_numerical_gradients(int istate) {
    graphics_info_t::do_numerical_gradients = istate;
 } 
 
+void set_debug_refinement(int state) {
+   graphics_info_t::do_debug_refinement = state;
+}
 
 
 int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val) {
