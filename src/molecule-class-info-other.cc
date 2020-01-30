@@ -2331,11 +2331,15 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
 				      &g.molecules[imol_map].xmap); // use a pointer for the map
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
+                     std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
 		     score = m.second;
 		     status = 1;
 		     atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
 		     bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
 		     replace_coords(fragment_asc, 0, mzo);
+                     std::cout << "Debug:: waters for deletion size " << baddie_waters.size() << std::endl;
+                     if (baddie_waters.size())
+                        delete_atoms(baddie_waters);
 		  }
 		  catch (const std::runtime_error &rte) {
 		     std::cout << "WARNING:: thrown " << rte.what() << std::endl;
