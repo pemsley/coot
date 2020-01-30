@@ -1158,7 +1158,7 @@ void hydrogenate_region(float radius) {
 #ifdef USE_GUILE
 	    // write a PDB file and run reduce, read it in
 	    //
-	    std::string scheme_command = "(reduce-on-pdb-file ";
+	    std::string scheme_command = "(reduce-on-pdb-file-no-flip ";
 	    scheme_command += coot::util::int_to_string(imol);
 	    scheme_command += " ";
 	    scheme_command += single_quote(pdb_in);
