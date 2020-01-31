@@ -388,7 +388,7 @@ class molecule_class_info_t {
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 240.0 default colour_map_rotation
 
-   float get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag) const;
+   std::pair<float, std::vector<mmdb::Atom *> > get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag, int water_interaction_modeb) const;
    std::pair<double, clipper::Coord_orth> get_minimol_pos(const coot::minimol::molecule &a_rotamer) const; 
 
    // backup is done in the wrappers.  (This factorization needed for

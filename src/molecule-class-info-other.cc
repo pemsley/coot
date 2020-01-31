@@ -2016,14 +2016,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
    float clash_score_limit = 20.0; // Rotamers must have a clash score
 				   // less than this (if clashes are
 				   // tested).
-   
 
    mmdb::Residue *res = get_residue(std::string(chain_id), resno, std::string(insertion_code));
 
    if (res) {
-      if (0) { 
-	 std::cout << " ==== fitting residue " << res->GetSeqNum() << res->GetInsCode()
-		   << " of chain " << chain_id;
+      if (false) {
+	 std::cout << " ==== fitting residue " << res->GetSeqNum() << res->GetInsCode() << " of chain " << chain_id;
 	 if (have_map_flag)
 	    std::cout << " to map number " << imol_map << " ======" << std::endl;
 	 else
@@ -2033,50 +2031,46 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
       if (coot::util::residue_has_hydrogens_p(res))
 	 clash_score_limit = 500; // be more generous... lots of hydrogen contacts
       
-      // std::cout << "DEBUG:: found residue" << std::endl;
       std::string res_type(res->name);
-      mmdb::Residue *copied_res = coot::deep_copy_this_residue(res, altloc, 0,
-							  atom_sel.UDDAtomIndexHandle);
+      mmdb::Residue *copied_res = coot::deep_copy_this_residue(res, altloc, 0, atom_sel.UDDAtomIndexHandle);
 
       if (!copied_res) {
 	 std::cout << "WARNING:: residue copied - no atoms" << std::endl;
-      } else { 
-#ifdef USE_DUNBRACK_ROTAMERS			
-	 coot::dunbrack d(copied_res, atom_sel.mol, lowest_prob, 0);
-#else			
+      } else {
 	 coot::richardson_rotamer d(copied_res, altloc, atom_sel.mol, lowest_prob, 0);
-#endif // USE_DUNBRACK_ROTAMERS
-
 	 std::vector<float> probabilities = d.probabilities();
-	 //       std::cout << "debug afbr probabilities.size() " << probabilities.size()
-	 // 		<< " " << have_map_flag << std::endl;
 	 if (probabilities.size() == 0) {
 	    std::cout << "WARNING:: no rotamers probabilities for residue type "
 		      << res_type << std::endl;
-	 } else { 
+	 } else {
 	    mmdb::Residue *rotamer_res;
 	    double best_score = -99.9;
+            std::vector<mmdb::Atom *> clashing_waters_for_best_score;
 	    coot::minimol::molecule best_rotamer_mol;
 
 	    std::string monomer_type = res->GetResName();
 	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
 	       pg.get_monomer_restraints(monomer_type, imol_no);
 
-	    if (p.first) { 
+            std::pair<float, std::vector<mmdb::Atom *> > cs;
+            std::vector<mmdb::Atom *> clashing_waters;
+
+	    if (p.first) {
 	       coot::dictionary_residue_restraints_t rest = p.second;
-	    
-	       if (have_map_flag) { 
+
+	       if (have_map_flag) {
+
 		  for (unsigned int i=0; i<probabilities.size(); i++) {
-		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
+		     std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 		     rotamer_res = d.GetResidue(rest, i); // does a deep copy, needs deleting
 
 		     // first make a minimol molecule for the residue so that we
 		     // can install it into lig.
 		     //
-		     coot::minimol::residue  residue_res(rotamer_res);
+		     coot::minimol::residue residue_res(rotamer_res);
 		     coot::minimol::molecule residue_mol;
 		     coot::minimol::fragment frag;
-		     
+
 		     int ifrag = residue_mol.fragment_for_chain(chain_id);
 		     try { 
 			residue_mol[ifrag].addresidue(residue_res, 0);
@@ -2084,7 +2078,6 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			// now do "ligand" fitting setup and run:
 			coot::ligand lig;
 			lig.import_map_from(graphics_info_t::molecules[imol_map].xmap);
-			// short int mask_water_flag = 0;
 			lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
                                  			       // have to be fitted into
 			                                       // positive density, otherwise
@@ -2105,21 +2098,23 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			coot::minimol::molecule moved_mol  = lig.get_solution(isol, iclust);
 
 			float clash_score = 0.0;
-			// std::cout << "debug INFO:: density score: " << score_card.score << "\n";
 			if (clash_flag) {
 			   bool score_H_atoms = false;
-			   clash_score = get_clash_score(moved_mol, score_H_atoms); // clash on atom_sel.mol
-			   // std::cout << "INFO:: clash score: " << clash_score << "\n";
+                           bool water_interaction_mode = 0; // ignore waters in scoring, return close waters for deletion
+                           cs = get_clash_score(moved_mol, score_H_atoms, water_interaction_mode); // clash on atom_sel.mol
+			   clash_score = cs.first;
 			}
-			if (clash_score < clash_score_limit) { // This value may
-			   // need to be
-			   // exported to the
-			   // user interface
+			if (clash_score < clash_score_limit) { // This value may need to be exported
+                                                               // to the user interface.
 			   if (score_card.get_score() > best_score) {
 			      best_score = score_card.get_score();
 			      // 20081120 best_rotamer_mol loses the insertion
 			      // code for the residue.  Must fix.
 			      best_rotamer_mol = moved_mol;
+                              clashing_waters_for_best_score = cs.second;
+                              std::cout << "......... debug score " << best_score
+                                        << " clashing_waters_for_best_score size is "
+                                        << clashing_waters_for_best_score.size() << std::endl;
 			   }
 			}
 		     }
@@ -2136,12 +2131,14 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     
 		  }
 	       } else {
-		  // we don't have a map, like KD suggests:
+
+		  // --- we don't have a map --- like KD suggests:
+
 		  float clash_score;
 		  best_score = -99.9; // clash score are better when lower,
-		  // but we should stay consistent with
-		  // the map based scoring which is the
-		  // other way round.
+                                      // but we should stay consistent with
+                                      // the map based scoring which is the
+                                      // other way round.
 		  for (unsigned int i=0; i<probabilities.size(); i++) {
 		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 		     // std::cout << "Getting rotamered residue... " << std::endl;
@@ -2150,20 +2147,24 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     coot::minimol::residue  residue_res(rotamer_res);
 		     coot::minimol::molecule residue_mol;
 		     int ifrag = residue_mol.fragment_for_chain(chain_id);
-		     try { 
+		     try {
 			residue_mol[ifrag].addresidue(residue_res, 0);
 		     }
 		     catch (const std::runtime_error &rte) {
 			std::cout << "ERROR:: auto_fit_best_rotamer() 2 " << rte.what() << std::endl;
-		     } 
+		     }
 		     coot::minimol::molecule moved_mol = residue_mol;
 		     // std::cout << "Getting clash score... " << std::endl;
 		     bool score_H_atoms = false;
-		     clash_score = -get_clash_score(moved_mol, score_H_atoms); // clash on atom_sel.mol
+                     int water_interaction_mode = 1; // 2019 default - include waters in clash score
+                     water_interaction_mode = 0; // don't clash waters
+		     cs = get_clash_score(moved_mol, score_H_atoms, water_interaction_mode); // clash on atom_sel.mol
+		     clash_score = -cs.first;
 		     // std::cout << "INFO:: clash score: " << clash_score << "\n";
 		     if (clash_score > best_score) {
 			best_score = clash_score;
 			best_rotamer_mol = moved_mol;
+                        clashing_waters_for_best_score = cs.second;
 		     }
 		     if (rotamer_res) {
 			// implicitly delete rotamer_res too
@@ -2182,11 +2183,17 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	       // replace_coords method:
 	       //
 	       mmdb::PManager mol = best_rotamer_mol.pcmmdbmanager();
-	       // mol->WritePDBASCII("moving-atoms.pdb");
 	       atom_selection_container_t asc = make_asc(mol);
-	       bool move_zero_occ = 1;
+	       bool move_zero_occ = true;
 	       replace_coords(asc, 1, move_zero_occ); // fix other alt conf occ
 	       f = best_score;
+               std::vector<coot::atom_spec_t> baddie_waters;
+               if (clashing_waters_for_best_score.size() > 0) {
+                  for (unsigned int ii=0; ii<clashing_waters_for_best_score.size(); ii++) {
+                     baddie_waters.push_back(clashing_waters_for_best_score[ii]);
+                  }
+                  delete_atoms(baddie_waters);
+	       }
 	    }
 
 	    // ALAs and GLY's get to here without entering the loops
@@ -2268,8 +2275,10 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 		     frag.addresidue(residue_res, 0);
 		     coot::minimol::molecule mm(frag);
 		     bool score_H_atoms = false;
-		     float cs = get_clash_score(mm, score_H_atoms);
-		     clash_score = cs;
+                     int water_interaction_mode = 1; // 2019 default
+                     water_interaction_mode = 0; // don't clash waters
+		     std::pair<float, std::vector<mmdb::Atom *> > cs = get_clash_score(mm, score_H_atoms, water_interaction_mode);
+		     clash_score = cs.first;
 		  }
 		  
 		  std::vector<std::pair<std::string, float> > atom_densities =
@@ -3492,10 +3501,12 @@ molecule_class_info_t::N_chis(int atom_index) {
 // score of around 1000.  A single 2.0A crash will have a score of 16.7 and a 1.0A crash
 // 66.7.
 // 
-float
-molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag) const {
+std::pair<float, std::vector<mmdb::Atom *> >
+molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag,
+                                       int water_interaction_mode) const {
 
    float score = 0;
+   std::vector<mmdb::Atom *> clashing_waters;
    float dist_crit = 2.7;
 
    // First, where is the middle of the rotamer residue atoms and what
@@ -3522,12 +3533,27 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer,
       double d_atom;
       float badness;
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	 clipper::Coord_orth atom_sel_atom(atom_sel.atom_selection[i]->x,
-					   atom_sel.atom_selection[i]->y,
-					   atom_sel.atom_selection[i]->z);
+         mmdb::Atom *at = atom_sel.atom_selection[i];
+	 clipper::Coord_orth atom_sel_atom_pos = coot::co(atom_sel.atom_selection[i]);
 	 std::string res_name(atom_sel.atom_selection[i]->residue->GetResName());
-	 if (res_name != "HOH") { 
-	    d = clipper::Coord_orth::length(atom_sel_atom, mean_residue_pos);
+         // either ignore waters or accumulate them for deletion if too close
+	 if (res_name == "HOH") {
+            if (water_interaction_mode == 0) {
+	       for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
+		  for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
+		     for (auto it=a_rotamer[ifrag][ires].atoms.begin(); it != a_rotamer[ifrag][ires].atoms.end(); it++) {
+			if (score_hydrogen_atoms_flag || it->element != " H") {
+			   double dd = (it->pos - atom_sel_atom_pos).lengthsq();
+                           if (dd < 2.6 * 2.6) {
+                              clashing_waters.push_back(at);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         } else {
+	    d = clipper::Coord_orth::length(atom_sel_atom_pos, mean_residue_pos);
 	    if (d < (max_dev_residue_pos + dist_crit)) {
 	       for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
 		  for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
@@ -3537,7 +3563,7 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer,
 			is_standard_aa = true;
 		     for (unsigned int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 			if (score_hydrogen_atoms_flag || a_rotamer[ifrag][ires][iat].element != " H") {
-			   d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
+			   d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom_pos);
 			   if (d_atom < dist_crit) {
 			      int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
 			      std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
@@ -3568,7 +3594,8 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	 }
       }
    }
-   return score;
+   std::pair<float, std::vector<mmdb::Atom *> > p(score, clashing_waters);
+   return p;
 } 
 
 
