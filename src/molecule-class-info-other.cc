@@ -2061,7 +2061,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	       if (have_map_flag) {
 
 		  for (unsigned int i=0; i<probabilities.size(); i++) {
-		     std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
+		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 		     rotamer_res = d.GetResidue(rest, i); // does a deep copy, needs deleting
 
 		     // first make a minimol molecule for the residue so that we
@@ -2112,9 +2112,6 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			      // code for the residue.  Must fix.
 			      best_rotamer_mol = moved_mol;
                               clashing_waters_for_best_score = cs.second;
-                              std::cout << "......... debug score " << best_score
-                                        << " clashing_waters_for_best_score size is "
-                                        << clashing_waters_for_best_score.size() << std::endl;
 			   }
 			}
 		     }

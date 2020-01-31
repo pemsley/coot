@@ -1134,7 +1134,7 @@ void hydrogenate_region(float radius) {
 	 if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
 
-	    std::string python_command = "reduce_on_pdb_file(";
+	    std::string python_command = "reduce_on_pdb_file_no_flip(";
 	    python_command += coot::util::int_to_string(imol);
 	    python_command += ", ";
 	    python_command += single_quote(pdb_in);

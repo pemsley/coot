@@ -123,7 +123,7 @@
 
 ;; return status.
 ;; 
-(define (reduce-on-pdb-file-generic imol flip-or-no-build pdb-in pdb-out)
+(define (reduce-on-pdb-file-generic imol no-flip-or-build pdb-in pdb-out)
 
   (format #t "running reduce on ~s~%" pdb-in)
   (if (not (command-in-path-or-absolute? *reduce-command*))
@@ -155,7 +155,7 @@
 			      (format #t "puting env ~s~%" env-string)
 			      (putenv env-string))))))))
 
-	  (if (eq? flip-or-no-build 'no-flip)
+	  (if (eq? no-flip-or-build 'no-flip)
 	      (set! mode "-NOFLIP"))
 
 	  (format #t "======= reduce-on-pdb-file: command ~s args ~s with pdb-out: ~s~%"
