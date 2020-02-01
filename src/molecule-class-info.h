@@ -1767,6 +1767,8 @@ public:        //                      public
 
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
 
+   int delete_waters(); // return status of atoms deleted (0 -> none deleted).
+
    int delete_chain(const std::string &chain_id);
 
    int delete_sidechains_for_chain(const std::string &chain_id);

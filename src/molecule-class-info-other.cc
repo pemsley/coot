@@ -1922,7 +1922,7 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
 	    delete atoms_to_be_deleted[iat];
 	    atoms_to_be_deleted[iat] = NULL;
 	 }
-	 
+
 	 atom_sel.mol->FinishStructEdit();
 	 atom_sel = make_asc(atom_sel.mol);
 	 make_bonds_type_checked();
@@ -1933,6 +1933,49 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
       } 
    } 
    return atoms_to_be_deleted.size();
+}
+
+int
+molecule_class_info_t::delete_waters() {
+
+   std::vector<mmdb::Atom *> waters_to_be_deleted;
+  for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         mmdb::Residue *residue_p;
+         mmdb::Atom *at;
+         for (int ires=0; ires<nres; ires++) {
+            residue_p = chain_p->GetResidue(ires);
+            std::string res_name(residue_p->GetResName());
+            if (res_name == "HOH") {
+	       mmdb::PPAtom residue_atoms = 0;
+	       int n_residue_atoms;
+	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  at = residue_atoms[iat];
+                  waters_to_be_deleted.push_back(at);
+               }
+            }
+         }
+      }
+   }
+   for (unsigned int iat=0; iat<waters_to_be_deleted.size(); iat++) {
+      delete waters_to_be_deleted[iat];
+      waters_to_be_deleted[iat] = NULL;
+   }
+
+   if (waters_to_be_deleted.size() > 0) { 
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+   return waters_to_be_deleted.size();
 }
 
 
