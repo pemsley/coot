@@ -147,6 +147,8 @@ struct option
 
 #ifdef NEED_GETOPT_THROW_HACK
 #define HACK_THROW_ throw()
+#else
+#define HACK_THROW_
 #endif
 extern int getopt (int __argc, char *const *__argv, const char *__shortopts) HACK_THROW_;
 
