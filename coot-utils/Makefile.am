@@ -1,19 +1,19 @@
 # coot-utils/Makefile.am
-# 
+#
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
 # Copyright 2014 by Medical Research Council
 # Author: Paul Emsley
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -65,11 +65,11 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
-	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc
+	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc
 
 
-#    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
-#    $(top_builddir)/utils/libcoot-utils.la 
+#    $(top_builddir)/mini-mol/libcoot-mini-mol.la
+#    $(top_builddir)/utils/libcoot-utils.la
 #    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 libcoot_coord_utils_la_LIBADD = \
@@ -118,7 +118,7 @@ libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc segmap.cc
 
-#   $(top_builddir)/utils/libcoot-utils.la 
+#   $(top_builddir)/utils/libcoot-utils.la
 
 # and mini-mol (just one).
 libcoot_map_heavy_la_LIBADD = \
@@ -141,8 +141,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-coot-utils test-hole test-ela
 # test_agg_clust_LDADD =     $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
 
 
-#	$(top_builddir)/geometry/libcoot-geometry.la 
-#        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+#	$(top_builddir)/geometry/libcoot-geometry.la
+#        $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 
@@ -151,7 +151,7 @@ test_coot_probe_LDADD =          \
 	./libcoot-coord-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
-testshelxreader_LDADD =  ./libcoot-coord-utils.la 
+testshelxreader_LDADD =  ./libcoot-coord-utils.la
 
 test_emma_SOURCES = test-emma.cc
 test_emma_LDADD =  libcoot-map-utils.la \
