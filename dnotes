@@ -9262,3 +9262,11 @@ Fri 24 Jan 2020 16:10:04 ICT
         Also wrong glycerols
 
 
+---
+Sun  2 Feb 05:53:57 GMT 2020
+
+   mmdb bug I think: If you set the residue name to 2 chars, then
+   in the pdb file the 2 chars are in the wrong columns (right
+   justified - should be left).
+
+

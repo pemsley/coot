@@ -1156,6 +1156,15 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 				const char *sigf_col, 
 				int imol_coords);
 
+/*! \brief Calculate structure factors from the model and update the given difference
+           map accordingly */
+void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
+
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but difference map gets updated automatically on modification of 
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
+
 gdouble* get_map_colour(int imol);
 
 #ifdef __cplusplus

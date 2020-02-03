@@ -560,10 +560,11 @@ class molecule_class_info_t {
    // uncommenting the following line causes a crash in the multi-molecule
    // (expand molecule space) test.
    bool original_fphis_filled;
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
    bool original_fobs_sigfobs_filled;
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >  original_fphis;
    clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
-   void fill_fobs_sigfobs();
+   clipper::HKL_data< clipper::data32::Flag> original_r_free_flags;
+
 
    // is the CCP4 map a EM map? (this is so that we can fill the
    // NXmap, not the xmap)
@@ -1503,7 +1504,12 @@ public:        //                      public
 					const std::string &sigf_col,
 					atom_selection_container_t SelAtom,
 					short int is_2fofc_type);
-
+   // use this molecules mol and the passed data to make a map for some other
+   // molecule
+   int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                     clipper::Xmap<float> *xmap_p);
+   void fill_fobs_sigfobs();
 
    void update_map_in_display_control_widget() const;
    void new_coords_mol_in_display_control_widget() const;  // for a new molecule.
@@ -1639,6 +1645,22 @@ public:        //                      public
    int append_to_molecule(const coot::minimol::molecule &water_mol);
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;
+
+   const clipper::HKL_data<clipper::data32::F_sigF> &get_original_fobs_sigfobs() {
+      if (!original_fobs_sigfobs_filled) {
+         std::string m("Original Fobs/sigFobs is not filled");
+         throw(std::runtime_error(m));
+      }
+      return original_fobs_sigfobs;
+   }
+
+      const clipper::HKL_data<clipper::data32::Flag> &get_original_rfree_flags() {
+      if (!original_fobs_sigfobs_filled) {
+         std::string m("Original Fobs/sigFobs is not filled - so no RFree flags");
+         throw(std::runtime_error(m));
+      }
+      return original_r_free_flags;
+   }
 
 
    // for the "Render As: " menu items:
