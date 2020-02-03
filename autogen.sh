@@ -33,10 +33,11 @@ else
        fi
     done
 
-    if [ $sys = MINGW32_NT-5.1 ] || [ $sys = MINGW32_NT-6.1 ] ; then
+    case "$sys" in
+    MINGW32_NT-* )
 	echo We have WIN
-	aclocal_extras="-I /usr/local/share/aclocal -I /mingw/share/aclocal"
-	fi
+	aclocal_extras="-I /usr/local/share/aclocal -I /mingw/share/aclocal";;
+    esac
     echo aclocal -I macros $aclocal_extras
     aclocal -I macros $aclocal_extras
 fi
