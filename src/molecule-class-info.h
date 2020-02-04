@@ -2008,8 +2008,9 @@ public:        //                      public
    int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
    int Have_unsaved_changes_p() const;
-   short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
-   short int Have_redoable_modifications_p() const ;
+   bool Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
+   bool Have_redoable_modifications_p() const ;
+   int get_history_index() const;
    void turn_off_backup() { backup_this_molecule = 0; }
    void turn_on_backup()  { backup_this_molecule = 1; }
    int apply_undo(const std::string &cwd);

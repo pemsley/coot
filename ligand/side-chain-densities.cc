@@ -1448,7 +1448,8 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    if (density_val > mn_density_block_sample_x_max)
       density_val = mn_density_block_sample_x_max;
 
-   double variance = 0.1;
+   double variance = variance_in; // test/hack
+   variance = 0.11; // observed variances are not useful.
 
    double var_scale = variance/block.var;
    double sd_scale = sqrt(var_scale);
@@ -1456,12 +1457,12 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
 
    if (false) {
       std::cout << "debug:: variance " << variance << " block.var " << block.var
-		<< " sd_scale " << sd_scale << std::endl;
+                << " sd_scale " << sd_scale << std::endl;
       std::cout << "debug:: scaling density_val " << density_val << " with " << sd_scale
-		<< " and mean offset " << mean_offset << std::endl;
+                << " and mean offset " << mean_offset << std::endl;
    }
    // double x = density_val * sd_scale - mean_offset;
-   double x = density_val * 1.0;
+   double x = density_val * 1.0; // weird scaling makes LLR better.
 
    double z = x - mean;
    double c_part = log(sqrt(1.0/(2.0 * M_PI * variance)));
@@ -1485,34 +1486,37 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
 
    if (false) {
       std::cout << "get_log_likelihood_ratio() x " << x
-		<< " grid-idx " << grid_idx << " nz " << z/sqrt(variance) << std::endl;
+                << " grid-idx " << grid_idx << " nz " << z/sqrt(variance) << std::endl;
       std::cout << "in get_log_likelihood_ratio() null-hyp scale sigma " << null_hypothesis_scale
-		<< " " << null_hypothesis_sigma << std::endl;
+                << " " << null_hypothesis_sigma << std::endl;
       std::cout << "in get_log_likelihood_ratio() d " << d << std::endl;
       std::cout << "in get_log_likelihood_ratio() A " << e_part << " " << e_part_normal << std::endl;
       std::cout << "in get_log_likelihood_ratio() B " << z_null << " " << x0_fake_density << std::endl;
       std::cout << "in get_log_likelihood_ratio() C " << c_part_null_normal << " " << e_part_null_normal
-		<< std::endl;
+                << std::endl;
    }
 
    double diff = e_part - e_part_normal;
 
    // remove this hideous baddies: Magic number - needs optimizing
+   double mn_log_likelihood_ratio_difference_max = 18.0;
    if (diff < mn_log_likelihood_ratio_difference_min)
       diff = mn_log_likelihood_ratio_difference_min;
+   if (diff > mn_log_likelihood_ratio_difference_max)
+      diff = mn_log_likelihood_ratio_difference_max;
 
    if (true) // debug/check the engine
-      std::cout << "engine: idx: " << grid_idx
        /*
 		<< " e_part: " << std::setw(10) << e_part
 		<< " e_part_normal: " << std::setw(8) << e_part_normal
       */
-		<< " with density_val " << density_val
-		<< " z " << z
-		<< " x0_fake_density " << std::setw(8) << x0_fake_density
-		<< " mean " << std::setw(5) << mean << " sigma " << sqrt(variance)
-		<< " return " << std::fixed << std::right << std::setprecision(6) << diff
-		<< "\n";
+      std::cout << "engine: idx: " << grid_idx
+                << " with density_val " << std::setw(8) << std::right << std::setprecision(5) << density_val
+                << " dv-mean " << std::right << std::setw(8) << std::setprecision(5) << z
+                << " x0_fake_density " << std::setw(8) << x0_fake_density
+                << " mean " << std::setw(5) << mean << " sigma " << sqrt(variance)
+                << " return " << std::fixed << std::right << std::setprecision(6) << diff
+                << "\n";
 
    return diff;
 }
@@ -1600,7 +1604,7 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 
    std::map<std::string, std::map<unsigned int, std::tuple<double, double, double> > >::const_iterator it = rotamer_dir_grid_stats_map_cache.find(rotamer_dir);
 
-   // std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
+   std::cout << "------- calling get_log_likelihood_ratio() for rotamer_dir " << rotamer_dir << std::endl;
 
    if (it != rotamer_dir_grid_stats_map_cache.end()) {
       success = true;
@@ -1627,8 +1631,8 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
       std::string glob_pattern = "stats.table";
       std::vector<std::string> tables = coot::util::glob_files(rotamer_dir, glob_pattern);
       if (tables.size() == 1) {
-	 std::map<unsigned int, std::tuple<double, double, double> > stats_map;
-	 std::string stats_table_file_name = tables[0];
+         std::map<unsigned int, std::tuple<double, double, double> > stats_map;
+         std::string stats_table_file_name = tables[0];
 
 	 // std::cout << "stats_table_file_name: " << stats_table_file_name << std::endl;
 	 std::ifstream f(stats_table_file_name.c_str());
@@ -1644,7 +1648,7 @@ coot::side_chain_densities::compare_block_vs_rotamer(density_box_t block,
 		  double skew = util::string_to_double(words[3]);
 		  if (false)
 		     std::cout << "debug:: compare_block_vs_rotamer() B var " << var << " block.var " << block.var
-			       << std::endl;
+		               << std::endl;
 		  if (var < 0.0) std::cout << "ERROR:: negative variance " << var << std::endl;
 		  // double ll = get_log_likelihood(grid_idx, block, mean, var, skew);
 		  double llr = get_log_likelihood_ratio(grid_idx, block, step_size, mean, var, skew);

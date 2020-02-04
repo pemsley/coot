@@ -1593,8 +1593,8 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
    make_backup();
    // temporarily turn off backups when we delete this range:
    // 
-   int tmp_backup_this_molecule = backup_this_molecule;
-   backup_this_molecule = 0;
+   bool tmp_backup_this_molecule = backup_this_molecule;
+   backup_this_molecule = false;
 
    std::cout << "DEBUG:: in delete_zone() we have model numbers "
 	     << res1.model_number << " and "
@@ -3480,10 +3480,10 @@ molecule_class_info_t::get_phi_psi(int atom_index) const {
 
 // short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
 
-short int
+bool
 molecule_class_info_t::Have_redoable_modifications_p() const {
 
-   short int r = 0;
+   bool r = false;
 //     std::cout << "DEBUG:: redoable? history_index: " << history_index
 //  	     << " max_history_index: "
 //  	     << max_history_index << " " << name_ << std::endl;
@@ -3496,10 +3496,16 @@ molecule_class_info_t::Have_redoable_modifications_p() const {
 	 r = 1;
       }
    } else {
-      r = 0;
+      r = false;
    }
    return r; 
-} 
+}
+
+int
+molecule_class_info_t::get_history_index() const {
+
+   return history_index;
+}
 
 // Do not be mislead this is only a flag, *not* the number of chi
 // angles for this residue

@@ -279,8 +279,8 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 
       // Don't backup each mutation, insertion etc - just do it before
       // and after.
-      short int save_backup_state = backup_this_molecule;
-      backup_this_molecule = 0;
+      bool save_backup_state = backup_this_molecule;
+      backup_this_molecule = false;
 
 //       std::cout << "mutate chain " << mutation_info.insertions.size()
 // 		<< " insertions" << std::endl;

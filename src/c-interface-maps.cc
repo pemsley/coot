@@ -2528,4 +2528,15 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
    // imol_model (the backup number?) and if it is different to (more than) current,
    // then update the difference map - I like this plan more.
 
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         if (is_valid_map_molecule(imol_updating_difference_map)) {
+            if (map_is_difference_map(imol_updating_difference_map)) {
+              // this is the wrong function, it's just a placeholder
+              GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_model].watch_coordinates_file);
+              g_timeout_add(1000, f, 0);
+            }
+         }
+      }
+   }
 }
