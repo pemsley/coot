@@ -7095,25 +7095,25 @@ bool
 molecule_class_info_t::has_display_list_objects() {
 
    bool r = 0;
-   if (draw_it) { 
+   if (draw_it) {
       if (display_list_tags.size() > 0) {
-	 r = 1;
+         r = 1;
       }
    }
    return r;
 }
 
 
-int 
+int
 molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
    //    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size()
    // << std::endl;
    //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
 
-   GLfloat  ambientLight[] = { 0.1f, 0.1f, 0.1f, 0.f };
-   GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
-   GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
+   GLfloat  ambientLight[] = { 0.01f, 0.01f, 0.01f, 0.f };
+   GLfloat  diffuseLight[] = { 0.04f, 0.04f, 0.04f, 0.f };
+   GLfloat specularLight[] = { 0.04f, 0.04f, 0.04f, 0.f };
 
    // set light0 here too? // FIXME-lighting
 
