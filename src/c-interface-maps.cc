@@ -2333,28 +2333,28 @@ void multi_sharpen_blur_map_scm(int imol_map, SCM b_factors_list_scm) {
       }
 
       try {
-	 graphics_info_t g;
-	 const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
-	 std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
-	 coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
-	 float contour_level = g.molecules[imol_map].get_contour_level();
-	 for (std::size_t i=0; i<b_factors.size(); i++) {
-	    const clipper::Xmap<float> &xmap_new = xmaps[i];
-	    float b_factor = b_factors[i];
-	    int imol_new = graphics_info_t::create_molecule();
-	    std::string map_name = "Map";
-	    if (b_factor < 0)
-	       map_name += " Sharpen ";
-	    else
-	       map_name += " Blur ";
-	    map_name += coot::util::float_to_string(b_factor);
-	    bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
-	    g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
-	    graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
-	 }
+         graphics_info_t g;
+         const clipper::Xmap<float> &xmap_orig = g.molecules[imol_map].xmap;
+         std::vector<clipper::Xmap<float> > xmaps(b_factors.size());
+         coot::util::multi_sharpen_blur_map(xmap_orig, b_factors, &xmaps);
+         float contour_level = g.molecules[imol_map].get_contour_level();
+         for (std::size_t i=0; i<b_factors.size(); i++) {
+            const clipper::Xmap<float> &xmap_new = xmaps[i];
+            float b_factor = b_factors[i];
+            int imol_new = graphics_info_t::create_molecule();
+            std::string map_name = "Map";
+            if (b_factor < 0)
+               map_name += " Sharpen ";
+            else
+               map_name += " Blur ";
+            map_name += coot::util::float_to_string(b_factor);
+            bool is_em_map_flag = graphics_info_t::molecules[imol_map].is_EM_map();
+            g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_map_flag);
+            graphics_info_t::molecules[imol_new].set_contour_level(contour_level*exp(-0.02*b_factor));
+         }
       }
       catch (const std::runtime_error &rte) {
-	 std::cout << "ERROR:: " << rte.what() << std::endl;
+         std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
 
@@ -2483,31 +2483,9 @@ PyObject *amplitude_vs_resolution_py(int imol_map) {
            map accordingly */
 void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map) {
 
-   // I am keen for this function to be fast - so that it can be used with cryo-EM structures
-   //
-   if (is_valid_model_molecule(imol_model)) {
-      if (is_valid_map_molecule(imol_map_with_data_attached)) {
-         if (is_valid_map_molecule(imol_updating_difference_map)) {
-            if (map_is_difference_map(imol_updating_difference_map)) {
-               graphics_info_t g;
-               clipper::Xmap<float> *xmap_p = &g.molecules[imol_updating_difference_map].xmap;
-               try {
-                  g.molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
-                  const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
-                  g.molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
-                  const clipper::HKL_data<clipper::data32::Flag> &free_flag =
-                  g.molecules[imol_map_with_data_attached] .get_original_rfree_flags();
-                  g.molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
-                  g.molecules[imol_updating_difference_map].update_map();
-                  graphics_draw();
-               }
-               catch (const std::runtime_error &rte) {
-                  std::cout << rte.what() << std::endl;
-               }
-            }
-         }
-      }
-   }
+   graphics_info_t g;
+   g.sfcalc_genmap(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
+
 }
 
 /*! \brief As above, calculate structure factors from the model and update the given difference
@@ -2517,7 +2495,7 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
                                      int imol_map_with_data_attached,
                                      int imol_updating_difference_map) {
 
-   std::cout << "This doesn't work yet\n";
+   std::cout << "Testing set_auto_updating_sfcalc_genmap()\n";
 
    // we need a notification that imol_model has been modified. Hmm.
    // Maybe the way to do that is that make_bonds type checked looks to see
@@ -2532,9 +2510,18 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
       if (is_valid_map_molecule(imol_map_with_data_attached)) {
          if (is_valid_map_molecule(imol_updating_difference_map)) {
             if (map_is_difference_map(imol_updating_difference_map)) {
-              // this is the wrong function, it's just a placeholder
-              GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_model].watch_coordinates_file);
-              g_timeout_add(1000, f, 0);
+
+               std::cout << "--------------- setting up callback!\n";
+               // this is the wrong function, it's just a placeholder,
+               // return an int, take a gpointer.  If it's in molecule_class_info_t
+               // that needs to be a static function.
+               std::cout << "DEBUG:: making a uump " << imol_model
+                         << " " << imol_map_with_data_attached << " " << imol_updating_difference_map
+                         << std::endl;
+               updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
+               updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
+               GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
+               g_timeout_add(1000, f, u);
             }
          }
       }

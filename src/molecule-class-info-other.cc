@@ -4936,8 +4936,6 @@ molecule_class_info_t::filter_atom_selection_container_CA_sidechain_only(atom_se
    return ret_asc;
 }
 
-
-
 std::vector<std::string>
 molecule_class_info_t::get_residue_alt_confs(mmdb::Residue *res) const {
 
@@ -5359,6 +5357,7 @@ std::pair<int, std::vector<merge_molecule_results_info_t> >
 molecule_class_info_t::merge_molecules(const std::vector<atom_selection_container_t> &add_molecules) {
 
    int istat = 0;
+   make_backup(); // could be more clever, by doing this only when needed.
    std::vector<merge_molecule_results_info_t> resulting_merge_info;
    std::pair<bool, coot::residue_spec_t> done_merge_ligand_to_near_chain;
    done_merge_ligand_to_near_chain.first = false;
@@ -5396,15 +5395,15 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    if (! done_homogeneous_addition_flag) {
 
 	       if (! done_add_specific)
-		  done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
+             done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
 
-	       if (done_merge_ligand_to_near_chain.first) {
-		     merge_molecule_results_info_t mmr;
-		     mmr.is_chain = false;
-		     mmr.spec = done_merge_ligand_to_near_chain.second;
-		     resulting_merge_info.push_back(mmr);
-		     istat = 1;
-	       } else {
+             if (done_merge_ligand_to_near_chain.first) {
+                merge_molecule_results_info_t mmr;
+                mmr.is_chain = false;
+                mmr.spec = done_merge_ligand_to_near_chain.second;
+                resulting_merge_info.push_back(mmr);
+                istat = 1;
+             } else {
 
 		  if (done_add_specific) {
 		     // JED ligand addition

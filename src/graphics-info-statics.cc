@@ -10,3 +10,5 @@ bool graphics_info_t::do_rotamer_restraints = false;
 
 bool graphics_info_t::do_debug_refinement = false;
 
+std::atomic<bool> graphics_info_t::on_going_updating_map_lock(false);
+
