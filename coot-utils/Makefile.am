@@ -177,7 +177,9 @@ test_coot_utils_LDADD = \
 	./libcoot-coord-extras.la \
 	./libcoot-coord-utils.la  \
 	$(top_builddir)/coords/libcoot-coords.la \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS)
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
 
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
