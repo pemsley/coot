@@ -839,7 +839,7 @@ short int graphics_info_t::find_ligand_mask_waters_flag = 0;
 float graphics_info_t::map_mask_atom_radius = -99; // unset
 // std::vector<int> *mol_tmp;
 std::vector<std::pair<int, bool> > *graphics_info_t::find_ligand_ligand_mols_;
-float graphics_info_t::find_waters_sigma_cut_off = 1.8;
+float graphics_info_t::find_waters_sigma_cut_off = 1.4;
 float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
 float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
 int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
