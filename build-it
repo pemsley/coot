@@ -3240,6 +3240,7 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
+      (
       echo building ========================= rdkit ==============================
 
       # at last we can compile rdkit
@@ -3390,6 +3391,7 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
+      ) > $HOSTLOGDIR/17-rdkit.log
    fi
 fi
 
