@@ -3236,7 +3236,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 
    # hack
-   skip_this=false
+   # skip_this=false
 
    if [ $skip_this = false ] ;  then
 
@@ -3923,6 +3923,7 @@ else
       echo missing Raster3D tar file
 
    else
+      echo libgd...............
       ( 
        date
        pwd
@@ -3959,6 +3960,7 @@ else
 
       ) > $HOSTLOGDIR/15-libgd.txt
     
+      echo build render...............
       ( 
        date
        pwd
@@ -4191,6 +4193,9 @@ echo PATH: $PATH
 echo using this guile:
 which guile
 
+rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python -lpython2.7"
+rdkit_install_dir=$install_top_dir
+
 echo ./configure $coot_prefix \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
@@ -4200,11 +4205,15 @@ echo ./configure $coot_prefix \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
-      --with-modern-language-tools     \
+      --with-modern-language-tools \
+      --with-enhanced-ligand-tools \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
-      $extra_args_for_darwin
+      $extra_args_for_darwin \
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
+   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
+
 
 ./configure $coot_prefix \
        --with-fftw-prefix=$install_top_dir  \
@@ -4215,11 +4224,15 @@ echo ./configure $coot_prefix \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
-      --with-modern-language-tools     \
+      --with-modern-language-tools \
+      --with-enhanced-ligand-tools \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
-      $extra_args_for_darwin
+      $extra_args_for_darwin \
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
+   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
+
 
 # these are no longer used
 #         --with-mmdb-prefix=$install_top_dir 
