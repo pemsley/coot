@@ -897,12 +897,13 @@ coot::util::CO_orientations(mmdb::Manager *mol) {
                   clipper::Coord_orth v3(co(next_O) - co(next_C));
 
                   clipper::Coord_orth v1n(v1.unit());
-                  clipper::Coord_orth v2n(v3.unit());
+                  clipper::Coord_orth v2n(v2.unit());
                   clipper::Coord_orth v3n(v3.unit());
 
                   double dp_1 = clipper::Coord_orth::dot(v1n, v2n);
                   double dp_2 = clipper::Coord_orth::dot(v2n, v3n);
                   double sum = dp_1 + dp_2;
+                  // std::cout << "dp_1 " << dp_1 << " dp_2 " << dp_2 << "\n";
                   std::pair<mmdb::Residue *, double> s(this_p, sum);
                   scores.push_back(s);
                }
@@ -915,26 +916,31 @@ coot::util::CO_orientations(mmdb::Manager *mol) {
 
 #include "atom-selection-container.hh"
 void
-coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_file,
+coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_file_helix,
+                                               const std::string &prosmart_log_file_strand,
                                                const std::string &data_points_file_name,
                                                const std::string &pdb_file_name,
                                                const std::string &chain_id) {
 
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false);
    if (asc.read_success) {
-      std::vector<std::pair<mmdb::Residue *, double> > scores = CO_orientations(asc.mol);
+      std::vector<std::pair<mmdb::Residue *, double> > co_scores = CO_orientations(asc.mol);
       std::map<residue_spec_t, double> scores_map;
       std::vector<std::pair<mmdb::Residue *, double> >::const_iterator it;
-      for (it=scores.begin(); it!=scores.end(); it++) {
+      for (it=co_scores.begin(); it!=co_scores.end(); it++) {
          residue_spec_t spec(it->first);
          scores_map[spec] = it->second;
       }
-      if (scores.size() > 0) {
-         std::ifstream f(prosmart_log_file.c_str());
+      if (co_scores.size() > 0) {
+         std::ifstream f_helix(prosmart_log_file_helix.c_str());
+         std::ifstream f_strand(prosmart_log_file_strand.c_str());
          std::ofstream fo(data_points_file_name.c_str());
-         if (f) {
+         std::string pdb_fn = file_name_non_directory(pdb_file_name);
+         std::map<residue_spec_t, double> helix_scores;
+         std::map<residue_spec_t, double> strand_scores;
+         if (f_helix) {
             std::string line;
-            while (std::getline(f, line)) {
+            while (std::getline(f_helix, line)) {
                std::vector<std::string> bits = util::split_string_on_whitespace_no_blanks(line);
                // std::cout << "read " << line << " from " << prosmart_log_file << " "
                //          << bits.size() << std::endl;
@@ -944,11 +950,7 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                         int res_no = string_to_int(bits[0]);
                         float deviation = string_to_float(bits[6]);
                         residue_spec_t res_spec(chain_id, res_no, "");
-                        std::map<residue_spec_t, double>::const_iterator it_map = scores_map.find(res_spec);
-                        if (it_map != scores_map.end()) {
-                           fo << chain_id << " " << res_no << " " << it_map->second
-                                        << " " << deviation << "\n";
-                        }
+                        helix_scores[res_spec] = deviation;
                      }
                      catch (const std::runtime_error &rte) {
                         // residue number was not a number - oh well
@@ -956,6 +958,50 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                                   << std::endl;
                      }
                   }
+               }
+            }
+         }
+
+         if (f_strand) {
+            std::string line;
+            while (std::getline(f_strand, line)) {
+               std::vector<std::string> bits = util::split_string_on_whitespace_no_blanks(line);
+               // std::cout << "read " << line << " from " << prosmart_log_file << " "
+               //          << bits.size() << std::endl;
+               if (bits.size() == 12) {
+                  if (bits[3] == "ALA") { // does this work for strand test also?
+                     try {
+                        int res_no = string_to_int(bits[0]);
+                        float deviation = string_to_float(bits[6]);
+                        residue_spec_t res_spec(chain_id, res_no, "");
+                        strand_scores[res_spec] = deviation;
+                     }
+                     catch (const std::runtime_error &rte) {
+                        // residue number was not a number - oh well
+                        std::cout << "something bad parsing " << line  << " " << rte.what()
+                                  << " " << prosmart_log_file_strand << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+
+         for (it=co_scores.begin(); it!=co_scores.end(); it++) {
+            residue_spec_t res_spec(it->first);
+            const double &co_dp(it->second);
+            std::map<residue_spec_t, double>::const_iterator it_helix;
+            std::map<residue_spec_t, double>::const_iterator it_strand;
+            it_strand = strand_scores.find(res_spec);
+            it_helix  = helix_scores.find(res_spec);
+            if (it_helix != strand_scores.end()) {
+               if (it_strand != strand_scores.end()) {
+                  const double &helix_score(it_helix->second);
+                  const double &strand_score(it_strand->second);
+                  fo << pdb_fn << " " << chain_id << " " << res_spec.res_no
+                     << " CO-dp: " << co_dp
+                     << " helix: " << helix_score
+                     << " strand: " << strand_score
+                     << "\n";
                }
             }
          }
@@ -988,10 +1034,13 @@ coot::util::multi_parse_prosmart_log_and_gen_CO_plot() {
                std::string chain_id(chain_file_file.substr(5,1));
                std::cout << "chain file " << chain_file << " chain-id: " << chain_id << std::endl;
                std::string data_file_name = chain_file_file + ".data";
-               std::string fn = chain_file_file + "_helix_A.txt";
-               std::string log_file_name = append_dir_file(chain_file, fn);
+               std::string fn_helix  = chain_file_file + "_helix_A.txt";
+               std::string fn_strand = chain_file_file + "_strand_A.txt";
+               std::string log_file_name_helix  = append_dir_file(chain_file, fn_helix);
+               std::string log_file_name_strand = append_dir_file(chain_file, fn_strand);
 
-               parse_prosmart_log_and_gen_CO_plot(log_file_name, data_file_name, pdb_file, chain_id);
+               parse_prosmart_log_and_gen_CO_plot(log_file_name_helix, log_file_name_strand,
+                                                  data_file_name, pdb_file, chain_id);
             }
          }
       }

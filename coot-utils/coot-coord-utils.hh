@@ -1525,7 +1525,8 @@ namespace coot {
       void multi_parse_prosmart_log_and_gen_CO_plot();
 
       void
-      parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_file,
+      parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_file_helix,
+                                         const std::string &prosmart_log_file_strand,
                                          const std::string &data_points_file_name,
                                          const std::string &pdb_file_name,
                                          const std::string &chain_id);
