@@ -760,19 +760,19 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) {
          if (this_restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	    d = coot::distortion_score_geman_mcclure_distance(this_restraint, v, restraints->geman_mcclure_alpha);
-	    local_sum += d;
-	    continue;
-	 }
+            d = coot::distortion_score_geman_mcclure_distance(this_restraint, v, restraints->geman_mcclure_alpha);
+            local_sum += d;
+            continue;
+         }
       }
 
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
-	 if (this_restraint.restraint_type == coot::BOND_RESTRAINT) {
-	    d = coot::distortion_score_bond(this_restraint, v);
-	    // std::cout << "dsm: bond  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
-	    local_sum += d;
-	    continue;
-	 }
+         if (this_restraint.restraint_type == coot::BOND_RESTRAINT) {
+            d = coot::distortion_score_bond(this_restraint, v);
+            // std::cout << "dsm: bond  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
+            local_sum += d;
+            continue;
+         }
       }
 
       if (restraints->restraints_usage_flag & coot::ANGLES_MASK) { // 2: angles
