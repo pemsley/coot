@@ -406,14 +406,67 @@ int test_function(int i, int j) {
 
 #include "ligand/richardson-rotamer.hh"
 
+#include "coot-utils/cablam-markup.hh"
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
-
    if (true) {
+      int imol_model     = scm_to_int(i_scm);
+      int imol_with_data = scm_to_int(j_scm);
+      if (is_valid_model_molecule(imol_model)) {
+         graphics_info_t g;
+
+         std::string cablam_log_file_name = "6kzp-cablam.log";
+         atom_selection_container_t asc = g.molecules[imol_model].atom_sel;
+         if (asc.read_success) {
+            // parse this log file and call the above function for each cablam outlier residue
+            std::vector<coot::cablam_markup_t> v =
+            coot::make_cablam_markups(asc.mol, cablam_log_file_name);
+
+            std::cout << "Made " << v.size() << " cablam markups " << std::endl;
+            std::vector<coot::cablam_markup_t>::const_iterator it;
+            int idx_cablam = new_generic_object_number("Cablam");
+            set_display_generic_object(idx_cablam, 1);
+            for (it=v.begin(); it!=v.end(); it++) {
+               const coot::cablam_markup_t &cm(*it);
+               to_generic_object_add_point(idx_cablam, "red", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
+               to_generic_object_add_point(idx_cablam, "red", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
+               to_generic_object_add_point(idx_cablam, "red", 14, cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z());
+
+               std::cout << "line 1: " << cm.O_this_pos.format() << " to " << cm.CA_proj_point_this.format() << std::endl;
+               std::cout << "line 2: " << cm.O_prev_pos.format() << " to " << cm.CA_proj_point_prev.format() << std::endl;
+               std::cout << "line 3: " << cm.O_next_pos.format() << " to " << cm.CA_proj_point_next.format() << std::endl;
+
+               to_generic_object_add_line(idx_cablam, "red", 4,
+                                          cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
+                                          cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
+
+               to_generic_object_add_line(idx_cablam, "red", 4,
+                                          cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
+                                          cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+
+               to_generic_object_add_line(idx_cablam, "red", 4,
+                                          cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
+                                          cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+
+               to_generic_object_add_line(idx_cablam, "red", 4,
+                                          cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                          cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+
+               to_generic_object_add_line(idx_cablam, "red", 4,
+                                          cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                          cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+
+
+            }
+         }
+      }
+   }
+   if (false) {
+      // this has a bonefide interface now
       int imol_model     = scm_to_int(i_scm);
       int imol_with_data = scm_to_int(j_scm);
       if (is_valid_model_molecule(imol_model)) {
