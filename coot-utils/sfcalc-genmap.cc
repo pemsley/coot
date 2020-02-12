@@ -35,13 +35,12 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    clipper::HKL_data<clipper::data32::F_sigF> fobs(fobs_in);
 
    // get a list of all the atoms
-   clipper::mmdb::CAtom **atom_sel;
-   int nsel;
-   int hndl = mol->NewSelection();
+   clipper::mmdb::CAtom **atom_sel = 0;
+   int nsel = 0;
+   int hndl = mol->NewSelection();  // d
    mol->SelectAtoms(hndl, 0, 0, ::mmdb::SKEY_NEW);
    mol->GetSelIndex(hndl, atom_sel, nsel);
    clipper::MMDBAtom_list atoms(atom_sel, nsel);
-   mol->DeleteSelection(hndl);
 
    // clipper::MTZcrystal cxtl;
    clipper::HKL_info hkls;
@@ -109,6 +108,8 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    // calc abcd (needed?)
    clipper::HKL_data<clipper::data32::ABCD> abcd(hkls);
    abcd.compute(phiw, clipper::data32::Compute_abcd_from_phifom());
+
+   mol->DeleteSelection(hndl);
 
    // now calc R and R-free
    std::vector<double> params(n_param, 1.0);

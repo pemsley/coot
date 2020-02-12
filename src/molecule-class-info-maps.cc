@@ -367,32 +367,39 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
    if (have_sensible_refmac_params) {
 
-      std::pair<std::string, std::string> p =
-         make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
-      clipper::CCP4MTZfile mtzin;
-      mtzin.open_read(Refmac_mtz_filename());
-      mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
-      mtzin.close_read();
-      std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                << original_fobs_sigfobs.num_obs() << " data using data name"
-                << p.first << std::endl;
-      if (original_fobs_sigfobs.num_obs() > 10)
-         original_fobs_sigfobs_filled = 1;
+      // only try this once. If you try to import_hkl_data() when the original_fobs_sigfobs
+      // already contains data, then crashiness.
+      //
+      if (! original_fobs_sigfobs_filled && ! original_fobs_sigfobs_fill_tried_and_failed) {
 
-      // flags
-
-      if (refmac_r_free_flag_sensible) {
-         std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+         std::pair<std::string, std::string> p =
+            make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+         clipper::CCP4MTZfile mtzin;
          mtzin.open_read(Refmac_mtz_filename());
-         mtzin.import_hkl_data(original_r_free_flags, dataname);
+         mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
          mtzin.close_read();
-
          std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                   << original_r_free_flags.num_obs() << " R-free flags\n";
-      } else {
-         std::cout << "INFO:: no sensible R-free flag column label\n";
-      }
+                   << original_fobs_sigfobs.num_obs() << " data using data name"
+                   << p.first << std::endl;
+         if (original_fobs_sigfobs.num_obs() > 10)
+            original_fobs_sigfobs_filled = 1;
+         else
+            original_fobs_sigfobs_fill_tried_and_failed = true;
 
+         // flags
+
+         if (refmac_r_free_flag_sensible) {
+            std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+            mtzin.open_read(Refmac_mtz_filename());
+            mtzin.import_hkl_data(original_r_free_flags, dataname);
+            mtzin.close_read();
+
+            std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+                      << original_r_free_flags.num_obs() << " R-free flags\n";
+         } else {
+            std::cout << "INFO:: no sensible R-free flag column label\n";
+         }
+      }
    } else {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no sensible r-free parameters\n";
    }
@@ -2178,6 +2185,15 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    map_sigma_ = sqrt(mv.variance);
 
    update_map();
+}
+
+void
+molecule_class_info_t::set_mean_and_sigma() {
+
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true);
+   map_mean_ = mv.mean;
+   map_sigma_ = sqrt(mv.variance);
+
 }
 
 void

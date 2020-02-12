@@ -8969,6 +8969,12 @@ molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_
 }
 
 
+float
+molecule_class_info_t::get_contour_level_by_sigma() const {
+   float cl = get_contour_level();
+   return cl/map_sigma_;
+}
+
 
 void
 molecule_class_info_t::set_contour_level(float f) {
@@ -9528,5 +9534,45 @@ molecule_class_info_t::update_self_from_file(const std::string &pdb_file_name) {
 
 void
 molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
+
+}
+
+// update this difference map if the coordinates of the other molecule have changed.
+//
+// static (!)
+int
+molecule_class_info_t::watch_coordinates_updates(gpointer data) {
+
+   std::cout << "---------------------------- watch_coordinates_updates() called " << std::endl;
+   int status = 1; // continue
+
+   if (data) {
+      updating_model_molecule_parameters_t *ummp_p = static_cast<updating_model_molecule_parameters_t *> (data);
+      int imol_coords = ummp_p->imol_coords;
+      int imol_map = ummp_p->imol_map;
+      int imol_data = ummp_p->imol_map_with_data_attached;
+      graphics_info_t g;
+      if (g.is_valid_map_molecule(imol_map)) {
+         if (g.is_valid_model_molecule(imol_coords)) {
+            int backup_index_current = g.molecules[imol_map].get_other_molecule_backup_index();
+            // Do we need to update the map?
+            // We don't want to update the map the first time around
+            int backup_index_for_molecule = g.molecules[imol_coords].get_history_index();
+            if (backup_index_current != backup_index_for_molecule) {
+               if (backup_index_current == -1) {
+                  std::cout << "First time, do nothing " << std::endl;
+               } else {
+                  std::cout << "Update the map! " << imol_map << std::endl;
+                  g.sfcalc_genmap(imol_coords, imol_data, imol_map);
+               }
+               g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
+            } else {
+               std::cout << "No need for an update " << backup_index_current << std::endl;
+            }
+         }
+      }
+   }
+
+   return status;
 
 }

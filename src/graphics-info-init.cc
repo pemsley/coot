@@ -18,6 +18,8 @@ graphics_info_t::init() {
 
       which_eye = FRONT_EYE;
 
+      on_going_updating_map_lock = false;
+
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
       geom_p->set_verbose(true);

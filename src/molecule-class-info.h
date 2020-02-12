@@ -561,6 +561,7 @@ class molecule_class_info_t {
    // (expand molecule space) test.
    bool original_fphis_filled;
    bool original_fobs_sigfobs_filled;
+   bool original_fobs_sigfobs_fill_tried_and_failed;
    clipper::HKL_data< clipper::datatypes::F_phi<float> >  original_fphis;
    clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
    clipper::HKL_data< clipper::data32::Flag> original_r_free_flags;
@@ -747,7 +748,8 @@ public:        //                      public
 
       // original Fs saved? (could be from map)
       original_fphis_filled = 0;
-      original_fobs_sigfobs_filled = 0;
+      original_fobs_sigfobs_filled = false;
+      original_fobs_sigfobs_fill_tried_and_failed = false;
 
 
       //  bond width (now changeable).
@@ -762,7 +764,9 @@ public:        //                      public
       rotate_colour_map_for_difference_map = 240.0; // degrees
 
       // save index
-      coot_save_index = 0;
+      coot_save_index = 0; // how is this related to the backup history_index?
+
+      other_molecule_backup_index = -1; // unset
 
       // ligand flipping. save the index
       ligand_flip_number = 0; // or 1 2 3 for the 4 different
@@ -2008,8 +2012,9 @@ public:        //                      public
    int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
    int Have_unsaved_changes_p() const;
-   short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
-   short int Have_redoable_modifications_p() const ;
+   bool Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
+   bool Have_redoable_modifications_p() const ;
+   int get_history_index() const;
    void turn_off_backup() { backup_this_molecule = 0; }
    void turn_on_backup()  { backup_this_molecule = 1; }
    int apply_undo(const std::string &cwd);
@@ -2304,6 +2309,7 @@ public:        //                      public
    }
 
 
+   float get_contour_level_by_sigma() const;
    // external contour control (from saving parameters):
    void set_contour_level(float f);
    void set_contour_level_by_sigma(float f);
@@ -3380,6 +3386,16 @@ public:        //                      public
    bool continue_watching_coordinates_file;
    updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
    int update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &p);
+
+   // watch for changes in the model of a different molecule (denoted by change of backup index)
+   // and act on it (by updating this difference map). This needs to be static because its
+   // called by g_timeout.
+   static int watch_coordinates_updates(gpointer);
+   int other_molecule_backup_index;
+   int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
+
+   // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
+   void set_mean_and_sigma();
 
 };
 
