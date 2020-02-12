@@ -1009,6 +1009,22 @@ int test_helix_like(int argc, char **argv) {
     return 0;
 }
 
+#include "cablam-markup.hh"
+
+int
+test_cablam(int argc, char **argv) {
+
+   std::string cablam_log_file_name = "../src/cablam.log";
+   std::string file_name = argv[1];
+   atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+   if (asc.read_success) {
+      // parse this log file and call the above function for each cablam outlier residue
+      std::vector<coot::cablam_markup_t> v =
+      coot::make_cablam_markups(asc.mol, cablam_log_file_name);
+   }
+   return 0;
+}
+
 
 #include "merge-atom-selections.hh"
 
@@ -1316,8 +1332,11 @@ int main(int argc, char **argv) {
    if (false)
       test_nxmap_simple(argc, argv);
 
-   if (true)
+   if (false)
       test_CO_orientations(argc, argv);
+
+   if (true)
+      test_cablam(argc, argv);
 
    return 0;
 }
