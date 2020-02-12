@@ -184,7 +184,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 
    // wait for the threads in the thread pool
    while (done_count_for_threads != restraints_p->restraints_indices.size()) {
-      std::this_thread::sleep_for(std::chrono::microseconds(1));
+      std::this_thread::sleep_for(std::chrono::nanoseconds(20));
    }
 
    //x auto tp_3 = std::chrono::high_resolution_clock::now();
