@@ -7,6 +7,7 @@
 #include <clipper/clipper-contrib.h>
 #include <clipper/clipper-ccp4.h>
 #include <clipper/clipper-mmdb.h>
+#include <clipper/core/clipper_util.h>
 
 #include "sfcalc-genmap.hh"
 
@@ -90,6 +91,20 @@ void coot::util::sfcalc_genmap(mmdb::Manager *mol,
    // do sigmaa calc
    clipper::SFweight_spline<float> sfw(n_refln, n_param);
    sfw(f_best, f_diff, phiw, fobs, fc, flag);
+
+   if (true) {
+      unsigned int n_nans_fobs   = 0;
+      unsigned int n_nans_fc     = 0;
+      unsigned int n_nans_f_diff = 0;
+      for (HRI ih = fobs.first(); !ih.last(); ih.next()) {
+         if (!fobs[ih].missing() && (free[ih].missing()||free[ih].flag()==freeflag)) {
+            if (clipper::Util::isnan(fobs[ih].f())) n_nans_fobs++;
+            if (clipper::Util::isnan(fc[ih].f()))   n_nans_fc++;
+            if (clipper::Util::isnan(f_diff[ih].f())) n_nans_f_diff++;
+         }
+      }
+      std::cout << "DEBUG:: the nan count: " << n_nans_fobs << " " << n_nans_fc << " " << n_nans_f_diff << std::endl;
+   }
 
    // calc abcd (needed?)
    clipper::HKL_data<clipper::data32::ABCD> abcd(hkls);
