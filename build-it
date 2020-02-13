@@ -3282,11 +3282,8 @@ if [ "$build_rdkit" = true ] ; then
          echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          echo xxxx
          tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         echo xxxxx
          pwd
-         echo xxxxxx
          ls
-         echo xxxxxxx
          if [ ! -e rdkit-Release_$rdkit_version ] ; then
              echo RDKit untar dir not found: rdkit-Release_$rdkit_version
              exit 2
