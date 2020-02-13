@@ -432,34 +432,33 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
             set_display_generic_object(idx_cablam, 1);
             for (it=v.begin(); it!=v.end(); it++) {
                const coot::cablam_markup_t &cm(*it);
-               to_generic_object_add_point(idx_cablam, "red", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
-               to_generic_object_add_point(idx_cablam, "red", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
-               to_generic_object_add_point(idx_cablam, "red", 14, cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z());
+               to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
+               to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
+               to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z());
 
                std::cout << "line 1: " << cm.O_this_pos.format() << " to " << cm.CA_proj_point_this.format() << std::endl;
                std::cout << "line 2: " << cm.O_prev_pos.format() << " to " << cm.CA_proj_point_prev.format() << std::endl;
                std::cout << "line 3: " << cm.O_next_pos.format() << " to " << cm.CA_proj_point_next.format() << std::endl;
 
-               to_generic_object_add_line(idx_cablam, "red", 4,
+               to_generic_object_add_line(idx_cablam, "pink", 4,
                                           cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
                                           cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
 
-               to_generic_object_add_line(idx_cablam, "red", 4,
+               to_generic_object_add_line(idx_cablam, "pink", 4,
                                           cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
                                           cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
 
-               to_generic_object_add_line(idx_cablam, "red", 4,
+               to_generic_object_add_line(idx_cablam, "pink", 4,
                                           cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
                                           cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
 
-               to_generic_object_add_line(idx_cablam, "red", 4,
+               to_generic_object_add_line(idx_cablam, "pink", 4,
                                           cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
                                           cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
 
-               to_generic_object_add_line(idx_cablam, "red", 4,
+               to_generic_object_add_line(idx_cablam, "pink", 4,
                                           cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
                                           cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
-
 
             }
          }
