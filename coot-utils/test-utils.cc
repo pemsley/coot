@@ -1332,10 +1332,10 @@ int main(int argc, char **argv) {
    if (false)
       test_nxmap_simple(argc, argv);
 
-   if (false)
+   if (true)
       test_CO_orientations(argc, argv);
 
-   if (true)
+   if (false)
       test_cablam(argc, argv);
 
    return 0;

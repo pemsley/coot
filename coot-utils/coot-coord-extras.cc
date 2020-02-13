@@ -902,7 +902,7 @@ coot::util::CO_orientations(mmdb::Manager *mol) {
 
                   double dp_1 = clipper::Coord_orth::dot(v1n, v2n);
                   double dp_2 = clipper::Coord_orth::dot(v2n, v3n);
-                  double sum = dp_1 + dp_2;
+                  double sum = dp_1; // + dp_2;
                   // std::cout << "dp_1 " << dp_1 << " dp_2 " << dp_2 << "\n";
                   std::pair<mmdb::Residue *, double> s(this_p, sum);
                   scores.push_back(s);
