@@ -31,6 +31,10 @@ coot::alpha_helical_reference_positions() {
 coot::helical_results_t
 coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues) {
 
+   // note to self: to generate ideal coordinates for 3-10:
+   // https://en.wikipedia.org/wiki/310_helix
+   // Residues in long 310-helices adopt (φ, ψ) dihedral angles near (−49°, −26°)
+
    helical_results_t r;
    std::vector<clipper::Coord_orth> ref_pos = alpha_helical_reference_positions();
 

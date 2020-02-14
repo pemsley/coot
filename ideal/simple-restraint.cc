@@ -3229,15 +3229,15 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
       bool sane_residue_numbers = false;
       if (test_helical_residues.size() == 4)
-      if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
-         sane_residue_numbers = true;
+         if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
+            sane_residue_numbers = true;
 
       // maybe we *do* want compare_to_helix() to be run on 5 residues?
       // i -> i+4 is the convention for alpha helical H-bonds, after all.
       //
       if (test_helical_residues.size() == 5)
-      if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
-         sane_residue_numbers = true;
+         if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
+            sane_residue_numbers = true;
 
       helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 4 residues
 
