@@ -5583,7 +5583,7 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 
    if (c.length() == 7) {
       if (c[0] == '#') {
-	 return coot::colour_holder(c); // hex colour string
+         return coot::colour_holder(c); // hex colour string
       }
    }
 
@@ -5593,111 +5593,117 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
       colour.blue = 0.8;
    } else {
       if (c == "sky") {
-	 colour.red = 0.53 * 0.6;
-	 colour.green = 0.81 * 0.6;
-	 colour.blue = 0.92 * 0.6;
+         colour.red = 0.53 * 0.6;
+         colour.green = 0.81 * 0.6;
+         colour.blue = 0.92 * 0.6;
       } else {
-	 if (c == "green") {
-	    colour.red   = 0.05;
-	    colour.green = 0.8;
-	    colour.blue  = 0.05;
-	 } else {
-	    if (c == "greentint") {
-	       colour.red = 0.45;
-	       colour.green = 0.63;
-	       colour.blue = 0.45;
-	    } else {
-	       if (c == "sea") {
-		  colour.red = 0.1;
-		  colour.green = 0.6;
-		  colour.blue = 0.6;
-	       } else {
-		  if (c == "yellow") {
-		     colour.red = 0.8;
-		     colour.green = 0.8;
-		     colour.blue = 0.0;
-		  } else {
-		     if (c == "yellowtint") {
-			colour.red = 0.65;
-			colour.green = 0.65;
-			colour.blue = 0.4;
-		     } else {
-			if (c == "orange") {
-			   colour.red = 0.9;
-			   colour.green = 0.6;
-			   colour.blue = 0.1;
-			} else {
-			   if (c == "red") {
-			      colour.red = 0.9;
-			      colour.green = 0.1;
-			      colour.blue = 0.1;
-			   } else {
-			      if (c == "hotpink") {
-				 colour.red = 0.9;
-				 colour.green = 0.2;
-				 colour.blue = 0.6;
-			      } else {
-				 if (c == "cyan") {
-				    colour.red = 0.1;
-				    colour.green = 0.7;
-				    colour.blue = 0.7;
-				 } else {
-				    if (c == "aquamarine") {
-				       colour.red = 0.1;
-				       colour.green = 0.8;
-				       colour.blue = 0.6;
-				    } else {
-				       if (c == "forestgreen") {
-					  colour.red   = 0.6;
-					  colour.green = 0.8;
-					  colour.blue  = 0.1;
-				       } else {
-					  if (c == "yellowgreen") {
-					     colour.red   = 0.6;
-					     colour.green = 0.8;
-					     colour.blue  = 0.2;
-					  } else {
-					     if (c == "goldenrod") {
-						colour.red   = 0.85;
-						colour.green = 0.65;
-						colour.blue  = 0.12;
-					     } else {
-						if (c == "orangered") {
-						   colour.red   = 0.9;
-						   colour.green = 0.27;
-						   colour.blue  = 0.0;
-						} else {
-						   if (c == "magenta") {
-						      colour.red   = 0.7;
-						      colour.green = 0.2;
-						      colour.blue  = 0.7;
-						   } else {
-						      if (c == "cornflower") {
-							 colour.red   = 0.38;
-							 colour.green = 0.58;
-							 colour.blue  = 0.93;
-						      } else {
-							 if (c == "royalblue") {
-							    colour.red   = 0.25;
-							    colour.green = 0.41;
-							    colour.blue  = 0.88;
-							 }
-						      }
-						   }
-						}
-					     }
-					  }
-				       }
-				    }
-				 }
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
+         if (c == "green") {
+            colour.red   = 0.05;
+            colour.green = 0.8;
+            colour.blue  = 0.05;
+         } else {
+            if (c == "greentint") {
+               colour.red = 0.45;
+               colour.green = 0.63;
+               colour.blue = 0.45;
+            } else {
+               if (c == "sea") {
+                  colour.red = 0.1;
+                  colour.green = 0.6;
+                  colour.blue = 0.6;
+               } else {
+                  if (c == "yellow") {
+                     colour.red = 0.8;
+                     colour.green = 0.8;
+                     colour.blue = 0.0;
+                  } else {
+                     if (c == "yellowtint") {
+                        colour.red = 0.65;
+                        colour.green = 0.65;
+                        colour.blue = 0.4;
+                     } else {
+                        if (c == "orange") {
+                           colour.red = 0.9;
+                           colour.green = 0.6;
+                           colour.blue = 0.1;
+                        } else {
+                           if (c == "red") {
+                              colour.red = 0.9;
+                              colour.green = 0.1;
+                              colour.blue = 0.1;
+                           } else {
+                              if (c == "hotpink") {
+                                 colour.red = 0.9;
+                                 colour.green = 0.2;
+                                 colour.blue = 0.6;
+                              } else {
+                                 if (c == "pink") {
+                                    colour.red = 0.9;
+                                    colour.green = 0.4;
+                                    colour.blue = 0.4;
+                                 } else {
+                                    if (c == "cyan") {
+                                       colour.red = 0.1;
+                                       colour.green = 0.7;
+                                       colour.blue = 0.7;
+                                    } else {
+                                       if (c == "aquamarine") {
+                                          colour.red = 0.1;
+                                          colour.green = 0.8;
+                                          colour.blue = 0.6;
+                                       } else {
+                                          if (c == "forestgreen") {
+                                             colour.red   = 0.6;
+                                             colour.green = 0.8;
+                                             colour.blue  = 0.1;
+                                          } else {
+                                             if (c == "yellowgreen") {
+                                                colour.red   = 0.6;
+                                                colour.green = 0.8;
+                                                colour.blue  = 0.2;
+                                             } else {
+                                                if (c == "goldenrod") {
+                                                   colour.red   = 0.85;
+                                                   colour.green = 0.65;
+                                                   colour.blue  = 0.12;
+                                                } else {
+                                                   if (c == "orangered") {
+                                                      colour.red   = 0.9;
+                                                      colour.green = 0.27;
+                                                      colour.blue  = 0.0;
+                                                   } else {
+                                                      if (c == "magenta") {
+                                                         colour.red   = 0.7;
+                                                         colour.green = 0.2;
+                                                         colour.blue  = 0.7;
+                                                      } else {
+                                                         if (c == "cornflower") {
+                                                            colour.red   = 0.38;
+                                                            colour.green = 0.58;
+                                                            colour.blue  = 0.93;
+                                                         } else {
+                                                            if (c == "royalblue") {
+                                                               colour.red   = 0.25;
+                                                               colour.green = 0.41;
+                                                               colour.blue  = 0.88;
+                                                            }
+                                                         }
+                                                      }
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
       }
    }
 
