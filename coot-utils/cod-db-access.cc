@@ -872,7 +872,7 @@ void validate_bonds_for_residue_dict_db_file_name(mmdb::Residue *residue_p,
 	    bool deloc_remaining_bonds = true;
 	    n_added += coot::remove_phosphate_hydrogens(&rdkm, deloc_remaining_bonds);
 	    n_added += coot::remove_sulphate_hydrogens(&rdkm, deloc_remaining_bonds);
-	    n_added == coot::remove_carboxylate_hydrogens(&rdkm, deloc_remaining_bonds);
+	    n_added += coot::remove_carboxylate_hydrogens(&rdkm, deloc_remaining_bonds);
 	    coot::charge_guanidinos(&rdkm);
 	    // restore ring info:
 	    std::vector<std::vector<int> > ring_info; // fill this
