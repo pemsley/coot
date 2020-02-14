@@ -10937,7 +10937,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 					      gint response_id, 
 					      gpointer user_data) {
 
-  int new_compid_idx;
+/*   int new_compid_idx; */
   int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;
@@ -10972,8 +10972,8 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 	printf("-------- missing dictionary_molecule_selector_option_menu ---\n");
      }
 
-     new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc, 
-							 new_molecule_checkbutton_state);
+     handle_cif_dictionary_for_molecule(filename, imol_enc,
+                                        new_molecule_checkbutton_state);
 
      gtk_widget_destroy(fileselection);
 } else {

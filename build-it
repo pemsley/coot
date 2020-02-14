@@ -2879,6 +2879,9 @@ if [ "$build_libgnomecanvas" = 1 ] ; then
    cd -
    ) > $HOSTLOGDIR/06-libart_lgpl.txt
 
+   # not to self: it seems, from my centos7 build that libgnomecanvas doesn't
+   # correctly pick up the libart above - I did a system install of libart before I thought about it.
+
    libgnomecanvas_version=2.30.3
    ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$libgnomecanvas_version.tar.bz2
    (
@@ -3962,7 +3965,7 @@ else
    echo 1 ---------------------------------------------------------------
    echo '                                ' make install
    echo 1 ----------------------------------------------------------------
-   $MAKE install
+   $MAKE DESTDIR=/ install
    if [ "$python_scripting" = '--with-python' ] ; then
       echo copying src/coot.py $install_top_dir/share/coot/python
       cp src/coot.py $install_top_dir/share/coot/python
