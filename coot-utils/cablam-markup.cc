@@ -15,6 +15,7 @@ coot::cablam_markup_t::cablam_markup_t(mmdb::Atom *O_prev_at,
                                        mmdb::Atom *CA_next_at,
                                        mmdb::Atom *CA_next_next_at) {
    score = -1;
+   residue = O_this_at->residue;
    O_prev_pos = co(O_prev_at);
    O_this_pos = co(O_this_at);
    O_next_pos = co(O_next_at);
@@ -186,7 +187,7 @@ coot::make_cablam_markups(mmdb::Manager *mol, const std::string &cablam_output_f
                   std::string residue_type  = line.substr( 8,3);
                   std::string cablam_string = line.substr(13,6);
                   std::string cablam_type_string = line.substr(20,7);
-                  if (true)
+                  if (false)
                      std::cout << "debug:: " << chain_id << " " << res_no << " "
                               << residue_type << " "  // << level_string << " " << level
                               << " cablam_string \"" << cablam_string << "\""
@@ -194,15 +195,12 @@ coot::make_cablam_markups(mmdb::Manager *mol, const std::string &cablam_output_f
                   if (cablam_string == "CaBLAM") {
                      // either Disfavoured or an Outlier
                      if (cablam_type_string == "Outlier") {
-                        std::cout << "Was an outlier" << std::endl;
                         std::string level_string = line.substr(34,6);
                         double level = util::string_to_float(level_string);
 
                         residue_spec_t res_spec(chain_id, res_no, "");
                         std::pair<residue_spec_t, double> p(res_spec, level);
                         scored_baddie_specs.push_back(p);
-                     } else {
-                        std::cout << "Was not an outlier" << std::endl;
                      }
                   }
                }
