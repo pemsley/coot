@@ -59,6 +59,7 @@ test_align_LDADD = libcoot-analysis.la
 coot_bfactan_LDADD = \
 	libcoot-analysis.la 					\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la    	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
         $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/utils/libcoot-utils.la 		\

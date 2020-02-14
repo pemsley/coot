@@ -703,6 +703,7 @@ dynarama_bin_LDADD = \
         $(top_builddir)/coords/libcoot-coords.la                \
         $(top_builddir)/utils/libcoot-utils.la                  \
         $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
         $(top_builddir)/geometry/libcoot-geometry.la            \
         $(top_builddir)/coot-surface/libcoot-surface.la         \
         $(top_builddir)/compat/libcoot-compat.la                \
