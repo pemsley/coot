@@ -10889,6 +10889,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 					      gint response_id,
 					      gpointer user_data) {
 
+/*   int new_compid_idx; */
   int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;
