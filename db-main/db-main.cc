@@ -191,7 +191,7 @@ coot::db_main::get_fragment_ca_atoms(int istart, int ilength,
 		  try { 
 		     f.addresidue(res, 0);
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "ERROR:: get_fragment_ca_atoms() " << rte.what() << std::endl;
 		  }
 		  break;
@@ -750,7 +750,7 @@ coot::db_main::pull_db_fragment(const coot::main_fragment_t &dbfit, int ilength)
       try { 
 	 f.addresidue(res, 0);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: pull_db_fragment() " << rte.what() << std::endl;
       } 
    }
