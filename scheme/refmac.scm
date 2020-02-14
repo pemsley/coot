@@ -218,14 +218,15 @@
 	  ;; 
 	  ;; this should be a database filename:
 	  ;; 
-	  (refmac-log-file-name (string-append 
-				 (if (> (string-length ccp4i-project-dir) 0)
-				     ccp4i-project-dir ;; is this string terminated with a slash?
-				     "")
-				 "refmac-from-coot-" 
-				 log-file-name-disambiguator
-				 "-"
-				 (number->string refmac-count) ".log")))
+	  (refmac-log-file-name (append-dir-file (get-directory "coot-refmac")
+						 (string-append
+				                    (if (> (string-length ccp4i-project-dir) 0)
+				                        ccp4i-project-dir ;; is this string terminated with a slash?
+				                        "")
+				                    "refmac-from-coot-"
+				                    log-file-name-disambiguator
+				                    "-"
+				                    (number->string refmac-count) ".log"))))
 
       (set! refmac-count (+ refmac-count imol-refmac-count 1))
       (format #t "INFO:: Running refmac with these command line args: ~s~%"
@@ -508,10 +509,10 @@
     
     (if (file-exists? mtz-file-name)
 	(if (valid-model-molecule? imol)
-	      (let ((dir-state (make-directory-maybe "coot-refmac")))
-		(if (not (= 0))
+	      (let ((coot-refmac-dir (get-directory "coot-refmac")))
+		(if (not (string? coot-refmac-dir))
 		    (format #t "Failed to make coot-refmac directory\n")
-		    (let* ((stub (string-append "coot-refmac/refmac-for-phases"))
+		    (let* ((stub (append-dir-file coot-refmac-dir "refmac-for-phases"))
 			   (pdb-in  (string-append stub ".pdb"))
 			   (pdb-out (string-append stub "-tmp.pdb"))
 			   (mtz-out (string-append stub ".mtz"))
