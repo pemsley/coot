@@ -2938,7 +2938,6 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<coot::cablam_markup_t> v = coot::make_cablam_markups(mol, cablam_log_file_name);
-      set_display_generic_object(idx_cablam, 0); // don't display while we are adding
 
       std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
       std::vector<coot::cablam_markup_t>::const_iterator it;
@@ -2947,6 +2946,7 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
          idx_cablam = new_generic_object_number("CaBLAM");
       else
          generic_object_clear(idx_cablam);
+      set_display_generic_object(idx_cablam, 0); // don't display while we are adding
       if (v.size() > 0) {
          for (it=v.begin(); it!=v.end(); it++) {
             std::pair<coot::residue_spec_t, double> p(it->residue, it->score);
