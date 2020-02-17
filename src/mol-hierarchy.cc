@@ -83,7 +83,7 @@ void density_for_atoms_multithread(int thread_index,
 		      << hri.hkl().k() << " " << hri.hkl().l() << " "
 		      << fphidata[hri].f() << " "
 		      << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
-	 } 
+	 }
 
 // template code for history addition.
    std::string cmd = "";
@@ -93,58 +93,58 @@ void density_for_atoms_multithread(int thread_index,
 
    add_to_history_simple("");
 
-//    if (atom_sel.n_selected_atoms > 0) { 
+//    if (atom_sel.n_selected_atoms > 0) {
 
       int n_models = atom_sel.mol->GetNumberOfModels();
-      for (int imod=1; imod<=n_models; imod++) { 
-      
+      for (int imod=1; imod<=n_models; imod++) {
+
 	 mmdb::Model *model_p = mol->GetModel(imod);
 	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
+	 if (nchains <= 0) {
 	    std::cout << "bad nchains in molecule " << nchains
 		      << std::endl;
-	 } else { 
+	 } else {
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain_p = model_p->GetChain(ichain);
-	       if (chain_p == NULL) {  
+	       if (chain_p == NULL) {
 		  // This should not be necessary. It seem to be a
 		  // result of mmdb corruption elsewhere - possibly
 		  // DeleteChain in update_molecule_to().
 		  std::cout << "NULL chain in ... " << std::endl;
-	       } else { 
+	       } else {
 		  int nres = chain_p->GetNumberOfResidues();
 		  mmdb::PResidue residue_p;
 		  mmdb::Atom *at;
-		  for (int ires=0; ires<nres; ires++) { 
+		  for (int ires=0; ires<nres; ires++) {
 		     residue_p = chain_p->GetResidue(ires);
 		     int n_atoms = residue_p->GetNumberOfAtoms();
 
 		     for (int iat=0; iat<n_atoms; iat++) {
 			at = residue_p->GetAtom(iat);
 
-			
-	       
- // ---- 
-void check_chiral_volumes(int imol) { 
+
+
+ // ----
+void check_chiral_volumes(int imol) {
    graphics_info_t g;
-   if (imol < graphics_info_t::n_molecules) { 
-      if (graphics_info_t::molecule[imol].has_model()) { 
+   if (imol < graphics_info_t::n_molecules) {
+      if (graphics_info_t::molecule[imol].has_model()) {
 	 // my function here
       } else {
-	 std::cout << "WARNING:: molecule " << imol 
+	 std::cout << "WARNING:: molecule " << imol
 		   <<  " does not have coordinates\n";
       }
    } else {
       std::cout << "WARNING:: no such molecule " << imol << std::endl;
-   } 
+   }
 }
 
 
 // debug a mol
- 
-       { 
+
+       {
 	  int imod = 1;
 	  mmdb::Model *model_p = flat_mol->GetModel(imod);
 	  mmdb::Chain *chain_p;
@@ -155,7 +155,7 @@ void check_chiral_volumes(int imol) {
 	     int nres = chain_p->GetNumberOfResidues();
 	     mmdb::Residue *residue_p;
 	     mmdb::Atom *atom_p;
-	     for (int ires=0; ires<nres; ires++) { 
+	     for (int ires=0; ires<nres; ires++) {
 		residue_p = chain_p->GetResidue(ires);
 		std::cout << "%%%%%%%%%% DEBUG    residue number " << residue_p->GetSeqNum()
 			  << std::endl;
@@ -168,7 +168,7 @@ void check_chiral_volumes(int imol) {
 	     }
 	  }
        }
- 
+
 
       // debug
       std::cout << "------------ molecule from residue selection ---- " << std::endl;
@@ -180,7 +180,7 @@ void check_chiral_volumes(int imol) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::Residue *residue_p;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    std::cout << "   :" << chain_p->GetChainID() << ": " << residue_p->GetSeqNum()
@@ -190,7 +190,7 @@ void check_chiral_volumes(int imol) {
       }
 
 
-   // ---- simple version with protection 
+   // ---- simple version with protection
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
@@ -199,53 +199,53 @@ void check_chiral_volumes(int imol) {
    } else {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 if (! chain_p) {
-	    std::cout << "Null chain" << std::endl;
-	 } else {
-	    int nres = chain_p->GetNumberOfResidues();
-	    for (int ires=0; ires<nres; ires++) { 
-	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	       if (! residue_p) {
-		  std::cout << "Null residue" << std::endl;
-	       } else {
-		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  std::cout << "residue has " << n_atoms << " atoms " << std::endl;
-		  for (int iat=0; iat<n_atoms; iat++) {
-		     mmdb::Atom *at = residue_p->GetAtom(iat);
-		     if (at)
-			std::cout << "   " << iat << " " << coot::atom_spec_t(at) << std::endl;
-		  }
-	       }
-	    }
-	 }
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         if (! chain_p) {
+            std::cout << "Null chain" << std::endl;
+         } else {
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (! residue_p) {
+                  std::cout << "Null residue" << std::endl;
+               } else {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  std::cout << "residue has " << n_atoms << " atoms " << std::endl;
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (at)
+                     std::cout << "   " << iat << " " << coot::atom_spec_t(at) << std::endl;
+                  }
+               }
+            }
+         }
       }
    }
-      
-   // ---- print mol 
+
+   // ---- print mol
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
    if (model_p) {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 std::cout << "   Chain " << chain_p->GetChainID() << std::endl;
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    std::cout << "      " << residue_spec_t(residue_p) << std::endl;
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       mmdb::Atom *at = residue_p->GetAtom(iat);
-	       std::cout << "       " << atom_spec_t(at) << std::endl;
-	    }
-	 }
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::cout << "   Chain " << chain_p->GetChainID() << std::endl;
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            std::cout << "      " << residue_spec_t(residue_p) << std::endl;
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            for (int iat=0; iat<n_atoms; iat++) {
+               mmdb::Atom *at = residue_p->GetAtom(iat);
+               std::cout << "       " << atom_spec_t(at) << std::endl;
+            }
+         }
       }
    }
-      
 
-   // ---- simple version 
+
+   // ---- simple version
 
 
    // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
@@ -254,11 +254,10 @@ void check_chiral_volumes(int imol) {
    if (model_p) {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       mmdb::Atom *at = residue_p->GetAtom(iat);
-
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            for (int iat=0; iat<n_atoms; iat++) {
+               mmdb::Atom *at = residue_p->GetAtom(iat);

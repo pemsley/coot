@@ -17,6 +17,7 @@ namespace coot {
       clipper::Coord_orth CA_proj_point_prev;
       clipper::Coord_orth CA_proj_point_this;
       clipper::Coord_orth CA_proj_point_next;
+      mmdb::Residue *residue;  // pointer to the cenntral residue
       double score;
 
       cablam_markup_t() { score = -1;}

@@ -9278,4 +9278,11 @@ Thu 13 Feb 18:40:56 GMT 2020
 
 
 
+---
+Fri 14 Feb 16:21:30 GMT 2020
+
+   install gtk3+ on Ubuntu:
+
+   sudo apt-get install libgtk-3-dev
+
 

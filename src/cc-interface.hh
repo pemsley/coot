@@ -116,8 +116,14 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 std::string menu_item_label(GtkWidget *menu_item);
 
 // CaBLAM
-void add_cablam_markup(int imol, const std::string &cablam_file_name);
-
+std::vector<std::pair<coot::residue_spec_t, double> >
+add_cablam_markup(int imol, const std::string &cablam_file_name);
+#ifdef USE_GUILE
+SCM add_cablam_markup_scm(int imol, const std::string &cablam_log_file_name);
+#endif
+#ifdef USE_PYTHON
+PyObject *add_cablam_markup_py(int imol, const std::string &cablam_log_file_name);
+#endif
 
 /*  ---------------------------------------------------------------------- */
 /*                       go to atom   :                                    */

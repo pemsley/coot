@@ -129,6 +129,7 @@
 (define chiral-volume-errors chiral-volume-errors-scm)
 (define all-residues-with-serial-numbers all-residues-with-serial-numbers-scm)
 (define generate-local-self-restraints-by-residues generate-local-self-restraints-by-residues-scm)
+(define add-cablam-markup add-cablam-markup-scm)
 
 ;; (define residues-distortions residues-distortions-scm)
 
