@@ -4069,41 +4069,46 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
    graphics_info_t info;
 
-   // std::cout << "here in handle_scroll_density_level_event " << std::endl;
+   std::cout << "here in handle_scroll_density_level_event " << std::endl;
 
    GdkEvent *peek_event = gdk_event_peek();
    if (peek_event) {
       std::cout << "peaking found an event!" << std::endl;
    }
 
-   int s = info.scroll_wheel_map;
+   int imol_map_for_scroll = info.scroll_wheel_map;
+   std::vector<int> dm = info.displayed_map_imols();
+   if (std::find(dm.begin(), dm.end(), imol_map_for_scroll) == dm.end()) {
+      // imol_map_for_scroll is not visible, choose another one
+      if (dm.size() > 0)
+      imol_map_for_scroll = dm[0];
+   }
 
    if (scroll_up_down_flag == 1) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) {
-	 if (s>=0) {
-	    // short int istate = info.molecules[s].change_contour(1);
-	    info.molecules[s].pending_contour_level_change_count++;
-	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
-	    info.set_density_level_string(s, info.molecules[s].contour_level);
-	    info.display_density_level_this_image = 1;
-	 } else {
-	    std::cout << "WARNING: No map - Can't change contour level.\n";
-	 }
+         if (imol_map_for_scroll >= 0) {
+            // short int istate = info.molecules[s].change_contour(1);
+            info.molecules[imol_map_for_scroll].pending_contour_level_change_count++;
+            int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+            info.set_density_level_string(imol_map_for_scroll, info.molecules[imol_map_for_scroll].contour_level);
+            info.display_density_level_this_image = 1;
+         } else {
+            std::cout << "WARNING: No map - Can't change contour level.\n";
+         }
       }
    }
 
    if (scroll_up_down_flag == 0) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) {
-	 int s = info.scroll_wheel_map;
-	 if (s>=0) {
-	    // short int istate = info.molecules[s].change_contour(-1);
-	    info.molecules[s].pending_contour_level_change_count--;
-	    int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
-	    info.set_density_level_string(s, info.molecules[s].contour_level);
-	    info.display_density_level_this_image = 1;
-	 } else {
-	    std::cout << "WARNING: No map - Can't change contour level.\n";
-	 }
+         if (imol_map_for_scroll >= 0) {
+            // short int istate = info.molecules[s].change_contour(-1);
+            info.molecules[imol_map_for_scroll].pending_contour_level_change_count--;
+            int contour_idle_token = gtk_idle_add((GtkFunction) idle_contour_function, info.glarea);
+            info.set_density_level_string(imol_map_for_scroll, info.molecules[imol_map_for_scroll].contour_level);
+            info.display_density_level_this_image = 1;
+         } else {
+            std::cout << "WARNING: No map - Can't change contour level.\n";
+         }
       }
    }
 }
