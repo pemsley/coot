@@ -9261,3 +9261,50 @@ Fri  6 Dec 2019 14:32:43 GMT
 
    Kevin says that structure factor calculation is in csfcalc.cpp
 
+---
+Tue  3 Dec 11:03:55 GMT 2019
+
+   threaded sort:
+
+   http://quick-bench.com/n55SzmJ2k-FowEP_ERhre56ODWA
+   https://hastebin.com/uceyumepis.cpp
+
+---
+Tue 14 Jan 2020 02:09:52 GMT
+
+   OPUS‐Rota: A fast and accurate method for side‐chain modeling
+   https://onlinelibrary.wiley.com/doi/full/10.1110/ps.035022.108
+
+
+---
+Fri 24 Jan 2020 16:10:04 ICT
+
+   4ebl B 70 SER has linked ligand - nice for tutorial.
+        Has NCS, but not complete for all chains.
+        Also wrong glycerols
+
+
+---
+Sun  2 Feb 05:53:57 GMT 2020
+
+   mmdb bug I think: If you set the residue name to 2 chars, then
+   in the pdb file the 2 chars are in the wrong columns (right
+   justified - should be left).
+
+
+---
+Thu 13 Feb 18:40:56 GMT 2020
+
+    EPG in 2xgb is an example of incorrect/changing chemistry
+    on ligand covalent bond formation A 184 GLU
+
+
+
+---
+Fri 14 Feb 16:21:30 GMT 2020
+
+   install gtk3+ on Ubuntu:
+
+   sudo apt-get install libgtk-3-dev
+
+

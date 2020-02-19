@@ -7,7 +7,9 @@ namespace coot {
 
    // select the residues in a chain and call this for every chain
    // in the molecule.
-   void like_a_helix(mmdb::Manager *mol, int selection_handle);
+   // return a vector of helical residues in that chain
+   //
+   std::vector<mmdb::Residue *> like_a_helix(mmdb::Manager *mol, int selection_handle);
 
    class helical_results_t {
    public:

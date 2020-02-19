@@ -691,7 +691,7 @@ int graphics_info_t::draw_axes_flag = 1; // on by default now.
 
 bool graphics_info_t::regenerate_bonds_needs_make_bonds_type_checked_flag = true;
 
-// 
+//
 short int graphics_info_t::draw_crosshairs_flag = 0;
 
 // For defining a range (to, say, regularize)
@@ -845,7 +845,7 @@ short int graphics_info_t::find_ligand_mask_waters_flag = 0;
 float graphics_info_t::map_mask_atom_radius = -99; // unset
 // std::vector<int> *mol_tmp;
 std::vector<std::pair<int, bool> > *graphics_info_t::find_ligand_ligand_mols_;
-float graphics_info_t::find_waters_sigma_cut_off = 1.8;
+float graphics_info_t::find_waters_sigma_cut_off = 1.4;
 float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
 float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
 int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
@@ -1170,7 +1170,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 // smaller is smoother and less jerky - especially for big molecules
-int       graphics_info_t::dragged_refinement_steps_per_frame = 20;
+int       graphics_info_t::dragged_refinement_steps_per_frame = 8;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
@@ -1704,6 +1704,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
 	   lookup_widget(vbox1, "main_window_graphics_hbox");
 	gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), GTK_WIDGET(drawing_area_tmp));
 
+// #endif here? confliced merge
+
 	/* Capture keypress events */
 	g_signal_connect(G_OBJECT(drawing_area_tmp), "key_press_event",
 			 G_CALLBACK(key_press_event), NULL);
@@ -1916,17 +1918,19 @@ setup_lighting(short int do_lighting_flag) {
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
-      GLfloat light_ambient[]  = { 0.4, 0.4, 0.4, 0.0 };
-      GLfloat light_diffuse[]  = { 0.4, 0.4, 0.4, 0.4 };
-      GLfloat light_specular[] = { 0.4, 0.4, 0.4, 0.4 };
-      GLfloat light_position[] = { 0.4, 0.4, 0.4, 0.0 };
+      GLfloat light_ambient[]  = { 0.2, 0.2, 0.2, 1.0 };
+      GLfloat light_diffuse[]  = { 0.2, 0.2, 0.2, 1.0 };
+      GLfloat light_specular[] = { 0.2, 0.2, 0.2, 1.0 };
+      GLfloat light_position[] = { 0.2, 0.2, 0.2, 1.0 };
 
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
       GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
       GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
 
+      // Light 1 position is set elsewhere.
+
       glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+//      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
       glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
       glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
@@ -1965,6 +1969,8 @@ setup_lighting(short int do_lighting_flag) {
 }
 
 void show_lighting() {
+
+  // Is this a useful function?
 
    if (true) {
 
@@ -3209,8 +3215,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
 
       if (handled == 0) {
-	 if (event->keyval != GDK_KEY_backslash) {
-	    int ikey = event->keyval;
+         if (event->keyval != GDK_KEY_backslash) {
+	         int ikey = event->keyval;
 
 	    if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
@@ -4126,46 +4132,53 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
    graphics_info_t info;
 
-   // std::cout << "here in handle_scroll_density_level_event " << std::endl;
+   std::cout << "here in handle_scroll_density_level_event " << std::endl;
 
    GdkEvent *peek_event = gdk_event_peek();
    if (peek_event) {
       std::cout << "peaking found an event!" << std::endl;
    }
 
-   int s = info.scroll_wheel_map;
+   int imol_map_for_scroll = info.scroll_wheel_map;
+   std::vector<int> dm = info.displayed_map_imols();
+   if (std::find(dm.begin(), dm.end(), imol_map_for_scroll) == dm.end()) {
+      // imol_map_for_scroll is not visible, choose another one
+      if (dm.size() > 0)
+      imol_map_for_scroll = dm[0];
+   }
 
    if (scroll_up_down_flag == 1) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) {
-	 if (s>=0) {
-	    // short int istate = info.molecules[s].change_contour(1);
-	    info.molecules[s].pending_contour_level_change_count++;
-	    GSourceFunc f = idle_contour_function;
-	    // int contour_idle_token = g_idle_add(f, info.glarea);
-	    info.set_density_level_string(s, info.molecules[s].contour_level);
-	    info.display_density_level_this_image = 1;
-	 } else {
-	    std::cout << "WARNING: No map - Can't change contour level.\n";
-	 }
+         if (imol_map_for_scroll>=0) {
+            // short int istate = info.molecules[s].change_contour(1);
+            info.molecules[imol_map_for_scroll].pending_contour_level_change_count++;
+            GSourceFunc f = idle_contour_function;
+            // int contour_idle_token = g_idle_add(f, info.glarea);
+            float cl = info.molecules[imol_map_for_scroll].contour_level;
+            info.set_density_level_string(imol_map_for_scroll, cl);
+            info.display_density_level_this_image = 1;
+         } else {
+            std::cout << "WARNING: No map - Can't change contour level.\n";
+         }
       }
    }
 
-   /*
+
    if (scroll_up_down_flag == 0) {
       if (graphics_info_t::do_scroll_by_wheel_mouse_flag) {
-	 int s = info.scroll_wheel_map;
-	 if (s>=0) {
-	    // short int istate = info.molecules[s].change_contour(-1);
-	    info.molecules[s].pending_contour_level_change_count--;
-	    int contour_idle_token = g_idle_add(idle_contour_function, info.glarea);
-	    info.set_density_level_string(s, info.molecules[s].contour_level);
-	    info.display_density_level_this_image = 1;
-	 } else {
-	    std::cout << "WARNING: No map - Can't change contour level.\n";
-	    }
-	 }
+         if (imol_map_for_scroll>=0) {
+            // short int istate = info.molecules[s].change_contour(-1);
+            info.molecules[imol_map_for_scroll].pending_contour_level_change_count--;
+            int contour_idle_token = g_idle_add(idle_contour_function, info.glarea);
+            float cl = info.molecules[imol_map_for_scroll].contour_level;
+            info.set_density_level_string(imol_map_for_scroll, cl);
+            info.display_density_level_this_image = 1;
+         } else {
+            std::cout << "WARNING: No map - Can't change contour level.\n";
+         }
       }
-   */
+   }
+
 }
 
 

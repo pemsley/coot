@@ -40,10 +40,10 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    }
 
    if (! at) {
-      for (int iat=0; iat<n_atoms; iat++) { 
+      for (int iat=0; iat<n_atoms; iat++) {
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
-	    if (! fixed_check(iat)) { 
+	    if (! fixed_check(iat)) {
 	       add_target_position_restraint(iat, spec, pos);
 	       at = atom[iat];
 	    }
@@ -150,8 +150,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
 
    // get the current coordinates
    int idx = 3*(rest.atom_index_1);
-   clipper::Coord_orth current_pos(gsl_vector_get(v,idx), 
-                                   gsl_vector_get(v,idx+1), 
+   clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
+                                   gsl_vector_get(v,idx+1),
                                    gsl_vector_get(v,idx+2));
 
    // restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
@@ -187,8 +187,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
    }
 }
 
-void coot::my_df_target_pos(const gsl_vector *v, 
-			    void *params, 
+void coot::my_df_target_pos(const gsl_vector *v,
+			    void *params,
 			    gsl_vector *df) {
 
    // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
@@ -196,7 +196,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
    // 20180602-PE let's try harmonic again
 
    bool harmonic_restraint = true;
-   
+
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
    // patch madness
@@ -216,7 +216,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
 // 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
 // 					 gsl_vector_get(v,idx+1),
 // 					 gsl_vector_get(v,idx+2));
-	 
+
 	 if (harmonic_restraint) {
 	    double constant_part = 2.0 / (sigma * sigma);
 
@@ -255,8 +255,8 @@ void coot::my_df_target_pos(const gsl_vector *v,
 	 }
       }
    }
-   
-   
+
+
 }
 
 
@@ -290,17 +290,17 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
             // v.push_back(it->atom_spec);
             // std::cout << "debug:: turn_off_atom_pull_restraints_when_close_to_target_position() adding closed " << it->atom_spec << std::endl;
          } else {
-	    mmdb::Atom *at = atom[it->atom_index_1];
-	    if (atom_spec_t(at) != dragged_atom_spec) {
-	       clipper::Coord_orth pos(at->x, at->y, at->z);
-	       double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
-	       if (d < close_dist) {
+            mmdb::Atom *at = atom[it->atom_index_1];
+            if (atom_spec_t(at) != dragged_atom_spec) {
+               clipper::Coord_orth pos(at->x, at->y, at->z);
+               double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
+               if (d < close_dist) {
                   it->close();
-	          v.push_back(it->atom_spec);
+                  v.push_back(it->atom_spec);
                   // std::cout << "debug:: turn_off_atom_pull_restraints_when_close_to_target_position() adding " << it->atom_spec << std::endl;
-	       }
-	    }
-	 }
+               }
+            }
+         }
       }
    }
 

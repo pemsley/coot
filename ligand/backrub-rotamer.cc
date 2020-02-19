@@ -33,22 +33,26 @@
 std::pair<coot::minimol::molecule,float>
 coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 
+
+    // waters either can clash and H-bond with the side chain  (mode 1)
+    // or they should be ignored in the clash analysis and close waters
+    // should be marked for deletion (mode 0).
+   int water_interaction_mode = 0;
    coot::minimol::molecule mol;
    int n_vr = 15;                     // total is 2*n_vr+1
    double vector_rotation_range = 15; // degrees either side of the starting position.
 
    float best_score = -9999;
+   std::vector<mmdb::Atom *> clashing_waters_for_best_score_local;
    coot::minimol::fragment best_frag;
    coot::richardson_rotamer r_rotamer(orig_this_residue, alt_conf, stored_mol, 0.1, 0);
    std::vector<float> pr = r_rotamer.probabilities();
    unsigned int n_rotatmers = pr.size();
 
-
    // First, where about in space is this residue centred?  Let's use
    // that to do an atom selection and a generation of the molecule
    // for a sphere of residues/atoms.  We can then use these sphere atoms to score the clashes 
 
-   
    clipper::Coord_orth rc = rotamer_residue_centre();
    float rr = residue_radius(rc);
    float rrr = rr + 6.0; // guess
@@ -75,18 +79,19 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 	 }
 	 coot::minimol::fragment frag = make_test_fragment(r, rotation_angle);
 	 float f = score_fragment(frag);
-	 float cs = get_clash_score(frag, sphere_atoms, n_sphere_atoms);
+	 std::pair<float, std::vector<mmdb::Atom *> > cs = get_clash_score(frag, sphere_atoms, n_sphere_atoms, water_interaction_mode);
 
 	 // the clash score is large and positive for big clashes.  
 	 // clash score on to the same scale as density fit.
-	 float total_score =  -0.02 * cs + f;
-	 if (0) { 
+	 float total_score =  -0.02 * cs.first + f;
+	 if (false) {
 	    std::cout << "   angle: " << rotation_angle << " density score " << f
-		      << "  clash score " << cs << " total " << total_score << std::endl;
+		      << "  clash score " << cs.first << " total " << total_score << std::endl;
 	 }
 	 if (total_score > best_score) {
 	    best_score = total_score;
 	    best_frag  = frag;
+	    clashing_waters_for_best_score_local = cs.second;
 	 }
       }
       delete r;
@@ -101,6 +106,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
       throw std::runtime_error(mess);
    }
 
+   clashing_waters = clashing_waters_for_best_score_local;
    return std::pair<coot::minimol::molecule, float> (mol, best_score);
 }
 
@@ -554,19 +560,32 @@ coot::backrub::apply_back_rotation(coot::minimol::fragment *f,
 
 
 
+std::vector<coot::atom_spec_t>
+coot::backrub::waters_for_deletion() const {
+
+   std::vector<atom_spec_t> baddies;
+   for (unsigned int i=0; i<clashing_waters.size(); i++) {
+      baddies.push_back(clashing_waters[i]);
+   }
+   return baddies;
+}
 
 // How are clashes scored?  Hmmm... well, I think no clashes at all should have a score
 // of 0.0 (c.f. auto_best_fit_rotamer()).  I think a badly crashing residue should have a
 // score of around 1000.  A single 2.0A crash will have a score of 16.7 and a 1.0A crash
 // 66.7.
 // 
-float
+// The second is the clashing waters if water_interaction_mode is 0.
+std::pair<float, std::vector<mmdb::Atom *> >
 coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
-		      atom_selection_container_t asc) {
+		      atom_selection_container_t asc, int water_interaction_mode) {
+
+   // Is this the clash score function that you want?
 
    float score = 0;
    // float dist_crit = 2.7;
    float dist_crit = 2.1;
+   std::vector<mmdb::Atom *> clashing_waters;
 
    // First, where is the middle of the rotamer residue atoms and what
    // is the mean and maximum distance of coordinates from that point?
@@ -592,6 +611,7 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
       double d_atom;
       float badness;
       for (int i=0; i<asc.n_selected_atoms; i++) {
+	 mmdb::Atom *at = asc.atom_selection[i];
 	 clipper::Coord_orth atom_sel_atom(asc.atom_selection[i]->x,
 					   asc.atom_selection[i]->y,
 					   asc.atom_selection[i]->z);
@@ -616,12 +636,20 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 				(a_rotamer[ifrag][ires][iat].name != " CA ") &&
 				(a_rotamer[ifrag][ires][iat].name != " O  ") &&
 				(a_rotamer[ifrag][ires][iat].name != " H  ") ) {
-			      badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
-			      std::cout << "adding badness " << badness << " for "
-					<<  asc.atom_selection[i] << "\n";
- 			      if (badness > 100.0)
- 				 badness = 100.0;
-			      score += badness;
+                              bool is_water = false;
+			      if (std::string(at->GetResName()) == "HOH") is_water = true;
+                              if (! is_water || water_interaction_mode == 1) {
+			         badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
+			         std::cout << "adding badness " << badness << " for "
+					   <<  asc.atom_selection[i] << "\n";
+ 			         if (badness > 100.0)
+ 				    badness = 100.0;
+			         score += badness;
+			      } else {
+                                 // we don't count waters in the baddie score, just accumulate them
+				 // for deletion.
+                                 clashing_waters.push_back(at);
+			      }
 			   }
 			}
 		     }
@@ -631,7 +659,8 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	 }
       }
    }
-   return score;
+   std::pair<float, std::vector<mmdb::Atom *> > p(score, clashing_waters);
+   return p;
 } 
 
 
@@ -643,13 +672,15 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 //
 // Uses class data orig_next_residue etc.
 //
-float
+std::pair<float, std::vector<mmdb::Atom *> >
 coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
-			       mmdb::PPAtom atom_selection, int n_sphere_atoms) const {
+			       mmdb::PPAtom atom_selection, int n_sphere_atoms,
+			       int water_interaction_mode) const {
 
    // Clashes to that are to H bonders have a different dist_crit
    // (smaller).  Tested on both atoms not being carbon (for now).
    // 
+   std::vector<mmdb::Atom *> clashing_waters;
    float clash_score = 0.0;
    double dist_crit = 3.2;
    double dist_crit_H_bonder = 2.5; 
@@ -667,6 +698,7 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
    } else {
       
       for (int i=0; i<n_sphere_atoms; i++) {
+         mmdb::Atom *at = atom_selection[i];
 	 clipper::Coord_orth atom_sel_atom_pos(atom_selection[i]->x,
 					       atom_selection[i]->y,
 					       atom_selection[i]->z);
@@ -687,20 +719,29 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
 		     if (dlsq <= 0.001)
 			dlsq = 0.001; 
 		     if (dlsq < dist_crit_sq) {
-			// We take off  1.0/dist_crit_sq so that the clash score goes to 0 at dist_crit.
-			float extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_sq);
-			if (atom_sel_ele != " C" && a_rotamer[ifrag][ires][iat].element != " C") {
-			   if (dlsq > dist_crit_H_bonder_sq)
-			      extra_clash_score = 0.0;
-			   else
-			      extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_H_bonder_sq);
-			}
-			clash_score += extra_clash_score;
-			if (0) 
-			   std::cout << "   really adding badness " << extra_clash_score << " for distance "
-				     << sqrt(dlsq) << " \t" << atom_selection[i] << " to "
-				     << ires << " " << a_rotamer[ifrag][ires][iat].name
-				     << std::endl;
+                        bool is_water = false;
+	                if (std::string(at->GetResName()) == "HOH") is_water = true;
+                        if (!is_water || water_interaction_mode == 1) {
+			   // We take off  1.0/dist_crit_sq so that the clash score goes to 0 at dist_crit.
+			   float extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_sq);
+			   if (atom_sel_ele != " C" && a_rotamer[ifrag][ires][iat].element != " C") {
+			      if (dlsq > dist_crit_H_bonder_sq)
+			         extra_clash_score = 0.0;
+			      else
+			         extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_H_bonder_sq);
+			   }
+			   clash_score += extra_clash_score;
+			   if (false) 
+			      std::cout << "   really adding badness " << extra_clash_score << " for distance "
+				        << sqrt(dlsq) << " \t" << atom_selection[i] << " to "
+				        << ires << " " << a_rotamer[ifrag][ires][iat].name
+				        << std::endl;
+		         } else {
+                            double d = sqrt(dlsq);
+                            if (d < dist_crit_H_bonder) {
+                               clashing_waters.push_back(at);
+		            }
+		        }
 		     }
 		  }
 	       }
@@ -708,5 +749,6 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	 }
       }
    }
-   return clash_score;
+   std::pair<float, std::vector<mmdb::Atom *> > p(clash_score, clashing_waters);
+   return p;
 }

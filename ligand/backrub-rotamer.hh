@@ -30,8 +30,9 @@
 namespace coot {
 
    // not just for backrubbing.
-   float get_clash_score(const coot::minimol::molecule &a_rotamer,
-			 atom_selection_container_t asc);
+   // 20201030-PE now return the clashing waters too.
+        std::pair<float, std::vector<mmdb::Atom *> > get_clash_score(const minimol::molecule &a_rotamer,
+                         atom_selection_container_t asc, int water_interaction_mode);
 
    class backrub {
       mmdb::Residue *orig_this_residue;
@@ -57,8 +58,11 @@ namespace coot {
 
       // do a check of the residue numbers and chaid id so that "same
       // residue" clashes are not counted.
-      float get_clash_score(const coot::minimol::molecule &a_rotamer,
-			    mmdb::PPAtom sphere_atoms, int n_sphere_atoms) const;
+      // 20201030-PE now return the clashing waters too.
+      std::pair<float, std::vector<mmdb::Atom*> >
+      get_clash_score(const minimol::molecule &a_rotamer,
+		                mmdb::PPAtom sphere_atoms, int n_sphere_atoms,
+                     int water_interaction_mode) const;
 
       void rotate_individual_peptide(mmdb::Residue *r, double rotation_angle,
 				     minimol::fragment *f) const;
@@ -80,6 +84,8 @@ namespace coot {
       void apply_back_rotation(minimol::fragment *f,				   
 			       bool is_leading_peptide_flag,
 			       double best_back_rotation_angle) const;
+
+      std::vector<mmdb::Atom *> clashing_waters; // these are turned into waters_for_deletion
 
    public:
 
@@ -104,6 +110,9 @@ namespace coot {
 
       // throw an exception on failure to get a good search result.
       std::pair<coot::minimol::molecule, float> search(const dictionary_residue_restraints_t &rest);
+
+      // maybe we need to delete a water or two to get a good fit for the side chain?
+      std::vector<atom_spec_t> waters_for_deletion() const;
    };
 
 }

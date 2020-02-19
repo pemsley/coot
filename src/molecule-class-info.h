@@ -422,7 +422,7 @@ class molecule_class_info_t {
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 240.0 default colour_map_rotation
 
-   float get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag) const;
+   std::pair<float, std::vector<mmdb::Atom *> > get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag, int water_interaction_modeb) const;
    std::pair<double, clipper::Coord_orth> get_minimol_pos(const coot::minimol::molecule &a_rotamer) const;
 
    // backup is done in the wrappers.  (This factorization needed for
@@ -594,10 +594,12 @@ class molecule_class_info_t {
    // uncommenting the following line causes a crash in the multi-molecule
    // (expand molecule space) test.
    bool original_fphis_filled;
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
    bool original_fobs_sigfobs_filled;
+   bool original_fobs_sigfobs_fill_tried_and_failed;
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >  original_fphis;
    clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
-   void fill_fobs_sigfobs();
+   clipper::HKL_data< clipper::data32::Flag> original_r_free_flags;
+
 
    // is the CCP4 map a EM map? (this is so that we can fill the
    // NXmap, not the xmap)
@@ -780,7 +782,8 @@ public:        //                      public
 
       // original Fs saved? (could be from map)
       original_fphis_filled = 0;
-      original_fobs_sigfobs_filled = 0;
+      original_fobs_sigfobs_filled = false;
+      original_fobs_sigfobs_fill_tried_and_failed = false;
 
 
       //  bond width (now changeable).
@@ -795,7 +798,9 @@ public:        //                      public
       rotate_colour_map_for_difference_map = 240.0; // degrees
 
       // save index
-      coot_save_index = 0;
+      coot_save_index = 0; // how is this related to the backup history_index?
+
+      other_molecule_backup_index = -1; // unset
 
       // ligand flipping. save the index
       ligand_flip_number = 0; // or 1 2 3 for the 4 different
@@ -840,6 +845,7 @@ public:        //                      public
 
       // draw vectors
       draw_vector_sets.reserve(120);
+      draw_vector_sets.resize(120);
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -906,7 +912,7 @@ public:        //                      public
 					   	                    // we also set
 						                    // bond_colour_internal.
    void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
-   
+
    // return the colour, don't call glColor3f();
    coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
 
@@ -1549,6 +1555,12 @@ public:        //                      public
 					const std::string &sigf_col,
 					atom_selection_container_t SelAtom,
 					short int is_2fofc_type);
+   // use this molecules mol and the passed data to make a map for some other
+   // molecule
+   int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                     clipper::Xmap<float> *xmap_p);
+   void fill_fobs_sigfobs();
 
 
    void update_map_in_display_control_widget() const;
@@ -1687,6 +1699,22 @@ public:        //                      public
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;
 
+   const clipper::HKL_data<clipper::data32::F_sigF> &get_original_fobs_sigfobs() {
+      if (!original_fobs_sigfobs_filled) {
+         std::string m("Original Fobs/sigFobs is not filled");
+         throw(std::runtime_error(m));
+      }
+      return original_fobs_sigfobs;
+   }
+
+      const clipper::HKL_data<clipper::data32::Flag> &get_original_rfree_flags() {
+      if (!original_fobs_sigfobs_filled) {
+         std::string m("Original Fobs/sigFobs is not filled - so no RFree flags");
+         throw(std::runtime_error(m));
+      }
+      return original_r_free_flags;
+   }
+
 
    // for the "Render As: " menu items:
    //
@@ -1813,6 +1841,8 @@ public:        //                      public
    int delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs);
 
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
+
+   int delete_waters(); // return status of atoms deleted (0 -> none deleted).
 
    int delete_chain(const std::string &chain_id);
 
@@ -2028,8 +2058,9 @@ public:        //                      public
    int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
    int Have_unsaved_changes_p() const;
-   short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
-   short int Have_redoable_modifications_p() const ;
+   bool Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
+   bool Have_redoable_modifications_p() const ;
+   int get_history_index() const;
    void turn_off_backup() { backup_this_molecule = 0; }
    void turn_on_backup()  { backup_this_molecule = 1; }
    int apply_undo(const std::string &cwd);
@@ -2324,6 +2355,7 @@ public:        //                      public
    }
 
 
+   float get_contour_level_by_sigma() const;
    // external contour control (from saving parameters):
    void set_contour_level(float f);
    void set_contour_level_by_sigma(float f);
@@ -3334,6 +3366,10 @@ public:        //                      public
 
    void globularize();
 
+   // is_EM_map is used (1) to know not to contour outside the box
+   //                   (2) to know which entry to use in Map Parameters dialog
+   //                   so, if this is an-origin-centred map, then
+   //                   those answers don't correspond. Needs some thought.
    bool is_EM_map() const;
    short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
    short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
@@ -3415,6 +3451,16 @@ public:        //                      public
    bool continue_watching_coordinates_file;
    updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
    int update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &p);
+
+   // watch for changes in the model of a different molecule (denoted by change of backup index)
+   // and act on it (by updating this difference map). This needs to be static because its
+   // called by g_timeout.
+   static int watch_coordinates_updates(gpointer);
+   int other_molecule_backup_index;
+   int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
+
+   // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
+   void set_mean_and_sigma();
 
 };
 

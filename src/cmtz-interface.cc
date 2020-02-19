@@ -655,9 +655,9 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    // modern: g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
    // old but consistend with gtk_object_get_user_data
-   // 20200104-PE causes failure on merge of refinement into gtk3 branch
    // gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns);
-   std::cout << "FIXME:: gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns)" << std::endl;
+   g_object_set_data(G_OBJECT(column_label_window), "f_phi_columns", f_phi_columns);
+
 
 
    // ----------------------- comboboxes! ----------------------

@@ -1871,8 +1871,12 @@ public:
    static bool do_rama_restraints;
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
+   static bool do_rotamer_restraints;
+   static bool do_debug_refinement;
    static int  restraints_rama_type;
    static float rama_restraints_weight;
+
+   std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
    coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
@@ -4028,6 +4032,10 @@ string   static std::string sessionid;
    void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
    bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 
+   void sfcalc_genmap(int imol_model,
+                      int imol_map_with_data_attached,
+                      int imol_updating_difference_map);
+
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
@@ -4044,6 +4052,10 @@ string   static std::string sessionid;
    // immediate accept mode or no-gui.  In scripted (e.g. sphere-refine)
    // we should not wait
    void conditionally_wait_for_refinement_to_finish();
+
+ // for updating (difference) maps - we don't want to set 2 of these (or more) off
+//  at the same time.
+   static std::atomic<bool> on_going_updating_map_lock;
 
 
 #ifdef USE_PYTHON

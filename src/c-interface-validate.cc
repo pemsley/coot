@@ -2795,25 +2795,25 @@ PyObject *pathology_data(const std::string &mtz_file_name,
       int n_reflns = fsigf.num_obs();
       clipper::HKL_info::HKL_reference_index hri;
       for (hri=fsigf.first(); !hri.last(); hri.next()) {
-	 if (! clipper::Util::isnan(fsigf[hri].f())) {
-	    double invresolsq = hri.invresolsq();
-	    std::pair<double, double> p(invresolsq, fsigf[hri].f());
-	    fp_vs_reso_data.push_back(p);
-	    const double &f    = fsigf[hri].f();
-	    const double &sigf = fsigf[hri].sigf();
-	    if (! clipper::Util::isnan(sigf)) {
-	       if (sigf != 0) {
-		  std::pair<double, double> p1(invresolsq, f/sigf);
-		  fosf_vs_reso_data.push_back(p1);
-		  std::pair<double, double> p2(f, sigf);
-		  sf_vs_f_data.push_back(p2);
-		  std::pair<double, double> p3(f, f/sigf);
-		  fosf_vs_f_data.push_back(p3);
-		  if (invresolsq > invresolsq_max)
-		     invresolsq_max = invresolsq;
-	       }
-	    }
-	 }
+         if (! clipper::Util::isnan(fsigf[hri].f())) {
+            double invresolsq = hri.invresolsq();
+            std::pair<double, double> p(invresolsq, fsigf[hri].f());
+            fp_vs_reso_data.push_back(p);
+            const double &f    = fsigf[hri].f();
+            const double &sigf = fsigf[hri].sigf();
+            if (! clipper::Util::isnan(sigf)) {
+               if (sigf != 0) {
+                  std::pair<double, double> p1(invresolsq, f/sigf);
+                  fosf_vs_reso_data.push_back(p1);
+                  std::pair<double, double> p2(f, sigf);
+                  sf_vs_f_data.push_back(p2);
+                  std::pair<double, double> p3(f, f/sigf);
+                  fosf_vs_f_data.push_back(p3);
+                  if (invresolsq > invresolsq_max)
+                  invresolsq_max = invresolsq;
+               }
+            }
+         }
       }
    }
    catch (const clipper::Message_fatal &e) {
@@ -2821,7 +2821,7 @@ PyObject *pathology_data(const std::string &mtz_file_name,
    }
 
    std::cout << "INFO:: pathology_plots() found "
-	     << fp_vs_reso_data.size() << " data" << std::endl;
+   << fp_vs_reso_data.size() << " data" << std::endl;
 
 
    // this is just a bit of fun - looking for large FP outliers.
@@ -2935,5 +2935,105 @@ PyObject *pathology_data(const std::string &mtz_file_name,
      Py_INCREF(r);
 
    return r;
+}
+#endif // USE_PYTHON
+
+#include "coot-utils/cablam-markup.hh"
+#include "c-interface-generic-objects.h"
+
+std::vector<std::pair<coot::residue_spec_t, double> >
+add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
+
+   std::vector<std::pair<coot::residue_spec_t, double> > residues_vec;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      std::vector<coot::cablam_markup_t> v = coot::make_cablam_markups(mol, cablam_log_file_name);
+
+      std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
+      std::vector<coot::cablam_markup_t>::const_iterator it;
+      int idx_cablam = generic_object_index("CaBLAM");
+      if (idx_cablam == -1)
+         idx_cablam = new_generic_object_number("CaBLAM");
+      else
+         generic_object_clear(idx_cablam);
+      set_display_generic_object(idx_cablam, 0); // don't display while we are adding
+      if (v.size() > 0) {
+         for (it=v.begin(); it!=v.end(); it++) {
+            std::pair<coot::residue_spec_t, double> p(it->residue, it->score);
+            residues_vec.push_back(p);
+         }
+      }
+      for (it=v.begin(); it!=v.end(); it++) {
+         const coot::cablam_markup_t &cm(*it);
+         to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
+         to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
+         to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z());
+
+         if (false) {
+            std::cout << "line 1: " << cm.O_this_pos.format() << " to " << cm.CA_proj_point_this.format() << std::endl;
+            std::cout << "line 2: " << cm.O_prev_pos.format() << " to " << cm.CA_proj_point_prev.format() << std::endl;
+            std::cout << "line 3: " << cm.O_next_pos.format() << " to " << cm.CA_proj_point_next.format() << std::endl;
+         }
+
+         to_generic_object_add_line(idx_cablam, "hotpink", 4,
+         cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
+         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
+
+         to_generic_object_add_line(idx_cablam, "hotpink", 4,
+         cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
+         cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+
+         to_generic_object_add_line(idx_cablam, "hotpink", 4,
+         cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
+         cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+
+         to_generic_object_add_line(idx_cablam, "hotpink", 4,
+         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+         cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+
+         to_generic_object_add_line(idx_cablam, "hotpink", 4,
+         cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+         cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+
+      }
+      set_display_generic_object(idx_cablam, 1); // now we can see it
+      graphics_draw();
+   }
+   return residues_vec;
+}
+
+
+#ifdef USE_GUILE
+SCM add_cablam_markup_scm(int imol, const std::string &cablam_log_file_name) {
+
+   std::vector<std::pair<coot::residue_spec_t, double> > v = add_cablam_markup(imol, cablam_log_file_name);
+   SCM r = SCM_EOL;
+   std::vector<std::pair<coot::residue_spec_t, double> >::const_iterator it;
+   for (it=v.begin(); it!=v.end(); it++) {
+      SCM item_scm = SCM_LIST2(residue_spec_to_scm(it->first), scm_double2num(it->second));
+      r = scm_cons(item_scm, r);
+   }
+   r = scm_reverse(r);
+   return r;
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *add_cablam_markup_py(int imol, const std::string &cablam_log_file_name) {
+
+   std::vector<std::pair<coot::residue_spec_t, double> > v = add_cablam_markup(imol, cablam_log_file_name);
+   PyObject *r = PyList_New(v.size());
+   for (unsigned int i=0; i<v.size(); i++) {
+      const double score = v[i].second;
+      const coot::residue_spec_t &spec(v[i].first);
+      PyObject *item_py = PyList_New(2);
+      PyList_SetItem(item_py, 0, residue_spec_to_py(spec));
+      PyList_SetItem(item_py, 1, PyFloat_FromDouble(score));
+      PyList_SetItem(r, i, item_py);
+   }
+   return r;
+
 }
 #endif // USE_PYTHON

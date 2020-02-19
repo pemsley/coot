@@ -50,6 +50,7 @@ void remove_file_curlew_menu_item_maybe() {
    // OK, keep the menu item in.
 
 #else
+   std::cout << "No curlew - not compiled" << std::endl;
    GtkWidget *menubar = lookup_widget(graphics_info_t::statusbar, "menubar1");
    if (menubar) {
       // gtk_container_foreach(GTK_CONTAINER(menubar), my_delete_file_curlew_menu_item, menubar);

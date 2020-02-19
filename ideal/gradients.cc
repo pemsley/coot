@@ -1046,6 +1046,7 @@ coot::fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
    double F = 1/G;
    if (G == 0.0) F = 999999999.9;
 
+   dtg.tan_theta = E/G;
    dtg.theta = clipper::Util::rad2d(atan2(E,G));
    if ( clipper::Util::isnan(dtg.theta) ) {
       std::cout << "oops: bad torsion: " << E << "/" << G << std::endl;
@@ -1266,93 +1267,70 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 		  fill_distortion_torsion_gradients(P1, P2, P3, P4);
 
 	       if (! do_rama_torsions) { 
-		  // 
-		  // use period 
 
-		  double diff = 99999.9; 
-		  double tdiff; 
-		  double trial_target; 
-		  int per = (*restraints)[i].periodicity;
+                  if (dtg.zero_gradients) {
 
-		  if (dtg.theta < 0.0) dtg.theta += 360.0; 
+                     std::cout << "debug:: in process_dfs_torsion zero_gradients " << std::endl;
 
-		  for(int iper=0; iper<per; iper++) { 
-		     trial_target = (*restraints)[i].target_value + double(iper)*360.0/double(per); 
-		     if (trial_target >= 360.0) trial_target -= 360.0; 
-		     tdiff = dtg.theta - trial_target;
-		     if (tdiff < -180) tdiff += 360;
-		     if (tdiff >  180) tdiff -= 360;
-		     // std::cout << "   iper: " << iper << "   " << dtg.theta << "   " << trial_target << "   " << tdiff << "   " << diff << std::endl;
-		     if (fabs(tdiff) < fabs(diff)) { 
-			diff = tdiff;
-		     }
-		  }
-		  if (diff < -180.0) { 
-		     diff += 360.; 
-		  } else { 
-		     if (diff > 180.0) { 
-			diff -= 360.0; 
-		     }
-		  }
-		  
-		  if (false)
-		     std::cout << "in df_torsion: dtg.theta is " << dtg.theta 
-			       <<  " and target is " << (*restraints)[i].target_value 
-			       << " and diff is " << diff
-			       << " and periodicity: " << (*restraints)[i].periodicity << std::endl;
+                  } else {
 
-		  double tt = tan(clipper::Util::d2rad(dtg.theta));
-		  double torsion_scale = (1.0/(1+tt*tt)) *
-		     clipper::Util::rad2d(1.0);
+                    // ----------- untested ----------------------
 
-		  double weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
+                     double V_jk = 1.0;
+                     double n_jk = this_restraint.periodicity;
+                     double phi     = clipper::Util::d2rad(dtg.theta); // variable name change
+                     double phi0_jk = clipper::Util::d2rad(this_restraint.target_value);
+                     double dV_dphi = 0.5 * V_jk * (sin(n_jk*(phi - phi0_jk))) * n_jk;
+                     double tt = dtg.tan_theta; // variable name change
+                     double scale = dV_dphi/(1.0 + tt*tt);
 
-		  // 	       std::cout << "torsion weight: " << weight << std::endl;
-		  // 	       std::cout << "torsion_scale : " << torsion_scale << std::endl; 
-		  // 	       std::cout << "diff          : " << torsion_scale << std::endl; 	       
+                     double xP1_contrib = scale * dtg.dD_dxP1;
+                     double xP2_contrib = scale * dtg.dD_dxP2;
+                     double xP3_contrib = scale * dtg.dD_dxP3;
+                     double xP4_contrib = scale * dtg.dD_dxP4;
 
-		  double xP1_contrib = 2.0*diff*dtg.dD_dxP1*torsion_scale * weight;
-		  double xP2_contrib = 2.0*diff*dtg.dD_dxP2*torsion_scale * weight;
-		  double xP3_contrib = 2.0*diff*dtg.dD_dxP3*torsion_scale * weight;
-		  double xP4_contrib = 2.0*diff*dtg.dD_dxP4*torsion_scale * weight;
+                     double yP1_contrib = scale * dtg.dD_dyP1;
+                     double yP2_contrib = scale * dtg.dD_dyP2;
+                     double yP3_contrib = scale * dtg.dD_dyP3;
+                     double yP4_contrib = scale * dtg.dD_dyP4;
 
-		  double yP1_contrib = 2.0*diff*dtg.dD_dyP1*torsion_scale * weight;
-		  double yP2_contrib = 2.0*diff*dtg.dD_dyP2*torsion_scale * weight;
-		  double yP3_contrib = 2.0*diff*dtg.dD_dyP3*torsion_scale * weight;
-		  double yP4_contrib = 2.0*diff*dtg.dD_dyP4*torsion_scale * weight;
+                     double zP1_contrib = scale * dtg.dD_dzP1;
+                     double zP2_contrib = scale * dtg.dD_dzP2;
+                     double zP3_contrib = scale * dtg.dD_dzP3;
+                     double zP4_contrib = scale * dtg.dD_dzP4;
 
-		  double zP1_contrib = 2.0*diff*dtg.dD_dzP1*torsion_scale * weight;
-		  double zP2_contrib = 2.0*diff*dtg.dD_dzP2*torsion_scale * weight;
-		  double zP3_contrib = 2.0*diff*dtg.dD_dzP3*torsion_scale * weight;
-		  double zP4_contrib = 2.0*diff*dtg.dD_dzP4*torsion_scale * weight;
-	    
-		  if (! (*restraints)[i].fixed_atom_flags[0]) { 
-		     idx = 3*((*restraints)[i].atom_index_1);
-		     *gsl_vector_ptr(df, idx  ) += xP1_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP1_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP1_contrib;
-		  }
+                     if (! this_restraint.fixed_atom_flags[0]) {
+                        idx = 3*(this_restraint.atom_index_1);
 
-		  if (! (*restraints)[i].fixed_atom_flags[1]) { 
-		     idx = 3*((*restraints)[i].atom_index_2);
-		     *gsl_vector_ptr(df, idx  ) += xP2_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP2_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP2_contrib;
-		  }
+                        *gsl_vector_ptr(df, idx  ) += xP1_contrib;
+                        *gsl_vector_ptr(df, idx+1) += yP1_contrib;
+                        *gsl_vector_ptr(df, idx+2) += zP1_contrib;
+                     }
 
-		  if (! (*restraints)[i].fixed_atom_flags[2]) { 
-		     idx = 3*((*restraints)[i].atom_index_3);
-		     *gsl_vector_ptr(df, idx  ) += xP3_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP3_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP3_contrib;
-		  }
+                     if (! this_restraint.fixed_atom_flags[1]) {
+                        idx = 3*(this_restraint.atom_index_2);
 
-		  if (! (*restraints)[i].fixed_atom_flags[3]) { 
-		     idx = 3*((*restraints)[i].atom_index_4);
-		     *gsl_vector_ptr(df, idx  ) += xP4_contrib;
-		     *gsl_vector_ptr(df, idx+1) += yP4_contrib;
-		     *gsl_vector_ptr(df, idx+2) += zP4_contrib;
-		  }
+                        *gsl_vector_ptr(df, idx  ) += xP2_contrib;
+                        *gsl_vector_ptr(df, idx+1) += yP2_contrib;
+                        *gsl_vector_ptr(df, idx+2) += zP2_contrib;
+                     }
+
+                     if (! this_restraint.fixed_atom_flags[2]) {
+                        idx = 3*(this_restraint.atom_index_3);
+
+                        *gsl_vector_ptr(df, idx  ) += xP3_contrib;
+                        *gsl_vector_ptr(df, idx+1) += yP3_contrib;
+                        *gsl_vector_ptr(df, idx+2) += zP3_contrib;
+                     }
+
+                     if (! this_restraint.fixed_atom_flags[3]) {
+                        idx = 3*(this_restraint.atom_index_4);
+
+                        *gsl_vector_ptr(df, idx  ) += xP4_contrib;
+                        *gsl_vector_ptr(df, idx+1) += yP4_contrib;
+                        *gsl_vector_ptr(df, idx+2) += zP4_contrib;
+                     }
+                  }
 	       }
 	    }
 	    catch (const std::runtime_error &rte) {

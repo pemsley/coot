@@ -1156,7 +1156,16 @@ int map_from_mtz_by_calc_phases(const char *mtz_file_name,
 				const char *sigf_col,
 				int imol_coords);
 
-// gdouble* get_map_colour(int imol); now is a GdkColor
+/*! \brief Calculate structure factors from the model and update the given difference
+           map accordingly */
+void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
+
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but difference map gets updated automatically on modification of
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map);
+
+// gdouble* get_map_colour(int imol);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -1444,8 +1453,8 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 /*! \brief make a map molecule from the give file name.
 
  If the file updates, then the map will be updated. */
-int make_updating_map(const char *mtz_file_name, 
-		      const char *f_col, const char *phi_col, 
+int make_updating_map(const char *mtz_file_name,
+		      const char *f_col, const char *phi_col,
 		      const char *weight,
 		      int use_weights, int is_diff_map);
 
@@ -2165,7 +2174,7 @@ void set_colour_map_rotation_on_read_pdb_c_only_flag(short int i);
 void set_colour_by_chain(int imol);
 
 /*! \brief colour molecule number imol by chain type, goodsell-like colour scheme */
-void set_colour_by_chain_goodsell_mode(int imol); 
+void set_colour_by_chain_goodsell_mode(int imol);
 
 /*! \brief colour molecule number imol by molecule */
 void set_colour_by_molecule(int imol);
@@ -3451,6 +3460,9 @@ void set_refine_ramachandran_restraints_weight(float w);
 @return weight as a float */
 float refine_ramachandran_restraints_weight();
 
+/* \brief set the state for using rotamer restraints "drive" mode */
+void set_refine_rotamers(int state);
+
 void set_refinement_geman_mcclure_alpha_from_text(int idx, const char *t);
 void set_refinement_lennard_jones_epsilon_from_text(int idx, const char *t);
 void set_refinement_ramachandran_restraints_weight_from_text(int idx, const char *t);
@@ -3459,6 +3471,8 @@ void set_refine_params_dialog_more_control_frame_is_active(int state);
 int refine_ramachandran_angles_state();
 
 void set_numerical_gradients(int istate);
+
+void set_debug_refinement(int state);
 
 
 /*! \brief correct the sign of chiral volumes before commencing refinement?
@@ -3538,9 +3552,9 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
 /*! \brief add a user-define GM distance restraint
 
    this extra restraint is used when the given atoms are selected in
-   refinement or regularization. 
+   refinement or regularization.
 
-   @return the index of the new restraint.  
+   @return the index of the new restraint.
 
    @return -1 when the atoms were not found and no extra bond
    restraint was stored.  */
@@ -5060,6 +5074,11 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
 
    @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
+
+/*! \brief delete all waters in molecule,
+
+   @return number of waters deleted. */
+int delete_waters(int imol);
 
 /*! \brief delete the chain  */
 void delete_chain(int imol, const char *chain_id);

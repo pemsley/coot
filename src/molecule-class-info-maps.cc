@@ -323,16 +323,21 @@ molecule_class_info_t::update_map_internal() {
 
       update_map_triangles(radius, rc);  // NXMAP-FIXME
 
-      if (graphics_info_t::use_graphics_interface_flag) {
-         if (graphics_info_t::display_lists_for_maps_flag) {
-	         graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
-	         compile_density_map_display_list(SIDE_BY_SIDE_MAIN);
-	         if (graphics_info_t::display_mode_use_secondary_p()) {
-	            graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
-	            compile_density_map_display_list(SIDE_BY_SIDE_SECONDARY);
-	            graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
-	         }
-	      }
+      try {
+         if (graphics_info_t::use_graphics_interface_flag) {
+            if (graphics_info_t::display_lists_for_maps_flag) {
+               graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+               compile_density_map_display_list(SIDE_BY_SIDE_MAIN);
+               if (graphics_info_t::display_mode_use_secondary_p()) {
+                  graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+                  compile_density_map_display_list(SIDE_BY_SIDE_SECONDARY);
+                  graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+               }
+            }
+         }
+      }
+      catch (const std::bad_alloc &ba) {
+         std::cout << "ERROR:: out of memory " << ba.what() << std::endl;
       }
    }
 }
@@ -374,18 +379,46 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
    // set original_fobs_sigfobs_filled when done
 
+   std::cout << "DEBUG:: in fill_fobs_sigfobs() with have_sensible_refmac_params "
+            << have_sensible_refmac_params << std::endl;
+
    if (have_sensible_refmac_params) {
 
-      std::pair<std::string, std::string> p =
-	 make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
-      clipper::CCP4MTZfile mtzin;
-      mtzin.open_read(Refmac_mtz_filename());
-      mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
-      mtzin.close_read();
-      std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-		<< original_fobs_sigfobs.num_obs() << " data" << std::endl;
-      if (original_fobs_sigfobs.num_obs() > 100)
-	 original_fobs_sigfobs_filled = 1;
+      // only try this once. If you try to import_hkl_data() when the original_fobs_sigfobs
+      // already contains data, then crashiness.
+      //
+      if (! original_fobs_sigfobs_filled && ! original_fobs_sigfobs_fill_tried_and_failed) {
+
+         std::pair<std::string, std::string> p =
+            make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+         clipper::CCP4MTZfile mtzin;
+         mtzin.open_read(Refmac_mtz_filename());
+         mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
+         mtzin.close_read();
+         std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+                   << original_fobs_sigfobs.num_obs() << " data using data name"
+                   << p.first << std::endl;
+         if (original_fobs_sigfobs.num_obs() > 10)
+            original_fobs_sigfobs_filled = 1;
+         else
+            original_fobs_sigfobs_fill_tried_and_failed = true;
+
+         // flags
+
+         if (refmac_r_free_flag_sensible) {
+            std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+            mtzin.open_read(Refmac_mtz_filename());
+            mtzin.import_hkl_data(original_r_free_flags, dataname);
+            mtzin.close_read();
+
+            std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+                      << original_r_free_flags.num_obs() << " R-free flags\n";
+         } else {
+            std::cout << "INFO:: no sensible R-free flag column label\n";
+         }
+      }
+   } else {
+      std::cout << "DEBUG:: fill_fobs_sigfobs() no sensible r-free parameters\n";
    }
 }
 
@@ -405,7 +438,7 @@ molecule_class_info_t::compile_density_map_display_list(short int first_or_secon
 
 	 glEndList();
       } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE MAIN! " << std::endl;
+         std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE MAIN! " << std::endl;
       }
    }
    if (first_or_second == SIDE_BY_SIDE_SECONDARY) {
@@ -722,7 +755,7 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 						  iream_start, iream_end, n_reams,
 						  is_em_map);
       bool unlocked = false;
-      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
 	 std::this_thread::sleep_for(std::chrono::microseconds(10));
 	 unlocked = false;
       }
@@ -1294,19 +1327,19 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    } else {
 
       if (use_weights) {
-	 // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
-	 mtzin.import_hkl_data( f_sigf_data, p.first );
-	 // std::cout << "DEBUG:: Importing phi_fom_data: " << p.second << std::endl;
-	 mtzin.import_hkl_data(phi_fom_data, p.second);
-	 mtzin.close_read();
-	 fphidata.init( f_sigf_data.spacegroup(), f_sigf_data.cell(), f_sigf_data.hkl_sampling() );
-	 fphidata.compute(f_sigf_data, phi_fom_data,
-			  clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
-      } else {
-	 // std::cout << "DEBUG:: Importing f_phi_data: " << p.first << std::endl;
-	 mtzin.import_hkl_data(fphidata, p.first);
-	 mtzin.close_read();
-      }
+         // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
+         mtzin.import_hkl_data( f_sigf_data, p.first );
+         // std::cout << "DEBUG:: Importing phi_fom_data: " << p.second << std::endl;
+         mtzin.import_hkl_data(phi_fom_data, p.second);
+         mtzin.close_read();
+         fphidata.init( f_sigf_data.spacegroup(), f_sigf_data.cell(), f_sigf_data.hkl_sampling() );
+         fphidata.compute(f_sigf_data, phi_fom_data,
+                          clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
+       } else {
+          // std::cout << "DEBUG:: Importing f_phi_data: " << p.first << std::endl;
+          mtzin.import_hkl_data(fphidata, p.first);
+          mtzin.close_read();
+       }
 
       long T1 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
@@ -2177,6 +2210,15 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    map_sigma_ = sqrt(mv.variance);
 
    update_map();
+}
+
+void
+molecule_class_info_t::set_mean_and_sigma() {
+
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true);
+   map_mean_ = mv.mean;
+   map_sigma_ = sqrt(mv.variance);
+
 }
 
 void
@@ -3052,7 +3094,7 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 //
 int
 molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
-					 const clipper::Cell &cell,
+                                         const clipper::Cell &cell,
                                          std::string phs_filename) {
 
    // clipper::Resolution resolution(reso);  // no.
@@ -3139,14 +3181,14 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 
       initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
-      cout << "initializing map...";
+      std::cout << "initializing map...";
       xmap.init(mydata.spacegroup(),
-		mydata.cell(),
-		clipper::Grid_sampling(mydata.spacegroup(),
-				       mydata.cell(),
-				       mydata.resolution(),
-				       graphics_info_t::map_sampling_rate));
-      cout << "done."<< endl;
+                mydata.cell(),
+                clipper::Grid_sampling(mydata.spacegroup(),
+                                       mydata.cell(),
+                                       mydata.resolution(),
+                                       graphics_info_t::map_sampling_rate));
+      std::cout << "done."<< std::endl;
 
       if (0) {
 	 std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " "
@@ -4063,4 +4105,16 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
       status = 0;
    }
    return status;
+}
+
+#include "coot-utils/sfcalc-genmap.hh"
+
+   // use this molecules mol and the passed data to make a map for some other
+   // molecule
+int
+molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                                     clipper::Xmap<float> *xmap_p) {
+   coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+   return 0;
 }

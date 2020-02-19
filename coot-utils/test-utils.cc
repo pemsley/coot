@@ -1,18 +1,18 @@
 /* coot-utils/test-utils.cc
- * 
+ *
  * Copyright 2005, 2006 by Paul Emsley, The University of York
  * Copyright 2014 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -44,7 +44,7 @@ public:
 coot::protein_geometry testing_data::geom;
 
 
-namespace coot { 
+namespace coot {
    class SortableChainsManager : public mmdb::Manager {
    public:
       void SortChains();
@@ -54,7 +54,7 @@ namespace coot {
 void
 coot::SortableChainsManager::SortChains() {
 
-   for (int imod=1; imod<=GetNumberOfModels(); imod++) { 
+   for (int imod=1; imod<=GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = GetModel(imod);
       mmdb::Chain *chain_p;
       // run over chains of the existing mol
@@ -82,7 +82,7 @@ void test_euler_angles() {
 
    std::cout << "Rotation from euler angles: \n"
 	     << r.matrix().format() << std::endl;
-   
+
 }
 
 
@@ -152,16 +152,16 @@ void test_lsq_improve() {
       std::cout << "There was an error reading " << mov_pdb << ".\n";
    }
 
-   for (unsigned int i=0; i<1; i++) { 
+   for (unsigned int i=0; i<1; i++) {
 
-      try { 
+      try {
 	 coot::lsq_improve lsq_imp(mol_1, "//A/1-50", mol_2, "//A/4-50");
 	 lsq_imp.improve();
 	 clipper::RTop_orth rtop = lsq_imp.rtop_of_moving();
 	 std::cout << "rtop:\n" << rtop.format() << std::endl;
 	 coot::util::transform_mol(mol_2, rtop);
 	 // mol_2->WritePDBASCII("lsq-improved.pdb");
-	 
+
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "lsq_improve ERROR::" << rte.what() << std::endl;
@@ -197,7 +197,7 @@ int test_string_manipulation() {
    std::cout << a << "   upcased: " << coot::util::upcase(a) << std::endl;
 
    std::string s("Cottage");
-   std::string r("tag"); 
+   std::string r("tag");
    std::cout  << "removing :" << r << ": from :" << s << ": gives :"
 	      << coot::util::remove_string(s, r) <<  ":" << std::endl;
    r = "tage";
@@ -228,7 +228,7 @@ int test_string_manipulation() {
    split_test(r);
 
    return 0;
-   
+
 }
 
 int test_matrices() {
@@ -267,21 +267,21 @@ int test_glyco_tree() {
    int dynamic_add_status_3 = t.geom.try_dynamic_add("BMA", 1);
    int dynamic_add_status_4 = t.geom.try_dynamic_add("GAL", 1);
    // int dynamic_add_status_4 = t.geom.try_dynamic_add("GLB", 1); minimal
-   
+
    mmdb::Manager *mol = new mmdb::Manager;
    // std::string file_name = "3u2s.pdb";
    // coot::residue_spec_t spec("G", 560, "");
 
    std::string file_name = "sweet2-test-1.pdb";
    coot::residue_spec_t spec("", 1, "");
-   
+
    mol->ReadCoorFile(file_name.c_str());
    mmdb::Residue *r = coot::util::get_residue(spec, mol);
    if (! r) {
       std::cout << "No residue " << spec << std::endl;
    } else {
       coot::glyco_tree_t gt(r, mol, &t.geom);
-   } 
+   }
 
 
    delete mol;
@@ -296,7 +296,7 @@ int test_helix_analysis() {
    // file_name = "../src/pdb2qc1-sans-sans-ASN.pdb";
    coot::residue_spec_t spec("A", 10, "");
    // coot::residue_spec_t spec("B", 201, "");
-   
+
    mol->ReadCoorFile(file_name.c_str());
    mmdb::Residue *r = coot::util::get_residue(spec, mol);
    if (! r) {
@@ -320,27 +320,27 @@ int test_qq_plot() {
 
    std::ifstream f(file_name.c_str());
 
-   if (f) { 
+   if (f) {
 
       std::vector<double> data;
       std::string line;
       while (std::getline(f, line)) {
 	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line, " ");
-	 for (unsigned int ibit=0; ibit<bits.size(); ibit++) { 
+	 for (unsigned int ibit=0; ibit<bits.size(); ibit++) {
 	    try {
 	       double v = coot::util::string_to_float(bits[ibit]);
 	       data.push_back(v);
 	    }
 	    catch (const std::runtime_error &rte) {
 	       std::cout << "   " << rte.what() << std::endl;
-	    } 
+	    }
 	 }
       }
 
       coot::util::qq_plot_t qq(data);
       std::vector<std::pair<double, double> > qqd = qq.qq_norm();
 
-      for (unsigned int i=0; i<qqd.size(); i++) { 
+      for (unsigned int i=0; i<qqd.size(); i++) {
 	 std::cout << "plot " << i << " " << "   " << qqd[i].first << "   "
 		   << qqd[i].second << std::endl;
       }
@@ -356,7 +356,7 @@ int test_least_squares_fit() {
    data[0] = std::pair<double, double> (0,-0.1);
    data[1] = std::pair<double, double> (1,2);
    data[2] = std::pair<double, double> (2,4);
-   
+
    coot::least_squares_fit lsq(data);
 
    std::cout << "  lsq m " << lsq.m() << std::endl;
@@ -897,7 +897,7 @@ test_xmap_edcalc(int argc, char **argv) {
       spec_5.select_atoms(asc.mol, few_residues_selection_handle, mmdb::SKEY_OR);
 
       clipper::Xmap<float> calc_atom_map(mmdb::Manager *mol,
-					 int atom_selection_handle, 
+					 int atom_selection_handle,
 					 const clipper::Cell &cell,
 					 const clipper::Spacegroup &space_group,
 					 const clipper::Grid_sampling &sampling);
@@ -1007,6 +1007,22 @@ int test_helix_like(int argc, char **argv) {
        }
     }
     return 0;
+}
+
+#include "cablam-markup.hh"
+
+int
+test_cablam(int argc, char **argv) {
+
+   std::string cablam_log_file_name = "../src/cablam.log";
+   std::string file_name = argv[1];
+   atom_selection_container_t asc = get_atom_selection(file_name, true, true);
+   if (asc.read_success) {
+      // parse this log file and call the above function for each cablam outlier residue
+      std::vector<coot::cablam_markup_t> v =
+      coot::make_cablam_markups(asc.mol, cablam_log_file_name);
+   }
+   return 0;
 }
 
 
@@ -1235,6 +1251,12 @@ test_make_a_difference_map(int argc, char **argv) {
    return status;
 }
 
+int
+test_CO_orientations(int argc, char **argv) {
+   int status = 0;
+   coot::util::multi_parse_prosmart_log_and_gen_CO_plot();
+   return status;
+}
 
 
 int main(int argc, char **argv) {
@@ -1268,7 +1290,7 @@ int main(int argc, char **argv) {
 
    if (0)
       test_least_squares_fit();
-   
+
    if (0)
       test_atom_overlaps();
 
@@ -1276,7 +1298,7 @@ int main(int argc, char **argv) {
       for (unsigned int i=0; i<2; i++) {
 	 test_all_atom_overlaps();
       }
-   
+
    if (0)
       test_reduce();
 
@@ -1291,7 +1313,7 @@ int main(int argc, char **argv) {
 
    if (false)
       test_string_split();
-   
+
    if (false)
       test_xmap_edcalc(argc, argv);
 
@@ -1307,9 +1329,14 @@ int main(int argc, char **argv) {
    if (false)
       test_make_a_difference_map(argc, argv);
 
-   if (true)
+   if (false)
       test_nxmap_simple(argc, argv);
+
+   if (true)
+      test_CO_orientations(argc, argv);
+
+   if (false)
+      test_cablam(argc, argv);
 
    return 0;
 }
-

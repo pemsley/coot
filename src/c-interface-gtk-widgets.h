@@ -179,6 +179,7 @@ void manage_refmac_column_selection(GtkWidget *w);
 /* void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu); */
 void fill_combobox_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
+void handle_column_label_make_fourier_v2(GtkWidget *column_label_window); /* gtk3 version */
 void wrapped_create_run_refmac_dialog();
 
 

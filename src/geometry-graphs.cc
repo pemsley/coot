@@ -897,11 +897,11 @@ coot::geometry_graphs::delete_block(int chain_number, int raw_resno) {
 	    }
 	 }
 	 else
-	    std::cout << "ERROR: Attempt to delete non-existant residue block"
-		      << raw_resno <<  " " << offsetted_residue_number << " "
+	    std::cout << "ERROR:: Attempt to delete non-existant residue block raw: "
+		      << raw_resno <<  " after-offset: " << offsetted_residue_number << " chain-num: "
 		      << chain_number << std::endl;
       } else {
-	 std::cout << "ERROR: Attempt to delete non-existant residue block in "
+	 std::cout << "ERROR:: Attempt to delete non-existant residue block in "
 		   << "non-existant chain " << chain_number << " " << blocks.size()
 		   << std::endl;
       }

@@ -404,13 +404,122 @@ int test_function(int i, int j) {
 
 #include "coot-utils/c-beta-deviations.hh"
 
+#include "ligand/richardson-rotamer.hh"
+
+#include "coot-utils/cablam-markup.hh"
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
-
    if (true) {
+      int imol_model     = scm_to_int(i_scm);
+      int imol_with_data = scm_to_int(j_scm);
+      if (is_valid_model_molecule(imol_model)) {
+         graphics_info_t g;
+
+         std::string cablam_log_file_name = "6kzp-cablam.log";
+         atom_selection_container_t asc = g.molecules[imol_model].atom_sel;
+         if (asc.read_success) {
+            // parse this log file and call the above function for each cablam outlier residue
+            std::vector<coot::cablam_markup_t> v =
+            coot::make_cablam_markups(asc.mol, cablam_log_file_name);
+
+            std::cout << "Made " << v.size() << " cablam markups " << std::endl;
+            std::vector<coot::cablam_markup_t>::const_iterator it;
+            int idx_cablam = new_generic_object_number("Cablam");
+            set_display_generic_object(idx_cablam, 1);
+            for (it=v.begin(); it!=v.end(); it++) {
+               const coot::cablam_markup_t &cm(*it);
+               to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z());
+               to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z());
+               to_generic_object_add_point(idx_cablam, "pink", 14, cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z());
+
+               std::cout << "line 1: " << cm.O_this_pos.format() << " to " << cm.CA_proj_point_this.format() << std::endl;
+               std::cout << "line 2: " << cm.O_prev_pos.format() << " to " << cm.CA_proj_point_prev.format() << std::endl;
+               std::cout << "line 3: " << cm.O_next_pos.format() << " to " << cm.CA_proj_point_next.format() << std::endl;
+
+               to_generic_object_add_line(idx_cablam, "pink", 4,
+                                          cm.O_this_pos.x(), cm.O_this_pos.y(), cm.O_this_pos.z(),
+                                          cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z());
+
+               to_generic_object_add_line(idx_cablam, "pink", 4,
+                                          cm.O_prev_pos.x(), cm.O_prev_pos.y(), cm.O_prev_pos.z(),
+                                          cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+
+               to_generic_object_add_line(idx_cablam, "pink", 4,
+                                          cm.O_next_pos.x(), cm.O_next_pos.y(), cm.O_next_pos.z(),
+                                          cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+
+               to_generic_object_add_line(idx_cablam, "pink", 4,
+                                          cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                          cm.CA_proj_point_prev.x(), cm.CA_proj_point_prev.y(), cm.CA_proj_point_prev.z());
+
+               to_generic_object_add_line(idx_cablam, "pink", 4,
+                                          cm.CA_proj_point_this.x(), cm.CA_proj_point_this.y(), cm.CA_proj_point_this.z(),
+                                          cm.CA_proj_point_next.x(), cm.CA_proj_point_next.y(), cm.CA_proj_point_next.z());
+
+            }
+         }
+      }
+   }
+   if (false) {
+      // this has a bonefide interface now
+      int imol_model     = scm_to_int(i_scm);
+      int imol_with_data = scm_to_int(j_scm);
+      if (is_valid_model_molecule(imol_model)) {
+         graphics_info_t g;
+         clipper::Xmap<float> *xmap_p = &g.molecules[imol_with_data].xmap;
+         try {
+            g.molecules[imol_with_data].fill_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
+               g.molecules[imol_with_data].get_original_fobs_sigfobs();
+            const clipper::HKL_data<clipper::data32::Flag> &free_flag =
+               g.molecules[imol_with_data] .get_original_rfree_flags();
+               g.molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
+               g.molecules[imol_with_data].update_map();
+               graphics_draw();
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << rte.what() << std::endl;
+         }
+      }
+   }
+
+   if (false) {
+      int imol   = scm_to_int(i_scm);
+      int res_no = scm_to_int(j_scm);
+      if (is_valid_model_molecule(imol)) {
+         std::string chain_id = "A";
+         coot::residue_spec_t spec("A", res_no, "");
+         mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(spec);
+         if (r) {
+            mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+            std::string alt_conf("");
+            coot::richardson_rotamer d(r, alt_conf, mol, 0.0, 1);
+            coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+            std::string rn = residue_name(imol, chain_id, res_no, "");
+            std::cout << "INFO:: " << coot::residue_spec_t(r) << " " << rn << " "
+                      << prob << " with rotamer name \"" << prob.rotamer_name << "\"" << std::endl;
+            // ------------------------
+            short int add_extra_PHE_and_TYR_rotamers_flag = 1; // true
+            coot::rotamer rotamer(r, alt_conf, add_extra_PHE_and_TYR_rotamers_flag);
+            std::vector<std::pair<int,float> > chi_angles = rotamer.get_chi_angles();
+            std::cout << "current chi angles ";
+            for (unsigned int i=0; i<chi_angles.size(); i++)
+               std::cout << " " << chi_angles[i].first << " " << chi_angles[i].second << " ";
+            std::cout << " " << std::endl;
+            coot::closest_rotamer_info_t closest_rotamer = rotamer.get_closest_rotamer(rn);
+            std::cout << " drive to " << closest_rotamer.rotamer_probability_info.rotamer_name << " ";
+            for (unsigned int i=0; i<closest_rotamer.residue_chi_angles.size(); i++)
+               std::cout << " " << closest_rotamer.residue_chi_angles[i].first << " " << closest_rotamer.residue_chi_angles[i].second << " ";
+            std::cout << std::endl;
+         }
+      }
+   }
+
+   if (false) {
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadPDBASCII("test.pdb");
       coot::get_c_beta_deviations(mol);

@@ -937,8 +937,8 @@ graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
 
    if (false)
       std::cout << "INFO:: setRotationCentre by symmetry hybrid atom "
-   << hybrid_atom.atom << " at "
-   << hybrid_atom.pos << std::endl;
+                << hybrid_atom.atom << " at "
+                << hybrid_atom.pos << std::endl;
 
    rotation_centre_x = hybrid_atom.pos.x();
    rotation_centre_y = hybrid_atom.pos.y();
@@ -1411,7 +1411,7 @@ graphics_info_t::unskeletonize_map(int imol) {
    } else {
       std::cout << "Map skeleton not selected from optionmenu." << std::endl;
       std::cout << "Please try again and this time, select "
-   << "a map from the optionmenu" << std::endl;
+                << "a map from the optionmenu" << std::endl;
    }
 }
 
@@ -1471,29 +1471,29 @@ graphics_info_t::accept_moving_atoms() {
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) {
-    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
-    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+         molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
+         update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
-    if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+         if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 
-       molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
-       // debug
-       // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
-       update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-    } else {
-       if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
-          molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
-       } else {
-          if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
-     molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
-          } else {
-     std::cout << "------------ ERROR! -------------------" << std::endl;
-     std::cout << "       moving_atoms_asc_type not known: ";
-     std::cout << moving_atoms_asc_type << std::endl;
-     std::cout << "------------ ERROR! -------------------" << std::endl;
-          }
-       }
-    }
+            molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
+            // debug
+            // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
+            update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+         } else {
+            if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
+               molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
+            } else {
+               if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
+                  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
+               } else {
+                  std::cout << "------------ ERROR! -------------------" << std::endl;
+                  std::cout << "       moving_atoms_asc_type not known: ";
+                  std::cout << moving_atoms_asc_type << std::endl;
+                  std::cout << "------------ ERROR! -------------------" << std::endl;
+               }
+            }
+         }
       }
    }
 
@@ -2352,9 +2352,9 @@ graphics_info_t::draw_environment_graphics_object() {
    graphics_info_t g;
    if (is_valid_model_molecule(mol_no_for_environment_distances)) {
       if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
-    g.environment_graphics_object_internal(environment_object_bonds_box);
-    if (g.show_symmetry)
-       g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
+      g.environment_graphics_object_internal(environment_object_bonds_box);
+      if (g.show_symmetry)
+         g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
       }
    }
 }
@@ -3450,9 +3450,9 @@ graphics_info_t::Imol_Refinement_Map() const {
    std::vector<int> direct_maps;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_xmap()) {
-    if (! molecules[imol].is_difference_map_p()) {
-       direct_maps.push_back(imol);
-    }
+         if (! molecules[imol].is_difference_map_p()) {
+            direct_maps.push_back(imol);
+         }
       }
    }
    if (direct_maps.size() == 1) {
@@ -4652,7 +4652,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
       label += chain_id;
 
       coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
-      label, 1, "inscode", "chainid");
+                                   label, 1, "inscode", "chainid");
       edit_phi_psi_plot->draw_it(phipsi);
 
    }
@@ -5281,7 +5281,7 @@ graphics_info_t::set_last_map_sigma_step(float f) {
 
    if (imap == -1) {
       std::cout << "No maps available for the setting of contour step"
-   << std::endl;
+                << std::endl;
    } else {
 //       molecules[imap].contour_by_sigma_flag = 1;
 //       molecules[imap].contour_sigma_step = f;
@@ -5547,7 +5547,7 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 
    if (c.length() == 7) {
       if (c[0] == '#') {
-    return coot::colour_holder(c); // hex colour string
+         return coot::colour_holder(c); // hex colour string
       }
    }
 
@@ -5556,111 +5556,117 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
       colour.blue = 0.8;
    } else {
       if (c == "sky") {
-    colour.red = 0.53 * 0.6;
-    colour.green = 0.81 * 0.6;
-    colour.blue = 0.92 * 0.6;
+         colour.red = 0.53 * 0.6;
+         colour.green = 0.81 * 0.6;
+         colour.blue = 0.92 * 0.6;
       } else {
-    if (c == "green") {
-       colour.red   = 0.05;
-       colour.green = 0.8;
-       colour.blue  = 0.05;
-    } else {
-       if (c == "greentint") {
-          colour.red = 0.45;
-          colour.green = 0.63;
-          colour.blue = 0.45;
-       } else {
-          if (c == "sea") {
-     colour.red = 0.1;
-     colour.green = 0.6;
-     colour.blue = 0.6;
-          } else {
-     if (c == "yellow") {
-        colour.red = 0.8;
-        colour.green = 0.8;
-        colour.blue = 0.0;
-     } else {
-        if (c == "yellowtint") {
-   colour.red = 0.65;
-   colour.green = 0.65;
-   colour.blue = 0.4;
-        } else {
-   if (c == "orange") {
-      colour.red = 0.9;
-      colour.green = 0.6;
-      colour.blue = 0.1;
-   } else {
-      if (c == "red") {
-         colour.red = 0.9;
-         colour.green = 0.1;
-         colour.blue = 0.1;
-      } else {
-         if (c == "hotpink") {
-    colour.red = 0.9;
-    colour.green = 0.2;
-    colour.blue = 0.6;
+         if (c == "green") {
+            colour.red   = 0.05;
+            colour.green = 0.8;
+            colour.blue  = 0.05;
          } else {
-    if (c == "cyan") {
-       colour.red = 0.1;
-       colour.green = 0.7;
-       colour.blue = 0.7;
-    } else {
-       if (c == "aquamarine") {
-          colour.red = 0.1;
-          colour.green = 0.8;
-          colour.blue = 0.6;
-       } else {
-          if (c == "forestgreen") {
-     colour.red   = 0.6;
-     colour.green = 0.8;
-     colour.blue  = 0.1;
-          } else {
-     if (c == "yellowgreen") {
-        colour.red   = 0.6;
-        colour.green = 0.8;
-        colour.blue  = 0.2;
-     } else {
-        if (c == "goldenrod") {
-   colour.red   = 0.85;
-   colour.green = 0.65;
-   colour.blue  = 0.12;
-        } else {
-   if (c == "orangered") {
-      colour.red   = 0.9;
-      colour.green = 0.27;
-      colour.blue  = 0.0;
-   } else {
-      if (c == "magenta") {
-         colour.red   = 0.7;
-         colour.green = 0.2;
-         colour.blue  = 0.7;
-      } else {
-         if (c == "cornflower") {
-    colour.red   = 0.38;
-    colour.green = 0.58;
-    colour.blue  = 0.93;
-         } else {
-    if (c == "royalblue") {
-       colour.red   = 0.25;
-       colour.green = 0.41;
-       colour.blue  = 0.88;
-    }
+            if (c == "greentint") {
+               colour.red = 0.45;
+               colour.green = 0.63;
+               colour.blue = 0.45;
+            } else {
+               if (c == "sea") {
+                  colour.red = 0.1;
+                  colour.green = 0.6;
+                  colour.blue = 0.6;
+               } else {
+                  if (c == "yellow") {
+                     colour.red = 0.8;
+                     colour.green = 0.8;
+                     colour.blue = 0.0;
+                  } else {
+                     if (c == "yellowtint") {
+                        colour.red = 0.65;
+                        colour.green = 0.65;
+                        colour.blue = 0.4;
+                     } else {
+                        if (c == "orange") {
+                           colour.red = 0.9;
+                           colour.green = 0.6;
+                           colour.blue = 0.1;
+                        } else {
+                           if (c == "red") {
+                              colour.red = 0.9;
+                              colour.green = 0.1;
+                              colour.blue = 0.1;
+                           } else {
+                              if (c == "hotpink") {
+                                 colour.red = 0.9;
+                                 colour.green = 0.2;
+                                 colour.blue = 0.6;
+                              } else {
+                                 if (c == "pink") {
+                                    colour.red = 0.9;
+                                    colour.green = 0.3;
+                                    colour.blue = 0.3;
+                                 } else {
+                                    if (c == "cyan") {
+                                       colour.red = 0.1;
+                                       colour.green = 0.7;
+                                       colour.blue = 0.7;
+                                    } else {
+                                       if (c == "aquamarine") {
+                                          colour.red = 0.1;
+                                          colour.green = 0.8;
+                                          colour.blue = 0.6;
+                                       } else {
+                                          if (c == "forestgreen") {
+                                             colour.red   = 0.6;
+                                             colour.green = 0.8;
+                                             colour.blue  = 0.1;
+                                          } else {
+                                             if (c == "yellowgreen") {
+                                                colour.red   = 0.6;
+                                                colour.green = 0.8;
+                                                colour.blue  = 0.2;
+                                             } else {
+                                                if (c == "goldenrod") {
+                                                   colour.red   = 0.85;
+                                                   colour.green = 0.65;
+                                                   colour.blue  = 0.12;
+                                                } else {
+                                                   if (c == "orangered") {
+                                                      colour.red   = 0.9;
+                                                      colour.green = 0.27;
+                                                      colour.blue  = 0.0;
+                                                   } else {
+                                                      if (c == "magenta") {
+                                                         colour.red   = 0.7;
+                                                         colour.green = 0.2;
+                                                         colour.blue  = 0.7;
+                                                      } else {
+                                                         if (c == "cornflower") {
+                                                            colour.red   = 0.38;
+                                                            colour.green = 0.58;
+                                                            colour.blue  = 0.93;
+                                                         } else {
+                                                            if (c == "royalblue") {
+                                                               colour.red   = 0.25;
+                                                               colour.green = 0.41;
+                                                               colour.blue  = 0.88;
+                                                            }
+                                                         }
+                                                      }
+                                                   }
+                                                }
+                                             }
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
          }
-      }
-   }
-        }
-     }
-          }
-       }
-    }
-         }
-      }
-   }
-        }
-     }
-          }
-       }
-    }
       }
    }
 
@@ -5794,18 +5800,18 @@ graphics_info_t::check_chiral_volumes(int imol) {
 
    if (imol < n_molecules()) {
       if (molecules[imol].has_model()) {
-    // return a pair: first is the residues for which no
-    // restraints were found second is a vector of atom specs
-    // that violate chiral volume constraint.
-    std::pair<std::vector<std::string>, std::vector <coot::atom_spec_t> > v =
-       molecules[imol].bad_chiral_volumes();
-    GtkWidget *w = wrapped_check_chiral_volumes_dialog(v.second, imol);
-    if (w)
-       gtk_widget_show(w);
-    if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
-       GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
-       gtk_widget_show(wcc);
-    }
+         // return a pair: first is the residues for which no
+         // restraints were found second is a vector of atom specs
+         // that violate chiral volume constraint.
+         std::pair<std::vector<std::string>, std::vector <coot::atom_spec_t> > v =
+         molecules[imol].bad_chiral_volumes();
+         GtkWidget *w = wrapped_check_chiral_volumes_dialog(v.second, imol);
+         if (w)
+         gtk_widget_show(w);
+         if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
+            GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
+            gtk_widget_show(wcc);
+         }
       }
    }
 }
@@ -5947,38 +5953,38 @@ void graphics_info_t::difference_map_peaks_neighbour_peak(int istep) { // could 
       int active_button_number = -99;     // set later
       int new_active_button_number = -99; // set later
       for (int i=0; i<n_peaks; i++) {
-    std::string button_name = "difference_map_peaks_button_";
-    button_name +=  int_to_string(i);
-    button = lookup_widget(g.difference_map_peaks_dialog, button_name.c_str());
-    if (button) {
-       if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-          ifound_active_button = 1;
-          active_button_number = i;
-       }
-    } else {
-       std::cout << "DEBUG:: Failed to find button " << button_name << "\n";
-    }
+         std::string button_name = "difference_map_peaks_button_";
+         button_name +=  int_to_string(i);
+         button = lookup_widget(g.difference_map_peaks_dialog, button_name.c_str());
+         if (button) {
+            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+               ifound_active_button = 1;
+               active_button_number = i;
+            }
+         } else {
+            std::cout << "DEBUG:: Failed to find button " << button_name << "\n";
+         }
       }
       if (ifound_active_button) {
-    if (istep == 1) {
-       new_active_button_number = active_button_number +1;
-       if (new_active_button_number == n_peaks)
-          new_active_button_number = 0;
-    } else {
-       new_active_button_number = active_button_number - 1;
-       if (new_active_button_number < 0)
-          new_active_button_number = n_peaks -1;
-    }
+         if (istep == 1) {
+            new_active_button_number = active_button_number +1;
+            if (new_active_button_number == n_peaks)
+            new_active_button_number = 0;
+         } else {
+            new_active_button_number = active_button_number - 1;
+            if (new_active_button_number < 0)
+            new_active_button_number = n_peaks -1;
+         }
       }
       std::string button_name = "difference_map_peaks_button_";
       button_name += int_to_string(new_active_button_number);
       GtkWidget *new_button = lookup_widget(g.difference_map_peaks_dialog,
-       button_name.c_str());
+                                            button_name.c_str());
       std::cout << "GTK-FIXME difference_map_peaks_neighbour_peak() gtk_signal_emit_by_name() " << std::endl;
-      // gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
+         // gtk_signal_emit_by_name(GTK_OBJECT(new_button), "clicked");
 
    } else {
-      std::cout << "ERROR:: difference_map_peaks_neighbour_peak called in error\n";
+         std::cout << "ERROR:: difference_map_peaks_neighbour_peak called in error\n";
    }
 }
 
@@ -6082,7 +6088,7 @@ void graphics_info_t::run_user_defined_click_func() {
       SCM ds = scm_simple_format(dest, mess, scm_list_1(user_defined_click_scm_func));
       SCM da = scm_simple_format(dest, mess, scm_list_1(arg_list));
       std::cout << "INFO applying " << scm_to_locale_string(ds) << " on "
-   << scm_to_locale_string(da) << std::endl;
+                << scm_to_locale_string(da) << std::endl;
 
       SCM rest = SCM_EOL;
       SCM v = scm_apply_1(user_defined_click_scm_func, arg_list, rest);
@@ -6406,4 +6412,48 @@ void
 graphics_info_t::set_merge_molecules_ligand_spec(const coot::residue_spec_t &spec_in) {
 
    merge_molecules_ligand_spec = spec_in;
+}
+
+
+
+/*! \brief Calculate structure factors from the model and update the given difference
+           map accordingly */
+void
+
+graphics_info_t::sfcalc_genmap(int imol_model,
+                               int imol_map_with_data_attached,
+                               int imol_updating_difference_map) {
+
+   // I am keen for this function to be fast - so that it can be used with cryo-EM structures
+   //
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         if (is_valid_map_molecule(imol_updating_difference_map)) {
+            if (molecules[imol_updating_difference_map].is_difference_map_p()) {
+               clipper::Xmap<float> *xmap_p = &molecules[imol_updating_difference_map].xmap;
+               try {
+                  if (! on_going_updating_map_lock) {
+                     on_going_updating_map_lock = true;
+                     float cls = molecules[imol_updating_difference_map].get_contour_level_by_sigma();
+                     molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
+                     const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
+                     molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+                     const clipper::HKL_data<clipper::data32::Flag> &free_flag =
+                     molecules[imol_map_with_data_attached].get_original_rfree_flags();
+                     molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
+                     molecules[imol_updating_difference_map].set_mean_and_sigma();
+                     molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
+                     on_going_updating_map_lock = false;
+                  } else {
+                     std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
+                  }
+                  graphics_draw();
+               }
+               catch (const std::runtime_error &rte) {
+                  std::cout << rte.what() << std::endl;
+               }
+            }
+         }
+      }
+   }
 }

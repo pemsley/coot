@@ -228,7 +228,7 @@ on_column_label_ok_button_clicked      (GtkButton       *button,
 
   GtkWidget *column_label_window = lookup_widget(GTK_WIDGET(button), "column_label_window");
 
-  handle_column_label_make_fourier(column_label_window);
+  handle_column_label_make_fourier_v2(column_label_window);
 
 }
 
@@ -10590,6 +10590,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 					      gint response_id,
 					      gpointer user_data) {
 
+/*   int new_compid_idx; */
   int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;

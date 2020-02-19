@@ -469,6 +469,57 @@ get_active_label_in_combobox(GtkComboBox *combobox) {
    return g.get_active_label_in_combobox(combobox);
 }
 
+void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
+
+   GtkWidget *weights_checkbutton     = lookup_widget(GTK_WIDGET(column_label_window), "use_weights_checkbutton");
+   GtkWidget *is_diff_map_checkbutton = lookup_widget(GTK_WIDGET(column_label_window), "difference_map_checkbutton");
+   GtkWidget *reso_limit_checkbutton  = lookup_widget(GTK_WIDGET(column_label_window), "column_labels_use_resolution_limits_checkbutton");
+   bool use_weights_flag       = false;
+   bool is_difference_map_flag = false;
+   bool limit_reso_flag = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(weights_checkbutton))) use_weights_flag = true;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(reso_limit_checkbutton))) limit_reso_flag = true;
+   GtkWidget *amplitudes_combobox = lookup_widget(column_label_window, "column_selector_amplitudes_combobox");
+   GtkWidget *phases_combobox     = lookup_widget(column_label_window, "column_selector_phases_combobox");
+   GtkWidget *weights_combobox    = lookup_widget(column_label_window, "column_selector_weights_combobox");
+
+   std::string f_label   = get_active_label_in_combobox(GTK_COMBO_BOX(amplitudes_combobox));
+   std::string phi_label = get_active_label_in_combobox(GTK_COMBO_BOX(phases_combobox));
+   std::string w_label;
+   if (use_weights_flag)
+      w_label = get_active_label_in_combobox(GTK_COMBO_BOX(weights_combobox));
+
+   std::string fobs_col, sigfobs_col, r_free_col;
+   bool have_refmac_params = false;
+   bool sensible_r_free_col = false;
+   bool is_anomalous_flag = false;
+   float low_res_limit  = -1.0;
+   float high_res_limit = -1.0;
+
+   std::string mtz_filename;
+   gpointer d = g_object_get_data(G_OBJECT(column_label_window), "f_phi_columns"); // set in column_selector_using_cmtz()
+   coot::mtz_column_types_info_t *saved_f_phi_columns = 0;
+   if (d) {
+      saved_f_phi_columns = static_cast<coot::mtz_column_types_info_t *> (d);
+      mtz_filename = saved_f_phi_columns->mtz_filename;
+   }
+
+   make_and_draw_map_with_reso_with_refmac_params(mtz_filename.c_str(),
+						  f_label.c_str(),
+						  phi_label.c_str(),
+						  w_label.c_str(),
+						  use_weights_flag, is_difference_map_flag,
+						  have_refmac_params,
+						  fobs_col.c_str(),
+						  sigfobs_col.c_str(),
+						  r_free_col.c_str(),
+						  sensible_r_free_col,
+						  is_anomalous_flag,
+						  limit_reso_flag,
+						  low_res_limit, high_res_limit);
+}
+
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
    if (false)
@@ -5989,14 +6040,14 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			      char *home = getenv("HOME");
 			      if (home) {
 				 std::string home_directory(home);
-				 std::string preferences_dir =
-				    coot::util::append_dir_dir(home_directory, ".coot-preferences");
-				 std::string preferences_file_name =
-				    coot::util::append_dir_file(preferences_dir, file_name);
+				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+                                 std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
 				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
 				 if (status != 0) {
-				    std::cout << "WARNING:: failed to install " << file_name << std::endl;
+				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
 				 } else {
+                                    std::cout << "debug:: renaming successful" << std::endl;
 				    std::cout << "run_script on " << preferences_file_name << std::endl;
 				    run_script(preferences_file_name.c_str());
 				    // make the hbox insensitive
@@ -6004,7 +6055,9 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 				       gtk_widget_set_sensitive(hbox, FALSE);
 				    }
 				 }
-			      }
+			      } else {
+                                 std::cout << "No HOME env var" << std::endl;
+                              }
 			   } else {
 			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
 			   }

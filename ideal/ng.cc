@@ -638,6 +638,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_workpackage_ng(
 
 	 } else {
 
+            // note to self: this is the multi-threaded version
+
 	    std::pair<bool, double> nbc_dist = geom.get_nbc_dist_v2(type_1, type_2,
 								    atom_is_metal[i],
 								    atom_is_metal[j],
@@ -2067,7 +2069,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       if (r_type == CHIRAL_VOLUME_RESTRAINT) {
          mmdb::Atom *at_c = atom[rest.atom_index_centre];
          std::cout << "INFO:: Model: Bad Chiral Volume: "
-                   << atom_spec_t(at_c) << " "
+                   << atom_spec_t(at_c) << " " << std::setw(5)
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_chiral_volume
                    << " sigma "      << rest.sigma
@@ -2076,7 +2078,7 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
       // How can I know if this was a Hydrogen bond restraint?
       if (r_type == BOND_RESTRAINT)
-         std::cout << "INFO:: Model: Bad Bond: "
+         std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " nZ "         << std::get<1>(d)
                    << " delta "      << std::get<2>(d)
@@ -2085,14 +2087,14 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == NON_BONDED_CONTACT_RESTRAINT)
-         std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
+         std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value
                    << " distortion " << std::get<3>(d) << "\n";
 
       if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
-         std::cout << "INFO:: Model: Bad Non-Bonded Contact: "
+         std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
                    << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
                    << " delta "      << std::get<2>(d)
                    << " target "     << rest.target_value

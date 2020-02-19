@@ -3229,15 +3229,15 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
       bool sane_residue_numbers = false;
       if (test_helical_residues.size() == 4)
-      if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
-         sane_residue_numbers = true;
+         if ((test_helical_residues[0]->GetSeqNum()+3) == test_helical_residues[3]->GetSeqNum())
+            sane_residue_numbers = true;
 
       // maybe we *do* want compare_to_helix() to be run on 5 residues?
       // i -> i+4 is the convention for alpha helical H-bonds, after all.
       //
       if (test_helical_residues.size() == 5)
-      if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
-         sane_residue_numbers = true;
+         if ((test_helical_residues[0]->GetSeqNum()+4) == test_helical_residues[4]->GetSeqNum())
+            sane_residue_numbers = true;
 
       helical_results_t hr = compare_to_helix(test_helical_residues); // tests for 4 residues
 
@@ -6224,10 +6224,10 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 	 if (debug)
 	    std::cout << "comparing first (pdb) :" << pdb_atom_name1
 		      << ": with (dict) :"
-		      << geom[idr].second.bond_restraint[ib].atom_id_1_4c()
+		      << dict.bond_restraint[ib].atom_id_1_4c()
 		      << ":" << std::endl; 
 
-	 if (pdb_atom_name1 == geom[idr].second.bond_restraint[ib].atom_id_1_4c()) {
+	 if (pdb_atom_name1 == dict.bond_restraint[ib].atom_id_1_4c()) {
 	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
 	       std::string pdb_atom_name2(res_selection[iat2]->name);
@@ -6235,10 +6235,10 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 	       if (debug)
 		  std::cout << "comparing second (pdb) :" << pdb_atom_name2
 			    << ": with (dict) :"
-			    << geom[idr].second.bond_restraint[ib].atom_id_2_4c()
+			    << dict.bond_restraint[ib].atom_id_2_4c()
 			    << ":" << std::endl;
 	       
-	       if (pdb_atom_name2 == geom[idr].second.bond_restraint[ib].atom_id_2_4c()) {
+	       if (pdb_atom_name2 == dict.bond_restraint[ib].atom_id_2_4c()) {
 
 		  // check that the alt confs aren't different
 		  std::string alt_1(res_selection[iat ]->altLoc);
@@ -6439,49 +6439,184 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
    return n_angle_restr;
 }
 
+std::vector<unsigned int>
+coot::restraints_container_t::make_torsion_restraint_indices_vector() const {
+
+   std::vector<unsigned int> v;
+   v.reserve(20);
+   unsigned int n = restraints_vec.size(); 
+   for (unsigned int ir=0; ir<n; ir++) {
+      if (restraints_vec[ir].restraint_type == TORSION_RESTRAINT) {
+         v.push_back(ir);
+      }
+   }
+   return v;
+}
+
+
+bool
+coot::restraints_container_t::add_or_replace_torsion_restraints_with_closest_rotamer_restraints(const std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > &rotamer_torsions) {
+
+   bool status = false;
+   bool debug = false;
+
+   // we have a book-keeping problem: the torsions in the monomer library (ie. the definintion of chi1 (for example)
+   // is not the same in the monomer libary and the atoms from rotamer_atoms() (and presumably molprobity dictionary).
+   // So, if there is an active monomer library torsion - set from the dictionary, then we need to delete
+   // the current torsion restraints for that residue.
+
+   std::vector<unsigned int> tri = make_torsion_restraint_indices_vector();
+
+   for (unsigned int ir=0; ir<rotamer_torsions.size(); ir++) {
+      mmdb::Residue *rotamer_residue = rotamer_torsions[ir].first;
+      for (unsigned int i=0; i<residues_vec.size(); i++) {
+         if (! residues_vec[i].first) {
+            mmdb::Residue *residue_p = residues_vec[i].second;
+            if (residue_p == rotamer_residue) {
+               for (unsigned int j=0; j<rotamer_torsions[ir].second.size(); j++) {
+                  const dict_torsion_restraint_t &new_torsion_restraint = rotamer_torsions[ir].second[j];
+                  if (debug)
+                     std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() consider "
+                               << new_torsion_restraint << std::endl;
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms;
+                  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                  bool replaced = replace_torsion_restraint(new_torsion_restraint, residue_atoms, n_residue_atoms, tri);
+                  if (debug)
+                     std::cout << "debug:: in add_or_replace_torsion_restraints_with_closest_rotamer_restraints() replaced flag " << replaced << " for "
+                               << new_torsion_restraint << std::endl;
+                  if (! replaced)
+                     status = add_torsion_internal(new_torsion_restraint, residue_atoms, n_residue_atoms);
+               }
+            }
+         }
+      }
+   }
+
+   if (debug)
+      std::cout << "add_or_replace_torsion_restraints_with_closest_rotamer_restraints() returning " << status << std::endl;
+
+   return status;
+}
+
 int
-coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
-					   int i_no_res_atoms,
-					   mmdb::PResidue SelRes,
-					   const coot::protein_geometry &geom) {
+coot::restraints_container_t::get_atom_index_for_restraint_using_alt_conf(const std::string &atom_name,
+                                                                          const std::string &alt_conf,
+                                                                          mmdb::PPAtom res_selection, int num_res_atoms) const {
 
-   int n_torsion_restr = 0; 
+   int idx = -1;
+   for (int i=0; i<num_res_atoms; i++) {
+      mmdb::Atom *at = res_selection[i];
+      std::string n(at->GetAtomName());
+      if (n == atom_name) {
+         std::string a(at->altLoc);
+         if (a.empty() || a == alt_conf) {
+            at->GetUDData(udd_atom_index_handle, idx);
+         }
+      }
+   }
+   return idx;
+}
 
-   for (unsigned int ib=0; ib<geom[idr].second.torsion_restraint.size(); ib++) {
+bool
+coot::restraints_container_t::replace_torsion_restraint(const coot::dict_torsion_restraint_t &new_torsion_restraint,
+                                                        mmdb::PPAtom res_selection, int num_res_atoms,
+                                                        const std::vector<unsigned int> &torsion_restraint_indices) {
+
+   // I don't want to add a rotamer torsion restraint if it's already there
+
+   bool replaced = false;
+
+   unsigned int n = torsion_restraint_indices.size(); 
+
+   std::string alt_conf; // run through all alt confs in the residue ideally.
+   if (true) {
+      int idx_1 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_1_4c(), alt_conf, res_selection, num_res_atoms);
+      if (idx_1 >= 0) {
+         int idx_2 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_2_4c(), alt_conf, res_selection, num_res_atoms);
+         if (idx_2 >= 0) {
+            int idx_3 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_3_4c(), alt_conf, res_selection, num_res_atoms);
+            if (idx_3 >= 0) {
+               int idx_4 = get_atom_index_for_restraint_using_alt_conf(new_torsion_restraint.atom_id_4_4c(), alt_conf, res_selection, num_res_atoms);
+               if (idx_4 >= 0) {
+                  // OK, so we have real atoms for a restraints, does a torsion for that set of atoms exist already?
+                  for (unsigned int it=0; it<n; it++) {
+                     simple_restraint &rest = restraints_vec[torsion_restraint_indices[it]];
+                     if (rest.restraint_type == TORSION_RESTRAINT) {
+                        // std::cout << " comparing atom indices " << idx_1 << " " << idx_2 << " " << idx_3 << " " << idx_4 << "  vs " << rest.atom_index_1 << " " << rest.atom_index_2 << " " << rest.atom_index_3 << " " << rest.atom_index_4 << std::endl;
+                        if (idx_1 == rest.atom_index_1) {
+                           if (idx_2 == rest.atom_index_2) {
+                              if (idx_3 == rest.atom_index_3) {
+
+                                 if (idx_4 != rest.atom_index_4)
+                                    rest.atom_index_4 = idx_4;
+                                 rest.target_value = new_torsion_restraint.angle();
+                                 replaced = true;
+                                 if (true)
+                                    std::cout << "debug:: in replace_torsion_restraint() replacing restraints with " << new_torsion_restraint << std::endl;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return replaced;
+}
+
+
+bool
+coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_restraint_t &torsion_restraint,
+                                                   mmdb::PPAtom res_selection, int i_no_res_atoms) {
+
+   bool status = false;
+
+   { // cut and paste
 
       // Joel Bard fix: Don't add torsion restraints for torsion that
       // have either s.d. or period 0
 
-      if (geom[idr].second.torsion_restraint[ib].periodicity() > 0) { // we had this test most inner
-	 if (geom[idr].second.torsion_restraint[ib].esd() > 0.000001) { // new test
+      if (torsion_restraint.periodicity() > 0) { // we had this test most inner
+	 if (torsion_restraint.esd() > 0.000001) { // new test
 	 
 	    // now find the atoms
 	    for (int iat=0; iat<i_no_res_atoms; iat++) {
 	       std::string pdb_atom_name1(res_selection[iat]->name);
 
-	       if (pdb_atom_name1 == geom[idr].second.torsion_restraint[ib].atom_id_1_4c()) {
+	       if (pdb_atom_name1 == torsion_restraint.atom_id_1_4c()) {
 		  for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
 
 		     std::string pdb_atom_name2(res_selection[iat2]->name);
-		     if (pdb_atom_name2 == geom[idr].second.torsion_restraint[ib].atom_id_2_4c()) {
+		     if (pdb_atom_name2 == torsion_restraint.atom_id_2_4c()) {
 				    
-			// 		  std::cout << "atom match 1 " << pdb_atom_name1;
-			// 		  std::cout << " atom match 2 " << pdb_atom_name2
-			// 			    << std::endl;
-
 			for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
 		     
 			   std::string pdb_atom_name3(res_selection[iat3]->name);
-			   if (pdb_atom_name3 == geom[idr].second.torsion_restraint[ib].atom_id_3_4c()) {
+			   if (pdb_atom_name3 == torsion_restraint.atom_id_3_4c()) {
 		  
 			      for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
 		     
 				 std::string pdb_atom_name4(res_selection[iat4]->name);
-				 if (pdb_atom_name4 == geom[idr].second.torsion_restraint[ib].atom_id_4_4c()) {
+				 if (pdb_atom_name4 == torsion_restraint.atom_id_4_4c()) {
 		  
 				    // now we need the indices of
 				    // pdb_atom_name1 and
 				    // pdb_atom_name2 in asc.atom_selection:
+
+                                    // kill off weird dictionary torsions here
+                                    if (pdb_atom_name1 == " O  ")
+                                       if (pdb_atom_name2 == " C  ")
+                                          if (pdb_atom_name3 == " CA ")
+                                             continue;
+                                    if (pdb_atom_name1 == " CB ")
+                                       if (pdb_atom_name2 == " CA  ")
+                                          if (pdb_atom_name3 == " N ")
+                                             if (pdb_atom_name4 == " H ")
+                                                continue;
 
 				    int index1;
 				    int index2;
@@ -6493,31 +6628,45 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
 				    res_selection[iat4]->GetUDData(udd_atom_index_handle, index4);
 
-				    double torsion_angle = geom[idr].second.torsion_restraint[ib].angle();
+				    double torsion_angle = torsion_restraint.angle();
 				    if (torsion_angle < 0)
 				       torsion_angle += 360;
 				    if (torsion_angle > 360)
 				       torsion_angle -= 360;
 
-				    std::vector<bool> fixed_flags =
-				       make_fixed_flags(index1, index2, index3, index4);
-				    add(TORSION_RESTRAINT, index1, index2, index3, index4,
-					fixed_flags,
-					torsion_angle,
-					geom[idr].second.torsion_restraint[ib].esd(),
-					1.2,  // junk value
-					geom[idr].second.torsion_restraint[ib].periodicity());
-				    if (0) // debug
-				       std::cout << "Adding monomer torsion restraint: "
-						 << index1 << " "
-						 << index2 << " "
-						 << index3 << " "
-						 << index4 << " angle "
-						 << geom[idr].second.torsion_restraint[ib].angle() << " esd " 
-						 << geom[idr].second.torsion_restraint[ib].esd() << " period " 
-						 << geom[idr].second.torsion_restraint[ib].periodicity()
-						 << std::endl;
-				    n_torsion_restr++;
+                                    std::string alt_conf_1(res_selection[iat]->altLoc);
+                                    std::string alt_conf_2(res_selection[iat2]->altLoc);
+                                    std::string alt_conf_3(res_selection[iat3]->altLoc);
+                                    std::string alt_conf_4(res_selection[iat4]->altLoc);
+
+                                    bool alt_confs_match = false;
+                                    if (alt_conf_1 == "" || alt_conf_1 == alt_conf_2)
+                                       if (alt_conf_2 == "" || alt_conf_2 == alt_conf_3)
+                                          if (alt_conf_3 == "" || alt_conf_3 == alt_conf_4 || alt_conf_4 == "")
+                                             alt_confs_match = true;
+
+                                    if (alt_confs_match) {
+				       std::vector<bool> fixed_flags = make_fixed_flags(index1, index2, index3, index4);
+				       add(TORSION_RESTRAINT, index1, index2, index3, index4,
+					   fixed_flags,
+					   torsion_angle,
+					   torsion_restraint.esd(),
+					   1.2,  // junk value
+					   torsion_restraint.periodicity());
+
+				       if (false)
+				          std::cout << "debug:: Adding monomer torsion restraint: "
+						    << index1 << " "
+						    << index2 << " "
+						    << index3 << " "
+						    << index4 << " torsion "
+						    << torsion_restraint.angle() << " esd "
+						    << torsion_restraint.esd() << " period "
+						    << torsion_restraint.periodicity()
+						    << std::endl;
+
+				       status = true;
+				    }
 				 }
 			      }
 			   }
@@ -6528,6 +6677,24 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 	    }
 	 }
       }
+   }
+   return status;
+}
+
+int
+coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
+					   int i_no_res_atoms,
+					   mmdb::PResidue SelRes,
+					   const coot::protein_geometry &geom) {
+
+   int n_torsion_restr = 0;
+   const std::vector<dict_torsion_restraint_t> &torsion_restraints = geom[idr].second.torsion_restraint;
+
+   for (unsigned int ib=0; ib<torsion_restraints.size(); ib++) {
+      const dict_torsion_restraint_t &torsion_restraint = torsion_restraints[ib];
+      bool status = add_torsion_internal(torsion_restraint, res_selection, i_no_res_atoms);
+      if (status)
+         n_torsion_restr++;
    }
 
    return n_torsion_restr;

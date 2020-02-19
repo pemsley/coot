@@ -1,4 +1,4 @@
-/* ligand/coot-map-utils.cc
+/* coot-utils/coot-map-utils.cc
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009, 2010 by The University of Oxford

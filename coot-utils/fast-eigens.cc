@@ -68,98 +68,98 @@ coot::fast_eigens(clipper::Matrix<double> &m, bool sort_eigenvalues) {
       eval[p] = b[p] = m(p,p);
    }
 
-   for ( cyc = 1; cyc <= 10; cyc++ ) {
+   for ( cyc = 1; cyc <= 12; cyc++ ) {
 
       // calc sum of diagonal, off-diagonal
       spp = spq = 0.0;
       for ( p=0; p<n-1; p++ ) {
-	 for ( q=p+1; q<n; q++ )
-	    spq += fabs(m(p,q));
-	 spp += fabs(m(p,p));
+         for ( q=p+1; q<n; q++ )
+         spq += fabs(m(p,q));
+         spp += fabs(m(p,p));
       }
       // printf("cyc %d spq %f spp %f\n", cyc, spq, spp);
-      if ( spq <= 1.0e-5 * spp ) break;
+      if ( spq <= 5.0e-6 * spp ) break;
 
       // zero z
       for ( p = 0; p < n; p++ ) z[p] = 0.0;
 
       // now try and reduce each off-diagonal element in turn
       for( p=0; p<n-1; p++ ) {
-	 for( q=p+1; q<n; q++ ) {
-	    a_pq = m(p,q);
-	    h = eval[q] - eval[p];
-	    if ( fabs(a_pq) > 1.0e-12f*fabs(h) ) {
-	       theta = 0.5f*h/a_pq;
-	       t = 1.0f/(fabs(theta) + sqrt(1.0f + theta*theta));
-	       if ( theta < 0.0f ) t = -t;
-	    } else {
-	       t = a_pq/h;
-	    }
+         for( q=p+1; q<n; q++ ) {
+            a_pq = m(p,q);
+            h = eval[q] - eval[p];
+            if ( fabs(a_pq) > 1.0e-12f*fabs(h) ) {
+               theta = 0.5f*h/a_pq;
+               t = 1.0f/(fabs(theta) + sqrt(1.0f + theta*theta));
+               if ( theta < 0.0f ) t = -t;
+            } else {
+               t = a_pq/h;
+            }
 
-	    // calc trig properties
-	    c   = 1.0f/sqrt(1.0f+t*t);
-	    s   = t*c;
-	    tau = s/(1.0f+c);
-	    h   = t * a_pq;
+            // calc trig properties
+            c   = 1.0f/sqrt(1.0f+t*t);
+            s   = t*c;
+            tau = s/(1.0f+c);
+            h   = t * a_pq;
 
-	    // update eigenvalues
-	    z[p] -= h;
-	    z[q] += h;
-	    eval[p] -= h;
-	    eval[q] += h;
+            // update eigenvalues
+            z[p] -= h;
+            z[q] += h;
+            eval[p] -= h;
+            eval[q] += h;
 
-	    // rotate the upper diagonal of the matrix
-	    m(p,q) = 0.0f;
-	    for ( j = 0; j < p; j++ ) {
-	       ap = m(j,p);
-	       aq = m(j,q);
-	       m(j,p) = ap - s * ( aq + ap * tau );
-	       m(j,q) = aq + s * ( ap - aq * tau );
-	    }
-	    for ( j = p+1; j < q; j++ ) {
-	       ap = m(p,j);
-	       aq = m(j,q);
-	       m(p,j) = ap - s * ( aq + ap * tau );
-	       m(j,q) = aq + s * ( ap - aq * tau );
-	    }
-	    for ( j = q+1; j < n; j++ ) {
-	       ap = m(p,j);
-	       aq = m(q,j);
-	       m(p,j) = ap - s * ( aq + ap * tau );
-	       m(q,j) = aq + s * ( ap - aq * tau );
-	    }
-	    // apply corresponding rotation to result
-	    for ( j = 0; j < n; j++ ) {
-	       ap = evec(j,p);
-	       aq = evec(j,q);
-	       evec(j,p) = ap - s * ( aq + ap * tau );
-	       evec(j,q) = aq + s * ( ap - aq * tau );
-	    }
-	 }
+            // rotate the upper diagonal of the matrix
+            m(p,q) = 0.0f;
+            for ( j = 0; j < p; j++ ) {
+               ap = m(j,p);
+               aq = m(j,q);
+               m(j,p) = ap - s * ( aq + ap * tau );
+               m(j,q) = aq + s * ( ap - aq * tau );
+            }
+            for ( j = p+1; j < q; j++ ) {
+               ap = m(p,j);
+               aq = m(j,q);
+               m(p,j) = ap - s * ( aq + ap * tau );
+               m(j,q) = aq + s * ( ap - aq * tau );
+            }
+            for ( j = q+1; j < n; j++ ) {
+               ap = m(p,j);
+               aq = m(q,j);
+               m(p,j) = ap - s * ( aq + ap * tau );
+               m(q,j) = aq + s * ( ap - aq * tau );
+            }
+            // apply corresponding rotation to result
+            for ( j = 0; j < n; j++ ) {
+               ap = evec(j,p);
+               aq = evec(j,q);
+               evec(j,p) = ap - s * ( aq + ap * tau );
+               evec(j,q) = aq + s * ( ap - aq * tau );
+            }
+         }
       }
 
       for ( p = 0; p < n; p++ ) {
-	 b[p] += z[p];
-	 eval[p] = b[p];
+         b[p] += z[p];
+         eval[p] = b[p];
       }
    }
 
    // sort the eigenvalues
    if ( sort_eigenvalues ) {
       for ( p = 0; p < n; p++ ) {
-	 j = p;        // set j to index of largest remaining eval
-	 for ( q = p+1; q < n; q++ )
-	    if ( eval[q] < eval[j] ) j = q;
-	 // Util::swap( eval[p], eval[j] );  // now swap evals, evecs
-	 float tmp = eval[p];
-	 eval[p] = eval[j];
-	 eval[j] = tmp;
-	 for ( q = 0; q < n; q++ ) {
-	    // Util::swap( evec( q, p ), evec( q, j ) );
-	    float tmp = evec(q,p);
-	    evec(q,p) = evec(q,j);
-	    evec(q,j) = tmp;
-	 }
+         j = p;        // set j to index of largest remaining eval
+         for ( q = p+1; q < n; q++ )
+         if ( eval[q] < eval[j] ) j = q;
+         // float tmp = eval[p];
+         // eval[p] = eval[j];
+         // eval[j] = tmp;
+         clipper::Util::swap( eval[p], eval[j] );  // now swap evals, evecs
+         for ( q = 0; q < n; q++ ) {
+            // float tmp = evec(q,p);
+            // evec(q,p) = evec(q,j);
+            // evec(q,j) = tmp;
+            clipper::Util::swap( evec( q, p ), evec( q, j ) );
+         }
       }
    }
 
