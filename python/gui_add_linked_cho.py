@@ -504,6 +504,7 @@ class glyco_validate:
         pvi = []
         f = open(log_file_name)
         lines = f.readlines()
+        f.close()
         for line in lines:
             l = line.rstrip()
             if len(l) > 10:

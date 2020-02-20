@@ -36,6 +36,7 @@ class RotDataLoader:
             rot = curdata[0].strip()
             if rot == "": continue #skip blank lines
             self.rotData[rot] = map(float, curdata[3:10]+curdata[13:20])
+        input.close()
             
     
     
