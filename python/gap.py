@@ -318,7 +318,7 @@ def low_density_average(imol_map, imol, chain_id, start_resno, stop_resno):
 
 	map_density.sort()  # sort ascending
 
-	cut_off = len(map_density) / 5
+	cut_off = len(map_density) // 5
 	if (cut_off <= 0):
 		cut_off = 1   # take at least one point
 
