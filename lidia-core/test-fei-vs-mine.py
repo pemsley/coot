@@ -181,6 +181,7 @@ def types_hist():
 		    atom_types[type] += 1
 		except:
 		    atom_types[type] = 1
+	    f.close()
 		    
     sum = 0
 

@@ -171,7 +171,9 @@ def is_mdl_file(file_name):
 # return the contents of file_name
 def read_file(file_name):
     f = open(file_name)
-    return f.read()
+    r = f.read()
+    f.close()
+    return r
 
 
 # return False or a file_name
