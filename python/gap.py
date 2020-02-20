@@ -74,15 +74,15 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
             stop_resno2  = max([start_resno, stop_resno])
             stop_resno1  = start_resno1 + loop_len/2 - 1
             start_resno2 = stop_resno1 + 1
-            sequence1    = sequence[0:loop_len/2]
-            sequence2    = sequence[loop_len/2:len(sequence)]
+            sequence1    = sequence[0:loop_len//2]
+            sequence2    = sequence[loop_len//2:len(sequence)]
             fit_gap_generic(imol_both, chain_id, start_resno1, stop_resno1, sequence1)
             fit_gap_generic(imol_both, chain_id, stop_resno2, start_resno2, sequence2)
             # finally refine the 'gap'; check refinement immediate status
             immediate_refinement_mode = refinement_immediate_replacement_state()
             set_refinement_immediate_replacement(1)
-            refine_zone(imol_both, chain_id, stop_resno1 - loop_len/3,
-                                            start_resno2 + loop_len/3, "")
+            refine_zone(imol_both, chain_id, stop_resno1 - loop_len//3,
+                                            start_resno2 + loop_len//3, "")
             accept_regularizement()
             set_refinement_immediate_replacement(immediate_refinement_mode)
             result_c = low_density_average(imol_map, imol_both, chain_id, start_resno, stop_resno)
