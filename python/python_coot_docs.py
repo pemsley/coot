@@ -89,7 +89,7 @@ def make_section_file(section_file, base_name):
     so.write("@node    " + base_name + "\n")
     so.write("@section " + base_name + "\n")
     so.write("@cindex  " + base_name + "\n")
-    so.close
+    so.close()
 
 def append_file(master_file_name, append_file_name):
 

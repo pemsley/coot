@@ -188,7 +188,9 @@ def is_mdl_file(file_name):
 # return the contents of file_name
 def read_file(file_name):
     f = open(file_name)
-    return f.read()
+    r = f.read()
+    f.close()
+    return r
 
 
 # return False or a file_name
@@ -291,6 +293,7 @@ def read_smiles_tab(file_name):
        for line in lines:
            bits = line.rstrip().rsplit()
            smiles_dict[bits[0]] = bits[2]
+       f.close()
        return True
     except IOError as e:
        smiles_dict = True # we've tested for it
@@ -305,6 +308,7 @@ def get_smiles_from_file(file_name):
 	f = open(file_name)
 	smi_line = f.readline()
 	parts = smi_line.split()
+        f.close()
 	return parts[0], ' '.join(parts[1:])
 
 def make_picture(mol, conf_id, comp_id, output_postfix):

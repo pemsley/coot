@@ -174,9 +174,9 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
             if len(lst) < 1:
                 return None
             if len(lst) %2 == 1:
-                return lst[((len(lst)+1)/2)-1]
+                return lst[((len(lst)+1)//2)-1]
             else:
-                return float(sum(lst[(len(lst)/2)-1:(len(lst)/2)+1]))/2.0
+                return float(sum(lst[(len(lst)//2)-1:(len(lst)//2)+1]))/2.0
 
         # Return a list of length 2: 
         # The first item is a list of atoms for the residue specified by ligand-spec

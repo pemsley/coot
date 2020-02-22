@@ -49,9 +49,9 @@ def generic_object_from_bones(bones_file):
         # un-fortran indexing
         if (n % 2 == 0):
             # even
-            ret = n / 2
+            ret = n // 2
         else:
-            ret = (n - 1) / 2
+            ret = (n - 1) // 2
         return ret - 1
 
     # main body
