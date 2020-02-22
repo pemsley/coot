@@ -1,0 +1,25 @@
+
+Fragments:
+
+convert an mmdb::Model *model_p to std::vector<std::pair<mmdb::Atom *, std::string> model_typed_atoms
+Every atom has an associated CCP4-atom-type.
+
+calculate_daca(reference_residue_p, std::vector<std::pair<mmdb::Atom *, std::string> model_typed_atoms)
+
+Get the fragments (atom sets) of the reference residue.
+
+For each fragment
+
+   get the rtop that rotates this fragment onto the reference fragment (at the origin)
+
+   for every atom in model_typed_atoms, find the distance to the centre of the fragment
+      If less than limit
+         find the box for this atom:
+         apply the rtop to this atom - that gives us 3D coordinates near the origin
+         convert that coordinate to a box indices.
+         Add one to that box for that fragment of that residue type
+
+  
+
+
+

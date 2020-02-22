@@ -314,17 +314,22 @@ molecule_class_info_t::update_map_internal() {
 			 graphics_info_t::RotationCentre_y(),
 			 graphics_info_t::RotationCentre_z());
 
-      update_map_triangles(radius, rc);  // NXMAP-FIXME
-      if (graphics_info_t::use_graphics_interface_flag) {
-	 if (graphics_info_t::display_lists_for_maps_flag) {
-	    graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
-	    compile_density_map_display_list(SIDE_BY_SIDE_MAIN);
-	    if (graphics_info_t::display_mode_use_secondary_p()) {
-	       graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
-	       compile_density_map_display_list(SIDE_BY_SIDE_SECONDARY);
+      try {
+         update_map_triangles(radius, rc);  // NXMAP-FIXME
+         if (graphics_info_t::use_graphics_interface_flag) {
+	    if (graphics_info_t::display_lists_for_maps_flag) {
 	       graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+	       compile_density_map_display_list(SIDE_BY_SIDE_MAIN);
+	       if (graphics_info_t::display_mode_use_secondary_p()) {
+	          graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+	          compile_density_map_display_list(SIDE_BY_SIDE_SECONDARY);
+	          graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+	       }
 	    }
 	 }
+      }
+      catch (const std::bad_alloc &ba) {
+         std::cout << "ERROR:: out of memory " << ba.what() << std::endl;
       }
    }
 }

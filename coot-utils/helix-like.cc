@@ -43,7 +43,7 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues) {
    return r;
 }
 
-void
+std::vector<mmdb::Residue *>
 coot::like_a_helix(mmdb::Manager *mol, int residue_selection_handle) {
 
    // return a vector of residues that have *forward* restraints i.e. O(n_this) - N(n_this+4)
@@ -62,20 +62,20 @@ coot::like_a_helix(mmdb::Manager *mol, int residue_selection_handle) {
       std::vector<clipper::Coord_orth> ref_pos = alpha_helical_reference_positions();
 
       for (int istart=0; istart<(nSelResidues-4); istart++) {
-
 	 std::vector<mmdb::Residue *> test_residues;
 	 if ((istart+4) < nSelResidues) {
-	    for (int i_4=istart; i_4<(istart+4); i_4++) {
-               // std::cout << "pushing back " << residue_spec_t(SelResidues[i_5]) << std::endl;
+	    for (int i_4=istart; i_4<(istart+4); i_4++)
 	       test_residues.push_back(SelResidues[i_4]);
-	    }
 
 	    if (test_residues.size() == 4) {
-	       coot::helical_results_t helicals = compare_to_helix(test_residues, ref_pos);
+	       helical_results_t helicals = compare_to_helix(test_residues, ref_pos);
+               if (helicals.is_alpha_helix_like)
+                  helical_residues.push_back(test_residues[1]);
 	    }
 	 }
       }
    }
+   return helical_residues;
 }
 
 // Compare this set of helical residue to the reference helical postions
