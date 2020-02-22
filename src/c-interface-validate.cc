@@ -543,7 +543,6 @@ SCM chiral_volume_errors_scm(int imol) {
       r = SCM_EOL;
       graphics_info_t g;
       std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > v = g.molecules[imol].bad_chiral_volumes();
-      std::cout << "::::: here with v.second.size() " << v.second.size() << std::endl;
       for (std::size_t i=0; i<v.second.size(); i++) {
 	 SCM atom_spec_scm = atom_spec_to_scm(v.second[i]);
 	 r = scm_cons(atom_spec_scm, r);
