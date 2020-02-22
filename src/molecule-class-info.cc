@@ -4095,7 +4095,7 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	 // second plane
 	 residue_atoms = 0;
 	 r_2->GetAtomTable(residue_atoms, n_residue_atoms);
-	 std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
+	 // std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
 	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
 	    std::string plane_atom_expanded_name =
 	       dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
