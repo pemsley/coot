@@ -735,8 +735,6 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 void
 graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
-   std::cout << "DEBUG:: --------------- update_go_to_atom_window_on_new_mol called" << std::endl;
-
    if (go_to_atom_window) {
 
       // GtkWidget *option_menu =
@@ -746,7 +744,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       GtkWidget *combobox = lookup_widget(go_to_atom_window, "go_to_atom_molecule_combobox");
 
       std::cout << "debug:: in update_go_to_atom_window_on_new_mol() got combobox " << combobox
-		<< std::endl;
+                << std::endl;
 
       // this may not be the write function for a combobox item
       GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
