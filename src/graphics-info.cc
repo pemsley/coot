@@ -6192,7 +6192,8 @@ graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
    r = scm_cons(scm_makfrom0str(spec.ins_code.c_str()), r);
    r = scm_cons(SCM_MAKINUM(spec.res_no), r);
    r = scm_cons(scm_makfrom0str(spec.chain_id.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(spec.int_user_data), r);
+   r = scm_cons(SCM_MAKINUM(spec.int_user_data), r); // not the model number? Urgh (unexpected).
+                                                     // Where is this user_data used?
 
    return r;
 }

@@ -473,6 +473,7 @@ coot_bin_SOURCES = \
 	merge-molecule-results-info-t.hh \
 	molecule-class-info.cc 	 \
 	molecule-class-info-alignment.cc \
+	molecule-class-info-analysis.cc \
 	molecule-class-info-bonds.cc    \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\

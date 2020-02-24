@@ -137,6 +137,7 @@ namespace molecule_map_type {
 #include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
 #include "clipper-ccp4-map-file-wrapper.hh"
+#include "model-composition-statistics.hh"
 
 namespace coot {
 
@@ -3396,6 +3397,8 @@ public:        //                      public
 
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
    void set_mean_and_sigma();
+
+   coot::model_composition_stats_t get_model_composition_statistics() const;
 
 };
 
