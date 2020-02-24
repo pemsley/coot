@@ -438,8 +438,8 @@ graphics_info_t::refinement_loop_threaded() {
       int spf = dragged_refinement_steps_per_frame;
 
       if (graphics_info_t::refinement_of_last_restraints_needs_reset_flag) {
-	 g.last_restraints->set_needs_reset();
-	 graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
+         g.last_restraints->set_needs_reset();
+         graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
       }
 
       // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
