@@ -396,7 +396,7 @@ int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initia
                                                                        // the regeneration is activated.
 bool graphics_info_t::threaded_refinement_needs_to_clear_up = false; // for Esc usage
 bool graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = false; // for Return usage
-bool graphics_info_t::continue_threaded_refinement_loop = true; // also for Esc usage
+bool graphics_info_t::continue_threaded_refinement_loop = false; // also for Esc usage
 int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
 bool graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
 
