@@ -250,7 +250,7 @@ int copy_molecule(int imol) {
       graphics_info_t g;
       iret = g.copy_model_molecule(imol);
       if (is_valid_model_molecule(iret))
-	  g.molecules[iret].set_have_unsaved_changes_from_outside();
+         g.molecules[iret].set_have_unsaved_changes_from_outside();
    }
    if (is_valid_map_molecule(imol)) {
       int new_mol_number = graphics_info_t::create_molecule();
@@ -259,7 +259,7 @@ int copy_molecule(int imol) {
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       graphics_info_t::molecules[new_mol_number].install_new_map(graphics_info_t::molecules[imol].xmap, label, is_em_flag);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
-	 graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
+         graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
       }
       iret = new_mol_number;
    }
@@ -4820,7 +4820,7 @@ void accept_regularizement() {
 void accept_moving_atoms() {
 
    graphics_info_t g;
-   g.accept_moving_atoms();	// does a g.clear_up_moving_atoms();
+   g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 }
 

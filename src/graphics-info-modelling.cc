@@ -380,7 +380,7 @@ graphics_info_t::copy_model_molecule(int imol) {
       const std::vector<coot::ghost_molecule_display_t> &ghosts = g.molecules[imol].NCS_ghosts();
       bool shelx_flag = g.molecules[imol].is_from_shelx_ins();
       g.molecules[new_mol_number].install_model_with_ghosts(new_mol_number, asc, g.Geom_p(), label, 1, ghosts,
-							    shelx_flag, false, false);
+                                                            shelx_flag, false, false);
       update_go_to_atom_window_on_new_mol();
       iret = new_mol_number;
    }
@@ -668,15 +668,14 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
       graphics_info_t g; // 37 nanoseconds
 
       if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
-	 std::cout << "---------- now accept moving atoms! " << std::endl;
-	 g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
+         g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
       }
 
       if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
-	 std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
+         std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
                    << std::endl;
-	 g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
-	 g.clear_moving_atoms_object();
+         g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
+         g.clear_moving_atoms_object();
       }
 
       // no need to do this if Esc is pressed.
