@@ -1156,7 +1156,7 @@ public:        //                      public
    void update_symmetry();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
-   void anisotropic_atoms();
+   void draw_anisotropic_atoms();
    void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
    void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    void draw_unit_cell_internal(float rsc[8][3]);

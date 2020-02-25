@@ -643,7 +643,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 
 void
-molecule_class_info_t::anisotropic_atoms() {
+molecule_class_info_t::draw_anisotropic_atoms() {
 
    int c; // atom colour
 
@@ -9569,7 +9569,8 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
                }
                g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
             } else {
-               std::cout << "No need for an update " << backup_index_current << std::endl;
+               if (false)
+                  std::cout << "No need for an update " << backup_index_current << std::endl;
             }
          }
       }
