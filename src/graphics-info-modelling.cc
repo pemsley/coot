@@ -1657,9 +1657,9 @@ graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidu
 // 		<< residue_from_alt_conf_split_flag << std::endl;
 
       bool embed_in_chain_flag = false; // don't put r in a chain in deep_copy_this_residue()
-					// because we put r in a chain here.
-      r = coot::deep_copy_this_residue(SelResidues[ires], altconf, whole_res_flag, 
-				       atom_index_udd, embed_in_chain_flag);
+                                        // because we put r in a chain here.
+      r = coot::deep_copy_this_residue_old_style(SelResidues[ires], altconf, whole_res_flag, 
+                                                 atom_index_udd, embed_in_chain_flag);
       if (r) {
 	 chain->AddResidue(r);
 	 r->seqNum = SelResidues[ires]->GetSeqNum();
@@ -1867,9 +1867,11 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 			 << "had index " << flankers_in_reference_mol[ires]->index
 			 << std::endl;
 
-	    r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
-					     alt_conf, whole_res_flag,
-					     atom_index_udd_handle);
+            // get rid of this function at some stage
+            bool embed_in_chain = false;
+	    r = coot::deep_copy_this_residue_old_style(flankers_in_reference_mol[ires],
+					               alt_conf, whole_res_flag,
+					               atom_index_udd_handle, embed_in_chain);
 
 	    if (r) {
 
@@ -4389,9 +4391,11 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
    // We need to filter out atoms that are not (either the same
    // altconf as atom_index or "")
    //
-   mmdb::Residue *tres = coot::deep_copy_this_residue(residue, 
+   // get rid of this function (needs a test)
+   bool embed_in_chain_flag = false;
+   mmdb::Residue *tres = coot::deep_copy_this_residue_old_style(residue, 
 						 std::string(at_rot->altLoc),
-						 0, atom_index_udd);
+						 0, atom_index_udd, embed_in_chain_flag);
    if (!tres) {
       return 0;
    } else { 
@@ -4412,13 +4416,8 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
 	 Geom_p()->get_monomer_restraints(monomer_type, imol);
 
-#ifdef USE_DUNBRACK_ROTAMERS			
-      coot::dunbrack d(tres, molecules[imol].atom_sel.mol,
-		       rotamer_lowest_probability, 0);
-#else
       coot::richardson_rotamer d(tres, altconf, molecules[imol].atom_sel.mol,
 				 rotamer_lowest_probability, 0);
-#endif // USE_DUNBRACK_ROTAMERS
 
       if (p.first) { 
 	 // std::cout << "generate_moving_atoms_from_rotamer " << irot << std::endl;

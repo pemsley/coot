@@ -2075,7 +2075,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	 clash_score_limit = 500; // be more generous... lots of hydrogen contacts
 
       std::string res_type(res->name);
-      mmdb::Residue *copied_res = coot::deep_copy_this_residue(res, altloc, 0, atom_sel.UDDAtomIndexHandle);
+      // use the old coords function - update this at some stage
+      bool embed_in_new_chain_flag = false;
+      mmdb::Residue *copied_res = coot::deep_copy_this_residue_old_style(res, altloc, 0, atom_sel.UDDAtomIndexHandle, embed_in_new_chain_flag);
 
       if (!copied_res) {
 	 std::cout << "WARNING:: residue copied - no atoms" << std::endl;
@@ -2283,10 +2285,10 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
    mmdb::Residue *res = get_residue(std::string(chain_id), res_no, std::string(ins_code));
    if (res) {
       std::string res_type(res->name);
-      mmdb::Residue *copied_res = coot::deep_copy_this_residue(res, alt_conf, 0,
-							  atom_sel.UDDAtomIndexHandle);
+      bool embed_in_new_chain_flag = false; // I presume.
+      mmdb::Residue *copied_res = coot::deep_copy_this_residue_old_style(res, alt_conf, 0, atom_sel.UDDAtomIndexHandle, embed_in_new_chain_flag);
       if (!copied_res) {
-	 std::cout << "WARNING:: residue copied - no atoms" << std::endl;
+         std::cout << "WARNING:: residue copied - no atoms" << std::endl;
       } else {
 	 coot::richardson_rotamer d(copied_res, alt_conf, atom_sel.mol, lowest_probability, 0);
 	 std::vector<float> probabilities = d.probabilities();
@@ -3356,9 +3358,11 @@ molecule_class_info_t::edit_residue_pull_residue(int atom_index,
 
    if (res) {
 
-      mmdb::Residue *ret_res = coot::deep_copy_this_residue(res, altconf,
+      bool embed_in_new_chain_flag = false;
+      mmdb::Residue *ret_res = coot::deep_copy_this_residue_old_style(res, altconf,
 						       whole_residue_flag,
-						       atom_sel.UDDAtomIndexHandle);
+						       atom_sel.UDDAtomIndexHandle,
+                                                       embed_in_new_chain_flag);
       if (ret_res) {
 
 	 mmdb::Manager *MMDBManager = new mmdb::Manager;
@@ -6298,7 +6302,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 	       int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
 
 	       // mmdb-extras.h
-	       mmdb::Residue *res_copy = coot::deep_copy_this_residue(current_residue_p, alt_conf,
+	       mmdb::Residue *res_copy = coot::deep_copy_this_residue_old_style(current_residue_p, alt_conf,
 								      whole_res_flag, atom_index_udd_handle,
 								      false);
 
