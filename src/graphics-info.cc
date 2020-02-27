@@ -1924,7 +1924,7 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 //
 void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
-						   const atom_selection_container_t &asc) {
+                                                   const atom_selection_container_t &asc) {
 
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
@@ -1948,7 +1948,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
    if (false)
       std::cout << "DEBUG:: make_moving_atoms_graphics_object() bonds box type of molecule "
-	        << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
+                << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
                 << std::endl;
 
    bool do_ca_mode = false;
@@ -1967,18 +1967,18 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
 
-	 Bond_lines_container bonds;
-	 bool draw_hydrogens_flag = false;
-	 if (molecules[imol_moving_atoms].draw_hydrogens())
-	    draw_hydrogens_flag = true;
-	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+         Bond_lines_container bonds;
+         bool draw_hydrogens_flag = false;
+         if (molecules[imol_moving_atoms].draw_hydrogens())
+         draw_hydrogens_flag = true;
+         bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
 
          unsigned int unlocked = 0;
          // Neither of these seems to make a difference re: the intermediate atoms python representation
          // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
-	 // For now, we don't print the python variable - now convert it to json - that seems
-	 // to work OK ~20MB/s for a chain.
-	 //
+         // For now, we don't print the python variable - now convert it to json - that seems
+         // to work OK ~20MB/s for a chain.
+         //
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             unlocked = 0;
@@ -1994,16 +1994,16 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                  unlocked = false;
             }
 
-	    regularize_object_bonds_box.clear_up();
-	    regularize_object_bonds_box = bonds.make_graphical_bonds();
+            regularize_object_bonds_box.clear_up();
+            regularize_object_bonds_box = bonds.make_graphical_bonds();
             moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
 
       } else {
 
-	 Bond_lines_container bonds;
-	 bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+         Bond_lines_container bonds;
+         bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
          unsigned int unlocked = false;
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -2019,8 +2019,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                  unlocked = false;
             }
 
-	    regularize_object_bonds_box.clear_up();
-	    regularize_object_bonds_box = bonds.make_graphical_bonds();
+            regularize_object_bonds_box.clear_up();
+            regularize_object_bonds_box = bonds.make_graphical_bonds();
             moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
@@ -2053,7 +2053,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
-	 draw_hydrogens_flag = 1;
+         draw_hydrogens_flag = 1;
       std::set<int> dummy;
       bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
