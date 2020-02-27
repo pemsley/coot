@@ -749,6 +749,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
 
       bool set_last_active_flag = 0;
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
       fill_combobox_with_coordinates_options_with_set_last(combobox, callback_func, set_last_active_flag);
 
       // If there was no molecule already, we need to update the atom
@@ -797,6 +798,7 @@ graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
       GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window), "go_to_atom_molecule_combobox");
 
       GCallback callback_func = G_CALLBACK(go_to_atom_mol_combobox_changed);
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
       fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       update_go_to_atom_window_on_changed_mol(imol);
    }
