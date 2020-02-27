@@ -93,6 +93,7 @@ class NextPhos:
             atomName = atomName.replace("*", "'")
             
             struc[resName][atomName] = [x,y,z]
+        input.close()
             
         #translate each base so that the C1' atom is at [0,0,0]
         for curRes in struc.keys():

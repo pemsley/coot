@@ -1989,7 +1989,7 @@ coot::distortion_score_non_bonded_contact_lennard_jones(const coot::simple_restr
       // the process was always on this line
       // double V_lj_old = lj_epsilon * (std::pow(alpha, 12) - 2.0 * std::pow(alpha, 6));
 
-      if (dist_sq < 0.81) dist_sq = 0.81; // 0.9^2
+      if (dist_sq < 1.00) dist_sq = 1.00;
       double alpha_sqrd = lj_r_min*lj_r_min/dist_sq;
       double alpha_up_6  = alpha_sqrd * alpha_sqrd * alpha_sqrd;
       double alpha_up_12 = alpha_up_6 * alpha_up_6;

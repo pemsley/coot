@@ -185,21 +185,22 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 
       } else { 
 
-	 // we need to generate a std_residue for each alt conf,
-	 // (usually, just one of course).
-	 std::map<std::string, clipper::RTop_orth>::const_iterator it;
+         // we need to generate a std_residue for each alt conf,
+         // (usually, just one of course).
+         std::map<std::string, clipper::RTop_orth>::const_iterator it;
 
 	 for (it=rtops.begin(); it!=rtops.end(); it++) {
-	    bool whole_res = 1;
-	    mmdb::Residue *std_residue = coot::deep_copy_this_residue(SelResidue[0], "", whole_res, 
-								 atom_sel.UDDAtomIndexHandle);
-	    if (! std_residue) {
+	    bool whole_res = true;
+            bool embed_in_new_chain = false; // I think
+            mmdb::Residue *std_residue = coot::deep_copy_this_residue_old_style(SelResidue[0], "", whole_res, 
+                                                                                atom_sel.UDDAtomIndexHandle, embed_in_new_chain);
+            if (! std_residue) {
 
-	       std::cout << "ERROR:: failure to get std_residue in mutate()" << std::endl;
+               std::cout << "ERROR:: failure to get std_residue in mutate()" << std::endl;
 
-	    } else { 
+            } else { 
       
-	       make_backup();
+               make_backup();
 
 	       mmdb::PPAtom residue_atoms;
 	       int nResidueAtoms;

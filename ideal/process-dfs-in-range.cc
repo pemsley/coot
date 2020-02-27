@@ -996,7 +996,7 @@ coot::process_dfs_non_bonded_lennard_jones(const coot::simple_restraint &this_re
    max_dist = 999.9; // does this match the one in the gradients? And the one in distortion score?
 
    double b_i_sqrd = (a1-a2).lengthsq();
-   if (b_i_sqrd < 0.81) b_i_sqrd = 0.81; // stabilize (as per distortion score lj)
+   if (b_i_sqrd < 1.0) b_i_sqrd = 1.0; // stabilize (as per distortion score lj)
 
    if (b_i_sqrd < (max_dist * max_dist)) {
 

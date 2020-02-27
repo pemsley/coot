@@ -375,7 +375,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 }
 
 	 // draw anisotropic atoms maybe
-	 graphics_info_t::molecules[ii].anisotropic_atoms();
+	 graphics_info_t::molecules[ii].draw_anisotropic_atoms();
 
 	 // We need to (also) pass whether we are drawing the first or
 	 // secondary window, so that, when display lists are being

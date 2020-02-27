@@ -849,6 +849,8 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
 //
 PyObject *get_intermediate_atoms_bonds_representation();
 
+#endif // USE_PYTHON
+
 //! \brief return the continue-updating-refinement-atoms state
 //
 // 0 means off, 1 means on.
@@ -856,7 +858,6 @@ PyObject *get_intermediate_atoms_bonds_representation();
 // will return only after the atoms have finished moving.
 int get_continue_updating_refinement_atoms_state();
 
-#endif // USE_PYTHON
 
 //! \}
 

@@ -4004,7 +4004,7 @@ else
   	        cp render $install_top_dir/bin/
              fi
           else
-             echo info $MAKE failed for render
+             echo INFO:: $MAKE failed for render
              # warning make exit status false, but the binary may well have been built
              if [ -e render ] ; then
                 if [ ! -e $install_top_dir/bin/render ] ; then

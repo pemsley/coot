@@ -49,7 +49,7 @@ def connection_proc(port, hostname):
     # close transmission
     print "BL DEBUG:: send close"
     close_transmission()
-    
+    sock.close()
 
     #data = request.recv(1024)
     #print 'Received connection Msg: ', data
@@ -59,6 +59,5 @@ def connection_proc(port, hostname):
     #    data = request.recv(1024)
     #    print 'Received Msg: ', data
     #request.shutdown(2) #Stop the client from reading or writing anything.
-    #sock.close()
 
 connection_proc(port, hostname)

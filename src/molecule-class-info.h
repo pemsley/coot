@@ -137,6 +137,7 @@ namespace molecule_map_type {
 #include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
 #include "clipper-ccp4-map-file-wrapper.hh"
+#include "model-composition-statistics.hh"
 
 namespace coot {
 
@@ -1155,7 +1156,7 @@ public:        //                      public
    void update_symmetry();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
-   void anisotropic_atoms();
+   void draw_anisotropic_atoms();
    void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
    void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    void draw_unit_cell_internal(float rsc[8][3]);
@@ -3396,6 +3397,8 @@ public:        //                      public
 
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
    void set_mean_and_sigma();
+
+   coot::model_composition_stats_t get_model_composition_statistics() const;
 
 };
 

@@ -89,7 +89,7 @@ def check_dir_and_get_url(dir, file_name, url_string):
           else:
               print "ERROR:: Oops - Can't write to ", dir, " directory!"
     else:
-       os.mkdir(dir)
+       os.makedirs(dir)
        if (os.path.isdir(dir)):
            coot_urlretrieve(url_string, file_name)
        else:

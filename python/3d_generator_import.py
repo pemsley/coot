@@ -30,28 +30,12 @@ sbase_transfer_latest_time = get_file_latest_time(sbase_to_coot_tlc)
 
 # we need $CLIBD to run prodrg (for prodrg.param), so check for it:
 if not os.getenv("CLIBD"):
-    # print "BL INFO:: potential problem to run prodrg (no CLIBD set)"
-    # print "          try to fix this"
     bin_dir = os.path.dirname(cprodrg)
     base_dir = os.path.dirname(bin_dir)
     clibd = os.path.join(base_dir, "lib", "data")
     prodrg_params = os.path.join(clibd, "prodrg.param")
     if os.path.isfile(prodrg_params):
         os.environ["CLIBD"] = clibd
-        # print "BL INFO:: found prodrg.param"
-        # print "          and set CLIBD to", clibd
-    else:
-        # print "BL ERROR:: no prodrg.param available"
-        # print "searched in ", clibd
-        if enhanced_ligand_coot_p():
-            # we don't want to know that you can't find old programs
-            pass
-        else:
-           # print "Sorry, prodrg module not available" # noisy and we don't care
-           pass
-        # should load rest?
-        # i.e. stop here?
-    
 
 
 # this is for BL win machine

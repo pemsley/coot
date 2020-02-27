@@ -393,6 +393,14 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 #endif
 
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM model_composition_statistics_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *model_composition_statistics_py(int imol);
+#endif
+#endif
 
 
 /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
@@ -3296,6 +3304,8 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 /*! \brief If there is a refinement on-going already, we don't want to start a new one
 
 The is the means to ask if that is the case. This needs a scheme wrapper to provide refinement-already-ongoing?
+The question is translated to "are the intermediate atoms being displayed?" so that might be a more
+accurate function name than the current one.
 
 @return 1 for yes, 0 for no.
 */

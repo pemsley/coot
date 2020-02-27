@@ -54,6 +54,7 @@ def read_data(file_name, add_specs=False):
                     except TypeError as e:
                         print('problem', e)
 
+    f.close()
     return data
 
 # return a tuple of the means, the SigmaInverse and the determinant of Sigma

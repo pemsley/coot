@@ -3791,24 +3791,23 @@ new_close_molecules(GtkWidget *window) {
 	    // set it to the bottom model molecule:
 	    for (int imol=graphics_info_t::n_molecules()-1; imol>=0; imol--) {
 	       if (is_valid_model_molecule(imol)) {
-		  g.set_go_to_atom_molecule(imol);
-		  break;
-	       }
-	    }
-	 }
+	          g.set_go_to_atom_molecule(imol);
+	          break;
+               }
+            }
+         }
       }
    }
       
 
    if (closed_something_flag) { 
       if (graphics_info_t::go_to_atom_window) { 
-	 graphics_info_t g;
-	 GtkWidget *combobox = lookup_widget(graphics_info_t::go_to_atom_window, 
-					       "go_to_atom_molecule_combobox");
-	 int gimol = g.go_to_atom_molecule();
+         graphics_info_t g;
+         GtkWidget *combobox = lookup_widget(graphics_info_t::go_to_atom_window, "go_to_atom_molecule_combobox");
+         int gimol = g.go_to_atom_molecule();
 
-	 GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
-	 g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+         GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
+         g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
       }
       graphics_draw();
    }

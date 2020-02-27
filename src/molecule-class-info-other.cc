@@ -2075,7 +2075,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	 clash_score_limit = 500; // be more generous... lots of hydrogen contacts
 
       std::string res_type(res->name);
-      mmdb::Residue *copied_res = coot::deep_copy_this_residue(res, altloc, 0, atom_sel.UDDAtomIndexHandle);
+      // use the old coords function - update this at some stage
+      bool embed_in_new_chain_flag = false;
+      mmdb::Residue *copied_res = coot::deep_copy_this_residue_old_style(res, altloc, 0, atom_sel.UDDAtomIndexHandle, embed_in_new_chain_flag);
 
       if (!copied_res) {
 	 std::cout << "WARNING:: residue copied - no atoms" << std::endl;
@@ -2283,10 +2285,10 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
    mmdb::Residue *res = get_residue(std::string(chain_id), res_no, std::string(ins_code));
    if (res) {
       std::string res_type(res->name);
-      mmdb::Residue *copied_res = coot::deep_copy_this_residue(res, alt_conf, 0,
-							  atom_sel.UDDAtomIndexHandle);
+      bool embed_in_new_chain_flag = false; // I presume.
+      mmdb::Residue *copied_res = coot::deep_copy_this_residue_old_style(res, alt_conf, 0, atom_sel.UDDAtomIndexHandle, embed_in_new_chain_flag);
       if (!copied_res) {
-	 std::cout << "WARNING:: residue copied - no atoms" << std::endl;
+         std::cout << "WARNING:: residue copied - no atoms" << std::endl;
       } else {
 	 coot::richardson_rotamer d(copied_res, alt_conf, atom_sel.mol, lowest_probability, 0);
 	 std::vector<float> probabilities = d.probabilities();
@@ -3356,9 +3358,11 @@ molecule_class_info_t::edit_residue_pull_residue(int atom_index,
 
    if (res) {
 
-      mmdb::Residue *ret_res = coot::deep_copy_this_residue(res, altconf,
+      bool embed_in_new_chain_flag = false;
+      mmdb::Residue *ret_res = coot::deep_copy_this_residue_old_style(res, altconf,
 						       whole_residue_flag,
-						       atom_sel.UDDAtomIndexHandle);
+						       atom_sel.UDDAtomIndexHandle,
+                                                       embed_in_new_chain_flag);
       if (ret_res) {
 
 	 mmdb::Manager *MMDBManager = new mmdb::Manager;
@@ -5384,6 +5388,10 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    bool done_add_specific = merge_molecules_just_one_residue_at_given_spec(add_molecules[imol], spec);
 	    bool done_homogeneous_addition_flag = false;
 
+            // by "homogeneous" I mean is there a chain of residues of the same type as that we are adding
+            // e.g. an SO4 to a chain of SO4s? This don't happen (much?) these days.
+            // These days, with one residue, we expect to run merge_ligand_to_near_chain()
+
 	    if (! done_add_specific)
 	       done_homogeneous_addition_flag = merge_molecules_just_one_residue_homogeneous(add_molecules[imol]);
 
@@ -5392,18 +5400,18 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    else
 	       multi_residue_add_flag = ! done_homogeneous_addition_flag;
 
-	    if (! done_homogeneous_addition_flag) {
+            if (! done_homogeneous_addition_flag) {
 
-	       if (! done_add_specific)
-             done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
+               if (! done_add_specific)
+                  done_merge_ligand_to_near_chain = merge_ligand_to_near_chain(adding_mol);
 
-             if (done_merge_ligand_to_near_chain.first) {
-                merge_molecule_results_info_t mmr;
-                mmr.is_chain = false;
-                mmr.spec = done_merge_ligand_to_near_chain.second;
-                resulting_merge_info.push_back(mmr);
-                istat = 1;
-             } else {
+               if (done_merge_ligand_to_near_chain.first) {
+                  merge_molecule_results_info_t mmr;
+                  mmr.is_chain = false;
+                  mmr.spec = done_merge_ligand_to_near_chain.second;
+                  resulting_merge_info.push_back(mmr);
+                  istat = 1;
+               } else {
 
 		  if (done_add_specific) {
 		     // JED ligand addition
@@ -5650,7 +5658,7 @@ molecule_class_info_t::merge_ligand_to_near_chain(mmdb::Manager *mol) {
 	    if (chain_p) {
 	       int nres = chain_p->GetNumberOfResidues();
 	       if (nres > 0)
-		  adding_residue_p = chain_p->GetResidue(0);
+	          adding_residue_p = chain_p->GetResidue(0);
 	    }
 	 }
       }
@@ -5758,7 +5766,7 @@ molecule_class_info_t::merge_ligand_to_near_chain(mmdb::Manager *mol) {
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
       if (graphics_info_t::show_symmetry == 1)
-	 update_symmetry();
+         update_symmetry();
    }
    return std::pair<bool, coot::residue_spec_t> (done_merge, res_spec);
 }
@@ -6008,7 +6016,7 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
 
    mmdb::Residue *res_copied = NULL;
    if (add_model_residue) {
-      short int whole_res_flag = 1;
+      bool whole_res_flag = true;
       int udd_atom_index_handle = 1; // does this matter?
       bool add_this = true;
       // check for overlapping water (could be generalised for same residue type?!
@@ -6022,22 +6030,26 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
          }
       }
       if (add_this) {
-      mmdb::Residue *residue_copy = coot::deep_copy_this_residue(add_model_residue,
-							    "",
-							    whole_res_flag,
-							    udd_atom_index_handle);
-      if (residue_copy) {
-	 std::pair<short int, int> res_info =
-	    next_residue_number_in_chain(this_model_chain, new_resno_by_hundreds_flag);
-	 int new_res_resno = 9999;
-	 if (res_info.first)
-	    new_res_resno = res_info.second;
-	 residue_copy->seqNum = new_res_resno; // try changin the seqNum before AddResidue().
-	 this_model_chain->AddResidue(residue_copy);
-	 // residue_copy->seqNum = new_res_resno;
-	 res_copied = residue_copy;
+
+         /* No - this does an implicit embed-in-chain - that is not what we want
+         mmdb::Residue *residue_copy = coot::deep_copy_this_residue(add_model_residue,
+                                                                    "",
+                                                                    whole_res_flag,
+                                                                    udd_atom_index_handle);
+         */
+         mmdb::Residue *residue_copy = coot::util::deep_copy_this_residue(add_model_residue);
+
+         if (residue_copy) {
+	    std::pair<short int, int> res_info =
+	       next_residue_number_in_chain(this_model_chain, new_resno_by_hundreds_flag);
+	    int new_res_resno = 9999;
+	    if (res_info.first)
+	       new_res_resno = res_info.second;
+	    residue_copy->seqNum = new_res_resno; // try changing the seqNum before AddResidue().
+	    this_model_chain->AddResidue(residue_copy);
+	    res_copied = residue_copy;
+         }
       }
-   }
    }
    return res_copied;
 }
@@ -6290,7 +6302,7 @@ molecule_class_info_t::change_residue_number(const std::string &chain_id,
 	       int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
 
 	       // mmdb-extras.h
-	       mmdb::Residue *res_copy = coot::deep_copy_this_residue(current_residue_p, alt_conf,
+	       mmdb::Residue *res_copy = coot::deep_copy_this_residue_old_style(current_residue_p, alt_conf,
 								      whole_res_flag, atom_index_udd_handle,
 								      false);
 

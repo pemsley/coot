@@ -643,7 +643,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 
 void
-molecule_class_info_t::anisotropic_atoms() {
+molecule_class_info_t::draw_anisotropic_atoms() {
 
    int c; // atom colour
 
@@ -4095,7 +4095,7 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	 // second plane
 	 residue_atoms = 0;
 	 r_2->GetAtomTable(residue_atoms, n_residue_atoms);
-	 std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
+	 // std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
 	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
 	    std::string plane_atom_expanded_name =
 	       dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
@@ -4898,8 +4898,9 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 	    if (asc_chain_str == mol_chain_str) {
 
 	       // insert that residue!
-	       mmdb::PResidue res =
-		  coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
+               bool embed_in_chain_flag = false;
+               // use the coot-utils function, not this one
+	       mmdb::PResidue res = coot::deep_copy_this_residue_old_style(asc_residue, "", 1, udd_atom_index, embed_in_chain_flag);
 // 	       std::cout  << "DEBUG:: inserting residue in chain "
 // 			  << mol_chain << " residue number "
 // 			  << asc_residue->GetSeqNum()
@@ -4960,9 +4961,9 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 
 	    std::cout << "DEBUG:: Creating a new chain " << asc_chain->GetChainID()
 		      << std::endl;
-
-	    mmdb::Residue *res =
-	       coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
+            bool embed_in_chain_flag = false;
+            // use the coot-utils function, not this one
+	    mmdb::Residue *res = coot::deep_copy_this_residue_old_style(asc_residue, "", 1, udd_atom_index, embed_in_chain_flag);
 	    if (res) {
 	       new_chain->AddResidue(res);
 	       atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
@@ -7631,10 +7632,11 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
      if (nSelResidues != 1) {
        std::cout << "This should never happen - ";
        std::cout << "badness in get_standard_residue_instance, we selected " << nSelResidues
-		 << " residues looking for residues of type :" << residue_type << ":\n";
+                 << " residues looking for residues of type :" << residue_type << ":\n";
      } else {
-       std_residue = coot::deep_copy_this_residue(SelResidue[0], "", 1,
-						  g.standard_residues_asc.UDDAtomIndexHandle);
+       bool embed_in_chain_flag = true; // I think. Is this the one time where we *do* want embedding?
+       std_residue = coot::deep_copy_this_residue_old_style(SelResidue[0], "", 1,
+                                                            g.standard_residues_asc.UDDAtomIndexHandle, embed_in_chain_flag);
      }
      g.standard_residues_asc.mol->DeleteSelection(selHnd);
    }
@@ -9567,7 +9569,8 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
                }
                g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
             } else {
-               std::cout << "No need for an update " << backup_index_current << std::endl;
+               if (false)
+                  std::cout << "No need for an update " << backup_index_current << std::endl;
             }
          }
       }
