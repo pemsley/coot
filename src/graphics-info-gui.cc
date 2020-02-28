@@ -1830,9 +1830,10 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       }
    }
 
-   std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
-             << fill_with_these_molecules.size() << " and imol_active " << imol_active
-             << std::endl;
+   if (false)
+      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
+                << fill_with_these_molecules.size() << " and imol_active " << imol_active
+                << std::endl;
 
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
