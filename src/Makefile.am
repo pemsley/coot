@@ -471,6 +471,7 @@ coot_bin_SOURCES = \
 	ligand-check.hh          \
         map-statistics.hh        \
 	merge-molecule-results-info-t.hh \
+	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
 	molecule-class-info-alignment.cc \
 	molecule-class-info-analysis.cc \

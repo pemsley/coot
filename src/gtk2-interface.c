@@ -23599,7 +23599,8 @@ create_ncs_control_dialog (void)
   tooltips = gtk_tooltips_new ();
 
   ncs_control_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (ncs_control_dialog), "NCS Control");
+  gtk_window_set_title (GTK_WINDOW (ncs_control_dialog), "NCS Ghost Control");
+  gtk_window_set_default_size (GTK_WINDOW (ncs_control_dialog), 400, -1);
   gtk_window_set_type_hint (GTK_WINDOW (ncs_control_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox91 = GTK_DIALOG (ncs_control_dialog)->vbox;
@@ -23618,7 +23619,7 @@ create_ncs_control_dialog (void)
   scrolledwindow25 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow25);
   gtk_box_pack_start (GTK_BOX (vbox170), scrolledwindow25, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (scrolledwindow25, 281, 177);
+  gtk_widget_set_size_request (scrolledwindow25, 370, 177);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow25, GTK_CAN_FOCUS);
 
   viewport19 = gtk_viewport_new (NULL, NULL);

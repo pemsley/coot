@@ -872,8 +872,6 @@ graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 void
 graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   std::cout << "-------- go_to_atom_mol_combobox_changed " << combobox << " " << data << std::endl;
-
    GtkTreeIter iter;
    gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
    if (state) {
