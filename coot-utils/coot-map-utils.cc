@@ -574,15 +574,12 @@ coot::util::sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &x
 
       // cut the resolution (by using a more coarsely-sampled map)
 
-      // ------------------------------------------------------
-      //                       broken
-      // ------------------------------------------------------
-
       float mg = coot::util::max_gridding(xmap_in);
       std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
 
+      // if resample_factor is less than 1.0, we want a less high resolution map
       clipper::Resolution reso_in(2.0 * mg);
-      clipper::Resolution reso_out(2.0 * mg * resample_factor);
+      clipper::Resolution reso_out(2.0 * mg / resample_factor);
       clipper::Grid_sampling gs_out(xmap_in.spacegroup(), xmap_in.cell(), reso_out, 1.0);
       clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), gs_out);
       clipper::HKL_info  input_map_hkl_info(xmap_in.spacegroup(),  xmap_in.cell(),  reso_in,  true);
@@ -597,11 +594,16 @@ coot::util::sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &x
       clipper::HKL_info::HKL_reference_index hri;
       float max_reso = reso_out.invresolsq_limit();
       for (hri = fphis_out.first(); !hri.last(); hri.next()) {
-          float irs = hri.invresolsq();
-          if (irs < max_reso)
-             fphis_out[hri].f() *= exp(-b_factor * irs * 0.25); 
-          else
-             fphis_out[hri].f() = 0.0;
+         clipper::HKL hkl = hri.hkl();
+         fphis_out[hri] = fphis_in[hkl];
+      }
+      for (hri = fphis_out.first(); !hri.last(); hri.next()) {
+         float irs = hri.invresolsq();
+         if (irs < max_reso) {
+            fphis_out[hri].f() *= exp(-b_factor * irs * 0.25);
+         } else {
+            fphis_out[hri].f() = 0.0;
+         }
       }
       xmap_out.fft_from(fphis_out);
       return xmap_out;
@@ -612,8 +614,8 @@ coot::util::sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &x
 
 void
 coot::util::multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
-				   const std::vector<float> &b_factors,
-				   std::vector<clipper::Xmap<float> > *xmaps_p) {
+                                   const std::vector<float> &b_factors,
+                                   std::vector<clipper::Xmap<float> > *xmaps_p) {
 
    float mg = coot::util::max_gridding(xmap_in);
    clipper::Resolution reso(2.0 * mg);
