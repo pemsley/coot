@@ -4190,7 +4190,7 @@ echo CXXFLAGS: $CXXFLAGS
 echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
 echo PATH: $PATH
-dcho using this guile:
+echo using this guile:
 which guile
 
 rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python27 -lpython2.7"
