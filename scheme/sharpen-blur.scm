@@ -59,7 +59,6 @@
     ;; check button callback
     (gtk-signal-connect check-button "toggled"
 			(lambda ()
-			  (format #t "toggled\n")
 			  (if (gtk-toggle-button-get-active check-button)
 			      (begin
 				(gtk-widget-set-sensitive entry-2 #t)
