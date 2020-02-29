@@ -527,41 +527,87 @@ coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor
 
 clipper::Xmap<float>
 coot::util::sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in,
-					   float b_factor,
-					   float resample_factor) {
+                                           float b_factor, float resample_factor) {
 
    // Normal x-ray maps have a resample value of 1.5
    // Normal EM maps have a resample value of 1.0
 
    // So to get a "nice" EM map call with (xmap, 0, 1.5)
 
-   float mg = coot::util::max_gridding(xmap_in);
-   // resample_factor (say 2) means finer grid and higher resolution
-   clipper::Resolution reso(2.0 * mg); 
-   clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
-   clipper::Grid_sampling gs(xmap_in.spacegroup(), xmap_in.cell(), reso, resample_factor);
-   clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), gs);
-   xmap_in.fft_to(fphis);
-   clipper::HKL_info::HKL_reference_index hri;
 
-   int count = 0;
-   auto tp_1 = std::chrono::high_resolution_clock::now();
-   for (hri = fphis.first(); !hri.last(); hri.next()) {
-      float f = fphis[hri].f();
-      if (! clipper::Util::is_nan(f)) {
-	 float irs =  hri.invresolsq();
-	 fphis[hri].f() *= exp(-b_factor * irs * 0.25);
-	 count++;
+   if (resample_factor >= 1.0) {
+      // normal case
+      // resample_factor (say 2) means finer grid and higher resolution
+      float mg = coot::util::max_gridding(xmap_in);
+      std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
+      clipper::Resolution reso(2.0 * mg); // for map -> data, the resolution is half the gridding
+      clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
+      clipper::Grid_sampling gs(xmap_in.spacegroup(), xmap_in.cell(), reso, resample_factor);
+      clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), gs);
+      xmap_in.fft_to(fphis);
+      std::cout << "DEBUG:: n-reflections: input map " << fphis.num_obs() << " reso-limit " << reso.limit() << " A" << std::endl;
+      clipper::HKL_info::HKL_reference_index hri;
+
+      auto tp_1 = std::chrono::high_resolution_clock::now();
+      for (hri = fphis.first(); !hri.last(); hri.next()) {
+         float f = fphis[hri].f();
+         if (! clipper::Util::is_nan(f)) {
+            float irs = hri.invresolsq();
+            fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+         }
       }
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      xmap_out.fft_from(fphis);
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      return xmap_out;
+   } else {
+      return sharpen_blur_map_with_reduced_sampling(xmap_in, b_factor, resample_factor);
    }
-   auto tp_2 = std::chrono::high_resolution_clock::now();
-   xmap_out.fft_from(fphis);
-   auto tp_3 = std::chrono::high_resolution_clock::now();
-   auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-   auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   return xmap_out;
 }
+
+clipper::Xmap<float>
+coot::util::sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &xmap_in,
+                                                   float b_factor, float resample_factor) {
+
+      // cut the resolution (by using a more coarsely-sampled map)
+
+      // ------------------------------------------------------
+      //                       broken
+      // ------------------------------------------------------
+
+      float mg = coot::util::max_gridding(xmap_in);
+      std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
+
+      clipper::Resolution reso_in(2.0 * mg);
+      clipper::Resolution reso_out(2.0 * mg * resample_factor);
+      clipper::Grid_sampling gs_out(xmap_in.spacegroup(), xmap_in.cell(), reso_out, 1.0);
+      clipper::Xmap<float> xmap_out(xmap_in.spacegroup(), xmap_in.cell(), gs_out);
+      clipper::HKL_info  input_map_hkl_info(xmap_in.spacegroup(),  xmap_in.cell(),  reso_in,  true);
+      clipper::HKL_info output_map_hkl_info(xmap_out.spacegroup(), xmap_out.cell(), reso_out, true);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_in ( input_map_hkl_info);
+      clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_out(output_map_hkl_info);
+      xmap_in.fft_to(fphis_in);
+
+      // transfer fphis within the resolution limit from fphis_in to fphis_out
+
+      std::cout << "DEBUG:: n-reflections: input map " << fphis_in.num_obs() << " output map: " << fphis_out.num_obs() << std::endl;
+      clipper::HKL_info::HKL_reference_index hri;
+      float max_reso = reso_out.invresolsq_limit();
+      for (hri = fphis_out.first(); !hri.last(); hri.next()) {
+          float irs = hri.invresolsq();
+          if (irs < max_reso)
+             fphis_out[hri].f() *= exp(-b_factor * irs * 0.25); 
+          else
+             fphis_out[hri].f() = 0.0;
+      }
+      xmap_out.fft_from(fphis_out);
+      return xmap_out;
+
+}
+
 
 
 void

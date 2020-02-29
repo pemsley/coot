@@ -112,11 +112,9 @@ namespace coot {
 
       // The sum of the density at the atom centres, weighted by occupancy
       //
-      float map_score(std::vector<mmdb::Atom *> atoms,
-		      const clipper::Xmap<float> &xmap);
+      float map_score(std::vector<mmdb::Atom *> atoms, const clipper::Xmap<float> &xmap);
 
-      float map_score_atom(mmdb::Atom *atom,
-			   const clipper::Xmap<float> &xmap);
+      float map_score_atom(mmdb::Atom *atom, const clipper::Xmap<float> &xmap);
 
       float map_score_by_residue_specs(mmdb::Manager *mol,
 				       const std::vector<residue_spec_t> &res_specs,
@@ -126,24 +124,26 @@ namespace coot {
       clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
 
       clipper::Xmap<float> sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in, float b_factor,
-							  float resample_factor);
+                                                          float resample_factor);
+
+      clipper::Xmap<float> sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &xmap_in, float b_factor,
+                                                                  float resample_factor);
 
       // pass a pointer to a vector of maps that has the same size as the number of B-factors
       //
       void multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
-			    const std::vector<float> &b_factors,
-			    std::vector<clipper::Xmap<float> > *maps_p);
+                                  const std::vector<float> &b_factors,
+                                  std::vector<clipper::Xmap<float> > *maps_p);
 
       // not sure if this works ATM
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
-				       float sharpen_factor);
+                                       float sharpen_factor);
 
       // if n_bins is -1, let the function decide how many bins
       //
       // actually, we return bins of amplitude squares.
       std::vector<amplitude_vs_resolution_point>
-      amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
-			      int n_bins = -1);
+      amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in, int n_bins = -1);
 
       // pass a flag for the resolution limit saying if this limit should be used.
       // rule of thumb: low resolution limit 0.12
