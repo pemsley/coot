@@ -648,7 +648,7 @@ coot::sequence_assignment::side_chain_score_t::get_standard_residue(const coot::
 short int
 coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 
-   atom_selection_container_t st_res_asc = read_standard_residues();
+   atom_selection_container_t st_res_asc; // = read_standard_residues();
    mmdb::Residue *res;
    int nSelResidues;
    mmdb::PResidue *SelResidue = NULL;
