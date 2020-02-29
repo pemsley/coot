@@ -9286,3 +9286,8 @@ Fri 14 Feb 16:21:30 GMT 2020
    sudo apt-get install libgtk-3-dev
 
 
+---
+Thu 27 Feb 2020 12:48:11 IST
+
+   clustalw is LGPL? Use that for alignments.
+
