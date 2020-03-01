@@ -9298,3 +9298,25 @@ Thu 27 Feb 2020 12:48:11 IST
 
    clustalw is LGPL? Use that for alignments.
 
+
+---
+Sat 29 Feb 2020 17:52:41 IST
+
+
+   o Ronan's talk:
+
+     Get the 1tj3 "bad" model without splitting - 1tj3 is the data or the model?
+     Data presumably.  Calculate/update maps? Likelihood improvements?
+
+     Get the "jelly body" refined map and model too. 3td6
+
+     Misha: has FimD-plug and FimDNTD needs jelly body refinement
+            get the codes (2011?)
+
+   o domains with hinges: can you find a way to generate models that
+     have a "hinge" - 3 angles to test? One is more common than the
+     others?
+
+   o put sfcheck functions (graphs) into coot.
+
+

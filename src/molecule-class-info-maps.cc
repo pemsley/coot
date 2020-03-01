@@ -377,36 +377,53 @@ molecule_class_info_t::fill_fobs_sigfobs() {
       //
       if (! original_fobs_sigfobs_filled && ! original_fobs_sigfobs_fill_tried_and_failed) {
 
-         std::pair<std::string, std::string> p =
-            make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
-         clipper::CCP4MTZfile mtzin;
-         mtzin.open_read(Refmac_mtz_filename());
-         mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
-         mtzin.close_read();
-         std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                   << original_fobs_sigfobs.num_obs() << " data using data name"
-                   << p.first << std::endl;
-         if (original_fobs_sigfobs.num_obs() > 10)
-            original_fobs_sigfobs_filled = 1;
-         else
-            original_fobs_sigfobs_fill_tried_and_failed = true;
+         try {
 
-         // flags
-
-         if (refmac_r_free_flag_sensible) {
-            std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+            std::pair<std::string, std::string> p =
+               make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+            clipper::CCP4MTZfile mtzin;
             mtzin.open_read(Refmac_mtz_filename());
-            mtzin.import_hkl_data(original_r_free_flags, dataname);
+            mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
             mtzin.close_read();
-
             std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                      << original_r_free_flags.num_obs() << " R-free flags\n";
-         } else {
-            std::cout << "INFO:: no sensible R-free flag column label\n";
+                      << original_fobs_sigfobs.num_obs() << " data using data name: "
+                      << p.first << std::endl;
+            if (original_fobs_sigfobs.num_obs() > 10)
+               original_fobs_sigfobs_filled = 1;
+            else
+               original_fobs_sigfobs_fill_tried_and_failed = true;
+
+            // flags
+
+            if (refmac_r_free_flag_sensible) {
+               std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+               // if refmac_r_free_col already has /x/y/Rfree - use that instead
+               if (refmac_r_free_col.length() > 0)
+                  if (refmac_r_free_col[0] == '/') {
+                     dataname = refmac_r_free_col;
+                     dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
+                  }
+               std::cout << "About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               mtzin.open_read(Refmac_mtz_filename());
+               mtzin.import_hkl_data(original_r_free_flags, dataname);
+               mtzin.close_read();
+
+               std::cout << "INFO:: reading " << Refmac_mtz_filename()
+                         << " using dataname: " << dataname << " provided "
+                         << original_r_free_flags.num_obs() << " R-free flags\n";
+            } else {
+               std::cout << "INFO:: no sensible R-free flag column label\n";
+            }
+         }
+         catch (const clipper::Message_fatal &m) {
+            std::cout << "ERROR:: bad columns " << m.text() << std::endl;
+            have_sensible_refmac_params = false;
+            original_fobs_sigfobs_filled = false;
+            original_fobs_sigfobs_fill_tried_and_failed = true;
          }
       }
    } else {
-      std::cout << "DEBUG:: fill_fobs_sigfobs() no sensible r-free parameters\n";
+      std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
    }
 }
 

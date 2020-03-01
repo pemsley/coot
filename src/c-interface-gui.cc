@@ -515,6 +515,24 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
    float low_res_limit  = -1.0;
    float high_res_limit = -1.0;
 
+
+   /* --------- Refmac label stuff --------- */
+
+   GtkWidget *refmac_columns_checkbutton = lookup_widget(GTK_WIDGET(column_label_window), "refmac_column_labels_checkbutton");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(refmac_columns_checkbutton))) {
+      have_refmac_params = 1;
+      GtkWidget *fobs_combobox    = lookup_widget(column_label_window, "column_label_selector_refmac_fobs_combobox");
+      GtkWidget *sigfobs_combobox = lookup_widget(column_label_window, "column_label_selector_refmac_sigfobs_combobox");
+      GtkWidget *r_free_combobox  = lookup_widget(column_label_window, "column_label_selector_refmac_rfree_combobox");
+
+      fobs_col    = get_active_label_in_combobox(GTK_COMBO_BOX(   fobs_combobox));
+      sigfobs_col = get_active_label_in_combobox(GTK_COMBO_BOX(sigfobs_combobox));
+      r_free_col  = get_active_label_in_combobox(GTK_COMBO_BOX( r_free_combobox));
+      if (! r_free_col.empty()) sensible_r_free_col = true;
+   }
+
+   /* --------- Save the column data in the attached pointer --------- */
+
    std::string mtz_filename;
    gpointer d = g_object_get_data(G_OBJECT(column_label_window), "f_phi_columns"); // set in column_selector_using_cmtz()
    coot::mtz_column_types_info_t *saved_f_phi_columns = 0;
@@ -522,6 +540,12 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
       saved_f_phi_columns = static_cast<coot::mtz_column_types_info_t *> (d);
       mtz_filename = saved_f_phi_columns->mtz_filename;
    }
+
+   /* --------- make and draw --------- */
+
+   std::cout << "debug:: calling make_and_draw_map_with_reso_with_refmac_params() with the refmac params "
+             << have_refmac_params << " " << fobs_col << " " << sigfobs_col << " " << r_free_col << " " << sensible_r_free_col
+             << std::endl;
 
    make_and_draw_map_with_reso_with_refmac_params(mtz_filename.c_str(),
 						  f_label.c_str(),
@@ -536,13 +560,17 @@ void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
 						  is_anomalous_flag,
 						  limit_reso_flag,
 						  low_res_limit, high_res_limit);
+
+   /* We can destroy the column_label_window top level widget now. */
+   gtk_widget_destroy(column_label_window);
+
 }
 
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
    if (false)
       std::cout << "---- handle_column_label_make_fourier() with column_label_window "
-		<< column_label_window << std::endl;
+                << column_label_window << std::endl;
 
    GtkWidget *refmac_checkbutton;
    int icol; 
@@ -551,8 +579,8 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    short int sensible_r_free_col = 0;
    short int have_refmac_params = 0; /* default not */
    short int use_resolution_limits_flag = 0;
-   float low_reso_lim = -1.0;	/* unset */
-   float high_reso_lim = -1.0;	/* unset */
+   float low_reso_lim = -1.0;  /* unset */
+   float high_reso_lim = -1.0; /* unset */
    short int is_anomalous_flag = 0;
 
    GtkWidget *fobs_option_menu;

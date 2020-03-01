@@ -6463,29 +6463,31 @@ graphics_info_t::sfcalc_genmap(int imol_model,
    //
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_with_data_attached)) {
-         if (is_valid_map_molecule(imol_updating_difference_map)) {
-            if (molecules[imol_updating_difference_map].is_difference_map_p()) {
-               clipper::Xmap<float> *xmap_p = &molecules[imol_updating_difference_map].xmap;
-               try {
-                  if (! on_going_updating_map_lock) {
-                     on_going_updating_map_lock = true;
-                     float cls = molecules[imol_updating_difference_map].get_contour_level_by_sigma();
-                     molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
-                     const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
-                     molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
-                     const clipper::HKL_data<clipper::data32::Flag> &free_flag =
-                     molecules[imol_map_with_data_attached].get_original_rfree_flags();
-                     molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
-                     molecules[imol_updating_difference_map].set_mean_and_sigma();
-                     molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
-                     on_going_updating_map_lock = false;
-                  } else {
-                     std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
+         if (true) {
+            if (is_valid_map_molecule(imol_updating_difference_map)) {
+               if (molecules[imol_updating_difference_map].is_difference_map_p()) {
+                  clipper::Xmap<float> *xmap_p = &molecules[imol_updating_difference_map].xmap;
+                  try {
+                     if (! on_going_updating_map_lock) {
+                        on_going_updating_map_lock = true;
+                        float cls = molecules[imol_updating_difference_map].get_contour_level_by_sigma();
+                        molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
+                        molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::Flag> &free_flag =
+                        molecules[imol_map_with_data_attached].get_original_rfree_flags();
+                        molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
+                        molecules[imol_updating_difference_map].set_mean_and_sigma();
+                        molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
+                        on_going_updating_map_lock = false;
+                     } else {
+                        std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
+                     }
+                     graphics_draw();
                   }
-                  graphics_draw();
-               }
-               catch (const std::runtime_error &rte) {
-                  std::cout << rte.what() << std::endl;
+                  catch (const std::runtime_error &rte) {
+                     std::cout << rte.what() << std::endl;
+                  }
                }
             }
          }
