@@ -1141,8 +1141,36 @@ coot::column_selector_using_cmtz_setup_comboboxes(GtkWidget *column_label_window
 }
 
 void
-coot::on_column_label_combobox_changed(GtkComboBox *combobox,
-				       gpointer user_data) {
+coot::on_column_label_combobox_changed(GtkComboBox *combobox, gpointer user_data) {
 
-   // std::cout << "changed" << std::endl; // happens on set-active
+   // std::cout << "on_column_label_combobox_changed() changed" << std::endl;
+
+   // Change the "is-difference-map" checkbutton when we choose a amplitude label that begins with
+   // "DEL"
+
+   GtkCheckButton *is_diff_map_checkbutton = GTK_CHECK_BUTTON(lookup_widget(GTK_WIDGET(combobox), "difference_map_checkbutton"));
+
+   GtkWidget *amplidues_combobox = lookup_widget(GTK_WIDGET(combobox), "column_selector_amplitudes_combobox");
+   if (GTK_WIDGET(combobox) != amplidues_combobox) return;
+
+   graphics_info_t g;
+   std::string al = g.get_active_label_in_combobox(GTK_COMBO_BOX(combobox));
+   std::pair<std::string, std::string> p = coot::util::split_string_on_last_slash(al);
+   if (p.second.length() > 3) {
+      std::string ss = p.second.substr(0,3);
+      if (ss == "DEL") {
+         if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton), TRUE);
+         }
+      } else {
+         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton), FALSE);
+         }
+      }
+   } else {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) {
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton), FALSE);
+      }
+   }
+
 }
