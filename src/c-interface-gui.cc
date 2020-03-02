@@ -6352,8 +6352,91 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
    return state;
 }
 
+
+// 20200302 Be'er Sheva new style extension installation
+// Put these in c-interface-curlew?
+void
+curlew_install_extension_file(const std::string &file_name, const std::string &checksum) {
+
+   if (!file_name.empty()) {
+
+      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      url_prefix += "extensions";
+      url_prefix += "/";
+      url_prefix += file_name;
+
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
+      std::string dl_fn = download_dir + "/";
+      dl_fn += file_name;
+
+      if (false) // debug
+         std::cout << "get this " << url_prefix << " as this " << dl_fn << std::endl;
+
+      int r = coot_get_url(url_prefix.c_str(), dl_fn.c_str());
+
+      if (r) {
+         std::cout << "WARNING:: bad URL retrieve " << file_name << std::endl;
+      } else {
+         // Happy path
+         if (coot::file_exists(dl_fn)) {
+            if (checksums_match(dl_fn, checksum)) {
+               // I want a function that returns preferences_dir
+               char *home = getenv("HOME");
+               if (home) {
+                  std::string home_directory(home);
+                  std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+                  std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
+                  int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+                  if (status != 0) {
+                     std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
+                  } else {
+                     std::cout << "debug:: renaming successful" << std::endl;
+                     std::cout << "INFO:: run_script called on " << preferences_file_name << std::endl;
+                     run_script(preferences_file_name.c_str());
+                  }
+               } else {
+                  std::cout << "No HOME env var" << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+            }
+         } else {
+            std::cout << "WARNING:: download target file " << dl_fn << " does not exist" << std::endl;
+         }
+      }
+   }
+}
+
+bool
+curlew_uninstall_extension_file(const std::string &file_name) {
+
+   bool r_status = false;
+
+   // I want a function that returns preferences_dir
+   char *home = getenv("HOME");
+   if (home) {
+      std::string home_directory(home);
+      std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+      std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+      std::string renamed_file_name = preferences_file_name + "_uninstalled";
+      if (coot::file_exists(preferences_file_name)) {
+         int status = rename(preferences_file_name.c_str(), renamed_file_name.c_str());
+         if (status != 0) {
+            std::cout << "WARNING:: rename status " << status << " failed to uninstall " << file_name << std::endl;
+         } else {
+            // OK
+            r_status = true;
+         }
+      }
+   }
+   return r_status;
+}
+
+
 // If I put this in c-interface-curlew.cc, then it doesn't resolve when linking.
-// I don't understand why.
+// I don't understand why. It's called from callbacks.c
 //
 /* curlew install button clicked callback action */
 void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions) {
@@ -6371,19 +6454,17 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 	 GtkWidget *w = lookup_widget(curlew_dialog, cb_name.c_str());
 	 GtkWidget *hbox = lookup_widget(curlew_dialog, hbox_name.c_str());
 
-	 // std::cout << "debug:: here with hbox " << hbox << " for idx " << i << std::endl;
-
 	 if (w) {
 	    int status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
 	    if (status) { // selected for download/install
 	       if (false)
 		  std::cout << "Got w " << w << " for i " << cb_name << " " << status
-			    <<std::endl;
+		            <<std::endl;
 
-	       gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
-	       gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
+               gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
+               gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
 
-	       if (file_name_cstr) {
+               if (file_name_cstr) {
 
 		  std::string file_name(file_name_cstr);
 

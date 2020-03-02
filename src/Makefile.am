@@ -294,6 +294,7 @@ coot_bin_SOURCES = \
 	c-interface-build-symmetry.cc	 \
 	c-interface-build-gui.cc \
 	c-interface-curlew.cc    \
+	c-interface-curlew.hh    \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
 	c-interface-generic-objects.h	 \
