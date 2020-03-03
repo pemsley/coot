@@ -134,125 +134,156 @@ void curlew() {
       struct stat buf;
       int istat = stat(dl_fn.c_str(), &buf);
       if (istat == 0) { // OK, it exists...
-	 if (buf.st_size > 0) {
-	    is_empty = false;
-	 } else {
-	    std::cout << "WARNING:: empty file " << dl_fn << std::endl;
-	    std::cout << "          maybe your curl needs OpenSSL?" << std::endl;
-	    std::string s = "WARNING:: empty file " + dl_fn;
-	    add_status_bar_text(s.c_str());
-	 }
+         if (buf.st_size > 0) {
+            is_empty = false;
+         } else {
+            std::cout << "WARNING:: empty file " << dl_fn << std::endl;
+            std::cout << "          maybe your curl needs OpenSSL?" << std::endl;
+            std::string s = "WARNING:: empty file " + dl_fn;
+            add_status_bar_text(s.c_str());
+         }
       }
 
       if (! is_empty) {
-	 if (coot::file_exists(dl_fn)) {
-	    std::fstream f(dl_fn);
-	    if (! f) {
-	       std::cout << "WARNING:: Missing/bad curlew info file " << dl_fn << std::endl;
+         if (coot::file_exists(dl_fn)) {
+            std::fstream f(dl_fn);
+            if (! f) {
+               std::cout << "WARNING:: Missing/bad curlew info file " << dl_fn << std::endl;
             } else {
 
-	       std::string s;
-	       f.seekg(0, std::ios::end);
-	       s.reserve(f.tellg());
-	       f.seekg(0, std::ios::beg);
+               std::string s;
+               f.seekg(0, std::ios::end);
+               s.reserve(f.tellg());
+               f.seekg(0, std::ios::beg);
 
-	       s.assign((std::istreambuf_iterator<char>(f)),
-	                 std::istreambuf_iterator<char>());
-	       unsigned int n_already_done = 0;
+               s.assign((std::istreambuf_iterator<char>(f)),
+               std::istreambuf_iterator<char>());
+               unsigned int n_already_done = 0;
 
-	       try {
-		  json j = json::parse(s);
-		  json ls = j["extensions"];
-		  // std::cout << "found " << ls.size() << " extensions" << std::endl;
-		  int n_extensions = ls.size();
+               try {
+                  json j = json::parse(s);
+                  json ls = j["extensions"];
+                  // std::cout << "found " << ls.size() << " extensions" << std::endl;
+                  int n_extensions = ls.size();
 
-		  for (std::size_t i=0; i<ls.size(); i++) {
-		     json &item = ls[i];
-		     std::string name;
-		     std::string description;
-		     std::string date;
-		     std::string version;
-		     std::string icon;
-		     std::string file_name;
-		     std::string checksum;
-		     std::string expired_version; // which version of coot has this built in
-		                                  // so that the extension is no longer needed
-		     bool expired = false;
-		     bool have_this_or_more_recent = false;
-
-		     json::iterator it;
-		     it = item.find(std::string("name"));
-		     if (it != item.end()) { name = it.value(); }
-		     it = item.find(std::string("description"));
-		     if (it != item.end()) { description = it.value(); }
-		     it = item.find(std::string("date"));
-		     if (it != item.end()) { date = it.value(); }
-		     it = item.find(std::string("icon"));
-		     if (it != item.end()) { icon = it.value(); }
-		     it = item.find(std::string("file-name"));
-		     if (it != item.end()) { file_name = it.value(); }
-		     it = item.find(std::string("version"));
-		     if (it != item.end()) { version = it.value(); }
-		     it = item.find(std::string("checksum"));
-		     if (it != item.end()) { checksum = it.value(); }
-		     it = item.find(std::string("expired_version"));
-		     if (it != item.end()) { expired_version = it.value(); }
-
-		     // set expired here
-		     if (! expired_version.empty()) {
-			std::string c = coot_version();
-			if (c > expired_version) {
-			   expired = true;
-			}
-		     }
-
-		     // set "have more recent" (or same) here
-		     std::string vv = g.get_version_for_extension(file_name);
-		     if (! vv.empty())
-		     if (vv >= version)
-		        have_this_or_more_recent = true;
-
-                     if (have_this_or_more_recent)
-                        n_already_done++;
-
-                     GtkWidget *hbox = make_and_add_curlew_extension_widget(w, vbox, i, icon,
-									    name, description, date,
-									    version, checksum, file_name,
-									    download_dir, url_curlew_prefix,
-                                                                            have_this_or_more_recent);
-		     if (expired)
-		        gtk_widget_set_sensitive(hbox, FALSE);
-
+                  unsigned int n_already_installed = 0;
+                  unsigned int n_available = 0;
+                  for (std::size_t i=0; i<ls.size(); i++) {
+                     json &item = ls[i];
+                     std::string file_name;
+                     std::string version;
+                     json::iterator it;
+                     it = item.find(std::string("file-name"));
+                     if (it != item.end()) { file_name = it.value(); }
+                     it = item.find(std::string("version"));
+                     if (it != item.end()) { version = it.value(); }
+                     // set "have more recent" (or same) here
+                     std::string vv = g.get_version_for_extension(file_name);
+                     if (! vv.empty()) {
+                        if (vv >= version)
+                           n_already_installed++;
+                        else
+                           n_available++;
+                     } else {
+                        n_available++;
+                     }
                   }
 
-                  // old. Not needed now
-		  if (install_selected_button)
-		     g_object_set_data(G_OBJECT(install_selected_button), "n_extensions",
-				       GINT_TO_POINTER(n_extensions));
+                  std::cout << "DEBUG:: n_already_installed: " << n_already_installed
+                           << " n_available " << n_available << std::endl;
 
-	       }
-	       catch(const nlohmann::detail::type_error &e) {
-	          std::cout << "ERROR:: " << e.what() << std::endl;
-	       }
-	       catch(const nlohmann::detail::parse_error &e) {
-	          std::cout << "ERROR:: " << e.what() << std::endl;
-	       }
+                  for(unsigned int iround=0; iround<2; iround++) {
+                     for (std::size_t i=0; i<ls.size(); i++) {
+                        json &item = ls[i];
+                        std::string name;
+                        std::string description;
+                        std::string date;
+                        std::string version;
+                        std::string icon;
+                        std::string file_name;
+                        std::string checksum;
+                        std::string expired_version; // which version of coot has this built in
+                        // so that the extension is no longer needed
+                        bool expired = false;
+                        bool have_this_or_more_recent = false;
 
-	       GtkWidget *done_label = lookup_widget(GTK_WIDGET(w), "curlew_already_installed_label");
-	       if (done_label) {
-		  if (n_already_done > 0) {
-		     std::string txt = coot::util::int_to_string(n_already_done);
-		     txt += " extension";
-		     if (n_already_done != 1) txt += "s";
-		     txt += " already installed";
-		     gtk_label_set_text(GTK_LABEL(done_label), txt.c_str());
-		     gtk_widget_show(done_label);
-		  } else {
-		     gtk_widget_hide(done_label);
-		  }
-	       }
-	    }
-	 }
+                        json::iterator it;
+                        it = item.find(std::string("name"));
+                        if (it != item.end()) { name = it.value(); }
+                        it = item.find(std::string("description"));
+                        if (it != item.end()) { description = it.value(); }
+                        it = item.find(std::string("date"));
+                        if (it != item.end()) { date = it.value(); }
+                        it = item.find(std::string("icon"));
+                        if (it != item.end()) { icon = it.value(); }
+                        it = item.find(std::string("file-name"));
+                        if (it != item.end()) { file_name = it.value(); }
+                        it = item.find(std::string("version"));
+                        if (it != item.end()) { version = it.value(); }
+                        it = item.find(std::string("checksum"));
+                        if (it != item.end()) { checksum = it.value(); }
+                        it = item.find(std::string("expired_version"));
+                        if (it != item.end()) { expired_version = it.value(); }
+
+                        // set expired here
+                        if (! expired_version.empty()) {
+                           std::string c = coot_version();
+                           if (c > expired_version) {
+                              expired = true;
+                           }
+                        }
+
+                        // set "have more recent" (or same) here
+                        std::string vv = g.get_version_for_extension(file_name);
+                        if (! vv.empty())
+                           if (vv >= version)
+                              have_this_or_more_recent = true;
+
+                        if (iround == 0) // add these up only once
+                           if (have_this_or_more_recent)
+                              n_already_done++;
+
+                        bool do_it = false;
+                        if (iround == 0)
+                           if (have_this_or_more_recent)
+                              do_it = true;
+                        if (iround == 1)
+                           if (! have_this_or_more_recent)
+                              do_it = true;
+
+                        if (do_it)
+                              GtkWidget *hbox = make_and_add_curlew_extension_widget(w, vbox, i, icon,
+                                    name, description, date,
+                                    version, checksum, file_name,
+                                    download_dir, url_curlew_prefix,
+                                    have_this_or_more_recent);
+
+                     }
+                  } // rounds
+               } // try
+
+               catch(const nlohmann::detail::type_error &e) {
+                  std::cout << "ERROR:: " << e.what() << std::endl;
+               }
+               catch(const nlohmann::detail::parse_error &e) {
+                  std::cout << "ERROR:: " << e.what() << std::endl;
+               }
+
+               GtkWidget *done_label = lookup_widget(GTK_WIDGET(w), "curlew_already_installed_label");
+               if (done_label) {
+                  if (n_already_done > 0) {
+                     std::string txt = coot::util::int_to_string(n_already_done);
+                     txt += " extension";
+                     if (n_already_done != 1) txt += "s";
+                     txt += " already installed";
+                     gtk_label_set_text(GTK_LABEL(done_label), txt.c_str());
+                     gtk_widget_show(done_label);
+                  } else {
+                     gtk_widget_hide(done_label);
+                  }
+               }
+            }
+         }
       } // we've done the "empty" message already
    }
 
@@ -394,6 +425,13 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    char *checksum_copy = new char[checksum.size() +1];
    strcpy(checksum_copy, checksum.c_str());
    g_object_set_data(G_OBJECT(  install_button), "checksum",  (gpointer) checksum_copy);
+
+   GdkColor color_green;
+   GdkColor color_blue;
+   gdk_color_parse ("#aabbaa", &color_green);
+   gdk_color_parse ("#aaaabb", &color_blue);
+   gtk_widget_modify_bg(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, &color_green);
+   gtk_widget_modify_bg(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, &color_blue);
 
    gtk_container_add(GTK_CONTAINER(  install_frame),   install_button);
    gtk_container_add(GTK_CONTAINER(uninstall_frame), uninstall_button);

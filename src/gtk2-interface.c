@@ -29511,7 +29511,7 @@ create_curlew_dialog (void)
 
   curlew_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (curlew_dialog), "Coot Curlew");
-  gtk_window_set_default_size (GTK_WINDOW (curlew_dialog), 805, 400);
+  gtk_window_set_default_size (GTK_WINDOW (curlew_dialog), 805, 550);
   gtk_window_set_type_hint (GTK_WINDOW (curlew_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
   gtk_dialog_set_has_separator (GTK_DIALOG (curlew_dialog), FALSE);
 
