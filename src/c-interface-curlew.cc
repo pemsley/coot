@@ -194,6 +194,29 @@ void curlew() {
 
                   for(unsigned int iround=0; iround<2; iround++) {
                      for (std::size_t i=0; i<ls.size(); i++) {
+
+                        if (i==0) {
+                           if (iround == 0) {
+                              if (n_already_installed > 0) {
+                                 GtkWidget *w = gtk_label_new(NULL);
+                                 gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
+                                 gtk_label_set_markup(GTK_LABEL(w), "   <b>Installed</b>");
+                                 gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
+                                 gtk_widget_show(w);
+                              }
+                           } else {
+                              if (n_available > 0) {
+                                 GtkWidget *w = gtk_label_new(NULL);
+                                 gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
+                                 gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
+                                 gtk_label_set_markup(GTK_LABEL(w), "   <b>Available</b>");
+                                 gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 gtk_widget_show(w);
+                              }
+                           }
+                        }
+
                         json &item = ls[i];
                         std::string name;
                         std::string description;
