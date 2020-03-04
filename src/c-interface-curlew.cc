@@ -101,6 +101,11 @@ void curlew() {
 
 #ifdef BUILD_CURLEW
 
+   if (! graphics_info_t::use_graphics_interface_flag) {
+      std::cout << "WARNING:: no graphics, no curlew" << std::endl;
+      return;
+   }
+
    GtkWidget *w = create_curlew_dialog();
    graphics_info_t g;
 
@@ -128,7 +133,7 @@ void curlew() {
       int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
 
       // hack in a pre-downloaded file
-      // dl_fn = "hack-info.json";
+      dl_fn = "hack-info.json";
 
       bool is_empty = true; // now check that it isn't
       struct stat buf;
@@ -280,8 +285,7 @@ void curlew() {
                                     version, checksum, file_name,
                                     download_dir, url_curlew_prefix,
                                     have_this_or_more_recent);
-
-                     }
+                     } // items
                   } // rounds
                } // try
 
@@ -358,17 +362,17 @@ void curlew_uninstall_extension(GtkWidget *w, gpointer data) {
 
 
 GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
-						GtkWidget *vbox,
-						int idx,
-						const std::string &icon,
-						const std::string &name,
-						const std::string &description,
-						const std::string &date,
-						const std::string &version,
-						const std::string &checksum,
-						const std::string &file_name,
-						const std::string &download_dir,
-						const std::string &url_curlew_prefix,
+                                                GtkWidget *vbox,
+                                                int idx,
+                                                const std::string &icon,
+                                                const std::string &name,
+                                                const std::string &description,
+                                                const std::string &date,
+                                                const std::string &version,
+                                                const std::string &checksum,
+                                                const std::string &file_name,
+                                                const std::string &download_dir,
+                                                const std::string &url_curlew_prefix,
                                                 bool have_this_or_more_recent) {
 
    GtkWidget *item_hbox = gtk_hbox_new(FALSE, 0);
@@ -438,7 +442,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    gtk_frame_set_shadow_type(GTK_FRAME(install_frame), GTK_SHADOW_NONE);
    // --------------------------------------
 
-   // question to self: does strcpy() set the ending \0?
+   // question to self: does strcpy() set the ending \0? Yes, it does.
    char *file_name_copy_1 = new char[file_name.size() +1];
    char *file_name_copy_2 = new char[file_name.size() +1];
    strcpy(file_name_copy_1, file_name.c_str());
@@ -452,18 +456,18 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    GdkColor color_green;
    GdkColor color_blue;
    gdk_color_parse ("#aabbaa", &color_green);
-   gdk_color_parse ("#aaaabb", &color_blue);
+   gdk_color_parse ("#99aabb", &color_blue);
    gtk_widget_modify_bg(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, &color_green);
    gtk_widget_modify_bg(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, &color_blue);
 
    gtk_container_add(GTK_CONTAINER(  install_frame),   install_button);
    gtk_container_add(GTK_CONTAINER(uninstall_frame), uninstall_button);
-   gtk_box_pack_start(GTK_BOX(item_hbox), icon_widget,       TRUE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), icon_widget,       FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), description_label, TRUE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), version_label,     FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(item_hbox), date_label,        TRUE, FALSE, 0);
-   gtk_box_pack_start(GTK_BOX(item_hbox), install_frame,     TRUE, FALSE, 0);
-   gtk_box_pack_start(GTK_BOX(item_hbox), uninstall_frame,   TRUE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), install_frame,     FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(item_hbox), uninstall_frame,   FALSE, FALSE, 0);
 
    gtk_widget_show(icon_widget);
    gtk_widget_show(description_label);
@@ -478,26 +482,21 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    else
       gtk_widget_show(install_button);
 
-   gtk_box_pack_start(GTK_BOX(vbox), item_hbox, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(vbox), item_hbox, TRUE, TRUE, 6);
 
    g_signal_connect(  install_button, "clicked", G_CALLBACK(curlew_install_extension),   NULL);
    g_signal_connect(uninstall_button, "clicked", G_CALLBACK(curlew_uninstall_extension), install_button);
 
-   g_object_set_data_full(G_OBJECT(dialog),
-			  icb_name.c_str(),
-			  install_button,
-			  (GtkDestroyNotify) gtk_widget_unref);
+   g_object_set_data_full(G_OBJECT(dialog), icb_name.c_str(), install_button,
+                         (GtkDestroyNotify) gtk_widget_unref);
 
-   g_object_set_data_full(G_OBJECT(dialog),
-			  ucb_name.c_str(),
-			  uninstall_button,
-			  (GtkDestroyNotify) gtk_widget_unref);
+   g_object_set_data_full(G_OBJECT(dialog), ucb_name.c_str(), uninstall_button,
+                         (GtkDestroyNotify) gtk_widget_unref);
 
    if (! checksum.empty()) {
       char *checksum_copy = new char[checksum.size() + 1];
       strcpy(checksum_copy, checksum.c_str());
-      g_object_set_data(G_OBJECT(install_button), "checksum",
-                        (gpointer) checksum_copy);
+      g_object_set_data(G_OBJECT(install_button), "checksum", (gpointer) checksum_copy);
    }
 
    gtk_widget_ref(install_button); // ref after set_data?
