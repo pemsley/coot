@@ -5422,11 +5422,11 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 		     resulting_merge_info.push_back(mmr);
 		     istat = 1;
 		  }
-	       }
+               }
 
-	       // set multi_residue_add_flag if that was not a successful merge
-	       if (! done_add_specific)
-		  multi_residue_add_flag = ! done_merge_ligand_to_near_chain.first;
+               // set multi_residue_add_flag if that was not a successful merge
+               if (! done_add_specific)
+                  multi_residue_add_flag = ! done_merge_ligand_to_near_chain.first;
 
 	    }
 	 }
@@ -5448,7 +5448,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    if (add_state.first) {
 	       update_molecule_after_additions();
 	       if (graphics_info_t::show_symmetry == 1)
-		  update_symmetry();
+	          update_symmetry();
 	       multi_residue_add_flag = false; // we've added everything for this mol.
                istat = add_state.first;
 	    }
@@ -5487,7 +5487,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	       model_p = add_molecules[imol].mol->GetModel(i_add_model);
 	       this_model_p = atom_sel.mol->GetModel(i_this_model);
 
-	       int n_add_chains = model_p->GetNumberOfChains();
+               int n_add_chains = model_p->GetNumberOfChains();
 
 	       for (int iaddchain=0; iaddchain<n_add_chains; iaddchain++) {
 		  chain_p = model_p->GetChain(iaddchain);
@@ -5730,9 +5730,9 @@ molecule_class_info_t::merge_ligand_to_near_chain(mmdb::Manager *mol) {
 	    for (it=near_atoms.begin(); it!=near_atoms.end(); it++) {
 	       mmdb::Chain *this_chain = (*it)->GetChain();
 	       if (chain_map.find(this_chain) == chain_map.end()) {
-		  chain_map[this_chain] = 1;
+	          chain_map[this_chain] = 1;
 	       } else {
-		  chain_map[this_chain]++;
+	          chain_map[this_chain]++;
 	       }
 	    }
 
@@ -5743,19 +5743,19 @@ molecule_class_info_t::merge_ligand_to_near_chain(mmdb::Manager *mol) {
 	    for (chain_it=chain_map.begin(); chain_it!=chain_map.end(); chain_it++) {
 	       int n = chain_it->second;
 	       if (n > n_atoms_max) {
-		  n_atoms_max = n;
-		  max_atom_chain = chain_it->first;
+	          n_atoms_max = n;
+	          max_atom_chain = chain_it->first;
 	       }
 	    }
 
 	    if (n_atoms_max > 0) {
 	       if (max_atom_chain) {
-		  // does not backup or finalize or update
-		  bool new_res_no_by_hundreds = true;
-		  mmdb::Residue *new_residue_p =
-		     copy_and_add_residue_to_chain(max_atom_chain, adding_residue_p, new_res_no_by_hundreds);
-		  done_merge = true;
-		  res_spec = coot::residue_spec_t(new_residue_p);
+	           // does not backup or finalize or update
+	           bool new_res_no_by_hundreds = true;
+	           mmdb::Residue *new_residue_p =
+	              copy_and_add_residue_to_chain(max_atom_chain, adding_residue_p, new_res_no_by_hundreds);
+	           done_merge = true;
+	           res_spec = coot::residue_spec_t(new_residue_p);
 	       }
 	    }
 	 }
@@ -5763,6 +5763,7 @@ molecule_class_info_t::merge_ligand_to_near_chain(mmdb::Manager *mol) {
    }
 
    if (done_merge) {
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
       if (graphics_info_t::show_symmetry == 1)

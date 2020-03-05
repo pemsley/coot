@@ -7610,19 +7610,19 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
    mmdb::Residue *std_residue = NULL;
 
    if (g.standard_residues_asc.read_success) {
-//      std::cout << "DEBUG:: There are " << g.standard_residues_asc.n_selected_atoms
-// 	       << " atoms in standard_residues_asc" << std::endl;
+      //      std::cout << "DEBUG:: There are " << g.standard_residues_asc.n_selected_atoms
+      //                << " atoms in standard_residues_asc" << std::endl;
      int selHnd = g.standard_residues_asc.mol->NewSelection();
      g.standard_residues_asc.mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
-					   "*", // Chain(s) it's "A" in this case.
-					   mmdb::ANY_RES,"*",  // starting res
-					   mmdb::ANY_RES,"*",  // ending res
-					   residue_type.c_str(),  // residue name
-					   "*",  // Residue must contain this atom name?
-					   "*",  // Residue must contain this Element?
-					   "*",  // altLocs
-					   mmdb::SKEY_NEW // selection key
-					   );
+                                           "*", // Chain(s) it's "A" in this case.
+                                           mmdb::ANY_RES,"*",  // starting res
+                                           mmdb::ANY_RES,"*",  // ending res
+                                           residue_type.c_str(),  // residue name
+                                           "*",  // Residue must contain this atom name?
+                                           "*",  // Residue must contain this Element?
+                                           "*",  // altLocs
+                                           mmdb::SKEY_NEW // selection key
+                                           );
      // get the standard orientation residue for this residue type
      mmdb::PPResidue SelResidue;
      int nSelResidues;
@@ -9435,7 +9435,7 @@ molecule_class_info_t::watch_coordinates_file(gpointer data) {
    updating_coordinates_molecule_parameters_t *ucp = static_cast<updating_coordinates_molecule_parameters_t *>(data);
    const updating_coordinates_molecule_parameters_t &rucp = *ucp;
 
-   std::cout << "watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
+   std::cout << "DEBUG:: watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
    status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
    return status;
 }
@@ -9545,8 +9545,10 @@ molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 int
 molecule_class_info_t::watch_coordinates_updates(gpointer data) {
 
-   std::cout << "---------------------------- watch_coordinates_updates() called " << std::endl;
    int status = 1; // continue
+
+   if (true)
+      std::cout << "---------------------------- watch_coordinates_updates() called " << std::endl;
 
    if (data) {
       updating_model_molecule_parameters_t *ummp_p = static_cast<updating_model_molecule_parameters_t *> (data);
@@ -9560,17 +9562,19 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
             // Do we need to update the map?
             // We don't want to update the map the first time around
             int backup_index_for_molecule = g.molecules[imol_coords].get_history_index();
+            std::cout << "DEBUG:: watch_coordinates_updates() backup_index_current " << backup_index_current
+                      << " backup_index_for_molecule " << backup_index_for_molecule << std::endl;
             if (backup_index_current != backup_index_for_molecule) {
                if (backup_index_current == -1) {
-                  std::cout << "First time, do nothing " << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() First time, do nothing " << std::endl;
                } else {
-                  std::cout << "Update the map! " << imol_map << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() Update the map " << imol_map << std::endl;
                   g.sfcalc_genmap(imol_coords, imol_data, imol_map);
                }
                g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
             } else {
                if (false)
-                  std::cout << "No need for an update " << backup_index_current << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() No need for an update " << backup_index_current << std::endl;
             }
          }
       }
