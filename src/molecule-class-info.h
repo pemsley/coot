@@ -2846,6 +2846,8 @@ public:        //                      public
    float fit_chain_to_map_by_random_jiggle(const std::string &chain_id, const clipper::Xmap<float> &xmap,
                                            float map_sigma,
                                            int n_trials, float jiggle_scale_factor);
+   float fit_molecule_to_map_by_random_jiggle(const clipper::Xmap<float> &xmap,
+                                              float map_sigma, int n_trias, float jiggle_scale_factor);
 
    // jiggle residue (a specific, useful/typical interface to jiggling).
    float fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,

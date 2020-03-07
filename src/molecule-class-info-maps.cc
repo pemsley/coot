@@ -3974,6 +3974,17 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    return v;
 }
 
+float
+molecule_class_info_t::fit_molecule_to_map_by_random_jiggle(const clipper::Xmap<float> &xmap,
+                                           float map_sigma, int n_trias, float jiggle_scale_factor) {
+   float r = 0;
+
+   // put the guts of fit_molecule_to_map_by_random_jiggle_and_blur() here.
+
+   return r;
+}
+
+
 // return a fitted molecule
 coot::minimol::molecule
 molecule_class_info_t::rigid_body_fit(const coot::minimol::molecule &mol_in,
