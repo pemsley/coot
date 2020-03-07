@@ -3458,8 +3458,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
       int n_residue_atoms;
       bool use_biased_density_scoring = true;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector<mmdb::Chain *> chains; // empty - apply RTop to atoms of selection
       v = fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma,
-				      n_trials, jiggle_scale_factor, use_biased_density_scoring);
+                                      n_trials, jiggle_scale_factor, use_biased_density_scoring, chains);
    } else {
       std::cout << "WARNING:: residue " << spec << " not found" << std::endl;
    }
@@ -3469,7 +3470,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 // Sort so that the biggest numbers are at the top (lowest index) of the sorted list
 bool
 trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
-		       const std::pair<clipper::RTop_orth, float> &b) {
+                       const std::pair<clipper::RTop_orth, float> &b) {
 
    return (b.second < a.second);
 
@@ -3553,18 +3554,18 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_2(int thread_index,
 //
 // chain_for_moving is default arg, with value 0.
 //
-// if chain_for_moving is not null, apply the transformation
+// if chain_for_moving is not empty, apply the transformation
 // the the atoms of chain_for_moving rather than to the atom of atom_selection
 //
 float
 molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
-						   int n_atoms,
-						   const clipper::Xmap<float> &xmap,
-						   float map_sigma,
-						   int n_trials,
-						   float jiggle_scale_factor,
-						   bool use_biased_density_scoring,
-						   mmdb::Chain *chain_for_moving) {
+                                                   int n_atoms,
+                                                   const clipper::Xmap<float> &xmap,
+                                                   float map_sigma,
+                                                   int n_trials,
+                                                   float jiggle_scale_factor,
+                                                   bool use_biased_density_scoring,
+                                                   std::vector<mmdb::Chain *> chains_for_moving) {
    float v = 0;
 
    if (! atom_sel.mol) return v;
@@ -3589,8 +3590,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    coot::minimol::molecule direct_mol(atom_selection, n_atoms, direct_initial_atoms);
 
    float (*density_scoring_function)(const coot::minimol::molecule &mol,
-				     const std::vector<std::pair<std::string, int> > &atom_number_list,
-				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
+                                     const std::vector<std::pair<std::string, int> > &atom_number_list,
+                                     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
    if (true)
       density_scoring_function = coot::util::z_weighted_density_score_nearest;
@@ -3611,13 +3612,13 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       mmdb::Atom *at = atom_selection[iat];
       mmdb::Residue *r = at->GetResidue();
       if (std::find(central_residues.begin(), central_residues.end(), r) == central_residues.end()) {
-	 central_residues.push_back(r);
+         central_residues.push_back(r);
       }
    }
 
    if (false)
       for (unsigned int ii=0; ii<central_residues.size(); ii++)
-	 std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
+         std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
 
    float radius = 4.0;
    for (unsigned int ires=0; ires<central_residues.size(); ires++) {
@@ -3645,7 +3646,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    float best_score = initial_score;
 
    std::cout << "------------------ initial_score " << initial_score
-	     << " -----------------" << std::endl;
+             << " -----------------" << std::endl;
    bool  bested = false;
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
@@ -3710,8 +3711,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       }
 
       catch (const std::bad_alloc &ba) {
-	 std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
-	 std::cout << "ERROR:: " << ba.what() << std::endl;
+         std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
+         std::cout << "ERROR:: " << ba.what() << std::endl;
       }
 #endif
    } else {
@@ -3780,9 +3781,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       std::cout << "waiting for rigid-body fits..." << std::endl;
       bool wait_continue = true;
       while (wait_continue) {
-	 std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	 if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
-	    wait_continue = false;
+         std::this_thread::sleep_for(std::chrono::milliseconds(200));
+         if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+            wait_continue = false;
       }
    }
    catch (const std::bad_alloc &ba) {
@@ -3842,7 +3843,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	 mmdb::Manager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {
 
-	    if (chain_for_moving) {
+      if (!chains_for_moving.empty()) {
 
 	       // move the atoms of chain for moving, not the atoms of the atom selection
 	       //
@@ -3850,40 +3851,44 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	       // We need to find the transformation from the current/original coordintes
 	       // to that fitted mol coordinates and then apply them to all the atom
 	       // in the chain
-	       std::string chain_id = chain_for_moving->GetChainID();
-	       std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
-	       if (mmr.second >= mmr.first) {
-		  std::vector<coot::lsq_range_match_info_t> matches;
-		  coot::lsq_range_match_info_t match(mmr.first,
-						     mmr.second, chain_id,
-						     mmr.first,
-						     mmr.second, chain_id,
-						     COOT_LSQ_MAIN);
-		  matches.push_back(match);
-		  mmdb::Manager *mol_1 = mol;
-		  mmdb::Manager *mol_2 = atom_sel.mol;
-		  std::pair<short int, clipper::RTop_orth> lsq_mat =
-		     coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
-		  const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
-		  coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
-	       }
+
+         for(unsigned int ich=0; ich<chains_for_moving.size(); ich++) {
+            mmdb::Chain *chain_for_moving = chains_for_moving[ich];
+            std::string chain_id = chain_for_moving->GetChainID();
+            std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
+            if (mmr.second >= mmr.first) {
+               std::vector<coot::lsq_range_match_info_t> matches;
+               coot::lsq_range_match_info_t match(mmr.first,
+                   mmr.second, chain_id,
+                   mmr.first,
+                   mmr.second, chain_id,
+                   COOT_LSQ_MAIN);
+               matches.push_back(match);
+               mmdb::Manager *mol_1 = mol;
+               mmdb::Manager *mol_2 = atom_sel.mol;
+               std::pair<short int, clipper::RTop_orth> lsq_mat =
+               coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
+               const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
+               coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
+            }
+         }
 
 	    } else {
 
 	       atom_selection_container_t asc_ligand = make_asc(mol);
 
-	       if (0) { // debug
-		  std::cout << "===== initial positions: =====" << std::endl;
-		  for (int iat=0; iat<n_atoms; iat++) {
-		     std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
-		  }
-		  std::cout << "===== moved to: =====" << std::endl;
-		  for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
-		     std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
-		  }
-	       }
-	       replace_coords(asc_ligand, false, true);
-	    }
+          if (false) { // debug
+             std::cout << "===== initial positions: =====" << std::endl;
+             for (int iat=0; iat<n_atoms; iat++) {
+                std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
+             }
+             std::cout << "===== moved to: =====" << std::endl;
+             for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
+                std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
+             }
+          }
+          replace_coords(asc_ligand, false, true);
+       }
 
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();

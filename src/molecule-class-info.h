@@ -2858,7 +2858,7 @@ public:        //                      public
    //
    // called by above
    //
-   // if chain_for_moving is not null, apply the transformation
+   // if chain_for_moving is not empty, apply the transformation
    // the the atoms of chain_for_moving rather than to the atom of atom_selection
    //
    float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
@@ -2868,7 +2868,7 @@ public:        //                      public
 				     int n_trials,
 				     float jiggle_scale_factor,
 				     bool use_biased_density_scoring,
-				     mmdb::Chain *chain_for_moving=0);
+				     std::vector<mmdb::Chain *> chains_for_moving);
 
 #ifdef HAVE_CXX_THREAD
    static void test_jiggle_fit_func(unsigned int thread_index,
