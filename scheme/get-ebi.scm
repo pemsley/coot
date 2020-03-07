@@ -29,7 +29,7 @@
 ;;; form which returns a file that had META tags.  Argh.
 
 (define pdbe-server "https://www.ebi.ac.uk")
-(define pdbe-pdb-file-dir "pdbe-srv/view/files")
+(define pdbe-pdb-file-dir "pdbe/entry-files/download")
 
 (define pdbe-file-name-tail "ent")
 
