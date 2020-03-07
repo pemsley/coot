@@ -17,7 +17,7 @@
 
 
 (use-modules (oop goops) 
-	     (oop goops describe))
+             (oop goops describe))
 
 ;;; Allow the user to set these variables in their .mapview file if
 ;;; they want some server other than the default choice.  (These
@@ -81,30 +81,35 @@
   (lambda (id url-string data-type . imol-coords-arg-list)
 
     (format #t "DEBUG:: in get-url-str: ~s ~s ~s~%" id url-string data-type)
-    (let ((coot-tmp-dir (get-directory "coot-download")))
+    (let ((coot-download-dir (get-directory "coot-download")))
 
       (cond 
        
        ((eq? data-type 'pdb)
-	(let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
-					    pdbe-file-name-tail)))
-	  (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
-	  (handle-read-draw-molecule pdb-file-name)))
+        (let ((pdb-file-name (string-append coot-download-dir "/" id ".pdb" "."
+                                            pdbe-file-name-tail)))
+          (check-dir-and-get-url coot-download-dir pdb-file-name url-string)
+          (handle-read-draw-molecule pdb-file-name)))
+
+       ((eq? data-type 'cif)
+        (let ((pdb-file-name (string-append coot-download-dir "/" id ".cif")))
+          (check-dir-and-get-url coot-download-dir pdb-file-name url-string)
+          (handle-read-draw-molecule pdb-file-name)))
 
        ((eq? data-type 'sfs)
-	(let ((sfs-file-name (string-append coot-tmp-dir "/" id ".cif"))
+	(let ((sfs-file-name (string-append coot-download-dir "/" id ".cif"))
 	      (imol (get-ebi-pdb id)))
 	  
 	  (if (and (number? imol)
 		   (not (= imol -1)))
 	      (begin
-		(check-dir-and-get-url coot-tmp-dir sfs-file-name url-string)
+		(check-dir-and-get-url coot-download-dir sfs-file-name url-string)
 		(read-cif-data sfs-file-name (car imol-coords-arg-list))))))
 
        (else 
-	"unknown")))))
+        "unknown")))))
 
-	    
+
 
 (define get-ebi-pdb-and-sfs 
   (lambda (id)
@@ -133,23 +138,27 @@
 ;; 
 (define (get-ebi-pdb id)
 
-  ;; (format #t "======= id: ~s~%" id)
+  (format #t "debug:: get-ebi-pdb ======= id: ~s~%" id)
 
   (let* ((down-id (string-downcase id))
-	 (url-str (string-append
-		   pdbe-server
-		   "/"
-		   pdbe-pdb-file-dir
-		   "/"
-		   down-id ".ent")))
+         (pdb-url-str (string-append
+           pdbe-server "/" pdbe-pdb-file-dir "/" down-id ".ent"))
+         (cif-url-str (string-append
+           pdbe-server "/" pdbe-pdb-file-dir "/" down-id ".cif")))
     
-    (let ((url-status (get-url-str id url-str 'pdb)))
+    (let ((url-status (get-url-str id pdb-url-str 'pdb)))
 
       ;; e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
       ;;      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
 
+     (format #t "debug:: get-ebi-pdb ======= url-status ~s~%" url-status)
+
       (if (valid-model-molecule? url-status)
-	  (pdb-validate down-id url-status)))))
+         (pdb-validate down-id url-status)
+         (let ((url-status-cif (get-url-str id cif-url-str 'cif)))
+            (format #t "debug:: get-ebi-pdb ======= url-status-cif ~s~%" url-status-cif)
+            (if (valid-model-molecule? url-status-cif)
+               (pdb-validate down-id url-status-cif)))))))
 
 
 ;(ebi-get-pdb "1crn")
@@ -266,19 +275,19 @@
 		  (let ((bad-map-status (string-match "No reliable map available" pre-download-info)))
 		    (if bad-map-status
 			(let ((s  (string-append
-				   "This map (" down-id ") is marked by the EDS as \"not a reliable map\"")))
+			           "This map (" down-id ") is marked by the EDS as \"not a reliable map\"")))
 			  (info-dialog s))))
 
-		  (format #t "INFO:: read pdb model status: ~s~%" s1)
-		  (format #t "INFO:: read mtz data  status: ~s~%" s2)
+                  (format #t "INFO:: read pdb model status: ~s~%" s1)
+                  (format #t "INFO:: read mtz data  status: ~s~%" s2)
 
                   (if (= s1 0)
-		     (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file)))
+                     (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file)))
                         (if (not (valid-model-molecule? r-imol))
                            (let ((s1-cif (net-get-url model-cif-url dir-target-cif-file)))
-		              (format #t "INFO:: read cif model status: ~s~%" s1-cif)
+                              (format #t "INFO:: read cif model status: ~s~%" s1-cif)
                               (if (= s1-cif 0)
-		                 (let ((r-imol (handle-read-draw-molecule dir-target-cif-file)))
+                                 (let ((r-imol (handle-read-draw-molecule dir-target-cif-file)))
                                     r-imol))))))
 
                   (if (= s2 0)

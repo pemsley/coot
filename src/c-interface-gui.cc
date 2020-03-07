@@ -2397,7 +2397,7 @@ void handle_get_accession_code(GtkWidget *widget) {
       text = coot::util::remove_trailing_whitespace(text_s);
       std::cout << "PDB Accession Code: " << text << std::endl;
       int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
-									"accession_code_window")));
+                                                             "accession_code_window")));
 
       int n = *n_p;
       std::cout << "DEBUG:: extracted accession code handle mode n " << n << std::endl;
@@ -2467,8 +2467,6 @@ void handle_get_accession_code(GtkWidget *widget) {
 #endif // USE_GUILE
 
    }
-   std::cout << "WARING:: Executable not compiled with guile or python." << std::endl;
-   std::cout << "         This won't work." << std::endl; 
 
    // and kill the accession code window
    gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "accession_code_window")); 
