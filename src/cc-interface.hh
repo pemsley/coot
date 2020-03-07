@@ -270,6 +270,11 @@ PyObject *amplitude_vs_resolution_py(int mol_map);
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
+//! \brief Go to the centre of the molecule - for Cryo-EM Molecules
+//!
+//!        and recontour at a sensible value.
+void go_to_map_molecule_centre(int imol_map);
+
 //! \brief b-factor from map
 //!
 //! calculate structure factors and use the amplitudes to estimate

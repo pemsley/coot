@@ -2522,3 +2522,20 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
       }
    }
 }
+
+
+
+//! \brief Go to the centre of the molecule - for Cryo-EM Molecules
+//!
+//!        and recontour at a sensible value.
+void go_to_map_molecule_centre(int imol_map) {
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      coot::util::map_molecule_centre_info_t mmci = coot::util::map_molecule_centre(xmap);
+      if (mmci.success) {
+         graphics_info_t::molecules[imol_map].set_contour_level(mmci.suggested_contour_level);
+         clipper::Coord_orth nc = mmci.updated_centre;
+         set_rotation_centre(nc.x(), nc.y(), nc.z());
+      }
+   }
+}

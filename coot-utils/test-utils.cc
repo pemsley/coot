@@ -1251,6 +1251,24 @@ test_make_a_difference_map(int argc, char **argv) {
    return status;
 }
 
+int test_map_molecule_centre(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string fn = argv[1];
+      try {
+         clipper::CCP4MAPfile file;
+         clipper::Xmap<float> xmap;
+         file.open_read(fn);
+         file.import_xmap(xmap);
+         coot::util::map_molecule_centre(xmap);
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "Failed to open " << fn << std::endl;
+      }
+   }
+   return 0;
+}
+
 int
 test_CO_orientations(int argc, char **argv) {
    int status = 0;
@@ -1332,11 +1350,13 @@ int main(int argc, char **argv) {
    if (false)
       test_nxmap_simple(argc, argv);
 
-   if (true)
+   if (false)
       test_CO_orientations(argc, argv);
 
    if (false)
       test_cablam(argc, argv);
 
+   if (true)
+      test_map_molecule_centre(argc, argv);
    return 0;
 }
