@@ -3478,6 +3478,72 @@ trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 
 #ifdef HAVE_CXX_THREAD
 
+float
+molecule_class_info_t::fit_chain_to_map_by_random_jiggle(const std::string &chain_id, const clipper::Xmap<float> &xmap,
+                                                         float map_sigma, int n_trials, float jiggle_scale_factor) {
+   float r = 0;
+
+   mmdb::PPAtom atom_selection = 0;
+   int n_atoms;
+
+   // If we have more than 20 residues, lets do an atom selection and use that
+   // for fitting rather all the atoms.  No Side chains for protein,
+   //
+   std::pair<unsigned int, unsigned int> n_residues(0,0);
+   mmdb::Chain *chain_p = 0;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p_this = model_p->GetChain(ichain);
+         std::string chain_id_this(chain_p_this->GetChainID());
+         if (chain_id_this == std::string(chain_id)) {
+            chain_p = chain_p_this;
+            break;
+         }
+      }
+   }
+   if (chain_p)
+      n_residues = coot::util::get_number_of_protein_or_nucleotides(chain_p);
+
+   int SelHnd = atom_sel.mol->NewSelection(); // d
+
+   if (n_residues.first > 20) {
+      atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+         mmdb::ANY_RES, "*",
+         mmdb::ANY_RES, "*", "*",
+         "CA,C,O,N","*","*",mmdb::SKEY_NEW);
+   } else {
+      if (n_residues.second > 20) {
+         atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+               mmdb::ANY_RES, "*",
+               mmdb::ANY_RES, "*", "*",
+               "P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
+      } else {
+               atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+                  mmdb::ANY_RES, "*",
+                  mmdb::ANY_RES, "*",
+                  "*","*","*","*",mmdb::SKEY_NEW);
+      }
+   }
+
+   atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+   if (n_atoms) {
+      bool use_biased_density_scoring = false; // not for all-molecule
+      std::vector<mmdb::Chain *> chains;
+      chains.push_back(chain_p);
+      r = fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+                                      xmap, map_sigma,
+                                      n_trials, jiggle_scale_factor,
+                                      use_biased_density_scoring,
+                                      chains);
+   }
+   atom_sel.mol->DeleteSelection(SelHnd);
+   return r;
+}
+
 // static
 void
 molecule_class_info_t::test_jiggle_fit_func(unsigned int thread_index,
@@ -3718,13 +3784,13 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    } else {
 
       for (int itrial=0; itrial<n_trials; itrial++) {
-	 float annealing_factor = 1 - float(itrial)/float(n_trials);
-	 std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
-	    coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
-	 coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-	 float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
-	 std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
-	 trial_results[itrial] = p;
+         float annealing_factor = 1 - float(itrial)/float(n_trials);
+         std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
+         coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+         coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+         float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
+         std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+         trial_results[itrial] = p;
       }
    }
 
@@ -3735,9 +3801,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    if (false) {
       unsigned int n_top = 20;
       if (trial_results.size() < 20)
-	 n_top = trial_results.size();
+         n_top = trial_results.size();
       for (unsigned int i_trial=0; i_trial<n_top; i_trial++)
-	 std::cout << " debug pre-sort trial scores: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+         std::cout << " debug pre-sort trial scores: " << i_trial << " " << trial_results[i_trial].second << std::endl;
    }
 
    std::sort(trial_results.begin(),
@@ -3769,12 +3835,12 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    try {
       for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
-	 // does the fitting
-	 graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
-						  centre_pt, atom_numbers,
-						  trial_results[i_trial].second,
-						  density_scoring_function,
-						  &post_fit_trial_results[i_trial]);
+         // does the fitting
+         graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
+         centre_pt, atom_numbers,
+         trial_results[i_trial].second,
+         density_scoring_function,
+         &post_fit_trial_results[i_trial]);
       }
 
       // wait
@@ -3802,14 +3868,14 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(3) << i_trial << ": prelim-score was "
-		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
-		<< std::setw(5) << this_score;
+      << std::setw(3) << i_trial << ": prelim-score was "
+      << std::setw(7) << trial_results[i_trial].second << " post-fit "
+      << std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
-	 best_score_so_far = this_score;
-	 if (this_score > initial_score) {
-	    std::cout << " ***";
-	 }
+         best_score_so_far = this_score;
+         if (this_score > initial_score) {
+            std::cout << " ***";
+         }
       }
       std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
@@ -3840,10 +3906,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 		<< best_score << std::endl;
       v = best_score;
       if (! best_molecule.is_empty()) {
-	 mmdb::Manager *mol = best_molecule.pcmmdbmanager();
-	 if (mol) {
+         mmdb::Manager *mol = best_molecule.pcmmdbmanager();
+         if (mol) {
 
-      if (!chains_for_moving.empty()) {
+            if (!chains_for_moving.empty()) {
 
 	       // move the atoms of chain for moving, not the atoms of the atom selection
 	       //
@@ -3852,9 +3918,12 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	       // to that fitted mol coordinates and then apply them to all the atom
 	       // in the chain
 
+         std::cout << "DEBUG: we have " << chains_for_moving.size() << " chains for moving" << std::endl;
          for(unsigned int ich=0; ich<chains_for_moving.size(); ich++) {
             mmdb::Chain *chain_for_moving = chains_for_moving[ich];
             std::string chain_id = chain_for_moving->GetChainID();
+            std::cout << "DEBUG:: chain_for_moving " << chain_for_moving << " " << chain_id
+                      << std::endl;
             std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
             if (mmr.second >= mmr.first) {
                std::vector<coot::lsq_range_match_info_t> matches;

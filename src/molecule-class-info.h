@@ -2843,6 +2843,10 @@ public:        //                      public
    // atoms or no water atoms).
    float max_water_distance();
 
+   float fit_chain_to_map_by_random_jiggle(const std::string &chain_id, const clipper::Xmap<float> &xmap,
+                                           float map_sigma,
+                                           int n_trials, float jiggle_scale_factor);
+
    // jiggle residue (a specific, useful/typical interface to jiggling).
    float fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 				     const clipper::Xmap<float> &xmap,
