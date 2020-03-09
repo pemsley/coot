@@ -133,7 +133,7 @@ void curlew() {
       int r = coot_get_url(json_url.c_str(), dl_fn.c_str());
 
       // hack in a pre-downloaded file
-      dl_fn = "info.json";
+      // dl_fn = "info.json";
 
       bool is_empty = true; // now check that it isn't
       struct stat buf;
