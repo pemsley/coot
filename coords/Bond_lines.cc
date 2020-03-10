@@ -3923,7 +3923,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 
    if (false)
       std::cout << "loop this? " << coot::residue_spec_t(residue_prev)
-		<< " " << coot::residue_spec_t(residue_this) << std::endl;
+                << " " << coot::residue_spec_t(residue_this) << std::endl;
 
    // we want to represent the missing residues as a curved loop. To do so, we
    // need to find the positions of the CA of n-2 (for start of loop)
@@ -3963,7 +3963,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 	       int  udd_is_fixed_during_refinement = 0;
 
 	       if (udd_fixed_during_refinement_handle > 0) {
-		  these_are_moving_atoms = true;
+	          these_are_moving_atoms = true;
 	       }
 
 	       res_start_back->GetAtomTable(residue_atoms_pp_1, n_atoms_pp_1);
@@ -3980,7 +3980,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 			   at_pp_1 = at;
 			   if (these_are_moving_atoms) {
 			      at->GetUDData(udd_fixed_during_refinement_handle,
-					    udd_is_fixed_during_refinement);
+			                    udd_is_fixed_during_refinement);
 			      if (udd_is_fixed_during_refinement == 1) {
 				 at_pp_1 = 0; // nullptr
 				 loop_is_possible = false;
@@ -3991,13 +3991,13 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 			      int idx_in_mol = -1;
 			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
 			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
-				 loop_is_possible = false;
+			         loop_is_possible = false;
 			   }
 			   break;
 			}
-		     }
-		  }
-	       }
+                     }
+                  }
+               }
 
                if (udd_fixed_during_refinement_handle == -1)
                   loop_is_possible = true;
@@ -4006,24 +4006,27 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 		  for (int ipp_2=0; ipp_2<n_atoms_pp_2; ipp_2++) {
 		     mmdb::Atom *at = residue_atoms_pp_2[ipp_2];
 		     std::string atom_name = at->GetAtomName();
-		     if (atom_name == " CA " || atom_name == " P  ") {
+                     // start atom is preferably O3'
+		     if (atom_name == " CA " || atom_name == " P  " || atom_name == " O3'") {
 			if (! at->Het) {
 			   at_pp_2 = at;
 			   if (these_are_moving_atoms) {
 			      at->GetUDData(udd_fixed_during_refinement_handle,
-					    udd_is_fixed_during_refinement);
+			                    udd_is_fixed_during_refinement);
 			      if (udd_is_fixed_during_refinement == 1) {
-				 at_pp_2 = 0; // nullptr
-				 loop_is_possible = false;
+			         at_pp_2 = 0; // nullptr
+			         loop_is_possible = false;
 			      }
 			   } else {
 			      // don't make a loop to atoms that are not draw (because they are in the moving atoms set)
 			      int idx_in_mol = -1;
 			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
 			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
-				 loop_is_possible = false;
+			         loop_is_possible = false;
 			   }
-			   break;
+                           // try to find the O3' if we can.
+                           if (atom_name == " O3'")
+			      break;
 			}
 		     }
 		  }
@@ -4065,17 +4068,17 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 			   at_pp_4 = at;
 			   if (these_are_moving_atoms) {
 			      at->GetUDData(udd_fixed_during_refinement_handle,
-					    udd_is_fixed_during_refinement);
+			                    udd_is_fixed_during_refinement);
 			      if (udd_is_fixed_during_refinement == 1) {
-				 at_pp_4 = 0; // nullptr
-				 loop_is_possible = false;
+			         at_pp_4 = 0; // nullptr
+			         loop_is_possible = false;
 			      }
 			   } else {
 			      // don't make a loop to atoms that are not draw (because they are in the moving atoms set)
 			      int idx_in_mol = -1;
 			      at->GetUDData(udd_atom_index_handle, idx_in_mol);
 			      if (no_bonds_to_these_atoms.find(idx_in_mol) != no_bonds_to_these_atoms.end())
-				 loop_is_possible = false;
+			         loop_is_possible = false;
 			   }
 			   break;
 			}
@@ -4083,7 +4086,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 		  }
 	       }
 
-	       if (loop_is_possible) {
+               if (loop_is_possible) {
 
 		  if (at_pp_1 && at_pp_2 && at_pp_3 && at_pp_4) {
 		     coot::Cartesian pp_2(at_pp_2->x, at_pp_2->y, at_pp_2->z);
@@ -4091,22 +4094,20 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 		     float a = (pp_3-pp_2).amplitude();
 		     int n_line_segments = static_cast<int>(a*1.2);
 		     std::pair<bool, std::vector<coot::CartesianPair> > lp =
-			coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
+		        coot::loop_path(at_pp_1, at_pp_2, at_pp_3, at_pp_4, n_line_segments);
 		     for (unsigned int jj=0; jj<lp.second.size(); jj++) {
-			const coot::CartesianPair &cp = lp.second[jj];
-			int col = GREY_BOND; // just grey, really.
-			graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-			int iat_1 = -1;
-			int iat_2 = -1;
-			addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
+		        const coot::CartesianPair &cp = lp.second[jj];
+		        int col = GREY_BOND; // just grey, really.
+		        graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		        int iat_1 = -1;
+		        int iat_2 = -1;
+		        addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
 		     }
 
 		     if (lp.first) {
 			// Add the balls of CA-CA badness
 			for (unsigned int jj=0; jj<lp.second.size(); jj++) {
 			   const coot::CartesianPair &cp = lp.second[jj];
-			   int col = HYDROGEN_GREY_BOND;
-			   int iat = -1;
 			   bad_CA_CA_dist_spots.push_back(cp.getStart());
 			   bad_CA_CA_dist_spots.push_back(cp.getFinish());
 			}
@@ -4114,9 +4115,9 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 
 		  } else {
 		     if (false)
-			std::cout << "DEBUG:: CA loops: oops! "
-				  << at_pp_1 << " " << at_pp_2 << " " << at_pp_3 << " " << at_pp_4
-				  << std::endl;
+			std::cout << "DEBUG:: do_CA_loops(): oops! "
+			          << at_pp_1 << " " << at_pp_2 << " " << at_pp_3 << " " << at_pp_4
+			          << std::endl;
 		  }
 	       }
 	    }
@@ -4159,7 +4160,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
       udd_handle_for_user_defined_colours = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
-								      "user-defined-atom-colour-index");
+                                                                      "user-defined-atom-colour-index");
 
    int udd_has_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found-backbone-bond");
    for (int i=0; i<SelAtom.n_selected_atoms; i++)

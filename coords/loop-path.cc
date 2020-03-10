@@ -4,10 +4,10 @@
 
 std::pair<bool, std::vector<coot::CartesianPair> >
 coot::loop_path(mmdb::Atom *start_back_2,
-		mmdb::Atom *start,
-		mmdb::Atom *end,
-		mmdb::Atom *end_plus_2,
-		unsigned int n_line_segments) {
+                mmdb::Atom *start,
+                mmdb::Atom *end,
+                mmdb::Atom *end_plus_2,
+                unsigned int n_line_segments) {
 
    std::vector<CartesianPair> loop_line_segments;
    bool needs_CA_CA_badness_spots = false;
@@ -20,6 +20,14 @@ coot::loop_path(mmdb::Atom *start_back_2,
 
    // sane input
 
+
+   bool is_NA = false;
+   std::string atom_name_start(start->GetAtomName());
+   std::string atom_name_end(    end->GetAtomName());
+   // prefeable the start atom is O3'
+   if (atom_name_start == " P  " || atom_name_start == " O3'")
+      if (atom_name_end == " P  ")
+         is_NA = true;
 
    // 20190118-PE, we want to add the John Berrisford request: that residues
    // that do not have enough of a gap in the residue numbering for the distance
@@ -42,14 +50,14 @@ coot::loop_path(mmdb::Atom *start_back_2,
 
    double d2 = sqrt(clipper::Coord_orth(P1-P4).lengthsq());
 
-   bool sird = is_sane_inter_residue_distance(d2, res_no_delta);
+   bool sird = is_sane_inter_residue_distance(d2, res_no_delta, is_NA);
 
    if (sird) {
       double loopiness = res_no_delta * 0.1;
       if (loopiness > 100.0) loopiness = 100.0;
       if (loopiness <   0.1) loopiness =   0.1;
       double d = 0.2 * d2 * loopiness; // this number could be optimized
-      if (d < 0.50) d = 0.50; // and this one
+      if (d < 0.20) d = 0.20; // and this one
       if (d > 60.0) d = 60.0; // and this one
 
       double s = sqrt(d);
@@ -111,23 +119,25 @@ coot::loop_path(mmdb::Atom *start_back_2,
 
 // needs extra arg for P-P vs CA-CA
 bool
-coot::is_sane_inter_residue_distance(double dist_between_residues, int res_no_delta) {
+coot::is_sane_inter_residue_distance(double dist_between_residues, int res_no_delta, bool is_NA) {
 
    bool status = true;
 
    // return false if the residue number difference is too small for the
    // position difference of the loop residues
 
+   double CA_CA_dist = 3.7;
+   if (is_NA) CA_CA_dist = 5.4; // P-P really
    // old compiler
-   double dist_crit = static_cast<double>(std::abs(static_cast<double>(res_no_delta))) * 3.7;
+   double dist_crit = static_cast<double>(std::abs(static_cast<double>(res_no_delta))) * CA_CA_dist;
 
    if (dist_between_residues > dist_crit)
       status = false;
 
    if (false)
       std::cout << "debug:: is_sane_inter_residue_distance() returns " << status
-	        << " based on " << res_no_delta << " -> " << dist_crit << " vs "
-	        << dist_between_residues << std::endl;
+                << " based on " << res_no_delta << " -> " << dist_crit << " vs "
+                << dist_between_residues << std::endl;
 
    return status;
 }
