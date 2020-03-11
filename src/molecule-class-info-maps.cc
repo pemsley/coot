@@ -262,7 +262,7 @@ molecule_class_info_t::clear_draw_vecs() {
    // crash on double free of the draw vectors. Not sure why. Let's add a lock
 
    bool unlocked = false;
-   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
       unlocked = false;
    }
@@ -275,12 +275,30 @@ molecule_class_info_t::clear_draw_vecs() {
 
 }
 
+void
+molecule_class_info_t::clear_diff_map_draw_vecs() {
+   bool unlocked = false;
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+      unlocked = false;
+   }
+   for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
+      draw_diff_map_vector_sets[i].size = 0;
+      delete [] draw_diff_map_vector_sets[i].data;
+      draw_diff_map_vector_sets[i].data = 0;
+   }
+   draw_vector_sets_lock = false; // unlock
+
+}
+
 // for negative the other map.
 //
 void
 molecule_class_info_t::set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) {
-   delete [] diff_map_draw_vectors;
-   diff_map_draw_vectors = c; n_diff_map_draw_vectors = n;
+   // delete [] diff_map_draw_vectors;
+   // diff_map_draw_vectors = c; n_diff_map_draw_vectors = n;
+
+   // delete this function
 }
 
 
@@ -515,109 +533,112 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 
       if (!xmap.is_null()) { // NXMAP-FIXME
 
-// 	 std::cout << "DEBUG:: drawing map for mol " << imol_no
-// 		   << " display_lists_for_maps_flag:  "
-// 		   << display_lists_for_maps_flag_local << " " << theMapContours << std::endl;
+         // 	 std::cout << "DEBUG:: drawing map for mol " << imol_no
+         // 		   << " display_lists_for_maps_flag:  "
+         // 		   << display_lists_for_maps_flag_local << " " << theMapContours << std::endl;
 
-	 if (display_lists_for_maps_flag_local) {
+         if (display_lists_for_maps_flag_local) {
 
-	    GLuint display_list_index = 0; // bad
+            GLuint display_list_index = 0; // bad
 
-	    // These conditions have been validated by reversing them.
-	    if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT ||
-		main_or_secondary == IN_STEREO_MONO)
-	       display_list_index = theMapContours.first;
-	    if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_RIGHT)
-	       display_list_index = theMapContours.second;
+            // These conditions have been validated by reversing them.
+            if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT ||
+                main_or_secondary == IN_STEREO_MONO)
+               display_list_index = theMapContours.first;
+            if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_RIGHT)
+               display_list_index = theMapContours.second;
 
-	    if (display_list_index > 0) {
-// 	       std::cout << "OK:: using display list " << display_list_index
-// 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
-	       glCallList(display_list_index);
-	    } else {
-	       std::cout << "ERROR:: using display list " << display_list_index
-			 << " when main_or_secondary is " << main_or_secondary << std::endl;
-	    }
+            if (display_list_index > 0) {
+                  // 	       std::cout << "OK:: using display list " << display_list_index
+                  // 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
+                  glCallList(display_list_index);
+            } else {
+                  std::cout << "ERROR:: using display list " << display_list_index
+                  << " when main_or_secondary is " << main_or_secondary << std::endl;
+            }
 
 
-	 } else {
+         } else {
 
-	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
-	    // std::cout << "   debug draw immediate mode " << std::endl;
+               // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
+               // std::cout << "   debug draw immediate mode " << std::endl;
 
-	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
+               // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
 
-	    // Is it possible that the map is being drawn as it is being deleted?
-	    // I don't see how - but I got a crash here. So let's lock the draw too.
-	    // I got a crash when this lock was in place. Hmm.
-	    bool unlocked = false;
-	    while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
-		   !unlocked) {
-	       std::this_thread::sleep_for(std::chrono::microseconds(1));
-	       unlocked = false;
-	    }
+               // Is it possible that the map is being drawn as it is being deleted?
+               // I don't see how - but I got a crash here. So let's lock the draw too.
+               // I got a crash when this lock was in place. Hmm.
+               bool unlocked = false;
+               while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
+                  std::this_thread::sleep_for(std::chrono::microseconds(1));
+                  unlocked = false;
+               }
 
-	    if (draw_vector_sets.size() > 0) {
+               if (draw_vector_sets.size() > 0) {
 
-	       glColor3dv (map_colour[0]);
-	       glLineWidth(graphics_info_t::map_line_width);
+                  glColor3dv (map_colour[0]);
+                  glLineWidth(graphics_info_t::map_line_width);
 
-	       glBegin(GL_LINES);
-	       unsigned int n_sets = draw_vector_sets.size();
-	       for (unsigned int iset=0; iset<n_sets; iset++) {
-		  if (draw_vector_sets.size() != n_sets) {
-		     std::cout << "Error:: the ground shifted! " << n_sets << " " << draw_vector_sets.size() << std::endl;
-		     break;
-		  }
-		  int n = draw_vector_sets[iset].size;
-		  const coot::CartesianPairInfo &cpi = draw_vector_sets[iset];
-		  for (int i=0; i<n; i++) {
-		     if (n != draw_vector_sets[iset].size) {
-			std::cout << "Error:: the innner ground shifted! "
-				  << n << " " << draw_vector_sets[iset].size << std::endl;
-			break;
-		     }
-		     const coot::CartesianPair &cp = cpi.data[i];
-		     glVertex3f(cp.getStart().x(),
-				cp.getStart().y(),
-				cp.getStart().z());
-		     glVertex3f(cp.getFinish().x(),
-				cp.getFinish().y(),
-				cp.getFinish().z());
-		  }
-	       }
-	       glEnd();
-	    }
+                  glBegin(GL_LINES);
+                  unsigned int n_sets = draw_vector_sets.size();
+                  for (unsigned int iset=0; iset<n_sets; iset++) {
+                     if (draw_vector_sets.size() != n_sets) {
+                        std::cout << "Error:: the ground shifted! " << n_sets << " " << draw_vector_sets.size() << std::endl;
+                        break;
+                     }
+                     int n = draw_vector_sets[iset].size;
+                     const coot::CartesianPairInfo &cpi = draw_vector_sets[iset];
+                     for (int i=0; i<n; i++) {
+                        if (n != draw_vector_sets[iset].size) {
+                           std::cout << "Error:: the innner ground shifted! "
+                           << n << " " << draw_vector_sets[iset].size << std::endl;
+                           break;
+                        }
+                        const coot::CartesianPair &cp = cpi.data[i];
+                        glVertex3f(cp.getStart().x(),
+                                   cp.getStart().y(),
+                                   cp.getStart().z());
+                        glVertex3f(cp.getFinish().x(),
+                                   cp.getFinish().y(),
+                                   cp.getFinish().z());
+                     }
+                  }
+                  glEnd();
+               }
 
-	    molecule_class_info_t::draw_vector_sets_lock = false; // unlock
+               molecule_class_info_t::draw_vector_sets_lock = false; // unlock
 
-	    if (xmap_is_diff_map == 1) {
+               if (xmap_is_diff_map == 1) {
 
-	       if (n_diff_map_draw_vectors > 0) {
+                  if (! draw_diff_map_vector_sets.empty()) {
 
-		  glColor3dv (map_colour[1]);
-		  // we only need to do this if it wasn't done above.
-		  // if (n_draw_vectors == 0)
+                     glColor3dv (map_colour[1]);
+                     // we only need to do this if it wasn't done above.
+                     // if (n_draw_vectors == 0)
 
-		  if (true)
-		     glLineWidth(graphics_info_t::map_line_width);
+                     glLineWidth(graphics_info_t::map_line_width);
 
-		  glBegin(GL_LINES);
-		  for (int i=0; i< n_diff_map_draw_vectors; i++) {
-
-		     glVertex3f(diff_map_draw_vectors[i].getStart().get_x(),
-				diff_map_draw_vectors[i].getStart().get_y(),
-				diff_map_draw_vectors[i].getStart().get_z());
-		     glVertex3f(diff_map_draw_vectors[i].getFinish().get_x(),
-				diff_map_draw_vectors[i].getFinish().get_y(),
-				diff_map_draw_vectors[i].getFinish().get_z());
-		  }
-		  glEnd();
-	       }
-	    }
-	 }
+                     glBegin(GL_LINES);
+                     unsigned int n_sets = draw_diff_map_vector_sets.size();
+                     for (unsigned int iset=0; iset<n_sets; iset++) {
+                        const coot::CartesianPairInfo &cpi = draw_diff_map_vector_sets[iset];
+                        int n = draw_diff_map_vector_sets[iset].size;
+                        for (int i=0; i<n; i++) {
+                           const coot::CartesianPair &cp = cpi.data[i];
+                           glVertex3f(cp.getStart().x(),
+                                      cp.getStart().y(),
+                                      cp.getStart().z());
+                           glVertex3f(cp.getFinish().x(),
+                                      cp.getFinish().y(),
+                                      cp.getFinish().z());
+                        }
+                     }
+                     glEnd();
+                  }
+               }
+            }
+         }
       }
-   }
 }
 
 // not a member of the class because of the burden it puts on the header: CIsoSurface is not needed to compile
@@ -707,27 +728,25 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       }
 
       if (xmap_is_diff_map) { // do the negative level
-
-        // --- Pre 2019 map contouring -----
-
-	 v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-						     -contour_level,
-						     dy_radius, centre,
-						     isample_step,
-						     0,1,
-						     is_em_map);
-	 if (is_dynamically_transformed_map_flag)
-	    dynamically_transform(v);
-	 set_diff_map_draw_vecs(v.data, v.size);
-
-
+         clear_diff_map_draw_vecs();
+         std::vector<std::thread> threads;
+         int n_reams = coot::get_max_number_of_threads() - 1;
+         if (n_reams < 1) n_reams = 1;
+         for (int ii=0; ii<n_reams; ii++) {
+            int iream_start = ii;
+            threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+                                          &xmap, -contour_level, dy_radius, centre,
+                                          isample_step, iream_start, n_reams, is_em_map,
+                                          &draw_diff_map_vector_sets));
+         }
+         for (int ii=0; ii<n_reams; ii++)
+            threads[ii].join();
       }
 
       if (draw_it_for_solid_density_surface) {
-	 tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-							     contour_level,
-							     dy_radius, centre,
-							     isample_step);
+         tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+                                 contour_level, dy_radius, centre,
+                                 isample_step);
 
 	 // if "cut-glass mode", then make re-wire to use map GLSL triangles
 	 //

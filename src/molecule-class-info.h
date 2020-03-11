@@ -685,7 +685,7 @@ public:        //                      public
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       is_patterson = 0;
       // draw_vectors = NULL;
-      diff_map_draw_vectors = NULL;
+      // diff_map_draw_vectors = NULL;
 
       //
       xskel_is_filled = 0; // not filled.
@@ -801,8 +801,9 @@ public:        //                      public
       m_VertexArrayID =  0;
 
       // draw vectors
-      draw_vector_sets.reserve(120);
+      draw_vector_sets.reserve(120); // more than enough
       draw_vector_sets.resize(120);
+      draw_diff_map_vector_sets.resize(120);
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -1223,8 +1224,9 @@ public:        //                      public
    // no need for consolidation before draw time.
    std::vector<coot::CartesianPairInfo> draw_vector_sets;
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
-   const coot::CartesianPair* diff_map_draw_vectors;
-   int n_diff_map_draw_vectors;
+   // const coot::CartesianPair* diff_map_draw_vectors;
+   // int n_diff_map_draw_vectors;
+   std::vector<coot::CartesianPairInfo> draw_diff_map_vector_sets;
 
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
@@ -1405,8 +1407,9 @@ public:        //                      public
    void dynamically_transform(coot::CartesianPairInfo v);
 
    void clear_draw_vecs();
+   void clear_diff_map_draw_vecs();
 
-   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
+   // void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
 
    // for negative the other map.
    //
