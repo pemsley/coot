@@ -77,7 +77,7 @@ public:
 				    float box_radius, // half length
 				    coot::Cartesian centre_point,
 				    int isample_step,
-				    int iream_start, int iream_end, int n_reams,
+				    int iream_start, int n_reams,
 				    bool is_em_map);
 
 	coot::CartesianPairInfo
@@ -95,7 +95,7 @@ public:
 				      int isample_step);
 
 	std::pair<int, int> rangeify(const clipper::Grid_map &grid, int isample_step, int isection_start,
-				     int isection_end, int n_sections) const;
+				     int n_sections) const;
  
 	// Returns true if a valid surface has been generated.
 	bool IsSurfaceValid();

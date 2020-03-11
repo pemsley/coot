@@ -544,8 +544,7 @@ template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, 
 template <class T> // vector<CartesianPair>
 std::pair<int, int>
 CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
-			 int isection_start,
-			 int isection_end, int n_sections) const {
+                         int isection_start, int n_section_sets) const {
 
    // we need to include the last section
 
@@ -561,24 +560,30 @@ CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
 
       int grange = gmax - gmin;
 
-      float f1 = static_cast<float>(isection_start)/static_cast<float>(n_sections);
-      float f2 = static_cast<float>(isection_end)/static_cast<float>(n_sections);
+      // float f1 = static_cast<float>(isection_start)/static_cast<float>(n_section_sets);
+      // float f2 = static_cast<float>(isection_end  )/static_cast<float>(n_section_sets);
+
+      // int isection_delta = isection_end - isection_start; // 1
+      int num_sections_per_step = grange / n_section_sets + 1;
 
       // fg2 uses an additional +1 because to get:
 
-      // rangeify input: 0 1 3 gmin 14 gmax 66   output 14 32
-      // rangeify input: 1 2 3 gmin 14 gmax 66   output 31 49
-      // rangeify input: 2 3 3 gmin 14 gmax 66   output 48 67
+      // input: 0 1 n_section_sets 3 gmin 14 gmax 66   output 14 32
+      // input: 1 2 n_section_sets 3 gmin 14 gmax 66   output 31 49
+      // input: 2 3 n_section_sets 3 gmin 14 gmax 66   output 48 67
 
       // This covers the gap between sections - we need both edges
 
-      int fg1 = grange * f1 + gmin;
-      int fg2 = grange * f2 + gmin + 1;
+      // int fg1 = grange * f1 + gmin;
+      // int fg2 = grange * f2 + gmin + 1;
+
+      int fg1 = gmin +  isection_start      * num_sections_per_step;
+      int fg2 = gmin + (isection_start + 1) * num_sections_per_step + 1;
 
       if (false)
-	 std::cout << ".....rangeify input: " << isection_start << " " << isection_end
-		   << " " << n_sections << " gmin " << gmin << " gmax " << gmax
-		   << "   output " << fg1 << " " << fg2 << std::endl;
+         std::cout << "rangeify input: start: " << isection_start
+                   << " " << n_section_sets << " gmin " << gmin << " gmax " << gmax
+                   << "   output " << fg1 << " " << fg2 << std::endl;
 
       return std::pair<int, int> (fg1, fg2);
    }
@@ -595,7 +600,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  float box_radius, // half length
 					  coot::Cartesian centre_point,
 					  int isample_step,
-					  int iream_start, int iream_end, int n_reams,
+					  int iream_start, int n_reams,
 					  bool is_em_map) {
 
    // std::cout << "------ start GenerateSurface_from_Xmap() " << n_reams << std::endl;
@@ -634,9 +639,11 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 
    //Note that this introduces a rounding step - is this what you want?
    clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
-			  box1.coord_grid(crystal_map.grid_sampling()));
+                          box1.coord_grid(crystal_map.grid_sampling()));
 
-   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, iream_end, n_reams);
+   // iream_end is iream_start + 1;
+
+   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, n_reams);
 
    if (false) { // debug
       std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
@@ -644,14 +651,15 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
       std::cout << "    centre_point: " << centre_point << std::endl;
       std::cout << "    isample_step " << isample_step << std::endl;
       std::cout << "    iream_start " << iream_start << std::endl;
-      std::cout << "    iream_end " << iream_end << std::endl;
+      // std::cout << "    iream_end " << iream_end << std::endl;
       std::cout << "    n_reams " << n_reams << std::endl;
       std::cout << "    box0: " << box0.format() << std::endl;
       std::cout << "    box1: " << box1.format() << std::endl;
       std::cout << "    grid: " << grid.format() << std::endl;
       std::cout << " limit thing 1: " << (grid.nu()-1)/isample_step << std::endl;
       std::cout << " limit thing 2: " << (grid.nv()-1)/isample_step << std::endl;
-      std::cout << " limit thing 3: " << (rt.second-rt.first-1)/isample_step << std::endl;
+      std::cout << " limit thing 3: " << rt.second-rt.first << std::endl;
+      std::cout << " limit thing 4: " << (rt.second-rt.first-1)/isample_step << std::endl;
    }
 
    // sanity check
