@@ -266,15 +266,11 @@ molecule_class_info_t::clear_draw_vecs() {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
       unlocked = false;
    }
-   // std::cout << "debug:: in clear_draw_vecs() draw_vector_sets size " << draw_vector_sets.size()
-   // << std::endl;
    for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-      // std::cout << "clear_draw_vecs(): set " << i << " " << draw_vector_sets[i].data << std::endl;
       draw_vector_sets[i].size = 0;
       delete [] draw_vector_sets[i].data;
       draw_vector_sets[i].data = 0;
    }
-   // draw_vector_sets.clear();
    draw_vector_sets_lock = false; // unlock
 
 }
@@ -661,20 +657,20 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    float dy_radius = radius;
    if (g.dynamic_map_size_display == 1) {
       if (isample_step <= 15 )
-	 dy_radius *= float(isample_step);
+         dy_radius *= float(isample_step);
       else
-	 dy_radius *= 15.0;
+         dy_radius *= 15.0;
    }
 
    //
    if (isample_step <= 0) {
       std::cout << "WARNING:: Bad zoom   ("<< g.zoom
-		<< "):  setting isample_step to 1" << std::endl;
+                << "):  setting isample_step to 1" << std::endl;
       isample_step = 1;
    }
    if (dy_radius <= 0.0) {
       std::cout << "WARNING:: Bad radius (" << dy_radius
-		<< ") setting to 10" << std::endl;
+                << ") setting to 10" << std::endl;
       dy_radius = 10.0;
    }
 
@@ -694,44 +690,37 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
    if (!xmap.is_null()) {
       if (! draw_it_for_solid_density_surface) {
+         clear_draw_vecs();
+         std::vector<std::thread> threads;
+         int n_reams = coot::get_max_number_of_threads() - 1;
+         if (n_reams < 1) n_reams = 1;
 
-	 clear_draw_vecs();
-
-	 std::vector<std::thread> threads;
-	 int n_reams = coot::get_max_number_of_threads();
-	 // n_reams = 1; // does this stop the crashing? Hmm! Looks good.
-
-	 for (int ii=0; ii<n_reams; ii++) {
-	    int iream_start = ii;
-	    int iream_end   = ii+1;
-
-	    threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
-					  &xmap,
-					  contour_level, dy_radius, centre,
-					  isample_step,
-					  iream_start, iream_end, n_reams, is_em_map,
-					  &draw_vector_sets));
-	 }
-	 for (int ii=0; ii<n_reams; ii++)
-	    threads[ii].join();
-
-	 // std::cout << "Threads joinned, now draw_vector_sets size " << draw_vector_sets.size()
-	 // << std::endl;
-
+         for (int ii=0; ii<n_reams; ii++) {
+            int iream_start = ii;
+            threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+                                          &xmap, contour_level, dy_radius, centre,
+                                          isample_step, iream_start, n_reams, is_em_map,
+                                          &draw_vector_sets));
+         }
+         for (int ii=0; ii<n_reams; ii++)
+            threads[ii].join();
       }
 
-      // --- Pre 2019 map contouring -----
+      if (xmap_is_diff_map) { // do the negative level
 
-      if (xmap_is_diff_map) {
+        // --- Pre 2019 map contouring -----
+
 	 v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 						     -contour_level,
 						     dy_radius, centre,
 						     isample_step,
-						     0,1,1,
+						     0,1,
 						     is_em_map);
 	 if (is_dynamically_transformed_map_flag)
 	    dynamically_transform(v);
 	 set_diff_map_draw_vecs(v.data, v.size);
+
+
       }
 
       if (draw_it_for_solid_density_surface) {
@@ -760,7 +749,7 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 					       float contour_level, float dy_radius,
 					       coot::Cartesian centre,
 					       int isample_step,
-					       int iream_start, int iream_end, int n_reams,
+					       int iream_start, int n_reams,
 					       bool is_em_map,
 					       std::vector<coot::CartesianPairInfo> *draw_vector_sets_p) {
 
@@ -771,12 +760,12 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 						  contour_level,
 						  dy_radius, centre,
 						  isample_step,
-						  iream_start, iream_end, n_reams,
+						  iream_start, n_reams,
 						  is_em_map);
       bool unlocked = false;
       while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(10));
-	 unlocked = false;
+         std::this_thread::sleep_for(std::chrono::microseconds(10));
+         unlocked = false;
       }
       // no longer dynamically change the size of draw_vector_sets
       // clear_draw_vecs will set the size to zero. If we find a element with size 0,
@@ -4092,7 +4081,7 @@ molecule_class_info_t::get_contours(float contour_level,
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
 								       contour_level,
 								       radius, centre,
-								       0,1,1,
+								       0,1,
 								       isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {

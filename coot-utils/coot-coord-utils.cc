@@ -6171,10 +6171,10 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       std::cout << "Mutate Atom Tables" << std::endl;
       std::cout << "Before" << std::endl;
       for(int i=0; i<nResidueAtoms; i++)
-	 std::cout << residue_atoms[i]->name << std::endl;
+         std::cout << residue_atoms[i]->name << std::endl;
       std::cout << "To be replaced by:" << std::endl;
       for(int i=0; i<n_std_ResidueAtoms; i++)
-	 std::cout << std_residue_atoms[i]->name << std::endl;
+         std::cout << std_residue_atoms[i]->name << std::endl;
    }
 
    // only touch the atoms with given alt conf, ignore the others.
@@ -6201,8 +6201,11 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 		  residue->DeleteAtom(i);
 	    }
 	 } else {
-	    residue->DeleteAtom(i);
-	 }
+            // don't delete OXT, but do delete other things
+            std::string atom_name(residue_atoms[i]->GetAtomName());
+            if (atom_name != " OXT")
+               residue->DeleteAtom(i);
+         }
       }
    }
 

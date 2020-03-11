@@ -314,16 +314,16 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
          clipper::Xmap<float> xmap_blur = coot::util::sharpen_blur_map(xmap, map_blur_factor);
          float map_sigma = g.molecules[imol_map].map_sigma(); // is that the right map?
 
-         mmdb::Atom **atom_selection = 0; // g.molecules[imol].atom_sel.atom_selection;
-         int n_atoms = 0; // g.molecules[imol].atom_sel.n_selected_atoms;
+         mmdb::Atom **atom_selection = 0;
+         int n_atoms = 0;
 
          // select only main-chain or nucleotide atoms
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          int SelHnd = mol->NewSelection(); // d
          mol->SelectAtoms(SelHnd, 0, "*",
-         mmdb::ANY_RES, "*",
-         mmdb::ANY_RES, "*", "*",
-         "CA,C,N,O,CB,P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
+                          mmdb::ANY_RES, "*",
+                          mmdb::ANY_RES, "*", "*",
+                          "CA,C,N,O,CB,P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
          mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
          // fill the chains - we want to apply the tranformation to the chains, not the atom selection
