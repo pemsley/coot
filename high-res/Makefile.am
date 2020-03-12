@@ -36,8 +36,10 @@ libcoot_high_res_la_SOURCES = high-res.cc coot-atom-graph.cc residue-distortions
 	sequence-assignment.cc
 
 libcoot_high_res_la_LIBADD = \
-   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
+   $(top_builddir)/coords/libcoot-coords.la \
    $(top_builddir)/ligand/libcoot-ligand.la \
+   $(top_builddir)/coot-utils/libcoot-map-utils.la   \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 libcoot_high_res_la_LDFLAGS = $(SHARED_LDFLAGS)
@@ -89,7 +91,9 @@ testatomgraph_LDADD =  libcoot-high-res.la
 ## tracehighres_LDFLAGS = -static 
 
 tracehighres_SOURCES = trace-high-res.cc
-tracehighres_LDADD = libcoot-high-res.la
+
+tracehighres_LDADD = libcoot-high-res.la $(top_builddir)/utils/libcoot-utils.la $(top_builddir)/compat/libcoot-compat.la
+
 
 #tracehighres_LDADD = libcoot-high-res.la                  \
 #	$(top_builddir)/ligand/libcoot-ligand.la          \

@@ -3424,7 +3424,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_KEY_c:
       if (graphics_info_t::control_is_pressed) {
-	 g.copy_active_atom_molecule();
+         g.copy_active_atom_molecule();
       } else {
 	 if (! graphics_info_t::shift_is_pressed) {
 	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
@@ -4131,8 +4131,6 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
    graphics_info_t info;
-
-   std::cout << "here in handle_scroll_density_level_event " << std::endl;
 
    GdkEvent *peek_event = gdk_event_peek();
    if (peek_event) {

@@ -47797,10 +47797,11 @@ distances more than:</property>
 
 <widget class="GtkDialog" id="ncs_control_dialog">
   <property name="visible">True</property>
-  <property name="title" translatable="yes">NCS Control</property>
+  <property name="title" translatable="yes">NCS Ghost Control</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
+  <property name="default_width">400</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -47939,7 +47940,7 @@ distances more than:</property>
 
 	  <child>
 	    <widget class="GtkScrolledWindow" id="scrolledwindow25">
-	      <property name="width_request">281</property>
+	      <property name="width_request">370</property>
 	      <property name="height_request">177</property>
 	      <property name="visible">True</property>
 	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
@@ -60813,7 +60814,7 @@ Bumps</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
   <property name="default_width">805</property>
-  <property name="default_height">400</property>
+  <property name="default_height">550</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>

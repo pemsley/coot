@@ -393,6 +393,14 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 #endif
 
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM model_composition_statistics_scm(int imol);
+#endif
+#ifdef USE_PYTHON
+PyObject *model_composition_statistics_py(int imol);
+#endif
+#endif
 
 
 /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
@@ -3296,6 +3304,8 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 /*! \brief If there is a refinement on-going already, we don't want to start a new one
 
 The is the means to ask if that is the case. This needs a scheme wrapper to provide refinement-already-ongoing?
+The question is translated to "are the intermediate atoms being displayed?" so that might be a more
+accurate function name than the current one.
 
 @return 1 for yes, 0 for no.
 */
@@ -6811,7 +6821,7 @@ void add_pisa_interface_bond_py(int imol_1, int imol_2, PyObject *pisa_bond_py,
 /* clear out and undisplay all pisa interface descriptions. */
 void pisa_clear_interfaces();
 #endif /* USE_PYTHON */
-#endif	/* c++ */
+#endif /* c++ */
 
 
 /* \} */
@@ -6825,15 +6835,26 @@ void pisa_clear_interfaces();
 /*!  \brief jiggle fit to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this residue.  */
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
-				  int n_trials,
-				  float jiggle_scale_factor);
+                                  int n_trials, float jiggle_scale_factor);
 
 /*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this molecule.  */
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
+/*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
+  not possible, else return the new best fit for this molecule - create a map that is blurred
+  by the given factor for fitting  */
+float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+
 /*!  \brief jiggle fit the chain to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor);
+
+/*!  \brief jiggle fit the chain to the current refinment map
+ *
+ * Use a map that is blurred by the give factor for fitting.
+ * @return < -100 if not possible, else return the new best fit for this chain.  */
+float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+
 /* \} */
 
 

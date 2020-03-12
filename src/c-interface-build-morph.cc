@@ -1,5 +1,5 @@
 /* src/c-interface-build.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
@@ -7,17 +7,17 @@
  * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008, 2009, 2010, 2011 The University of Oxford
  * Copyright 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -48,7 +48,7 @@
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #include <windows.h>
 #endif
- 
+
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
@@ -98,7 +98,7 @@
 
 #ifdef USE_DUNBRACK_ROTAMERS
 #include "ligand/dunbrack.hh"
-#else 
+#else
 #include "ligand/richardson-rotamer.hh"
 #endif
 
@@ -142,7 +142,7 @@ int morph_fit_chain(int imol, std::string chain_id, float transformation_averagi
       }
    }
    return success;
-} 
+}
 
 
 #ifdef USE_GUILE
@@ -158,12 +158,12 @@ int morph_fit_residues_py( int imol, PyObject *residue_specs_py, float transform
 
    std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_py);
    return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
-} 
+}
 #endif // USE_PYTHON
 
 int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
 		       float transformation_averaging_radius) {
-   
+
    graphics_info_t g;
    int success = 0;
    int imol_ref_map = g.Imol_Refinement_Map();
@@ -199,15 +199,15 @@ int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain
       }
    } else {
       std::cout << "WARNING:: " << imol << " is not a valid map molecule " << std::endl;
-   } 
+   }
    return success;
-} 
+}
 
 
 // --------------------------------------------------------------------------
 //                   jiggle fit
 // --------------------------------------------------------------------------
-// 
+//
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
 				  int n_trials,
 				  float jiggle_scale_factor) {
@@ -226,7 +226,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
       } else {
 	 std::cout << "WARNING:: Refinement map not set" << std::endl;
 	 add_status_bar_text("Refinement map not set.");
-      } 
+      }
    }
    return val;
 }
@@ -238,18 +238,39 @@ float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
       if (! is_valid_map_molecule(imol_map)) {
-	 info_dialog("WARNING:: Refinement map is not set");
+         info_dialog("WARNING:: Refinement map is not set");
       } else {
-	 float map_sigma = g.molecules[imol_map].map_sigma();
-	 mmdb::PPAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
-	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
-	 bool use_biased_density_scoring = false; // not for all-molecule
-	 val = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-							     g.molecules[imol_map].xmap,
-							     map_sigma,
-							     n_trials, jiggle_scale_factor,
-							     use_biased_density_scoring);
-	 graphics_draw();
+         float map_sigma = g.molecules[imol_map].map_sigma();
+
+         mmdb::Atom **atom_selection = 0; // g.molecules[imol].atom_sel.atom_selection;
+         int n_atoms = 0; // g.molecules[imol].atom_sel.n_selected_atoms;
+
+         // select only main-chain or nucleotide atoms
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         int SelHnd = mol->NewSelection(); // d
+         mol->SelectAtoms(SelHnd, 0, "*",
+                          mmdb::ANY_RES, "*",
+                          mmdb::ANY_RES, "*", "*",
+                          "CA,C,N,O,CB,P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
+         mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+         // fill the chains - we want to apply the tranformation to the chains, not the atom selection
+         std::vector<mmdb::Chain *> chains;
+         mmdb::Model *model_p = mol->GetModel(1);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++)
+               chains.push_back(model_p->GetChain(ichain));
+         }
+
+         bool use_biased_density_scoring = false; // not for all-molecule
+         val = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+                                                             g.molecules[imol_map].xmap,
+                                                             map_sigma,
+                                                             n_trials, jiggle_scale_factor,
+                                                             use_biased_density_scoring, chains);
+         mol->DeleteSelection(SelHnd);
+         graphics_draw();
       }
    }
    return val;
@@ -263,75 +284,89 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
       int imol_map = g.Imol_Refinement_Map();
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       if (! is_valid_map_molecule(imol_map)) {
-	 info_dialog("WARNING:: Refinement map is not set");
+         info_dialog("WARNING:: Refinement map is not set");
       } else {
-	 float map_sigma = g.molecules[imol_map].map_sigma();
-	 
-	 mmdb::PPAtom atom_selection = 0;
-	 int n_atoms;
-
-	 // If we have more than 20 residues, lets do an atom selection and use that
-	 // for fitting rather all the atoms.  No Side chains for protein,
-	 //
-	 std::pair<unsigned int, unsigned int> n_residues(0,0);
-	 mmdb::Chain *chain_p = 0;
-	 int imod = 1;
-	 mmdb::Model *model_p = mol->GetModel(imod);
-	 if (model_p) {
-	    int n_chains = model_p->GetNumberOfChains();
-	    for (int ichain=0; ichain<n_chains; ichain++) {
-	       mmdb::Chain *chain_p_this = model_p->GetChain(ichain);
-	       std::string chain_id_this(chain_p_this->GetChainID());
-	       if (chain_id_this == std::string(chain_id)) {
-		  chain_p = chain_p_this;
-		  break;
-	       }
-	    }
-	 }
-	 if (chain_p)
-	    n_residues = coot::util::get_number_of_protein_or_nucleotides(chain_p);
-
-	 int SelHnd = mol->NewSelection(); // d
-
-	 if (n_residues.first > 20) {
-	    mol->SelectAtoms(SelHnd, 0, chain_id,
-			     mmdb::ANY_RES, "*",
-			     mmdb::ANY_RES, "*", "*",
-			     "CA,C,O,N","*","*",mmdb::SKEY_NEW);
-	 } else {
-	    if (n_residues.second > 20) {
-	       mol->SelectAtoms(SelHnd, 0, chain_id,
-				mmdb::ANY_RES, "*",
-				mmdb::ANY_RES, "*", "*",
-				"P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
-	    } else {
-	       mol->SelectAtoms(SelHnd, 0, chain_id,
-				mmdb::ANY_RES, "*",
-				mmdb::ANY_RES, "*",
-				"*","*","*","*",mmdb::SKEY_NEW);
-	    }
-	 }
-
-	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
-
-	 if (n_atoms) {
-	    bool use_biased_density_scoring = false; // not for all-molecule
-	    val = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-								g.molecules[imol_map].xmap,
-								map_sigma,
-								n_trials, jiggle_scale_factor,
-								use_biased_density_scoring,
-								chain_p);
-	 } else {
-	    add_status_bar_text("Jiggle Fit: No atoms selected.");
-	 }
-
-	 mol->DeleteSelection(SelHnd);
-	 graphics_draw();
-
+         float map_sigma = g.molecules[imol_map].map_sigma();
+         const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+         g.molecules[imol].fit_chain_to_map_by_random_jiggle(chain_id, xmap, map_sigma, n_trials, jiggle_scale_factor);
       }
+   } else {
+      add_status_bar_text("Jiggle Fit: No molecule");
    }
+
+   graphics_draw();
+
    return val;
 }
 
 
+float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, float jiggle_scale_factor, float map_blur_factor) {
+   float r = -100;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      if (! is_valid_map_molecule(imol_map)) {
+         info_dialog("WARNING:: Refinement map is not set");
+      } else {
+         // happy path
+         const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+         clipper::Xmap<float> xmap_blur = coot::util::sharpen_blur_map(xmap, map_blur_factor);
+         float map_sigma = g.molecules[imol_map].map_sigma(); // is that the right map?
+
+         mmdb::Atom **atom_selection = 0;
+         int n_atoms = 0;
+
+         // select only main-chain or nucleotide atoms
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         int SelHnd = mol->NewSelection(); // d
+         mol->SelectAtoms(SelHnd, 0, "*",
+                          mmdb::ANY_RES, "*",
+                          mmdb::ANY_RES, "*", "*",
+                          "CA,C,N,O,CB,P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
+         mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+         // fill the chains - we want to apply the tranformation to the chains, not the atom selection
+         std::vector<mmdb::Chain *> chains;
+         mmdb::Model *model_p = mol->GetModel(1);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++)
+            chains.push_back(model_p->GetChain(ichain));
+         }
+
+         bool use_biased_density_scoring = false; // not for all-molecule
+         r = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+                                                             xmap_blur, map_sigma,
+                                                             n_trials, jiggle_scale_factor,
+                                                             use_biased_density_scoring, chains);
+         mol->DeleteSelection(SelHnd);
+         graphics_draw();
+      }
+   }
+   return r;
+}
+
+/*!  \brief jiggle fit the chain to the current refinment map
+ *
+ * Use a map that is blurred by the give factor for fitting.
+ * @return < -100 if not possible, else return the new best fit for this chain.  */
+float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor) {
+   float r = -100;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      if (! is_valid_map_molecule(imol_map)) {
+         info_dialog("WARNING:: Refinement map is not set");
+      } else {
+         // happy path
+         const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
+         clipper::Xmap<float> xmap_blur = coot::util::sharpen_blur_map(xmap, map_blur_factor);
+         float map_sigma = g.molecules[imol_map].map_sigma(); // is that the right map?
+         g.molecules[imol].fit_chain_to_map_by_random_jiggle(chain_id, xmap_blur, map_sigma, n_trials, jiggle_scale_factor);
+      }
+   }
+   graphics_draw();
+   return r;
+}

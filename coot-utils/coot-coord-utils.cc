@@ -3267,7 +3267,7 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Manager *mol) {
 	 std::string at_alt_conf = test_at->altLoc;
 	 if (spec.atom_name == at_name) {
 	    if (spec.alt_conf == at_alt_conf) {
-	       if (! test_at->isTer()) { 
+	       if (! test_at->isTer()) {
 		  at = test_at;
 		  break;
 	       }
@@ -3294,7 +3294,7 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Residue *res) {
 	 std::string at_alt_conf = test_at->altLoc;
 	 if (spec.atom_name == at_name) {
 	    if (spec.alt_conf == at_alt_conf) {
-	       if (! test_at->isTer()) { 
+	       if (! test_at->isTer()) {
 		  at = test_at;
 		  break;
 	       }
@@ -4316,10 +4316,10 @@ coot::util::deep_copy_this_residue_add_chain(mmdb::Residue *residue,
       residue->GetAtomTable(residue_atoms, nResidueAtoms);
       mmdb::Atom *atom_p;
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 if (! residue_atoms[iat]->isTer()) { 
+	 if (! residue_atoms[iat]->isTer()) {
 	    std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
 	    if (whole_residue_flag ||
-		this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
+		this_atom_alt_loc  == altconf || this_atom_alt_loc == "") {
 	       atom_p = new mmdb::Atom;
 	       atom_p->Copy(residue_atoms[iat]);
 	       rres->AddAtom(atom_p);
@@ -4341,20 +4341,18 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue) {
       rres = new mmdb::Residue;
       rres->seqNum = residue->GetSeqNum();
       strcpy(rres->name, residue->name);
-      // BL says:: should copy insCode too, maybe more things...
       strncpy(rres->insCode, residue->GetInsCode(), 3);
 
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
       residue->GetAtomTable(residue_atoms, nResidueAtoms);
-      mmdb::Atom *atom_p;
    
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 if (! residue_atoms[iat]->isTer()) { 
-	    atom_p = new mmdb::Atom;
-	    atom_p->Copy(residue_atoms[iat]);
-	    rres->AddAtom(atom_p);
-	 }
+         if (! residue_atoms[iat]->isTer()) {
+            mmdb::Atom *atom_p = new mmdb::Atom;
+            atom_p->Copy(residue_atoms[iat]);
+            rres->AddAtom(atom_p);
+         }
       }
    }
    return rres;
@@ -6173,10 +6171,10 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       std::cout << "Mutate Atom Tables" << std::endl;
       std::cout << "Before" << std::endl;
       for(int i=0; i<nResidueAtoms; i++)
-	 std::cout << residue_atoms[i]->name << std::endl;
+         std::cout << residue_atoms[i]->name << std::endl;
       std::cout << "To be replaced by:" << std::endl;
       for(int i=0; i<n_std_ResidueAtoms; i++)
-	 std::cout << std_residue_atoms[i]->name << std::endl;
+         std::cout << std_residue_atoms[i]->name << std::endl;
    }
 
    // only touch the atoms with given alt conf, ignore the others.
@@ -6203,8 +6201,11 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 		  residue->DeleteAtom(i);
 	    }
 	 } else {
-	    residue->DeleteAtom(i);
-	 }
+            // don't delete OXT, but do delete other things
+            std::string atom_name(residue_atoms[i]->GetAtomName());
+            if (atom_name != " OXT")
+               residue->DeleteAtom(i);
+         }
       }
    }
 
@@ -6902,7 +6903,7 @@ coot::util::residue_has_hydrogens_p(mmdb::Residue *res) {
       res->GetAtomTable(residue_atoms, natoms);
       for (int iat=0; iat<natoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 if (! at->isTer()) { 
+	 if (! at->isTer()) {
 	    std::string ele(at->element);
 	    if ((ele == " H") || (ele == " D")) {
 	       result = 1;
@@ -8328,7 +8329,7 @@ coot::util::move_waters_around_protein(mmdb::Manager *mol) {
 
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
-		  if (! at->isTer()) { 
+		  if (! at->isTer()) {
 		     at = residue_p->GetAtom(iat);
 		     clipper::Coord_orth c(at->x, at->y, at->z);
 		     std::pair <mmdb::Atom *, clipper::Coord_orth> pair(at, c);
@@ -9040,7 +9041,7 @@ coot::centre_of_molecule(mmdb::Manager *mol) {
 	 
 	       for (int iat=0; iat<n_residue_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
-		  if (! at->isTer()) { 
+		  if (! at->isTer()) {
 		     xs += at->x;
 		     ys += at->y;
 		     zs += at->z;

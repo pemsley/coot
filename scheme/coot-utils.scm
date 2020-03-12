@@ -4281,3 +4281,14 @@
     (run-python-command python-string)))
 
 
+
+(define (go-to-box-middle)
+
+  (let ((ls (map-molecule-list)))
+    (if (not (null? ls))
+       (let ((imol-map (car ls)))
+         (let ((c (cell imol-map)))
+           (format #t "c ~s~%" c)
+           (apply set-rotation-centre (map (lambda (a) (* a 0.5)) (list-head c 3))))))))
+
+

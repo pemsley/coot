@@ -299,6 +299,7 @@ coot_bin_SOURCES = \
 	c-interface-build-symmetry.cc	 \
 	c-interface-build-gui.cc \
 	c-interface-curlew.cc    \
+	c-interface-curlew.hh    \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
 	c-interface-generic-objects.h	 \
@@ -480,8 +481,10 @@ coot_bin_SOURCES = \
 	ligand-check.hh          \
         map-statistics.hh        \
 	merge-molecule-results-info-t.hh \
+	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
 	molecule-class-info-alignment.cc \
+	molecule-class-info-analysis.cc \
 	molecule-class-info-bonds.cc    \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\

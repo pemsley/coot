@@ -544,8 +544,7 @@ template <class T> void CIsoSurface<T>::GenerateSurface(const T* ptScalarField, 
 template <class T> // vector<CartesianPair>
 std::pair<int, int>
 CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
-			 int isection_start,
-			 int isection_end, int n_sections) const {
+                         int isection_start, int n_section_sets) const {
 
    // we need to include the last section
 
@@ -561,24 +560,30 @@ CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
 
       int grange = gmax - gmin;
 
-      float f1 = static_cast<float>(isection_start)/static_cast<float>(n_sections);
-      float f2 = static_cast<float>(isection_end)/static_cast<float>(n_sections);
+      // float f1 = static_cast<float>(isection_start)/static_cast<float>(n_section_sets);
+      // float f2 = static_cast<float>(isection_end  )/static_cast<float>(n_section_sets);
+
+      // int isection_delta = isection_end - isection_start; // 1
+      int num_sections_per_step = grange / n_section_sets + 1;
 
       // fg2 uses an additional +1 because to get:
 
-      // rangeify input: 0 1 3 gmin 14 gmax 66   output 14 32
-      // rangeify input: 1 2 3 gmin 14 gmax 66   output 31 49
-      // rangeify input: 2 3 3 gmin 14 gmax 66   output 48 67
+      // input: 0 1 n_section_sets 3 gmin 14 gmax 66   output 14 32
+      // input: 1 2 n_section_sets 3 gmin 14 gmax 66   output 31 49
+      // input: 2 3 n_section_sets 3 gmin 14 gmax 66   output 48 67
 
       // This covers the gap between sections - we need both edges
 
-      int fg1 = grange * f1 + gmin;
-      int fg2 = grange * f2 + gmin + 1;
+      // int fg1 = grange * f1 + gmin;
+      // int fg2 = grange * f2 + gmin + 1;
 
-      if (false)
-	 std::cout << ".....rangeify input: " << isection_start << " " << isection_end
-		   << " " << n_sections << " gmin " << gmin << " gmax " << gmax
-		   << "   output " << fg1 << " " << fg2 << std::endl;
+      int fg1 = gmin +  isection_start      * num_sections_per_step;
+      int fg2 = gmin + (isection_start + 1) * num_sections_per_step + 1;
+
+      if (true)
+         std::cout << "rangeify input: start: " << isection_start
+                   << " " << n_section_sets << " gmin " << gmin << " gmax " << gmax
+                   << "   output " << fg1 << " " << fg2 << std::endl;
 
       return std::pair<int, int> (fg1, fg2);
    }
@@ -595,7 +600,7 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  float box_radius, // half length
 					  coot::Cartesian centre_point,
 					  int isample_step,
-					  int iream_start, int iream_end, int n_reams,
+					  int iream_start, int n_reams,
 					  bool is_em_map) {
 
    // std::cout << "------ start GenerateSurface_from_Xmap() " << n_reams << std::endl;
@@ -634,9 +639,11 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 
    //Note that this introduces a rounding step - is this what you want?
    clipper::Grid_map grid(box0.coord_grid(crystal_map.grid_sampling()),
-			  box1.coord_grid(crystal_map.grid_sampling()));
+                          box1.coord_grid(crystal_map.grid_sampling()));
 
-   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, iream_end, n_reams);
+   // iream_end is iream_start + 1;
+
+   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, n_reams);
 
    if (false) { // debug
       std::cout << "    tIsoLevel: " << tIsoLevel << std::endl;
@@ -644,14 +651,15 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
       std::cout << "    centre_point: " << centre_point << std::endl;
       std::cout << "    isample_step " << isample_step << std::endl;
       std::cout << "    iream_start " << iream_start << std::endl;
-      std::cout << "    iream_end " << iream_end << std::endl;
+      // std::cout << "    iream_end " << iream_end << std::endl;
       std::cout << "    n_reams " << n_reams << std::endl;
       std::cout << "    box0: " << box0.format() << std::endl;
       std::cout << "    box1: " << box1.format() << std::endl;
       std::cout << "    grid: " << grid.format() << std::endl;
       std::cout << " limit thing 1: " << (grid.nu()-1)/isample_step << std::endl;
       std::cout << " limit thing 2: " << (grid.nv()-1)/isample_step << std::endl;
-      std::cout << " limit thing 3: " << (rt.second-rt.first-1)/isample_step << std::endl;
+      std::cout << " limit thing 3: " << rt.second-rt.first << std::endl;
+      std::cout << " limit thing 4: " << (rt.second-rt.first-1)/isample_step << std::endl;
    }
 
    // sanity check
@@ -825,7 +833,8 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					    T tIsoLevel,
 					    float box_radius, // half length
 					    coot::Cartesian centre_point,
-					    int isample_step) {
+					    int isample_step,
+                  int iream_start, int n_reams, bool is_em_map) {
 
    coot::density_contour_triangles_container_t tri_con;
 
@@ -883,37 +892,58 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    //   cout << "INFO: box0         is :" << box0.format() << endl;
    //   cout << "INFO: box1         is :" << box1.format() << endl;
 
+   std::pair<int, int> rt = rangeify(grid, isample_step, iream_start, n_reams);
+   clipper::Coord_grid base_grid = grid.min();
+   base_grid.w() = rt.first;
 
-
-   T* ptScalarField = new T[grid.size()];
+   int grid_size = (rt.second-rt.first+1) * (grid.max().u() - grid.min().u() + 1) * (grid.max().v() - grid.min().v() + 1);
+   std::cout << "debug:: allocating ptScalarField grid.size() " << grid_size << std::endl;
+   T* ptScalarField = new T[grid_size];
 
    //cout << "box0: " << box0.format() << endl
    //    << "box1: " << box1.format() << endl;
 
    clipper::Xmap_base::Map_reference_coord ix( crystal_map );
    int icount = 0;
-   for ( int w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) {
+   //for ( int w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) {
+   for (int w = rt.first; w <= rt.second; w+=isample_step) {
       for ( int v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) {
-	 ix.set_coord( clipper::Coord_grid( grid.min().u(), v, w ) );
-	 for ( int u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) {
-	    ptScalarField[icount] = crystal_map[ ix ];
-	    icount++;
-	    for(int ii=0; ii<isample_step; ii++)
-	       ix.next_u();
-	 }
+         ix.set_coord( clipper::Coord_grid( grid.min().u(), v, w ) );
+         for ( int u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) {
+            // std::cout << "ix " << ix.coord().format() << " icount " << icount << std::endl;
+            if (icount < grid_size) {
+               ptScalarField[icount] = crystal_map[ ix ];
+            } else {
+               std::cout << "ERROR:: out of grid " << icount << " " << grid_size << " "
+                         << ix.coord().format() << " min,max "
+                         << grid.min().format() << " " << grid.max().format() << std::endl;
+            }
+            icount++;
+            for(int ii=0; ii<isample_step; ii++)
+               ix.next_u();
+         }
       }
    }
 
+   /*
    GenerateSurface(ptScalarField, tIsoLevel,
 		   (grid.nu()-1)/isample_step,
 		   (grid.nv()-1)/isample_step,
 		   (grid.nw()-1)/isample_step,
 		   isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
+   */
+
+   GenerateSurface(ptScalarField, tIsoLevel,
+                  (grid.nu()-1)/isample_step,
+                  (grid.nv()-1)/isample_step,
+                  (rt.second-rt.first-1)/isample_step,
+                  isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
+
 
    delete [] ptScalarField;
 
    // now fill tri_con
-   clipper::Coord_frac base = grid.min().coord_frac(crystal_map.grid_sampling());
+   clipper::Coord_frac base_frc = base_grid.coord_frac(crystal_map.grid_sampling());
    T nu = crystal_map.grid_sampling().nu();
    T nv = crystal_map.grid_sampling().nv();
    T nw = crystal_map.grid_sampling().nw();
@@ -925,7 +955,7 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    unsigned int max_index = 0;
    for (unsigned int i=0; i < m_nTriangles*3; i++) {
       if (m_piTriangleIndices[i] > max_index)
-	 max_index = m_piTriangleIndices[i];
+	      max_index = m_piTriangleIndices[i];
    }
    tri_con.points.resize(max_index+1);
    tri_con.normals.resize(max_index+1);
@@ -941,13 +971,13 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
 
       clipper::Coord_frac cf_1 = clipper::Coord_frac(m_ppt3dVertices[j][0]/nu,
 						     m_ppt3dVertices[j][1]/nv,
-						     m_ppt3dVertices[j][2]/nw) + base;
+						     m_ppt3dVertices[j][2]/nw) + base_frc;
       clipper::Coord_frac cf_2 = clipper::Coord_frac(m_ppt3dVertices[jp][0]/nu,
 						     m_ppt3dVertices[jp][1]/nv,
-						     m_ppt3dVertices[jp][2]/nw) + base;
+						     m_ppt3dVertices[jp][2]/nw) + base_frc;
       clipper::Coord_frac cf_3 = clipper::Coord_frac(m_ppt3dVertices[jp2][0]/nu,
 						     m_ppt3dVertices[jp2][1]/nv,
-						     m_ppt3dVertices[jp2][2]/nw) + base;
+						     m_ppt3dVertices[jp2][2]/nw) + base_frc;
 
       clipper::Coord_orth co_1 = cf_1.coord_orth(crystal_map.cell());
       clipper::Coord_orth co_2 = cf_2.coord_orth(crystal_map.cell());

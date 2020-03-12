@@ -885,6 +885,7 @@ def pdb_validate(accession_code, imol):
                 gz = gzip.open(gz_file_name)
                 xml_string = gz.read()
                 vi = parse_wwpdb_validation_xml(xml_string)
+                gz.close()
             except IOError as e:
                 print e
             if vi:

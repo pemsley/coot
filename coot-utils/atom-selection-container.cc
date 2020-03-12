@@ -641,7 +641,7 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
       // std::cout << "in make_asc() saving UDDAtomIndexHandle " << uddHnd << std::endl;
       asc.UDDAtomIndexHandle = uddHnd;
       for (int i=0; i<asc.n_selected_atoms; i++)
-	 asc.atom_selection[i]->PutUDData(uddHnd,i);
+         asc.atom_selection[i]->PutUDData(uddHnd,i);
    }
    asc.read_error_message = "No error";
    asc.read_success = 1;

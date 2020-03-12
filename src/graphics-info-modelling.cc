@@ -380,7 +380,7 @@ graphics_info_t::copy_model_molecule(int imol) {
       const std::vector<coot::ghost_molecule_display_t> &ghosts = g.molecules[imol].NCS_ghosts();
       bool shelx_flag = g.molecules[imol].is_from_shelx_ins();
       g.molecules[new_mol_number].install_model_with_ghosts(new_mol_number, asc, g.Geom_p(), label, 1, ghosts,
-							    shelx_flag, false, false);
+                                                            shelx_flag, false, false);
       update_go_to_atom_window_on_new_mol();
       iret = new_mol_number;
    }
@@ -396,7 +396,7 @@ int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initia
                                                                        // the regeneration is activated.
 bool graphics_info_t::threaded_refinement_needs_to_clear_up = false; // for Esc usage
 bool graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms = false; // for Return usage
-bool graphics_info_t::continue_threaded_refinement_loop = true; // also for Esc usage
+bool graphics_info_t::continue_threaded_refinement_loop = false; // also for Esc usage
 int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
 bool graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
 
@@ -438,8 +438,8 @@ graphics_info_t::refinement_loop_threaded() {
       int spf = dragged_refinement_steps_per_frame;
 
       if (graphics_info_t::refinement_of_last_restraints_needs_reset_flag) {
-	 g.last_restraints->set_needs_reset();
-	 graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
+         g.last_restraints->set_needs_reset();
+         graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
       }
 
       // coot::refinement_results_t rr = g.last_restraints->minimize(flags, spf, pr_chi_sqds);
@@ -667,15 +667,14 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(g
       graphics_info_t g; // 37 nanoseconds
 
       if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
-	 std::cout << "---------- now accept moving atoms! " << std::endl;
-	 g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
+         g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
       }
 
       if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
-	 std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
+         std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
                    << std::endl;
-	 g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
-	 g.clear_moving_atoms_object();
+         g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
+         g.clear_moving_atoms_object();
       }
 
       // no need to do this if Esc is pressed.
@@ -1449,6 +1448,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 }
 
 // surely we need to have control of one of the locks before we can do this?
+// 20200220-PE - Sensible comment - I just discovered a crash here.
 //
 void
 graphics_info_t::make_moving_atoms_restraints_graphics_object() {
@@ -1460,28 +1460,28 @@ graphics_info_t::make_moving_atoms_restraints_graphics_object() {
          for (int i=0; i<last_restraints->size(); i++) {
             const coot::simple_restraint &rest = last_restraints->at(i);
             if (rest.restraint_type == coot::BOND_RESTRAINT ||
-		rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+                rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 
                if (rest.target_value > 2.15) {  // no real bond restraints
                   int idx_1 = rest.atom_index_1;
                   int idx_2 = rest.atom_index_2;
-		  mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
-		  mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
-		  if (at_1 && at_2) {
-		     clipper::Coord_orth p1 = coot::co(at_1);
-		     clipper::Coord_orth p2 = coot::co(at_2);
-		     double dd = rest.target_value;
-		     double de = sqrt(clipper::Coord_orth(p1-p2).lengthsq());
-		     bool do_it = true;
-		     std::string atom_name_1 = at_1->GetAtomName();
-		     std::string atom_name_2 = at_2->GetAtomName();
-		     if (atom_name_1 == " CA ")
-			if (atom_name_2 == " CA ")
-			   do_it = false;
-		     if (do_it)
-			moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
-		  }
-	       }
+                  mmdb::Atom *at_1 = moving_atoms_asc->atom_selection[idx_1];
+                  mmdb::Atom *at_2 = moving_atoms_asc->atom_selection[idx_2];
+                  if (at_1 && at_2) {
+                     clipper::Coord_orth p1 = coot::co(at_1);
+                     clipper::Coord_orth p2 = coot::co(at_2);
+                     double dd = rest.target_value;
+                     double de = sqrt(clipper::Coord_orth(p1-p2).lengthsq());
+                     bool do_it = true;
+                     std::string atom_name_1 = at_1->GetAtomName();
+                     std::string atom_name_2 = at_2->GetAtomName();
+                     if (atom_name_1 == " CA ")
+                        if (atom_name_2 == " CA ")
+                           do_it = false;
+                     if (do_it)
+                        moving_atoms_extra_restraints_representation.add_bond(p1, p2, dd, de);
+                  }
+               }
             }
          }
       }
@@ -1657,9 +1657,9 @@ graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidu
 // 		<< residue_from_alt_conf_split_flag << std::endl;
 
       bool embed_in_chain_flag = false; // don't put r in a chain in deep_copy_this_residue()
-					// because we put r in a chain here.
-      r = coot::deep_copy_this_residue(SelResidues[ires], altconf, whole_res_flag,
-				       atom_index_udd, embed_in_chain_flag);
+                                        // because we put r in a chain here.
+      r = coot::deep_copy_this_residue_old_style(SelResidues[ires], altconf, whole_res_flag, 
+                                                 atom_index_udd, embed_in_chain_flag);
       if (r) {
 	 chain->AddResidue(r);
 	 r->seqNum = SelResidues[ires]->GetSeqNum();
@@ -1867,9 +1867,11 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 			 << "had index " << flankers_in_reference_mol[ires]->index
 			 << std::endl;
 
-	    r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
-					     alt_conf, whole_res_flag,
-					     atom_index_udd_handle);
+            // get rid of this function at some stage
+            bool embed_in_chain = false;
+	    r = coot::deep_copy_this_residue_old_style(flankers_in_reference_mol[ires],
+					               alt_conf, whole_res_flag,
+					               atom_index_udd_handle, embed_in_chain);
 
 	    if (r) {
 
@@ -4392,9 +4394,11 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
    // We need to filter out atoms that are not (either the same
    // altconf as atom_index or "")
    //
-   mmdb::Residue *tres = coot::deep_copy_this_residue(residue,
+   // get rid of this function (needs a test)
+   bool embed_in_chain_flag = false;
+   mmdb::Residue *tres = coot::deep_copy_this_residue_old_style(residue, 
 						 std::string(at_rot->altLoc),
-						 0, atom_index_udd);
+						 0, atom_index_udd, embed_in_chain_flag);
    if (!tres) {
       return 0;
    } else {
@@ -4415,13 +4419,8 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
 	 Geom_p()->get_monomer_restraints(monomer_type, imol);
 
-#ifdef USE_DUNBRACK_ROTAMERS
-      coot::dunbrack d(tres, molecules[imol].atom_sel.mol,
-		       rotamer_lowest_probability, 0);
-#else
       coot::richardson_rotamer d(tres, altconf, molecules[imol].atom_sel.mol,
 				 rotamer_lowest_probability, 0);
-#endif // USE_DUNBRACK_ROTAMERS
 
       if (p.first) {
 	 // std::cout << "generate_moving_atoms_from_rotamer " << irot << std::endl;

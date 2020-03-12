@@ -2998,13 +2998,13 @@
 	 
 	 (merge-molecules (list imol-symm-copy) imol)
 
-	 (let ((chain-list (chain-ids imol)))
+         (let ((chain-list (chain-ids imol)))
 
-	   (print-var chain-list)
+           (print-var chain-list)
 
-	   (write-pdb-file imol "sym-merged.pdb")
-	   
-	   (equal? chain-list (list "A" "B" "C" "D" ""  ;; original
+           (write-pdb-file imol "sym-merged.pdb")
+   
+           (equal? chain-list (list "A" "B" "C" "D" ""  ;; original
 				    "E" "F"  ;; merged ligs
 				    "G" "H" "I" "J" "K" ;; protein chain copies
 				    )))))))

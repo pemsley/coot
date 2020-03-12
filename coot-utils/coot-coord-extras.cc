@@ -948,9 +948,10 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                   if (bits[3] == "ALA") { // does this work for strand test also?
                      try {
                         int res_no = string_to_int(bits[0]);
-                        float deviation = string_to_float(bits[6]);
+                        float deviation_flexi      = string_to_float(bits[6]);
+                        float deviation_procrustes = string_to_float(bits[7]);
                         residue_spec_t res_spec(chain_id, res_no, "");
-                        helix_scores[res_spec] = deviation;
+                        helix_scores[res_spec] = deviation_procrustes;
                      }
                      catch (const std::runtime_error &rte) {
                         // residue number was not a number - oh well
@@ -972,9 +973,10 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                   if (bits[3] == "ALA") { // does this work for strand test also?
                      try {
                         int res_no = string_to_int(bits[0]);
-                        float deviation = string_to_float(bits[6]);
+                        float deviation_flexi      = string_to_float(bits[6]);
+                        float deviation_procrustes = string_to_float(bits[7]);
                         residue_spec_t res_spec(chain_id, res_no, "");
-                        strand_scores[res_spec] = deviation;
+                        strand_scores[res_spec] = deviation_procrustes;
                      }
                      catch (const std::runtime_error &rte) {
                         // residue number was not a number - oh well
@@ -993,7 +995,7 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
             std::map<residue_spec_t, double>::const_iterator it_strand;
             it_strand = strand_scores.find(res_spec);
             it_helix  = helix_scores.find(res_spec);
-            if (it_helix != strand_scores.end()) {
+            if (it_helix != helix_scores.end()) {
                if (it_strand != strand_scores.end()) {
                   const double &helix_score(it_helix->second);
                   const double &strand_score(it_strand->second);
@@ -1002,6 +1004,15 @@ coot::util::parse_prosmart_log_and_gen_CO_plot(const std::string &prosmart_log_f
                      << " helix: " << helix_score
                      << " strand: " << strand_score
                      << "\n";
+               }
+            } else {
+               if (false) {
+                  std::cout << "debug:: failed to find residue " << res_spec
+                            << " in " << " helix map of size " << helix_scores.size() << std::endl;
+                  std::map<residue_spec_t, double>::const_iterator it;
+                  for (it=helix_scores.begin(); it!=helix_scores.end(); it++) {
+                     std::cout << "   " << it->first << " " << it->second << std::endl;
+                  }
                }
             }
          }
@@ -1018,7 +1029,9 @@ coot::util::multi_parse_prosmart_log_and_gen_CO_plot() {
       std::vector<std::string> sub_dir_files = glob_files(sub_dir, "*.pdb");
       for (unsigned int j=0; j<sub_dir_files.size(); j++) {
          const std::string &pdb_file = sub_dir_files[j];
+         // std::cout << "pdb_file: " << pdb_file << std::endl;
          std::string code_pdb = util::file_name_non_directory(pdb_file);
+         if (code_pdb.length() > 4) code_pdb = code_pdb.substr(0,4);
          std::string code = util::name_sans_extension(code_pdb);
          std::string code_star = code + "_*";
          // std::cout << "pdb file name: " << pdb_file << " code: " << code << "\n";
@@ -1030,9 +1043,12 @@ coot::util::multi_parse_prosmart_log_and_gen_CO_plot() {
             std::string chain_file = chain_files[k];
             // ha! now I need to strip the directory
             std::string chain_file_file = util::file_name_non_directory(chain_file);
-            if (chain_file_file.length() == 6) {
+            // std::cout << "chain file file:  " << chain_file_file << std::endl;
+            int cff_len = chain_file_file.length();
+            if (cff_len == 6 || cff_len == 14) {
                std::string chain_id(chain_file_file.substr(5,1));
-               std::cout << "chain file " << chain_file << " chain-id: " << chain_id << std::endl;
+               if (cff_len == 14) chain_id = chain_file_file.substr(13,1);
+               // std::cout << "chain file " << chain_file << " chain-id: " << chain_id << std::endl;
                std::string data_file_name = chain_file_file + ".data";
                std::string fn_helix  = chain_file_file + "_helix_A.txt";
                std::string fn_strand = chain_file_file + "_strand_A.txt";

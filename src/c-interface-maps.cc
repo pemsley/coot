@@ -2489,8 +2489,6 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
                                      int imol_map_with_data_attached,
                                      int imol_updating_difference_map) {
 
-   std::cout << "Testing set_auto_updating_sfcalc_genmap()\n";
-
    // we need a notification that imol_model has been modified. Hmm.
    // Maybe the way to do that is that make_bonds type checked looks to see
    // if there is an "update_map" attached/related to this model - and then
@@ -2505,19 +2503,33 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
          if (is_valid_map_molecule(imol_updating_difference_map)) {
             if (map_is_difference_map(imol_updating_difference_map)) {
 
-               std::cout << "--------------- setting up callback!\n";
-               // this is the wrong function, it's just a placeholder,
-               // return an int, take a gpointer.  If it's in molecule_class_info_t
-               // that needs to be a static function.
-               std::cout << "DEBUG:: making a uump " << imol_model
-                         << " " << imol_map_with_data_attached << " " << imol_updating_difference_map
-                         << std::endl;
+               if (false)
+                  std::cout << "DEBUG:: making a uump " << imol_model
+                            << " " << imol_map_with_data_attached << " " << imol_updating_difference_map
+                            << std::endl;
                updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
                updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
                GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
                g_timeout_add(1000, f, u);
             }
          }
+      }
+   }
+}
+
+
+
+//! \brief Go to the centre of the molecule - for Cryo-EM Molecules
+//!
+//!        and recontour at a sensible value.
+void go_to_map_molecule_centre(int imol_map) {
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      coot::util::map_molecule_centre_info_t mmci = coot::util::map_molecule_centre(xmap);
+      if (mmci.success) {
+         graphics_info_t::molecules[imol_map].set_contour_level(mmci.suggested_contour_level);
+         clipper::Coord_orth nc = mmci.updated_centre;
+         set_rotation_centre(nc.x(), nc.y(), nc.z());
       }
    }
 }

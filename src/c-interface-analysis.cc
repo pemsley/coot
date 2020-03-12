@@ -271,3 +271,47 @@ void probe_radius_graph_close_callback( GtkWidget *button,
    gtk_widget_destroy(dialog);
 } 
 
+
+#ifdef USE_GUILE
+SCM model_composition_statistics_scm(int imol) {
+
+   SCM r = SCM_EOL;
+
+   /* 
+Model composition
+   Non-hydrogen atoms
+   Protein residues
+   Zinc ions (or other ligands) 
+
+RMS deviations
+   Bonds
+   Angles
+
+Validation
+   Number of C-beta deviation outliers
+   Atom overlap score [Clash score]
+   Good rotamers (%)
+   Ramachandran plot
+       Favoured
+       Outliers
+   */
+
+   if (is_valid_model_molecule(imol)) {
+      coot::model_composition_stats_t s = graphics_info_t::molecules[imol].get_model_composition_statistics();
+   }
+
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *model_composition_statistics_py(int imol) {
+
+   PyObject *r = Py_False;
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   return r;
+
+}
+#endif

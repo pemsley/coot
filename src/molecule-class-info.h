@@ -141,6 +141,7 @@ namespace molecule_map_type {
 #include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
 #include "clipper-ccp4-map-file-wrapper.hh"
+#include "model-composition-statistics.hh"
 
 namespace coot {
 
@@ -718,7 +719,7 @@ public:        //                      public
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       is_patterson = 0;
       // draw_vectors = NULL;
-      diff_map_draw_vectors = NULL;
+      // diff_map_draw_vectors = NULL;
 
       //
       xskel_is_filled = 0; // not filled.
@@ -844,8 +845,9 @@ public:        //                      public
       n_indices_for_model_triangles = 0;
 
       // draw vectors
-      draw_vector_sets.reserve(120);
+      draw_vector_sets.reserve(120); // more than enough
       draw_vector_sets.resize(120);
+      draw_diff_map_vector_sets.resize(120);
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -1199,7 +1201,7 @@ public:        //                      public
    void update_symmetry();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
-   void anisotropic_atoms();
+   void draw_anisotropic_atoms();
    void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
    void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    void draw_unit_cell_internal(float rsc[8][3]);
@@ -1264,10 +1266,13 @@ public:        //                      public
    //
    // now coot makes many draw_vectors by sending off a "set" - sets of planes - calculated in threads.
    // no need for consolidation before draw time.
-   std::vector<coot::CartesianPairInfo> draw_vector_sets;
+   // just lines: std::vector<coot::CartesianPairInfo> draw_vector_sets;
+   std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
-   const coot::CartesianPair* diff_map_draw_vectors;
-   int n_diff_map_draw_vectors;
+   // const coot::CartesianPair* diff_map_draw_vectors;
+   // int n_diff_map_draw_vectors;
+   std::vector<coot::CartesianPairInfo> draw_diff_map_vector_sets;
 
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
@@ -1451,8 +1456,9 @@ public:        //                      public
    void dynamically_transform(coot::CartesianPairInfo v);
 
    void clear_draw_vecs();
+   void clear_diff_map_draw_vecs();
 
-   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
+   // void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
 
    // for negative the other map.
    //
@@ -2888,6 +2894,12 @@ public:        //                      public
    // atoms or no water atoms).
    float max_water_distance();
 
+   float fit_chain_to_map_by_random_jiggle(const std::string &chain_id, const clipper::Xmap<float> &xmap,
+                                           float map_sigma,
+                                           int n_trials, float jiggle_scale_factor);
+   float fit_molecule_to_map_by_random_jiggle(const clipper::Xmap<float> &xmap,
+                                              float map_sigma, int n_trias, float jiggle_scale_factor);
+
    // jiggle residue (a specific, useful/typical interface to jiggling).
    float fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 				     const clipper::Xmap<float> &xmap,
@@ -2903,7 +2915,7 @@ public:        //                      public
    //
    // called by above
    //
-   // if chain_for_moving is not null, apply the transformation
+   // if chain_for_moving is not empty, apply the transformation
    // the the atoms of chain_for_moving rather than to the atom of atom_selection
    //
    float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
@@ -2913,7 +2925,7 @@ public:        //                      public
 				     int n_trials,
 				     float jiggle_scale_factor,
 				     bool use_biased_density_scoring,
-				     mmdb::Chain *chain_for_moving=0);
+				     std::vector<mmdb::Chain *> chains_for_moving);
 
 #ifdef HAVE_CXX_THREAD
    static void test_jiggle_fit_func(unsigned int thread_index,
@@ -3063,7 +3075,11 @@ public:        //                      public
 
    // --------- (transparent) solid rendering of density ------------------
    // bool draw_it_for_solid_density_surface;  // everything is "solid" now (calculate normals)
-   coot::density_contour_triangles_container_t tri_con;
+
+   // 20200312-PE Now we use draw_vector_sets.
+   // coot::density_contour_triangles_container_t tri_con;
+
+
    coot::density_contour_triangles_container_t tri_con_diff_map_neg; // negative contour
    void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con,
 					bool do_flat_shading) const;
@@ -3461,6 +3477,8 @@ public:        //                      public
 
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
    void set_mean_and_sigma();
+
+   coot::model_composition_stats_t get_model_composition_statistics() const;
 
 };
 

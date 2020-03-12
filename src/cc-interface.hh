@@ -268,6 +268,11 @@ PyObject *amplitude_vs_resolution_py(int mol_map);
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
+//! \brief Go to the centre of the molecule - for Cryo-EM Molecules
+//!
+//!        and recontour at a sensible value.
+void go_to_map_molecule_centre(int imol_map);
+
 //! \brief b-factor from map
 //!
 //! calculate structure factors and use the amplitudes to estimate
@@ -847,6 +852,8 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
 //
 PyObject *get_intermediate_atoms_bonds_representation();
 
+#endif // USE_PYTHON
+
 //! \brief return the continue-updating-refinement-atoms state
 //
 // 0 means off, 1 means on.
@@ -854,7 +861,6 @@ PyObject *get_intermediate_atoms_bonds_representation();
 // will return only after the atoms have finished moving.
 int get_continue_updating_refinement_atoms_state();
 
-#endif // USE_PYTHON
 
 //! \}
 

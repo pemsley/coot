@@ -1351,30 +1351,30 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
    if (g.in_mutate_define) {
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
-	 g.mutate_residue_imol = naii.imol;
-	 g.mutate_residue_atom_index = naii.atom_index;
-	 mmdb::Residue *r = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
+         g.mutate_residue_imol = naii.imol;
+         g.mutate_residue_atom_index = naii.atom_index;
+         mmdb::Residue *r = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
 
-	 // is it sensible to do it two ways like this?  I'm not sure.
-	 // Perhaps there should be one function that wraps both
-	 // methods?
-	 bool is_nuc = 0;
-	 is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
-	 if (! is_nuc)
-	    is_nuc = coot::util::is_nucleotide(r);
+         // is it sensible to do it two ways like this?  I'm not sure.
+         // Perhaps there should be one function that wraps both
+         // methods?
+         bool is_nuc = false;
+         is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
+         if (! is_nuc)
+            is_nuc = coot::util::is_nucleotide(r);
 	 
-	 if (is_nuc) {
-	    GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
-	    gtk_widget_show(w);
-	 } else { 
-	    GtkWidget *widget = wrapped_create_residue_type_chooser_window(1);
-	    gtk_widget_show(widget);
-	 }
-	 g.in_mutate_define = 0;
-	 g.residue_type_chooser_auto_fit_flag = 0;
-	 pick_pending_flag = 0;
-	 normal_cursor();
-	 model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_togglebutton");
+         if (is_nuc) {
+            GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
+            gtk_widget_show(w);
+         } else {
+            GtkWidget *widget = wrapped_create_residue_type_chooser_window(1);
+            gtk_widget_show(widget);
+         }
+         g.in_mutate_define = 0;
+         g.residue_type_chooser_auto_fit_flag = 0;
+         pick_pending_flag = 0;
+         normal_cursor();
+         model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_togglebutton");
       }
    }
 } 
@@ -1386,15 +1386,16 @@ graphics_info_t::check_if_in_mutate_auto_fit_define(GdkEventButton *event) {
    if (g.in_mutate_auto_fit_define) {
       pick_info naii = atom_pick(event);
       if (naii.success == GL_TRUE) {
-	 g.mutate_auto_fit_residue_imol = naii.imol;
-	 g.mutate_auto_fit_residue_atom_index = naii.atom_index;
-	 GtkWidget *widget = wrapped_create_residue_type_chooser_window(0);
-	 gtk_widget_show(widget);
-	 g.in_mutate_auto_fit_define = 0;
-	 g.residue_type_chooser_auto_fit_flag = 1;
-	 pick_pending_flag = 0;
-	 normal_cursor();
-	 model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_auto_fit_togglebutton");
+         g.mutate_auto_fit_residue_imol = naii.imol;
+         g.mutate_auto_fit_residue_atom_index = naii.atom_index;
+         GtkWidget *widget = wrapped_create_residue_type_chooser_window(0);
+         gtk_widget_show(widget);
+         g.in_mutate_auto_fit_define = 0;
+         g.residue_type_chooser_auto_fit_flag = 1;
+         pick_pending_flag = 0;
+         normal_cursor();
+         model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_auto_fit_togglebutton");
+         run_post_manipulation_hook(naii.imol, MOVINGATOMS);
       }
    } 
 }

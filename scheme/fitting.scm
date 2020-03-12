@@ -161,9 +161,6 @@
         (res-no   (list-ref res-spec 2))
         (ins-code (list-ref res-spec 3)))
 
-    (debug-var res-spec)
-    (debug-var imol-map)
-
     (let ((res-name  (residue-name imol chain-id res-no ins-code)))
       (if (string? res-name)
 	  (if (not (string=? res-name "HOH"))

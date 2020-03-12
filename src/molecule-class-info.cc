@@ -653,7 +653,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 
 void
-molecule_class_info_t::anisotropic_atoms() {
+molecule_class_info_t::draw_anisotropic_atoms() {
 
    int c; // atom colour
 
@@ -1723,8 +1723,8 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    // n_draw_vectors = 0;
    // draw_vectors = NULL;
 
-   n_diff_map_draw_vectors = 0;
-   diff_map_draw_vectors = NULL;
+   // n_diff_map_draw_vectors = 0;
+   // diff_map_draw_vectors = NULL;
 
    xmap_is_diff_map = is_diff_map;
 
@@ -4501,31 +4501,31 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
           std::string atom_name(at->name);
           std::string alt_conf(at->altLoc);
           if (plane_atom_expanded_name == atom_name) {
-     if (pp.plane_1_atoms.alt_conf == alt_conf) {
-        p_1_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
-     }
+             if (pp.plane_1_atoms.alt_conf == alt_conf) {
+                p_1_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+             }
           }
        }
     }
     // second plane
-    residue_atoms = 0;
-    r_2->GetAtomTable(residue_atoms, n_residue_atoms);
-    std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
-    for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
-       std::string plane_atom_expanded_name =
+   residue_atoms = 0;
+   r_2->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::cout << "second plane " << coot::residue_spec_t(r_2) << std::endl;
+   for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
+      std::string plane_atom_expanded_name =
           dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
-       for (int iat=0; iat<n_residue_atoms; iat++) {
-          mmdb::Atom *at = residue_atoms[iat];
-          std::string atom_name(at->name);
-          std::string alt_conf(at->altLoc);
-          if (false)
-     std::cout << "comparing ref-plane-name \"" << plane_atom_expanded_name << "\" and molecule atom name \""
-       << atom_name << "\"" << std::endl;
-          if (plane_atom_expanded_name == atom_name) {
-     if (pp.plane_2_atoms.alt_conf == alt_conf) {
-        p_2_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
-     }
-          }
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string atom_name(at->name);
+         std::string alt_conf(at->altLoc);
+         if (false)
+            std::cout << "comparing ref-plane-name \"" << plane_atom_expanded_name << "\" and molecule atom name \""
+                      << atom_name << "\"" << std::endl;
+         if (plane_atom_expanded_name == atom_name) {
+            if (pp.plane_2_atoms.alt_conf == alt_conf) {
+               p_2_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+            }
+         }
        }
     }
 
@@ -4904,31 +4904,31 @@ molecule_class_info_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_ma
    bool matches = false;
    if (atom_sel.n_selected_atoms > 0) {
       if (this_mol_index_maybe >= atom_sel.n_selected_atoms) {
-    return false;
+	 return false;
       } else {
-    std::string atom_name_mov = at->name;
-    std::string ins_code_mov  = at->GetInsCode();
-    std::string alt_conf_mov  = at->altLoc;
-    std::string chain_id_mov  = at->GetChainID();
-    int resno_mov = at->GetSeqNum();
+	 std::string atom_name_mov = at->name;
+	 std::string ins_code_mov  = at->GetInsCode();
+	 std::string alt_conf_mov  = at->altLoc;
+	 std::string chain_id_mov  = at->GetChainID();
+	 int resno_mov = at->GetSeqNum();
 
-    std::string atom_name_ref = atom_sel.atom_selection[this_mol_index_maybe]->name;
-    std::string ins_code_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetInsCode();
-    std::string alt_conf_ref  = atom_sel.atom_selection[this_mol_index_maybe]->altLoc;
-    std::string chain_id_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetChainID();
-    int resno_ref = atom_sel.atom_selection[this_mol_index_maybe]->GetSeqNum();
+	 std::string atom_name_ref = atom_sel.atom_selection[this_mol_index_maybe]->name;
+	 std::string ins_code_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetInsCode();
+	 std::string alt_conf_ref  = atom_sel.atom_selection[this_mol_index_maybe]->altLoc;
+	 std::string chain_id_ref  = atom_sel.atom_selection[this_mol_index_maybe]->GetChainID();
+	 int resno_ref = atom_sel.atom_selection[this_mol_index_maybe]->GetSeqNum();
 
-    if (atom_name_ref == atom_name_mov) {
-       if (ins_code_ref == ins_code_mov) {
-          if (resno_ref == resno_mov) {
-     if (alt_conf_ref == alt_conf_mov) {
-        if (chain_id_mov == chain_id_ref) { // 20170612 extra condition added, Oliver Clarke bug
-   matches = true;
-        }
-     }
-          }
-       }
-    }
+	 if (atom_name_ref == atom_name_mov) {
+	    if (ins_code_ref == ins_code_mov) {
+	       if (resno_ref == resno_mov) {
+		  if (alt_conf_ref == alt_conf_mov) {
+		     if (chain_id_mov == chain_id_ref) { // 20170612 extra condition added, Oliver Clarke bug
+			matches = true;
+		     }
+		  }
+	       }
+	    }
+	 }
       }
    }
    return matches;
@@ -4949,10 +4949,10 @@ int molecule_class_info_t::atom_index(const char *chain_id, int iresno, const ch
    int n = atom_sel.n_selected_atoms;
    for (int i=0; i<n; i++) {
       if ( ( ! strcmp(atom_id,atom_sel.atom_selection[i]->name) ) &&
-      (atom_sel.atom_selection[i]->residue->seqNum == iresno)  &&
-      ( ! strcmp(chain_id,atom_sel.atom_selection[i]->residue->GetChainID()) )
-      ) {
-    return i;
+	   (atom_sel.atom_selection[i]->residue->seqNum == iresno)  &&
+	   ( ! strcmp(chain_id,atom_sel.atom_selection[i]->residue->GetChainID()) )
+	   ) {
+	 return i;
       }
    }
 
@@ -4960,8 +4960,8 @@ int molecule_class_info_t::atom_index(const char *chain_id, int iresno, const ch
 }
 int
 molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain_id,
-                     		        int iresno,
-                           const std::string &ins_code) const {
+		                  		        int iresno,
+				                        const std::string &ins_code) const {
 
    bool tacf = 0; // test_alt_conf_flag
    return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, "", tacf);
@@ -4969,9 +4969,9 @@ molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain
 
 int
 molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain_id,
-                     		        int iresno,
-                           const std::string &ins_code,
-   const std::string &alt_conf) const {
+		                  		        int iresno,
+				                        const std::string &ins_code,
+							const std::string &alt_conf) const {
 
    bool tacf = 1; // test_alt_conf_flag
    return atom_index_first_atom_in_residue_internal(chain_id, iresno, ins_code, alt_conf, tacf);
@@ -4980,43 +4980,43 @@ molecule_class_info_t::atom_index_first_atom_in_residue(const std::string &chain
 
 int
 molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::string &chain_id,
-    int iresno,
-    const std::string &ins_code,
-    const std::string &alt_conf,
-    bool test_alt_conf_flag) const {
+								 int iresno,
+								 const std::string &ins_code,
+								 const std::string &alt_conf,
+								 bool test_alt_conf_flag) const {
 
    int index = -1; // failure
    int selHnd = atom_sel.mol->NewSelection();
    int nSelResidues;
    mmdb::PPResidue SelResidues;
    atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
-   chain_id.c_str(),
-   iresno, ins_code.c_str(),
-   iresno, ins_code.c_str(),
-   "*",  // residue name
-   "*",  // Residue must contain this atom name?
-   "*",  // Residue must contain this Element?
-   "*",  // altLocs
-   mmdb::SKEY_NEW // selection key
-   );
+			chain_id.c_str(),
+			iresno, ins_code.c_str(),
+			iresno, ins_code.c_str(),
+			"*",  // residue name
+			"*",  // Residue must contain this atom name?
+			"*",  // Residue must contain this Element?
+			"*",  // altLocs
+			mmdb::SKEY_NEW // selection key
+			);
    atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
    if (nSelResidues > 0) {
       int ic = -1;
       for (int ires=0; ires<nSelResidues; ires++) {
-    int natoms;
-    mmdb::PPAtom residue_atoms;
-    SelResidues[ires]->GetAtomTable(residue_atoms, natoms);
-    for (int iatom=0; iatom<natoms; iatom++) {
-       if (test_alt_conf_flag == 0
-   || alt_conf == residue_atoms[iatom]->altLoc) {
-          if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
-     index = ic;
-     break;
-          }
-       }
-    }
-    if (index > -1)
-       break;
+	 int natoms;
+	 mmdb::PPAtom residue_atoms;
+	 SelResidues[ires]->GetAtomTable(residue_atoms, natoms);
+	 for (int iatom=0; iatom<natoms; iatom++) {
+	    if (test_alt_conf_flag == 0
+		|| alt_conf == residue_atoms[iatom]->altLoc) {
+	       if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
+		  index = ic;
+		  break;
+	       }
+	    }
+	 }
+	 if (index > -1)
+	    break;
       }
    }
    atom_sel.mol->DeleteSelection(selHnd);
@@ -5045,18 +5045,18 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    // debug::
    if (debug) {
       std::cout << "DEBUG:: --------------- replace_coords replacing "
-      << asc.n_selected_atoms << " atoms " << std::endl;
+		<< asc.n_selected_atoms << " atoms " << std::endl;
       for (int i=0; i<asc.n_selected_atoms; i++) {
-         mmdb::Atom *atom = asc.atom_selection[i];
-         bool is_ter_state = atom->isTer();
-         std::cout << "DEBUG:: in replace_coords, intermediate atom: chain-id :"
-         << atom->residue->GetChainID() <<  ": "
-         << atom->residue->seqNum << " inscode \""
-         << atom->GetInsCode() << "\" name \""
-         << atom->name << "\" altloc \""
-         << atom->altLoc << "\" occupancy: "
-         << atom->occupancy << " :"
-         << " TER state: " << is_ter_state << std::endl;
+	 mmdb::Atom *atom = asc.atom_selection[i];
+	 bool is_ter_state = atom->isTer();
+	 std::cout << "DEBUG:: in replace_coords, intermediate atom: chain-id :"
+		   << atom->residue->GetChainID() <<  ": "
+		   << atom->residue->seqNum << " inscode \""
+		   << atom->GetInsCode() << "\" name \""
+		   << atom->name << "\" altloc \""
+		   << atom->altLoc << "\" occupancy: "
+		   << atom->occupancy << " :"
+		   << " TER state: " << is_ter_state << std::endl;
       }
    }
 
@@ -5239,7 +5239,7 @@ molecule_class_info_t::movable_atom(mmdb::Atom *mol_atom, bool replace_coords_wi
    if ((mol_atom->occupancy < 0.0001) &&
        (mol_atom->occupancy > -0.0001))
       if (replace_coords_with_zero_occ_flag == 0)
-    m = 0; // zero occupancy and "dont move zero occ atoms is set"
+	 m = 0; // zero occupancy and "dont move zero occ atoms is set"
    return m;
 }
 
@@ -5264,11 +5264,11 @@ molecule_class_info_t::insert_coords(const atom_selection_container_t &asc) {
 
       // pointer comparison
       if (asc.mol == atom_sel.mol) {
-    std::cout << "ERROR:: matching asc.mol and atom_sel.mol in insert_coords\n";
-    std::cout << "ERROR:: new algorithm required\n";
+	 std::cout << "ERROR:: matching asc.mol and atom_sel.mol in insert_coords\n";
+	 std::cout << "ERROR:: new algorithm required\n";
       } else {
          make_backup(); // checks backup_this_molecule
-    insert_coords_internal(asc);
+	 insert_coords_internal(asc);
       }
    }
 }
@@ -5296,27 +5296,28 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
       int udd_atom_index = asc.UDDAtomIndexHandle;
 
       for (int ires_asc=0; ires_asc<nres_asc; ires_asc++) {
-    mmdb::Residue *asc_residue = asc_chain->GetResidue(ires_asc);
+	 mmdb::Residue *asc_residue = asc_chain->GetResidue(ires_asc);
 
-    // Now find the corresponding chain in our atom_sel.mol:
+	 // Now find the corresponding chain in our atom_sel.mol:
 
-    mmdb::Chain *chain;
-    int imodel = 1;
-    int n_chains = atom_sel.mol->GetNumberOfChains(imodel);
-    for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	 mmdb::Chain *chain;
+	 int imodel = 1;
+	 int n_chains = atom_sel.mol->GetNumberOfChains(imodel);
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
 
-       chain = atom_sel.mol->GetChain(1,i_chain);
+	    chain = atom_sel.mol->GetChain(1,i_chain);
 
-       // test chains
-       std::string asc_chain_str(asc_chain->GetChainID());
-       std::string mol_chain_str(    chain->GetChainID());
+	    // test chains
+	    std::string asc_chain_str(asc_chain->GetChainID());
+	    std::string mol_chain_str(    chain->GetChainID());
 // 	    std::cout << "comparig chain ids :" << asc_chain_str << ": :"
 // 		      << mol_chain_str << ":" << std::endl;
-       if (asc_chain_str == mol_chain_str) {
+	    if (asc_chain_str == mol_chain_str) {
 
-          // insert that residue!
-          mmdb::PResidue res =
-     coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
+	       // insert that residue!
+               bool embed_in_chain_flag = false;
+               // use the coot-utils function, not this one
+	       mmdb::PResidue res = coot::deep_copy_this_residue_old_style(asc_residue, "", 1, udd_atom_index, embed_in_chain_flag);
 // 	       std::cout  << "DEBUG:: inserting residue in chain "
 // 			  << mol_chain << " residue number "
 // 			  << asc_residue->GetSeqNum()
@@ -5324,70 +5325,70 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 // 			  << " ires_asc = " << ires_asc
 // 			  << std::endl;
 
-          std::pair<int, mmdb::Residue *> serial_number =
-     find_serial_number_for_insert(asc_residue->GetSeqNum(),
-   asc_residue->GetInsCode(),
-   mol_chain_str);
+	       std::pair<int, mmdb::Residue *> serial_number =
+		  find_serial_number_for_insert(asc_residue->GetSeqNum(),
+						asc_residue->GetInsCode(),
+						mol_chain_str);
 
 // 	       std::cout << "DEBUG:: returned serial_number: " << serial_number
 // 			 << std::endl;
 
-          if (res) {
+	       if (res) {
 
-     if (serial_number.first != -1) {
-        // insert at this position (other residues are
-        // shifted up).
-        chain->InsResidue(res, serial_number.first);
-        coot::copy_segid(serial_number.second, res);
-        inserted = 1;
-     } else {
+		  if (serial_number.first != -1) {
+		     // insert at this position (other residues are
+		     // shifted up).
+		     chain->InsResidue(res, serial_number.first);
+		     coot::copy_segid(serial_number.second, res);
+		     inserted = 1;
+		  } else {
 
-        // std::cout << "DEBUG:: insert_coords_internal() add residue\n";
-        mmdb::Residue *last_residue = last_residue_in_chain(chain);
-        if (last_residue) {
+		     // std::cout << "DEBUG:: insert_coords_internal() add residue\n";
+		     mmdb::Residue *last_residue = last_residue_in_chain(chain);
+		     if (last_residue) {
 
-   if (0) {   // debug::
-      int nat = last_residue->GetNumberOfAtoms();
-      for (int iat=0; iat<nat; iat++) {
-         std::cout << iat << " of " << nat << " "
-   << last_residue->GetAtom(iat) << std::endl;
-      }
-   }
+			if (0) {   // debug::
+			   int nat = last_residue->GetNumberOfAtoms();
+			   for (int iat=0; iat<nat; iat++) {
+			      std::cout << iat << " of " << nat << " "
+					<< last_residue->GetAtom(iat) << std::endl;
+			   }
+			}
 
-   chain->AddResidue(res);
-   coot::copy_segid(last_residue, res);
-   inserted = 1;
-        }
-     }
-          }
-       }
-       //if (inserted) break;
-    }
+			chain->AddResidue(res);
+			coot::copy_segid(last_residue, res);
+			inserted = 1;
+		     }
+		  }
+	       }
+	    }
+	    //if (inserted) break;
+	 }
 
 
-    if (! inserted) {
-       // OK, there was no chain in the current mol that matches
-       // the chain of the asc.
-       // Let's copy the asc chain and add it to atom_sel.mol
-       mmdb::Chain *new_chain = new mmdb::Chain;
-       int imodel = 1;
-       mmdb::Model *this_model = atom_sel.mol->GetModel(imodel);
-       this_model->AddChain(new_chain);
-       new_chain->SetChainID(asc_chain->GetChainID());
+	 if (! inserted) {
+	    // OK, there was no chain in the current mol that matches
+	    // the chain of the asc.
+	    // Let's copy the asc chain and add it to atom_sel.mol
+	    mmdb::Chain *new_chain = new mmdb::Chain;
+	    int imodel = 1;
+	    mmdb::Model *this_model = atom_sel.mol->GetModel(imodel);
+	    this_model->AddChain(new_chain);
+	    new_chain->SetChainID(asc_chain->GetChainID());
 
-       std::cout << "DEBUG:: Creating a new chain " << asc_chain->GetChainID()
-         << std::endl;
+	    std::cout << "DEBUG:: Creating a new chain " << asc_chain->GetChainID()
+		      << std::endl;
+            bool embed_in_chain_flag = false;
+            // use the coot-utils function, not this one
+	    mmdb::Residue *res = coot::deep_copy_this_residue_old_style(asc_residue, "", 1, udd_atom_index, embed_in_chain_flag);
+	    if (res) {
+	       new_chain->AddResidue(res);
+	       atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
+	                                         // new Chain to atom_sel.mol
+	    }
 
-       mmdb::Residue *res =
-          coot::deep_copy_this_residue(asc_residue, "", 1, udd_atom_index);
-       if (res) {
-          new_chain->AddResidue(res);
-          atom_sel.mol->FinishStructEdit(); // so that we don't keep adding a
-                                            // new Chain to atom_sel.mol
-       }
-
-    }
-    //if (inserted) break;
+	 }
+	 //if (inserted) break;
       }
       //if (inserted) break;
    }
@@ -5424,13 +5425,13 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
    if (is_from_shelx_ins_flag) {
       // OK, what was the occupancy?
       if (asc.n_selected_atoms > 0) {
-    float occ = asc.atom_selection[0]->occupancy;
+	 float occ = asc.atom_selection[0]->occupancy;
 // 	 std::cout << "DEBUG:: IN insert_coords_change_altconf adding fvar "
 // 		   << occ << std::endl;
-    shelx_occ_fvar_number = 10 * shelxins.add_fvar(occ); // FVAR 1 is not written
-    // to SHELX file so if shelx ins file has 1 FVAR value, then we've just
-    // created shelx FVAR 3.
-    shelx_occ_fvar_number += 1;  // so thats (e.g.) 1 x the 20th FVAR
+	 shelx_occ_fvar_number = 10 * shelxins.add_fvar(occ); // FVAR 1 is not written
+	 // to SHELX file so if shelx ins file has 1 FVAR value, then we've just
+	 // created shelx FVAR 3.
+	 shelx_occ_fvar_number += 1;  // so thats (e.g.) 1 x the 20th FVAR
       }
    }
 
@@ -5453,64 +5454,64 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 
       int selHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->SelectAtoms(selHnd, 0, chain_id,
-   resno, inscode,
-   resno, inscode,
-   "*", // residue name
-   atom_name,
-   "*",
-   "*"); // alt-loc
+				resno, inscode,
+				resno, inscode,
+				"*", // residue name
+				atom_name,
+				"*",
+				"*"); // alt-loc
       int nSelAtoms;
       mmdb::PPAtom local_SelAtom;
       atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
       if (nSelAtoms == 0) {
-    // debugging
+	 // debugging
 // 	       std::cout << "add alt conf: skipping " << atom_name << "/"
 // 		<< resno << "/" << chain_id << " in this molecule: ("
 // 		<<  imol_no << ") " << name_ << std::endl;
       } else {
 
-    // Let's deal with every atom in this residue that that has
-    // the same atom name.
+	 // Let's deal with every atom in this residue that that has
+	 // the same atom name.
 
-    // first check for atoms with alt conf "" and move them over if needed
-    for (int iat=0; iat<nSelAtoms; iat++) {
-       std::string current_alt_conf = local_SelAtom[iat]->altLoc;
-       if (current_alt_conf == "") {
-          std::string new_alt_conf("A");
-          // force it down the atom's throat :)
-          strncpy(local_SelAtom[0]->altLoc, new_alt_conf.c_str(), 2);
-       }
-    }
+	 // first check for atoms with alt conf "" and move them over if needed
+	 for (int iat=0; iat<nSelAtoms; iat++) {
+	    std::string current_alt_conf = local_SelAtom[iat]->altLoc;
+	    if (current_alt_conf == "") {
+	       std::string new_alt_conf("A");
+	       // force it down the atom's throat :)
+	       strncpy(local_SelAtom[0]->altLoc, new_alt_conf.c_str(), 2);
+	    }
+	 }
 
-    if (shelx_occ_fvar_number == -1) {
-       // i.e. was not from a shelx ins file (normal case):
-       //
-       // now stuff occupancies in...
-       for (int iat=0; iat<nSelAtoms; iat++) {
-          // local_SelAtom[0]->occupancy = 1.0 - occ; // complemetary (1+1 atom case)
-          local_SelAtom[iat]->occupancy -= occ/float(nSelAtoms); // complemetary (general case)
+	 if (shelx_occ_fvar_number == -1) {
+	    // i.e. was not from a shelx ins file (normal case):
+	    //
+	    // now stuff occupancies in...
+	    for (int iat=0; iat<nSelAtoms; iat++) {
+	       // local_SelAtom[0]->occupancy = 1.0 - occ; // complemetary (1+1 atom case)
+	       local_SelAtom[iat]->occupancy -= occ/float(nSelAtoms); // complemetary (general case)
 
-          // 20091227 But don't add atoms with negative
-          // occupancy, e.g. the residue before the split was at
-          // zero occupancy.
-          if (local_SelAtom[iat]->occupancy < 0.0)
-     local_SelAtom[iat]->occupancy = 0.0;
-       }
+	       // 20091227 But don't add atoms with negative
+	       // occupancy, e.g. the residue before the split was at
+	       // zero occupancy.
+	       if (local_SelAtom[iat]->occupancy < 0.0)
+		  local_SelAtom[iat]->occupancy = 0.0;
+	    }
 
-    } else {
+	 } else {
 
-       // This is the SHELX case:
-       if (nSelAtoms > 1) {
-          // so we added an alt conf to a residue that already
-          // has an alt conf.  This involves messing with SUMP.
-          // Let's not handle that for now.
-          std::cout << "WARNING:: SHELX occupancy handler under-resourced on handling "
-    << at << std::endl;
-       }  else {
-          local_SelAtom[0]->occupancy = -shelx_occ_fvar_number;
-       }
-    }
+	    // This is the SHELX case:
+	    if (nSelAtoms > 1) {
+	       // so we added an alt conf to a residue that already
+	       // has an alt conf.  This involves messing with SUMP.
+	       // Let's not handle that for now.
+	       std::cout << "WARNING:: SHELX occupancy handler under-resourced on handling "
+			 << at << std::endl;
+	    }  else {
+	       local_SelAtom[0]->occupancy = -shelx_occ_fvar_number;
+	    }
+	 }
       }
       atom_sel.mol->DeleteSelection(selHnd);
    }
@@ -5528,7 +5529,7 @@ molecule_class_info_t::insert_coords_change_altconf(const atom_selection_contain
 //
 void
 molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_selection_container_t &asc,
-    int shelx_occ_fvar_number) {
+								 int shelx_occ_fvar_number) {
 
    char *chain_id;
    char *atom_name;
@@ -5555,55 +5556,55 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
       int nSelResidues;
       mmdb::PPResidue SelResidues;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
-      chain_id,
-      resno, "*",
-      resno, "*",
-      "*",  // residue name
-      "*",  // Residue must contain this atom name?
-      "*",  // Residue must contain this Element?
-      "*",  // altLocs
-      mmdb::SKEY_NEW // selection key
-      );
+			   chain_id,
+			   resno, "*",
+			   resno, "*",
+			   "*",  // residue name
+			   "*",  // Residue must contain this atom name?
+			   "*",  // Residue must contain this Element?
+			   "*",  // altLocs
+			   mmdb::SKEY_NEW // selection key
+			   );
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
       if (nSelResidues != 1) {
-    std::cout << "ERROR:: something broken in residue selection in ";
-    std::cout << "insert_coords_atoms_into_residue_internal: got " << nSelResidues
-      << " residues." << std::endl;
+	 std::cout << "ERROR:: something broken in residue selection in ";
+	 std::cout << "insert_coords_atoms_into_residue_internal: got " << nSelResidues
+		   << " residues." << std::endl;
       } else {
-    mmdb::Atom *t = new mmdb::Atom;
-    t->Copy(at);
-    SelResidues[0]->AddAtom(t);
-    // if these coords were from a shelx ins file, then we are
-    // passed the free varible number (FVAR) for this atom's
-    // occupancy.
-    if (shelx_occ_fvar_number > 1)
-       t->occupancy = shelx_occ_fvar_number;
+	 mmdb::Atom *t = new mmdb::Atom;
+	 t->Copy(at);
+	 SelResidues[0]->AddAtom(t);
+	 // if these coords were from a shelx ins file, then we are
+	 // passed the free varible number (FVAR) for this atom's
+	 // occupancy.
+	 if (shelx_occ_fvar_number > 1)
+	    t->occupancy = shelx_occ_fvar_number;
 
-    // If these coords were from a shelx ins file, then we need
-    // to copy the AFIX numbers too:
-    int afix_number; // set by getUDD
-    if (afix_handle_intermediate_mol > -1) {
-       int ierr = at->GetUDData(afix_handle_intermediate_mol, afix_number);
-       if (ierr == mmdb::UDDATA_Ok) {
-          if (afix_handle_this_mol > -1) {
-     t->PutUDData(afix_handle_this_mol, afix_number);
-          } else {
-     std::cout << "ERROR:: bad afix handle for this molecule in "
-       << "insert_coords_atoms_into_residue_internal"
-       << afix_handle_this_mol << " " << at << std::endl;
-          }
+	 // If these coords were from a shelx ins file, then we need
+	 // to copy the AFIX numbers too:
+	 int afix_number; // set by getUDD
+	 if (afix_handle_intermediate_mol > -1) {
+	    int ierr = at->GetUDData(afix_handle_intermediate_mol, afix_number);
+	    if (ierr == mmdb::UDDATA_Ok) {
+	       if (afix_handle_this_mol > -1) {
+		  t->PutUDData(afix_handle_this_mol, afix_number);
+	       } else {
+		  std::cout << "ERROR:: bad afix handle for this molecule in "
+			    << "insert_coords_atoms_into_residue_internal"
+			    << afix_handle_this_mol << " " << at << std::endl;
+	       }
 
  	    } else {
-          if (is_from_shelx_ins_flag)
-     std::cout << "ERROR:: attempt to get UDD afix number from "
-       << "intermediate molecule failed " << at << std::endl;
+	       if (is_from_shelx_ins_flag)
+		  std::cout << "ERROR:: attempt to get UDD afix number from "
+			    << "intermediate molecule failed " << at << std::endl;
  	    }
-    } else {
-       std::cout << "ERROR:: bad afix handle for intermediate molecule in "
-         << "insert_coords_atoms_into_residue_internal"
-         << afix_handle_intermediate_mol << " " << at << std::endl;
-    }
+	 } else {
+	    std::cout << "ERROR:: bad afix handle for intermediate molecule in "
+		      << "insert_coords_atoms_into_residue_internal"
+		      << afix_handle_intermediate_mol << " " << at << std::endl;
+	 }
       }
       atom_sel.mol->DeleteSelection(selHnd);
    }
@@ -5618,8 +5619,8 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 // return -1 on error.
 std::pair<int, mmdb::Residue *>
 molecule_class_info_t::find_serial_number_for_insert(int seqnum_for_new,
-        const std::string &ins_code_for_new,
-        const std::string &chain_id) const {
+						     const std::string &ins_code_for_new,
+						     const std::string &chain_id) const {
 
    int iserial_no = -1;
    std::pair<int, std::string> current_diff(999999, "");
@@ -5632,37 +5633,37 @@ molecule_class_info_t::find_serial_number_for_insert(int seqnum_for_new,
 
       if (chain_p) {
 
-         std::string mol_chain(chain_p->GetChainID());
+	 std::string mol_chain(chain_p->GetChainID());
 
-         if (chain_id == mol_chain) {
+	 if (chain_id == mol_chain) {
 
-       // Find the first residue that has either the residue number or insertion code
-       // greater than the passed parameters
+	    // Find the first residue that has either the residue number or insertion code
+	    // greater than the passed parameters
 
-       int nres = chain_p->GetNumberOfResidues();
-       for (int ires=0; ires<nres; ires++) { // ires is a serial number
-          mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 
-          // we need to consider insertion codes here
+	       // we need to consider insertion codes here
 
-          int diff = residue_p->GetSeqNum() - seqnum_for_new;
+	       int diff = residue_p->GetSeqNum() - seqnum_for_new;
 
-          if (diff > 0) {
-     res = residue_p;
-     iserial_no = ires;
-     break;
-          } else {
-     if (diff == 0) {
-        std::string ins_code_this = residue_p->GetInsCode();
-        if (ins_code_this > ins_code_for_new) {
-   res = residue_p;
-   iserial_no = ires;
-   break;
-        }
-     }
-          }
-       }
-    }
+	       if (diff > 0) {
+		  res = residue_p;
+		  iserial_no = ires;
+		  break;
+	       } else {
+		  if (diff == 0) {
+		     std::string ins_code_this = residue_p->GetInsCode();
+		     if (ins_code_this > ins_code_for_new) {
+			res = residue_p;
+			iserial_no = ires;
+			break;
+		     }
+		  }
+	       }
+	    }
+	 }
       }
    }
    return std::pair<int, mmdb::Residue *> (iserial_no, res);
@@ -6116,9 +6117,11 @@ molecule_class_info_t::close_yourself() {
       // delete [] draw_vectors;
       // draw_vectors = NULL;
       clear_draw_vecs(); // not difference map
+      clear_diff_map_draw_vecs();
 
-      delete [] diff_map_draw_vectors;
-      diff_map_draw_vectors = NULL;
+
+      // delete [] diff_map_draw_vectors;
+      // diff_map_draw_vectors = NULL;
 
       clipper::Xmap<float> empty;
       xmap = empty; // clear xmap
@@ -6130,9 +6133,10 @@ molecule_class_info_t::close_yourself() {
       // delete [] draw_vectors;
       // draw_vectors = NULL;
       clear_draw_vecs();
+      clear_diff_map_draw_vecs();
 
-      delete [] diff_map_draw_vectors;
-      diff_map_draw_vectors = NULL;
+      // delete [] diff_map_draw_vectors;
+      // diff_map_draw_vectors = NULL;
       clipper::NXmap<float> empty;
       nxmap = empty; // clear nxmap
    }
@@ -8022,19 +8026,19 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
    mmdb::Residue *std_residue = NULL;
 
    if (g.standard_residues_asc.read_success) {
-//      std::cout << "DEBUG:: There are " << g.standard_residues_asc.n_selected_atoms
-// 	       << " atoms in standard_residues_asc" << std::endl;
+      //      std::cout << "DEBUG:: There are " << g.standard_residues_asc.n_selected_atoms
+      //                << " atoms in standard_residues_asc" << std::endl;
      int selHnd = g.standard_residues_asc.mol->NewSelection();
      g.standard_residues_asc.mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
-      "*", // Chain(s) it's "A" in this case.
-      mmdb::ANY_RES,"*",  // starting res
-      mmdb::ANY_RES,"*",  // ending res
-      residue_type.c_str(),  // residue name
-      "*",  // Residue must contain this atom name?
-      "*",  // Residue must contain this Element?
-      "*",  // altLocs
-      mmdb::SKEY_NEW // selection key
-      );
+                                           "*", // Chain(s) it's "A" in this case.
+                                           mmdb::ANY_RES,"*",  // starting res
+                                           mmdb::ANY_RES,"*",  // ending res
+                                           residue_type.c_str(),  // residue name
+                                           "*",  // Residue must contain this atom name?
+                                           "*",  // Residue must contain this Element?
+                                           "*",  // altLocs
+                                           mmdb::SKEY_NEW // selection key
+                                           );
      // get the standard orientation residue for this residue type
      mmdb::PPResidue SelResidue;
      int nSelResidues;
@@ -8044,10 +8048,11 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
      if (nSelResidues != 1) {
        std::cout << "This should never happen - ";
        std::cout << "badness in get_standard_residue_instance, we selected " << nSelResidues
-    << " residues looking for residues of type :" << residue_type << ":\n";
+                 << " residues looking for residues of type :" << residue_type << ":\n";
      } else {
-       std_residue = coot::deep_copy_this_residue(SelResidue[0], "", 1,
-     g.standard_residues_asc.UDDAtomIndexHandle);
+       bool embed_in_chain_flag = true; // I think. Is this the one time where we *do* want embedding?
+       std_residue = coot::deep_copy_this_residue_old_style(SelResidue[0], "", 1,
+                                                            g.standard_residues_asc.UDDAtomIndexHandle, embed_in_chain_flag);
      }
      g.standard_residues_asc.mol->DeleteSelection(selHnd);
    }
@@ -9831,7 +9836,7 @@ molecule_class_info_t::watch_coordinates_file(gpointer data) {
    updating_coordinates_molecule_parameters_t *ucp = static_cast<updating_coordinates_molecule_parameters_t *>(data);
    const updating_coordinates_molecule_parameters_t &rucp = *ucp;
 
-   std::cout << "watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
+   std::cout << "DEBUG:: watching " << rucp.imol << " " << rucp.pdb_file_name << std::endl;
    status = graphics_info_t::molecules[rucp.imol].update_coordinates_molecule_if_changed(rucp);
    return status;
 }
@@ -9941,8 +9946,10 @@ molecule_class_info_t::update_self(const coot::mtz_to_map_info_t &mmi) {
 int
 molecule_class_info_t::watch_coordinates_updates(gpointer data) {
 
-   std::cout << "---------------------------- watch_coordinates_updates() called " << std::endl;
    int status = 1; // continue
+
+   if (true)
+      std::cout << "---------------------------- watch_coordinates_updates() called " << std::endl;
 
    if (data) {
       updating_model_molecule_parameters_t *ummp_p = static_cast<updating_model_molecule_parameters_t *> (data);
@@ -9956,16 +9963,19 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
             // Do we need to update the map?
             // We don't want to update the map the first time around
             int backup_index_for_molecule = g.molecules[imol_coords].get_history_index();
+            std::cout << "DEBUG:: watch_coordinates_updates() backup_index_current " << backup_index_current
+                      << " backup_index_for_molecule " << backup_index_for_molecule << std::endl;
             if (backup_index_current != backup_index_for_molecule) {
                if (backup_index_current == -1) {
-                  std::cout << "First time, do nothing " << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() First time, do nothing " << std::endl;
                } else {
-                  std::cout << "Update the map! " << imol_map << std::endl;
+                  std::cout << "DEBUG:: watch_coordinates_updates() Update the map " << imol_map << std::endl;
                   g.sfcalc_genmap(imol_coords, imol_data, imol_map);
                }
                g.molecules[imol_map].other_molecule_backup_index = backup_index_for_molecule;
             } else {
-               std::cout << "No need for an update " << backup_index_current << std::endl;
+               if (false)
+                  std::cout << "DEBUG:: watch_coordinates_updates() No need for an update " << backup_index_current << std::endl;
             }
          }
       }

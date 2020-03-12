@@ -1851,13 +1851,14 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
-	 fill_with_these_molecules.push_back(imol);
+         fill_with_these_molecules.push_back(imol);
       }
    }
 
-   std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
-	     << fill_with_these_molecules.size() << " and imol_active " << imol_active
-	     << std::endl;
+   if (false)
+      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
+                << fill_with_these_molecules.size() << " and imol_active " << imol_active
+                << std::endl;
 
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
@@ -1871,17 +1872,17 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       int ilen = molecules[imol].name_.length();
       int left_size = ilen-go_to_atom_menu_label_n_chars_max;
       if (left_size <= 0)
-	 left_size = 0;
+         left_size = 0;
       else
-	 ss += "...";
+         ss += "...";
       ss += molecules[imol].name_.substr(left_size, ilen);
 
-      std::cout << "fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
+      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
       if (imol == imol_active)
-	 active_idx = idx;
+         active_idx = idx;
 
    }
 
@@ -1912,14 +1913,14 @@ graphics_info_t::fill_combobox_with_coordinates_options_with_set_last(GtkWidget 
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
-	 fill_with_these_molecules.push_back(imol);
+         fill_with_these_molecules.push_back(imol);
       }
    }
    if (fill_with_these_molecules.size() > 0) {
       imol_active = fill_with_these_molecules[0];
 
       if (set_last_active_flag)
-	 imol_active = fill_with_these_molecules.back();
+       	 imol_active = fill_with_these_molecules.back();
    }
 
    fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);

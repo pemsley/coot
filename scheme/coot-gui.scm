@@ -4009,9 +4009,17 @@
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "Cryo-EM")))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Sharpen/Blur..."
-	 sharpen-blur-map-gui)
+        (add-simple-coot-menu-menuitem
+         menu "Go To Map Molecule Middle"
+         (lambda ()
+          (go-to-map-molecule-centre (imol-refinement-map))))
+
+        (add-simple-coot-menu-menuitem
+         menu "Go To Box Middle" go-to-box-middle)
+
+        (add-simple-coot-menu-menuitem
+         menu "Sharpen/Blur..."
+         sharpen-blur-map-gui)
 
 	(add-simple-coot-menu-menuitem
 	 menu "Multi-sharpen using Refmac..."

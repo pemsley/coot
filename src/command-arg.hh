@@ -1,4 +1,5 @@
 
+
 #ifndef COMMAND_ARG_HH
 #define COMMAND_ARG_HH
 
@@ -12,6 +13,7 @@ namespace coot {
          i = iin;
          type = INT;
          b = false;
+         f = -1;
       }
       command_arg_t(float fin) {
          f = fin;
@@ -22,24 +24,29 @@ namespace coot {
          s = sin;
          type = STRING;
          b = false;
+         f = -1;
       }
       command_arg_t(const std::string &sin) {
          s = sin;
          type = STRING;
          b = false;
+         f = -1;
       }
       command_arg_t(const char *sin) {
          s = sin;
          type = STRING;
          b = false;
+         f = -1;
       }
       command_arg_t(bool bin) {
          b = bin;
          type = BOOL;
+         f = -1;
       }
       command_arg_t() {
          type = UNSET;
          b = false;
+         f = -1;
       }
       coot_script_arg_type type;
       bool b;

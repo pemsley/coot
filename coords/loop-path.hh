@@ -16,7 +16,7 @@ namespace coot {
 	     mmdb::Atom *end_plus_2,
 	     unsigned int n_line_segments);
 
-   bool is_sane_inter_residue_distance(double dist_between_residues, int res_no_delta);
+   bool is_sane_inter_residue_distance(double dist_between_residues, int res_no_delta, bool is_NA);
 
 }
 

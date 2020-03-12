@@ -1861,7 +1861,7 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 //
 void
 graphics_info_t::make_moving_atoms_graphics_object(int imol,
-      const atom_selection_container_t &asc) {
+                                                   const atom_selection_container_t &asc) {
 
    if (! moving_atoms_asc) {
       std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
@@ -1885,7 +1885,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
    if (false)
       std::cout << "DEBUG:: make_moving_atoms_graphics_object() bonds box type of molecule "
-           << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
+                << imol_moving_atoms << " is " << molecules[imol_moving_atoms].Bonds_box_type()
                 << std::endl;
 
    bool do_ca_mode = false;
@@ -1904,18 +1904,18 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) {
 
-    Bond_lines_container bonds;
-    bool draw_hydrogens_flag = false;
-    if (molecules[imol_moving_atoms].draw_hydrogens())
-       draw_hydrogens_flag = true;
-    bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+         Bond_lines_container bonds;
+         bool draw_hydrogens_flag = false;
+         if (molecules[imol_moving_atoms].draw_hydrogens())
+         draw_hydrogens_flag = true;
+         bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
 
          unsigned int unlocked = 0;
          // Neither of these seems to make a difference re: the intermediate atoms python representation
          // while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1)) {
-    // For now, we don't print the python variable - now convert it to json - that seems
-    // to work OK ~20MB/s for a chain.
-    //
+         // For now, we don't print the python variable - now convert it to json - that seems
+         // to work OK ~20MB/s for a chain.
+         //
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             unlocked = 0;
@@ -1931,16 +1931,16 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                  unlocked = false;
             }
 
-       regularize_object_bonds_box.clear_up();
-       regularize_object_bonds_box = bonds.make_graphical_bonds();
+            regularize_object_bonds_box.clear_up();
+            regularize_object_bonds_box = bonds.make_graphical_bonds();
             moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
 
       } else {
 
-    Bond_lines_container bonds;
-    bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+         Bond_lines_container bonds;
+         bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
          unsigned int unlocked = false;
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -1956,8 +1956,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                  unlocked = false;
             }
 
-       regularize_object_bonds_box.clear_up();
-       regularize_object_bonds_box = bonds.make_graphical_bonds();
+            regularize_object_bonds_box.clear_up();
+            regularize_object_bonds_box = bonds.make_graphical_bonds();
             moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
@@ -1990,7 +1990,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
       int draw_hydrogens_flag = 0;
       if (molecules[imol_moving_atoms].draw_hydrogens())
-    draw_hydrogens_flag = 1;
+         draw_hydrogens_flag = 1;
       std::set<int> dummy;
       bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
@@ -6158,7 +6158,8 @@ graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
    r = scm_cons(scm_makfrom0str(spec.ins_code.c_str()), r);
    r = scm_cons(SCM_MAKINUM(spec.res_no), r);
    r = scm_cons(scm_makfrom0str(spec.chain_id.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(spec.int_user_data), r);
+   r = scm_cons(SCM_MAKINUM(spec.int_user_data), r); // not the model number? Urgh (unexpected).
+                                                     // Where is this user_data used?
 
    return r;
 }
@@ -6428,29 +6429,31 @@ graphics_info_t::sfcalc_genmap(int imol_model,
    //
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map_with_data_attached)) {
-         if (is_valid_map_molecule(imol_updating_difference_map)) {
-            if (molecules[imol_updating_difference_map].is_difference_map_p()) {
-               clipper::Xmap<float> *xmap_p = &molecules[imol_updating_difference_map].xmap;
-               try {
-                  if (! on_going_updating_map_lock) {
-                     on_going_updating_map_lock = true;
-                     float cls = molecules[imol_updating_difference_map].get_contour_level_by_sigma();
-                     molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
-                     const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
-                     molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
-                     const clipper::HKL_data<clipper::data32::Flag> &free_flag =
-                     molecules[imol_map_with_data_attached].get_original_rfree_flags();
-                     molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
-                     molecules[imol_updating_difference_map].set_mean_and_sigma();
-                     molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
-                     on_going_updating_map_lock = false;
-                  } else {
-                     std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
+         if (true) {
+            if (is_valid_map_molecule(imol_updating_difference_map)) {
+               if (molecules[imol_updating_difference_map].is_difference_map_p()) {
+                  clipper::Xmap<float> *xmap_p = &molecules[imol_updating_difference_map].xmap;
+                  try {
+                     if (! on_going_updating_map_lock) {
+                        on_going_updating_map_lock = true;
+                        float cls = molecules[imol_updating_difference_map].get_contour_level_by_sigma();
+                        molecules[imol_map_with_data_attached].fill_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::F_sigF> &fobs_data =
+                        molecules[imol_map_with_data_attached].get_original_fobs_sigfobs();
+                        const clipper::HKL_data<clipper::data32::Flag> &free_flag =
+                        molecules[imol_map_with_data_attached].get_original_rfree_flags();
+                        molecules[imol_model].sfcalc_genmap(fobs_data, free_flag, xmap_p);
+                        molecules[imol_updating_difference_map].set_mean_and_sigma();
+                        molecules[imol_updating_difference_map].set_contour_level_by_sigma(cls); // does an update
+                        on_going_updating_map_lock = false;
+                     } else {
+                        std::cout << "DEBUG:: on_going_updating_map_lock was set! - aborting map update." << std::endl;
+                     }
+                     graphics_draw();
                   }
-                  graphics_draw();
-               }
-               catch (const std::runtime_error &rte) {
-                  std::cout << rte.what() << std::endl;
+                  catch (const std::runtime_error &rte) {
+                     std::cout << rte.what() << std::endl;
+                  }
                }
             }
          }

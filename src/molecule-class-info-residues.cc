@@ -1632,7 +1632,8 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1, false);
+      std::vector<mmdb::Chain *> chains; // empty
+      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1, false, chains);
 
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();

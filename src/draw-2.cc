@@ -734,7 +734,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
 
-   
+
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 

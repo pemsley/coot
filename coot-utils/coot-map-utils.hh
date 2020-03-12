@@ -1,19 +1,19 @@
 /* coot-utils/coot-map-utils.hh
- * 
+ *
  * Copyright 2004, 2005, 2006, 2007 The University of York
  * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -70,7 +70,7 @@ namespace coot {
       // precalculated map.
       //
       // return 1 if map is filled, 0 if not (e.g. mtz file not found).
-      // 
+      //
       bool map_fill_from_mtz(clipper::Xmap<float> *xmap,
 			     std::string mtz_file_name,
 			     std::string f_col,
@@ -98,13 +98,13 @@ namespace coot {
       // return the max gridding of the map, e.g. 0.5 for a 1A map.
       //
       // return the maximum Angstrom/grid of the given map.
-      // 
+      //
       float max_gridding(const clipper::Xmap<float> &xmap);
 
 
       // The sum of the density at the atom centres, optionally
       // weighted by atomic number.
-      // 
+      //
       float map_score(mmdb::PPAtom atom_selection,
 		      int n_selected_atoms,
 		      const clipper::Xmap<float> &xmap,
@@ -112,11 +112,9 @@ namespace coot {
 
       // The sum of the density at the atom centres, weighted by occupancy
       //
-      float map_score(std::vector<mmdb::Atom *> atoms,
-		      const clipper::Xmap<float> &xmap);
+      float map_score(std::vector<mmdb::Atom *> atoms, const clipper::Xmap<float> &xmap);
 
-      float map_score_atom(mmdb::Atom *atom,
-			   const clipper::Xmap<float> &xmap);
+      float map_score_atom(mmdb::Atom *atom, const clipper::Xmap<float> &xmap);
 
       float map_score_by_residue_specs(mmdb::Manager *mol,
 				       const std::vector<residue_spec_t> &res_specs,
@@ -126,24 +124,40 @@ namespace coot {
       clipper::Xmap<float> sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor);
 
       clipper::Xmap<float> sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in, float b_factor,
-							  float resample_factor);
+                                                          float resample_factor);
+
+      clipper::Xmap<float> sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &xmap_in, float b_factor,
+                                                                  float resample_factor);
 
       // pass a pointer to a vector of maps that has the same size as the number of B-factors
       //
       void multi_sharpen_blur_map(const clipper::Xmap<float> &xmap_in,
-			    const std::vector<float> &b_factors,
-			    std::vector<clipper::Xmap<float> > *maps_p);
+                                  const std::vector<float> &b_factors,
+                                  std::vector<clipper::Xmap<float> > *maps_p);
 
       // not sure if this works ATM
       clipper::Xmap<float> sharpen_map(const clipper::Xmap<float> &xmap_in,
-				       float sharpen_factor);
+                                       float sharpen_factor);
+
+      class map_molecule_centre_info_t {
+      public:
+         bool success;
+         clipper::Coord_orth updated_centre;
+         float suggested_contour_level;
+         double sum_of_densities; // for scoring origins
+         map_molecule_centre_info_t() { success = false; sum_of_densities = -1;}
+      };
+
+      coot::util::map_molecule_centre_info_t map_molecule_centre(const clipper::Xmap<float> &xmap);
+
+      map_molecule_centre_info_t map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap,
+                                                                              const clipper::Coord_orth &current_centre);
 
       // if n_bins is -1, let the function decide how many bins
       //
       // actually, we return bins of amplitude squares.
       std::vector<amplitude_vs_resolution_point>
-      amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in,
-			      int n_bins = -1);
+      amplitude_vs_resolution(const clipper::Xmap<float> &xmap_in, int n_bins = -1);
 
       // pass a flag for the resolution limit saying if this limit should be used.
       // rule of thumb: low resolution limit 0.12
@@ -169,9 +183,9 @@ namespace coot {
 						      const clipper::Xmap<float> &xmap_in);
 
       // pass a negative atom_selection to build an atom map for the whole molecule
-      // 
+      //
       clipper::Xmap<float> calc_atom_map(mmdb::Manager *mol,
-					 int atom_selection_handle, 
+					 int atom_selection_handle,
 					 const clipper::Cell &cell,
 					 const clipper::Spacegroup &space_group,
 					 const clipper::Grid_sampling &sampling);
@@ -186,7 +200,7 @@ namespace coot {
       // 1: main-chain atoms if is standard amino-acid, else all atoms
       // 2: side-chain atoms if is standard amino-acid, else all atoms
       // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
-      // 
+      //
       float map_to_model_correlation(mmdb::Manager *mol,
 				     const std::vector<residue_spec_t> &specs_for_correl,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
@@ -204,19 +218,19 @@ namespace coot {
 				     map_stats_t map_stats_flag);
 
       // the first of the pair contains the correlation for the given residue spec.
-      // 
+      //
       std::vector<std::pair<residue_spec_t, float> >
       map_to_model_correlation_per_residue(mmdb::Manager *mol,
 					   const std::vector<residue_spec_t> &specs,
 					   unsigned short int atom_mask_mode,
-					   float atom_radius, // for masking 
+					   float atom_radius, // for masking
 					   const clipper::Xmap<float> &xmap_from_sfs);
 
       std::map<coot::residue_spec_t, density_stats_info_t>
       map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 						 const std::vector<residue_spec_t> &specs,
 						 unsigned short int atom_mask_mode,
-						 float atom_radius, // for masking 
+						 float atom_radius, // for masking
 						 const clipper::Xmap<float> &xmap);
 
       // helper
@@ -249,7 +263,7 @@ namespace coot {
 	    sum_y_squared += y*y;
 	    sum_xy += x*y;
 	    n++;
-	 } 
+	 }
       };
 
 
@@ -279,21 +293,21 @@ namespace coot {
       // Spin the torsioned atom round the rotatable bond and find the
       // orientation (in degrees) from the current position that is in
       // the highest density.
-      // 
+      //
       // return a torsion
       std::pair<float, float> spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, coot::torsion tors);
 
       // Return a map that is a copy of the given map with interpolation,
       // with grid spacing at most 0.5A (by generated by integer scaling
       // factor of the input map)
-      // 
+      //
       clipper::Xmap<float> reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap);
 
       // return a map that is a copy of the given map with interpolation
       // e.g. a sampling_multiplier of 2 will double the number of grid points (in each direction).
-      // 
+      //
       clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in, float sampling_multiplier);
-      
+
 
       // make a copy of map_in, but in the cell, spacegroup and gridding of reference_map
       clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
@@ -304,7 +318,7 @@ namespace coot {
 	 void init(const clipper::Xmap<float> &xmap,
 		   const clipper::Coord_orth &centre,
 		   float radius);
-	 // 
+	 //
 	 void init_making_map_centred_at_origin(const clipper::Xmap<float> &xmap,
 						const clipper::Coord_orth &centre,
 						float radius);
@@ -315,7 +329,7 @@ namespace coot {
 	 clipper::Xmap<float> xmap;
 	 clipper::Coord_grid offset;
       };
-      
+
 
       //
       class simple_residue_triple_t {
@@ -348,8 +362,8 @@ namespace coot {
 	 mmdb::Residue *prev_residue;
 	 std::string alt_conf;
 	 residue_triple_t() {
-	    this_residue = 0; 
-	    prev_residue = 0; 
+	    this_residue = 0;
+	    prev_residue = 0;
 	    next_residue = 0;
 	 }
 	 residue_triple_t(mmdb::Residue *this_residue_in,
@@ -382,7 +396,7 @@ namespace coot {
       public:
 	 //  Note to self, the residue copy may need the deep_copy
 	 //  that does the atom index transfer too.
-	 
+
 	 backrub_residue_triple_t(mmdb::Residue *this_residue_in,
 				  mmdb::Residue *prev_residue_in,
 				  mmdb::Residue *next_residue_in,
@@ -404,7 +418,7 @@ namespace coot {
 	 void trim_residue_atoms_generic(mmdb::Residue *residue_p,
 					 std::vector<std::string> keep_atom_vector,
 					 bool use_keep_atom_vector);
-	 
+
       };
 
 
@@ -434,7 +448,7 @@ namespace coot {
 						     const std::pair<clipper::Xmap_base::Map_reference_index, float> &v2);
 
 	 // change values in segmented_map
-	 // 
+	 //
 	 void flood_fill_segmented_map(clipper::Xmap<std::pair<bool, int> > *segmented_map,
 				       const clipper::Xmap<float> &xmap,  // for Neighbours
 				       const clipper::Coord_grid &seed_point,
@@ -442,7 +456,7 @@ namespace coot {
 
 	 // return a vector of grid points as we trace the route to the
 	 // local peak from start_point by steepest ascent.
-	 // 
+	 //
 	 std::vector<clipper::Coord_grid> path_to_peak(const clipper::Coord_grid &start_point,
 						       const clipper::Xmap<float> &xmap_new);
 	 static bool sort_segment_vec(const std::pair<int, int> &a,
@@ -458,22 +472,22 @@ namespace coot {
       public:
 	 segment_map() {};
 	 // Return the number of segments and the segmented map.
-	 // 
+	 //
 	 // -1 means no segment. low_level is the level below which
 	 // segmentation should not occur (don't make blobs in the
 	 // noise).
 	 //
 	 // This is Pintilie flooding (with extra watershed remapping)
-	 // 
+	 //
 	 std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in, float low_level);
 
 	 // This is the flood-down method
-	 // 
+	 //
 	 std::pair<int, clipper::Xmap<int> > segment_emsley_flood(const clipper::Xmap<float> &xmap_in,
 								  float low_level);
 
 	 // multi-scale segmentation.  Return a segmented map.
-	 // 
+	 //
 	 std::pair<int, clipper::Xmap<int> > segment(const clipper::Xmap<float> &xmap_in,
 						     float low_level,
 						     float b_factor_increment, // per round
@@ -510,4 +524,3 @@ namespace coot {
 }
 
 #endif // COOT_MAP_UTILS_HH
-
