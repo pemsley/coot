@@ -12085,7 +12085,7 @@ on_export_map_filechooserdialog_response
   const char *filename = 0;
 
   if (response_id == GTK_RESPONSE_OK) {
-    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number")); 
+    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
     is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
     if (is_map_fragment) {
       txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
@@ -12659,7 +12659,8 @@ on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-   set_use_perspective_projection(1);
+   /* set_use_perspective_projection(1); */
+
+   printf("This caused linking problems - so was removed - must fix\n");
 
 }
-

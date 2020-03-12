@@ -89,9 +89,8 @@ void add_molecular_representation_test() {}
 
 void set_use_perspective_projection(int state) {
 
-   graphics_info_t::perspective_projection_flag = state;
+// temporaily remove this for merge resolution. I don't know where this function should be
+
+ //    graphics_info_t::perspective_projection_flag = state;
 
 }
-
-
-
