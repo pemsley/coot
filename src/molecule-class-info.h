@@ -359,7 +359,7 @@ class molecule_class_info_t {
    std::string save_molecule_filename(const std::string &dir);
    int make_backup(); // changes history details
    int make_maybe_backup_dir(const std::string &filename) const;
-   short int backup_this_molecule;
+   bool backup_this_molecule;
 
    // history_index and max_history_index tell us where we are in the
    // history of modifications of this molecule.  When we "Undo"
@@ -757,7 +757,7 @@ public:        //                      public
       extra_restraints_representation_for_bonds_go_to_CA = false;
 
       // backup on by default, turned off for dummy atoms (baton building)
-      backup_this_molecule = 1;
+      backup_this_molecule = true;
 
       // Map stuff
       map_max_ = 100.0;
@@ -1888,7 +1888,7 @@ public:        //                      public
 				    // changes when when finish.
 				    // Rather crap that this needs to
 				    // be done externally, I think.
-   int backups_state() const { return backup_this_molecule; }
+   bool backups_state() const { return backup_this_molecule; }
    void set_have_unsaved_changes_from_outside();
 
    void mutate_internal(mmdb::Residue *residue, mmdb::Residue *std_residue, const std::string &alt_conf);
@@ -2030,8 +2030,8 @@ public:        //                      public
    int Have_unsaved_changes_p() const;
    short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
    short int Have_redoable_modifications_p() const ;
-   void turn_off_backup() { backup_this_molecule = 0; }
-   void turn_on_backup()  { backup_this_molecule = 1; }
+   void turn_off_backup() { backup_this_molecule = false; }
+   void turn_on_backup()  { backup_this_molecule = true;  }
    int apply_undo(const std::string &cwd);
    int apply_redo(const std::string &cwd);
    // Called from outside, if there is a backup file more recent
