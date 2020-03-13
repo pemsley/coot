@@ -58,7 +58,7 @@ make_target_5_res_frag(const coot::minimol::fragment &tf, int ires_start) {
       try { 
 	 f.addresidue(r, 0);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: make_target_5_res_frag() " << rte.what() << std::endl;
       } 
    }

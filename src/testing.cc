@@ -728,7 +728,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 				 do_residue_internal_torsions,
 				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
-				 do_rama_restraints, false, false,
+				 do_rama_restraints, false, false, false,
 				 pseudos);
 
    if (output_numerical_gradients)
@@ -1151,7 +1151,7 @@ restr_res_vector() {
       restraints.add_map(weight);
       bool do_trans_peptide_restraints = true;
       int imol = 0;
-      restraints.make_restraints(imol, geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, false, false, coot::NO_PSEUDO_BONDS);
+      restraints.make_restraints(imol, geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, false, false, false, coot::NO_PSEUDO_BONDS);
       restraints.minimize(flags);
       restraints.write_new_atoms("ss-test.pdb");
    }

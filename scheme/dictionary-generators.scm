@@ -51,28 +51,25 @@
 
       (if (enhanced-ligand-coot?)
 
-	  ;; Use pyrogen if we have mogul
-	  ;; 
-	  (if *use-mogul*
+          ;; Use pyrogen if we have mogul
+          ;;
+          (if *use-mogul*
 
-	      ;; pyrogen
-	      ;; 
-	      (let* ((working-dir (get-directory "coot-pyrogen"))
-		     (args (list "-r" comp-id "-d" working-dir "-c" mmcif-file-name)))
-		(dict-gen "pyrogen" args working-dir))
-	      
-	      ;; acedrg
-	      ;; 
-	      (let* ((working-dir (get-directory "coot-acedrg"))
-		     (stub (append-dir-file working-dir (string-append comp-id "-acedrg")))
-		     (args (list "-r" comp-id "-c" mmcif-file-name "-o" stub)))
-		(dict-gen "acedrg" args working-dir)))
-	  
-	  ;; acedrg
-	  ;; 
-	  (let* ((working-dir (get-directory "coot-acedrg"))
-		 (args (list "-M" "-r" comp-id "-c" mmcif-file-name)))
-	    (dict-gen "acedrg" args working-dir)))))
+              ;; pyrogen
+              ;;
+              (let* ((working-dir (get-directory "coot-pyrogen"))
+                     (args (list "-r" comp-id "-d" working-dir "-c" mmcif-file-name)))
+                (dict-gen "pyrogen" args working-dir))
 
+              ;; acedrg
+              ;;
+              (let* ((working-dir (get-directory "coot-acedrg"))
+                     (stub (append-dir-file working-dir (string-append comp-id "-acedrg")))
+                     (args (list "-r" comp-id "-c" mmcif-file-name "-o" stub)))
+                (dict-gen "acedrg" args working-dir)))
 
-
+          ;; acedrg
+          ;;
+          (let* ((working-dir (get-directory "coot-acedrg"))
+                 (args (list "-M" "-r" comp-id "-c" mmcif-file-name)))
+            (dict-gen "acedrg" args working-dir)))))

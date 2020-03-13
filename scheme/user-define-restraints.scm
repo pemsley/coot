@@ -52,7 +52,7 @@
 
 (define (user-defined-add-arbitrary-length-bond-restraint)
   (generic-single-entry "Add a User-defined extra distance restraint"
-			"2.0"
+			"2.8"
 			"OK..."
 			(lambda (text) 
 			  (let ((s  "Now click on 2 atoms to define the additional bond restraint"))
@@ -72,7 +72,7 @@
 						 (list-ref atom-specs 0)
 						 (list-ref atom-specs 1))
 					 
-					 (add-extra-bond-restraint 
+					 (add-extra-bond-restraint
 					  imol
 					  (list-ref (list-ref atom-specs 0) 2)
 					  (list-ref (list-ref atom-specs 0) 3)
@@ -320,6 +320,7 @@
     (lambda (port)
       (display "EXTE STACK PLAN 1 FIRST RESIDUE " port)
       (display (residue-spec->res-no res-spec-0) port)
+      (display " INS . " port)
       (display " CHAIN " port)
       (display (residue-spec->chain-id res-spec-0) port)
       (display " ATOMS { " port)
@@ -330,6 +331,7 @@
 		atom-list-0)
       (display " } PLAN 2 FIRST RESIDUE " port)
       (display (residue-spec->res-no res-spec-1) port)
+      (display " INS . " port)
       (display " CHAIN " port)
       (display (residue-spec->chain-id res-spec-1) port)
       (display " ATOMS { " port)
@@ -396,13 +398,13 @@
 				 (delete-all-extra-restraints imol)))))
 
       (add-simple-coot-menu-menuitem 
-       menu "ProSMART restraints interesting limit to 0.5"
+       menu "Interesting limit to 0.5"
        (lambda ()
 	 (using-active-atom
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -0.5 0.5))))
 
       (add-simple-coot-menu-menuitem 
-       menu "ProSMART restraints interesting limit to 2.5"
+       menu "Interesting limit to 2.5"
        (lambda ()
 	 (using-active-atom
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -2.5 2.5))))
@@ -414,7 +416,7 @@
           (set-show-extra-restraints aa-imol 0))))
          
       (add-simple-coot-menu-menuitem
-       menu "Display ProSMART Extra Restraints"
+       menu "Display Extra Restraints"
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 1))))
@@ -424,7 +426,6 @@
        (lambda ()
          (using-active-atom
           (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 1))))
-
 
       (add-simple-coot-menu-menuitem
        menu "Extra Restraints Standard Representation"
@@ -451,18 +452,6 @@
 				   (if (number? n)
 				       (using-active-atom
 					(delete-extra-restraints-worse-than aa-imol n))))))))
-
-
-      (add-simple-coot-menu-menuitem
-       menu "Save as REFMAC restraints..."
-       (lambda ()
-	 (generic-chooser-and-file-selector "Save REFMAC restraints for molecule " 
-					    valid-model-molecule?
-					    " Restraints file name:  " 
-					    "refmac-restraints.txt"
-					    (lambda (imol file-name)
-					      (extra-restraints->refmac-restraints-file imol file-name)))))
-
 
     (let ((menu (coot-menubar-menu "Restraints")))
       (add-simple-coot-menu-menuitem 

@@ -29,10 +29,10 @@ def median(values):
     length=len(values)
     
     if length % 2:
-        return values[(length-1)/2]
+        return values[(length-1)//2]
     else:
-        lower = values[length/2-1]
-        upper = values[length/2]
+        lower = values[length//2-1]
+        upper = values[length//2]
         return float(lower+upper)/2
 
 
@@ -50,6 +50,6 @@ def lowerQuartile(values):
     length=len(values)
     
     if length % 2:
-        return median(values[0:(length-1)/2])
+        return median(values[0:(length-1)//2])
     else:
-        return median(values[0:(length)/2])
+        return median(values[0:(length)//2])

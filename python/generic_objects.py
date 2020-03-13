@@ -159,6 +159,16 @@ def generic_objects_gui():
 # return status
 #
 def reduce_on_pdb_file(imol, pdb_in, pdb_out):
+    return reduce_on_pdb_file_generic(imol, "build", pdb_in, pdb_out)
+
+# return status
+#
+def reduce_on_pdb_file_no_flip(imol, pdb_in, pdb_out):
+    return reduce_on_pdb_file_generic(imol, "no-flip", pdb_in, pdb_out)
+
+# return status
+#
+def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
 
   global reduce_command
   
@@ -180,12 +190,16 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
       # now should use the and build the het dic!?
       dict_args = ["-DB", reduce_het_dict_file_name]
 
+    mode = "-build"
+    if no_flip_or_build == "no-flip":
+        mode = "-NOFLIP"
+
     print "======= reduce_on_pdb_file: command %s args %s with pdb_out: %s" \
           %(reduce_command,
-            ["-build", pdb_in] + dict_args,
+            [mode, pdb_in] + dict_args,
             pdb_out)
     status = popen_command(reduce_command,
-                           ["-build", pdb_in] + dict_args,
+                           [mode, pdb_in] + dict_args,
                            [],
                            pdb_out)
 

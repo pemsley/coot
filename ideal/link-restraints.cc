@@ -985,7 +985,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	 std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
-	 if (debug) {
+	 if (false) {
 
 	    std::cout << "   DEBUG:: found " << link_infos.size() << " link infos for residue compids/groups "
 		      << comp_id_1 << " " << group_1 << " and "

@@ -231,46 +231,47 @@ glm::mat4 get_molecule_mvp() {
       std::cout << "get_molecule_mvp: " << glm::to_string(mvp) << std::endl;
    }
 
-#if 0
+// #if 0
 
-   graphics_info_t::perspective_projection_flag = true;
+   if (graphics_info_t::perspective_projection_flag) {
 
-   // for fun/testing
-   // turn off view scaling when tinkering with this?
-   // there should not be a concept of "zoom" with perspective view, just translation
-   // along screen-Z.
+      // for fun/testing
+      // turn off view scaling when tinkering with this?
+      // there should not be a concept of "zoom" with perspective view, just translation
+      // along screen-Z.
 
-   float fov = 40.0;
-   // glm::vec3 up(0.0, 1.0, 0.0);
-   // to use perspective properly, we need to know the eye position. We should
-   // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
+      float fov = 40.0;
+      // glm::vec3 up(0.0, 1.0, 0.0);
+      // to use perspective properly, we need to know the eye position. We should
+      // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
 
-   // the difference between these after rotation by the mouse quaternion will give us "up"
-   glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
-   glm::vec4 test_pt_1(1.0, 0.0, 0.0, 1.0);
-   glm::vec4 test_pt_2(1.0, 1.0, 0.0, 1.0);
+      // the difference between these after rotation by the mouse quaternion will give us "up"
+      glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
+      glm::vec4 test_pt_1(1.0, 0.0, 0.0, 1.0);
+      glm::vec4 test_pt_2(1.0, 1.0, 0.0, 1.0);
 
-   glm::mat4 vr = get_view_rotation();
-   glm::vec4 rp_z = vr * test_pt_z;
-   glm::vec4 rp_1 = vr * test_pt_1;
-   glm::vec4 rp_2 = vr * test_pt_2;
-   glm::vec4 up4 = rp_2 - rp_1;
-   glm::vec3 up = glm::vec3(up4);
-   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rp_1);
-   ep += rc;
+      glm::mat4 vr = get_view_rotation();
+      glm::vec4 rp_z = vr * test_pt_z;
+      glm::vec4 rp_1 = vr * test_pt_1;
+      glm::vec4 rp_2 = vr * test_pt_2;
+      glm::vec4 up4 = rp_2 - rp_1;
+      glm::vec3 up = glm::vec3(up4);
+      glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rp_1);
+      ep += rc;
 
-   std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
+      std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
 
-   view_matrix = glm::lookAt(ep, rc, up);
-   float z_front =  2.0;
-   float z_back = 400.0;
-   z_front += 0.2 * graphics_info_t::clipping_front;
-   z_back  -= 0.2 * graphics_info_t::clipping_back;
-   fov = 40.0; // degrees
+      view_matrix = glm::lookAt(ep, rc, up);
+      float z_front =  2.0;
+      float z_back = 400.0;
+      z_front += 0.2 * graphics_info_t::clipping_front;
+      z_back  -= 0.2 * graphics_info_t::clipping_back;
+      fov = 40.0; // degrees
 
-   glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
-   mvp = projection_matrix_persp * view_matrix * model_matrix;
-#endif
+      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
+      mvp = projection_matrix_persp * view_matrix * model_matrix;
+   }
+// #endif
 
    return mvp;
 }
@@ -377,9 +378,7 @@ void draw_map_molecules() {
                                << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
 
-            // I doubt that I need to do these here:
-            // glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID); // not needed
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID); // needed - it seems!?
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_map_lines_ID);
 
             glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
@@ -421,7 +420,7 @@ void draw_map_molecules() {
                                << " with GL err " << err << std::endl;
             glEnable(GL_BLEND);
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_map_triangles_ID);
 
             glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
@@ -733,7 +732,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
 
-   
+
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
@@ -893,7 +892,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    if (event->direction == GDK_SCROLL_UP)
       direction = -1;
 
-   std::cout << "scroll " << direction << std::endl;
+   std::cout << "on_glarea_scroll(): scroll direction " << direction << std::endl;
 
    graphics_info_t g;
    int imol_scroll = graphics_info_t::scroll_wheel_map;
@@ -909,8 +908,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
                 << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
-      g.update_maps();
-      //gtk_widget_queue_draw(widget);
+      // g.update_maps();
       g.graphics_draw(); // queue
    } else {
       std::cout << "No map" << std::endl;

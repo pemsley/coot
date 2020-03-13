@@ -103,9 +103,10 @@ def name_to_web_chem_db_id(drug_name, was_redirected=False):
     if debug:
         print "parse_wiki_drug_xml db_dict:", db_dict
         fn = drug_name + '.xml'
-        f = open(fn, 'w+')
-        f.write(xml_string)
-        f.close()
+        # DeepCode hates this:
+        # f = open(fn, 'w+')
+        # f.write(xml_string)
+        # f.close()
     if 'REDIRECT' in db_dict:
         return name_to_web_chem_db_id(db_dict['REDIRECT'], True)
     return db_dict
@@ -153,9 +154,9 @@ def fetch_molecule(drug_name):
 
           if fetch_it:
               response = urllib2.urlopen(db_mol_uri)
-              xml_string = response.read()
+              mol_string = response.read()
               f = open(file_name, "w")
-              f.write(xml_string)
+              f.write(mol_string)
               f.close()
               
           # print "returning", file_name

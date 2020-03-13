@@ -100,11 +100,11 @@ int check_ccp4_symm() {
 // residue.  It may not have any atoms in it though.
 // 
 mmdb::Residue *
-coot::deep_copy_this_residue(mmdb::Residue *residue,
+coot::deep_copy_this_residue_old_style(mmdb::Residue *residue,
 			     const std::string &altconf,
 			     short int whole_residue_flag,
 			     int atom_index_handle,
-			     bool embed_in_chain_flag) { // true
+			     bool embed_in_chain_flag) {
 
    // 20090622 altconf is "", whole_residue_flag = 0, and residue is
    // completely split into A and B.

@@ -138,17 +138,17 @@ molecule_class_info_t::set_and_get_histogram_values(unsigned int n_bins) {
       //
    } else {
       if (map_histogram_values.size() > 0) {
-	 // use the cache
+          // use the cache
       } else {
-	 // uncached
-	 bool ignore_pseudo_zeros = false;
-	 mean_and_variance<float> mv =
-	    map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
-	 if (mv.size() == 0) {
-	    // add fake result
-	    mv.bins.push_back(0);
-	 }
-	 map_histogram_values = mv;
+         // uncached
+         bool ignore_pseudo_zeros = false;
+         mean_and_variance<float> mv =
+            map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
+         if (mv.size() == 0) {
+            // add fake result
+            mv.bins.push_back(0);
+         }
+         map_histogram_values = mv;
       }
    }
    return map_histogram_values;

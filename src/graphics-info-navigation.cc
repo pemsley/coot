@@ -660,15 +660,12 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
    // residue and atom list is the molecule that has just been
    // deleted)
 
-
    if (go_to_atom_window) {
 
       // The go to atom molecule matched this molecule, so we
       // need to regenerate the residue and atom lists.
-      GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
-					      "go_to_atom_residue_tree");
-      GtkWidget *atom_list = lookup_widget(go_to_atom_window,
-					   "go_to_atom_atom_list");
+      GtkWidget *residue_tree = lookup_widget(go_to_atom_window, "go_to_atom_residue_tree");
+      GtkWidget *atom_list = lookup_widget(go_to_atom_window, "go_to_atom_atom_list");
       if (residue_tree == NULL) {
          std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n";
       } else {
@@ -740,18 +737,15 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 void
 graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
-   std::cout << "DEBUG:: --------------- update_go_to_atom_window_on_new_mol called" << std::endl;
-
    if (go_to_atom_window) {
 
-      // GtkWidget *option_menu =
-      // lookup_widget(GTK_WIDGET(go_to_atom_window),
-      //"go_to_atom_molecule_optionmenu");
+      // GtkWidget *option_menu = lookup_widget(GTK_WIDGET(go_to_atom_window), 
+      //                                        "go_to_atom_molecule_optionmenu");
 
       GtkWidget *combobox = lookup_widget(go_to_atom_window, "go_to_atom_molecule_combobox");
 
-      std::cout << "debug:: in update_go_to_atom_window_on_new_mol() got combobox " << combobox
-		<< std::endl;
+      std::cout << "debug:: in update_go_to_atom_window_on_new_mol() got molecule combobox "
+                << combobox << std::endl;
 
       // this may not be the write function for a combobox item
       GCallback callback_func = G_CALLBACK(graphics_info_t::go_to_atom_mol_combobox_changed);
@@ -760,6 +754,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
       // fill_option_menu_with_coordinates_options_internal(option_menu, callback_func, 0);
 
       bool set_last_active_flag = 0;
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
       fill_combobox_with_coordinates_options_with_set_last(combobox, callback_func, set_last_active_flag);
 
       // If there was no molecule already, we need to update the atom
@@ -793,8 +788,8 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 	 }
       }
       if (mol_no != -1)
-	 if (imols_existing.size() == 1)
-	    update_go_to_atom_window_on_changed_mol(mol_no);
+         if (imols_existing.size() == 1)
+            update_go_to_atom_window_on_changed_mol(mol_no);
    }
 }
 
@@ -805,10 +800,10 @@ void
 graphics_info_t::update_go_to_atom_window_on_other_molecule_chosen(int imol) {
 
    if (go_to_atom_window) {
-      GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window),
-					     "go_to_atom_molecule_combobox");
+      GtkWidget *combobox = lookup_widget(GTK_WIDGET(go_to_atom_window), "go_to_atom_molecule_combobox");
 
       GCallback callback_func = G_CALLBACK(go_to_atom_mol_combobox_changed);
+      gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
       fill_combobox_with_coordinates_options(combobox, callback_func, imol);
       update_go_to_atom_window_on_changed_mol(imol);
    }
@@ -823,8 +818,8 @@ graphics_info_t::update_go_to_atom_molecule_on_go_to_atom_molecule_deleted() {
    std::vector<int> imols_existing;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
-	 mol_no = imol;
-	 break;
+         mol_no = imol;
+         break;
       }
    }
    if (mol_no != -1) {
@@ -882,8 +877,6 @@ graphics_info_t::clear_atom_list(GtkWidget *atom_gtklist) {
 void
 graphics_info_t::go_to_atom_mol_combobox_changed(GtkWidget *combobox, gpointer data) {
 
-   std::cout << "-------- go_to_atom_mol_combobox_changed " << combobox << " " << data << std::endl;
-
    GtkTreeIter iter;
    gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
    if (state) {
@@ -920,10 +913,14 @@ graphics_info_t::combobox_get_imol(GtkComboBox *combobox) const {
       gboolean state = gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox), &iter);
       if (state) {
 	 GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox));
-	 GValue label_as_value = { 0, };
-	 gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
-	 imol = g_value_get_int(&label_as_value);
-	 std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
+	 bool g_value_holds_int_flag = true;
+	 // adjust the value of g_value_holds_int_flag here
+	 if (g_value_holds_int_flag) {
+	    GValue label_as_value = { 0, };
+	    gtk_tree_model_get_value(model, &iter, 0, &label_as_value);
+	    imol = g_value_get_int(&label_as_value);
+	    std::cout << "DEBUG:: combobox_get_imol() imol: " << imol << std::endl;
+	 }
       } else {
 	 std::cout << "DEBUG:: combobox_get_imol(): bad state (no active itier)" << std::endl;
       }

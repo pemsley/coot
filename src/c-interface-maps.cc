@@ -421,8 +421,8 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
    return imol;
 }
 
-int make_updating_map(const char *mtz_file_name, 
-		      const char *f_col, const char *phi_col, 
+int make_updating_map(const char *mtz_file_name,
+		      const char *f_col, const char *phi_col,
 		      const char *weight_col,
 		      int use_weights, int is_diff_map) {
 
@@ -1514,7 +1514,7 @@ void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, 
 	       n_points_in_map++;
 	    }
 	 }
-	 if (n_points_in_map) { 
+	 if (n_points_in_map) {
 	    int imol_new = graphics_info_t::create_molecule();
 	    std::string name = "Map ";
 	    name += coot::util::int_to_string(imol_map);
@@ -1603,7 +1603,7 @@ int difference_map(int imol1, int imol2, float map_scale) {
 	 bool is_em_flag = graphics_info_t::molecules[imol1].is_EM_map();
 	 graphics_info_t::molecules[imol].install_new_map(dm.first, name, is_em_flag);
 	 graphics_info_t::molecules[imol].set_map_is_difference_map();
-	 
+
 	 r = imol;
 	 graphics_draw();
       }
@@ -1688,18 +1688,18 @@ int average_map_scm(SCM map_number_and_scales) {
 		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
 	       } else {
 		  std::cout << "Invalid map number " << map_number << std::endl;
-	       } 
+	       }
 	    } else {
 	       std::cout << "Bad scale "
 			 << scm_to_locale_string(display_scm(map_scale_scm))
-			 << " ignoring map " 
+			 << " ignoring map "
 			 << scm_to_locale_string(display_scm(map_number_scm))
 			 << std::endl;
 	    }
 	 } else {
 	    std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
 		      << std::endl;
-	 } 
+	 }
 
       }
    }
@@ -1742,7 +1742,7 @@ int average_map_py(PyObject *map_number_and_scales) {
 		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
 	       } else {
 		  std::cout << "Invalid map number " << map_number << std::endl;
-	       } 
+	       }
 	    } else {
 	     std::cout << "Bad scale " << PyString_AsString(display_python(map_scale_py))   // FIXME
 	     		 << std::endl;
@@ -1750,7 +1750,7 @@ int average_map_py(PyObject *map_number_and_scales) {
 	 } else {
 	   std::cout << "Bad map number " << PyString_AsString(display_python(map_number_py))  // FIXME
 	         << std::endl;
-	 } 
+	 }
       }
    }
    if (maps_and_scales_vec.size() > 0) {
@@ -2278,6 +2278,8 @@ int sharpen_blur_map(int imol_map, float b_factor) {
       g.molecules[imol_new].install_new_map(xmap_new, map_name, is_em_flag);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      float cl = 5.0; // rmsd
+      graphics_info_t::molecules[imol_new].set_contour_level_by_sigma(cl);
       graphics_draw();
    }
    return imol_new;
@@ -2469,3 +2471,65 @@ PyObject *amplitude_vs_resolution_py(int imol_map) {
    return r;
 }
 #endif
+
+
+/*! \brief Calculate structure factors from the model and update the given difference
+           map accordingly */
+void sfcalc_genmap(int imol_model, int imol_map_with_data_attached, int imol_updating_difference_map) {
+
+   graphics_info_t g;
+   g.sfcalc_genmap(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
+
+}
+
+/*! \brief As above, calculate structure factors from the model and update the given difference
+           map accordingly - but difference map gets updated automatically on modification of
+           the imol_model molecule */
+void set_auto_updating_sfcalc_genmap(int imol_model,
+                                     int imol_map_with_data_attached,
+                                     int imol_updating_difference_map) {
+
+   // we need a notification that imol_model has been modified. Hmm.
+   // Maybe the way to do that is that make_bonds type checked looks to see
+   // if there is an "update_map" attached/related to this model - and then
+   // update it. Hmm.
+
+   // or maybe set up a timeout function that looks at the generation number of
+   // imol_model (the backup number?) and if it is different to (more than) current,
+   // then update the difference map - I like this plan more.
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map_with_data_attached)) {
+         if (is_valid_map_molecule(imol_updating_difference_map)) {
+            if (map_is_difference_map(imol_updating_difference_map)) {
+
+               if (false)
+                  std::cout << "DEBUG:: making a uump " << imol_model
+                            << " " << imol_map_with_data_attached << " " << imol_updating_difference_map
+                            << std::endl;
+               updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
+               updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
+               GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
+               g_timeout_add(1000, f, u);
+            }
+         }
+      }
+   }
+}
+
+
+
+//! \brief Go to the centre of the molecule - for Cryo-EM Molecules
+//!
+//!        and recontour at a sensible value.
+void go_to_map_molecule_centre(int imol_map) {
+   if (is_valid_map_molecule(imol_map)) {
+      clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+      coot::util::map_molecule_centre_info_t mmci = coot::util::map_molecule_centre(xmap);
+      if (mmci.success) {
+         graphics_info_t::molecules[imol_map].set_contour_level(mmci.suggested_contour_level);
+         clipper::Coord_orth nc = mmci.updated_centre;
+         set_rotation_centre(nc.x(), nc.y(), nc.z());
+      }
+   }
+}

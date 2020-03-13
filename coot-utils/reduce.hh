@@ -314,6 +314,8 @@ namespace coot {
 						 const dictionary_residue_restraints_t &dict) const;
 
       bool is_ss_bonded(mmdb::Residue *residue_p) const;
+      // No SSBOND interogation yet, so...
+      bool hack_ss_bond_test(mmdb::Residue *residue_p, mmdb::Model *model_p) const;
 
       // as a rule, we don't want to add hydrogen to atoms that are linked
       //

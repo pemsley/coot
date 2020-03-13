@@ -109,6 +109,7 @@ void refine_zone(int imol, const char *chain_id,
 		 const char *altconf) {
 
    graphics_info_t g;
+   g.residue_type_selection_was_user_picked_residue_range = false;
    if (is_valid_model_molecule(imol)) {
       mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
       mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
@@ -429,7 +430,7 @@ PyObject *residues_distortions_py(int imol, PyObject *residue_specs_list_py) {
 					     do_trans_peptide_restraints,
 					     rama_plot_restraint_weight,
 					     do_rama_restraints,
-					     false, false,
+					     false, false, false,
 					     pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       // std::cout << "Found " << gd.size() << " geometry distortions" << std::endl;
@@ -519,7 +520,7 @@ SCM residues_distortions_scm(int imol, SCM residue_specs_scm) {
 					     do_residue_internal_torsions,
 					     do_trans_peptide_restraints,
 					     rama_plot_restraint_weight,
-					     do_rama_restraints, false, false,
+					     do_rama_restraints, false, false, false,
 					     pseudo_bonds_type);
 	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions();
 	       if (gd.size() > 0) {
@@ -773,6 +774,19 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
    return r;
 
 }
+
+int add_extra_geman_mcclure_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
+      coot::atom_spec_t as_2(chain_id_2, res_no_2, ins_code_2, atom_name_2, alt_conf_2);
+      r = graphics_info_t::molecules[imol].add_extra_geman_mcclure_restraint(as_1, as_2, bond_dist, esd);
+      graphics_draw();
+   }
+   return r;
+}
+
 
 #ifdef USE_GUILE
 int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm) {

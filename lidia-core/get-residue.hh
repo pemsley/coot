@@ -5,9 +5,10 @@
 
 namespace coot {
 
-   // 20180617-PE not yet canonical - might be dangerous to have this here
+   namespace lidia_utils {
+      mmdb::Residue *get_residue(const residue_spec_t &res_spec, mmdb::Manager *mol);
 
-   mmdb::Residue *get_residue(const residue_spec_t &res_spec, mmdb::Manager *mol);
+      clipper::Coord_orth co(mmdb::Atom *at);
 
-   clipper::Coord_orth co(mmdb::Atom *at);
+   }
 }

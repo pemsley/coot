@@ -445,6 +445,7 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
 	 meld_residues(res_vec, residue_2, res_no_delta, to_chain_p);
 
       } else {
+
          int res_no_delta = residue_2->GetSeqNum() - residue_1->GetSeqNum();
          // std::cout << "debug in meld() B res_no_delta " << res_no_delta << std::endl;
          std::vector<mmdb::Residue *> res_vec = residue_vector_from_residue(mol, residue_1);
@@ -462,6 +463,17 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
 
 	 meld_residues(res_vec, residue_1, 0, to_chain_p);
 
+	 int n_residues = to_chain_p->GetNumberOfResidues();
+	 if (n_residues > 0) {
+	    int res_no_first = to_chain_p->GetResidue(0)->GetSeqNum();
+	    if (res_no_first < 1) {
+	       int res_no_delta = 1 - res_no_first;
+	       for (int i=0; i<n_residues; i++) {
+		  mmdb::Residue *r = to_chain_p->GetResidue(i);
+		  r->seqNum += res_no_delta;
+	       }
+	    }
+	 }
       }
    }
 }

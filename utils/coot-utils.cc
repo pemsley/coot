@@ -1,20 +1,20 @@
 /* coot-utils/coot-utils.cc
- * 
+ *
  * Copyright 2004, 2005, 2006 by The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
  * Copyright 2014 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
@@ -22,7 +22,7 @@
  */
 
 // Portability (to Windows, particularly) functions go here.
-// 
+//
 
 #include <iostream>
 #include <algorithm>
@@ -57,23 +57,23 @@
 
 
 std::string
-coot::util::append_dir_dir (const std::string &s1, const std::string &dir) { 
+coot::util::append_dir_dir (const std::string &s1, const std::string &dir) {
 
    std::string s;
-   
+
    s = s1;
    s += "/";
    s += dir;
 
    return s;
 
-} 
+}
 
 std::string
 coot::util::append_dir_file(const std::string &s1, const std::string &file) {
 
    std::string s;
-   
+
    s = s1;
    s += "/";
    s += file;
@@ -83,7 +83,7 @@ coot::util::append_dir_file(const std::string &s1, const std::string &file) {
 
 // Return the userid and name (e.g ("paule", "Paul Emsley")) for use
 // as a label in the database.  Not important to get right.
-// 
+//
 std::pair<std::string, std::string> coot::get_userid_name_pair() {
 
    std::pair<std::string, std::string> p("unknown","unknown");
@@ -111,7 +111,7 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
       }
    }
 
-#else    
+#else
    if (u) {
       struct passwd *pwbits = getpwnam(u);
       std::string uid;
@@ -127,7 +127,7 @@ std::pair<std::string, std::string> coot::get_userid_name_pair() {
 
 // Return like mkdir: mkdir returns zero on success, or -1 if an error
 // occurred.
-// 
+//
 int
 coot::util::create_directory(const std::string &dir_name) {
 
@@ -149,13 +149,13 @@ coot::util::create_directory(const std::string &dir_name) {
    // following line, we fail to create the directory, presumably
    // because the S_ISDIR returns true (so we don't make the
    // directory).
-   
+
    if ( fstat == -1 ) { // file not exist
       // not exist
       std::cout << "INFO:: Creating directory " << dir_name << std::endl;
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-      istat = mkdir(dir_name.c_str()); 
+      istat = mkdir(dir_name.c_str());
 #else
       mode_t mode = S_IRUSR|S_IWUSR|S_IXUSR; // over-ridden
       mode = 511; // octal 777
@@ -164,7 +164,7 @@ coot::util::create_directory(const std::string &dir_name) {
       istat = mkdir(dir_name.c_str(), mkdir_mode);
       umask(mode_o); // oh yes we do, crazy.
 #endif
-      
+
    } else {
       if ( ! S_ISDIR(s.st_mode) ) {
 	 // exists but is not a directory
@@ -174,7 +174,7 @@ coot::util::create_directory(const std::string &dir_name) {
 	 istat = 0; // return as if we made it
       }
    }
-   return istat; 
+   return istat;
 }
 
 
@@ -240,32 +240,32 @@ coot::util::is_letter(char c) {
 
 
 bool
-coot::is_member_p(const std::vector<std::string> &v, const std::string &a) { 
+coot::is_member_p(const std::vector<std::string> &v, const std::string &a) {
 
    bool ir = 0;
    unsigned int vsize = v.size();
 
-   for (unsigned int i=0; i<vsize; i++) { 
-      if (v[i] == a) { 
+   for (unsigned int i=0; i<vsize; i++) {
+      if (v[i] == a) {
 	 ir = 1;
 	 break;
-      } 
+      }
    }
    return ir;
 }
 
 // Some sort of polymorphism would be appropriate here, perhaps?
 bool
-coot::is_member_p(const std::vector<int> &v, const int &a) { 
+coot::is_member_p(const std::vector<int> &v, const int &a) {
 
    bool ir = 0;
    unsigned int vsize = v.size();
 
-   for (unsigned int i=0; i<vsize; i++) { 
-      if (v[i] == a) { 
+   for (unsigned int i=0; i<vsize; i++) {
+      if (v[i] == a) {
 	 ir = 1;
 	 break;
-      } 
+      }
    }
    return ir;
 }
@@ -298,7 +298,7 @@ coot::util::close_double_p(const double &d1, const double &d2, const double &dif
 
    double d = fabs(d1-d2);
    return (d < diff_crit);
-} 
+}
 
 
 
@@ -340,13 +340,13 @@ coot::util::remove_trailing_whitespace(const std::string &s) {
       for (int i=sl-1; i>=0; i--) {
 	 if (s[i] != '\n' && s[i] != '\t' && s[i] != ' ') {
 	    return s.substr(0,i+1);
-	 } 
+	 }
       }
       return ""; // got to the end of a string of whitespaces
    } else {
       return ""; // input was empty string.
-   } 
-} 
+   }
+}
 
 
 
@@ -356,7 +356,7 @@ coot::util::remove_leading_spaces(const std::string &s) {
 
    int sl = s.length();
    int cutpoint = 0;
-   if (sl > 0) { 
+   if (sl > 0) {
       for (int i=0; i<sl; i++) {
 	 if (!(s[i] == ' ')) {
 	    cutpoint = i;
@@ -369,7 +369,7 @@ coot::util::remove_leading_spaces(const std::string &s) {
 
 // Remove the first bit from long
 // e.g. remove_string("Cottage", "tag") -> "Cote";
-// 
+//
 std::string
 coot::util::remove_string(const std::string &long_string, const std::string &bit) {
 
@@ -382,14 +382,14 @@ coot::util::remove_string(const std::string &long_string, const std::string &bit
 	 r = r.substr(0,ipos) + r.substr((ipos+bit.length()));
       else
 	 r = r.substr(0,ipos);
-   } 
+   }
    return r;
 
-} 
+}
 
 
 
- 
+
 
 std::string
 coot::util::int_to_string(int i) {
@@ -436,11 +436,11 @@ coot::util::float_to_unspaced_string_using_dec_pl(float f, unsigned short int n_
 // throw an exception on unable to convert
 int
 coot::util::string_to_int(const std::string &s) {
-   
+
    int i;
    std::istringstream myStream(s);
-   
-   if (myStream>>i) { 
+
+   if (myStream>>i) {
       return i;
    } else {
       std::string mess = "Cannot convert \"";
@@ -448,16 +448,16 @@ coot::util::string_to_int(const std::string &s) {
       mess += "\" to an integer";
       throw std::runtime_error(mess);
    }
-} 
+}
 
 // throw an exception on unable to convert
 float
 coot::util::string_to_float(const std::string &s) {
-   
+
    float f;
    std::istringstream myStream(s);
-   
-   if (myStream>>f) { 
+
+   if (myStream>>f) {
       return f;
    } else {
       std::string mess = "Cannot convert \"";
@@ -470,11 +470,11 @@ coot::util::string_to_float(const std::string &s) {
 // throw an exception on unable to convert
 double
 coot::util::string_to_double(const std::string &s) {
-   
+
    double f;
    std::istringstream ss(s);
-   
-   if (ss>>f) { 
+
+   if (ss>>f) {
       return f;
    } else {
       std::string mess = "Cannot convert \"";
@@ -525,14 +525,14 @@ coot::util::is_fasta_aa(const std::string &a_in) {
    short int r = 0;
 
    std::string a(upcase(a_in));
-   
-   if (a == "A" || a == "G" ) { 
+
+   if (a == "A" || a == "G" ) {
       r = 1;
-   } else { 
-      if (a == "B" 
+   } else {
+      if (a == "B"
 	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
-	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
-	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W" 
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q"
+	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W"
 	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
 	 r = 1;
       }
@@ -574,33 +574,33 @@ coot::sequence::fasta::fasta(const std::string &seq_in) {
 	 std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
 	 found_greater = 1;
       }
-      if (seq_in[i] == '\n') { 
+      if (seq_in[i] == '\n') {
 	 if (found_greater) {
 	    std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
 	    found_newline = 1;
 	 }
       }
    }
-   
-   if (seq.length() > 0) { 
+
+   if (seq.length() > 0) {
       // std::cout << "storing sequence: " << seq << std::endl;
-   } else { 
+   } else {
       std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
    }
-} 
+}
 
 bool
-coot::sequence::fasta::is_fasta_aa(const std::string &a) const { 
+coot::sequence::fasta::is_fasta_aa(const std::string &a) const {
 
    bool r = 0;
-   
-   if (a == "A" || a == "G" ) { 
+
+   if (a == "A" || a == "G" ) {
       r = 1;
-   } else { 
-      if (a == "B" 
+   } else {
+      if (a == "B"
 	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
-	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
-	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W" 
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q"
+	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W"
 	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
 	 r = 1;
       }
@@ -617,18 +617,18 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 
    if (file_name.length() == 0)
       return rstring;
-   
+
    for (int i=file_name.length()-1; i>=0; i--) {
       // std::cout << file_name.substr(0, i) << std::endl;
 
       // BL says:: in windows we should check for \ too. Too much pain to get
       // everything converted to / for file_chooser, e.g. with debackslash!
-      
+
       // Windows specific #ifdef removed 20081010, makes indenting lower done
       // this file work again.
-      // 
+      //
       if (file_name[i] == '/' || file_name[i] == '\\') {
-	 if (i < int(file_name.length())) { 
+	 if (i < int(file_name.length())) {
 	    end_char = i;
 	 } else {
 	    // never get here?
@@ -639,10 +639,10 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 	 break;
       }
    }
-   if (end_char != -1) 
+   if (end_char != -1)
       rstring = file_name.substr(0, end_char+1);
 
-   return rstring; 
+   return rstring;
 }
 
 std::string
@@ -659,7 +659,7 @@ coot::util::current_working_dir() {
 // If cwd is a substring of f (starting at 0), then return the
 // basename of f (i.e. cwd stripped from f).  If cwd is not a
 // substring of f, then return f;
-// 
+//
 std::string
 coot::util::relativise_file_name(const std::string &f, const std::string &cwd) {
 
@@ -679,16 +679,16 @@ coot::util::relativise_file_name(const std::string &f, const std::string &cwd) {
 //
 // I don't know how to do this in Unix - maybe getcwd(), but that
 // looks wrong.
-// 
+//
 std::string
 coot::util::absolutise_file_name(const std::string &file_name) {
-  
+
    std::string ret = file_name;
    // first check if already absolute file, i.e. starts with '/' or
    // has a ':' in second position (windows)
 
    if (file_name.empty()) return "";
-   
+
    if (file_name.substr(0,1) != "/" &&
        file_name.substr(1,1) != ":" ) {
      std::string s = current_working_dir();
@@ -710,16 +710,16 @@ coot::util::name_sans_extension(const std::string &f) {
    if (iext != std::string::npos)
       r = f.substr(0, iext);
    return r;
-} 
+}
 
-    
+
 
 std::string
 coot::util::file_name_non_directory(const std::string &file_name) {
 
    int slash_char = -1;
    std::string rstring = "";
-   
+
    for (int i=file_name.length()-1; i>=0; i--) {
 #ifdef WINDOWS_MINGW
       if (file_name[i] == '/' || file_name[i] == '\\') {
@@ -734,7 +734,7 @@ coot::util::file_name_non_directory(const std::string &file_name) {
 #endif // MINGW
    }
 
-   if (slash_char != -1) 
+   if (slash_char != -1)
       rstring = file_name.substr(slash_char+1);
    else
       rstring = file_name;
@@ -749,7 +749,7 @@ coot::util::file_name_extension(const std::string &file_name) {
 
    int dot_char = -1;
    std::string rstring = "";
-   
+
    for (int i=file_name.length()-1; i>=0; i--) {
       if (file_name[i] == '.') {
 	 dot_char = i;
@@ -757,7 +757,7 @@ coot::util::file_name_extension(const std::string &file_name) {
       }
    }
 
-   if (dot_char != -1) 
+   if (dot_char != -1)
       rstring = file_name.substr(dot_char);
 
    //    std::cout << "DEBUG:: extension of " << file_name << " is " << rstring << std::endl;
@@ -777,7 +777,7 @@ coot::util::extension_is_for_shelx_coords(const std::string &ext) {
        (ext == ".HAT"))
       r = 1;
 
-   return r; 
+   return r;
 }
 
 
@@ -788,9 +788,9 @@ coot::util::extension_is_for_mdl_mol_or_mol2_coords(const std::string &ext) {
    if ((ext == ".mdl")   ||
        (ext == ".MDL")   ||
        (ext == ".mol")   ||
-       (ext == ".mol2")  || // tripos mol2 
-       (ext == ".mol3d") || // tripos mol2 
-       (ext == ".MOL2")  || // tripos mol2 
+       (ext == ".mol2")  || // tripos mol2
+       (ext == ".mol3d") || // tripos mol2
+       (ext == ".MOL2")  || // tripos mol2
        (ext == ".MOL")   ||
        (ext == ".sdf")   ||
        (ext == ".SDF"))
@@ -804,11 +804,13 @@ coot::util::extension_is_for_coords(const std::string &ext) {
 
    bool r = false;
    if ((ext == ".pdb") ||
+       (ext == ".pdb.gz") ||
        (ext == ".ent") ||
+       (ext == ".ent.gz") ||
        (ext == ".PDB"))
       r = true;
-   return r; 
-} 
+   return r;
+}
 
 
 // mtz only I think?!
@@ -818,8 +820,8 @@ coot::util::extension_is_for_auto_datasets(const std::string &ext) {
    bool r = false;
    if (ext == ".mtz")
       r = true;
-   return r; 
-} 
+   return r;
+}
 
 bool
 coot::util::extension_is_for_scripts(const std::string &ext) {
@@ -828,8 +830,8 @@ coot::util::extension_is_for_scripts(const std::string &ext) {
    if ((ext == ".py") ||
        (ext == ".scm"))
       r = true;
-   return r; 
-} 
+   return r;
+}
 
 
 short int
@@ -838,9 +840,9 @@ coot::is_mmcif_filename(const std::string &filename) {
    short int i=0;
 
    std::string::size_type idot = filename.find_last_of(".");
-   if (idot != std::string::npos) { 
+   if (idot != std::string::npos) {
       std::string t = filename.substr(idot);
-   
+
       std::string::size_type icif   = t.rfind(".cif");
       std::string::size_type immcif = t.rfind(".mmcif");
       std::string::size_type immCIF = t.rfind(".mmCIF");
@@ -852,7 +854,7 @@ coot::is_mmcif_filename(const std::string &filename) {
       }
    }
    return i;
-} 
+}
 
 
 // The user can set COOT_DATA_DIR (in fact this is the usual case
@@ -926,16 +928,16 @@ coot::get_directory(const std::string &dir) {
 }
 
 
- 
- 
+
+
 std::pair<std::string, std::string>
 coot::util::split_string_on_last_slash(const std::string &string_in) {
 
    std::string::size_type islash = string_in.find_last_of("/");
    std::string first;
    std::string second("");
-   
-   if (islash != std::string::npos) { 
+
+   if (islash != std::string::npos) {
       first  = string_in.substr(0, islash);
       second = string_in.substr(islash);
       if (second.length() > 0)
@@ -944,7 +946,7 @@ coot::util::split_string_on_last_slash(const std::string &string_in) {
       first = string_in;
    }
    return std::pair<std::string, std::string> (first, second);
-} 
+}
 
 std::vector<std::string>
 coot::util::split_string(const std::string &string_in,
@@ -976,29 +978,77 @@ coot::util::split_string(const std::string &string_in,
 // by default splitter is " "
 std::vector<std::string>
 coot::util::split_string_no_blanks(const std::string &string_in,
-				   const std::string &splitter) {
+                                   const std::string &splitter) {
 
    std::vector<std::string> v;
    std::string s=string_in;
 
-   while (1) {
+   while (true) {
       std::string::size_type isplit=s.find_first_of(splitter);
       if (isplit != std::string::npos) {
          std::string f = s.substr(0, isplit);
-	 if (f.length() > 0) {
-	    v.push_back(f);
-	 }
-         if (s.length() >= (isplit+splitter.length())) { 
+         if (f.length() > 0) {
+            v.push_back(f);
+         }
+         if (s.length() >= (isplit+splitter.length())) {
             s = s.substr(isplit+splitter.length());
          } else {
             break;
          }
       } else {
-	 if (! s.empty()) {
-	    v.push_back(s);
-	 } 
+         if (! s.empty()) {
+            v.push_back(s);
+         }
          break;
       }
+   }
+   return v;
+}
+
+std::vector<std::string>
+coot::util::split_string_on_whitespace_no_blanks(const std::string &string_in) {
+
+   std::vector<std::string> v;
+   std::string s=string_in;
+
+   while (true) {
+      std::string::size_type isplit_s=s.find_first_of(" ");
+      std::string::size_type isplit_t=s.find_first_of("\t");
+      if (isplit_s != std::string::npos) {
+         std::string f = s.substr(0, isplit_s);
+         if (f.length() > 0) {
+            v.push_back(f);
+         }
+         if (s.length() >= (isplit_s+1)) {
+            s = s.substr(isplit_s+1);
+         } else {
+            break;
+         }
+      } else {
+         if (isplit_t != std::string::npos) {
+            std::string f = s.substr(0, isplit_t);
+            if (f.length() > 0) {
+               v.push_back(f);
+            }
+            if (s.length() >= (isplit_t+1)) {
+               s = s.substr(isplit_t+1);
+            } else {
+               break;
+            }
+         } else {
+            if (! s.empty()) {
+               v.push_back(s);
+            }
+            break;
+         }
+      }
+   }
+
+   if (false) {
+      for(unsigned int i=0; i<v.size(); i++) {
+         std::cout << v[i] << ":";
+      }
+      std::cout << std::endl;
    }
    return v;
 }
@@ -1011,7 +1061,7 @@ coot::util::downcase(const std::string &s) {
    std::string r = s;
    std::string::iterator it=r.begin();
 
-   while ( (it!=r.end()) ) { 
+   while ( (it!=r.end()) ) {
       *it = ::tolower(*it);
       it++;
    }
@@ -1024,20 +1074,20 @@ coot::util::upcase(const std::string &s) {
    std::string r = s;
    std::string::iterator it=r.begin();
 
-   while (it!=r.end()) { 
+   while (it!=r.end()) {
       *it = ::toupper(*it);
       it++;
    }
    return r;
 }
 
-// 
+//
 std::string
 coot::util::capitalise(const std::string &s) {
 
    if (s.length() == 0) {
       return "";
-   } else { 
+   } else {
       std::string rt = s.substr(0,1);
       rt += coot::util::downcase(s.substr(1));
       return rt;
@@ -1047,7 +1097,7 @@ coot::util::capitalise(const std::string &s) {
 
 
 long int
-coot::util::random() { 
+coot::util::random() {
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
           long int r = rand();
@@ -1058,7 +1108,7 @@ coot::util::random() {
 #endif
 }
 
-    
+
 bool
 coot::file_exists(const std::string &filename) {
 
@@ -1074,7 +1124,7 @@ coot::file_exists(const std::string &filename) {
 bool coot::is_directory_p(const std::string &filename) {
 
    bool st = 0;
-   struct stat s; 
+   struct stat s;
    int fstat = stat(filename.c_str(), &s);
    if ( fstat == -1 ) { // file not exist
       return 0;
@@ -1190,7 +1240,7 @@ coot::util::is_standard_residue_name(const std::string &residue_name) {
 
    return 0;
 
-} 
+}
 
 bool
 coot::util::is_standard_amino_acid_name(const std::string &residue_name) {
@@ -1305,16 +1355,16 @@ coot::sequence::is_sequence_triplet(const std::string &s) {
 
    bool r = false;
 
-   if (s.length() == 3) { 
+   if (s.length() == 3) {
       std::string ss = util::upcase(s);
       // A-Z check
-      if (ss[0] < 91 && ss[0] >= 65) 
-	 if (ss[1] < 91 && ss[1] >= 65) 
-	    if (ss[2] < 91 && ss[2] >= 65) 
+      if (ss[0] < 91 && ss[0] >= 65)
+	 if (ss[1] < 91 && ss[1] >= 65)
+	    if (ss[2] < 91 && ss[2] >= 65)
 	       r = true;
    }
    return r;
-} 
+}
 
 
 // return a set of string that match the glob, with the directory name pre-appended
@@ -1327,7 +1377,7 @@ coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) 
    int flags = 0;
    glob(glob_files.c_str(), flags, 0, &myglob);
    size_t count = myglob.gl_pathc;
-   for (char **p = myglob.gl_pathv; count ; p++, count--) { 
+   for (char **p = myglob.gl_pathv; count ; p++, count--) {
       char *file(*p);
       r.push_back(file);
    }
@@ -1362,11 +1412,11 @@ coot::gauss_legendre_t::fill_weight_abscicca(int N) {
    weight_abscissa_[15] = std::pair<double, double>(0.0271524594117541, -0.9894009349916499);
    weight_abscissa_[16] = std::pair<double, double>(0.0271524594117541,  0.9894009349916499);
 
-} 
+}
 
 
 // return empty string on failure
-// 
+//
 std::string
 coot::suggest_new_comp_id(const std::string &comp_id_in) {
 
@@ -1379,7 +1429,7 @@ coot::suggest_new_comp_id(const std::string &comp_id_in) {
 	 s[i] = comp_id_in[i];
       std::vector<bool> is_numeral(3, false);
       std::vector<int> n(3, -1);
-      for (unsigned int i=0; i<3; i++) { 
+      for (unsigned int i=0; i<3; i++) {
 	 if (s[i] >= 48 && s[i] <58) {
 	    is_numeral[i] = true;
 	    n[i] = s[i] - 48;
@@ -1408,7 +1458,7 @@ coot::suggest_new_comp_id(const std::string &comp_id_in) {
 	 r += s[1];
 	 r += s[2]+1;
       }
-      
+
       if (is_numeral[0] && !is_numeral[1] && !is_numeral[2]) {
 	 r =  s[0];
 	 r += s[1];
@@ -1444,13 +1494,13 @@ coot::suggest_new_comp_id(const std::string &comp_id_in) {
       }
    }
    return r;
-} 
+}
 
 
 // can throw a std::runtime_error exception.  If this returns, it guarantees a useful result.
 //
 // This doesn't deal with large numbers or negative numbers.
-// 
+//
 std::pair<std::string, long>
 coot::util::extract_number_string(const std::string &s) {
 
@@ -1469,9 +1519,9 @@ coot::util::extract_number_string(const std::string &s) {
    } else {
       // string_to_long?
       r.second = string_to_int(r.first);
-   } 
+   }
    return r;
-} 
+}
 
 int
 coot::util::round_up_by_hundreds(int num) {

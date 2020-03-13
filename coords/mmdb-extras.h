@@ -71,9 +71,9 @@ mmdb::LinkContainer empty_links_container();
 // ORANGE is P
 // DARK_GREEN is Mg
 // DARK_ORANGE is Fe
-enum bond_colours { CARBON_BOND, YELLOW_BOND, RED_BOND, BLUE_BOND, GREEN_BOND, MAGENTA_BOND, 
-		    GREY_BOND, ORANGE_BOND, CYAN_BOND, HYDROGEN_GREY_BOND, 
-		    DARK_BROWN_BOND, DARK_GREEN_BOND, DARK_ORANGE_BOND }; 
+enum bond_colours { CARBON_BOND, YELLOW_BOND, RED_BOND, BLUE_BOND, GREEN_BOND, MAGENTA_BOND,
+		    GREY_BOND, ORANGE_BOND, CYAN_BOND, HYDROGEN_GREY_BOND,
+		    DARK_BROWN_BOND, DARK_GREEN_BOND, DARK_ORANGE_BOND };
 
 float max_bond_length(const std::string &element);
 
@@ -100,18 +100,18 @@ namespace coot {
   // implicitly delete this residue too).
   // 
   mmdb::Residue *
-  deep_copy_this_residue(mmdb::Residue *residue, 
-			 const std::string &altconf, 
-			 short int whole_residue_flag,
-			 int atom_index_handle,
-			 bool embed_in_chain_flag=true);
+  deep_copy_this_residue_old_style(mmdb::Residue *residue,
+                                   const std::string &altconf,
+                                   short int whole_residue_flag,
+                                   int atom_index_handle,
+                                   bool embed_in_chain_flag);
 
   std::pair<mmdb::Residue *, atom_selection_container_t>
     deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
-					mmdb::Residue *residue, 
+					mmdb::Residue *residue,
 					const std::string &altconf, 
 					short int whole_residue_flag,
-					int atom_index_handle, 
+					int atom_index_handle,
 					int udd_afix_handle);
 
   // 13 14 15 20 21 22  -> 1

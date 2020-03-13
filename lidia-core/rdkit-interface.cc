@@ -1209,12 +1209,17 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		  // wedge bonds should have the chiral centre as the first atom.
 		  //
 		  bool swap_order = false;
+		  RDKit::ATOM_SPTR at_1 = m[idx_1];
+		  RDKit::ATOM_SPTR at_2 = m[idx_2];
+
+		  if (! at_1) continue;
+		  if (! at_2) continue;
 
 		  if (r.chiral_restraint.size()) {
-		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
+		     swap_order = chiral_check_order_swap(at_1, at_2, r.chiral_restraint);
 		  } else {
 		     // use the atoms rdkit chiral status
-		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+		     swap_order = chiral_check_order_swap(at_1, at_2);
 		  }
 		  if (! swap_order) {  // normal
 		     bond->setBeginAtomIdx(idx_1);
@@ -1226,8 +1231,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    
 		  if (type == RDKit::Bond::AROMATIC) {
 		     bond->setIsAromatic(true);
-		     m[idx_1]->setIsAromatic(true);
-		     m[idx_2]->setIsAromatic(true);
+		     at_1->setIsAromatic(true);
+		     at_2->setIsAromatic(true);
 		  }
 		  m.addBond(bond); // worry about ownership or memory leak.
 	       } else {

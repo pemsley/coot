@@ -80,7 +80,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
 						   geom, flags,
 						   do_residue_internal_torsions,
 						   do_trans_peptide_restraints,
-						   0.0, 0, true, true,
+						   0.0, 0, true, true, false,
 						   pseudos);
 	 
       if (nrestraints > 0) { 

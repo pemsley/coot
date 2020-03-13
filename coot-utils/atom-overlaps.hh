@@ -254,6 +254,9 @@ namespace coot {
 			std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
       // check LINK records
       bool is_linked(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
+      bool is_angle_related_via_link(mmdb::Atom *at_1, mmdb::Atom *at_2,
+                                     const std::vector<std::pair<std::string, std::string> > &bonds_for_at_1,
+                                     const std::vector<std::pair<std::string, std::string> > &bonds_for_at_2) const;
       bool is_ss_bonded_or_CYS_CYS_SGs(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
       bool is_ss_bonded(mmdb::Residue *residue_p) const;
 //       bool in_same_ring(const std::string &atom_name_1,

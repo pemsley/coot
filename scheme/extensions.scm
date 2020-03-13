@@ -55,20 +55,19 @@
        (lambda ()
 	 (water-coordination-gui)))
 
-		(add-simple-coot-menu-menuitem
-		 menu "Validation Outliers"
-		 (lambda ()
-			(using-active-atom
-			 (let ((imol-map (imol-refinement-map)))
-				(if (not (valid-map-molecule? imol-map))
-					 (add-status-bar-text "Refinement Map is currently not set")
-					 (validation-outliers-dialog aa-imol imol-map))))))))
+      (add-simple-coot-menu-menuitem
+       menu "Validation Outliers"
+       (lambda ()
+           (using-active-atom
+           (let ((imol-map (imol-refinement-map)))
+              (if (not (valid-map-molecule? imol-map))
+                 (add-status-bar-text "Refinement Map is currently not set")
+                 (validation-outliers-dialog aa-imol imol-map))))))))
 
-
-(define (add-module-user-defined-restraints)
-  (if (defined? 'coot-main-menubar)
-      (let ((menu (coot-menubar-menu "Restraints")))
-	(load-by-search "user-define-restraints.scm"))))
+;(define (add-module-user-defined-restraints)
+;  (if (defined? 'coot-main-menubar)
+;      (let ((menu (coot-menubar-menu "Restraints")))
+;	(load-by-search "user-define-restraints.scm"))))
 
 
 
@@ -373,7 +372,7 @@
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-maps "Copy Map Molecule...."
+	 submenu-maps "Copy Map..."
 	 (lambda ()
 	   (map-molecule-chooser-gui "Molecule to Copy..."
 				     (lambda (imol)
@@ -755,7 +754,19 @@
 
 	;; ---- R ---------
 
-	;; --- Ren --- 
+	;; --- Ren ---
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rebuild Fragment using DBLoop (Small)"
+	 (lambda ()
+	   (using-active-atom
+            (rebuild-residues-using-db-loop aa-imol aa-res-spec 0))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Rebuild Fragment using DBLoop (Bigger)"
+	 (lambda ()
+	   (using-active-atom
+            (rebuild-residues-using-db-loop aa-imol aa-res-spec 1))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Rename Residue..."
@@ -1494,24 +1505,24 @@
 
 
 	(add-simple-coot-menu-menuitem
+	 submenu-modules "Carbohydrate"
+	 (lambda ()
+	   (add-module-carbohydrate)))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-modules "CCP4"
 	 (lambda ()
 	   (add-module-ccp4)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "ProSMART"
+	 submenu-modules "Cryo-EM"
 	 (lambda ()
-	   (add-module-prosmart)))
+	   (add-module-cryo-em)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "User-defined Restraints"
+	 submenu-modules "Restraints"
 	 (lambda ()
-	   (add-module-user-defined-restraints)))
-
-	(add-simple-coot-menu-menuitem
-	 submenu-modules "SHELX"
-	 (lambda ()
-	   (add-module-shelx)))
+	   (add-module-restraints)))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-modules "PDBe"
@@ -1519,14 +1530,19 @@
 	   (add-module-pdbe)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "Carbohydrate"
+	 submenu-modules "ProSMART"
 	 (lambda ()
-	   (add-module-carbohydrate)))
+	   (add-module-prosmart)))
+
+;	(add-simple-coot-menu-menuitem
+;	 submenu-modules "User-defined Restraints"
+;	 (lambda ()
+;	   (add-module-user-defined-restraints)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-modules "Cryo-EM"
+	 submenu-modules "SHELX"
 	 (lambda ()
-	   (add-module-cryo-em)))
+	   (add-module-shelx)))
 
 
 	;; ---------------------------------------------------------------------

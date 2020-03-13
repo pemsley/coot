@@ -86,3 +86,11 @@ void add_molecular_representation_test() {
 // needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
 void add_molecular_representation_test() {}
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+void set_use_perspective_projection(int state) {
+
+// temporaily remove this for merge resolution. I don't know where this function should be
+
+ //    graphics_info_t::perspective_projection_flag = state;
+
+}

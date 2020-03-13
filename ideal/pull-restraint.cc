@@ -18,7 +18,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
 
 	    // wait until you get the lock
 	    bool unlocked = false;
-	    while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+	    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
 	       std::this_thread::sleep_for(std::chrono::nanoseconds(10));
 	       unlocked = false;
 	    }
@@ -27,6 +27,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
             if (d2 < 0.0001)
                is_different = false;
 	    it->atom_pull_target_pos = pos;
+            it->is_closed = false; // if it had been closed before, it's active again
             if (is_different)
                needs_reset = true;
 	    restraints_lock = false; // unlocked
@@ -39,10 +40,10 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    }
 
    if (! at) {
-      for (int iat=0; iat<n_atoms; iat++) { 
+      for (int iat=0; iat<n_atoms; iat++) {
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
-	    if (! fixed_check(iat)) { 
+	    if (! fixed_check(iat)) {
 	       add_target_position_restraint(iat, spec, pos);
 	       at = atom[iat];
 	    }
@@ -65,7 +66,7 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 #ifdef HAVE_CXX_THREAD
    // wait until you get the lock
    bool unlocked = false;
-   while (! restraints_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
       // std::cout << "waiting in add_target_position_restraint()" << std::endl;
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
       unlocked = false;
@@ -91,18 +92,11 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
       std::cout << "restraints_container_t clear_atom_pull_restraint for " << spec
 		<< " called " << std::endl;
 
-   unsigned int pre_size = size();
-   if (pre_size > 0) {
-      // extra loop needed.
-      restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-					  restraints_vec.end(),
-					  target_position_for_atom_eraser(spec)),
-			   restraints_vec.end());
-      unsigned int post_size = size();
-      if (false)
-	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-		   << post_size << std::endl;
-   }
+   for (unsigned int i=0; i<restraints_vec.size(); i++)
+      if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
+         if (restraints_vec[i].atom_spec == spec)
+            restraints_vec[i].close();
+
 }
 
 
@@ -110,17 +104,25 @@ coot::restraints_container_t::clear_atom_pull_restraint(const coot::atom_spec_t 
 void
 coot::restraints_container_t::clear_all_atom_pull_restraints() {
 
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      unlocked = false;
+   }
    unsigned int pre_size = size();
    if (pre_size > 0) {
+      /*
       restraints_vec.erase(std::remove_if(restraints_vec.begin(),
 					  restraints_vec.end(),
 					  target_position_eraser),
 			   restraints_vec.end());
-      unsigned int post_size = size();
-      if (false)
-	 std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-		   << post_size << std::endl;
+      */
+      for (unsigned int i=0; i<restraints_vec.size(); i++) {
+         if (restraints_vec[i].restraint_type == TARGET_POS_RESTRAINT)
+            restraints_vec[i].close();
+      }
    }
+   restraints_lock = false;
    needs_reset = true; // probably
 }
 
@@ -135,6 +137,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
 				  double scale_factor,
 				  const gsl_vector *v) {
 
+   if (rest.is_closed) return 0.0;
+
    // void *params, no longer passed
 
    // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
@@ -146,8 +150,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
 
    // get the current coordinates
    int idx = 3*(rest.atom_index_1);
-   clipper::Coord_orth current_pos(gsl_vector_get(v,idx), 
-                                   gsl_vector_get(v,idx+1), 
+   clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
+                                   gsl_vector_get(v,idx+1),
                                    gsl_vector_get(v,idx+2));
 
    // restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
@@ -183,8 +187,8 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
    }
 }
 
-void coot::my_df_target_pos(const gsl_vector *v, 
-			    void *params, 
+void coot::my_df_target_pos(const gsl_vector *v,
+			    void *params,
 			    gsl_vector *df) {
 
    // 20170628 let's try the (f) ln(cosh) and (df) hyperbolic tan
@@ -192,7 +196,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
    // 20180602-PE let's try harmonic again
 
    bool harmonic_restraint = true;
-   
+
    restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
    // patch madness
@@ -205,13 +209,14 @@ void coot::my_df_target_pos(const gsl_vector *v,
    for (int i=0; i<restraints_size; i++) {
       const simple_restraint &rest = (*restraints_p)[i];
       if (rest.restraint_type == TARGET_POS_RESTRAINT) {
+         if (rest.is_closed) continue;
 	 double sigma = 0.03; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 
 // 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
 // 					 gsl_vector_get(v,idx+1),
 // 					 gsl_vector_get(v,idx+2));
-	 
+
 	 if (harmonic_restraint) {
 	    double constant_part = 2.0 / (sigma * sigma);
 
@@ -250,31 +255,8 @@ void coot::my_df_target_pos(const gsl_vector *v,
 	 }
       }
    }
-   
-   
-}
 
 
-bool
-coot::restraints_container_t::turn_off_when_close_target_position_restraint() {
-
-   // Is this used? From where? Should it be used?
-
-   std::cout << "--------------- Don't use this " << std::endl;
-
-   bool status = false;
-   double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
-                             // sync with below function, or make a data member
-
-   atom_spec_t dum;
-   unsigned int pre_size = size();
-   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dum)),
-			restraints_vec.end());
-   unsigned int post_size = size();
-   if (post_size < pre_size) status = true;
-   return status;
 }
 
 
@@ -290,26 +272,50 @@ coot::restraints_container_t::turn_off_atom_pull_restraints_when_close_to_target
    double close_dist = 0.6;  // was 0.5; // was 0.4 [when there was just 1 pull atom restraint]
                              // sync with above function, or make a data member
 
+   // we don't want to do this at the same time as clear_all_atom_pull_retraints
+
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      unlocked = false;
+   }
    // set the return value:
    //
-   std::vector<simple_restraint>::const_iterator it;
+   std::vector<simple_restraint>::iterator it;
    for(it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
-	 mmdb::Atom *at = atom[it->atom_index_1];
-	 if (atom_spec_t(at) != dragged_atom_spec) {
-	    clipper::Coord_orth pos(at->x, at->y, at->z);
-	    double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
-	    if (d < close_dist)
-	       v.push_back(it->atom_spec);
-	 }
+         if (it->is_closed) {
+            // the return value is used (eventually) by atom_pull_off(), used
+            // to remove the drawn atom-pull
+            // v.push_back(it->atom_spec);
+            // std::cout << "debug:: turn_off_atom_pull_restraints_when_close_to_target_position() adding closed " << it->atom_spec << std::endl;
+         } else {
+            mmdb::Atom *at = atom[it->atom_index_1];
+            if (atom_spec_t(at) != dragged_atom_spec) {
+               clipper::Coord_orth pos(at->x, at->y, at->z);
+               double d = sqrt((pos - it->atom_pull_target_pos).lengthsq());
+               if (d < close_dist) {
+                  it->close();
+                  v.push_back(it->atom_spec);
+                  // std::cout << "debug:: turn_off_atom_pull_restraints_when_close_to_target_position() adding " << it->atom_spec << std::endl;
+               }
+            }
+         }
       }
    }
 
+   // no need to remove the pull restraint! Just turn it off.
+
    // now do the remove
-   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-				       restraints_vec.end(),
-				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
-			restraints_vec.end());
+//    restraints_vec.erase(std::remove_if(restraints_vec.begin(),
+// 				       restraints_vec.end(),
+// 				       turn_off_when_close_target_position_restraint_eraser(close_dist, atom, n_atoms, dragged_atom_spec)),
+// 			restraints_vec.end());
+
+   restraints_lock = false;
+
+   if (v.size() > 0)
+      needs_reset = true;
 
    return v;
 }

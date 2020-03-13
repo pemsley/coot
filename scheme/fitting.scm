@@ -157,9 +157,9 @@
     
 (define (fit-protein-fit-function res-spec imol-map)
   (let ((imol     (list-ref res-spec 0))
-	(chain-id (list-ref res-spec 1))
-	(res-no   (list-ref res-spec 2))
-	(ins-code (list-ref res-spec 3)))
+        (chain-id (list-ref res-spec 1))
+        (res-no   (list-ref res-spec 2))
+        (ins-code (list-ref res-spec 3)))
 
     (let ((res-name  (residue-name imol chain-id res-no ins-code)))
       (if (string? res-name)

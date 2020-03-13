@@ -399,10 +399,12 @@ manage_column_selector(const char *filename) {
 }
 
 void
-manage_refmac_column_selection(GtkWidget *w) {
+manage_refmac_column_selection(GtkWidget *run_refmac_dialog) {
+
+   // called by an mtz file chooser response
 
    if (graphics_info_t::use_graphics_interface_flag) {
-     coot::setup_refmac_parameters_from_file(w);
+     coot::setup_refmac_parameters_from_file(run_refmac_dialog);
    }
 }
 
@@ -467,11 +469,90 @@ get_active_label_in_combobox(GtkComboBox *combobox) {
    return g.get_active_label_in_combobox(combobox);
 }
 
+void handle_column_label_make_fourier_v2(GtkWidget *column_label_window) {
+
+   GtkWidget *weights_checkbutton     = lookup_widget(GTK_WIDGET(column_label_window), "use_weights_checkbutton");
+   GtkWidget *is_diff_map_checkbutton = lookup_widget(GTK_WIDGET(column_label_window), "difference_map_checkbutton");
+   GtkWidget *reso_limit_checkbutton  = lookup_widget(GTK_WIDGET(column_label_window), "column_labels_use_resolution_limits_checkbutton");
+   bool use_weights_flag       = false;
+   bool is_difference_map_flag = false;
+   bool limit_reso_flag = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(weights_checkbutton))) use_weights_flag = true;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(is_diff_map_checkbutton))) is_difference_map_flag = true;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(reso_limit_checkbutton))) limit_reso_flag = true;
+   GtkWidget *amplitudes_combobox = lookup_widget(column_label_window, "column_selector_amplitudes_combobox");
+   GtkWidget *phases_combobox     = lookup_widget(column_label_window, "column_selector_phases_combobox");
+   GtkWidget *weights_combobox    = lookup_widget(column_label_window, "column_selector_weights_combobox");
+
+   std::string f_label   = get_active_label_in_combobox(GTK_COMBO_BOX(amplitudes_combobox));
+   std::string phi_label = get_active_label_in_combobox(GTK_COMBO_BOX(phases_combobox));
+   std::string w_label;
+   if (use_weights_flag)
+      w_label = get_active_label_in_combobox(GTK_COMBO_BOX(weights_combobox));
+
+   std::string fobs_col, sigfobs_col, r_free_col;
+   bool have_refmac_params = false;
+   bool sensible_r_free_col = false;
+   bool is_anomalous_flag = false;
+   float low_res_limit  = -1.0;
+   float high_res_limit = -1.0;
+
+
+   /* --------- Refmac label stuff --------- */
+
+   GtkWidget *refmac_columns_checkbutton = lookup_widget(GTK_WIDGET(column_label_window), "refmac_column_labels_checkbutton");
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(refmac_columns_checkbutton))) {
+      have_refmac_params = 1;
+      GtkWidget *fobs_combobox    = lookup_widget(column_label_window, "column_label_selector_refmac_fobs_combobox");
+      GtkWidget *sigfobs_combobox = lookup_widget(column_label_window, "column_label_selector_refmac_sigfobs_combobox");
+      GtkWidget *r_free_combobox  = lookup_widget(column_label_window, "column_label_selector_refmac_rfree_combobox");
+
+      fobs_col    = get_active_label_in_combobox(GTK_COMBO_BOX(   fobs_combobox));
+      sigfobs_col = get_active_label_in_combobox(GTK_COMBO_BOX(sigfobs_combobox));
+      r_free_col  = get_active_label_in_combobox(GTK_COMBO_BOX( r_free_combobox));
+      if (! r_free_col.empty()) sensible_r_free_col = true;
+   }
+
+   /* --------- Save the column data in the attached pointer --------- */
+
+   std::string mtz_filename;
+   gpointer d = g_object_get_data(G_OBJECT(column_label_window), "f_phi_columns"); // set in column_selector_using_cmtz()
+   coot::mtz_column_types_info_t *saved_f_phi_columns = 0;
+   if (d) {
+      saved_f_phi_columns = static_cast<coot::mtz_column_types_info_t *> (d);
+      mtz_filename = saved_f_phi_columns->mtz_filename;
+   }
+
+   /* --------- make and draw --------- */
+
+   std::cout << "debug:: calling make_and_draw_map_with_reso_with_refmac_params() with the refmac params "
+             << have_refmac_params << " " << fobs_col << " " << sigfobs_col << " " << r_free_col << " " << sensible_r_free_col
+             << std::endl;
+
+   make_and_draw_map_with_reso_with_refmac_params(mtz_filename.c_str(),
+						  f_label.c_str(),
+						  phi_label.c_str(),
+						  w_label.c_str(),
+						  use_weights_flag, is_difference_map_flag,
+						  have_refmac_params,
+						  fobs_col.c_str(),
+						  sigfobs_col.c_str(),
+						  r_free_col.c_str(),
+						  sensible_r_free_col,
+						  is_anomalous_flag,
+						  limit_reso_flag,
+						  low_res_limit, high_res_limit);
+
+   /* We can destroy the column_label_window top level widget now. */
+   gtk_widget_destroy(column_label_window);
+
+}
+
 void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 
    if (false)
       std::cout << "---- handle_column_label_make_fourier() with column_label_window "
-		<< column_label_window << std::endl;
+                << column_label_window << std::endl;
 
    GtkWidget *refmac_checkbutton;
    int icol;
@@ -480,8 +561,8 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
    short int sensible_r_free_col = 0;
    short int have_refmac_params = 0; /* default not */
    short int use_resolution_limits_flag = 0;
-   float low_reso_lim = -1.0;	/* unset */
-   float high_reso_lim = -1.0;	/* unset */
+   float low_reso_lim = -1.0;  /* unset */
+   float high_reso_lim = -1.0; /* unset */
    short int is_anomalous_flag = 0;
 
    GtkWidget *fobs_option_menu;
@@ -2159,8 +2240,6 @@ void handle_get_accession_code(GtkWidget *widget) {
 #endif // USE_GUILE
 
    }
-   std::cout << "WARING:: Executable not compiled with guile or python." << std::endl;
-   std::cout << "         This won't work." << std::endl;
 
    // and kill the accession code window
    gtk_widget_destroy(lookup_widget(GTK_WIDGET(widget), "accession_code_window"));
@@ -3529,11 +3608,11 @@ new_close_molecules(GtkWidget *window) {
 	    // set it to the bottom model molecule:
 	    for (int imol=graphics_info_t::n_molecules()-1; imol>=0; imol--) {
 	       if (is_valid_model_molecule(imol)) {
-		  g.set_go_to_atom_molecule(imol);
-		  break;
-	       }
-	    }
-	 }
+	          g.set_go_to_atom_molecule(imol);
+	          break;
+               }
+            }
+         }
       }
    }
 
@@ -4909,8 +4988,6 @@ void export_map_gui(short int export_map_fragment) {
       gtk_widget_hide(hbox);
    }
 
-   GtkWidget *option_menu = lookup_widget(w, "export_map_map_optionmenu");
-
    GtkWidget *combobox = lookup_widget(w, "export_map_map_combobox");
 
    graphics_info_t g;
@@ -5927,8 +6004,91 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
    return state;
 }
 
+
+// 20200302 Be'er Sheva new style extension installation
+// Put these in c-interface-curlew?
+void
+curlew_install_extension_file(const std::string &file_name, const std::string &checksum) {
+
+   if (!file_name.empty()) {
+
+      std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      url_prefix += "extensions";
+      url_prefix += "/";
+      url_prefix += file_name;
+
+      std::string download_dir = "coot-download";
+      download_dir = coot::get_directory(download_dir.c_str());
+      std::string dl_fn = download_dir + "/";
+      dl_fn += file_name;
+
+      if (false) // debug
+         std::cout << "get this " << url_prefix << " as this " << dl_fn << std::endl;
+
+      int r = coot_get_url(url_prefix.c_str(), dl_fn.c_str());
+
+      if (r) {
+         std::cout << "WARNING:: bad URL retrieve " << file_name << std::endl;
+      } else {
+         // Happy path
+         if (coot::file_exists(dl_fn)) {
+            if (checksums_match(dl_fn, checksum)) {
+               // I want a function that returns preferences_dir
+               char *home = getenv("HOME");
+               if (home) {
+                  std::string home_directory(home);
+                  std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+                  std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+                  std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
+                  int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
+                  if (status != 0) {
+                     std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
+                  } else {
+                     std::cout << "debug:: renaming successful" << std::endl;
+                     std::cout << "INFO:: run_script called on " << preferences_file_name << std::endl;
+                     run_script(preferences_file_name.c_str());
+                  }
+               } else {
+                  std::cout << "No HOME env var" << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+            }
+         } else {
+            std::cout << "WARNING:: download target file " << dl_fn << " does not exist" << std::endl;
+         }
+      }
+   }
+}
+
+bool
+curlew_uninstall_extension_file(const std::string &file_name) {
+
+   bool r_status = false;
+
+   // I want a function that returns preferences_dir
+   char *home = getenv("HOME");
+   if (home) {
+      std::string home_directory(home);
+      std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+      std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+      std::string renamed_file_name = preferences_file_name + "_uninstalled";
+      if (coot::file_exists(preferences_file_name)) {
+         int status = rename(preferences_file_name.c_str(), renamed_file_name.c_str());
+         if (status != 0) {
+            std::cout << "WARNING:: rename status " << status << " failed to uninstall " << file_name << std::endl;
+         } else {
+            // OK
+            r_status = true;
+         }
+      }
+   }
+   return r_status;
+}
+
+
 // If I put this in c-interface-curlew.cc, then it doesn't resolve when linking.
-// I don't understand why.
+// I don't understand why. It's called from callbacks.c
 //
 /* curlew install button clicked callback action */
 void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions) {
@@ -5946,25 +6106,23 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 	 GtkWidget *w = lookup_widget(curlew_dialog, cb_name.c_str());
 	 GtkWidget *hbox = lookup_widget(curlew_dialog, hbox_name.c_str());
 
-	 // std::cout << "debug:: here with hbox " << hbox << " for idx " << i << std::endl;
-
 	 if (w) {
 	    int status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
 	    if (status) { // selected for download/install
 	       if (false)
 		  std::cout << "Got w " << w << " for i " << cb_name << " " << status
-			    <<std::endl;
+		            <<std::endl;
 
-	       gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
-	       gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
+               gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
+               gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
 
-	       if (file_name_cstr) {
+               if (file_name_cstr) {
 
 		  std::string file_name(file_name_cstr);
 
 		  if (!file_name.empty()) {
 
-		     std::string url_prefix = "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+		     std::string url_prefix = "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
 		     url_prefix += "extensions";
 		     url_prefix += "/";
 		     url_prefix += file_name;
@@ -5989,14 +6147,14 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			      char *home = getenv("HOME");
 			      if (home) {
 				 std::string home_directory(home);
-				 std::string preferences_dir =
-				    coot::util::append_dir_dir(home_directory, ".coot-preferences");
-				 std::string preferences_file_name =
-				    coot::util::append_dir_file(preferences_dir, file_name);
+				 std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot-preferences");
+				 std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
+                                 std::cout << "debug:: attempting to rename " << dl_fn << " as " << preferences_file_name << std::endl;
 				 int status = rename(dl_fn.c_str(), preferences_file_name.c_str());
 				 if (status != 0) {
-				    std::cout << "WARNING:: failed to install " << file_name << std::endl;
+				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
 				 } else {
+                                    std::cout << "debug:: renaming successful" << std::endl;
 				    std::cout << "run_script on " << preferences_file_name << std::endl;
 				    run_script(preferences_file_name.c_str());
 				    // make the hbox insensitive
@@ -6004,7 +6162,9 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 				       gtk_widget_set_sensitive(hbox, FALSE);
 				    }
 				 }
-			      }
+			      } else {
+                                 std::cout << "No HOME env var" << std::endl;
+                              }
 			   } else {
 			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
 			   }

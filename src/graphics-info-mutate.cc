@@ -118,7 +118,8 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 	       // This should not be happen.
 	       std::cout << "NULL chain in add_cb_to_terminal_res" << std::endl;
 	    } else {
-	       mmdb::Residue *std_res_copy = coot::deep_copy_this_residue(std_res, "", 1, -1);
+               bool embed_in_chain_flag = false;
+	       mmdb::Residue *std_res_copy = coot::deep_copy_this_residue_old_style(std_res, "", 1, -1, embed_in_chain_flag);
 	       if (std_res_copy) {
 		  int nres = chain->GetNumberOfResidues();
 		  mmdb::Residue *residue_p = 0;

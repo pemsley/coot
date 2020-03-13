@@ -89,7 +89,7 @@ def settingsFilename():
             raise RCraneSettingsError("Could not create Coot preferences directory: " + preferencesDir + "\nA file of the same name already exists")
     else:
         try:
-            os.mkdir(preferencesDir)
+            os.makedirs(preferencesDir)
         except OSError, error:
             raise RCraneSettingsError("Could not create Coot preferences directory: " + preferencesDir + "\nError: " + str(error))
     

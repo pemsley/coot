@@ -9235,3 +9235,110 @@ Wed 18 Sep 2019 15:46:47 BST
 
     o https://github.com/mozilla/DeepSpeech
 
+---
+Fri 20 Sep 21:13:27 BST 2019
+
+   de novo model building using Coot:
+
+   https://www.pnas.org/content/116/33/16535
+
+   How would you do it today?
+
+---
+Wed  9 Oct 2019 16:12:16 BST
+
+   zink:
+
+   https://kusma.xyz/blog/2018/10/31/introducing-zink.html
+
+---
+Tue 15 Oct 2019 00:18:40 BST
+
+    const iterators are not const on the left hand side!
+
+---
+Fri  6 Dec 2019 14:32:43 GMT
+
+   Kevin says that structure factor calculation is in csfcalc.cpp
+
+---
+Tue  3 Dec 11:03:55 GMT 2019
+
+   threaded sort:
+
+   http://quick-bench.com/n55SzmJ2k-FowEP_ERhre56ODWA
+   https://hastebin.com/uceyumepis.cpp
+
+---
+Tue 14 Jan 2020 02:09:52 GMT
+
+   OPUS‐Rota: A fast and accurate method for side‐chain modeling
+   https://onlinelibrary.wiley.com/doi/full/10.1110/ps.035022.108
+
+
+---
+Fri 24 Jan 2020 16:10:04 ICT
+
+   4ebl B 70 SER has linked ligand - nice for tutorial.
+        Has NCS, but not complete for all chains.
+        Also wrong glycerols
+
+
+---
+Sun  2 Feb 05:53:57 GMT 2020
+
+   mmdb bug I think: If you set the residue name to 2 chars, then
+   in the pdb file the 2 chars are in the wrong columns (right
+   justified - should be left).
+
+
+---
+Thu 13 Feb 18:40:56 GMT 2020
+
+    EPG in 2xgb is an example of incorrect/changing chemistry
+    on ligand covalent bond formation A 184 GLU
+
+
+
+---
+Fri 14 Feb 16:21:30 GMT 2020
+
+   install gtk3+ on Ubuntu:
+
+   sudo apt-get install libgtk-3-dev
+
+
+---
+Thu 20 Feb 21:40:34 GMT 2020
+
+   https://www.cell.com/structure/pdf/S0969-2126(15)00511-0.pdf 3jci
+
+   They mention emringer - test this.
+
+-----
+Thu 27 Feb 2020 12:48:11 IST
+
+   clustalw is LGPL? Use that for alignments.
+
+
+---
+Sat 29 Feb 2020 17:52:41 IST
+
+
+   o Ronan's talk:
+
+     Get the 1tj3 "bad" model without splitting - 1tj3 is the data or the model?
+     Data presumably.  Calculate/update maps? Likelihood improvements?
+
+     Get the "jelly body" refined map and model too. 3td6
+
+     Misha: has FimD-plug and FimDNTD needs jelly body refinement
+            get the codes (2011?)
+
+   o domains with hinges: can you find a way to generate models that
+     have a "hinge" - 3 angles to test? One is more common than the
+     others?
+
+   o put sfcheck functions (graphs) into coot.
+
+

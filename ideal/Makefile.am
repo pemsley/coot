@@ -80,7 +80,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc ng.cc \
 	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
 	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc
 
-libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 
 check_PROGRAMS =  with-geometry logramatest crankshaft-test test-rama-plot
 if OS_WIN32
@@ -125,6 +125,12 @@ with_geometry_LDADD = \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # add libcoot-map-utils for  the debugging density_around_point function
+#
+# 20191226-PE I have added -lpthread to mini_rsr linking and coot-ideal
+#    linking - maybe that's a mistake - there *should* only be one (but
+#    I tried adding it to just the library, but mini-rsr didn't link).
+#    Not sure either that this is the canonical way of adding threads.
+#
 mini_rsr_bin_LDADD =  \
         ./libcoot-ideal.la                                 \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
@@ -138,7 +144,7 @@ mini_rsr_bin_LDADD =  \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
-        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) -lpthread
 
 #test_indexing_LDADD = \
 #        ./libcoot-ideal.la                                \

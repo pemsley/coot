@@ -135,14 +135,6 @@
 #include "cmtz-interface.hh"
 // #include "mtz-bits.h" stuff from here moved to cmtz-interface
 
-// Including python needs to come after graphics-info.h, because
-// something in Python.h (2.4 - chihiro) is redefining FF1 (in
-// ssm_superpose.h) to be 0x00004000 (Grrr).
-//
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
-
 
 // This is (already) in git-revision-count.cc
 //
@@ -5991,6 +5983,11 @@ int refine_ramachandran_angles_state() {
    return graphics_info_t::do_rama_restraints;
 }
 
+void set_refine_rotamers(int state) {
+   graphics_info_t::do_rotamer_restraints = state;
+}
+
+
 
 #include "c-interface-refine.hh"
 
@@ -9032,7 +9029,8 @@ void load_tutorial_model_and_data() {
    std::string mtz_fn = coot::util::append_dir_file(d, "rnasa-1.8-all_refmac1.mtz");
 
    int imol = handle_read_draw_molecule_with_recentre(pdb_fn.c_str(), true);
-   int imol_map = make_and_draw_map(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0);
+   int imol_map = make_and_draw_map_with_refmac_params(mtz_fn.c_str(), "FWT", "PHWT", "", 0, 0, 1, "FGMP18", "SIGFGMP18", "FreeR_flag", 1);
    int imol_diff_map = make_and_draw_map(mtz_fn.c_str(), "DELFWT", "PHDELWT", "", 0, 1);
+
 
 }

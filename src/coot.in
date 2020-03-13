@@ -165,7 +165,11 @@ PATH=$COOT_PREFIX/bin:$PATH
 
 SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
 COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
-# COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
+if [ -z $CLIBD_MON ] ; then
+ echo CLIBD_MON not set using COOT_REFMAC_LIB_DIR
+ COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
+ export COOT_REFMAC_LIB_DIR
+fi
 COOT_STANDARD_RESIDUES=$COOT_PREFIX/share/coot/standard-residues.pdb
 COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot

@@ -1123,6 +1123,8 @@ coot::reduce::add_xH_H(const std::string &H_name,
 	 mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, alt_confs[i], residue_p);
 	 r.push_back(at);
 	 spinables.add(at_1, atom_with_attached_Hs::HYDROXYL, at); // maybe need SULFHYDRYL separate?
+      } else {
+         std::cout << " a lookup fail for " << at_name_1 << " " << at_name_2 << " " << at_name_3 << " placing " << H_name << std::endl;
       }
    }
    return r;
@@ -1275,6 +1277,55 @@ coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
 }
 
 bool
+coot::reduce::hack_ss_bond_test(mmdb::Residue *CYS_1_residue_p, mmdb::Model *model_p) const {
+
+   bool status = false;
+
+   mmdb::Atom *CYS_1_SG = 0;
+   int n_atoms = CYS_1_residue_p->GetNumberOfAtoms();
+   for (int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = CYS_1_residue_p->GetAtom(iat);
+      std::string atom_name = at->GetAtomName();
+      if (atom_name == " SG ") {
+         CYS_1_SG = at;
+         break;
+      }
+   }
+   if (! CYS_1_SG) return false;
+
+   clipper::Coord_orth pt_1 = co(CYS_1_SG);
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      mmdb::Chain *chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         std::string res_name = residue_p->GetResName();
+         if (residue_p != CYS_1_residue_p) {
+            if (res_name == "CYS") {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  std::string atom_name = at->GetAtomName();
+                  if (atom_name == " SG ") {
+                     clipper::Coord_orth pt_2 = co(at);
+                     double dd = (pt_2-pt_1).lengthsq();
+                     if (dd < 3.0 * 3.0) {
+                        status = true;
+                        break;
+                     }
+                  }
+               }
+            }
+         }
+         if (status) break;
+      }
+   }
+
+   return status;
+}
+
+bool
 coot::reduce::is_ss_bonded(mmdb::Residue *residue_p) const {
 
    bool status = false;
@@ -1283,8 +1334,13 @@ coot::reduce::is_ss_bonded(mmdb::Residue *residue_p) const {
       if (res_name == "CYS") {
 	 int imod = 1;
 	 mmdb::Model *model_p = mol->GetModel(imod);
-	 // check SS bonds here
-	 status = true;
+         if (model_p) {
+	    // check SS bonds here
+            //
+            // Oh dear, we can't interograte SSBONDs.
+            bool i = hack_ss_bond_test(residue_p, model_p);
+            if (i) status = true;
+         }
       }
    }
 

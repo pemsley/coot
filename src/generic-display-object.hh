@@ -7,6 +7,8 @@
 
 #include "coot-colour.hh"
 
+std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
+
 namespace coot {
 
    class generic_display_line_t {

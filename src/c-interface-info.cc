@@ -1135,7 +1135,7 @@ void hydrogenate_region(float radius) {
 	 if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON
 
-	    std::string python_command = "reduce_on_pdb_file(";
+	    std::string python_command = "reduce_on_pdb_file_no_flip(";
 	    python_command += coot::util::int_to_string(imol);
 	    python_command += ", ";
 	    python_command += single_quote(pdb_in);
@@ -1159,7 +1159,7 @@ void hydrogenate_region(float radius) {
 #ifdef USE_GUILE
 	    // write a PDB file and run reduce, read it in
 	    //
-	    std::string scheme_command = "(reduce-on-pdb-file ";
+	    std::string scheme_command = "(reduce-on-pdb-file-no-flip ";
 	    scheme_command += coot::util::int_to_string(imol);
 	    scheme_command += " ";
 	    scheme_command += single_quote(pdb_in);
@@ -2759,6 +2759,9 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    std::string cell_text_string;
    std::string spgr_text_string;
    std::string reso_text_string;
+
+   std::string title = "Properties for Map " + coot::util::int_to_string(imol);
+   gtk_window_set_title(GTK_WINDOW(window), title.c_str());
 
    // 20180924-PE FIXME needs to consider NXmaps
    //

@@ -141,6 +141,7 @@ namespace molecule_map_type {
 #include "updating-coordinates-molecule-parameters.hh"
 #include "cmtz-interface.hh" // for udating molecules
 #include "clipper-ccp4-map-file-wrapper.hh"
+#include "model-composition-statistics.hh"
 
 namespace coot {
 
@@ -422,7 +423,7 @@ class molecule_class_info_t {
    // difference map negative level colour relative to positive level:
    float rotate_colour_map_for_difference_map; // 240.0 default colour_map_rotation
 
-   float get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag) const;
+   std::pair<float, std::vector<mmdb::Atom *> > get_clash_score(const coot::minimol::molecule &a_rotamer, bool score_hydrogen_atoms_flag, int water_interaction_modeb) const;
    std::pair<double, clipper::Coord_orth> get_minimol_pos(const coot::minimol::molecule &a_rotamer) const;
 
    // backup is done in the wrappers.  (This factorization needed for
@@ -594,10 +595,12 @@ class molecule_class_info_t {
    // uncommenting the following line causes a crash in the multi-molecule
    // (expand molecule space) test.
    bool original_fphis_filled;
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > original_fphis;
    bool original_fobs_sigfobs_filled;
+   bool original_fobs_sigfobs_fill_tried_and_failed;
+   clipper::HKL_data< clipper::datatypes::F_phi<float> >  original_fphis;
    clipper::HKL_data< clipper::datatypes::F_sigF<float> > original_fobs_sigfobs;
-   void fill_fobs_sigfobs();
+   clipper::HKL_data< clipper::data32::Flag> original_r_free_flags;
+
 
    // is the CCP4 map a EM map? (this is so that we can fill the
    // NXmap, not the xmap)
@@ -716,7 +719,7 @@ public:        //                      public
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       is_patterson = 0;
       // draw_vectors = NULL;
-      diff_map_draw_vectors = NULL;
+      // diff_map_draw_vectors = NULL;
 
       //
       xskel_is_filled = 0; // not filled.
@@ -780,7 +783,8 @@ public:        //                      public
 
       // original Fs saved? (could be from map)
       original_fphis_filled = 0;
-      original_fobs_sigfobs_filled = 0;
+      original_fobs_sigfobs_filled = false;
+      original_fobs_sigfobs_fill_tried_and_failed = false;
 
 
       //  bond width (now changeable).
@@ -795,7 +799,9 @@ public:        //                      public
       rotate_colour_map_for_difference_map = 240.0; // degrees
 
       // save index
-      coot_save_index = 0;
+      coot_save_index = 0; // how is this related to the backup history_index?
+
+      other_molecule_backup_index = -1; // unset
 
       // ligand flipping. save the index
       ligand_flip_number = 0; // or 1 2 3 for the 4 different
@@ -828,10 +834,12 @@ public:        //                      public
       n_vertices_for_map_VertexArray = 0;
       n_vertices_for_model_VertexArray = 0;
       n_indices_for_triangles = 0;
+      n_indices_for_lines = 0;
       // Assigning to GLuint. Hmm
       m_VertexArrayID_for_map  = -1;
       m_VertexBufferID = -1;
-      m_IndexBufferID  = -1;
+      m_IndexBuffer_for_map_lines_ID  = -1;
+      m_IndexBuffer_for_map_triangles_ID = -1;
       m_ColourBufferID = -1;
       m_VertexArray_for_model_ID = -1;
       m_VertexBuffer_for_model_ID = -1;
@@ -839,7 +847,9 @@ public:        //                      public
       n_indices_for_model_triangles = 0;
 
       // draw vectors
-      draw_vector_sets.reserve(120);
+      draw_vector_sets.reserve(120); // more than enough
+      draw_vector_sets.resize(120);
+      draw_diff_map_vector_sets.resize(120);
 
       // don't show strict ncs unless it's turned on.
       show_strict_ncs_flag = 1;
@@ -906,8 +916,8 @@ public:        //                      public
 					   	                    // we also set
 						                    // bond_colour_internal.
    void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
-   
 
+   // return the colour, don't call glColor3f();
    coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
 
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
@@ -1193,7 +1203,7 @@ public:        //                      public
    void update_symmetry();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
-   void anisotropic_atoms();
+   void draw_anisotropic_atoms();
    void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
    void draw_map_unit_cell(const coot::colour_holder &cell_colour);
    void draw_unit_cell_internal(float rsc[8][3]);
@@ -1258,10 +1268,13 @@ public:        //                      public
    //
    // now coot makes many draw_vectors by sending off a "set" - sets of planes - calculated in threads.
    // no need for consolidation before draw time.
-   std::vector<coot::CartesianPairInfo> draw_vector_sets;
+   // just lines: std::vector<coot::CartesianPairInfo> draw_vector_sets;
+   std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
-   const coot::CartesianPair* diff_map_draw_vectors;
-   int n_diff_map_draw_vectors;
+   // const coot::CartesianPair* diff_map_draw_vectors;
+   // int n_diff_map_draw_vectors;
+   std::vector<coot::CartesianPairInfo> draw_diff_map_vector_sets;
 
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
@@ -1445,8 +1458,9 @@ public:        //                      public
    void dynamically_transform(coot::CartesianPairInfo v);
 
    void clear_draw_vecs();
+   void clear_diff_map_draw_vecs();
 
-   void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
+   // void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
 
    // for negative the other map.
    //
@@ -1549,6 +1563,12 @@ public:        //                      public
 					const std::string &sigf_col,
 					atom_selection_container_t SelAtom,
 					short int is_2fofc_type);
+   // use this molecules mol and the passed data to make a map for some other
+   // molecule
+   int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                     clipper::Xmap<float> *xmap_p);
+   void fill_fobs_sigfobs();
 
 
    void update_map_in_display_control_widget() const;
@@ -1687,6 +1707,22 @@ public:        //                      public
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;
 
+   const clipper::HKL_data<clipper::data32::F_sigF> &get_original_fobs_sigfobs() {
+      if (!original_fobs_sigfobs_filled) {
+         std::string m("Original Fobs/sigFobs is not filled");
+         throw(std::runtime_error(m));
+      }
+      return original_fobs_sigfobs;
+   }
+
+      const clipper::HKL_data<clipper::data32::Flag> &get_original_rfree_flags() {
+      if (!original_fobs_sigfobs_filled) {
+         std::string m("Original Fobs/sigFobs is not filled - so no RFree flags");
+         throw(std::runtime_error(m));
+      }
+      return original_r_free_flags;
+   }
+
 
    // for the "Render As: " menu items:
    //
@@ -1813,6 +1849,8 @@ public:        //                      public
    int delete_atoms(const std::vector<coot::atom_spec_t> &atom_specs);
 
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
+
+   int delete_waters(); // return status of atoms deleted (0 -> none deleted).
 
    int delete_chain(const std::string &chain_id);
 
@@ -2028,8 +2066,9 @@ public:        //                      public
    int quick_save(); // save to default file name if has unsaved changes.  Return non-zero on problem.
    std::string stripped_save_name_suggestion(); // sets coot_save_index maybe
    int Have_unsaved_changes_p() const;
-   short int Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
-   short int Have_redoable_modifications_p() const ;
+   bool Have_modifications_p() const { return history_index > 0 ? 1 : 0;}
+   bool Have_redoable_modifications_p() const ;
+   int get_history_index() const;
    void turn_off_backup() { backup_this_molecule = false; }
    void turn_on_backup()  { backup_this_molecule = true;  }
    int apply_undo(const std::string &cwd);
@@ -2205,11 +2244,12 @@ public:        //                      public
 
    std::pair<bool, int>  last_residue_in_chain(const std::string &chain_id) const;
    std::pair<bool, int> first_residue_in_chain(const std::string &chain_id) const;
+   std::pair<bool, int>  last_protein_residue_in_chain(const std::string &chain_id) const;
 
    // return NULL on no last residue.
    mmdb::Residue *last_residue_in_chain(mmdb::Chain *chain_p) const;
 
-   //
+   //! @return -1 on failure to find residue
    int residue_serial_number(const std::string &chain_id, int reso, const std::string &insertion_code) const;
 
    std::string res_name_from_serial_number(std::string chain_id, unsigned int serial_number) const;
@@ -2323,6 +2363,7 @@ public:        //                      public
    }
 
 
+   float get_contour_level_by_sigma() const;
    // external contour control (from saving parameters):
    void set_contour_level(float f);
    void set_contour_level_by_sigma(float f);
@@ -2855,6 +2896,12 @@ public:        //                      public
    // atoms or no water atoms).
    float max_water_distance();
 
+   float fit_chain_to_map_by_random_jiggle(const std::string &chain_id, const clipper::Xmap<float> &xmap,
+                                           float map_sigma,
+                                           int n_trials, float jiggle_scale_factor);
+   float fit_molecule_to_map_by_random_jiggle(const clipper::Xmap<float> &xmap,
+                                              float map_sigma, int n_trias, float jiggle_scale_factor);
+
    // jiggle residue (a specific, useful/typical interface to jiggling).
    float fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 				     const clipper::Xmap<float> &xmap,
@@ -2870,7 +2917,7 @@ public:        //                      public
    //
    // called by above
    //
-   // if chain_for_moving is not null, apply the transformation
+   // if chain_for_moving is not empty, apply the transformation
    // the the atoms of chain_for_moving rather than to the atom of atom_selection
    //
    float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
@@ -2880,7 +2927,7 @@ public:        //                      public
 				     int n_trials,
 				     float jiggle_scale_factor,
 				     bool use_biased_density_scoring,
-				     mmdb::Chain *chain_for_moving=0);
+				     std::vector<mmdb::Chain *> chains_for_moving);
 
 #ifdef HAVE_CXX_THREAD
    static void test_jiggle_fit_func(unsigned int thread_index,
@@ -2967,7 +3014,11 @@ public:        //                      public
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
 				double bond_dist, double esd);
+   int add_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1,
+                                         coot::atom_spec_t atom_2,
+                                         double bond_dist, double esd);
    int add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs);
+   int add_extra_geman_mcclure_restraints(const std::vector<coot::extra_restraints_t::extra_geman_mcclure_restraint_t> &bond_specs);
    int add_extra_angle_restraint(coot::atom_spec_t atom_1,
 				 coot::atom_spec_t atom_2,
 				 coot::atom_spec_t atom_3,
@@ -2990,6 +3041,7 @@ public:        //                      public
 
    // the atom specs do not need to be in order for bond restraints only
    void remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
+   void remove_extra_geman_mcclure_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2);
    void remove_extra_start_pos_restraint(coot::atom_spec_t atom_1);
    void remove_extra_angle_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
                                       coot::atom_spec_t atom_3);
@@ -2997,6 +3049,7 @@ public:        //                      public
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
    void update_extra_restraints_representation_bonds();
+   void update_extra_restraints_representation_bonds_internal(const coot::extra_restraints_t::extra_bond_restraint_t &res);
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
    void remove_extra_target_position_restraints(coot::atom_spec_t &spec);
@@ -3024,7 +3077,11 @@ public:        //                      public
 
    // --------- (transparent) solid rendering of density ------------------
    // bool draw_it_for_solid_density_surface;  // everything is "solid" now (calculate normals)
-   coot::density_contour_triangles_container_t tri_con;
+
+   // 20200312-PE Now we use draw_vector_sets.
+   // coot::density_contour_triangles_container_t tri_con;
+
+
    coot::density_contour_triangles_container_t tri_con_diff_map_neg; // negative contour
    void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con,
 					bool do_flat_shading) const;
@@ -3038,9 +3095,10 @@ public:        //                      public
    GLuint n_vertices_for_map_VertexArray;
 
    GLuint n_indices_for_triangles;
+   GLuint n_indices_for_lines;
    GLuint m_VertexBufferID;
-   GLuint m_IndexBufferID;
-   GLuint m_IndexBuffer_for_triangles_ID; // solid and transparent surfaces
+   GLuint m_IndexBuffer_for_map_lines_ID;
+   GLuint m_IndexBuffer_for_map_triangles_ID; // solid and transparent surfaces
    GLuint m_NormalBufferID;
    GLuint m_ColourBufferID;
 
@@ -3327,6 +3385,10 @@ public:        //                      public
 
    void globularize();
 
+   // is_EM_map is used (1) to know not to contour outside the box
+   //                   (2) to know which entry to use in Map Parameters dialog
+   //                   so, if this is an-origin-centred map, then
+   //                   those answers don't correspond. Needs some thought.
    bool is_EM_map() const;
    short int is_em_map_cached_flag; // -1 mean unset (so set it, 0 means no, 1 means yes)
    short int is_em_map_cached_state(); // set is_em_map_cached_flag if not set
@@ -3408,6 +3470,18 @@ public:        //                      public
    bool continue_watching_coordinates_file;
    updating_coordinates_molecule_parameters_t updating_coordinates_molecule_previous;
    int update_coordinates_molecule_if_changed(const updating_coordinates_molecule_parameters_t &p);
+
+   // watch for changes in the model of a different molecule (denoted by change of backup index)
+   // and act on it (by updating this difference map). This needs to be static because its
+   // called by g_timeout.
+   static int watch_coordinates_updates(gpointer);
+   int other_molecule_backup_index;
+   int get_other_molecule_backup_index() const { return other_molecule_backup_index; }
+
+   // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
+   void set_mean_and_sigma();
+
+   coot::model_composition_stats_t get_model_composition_statistics() const;
 
 };
 

@@ -137,6 +137,7 @@ SCM molecule_atom_overlaps_scm(int imol) {
 	 SCM item_scm = scm_list_5(spec_1_scm, spec_2_scm, r_1_scm, r_2_scm, ov_scm);
 	 r = scm_cons(item_scm, r);
       }
+      r = scm_reverse(r);
    }
    return r;
 }

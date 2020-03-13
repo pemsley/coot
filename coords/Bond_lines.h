@@ -49,10 +49,10 @@
 #include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
 
-namespace coot { 
+namespace coot {
 
    static std::string b_factor_bonds_scale_handle_name;
-   
+
    enum bond_colour_t { COLOUR_BY_CHAIN=0,
 			COLOUR_BY_CHAIN_C_ONLY=20,
 			COLOUR_BY_CHAIN_GOODSELL=21,
@@ -60,7 +60,7 @@ namespace coot {
 			COLOUR_BY_SEC_STRUCT=2,
 			DISULFIDE_COLOUR=3,
 			COLOUR_BY_MOLECULE=4,
-			COLOUR_BY_RAINBOW=5, 
+			COLOUR_BY_RAINBOW=5,
 			COLOUR_BY_OCCUPANCY=6,
 			COLOUR_BY_B_FACTOR=7,
 			COLOUR_BY_USER_DEFINED_COLOURS=8 };
@@ -86,13 +86,13 @@ namespace coot {
     }
     // These colours ranges need to be echoed in the GL bond drawing
     // routine.
-    int index_for_rainbow(float wheel_colour) { 
+    int index_for_rainbow(float wheel_colour) {
        return int(30.0*wheel_colour);
     }
-    int index_for_occupancy(float wheel_colour) { 
+    int index_for_occupancy(float wheel_colour) {
        return int(5.0*wheel_colour);
     }
-    int index_for_b_factor(float wheel_colour) { 
+    int index_for_b_factor(float wheel_colour) {
        return int(30.0*wheel_colour);
     }
   };
@@ -208,6 +208,8 @@ template<class T> class graphical_bonds_lines_list {
 class graphical_bonds_atom_info_t {
 public:
    bool is_hydrogen_atom;
+   bool is_water; // don't not display this in sticks-only mode - or the water
+                  // will disappear (needs rebonding otherwise - not just a display flag)
    float radius_scale; // Waters (and perhaps metals) should have big radii, so that
                        // they are easier to see.
    coot::Cartesian position;
@@ -220,6 +222,7 @@ public:
       model_number = -1;
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
+      is_water = false;
       atom_index = atom_index_in;
       atom_p = 0;
       radius_scale = 1.0;
@@ -230,6 +233,7 @@ public:
       atom_index = -1; // unset
       radius_scale = 1.0;
       atom_p = 0;
+      is_water = false;
    }
    // this is a bit of a weird construction
    bool radius_for_atom_should_be_big(mmdb::Atom *atom_p) const {
@@ -563,6 +567,9 @@ class Bond_lines_container {
 				      bool are_different_atom_selections,
 				      bool have_udd_atoms,
 				      int udd_handle);
+   void atom_selection_missing_loops(const atom_selection_container_t &asc,
+                                     int udd_atom_index_handle,
+                                     int udd_fixed_during_refinement_handle);
 
    void construct_from_model_links(mmdb::Model *model, int udd_atom_index_handle, int atom_colour_type);
    // which wraps...

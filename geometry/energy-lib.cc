@@ -635,13 +635,14 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 
 	 // Use vdwh_radius of called in "No hydrogens in the model" mode.
 	 float radius_1 = it_1->second.vdw_radius;
-	 float radius_2 = it_1->second.vdw_radius;
+	 float radius_2 = it_2->second.vdw_radius;
 
-    if (extended_atoms_mode) radius_1 = it_1->second.vdwh_radius;
-    if (extended_atoms_mode) radius_2 = it_2->second.vdwh_radius;
+         if (extended_atoms_mode) radius_1 = it_1->second.vdwh_radius;
+         if (extended_atoms_mode) radius_2 = it_2->second.vdwh_radius;
 
-	 if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
-	 if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
+         if (is_metal_atom_1) radius_1 = it_1->second.ion_radius;
+         if (is_metal_atom_2) radius_2 = it_2->second.ion_radius;
+
 	 r.second = radius_1 + radius_2;
 
 	 if (in_same_residue_flag) {
@@ -649,7 +650,7 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	    // torsion interactions from NBC interactions, I think.  Then
 	    // I can set r.second multiplier to 1.0 maybe.
 	    //
-	    r.second *= 0.84;
+	    // r.second *= 0.84;
 	 }
 
 	 if (in_same_ring_flag) {
@@ -674,28 +675,36 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	    }
 	 }
 
-	 // hydrogen bonds can be closer
-	 //
+	 // atoms in hydrogen bonds can be closer, e.g mainchain N and O 1.55 + 1.52 -> 2.83
+	 // Molprobity distance seems to be 2.93. Hmm
+
+         // add a flag so that we don't HB-shorten twice when both are HB_BOTH
+         bool done_hb_shorten = false;
 	 if ((it_1->second.hb_type == coot::HB_DONOR ||
 	      it_1->second.hb_type == coot::HB_BOTH  ||
 	      it_1->second.hb_type == coot::HB_HYDROGEN) &&
 	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
 	      it_2->second.hb_type == coot::HB_BOTH)) {
-	    r.second -= 0.5;
+	    r.second -= 0.24; // was 0.4
 	    // actual hydrogens to acceptors can be shorter still
-	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
-	       r.second -=0.3;
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN) {
+	       r.second -= 0.14; // was 0.2
+	    }
+            done_hb_shorten = true;
 	 }
 
-	 if ((it_2->second.hb_type == coot::HB_DONOR ||
-	      it_2->second.hb_type == coot::HB_BOTH  ||
-	      it_2->second.hb_type == coot::HB_HYDROGEN) &&
-	     (it_1->second.hb_type == coot::HB_ACCEPTOR ||
-	      it_1->second.hb_type == coot::HB_BOTH)) {
-	    r.second -= 0.5;
-	    // as above
-	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
-	       r.second -=0.3;
+         if (! done_hb_shorten) {
+	    if ((it_2->second.hb_type == coot::HB_DONOR ||
+	         it_2->second.hb_type == coot::HB_BOTH  ||
+	         it_2->second.hb_type == coot::HB_HYDROGEN) &&
+	        (it_1->second.hb_type == coot::HB_ACCEPTOR ||
+	         it_1->second.hb_type == coot::HB_BOTH)) {
+	       r.second -= 0.24; // was 0.4
+	       // as above
+	       if (it_1->second.hb_type == coot::HB_HYDROGEN) {
+	          r.second -= 0.14;
+	       }
+	    }
 	 }
 
          r.first = true;

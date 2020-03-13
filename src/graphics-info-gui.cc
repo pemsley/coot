@@ -901,36 +901,6 @@ graphics_info_t::show_select_map_dialog() {
 	 }
       }
 
-      // GtkWidget *optionmenu = lookup_widget(GTK_WIDGET(widget),
-      // "select_map_for_fitting_optionmenu");
-
-      // note that this uses one of 2 similarly named function:
-      // fill_option_menu_with_map_options(optionmenu,
-      // GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
-      // imol_refinement_map);
-
-      // Old notes:
-      // now activate the first menu item, i.e. creating this menu is as
-      // if the first item in the menu was activated:
-      //    for (int i=0; i<n_molecules; i++) {
-      //       if (molecules[i].xmap_is_filled[0] == 1) {
-      // 	 set_refinement_map(i);
-      // 	 break;
-      //       }
-      //    }
-      //
-      // 10/6/2004: Well, that is in fact totally crap.  What the *user*
-      // expects is that when they open this dialog that the default map
-      // (the one they have previously chosen) will be in the active
-      // position. i.e. the mechanism described above was totaly wrong.
-      //
-      // What we really want to do is call
-      // fill_option_menu_with_map_options and pass it the active item
-      // as an argument.
-      //
-      //gtk_widget_show(widget);
-      // BL says:: run as dialog to block for input
-
       GtkWidget *combobox = lookup_widget(widget, "select_map_for_fitting_combobox");
       GCallback callback = G_CALLBACK(select_refinement_map_combobox_changed);
       fill_combobox_with_map_options(combobox, callback, imol_refinement_map);
@@ -952,7 +922,6 @@ GtkWidget *
 graphics_info_t::wrapped_create_skeleton_dialog(bool show_ca_mode_needs_skel_label) {
 
    GtkWidget *w = create_skeleton_dialog();
-   GtkWidget *option_menu = lookup_widget(w, "skeleton_map_optionmenu");
    GtkWidget *combobox    = lookup_widget(w, "skeleton_map_combobox");
    GtkWidget *frame = lookup_widget(w, "skeleton_dialog_on_off_frame");
    GtkWidget *label = lookup_widget(w, "ca_baton_mode_needs_skel_label");
@@ -1882,13 +1851,14 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
-	 fill_with_these_molecules.push_back(imol);
+         fill_with_these_molecules.push_back(imol);
       }
    }
 
-   std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
-	     << fill_with_these_molecules.size() << " and imol_active " << imol_active
-	     << std::endl;
+   if (false)
+      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() n_molecules: "
+                << fill_with_these_molecules.size() << " and imol_active " << imol_active
+                << std::endl;
 
    GtkListStore *store = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
    GtkTreeIter iter;
@@ -1902,17 +1872,17 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
       int ilen = molecules[imol].name_.length();
       int left_size = ilen-go_to_atom_menu_label_n_chars_max;
       if (left_size <= 0)
-	 left_size = 0;
+         left_size = 0;
       else
-	 ss += "...";
+         ss += "...";
       ss += molecules[imol].name_.substr(left_size, ilen);
 
-      std::cout << "fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
+      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
       if (imol == imol_active)
-	 active_idx = idx;
+         active_idx = idx;
 
    }
 
@@ -1943,14 +1913,14 @@ graphics_info_t::fill_combobox_with_coordinates_options_with_set_last(GtkWidget 
    std::vector<int> fill_with_these_molecules;
    for (int imol=0; imol<n_molecules(); imol++) {
       if (molecules[imol].has_model()) {
-	 fill_with_these_molecules.push_back(imol);
+         fill_with_these_molecules.push_back(imol);
       }
    }
    if (fill_with_these_molecules.size() > 0) {
       imol_active = fill_with_these_molecules[0];
 
       if (set_last_active_flag)
-	 imol_active = fill_with_these_molecules.back();
+       	 imol_active = fill_with_these_molecules.back();
    }
 
    fill_combobox_with_coordinates_options(combobox, callback_func, imol_active);

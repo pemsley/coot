@@ -887,6 +887,9 @@ class graphics_info_t {
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
    void debug_refinement();
+   static void get_restraints_lock(const std::string &calling_function_name);
+   static void release_restraints_lock(const std::string &calling_function_name);
+   static std::string restraints_locking_function_name; //  static because it is set by above
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -1684,6 +1687,8 @@ public:
    static short int sticky_file_filter;
 
    //
+   void stop_refinement_internal();
+
    void show_refine_params_dialog(); // not used for map selection now.
    void show_select_map_dialog();
 
@@ -1866,8 +1871,12 @@ public:
    static bool do_rama_restraints;
    static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
+   static bool do_rotamer_restraints;
+   static bool do_debug_refinement;
    static int  restraints_rama_type;
    static float rama_restraints_weight;
+
+   std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
    coot::refinement_results_t refine    (int imol, short int auto_range_flag, int i_atom_start, int i_atom_end);
@@ -2506,6 +2515,7 @@ public:
    void fill_combobox_with_refmac_methods_options(GtkWidget *combobox);
    void fill_combobox_with_refmac_phase_input_options(GtkWidget *combobox);
    void fill_combobox_with_refmac_labels_options(GtkWidget *combobox);
+   void fill_combobox_with_refmac_mtz_file_options(GtkWidget *combobox);
    void fill_combobox_with_refmac_file_labels_options(GtkWidget *combobox);
    void fill_combobox_with_refmac_ncycles_options(GtkWidget *combobox);
 
@@ -3682,6 +3692,7 @@ public:
 
    // --- user defined picks
    static std::vector<coot::atom_spec_t> user_defined_atom_pick_specs;
+   static bool residue_type_selection_was_user_picked_residue_range;
 
    // --- electrostatic charnge range scale (typically 0.5)
    static float electrostatic_surface_charge_range;
@@ -3932,6 +3943,8 @@ string   static std::string sessionid;
    static bool is_within_display_radius(const coot::CartesianPair &p);
    static bool is_within_display_radius(const coot::Cartesian &p);
 
+   static bool make_auto_h_bond_restraints_flag;
+
    static bool cif_dictionary_file_selector_create_molecule_flag;
 
    static double geman_mcclure_alpha;
@@ -4019,6 +4032,10 @@ string   static std::string sessionid;
    void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
    bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 
+   void sfcalc_genmap(int imol_model,
+                      int imol_map_with_data_attached,
+                      int imol_updating_difference_map);
+
 #ifdef HAVE_CXX_THREAD
    static std::atomic<bool> restraints_lock;
    static bool continue_threaded_refinement_loop; // so that the ESC key can stop the refinement
@@ -4035,6 +4052,10 @@ string   static std::string sessionid;
    // immediate accept mode or no-gui.  In scripted (e.g. sphere-refine)
    // we should not wait
    void conditionally_wait_for_refinement_to_finish();
+
+ // for updating (difference) maps - we don't want to set 2 of these (or more) off
+//  at the same time.
+   static std::atomic<bool> on_going_updating_map_lock;
 
 
 #ifdef USE_PYTHON

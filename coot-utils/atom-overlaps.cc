@@ -2057,7 +2057,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
       if (! molecule_has_hydrogens_flag) {
 	 if (hbi.is_h_bond_donor_and_acceptor) {
 	    done = true;
-	    delta -= 0.6;
+	    delta -= 0.6; // where does this number come from?
 	    if (delta > 0.4) {
 	       type = "clash";
 	       colour = "hotpink";
@@ -2350,11 +2350,126 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 
    if (ait == CLASHABLE) {
       // maybe it was a link
-      if (is_linked(at_1, at_2) || is_ss_bonded_or_CYS_CYS_SGs(at_1, at_2))
+      if (is_linked(at_1, at_2) || is_ss_bonded_or_CYS_CYS_SGs(at_1, at_2)) {
 	 ait = BONDED;
+      } else {
+         std::vector<std::pair<std::string, std::string> > bonds_for_at_1;
+         std::vector<std::pair<std::string, std::string> > bonds_for_at_2;
+         std::string atom_name_1 = at_1->name;
+         std::string atom_name_2 = at_2->name;
+         std::string res_name_1(at_1->GetResName());
+         std::string res_name_2(at_2->GetResName());
+         std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it_1;
+         std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it_2;
+         it_1 = bonded_neighbours->find(res_name_1);
+         it_2 = bonded_neighbours->find(res_name_2);
+         if (it_1 != bonded_neighbours->end()) bonds_for_at_1 = it_1->second;
+         if (it_2 != bonded_neighbours->end()) bonds_for_at_2 = it_2->second;
+         if (is_angle_related_via_link(at_1, at_2, bonds_for_at_1, bonds_for_at_2))
+            ait = BONDED;
+      }
    }
-
    return ait;
+}
+
+bool
+coot::atom_overlaps_container_t::is_angle_related_via_link(mmdb::Atom *at_1,
+                                                           mmdb::Atom *at_2,
+                                     const std::vector<std::pair<std::string, std::string> > &bonds_for_at_1,
+                                     const std::vector<std::pair<std::string, std::string> > &bonds_for_at_2) const {
+   bool status = false;
+   if (! at_1) return false;
+   if (! at_2) return false;
+
+   mmdb::Model *model_p_1 = at_1->GetModel();
+   mmdb::Model *model_p_2 = at_2->GetModel();
+
+   if (model_p_2 != model_p_1) return false;
+
+   if (model_p_1) {
+      int n_links = model_p_1->GetNumberOfLinks();
+      if (n_links > 0) {
+	 for (int i_link=1; i_link<=n_links; i_link++) {
+	    mmdb::Link *link = model_p_1->GetLink(i_link);
+	    if (link) {
+	       std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p_1);
+	       atom_spec_t spec_1(at_1);
+	       atom_spec_t spec_2(at_2);
+
+	       if (spec_1 == linked_atoms.first) {
+                  // is spec_1/at_1 linked to an atom that is bonded to at_2?
+                  std::string linked_atom_2_name = linked_atoms.second.atom_name;
+                  for (unsigned int i=0; i<bonds_for_at_2.size(); i++) {
+                     const std::string &bond_atom_1_name = bonds_for_at_2[i].first;
+                     const std::string &bond_atom_2_name = bonds_for_at_2[i].second;
+                     if (bond_atom_1_name == linked_atom_2_name)
+                        if (bond_atom_2_name == spec_2.atom_name)
+                           status = true;
+                     if (bond_atom_2_name == linked_atom_2_name)
+                        if (bond_atom_1_name == spec_2.atom_name)
+                           status = true;
+                     if (status) break;
+                  }
+	       }
+
+               if (spec_1 == linked_atoms.second) {
+                  // is spec_1/at_1 linked to an atom that is bonded to at_2?
+                  std::string linked_atom_1_name = linked_atoms.first.atom_name;
+                  for (unsigned int i=0; i<bonds_for_at_2.size(); i++) {
+                     const std::string &bond_atom_1_name = bonds_for_at_2[i].first;
+                     const std::string &bond_atom_2_name = bonds_for_at_2[i].second;
+                     if (bond_atom_1_name == linked_atom_1_name)
+                        if (bond_atom_2_name == spec_2.atom_name)
+                           status = true;
+                     if (bond_atom_2_name == linked_atom_1_name)
+                        if (bond_atom_1_name == spec_2.atom_name)
+                           status = true;
+                     if (status) break;
+                  }
+               }
+
+               // and now the other way round.
+	       if (spec_2 == linked_atoms.first) {
+                  // is spec_2/at_2 linked to an atom that is bonded to at_1?
+                  std::string linked_atom_1_name = linked_atoms.first.atom_name;
+                  for (unsigned int i=0; i<bonds_for_at_1.size(); i++) {
+                     const std::string &bond_atom_1_name = bonds_for_at_1[i].first;
+                     const std::string &bond_atom_2_name = bonds_for_at_1[i].second;
+                     if (bond_atom_1_name == linked_atom_1_name) {
+                        if (bond_atom_2_name == spec_1.atom_name)
+                           status = true;
+                     }
+                     if (bond_atom_2_name == linked_atom_1_name) {
+                        if (bond_atom_1_name == spec_1.atom_name)
+                           status = true;
+                     }
+                     if (status) break;
+                  }
+	       }
+
+               if (spec_2 == linked_atoms.second) {
+                  // is spec_2/at_2 linked to an atom that is bonded to at_1?
+                  std::string linked_atom_1_name = linked_atoms.first.atom_name;
+                  for (unsigned int i=0; i<bonds_for_at_1.size(); i++) {
+                     const std::string &bond_atom_1_name = bonds_for_at_1[i].first;
+                     const std::string &bond_atom_2_name = bonds_for_at_1[i].second;
+                     if (bond_atom_1_name == linked_atom_1_name) {
+                        if (bond_atom_2_name == spec_1.atom_name)
+                           status = true;
+                     }
+                     if (bond_atom_2_name == linked_atom_1_name) {
+                        if (bond_atom_1_name == spec_1.atom_name)
+                           status = true;
+                     }
+                     if (status) break;
+                  }
+               }
+	    }
+            if (status) break;
+	 }
+      }
+   }
+   return status;
 }
 
 bool

@@ -228,7 +228,7 @@ on_column_label_ok_button_clicked      (GtkButton       *button,
 
   GtkWidget *column_label_window = lookup_widget(GTK_WIDGET(button), "column_label_window");
 
-  handle_column_label_make_fourier(column_label_window);
+  handle_column_label_make_fourier_v2(column_label_window);
 
 }
 
@@ -2184,7 +2184,7 @@ on_accept_reject_refinement_dialog_destroy
                                         gpointer         user_data)
 {
 
-  /* Pressing Esc while focus is on the Accept/Reject dialog brings us here. */
+  /* Pressing Escape while focus is on the Accept/Reject dialog brings us here. */
 
   /* 20070801 To Fix a crash reported by "Gajiwala, Ketan", we need to
      reset the value for graphics_info_t::accept_reject_dialog (it's
@@ -2195,7 +2195,9 @@ on_accept_reject_refinement_dialog_destroy
   set_accept_reject_dialog(NULL);
   stop_refinement_internal();
   /* I want to merely clear the stick restraint, not refine again after I did that */
-  clear_atom_pull_restraint_on_accept_reject_destroy();
+
+  /* clear_atom_pull_restraint_on_accept_reject_destroy(); */
+
   clear_up_moving_atoms();
 }
 
@@ -3897,7 +3899,7 @@ on_run_refmac_map_mtz_radiobutton_toggled
 
   GtkWidget *map_combobox = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_combobox");
   if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_combobox_with_refmac_labels_options(map_combobox);
+    fill_combobox_with_refmac_mtz_file_options(map_combobox);
   }
 }
 
@@ -10588,6 +10590,7 @@ on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog,
 					      gint response_id,
 					      gpointer user_data) {
 
+/*   int new_compid_idx; */
   int imol_enc = -999997;	/* unset */
   const char *filename;
   GtkWidget *fileselection;
@@ -11559,7 +11562,6 @@ on_baton_build_params_cancel_button_clicked
 }
 
 
-/* BL says:: comment out whole function for GTK1 as we dont have the dialog */
 void
 on_baton_build_set_params_button_clicked
                                         (GtkButton       *button,
@@ -11569,7 +11571,6 @@ on_baton_build_set_params_button_clicked
   gtk_widget_show(w);
 
 }
-
 
 void
 on_coords_toolbutton_clicked           (GtkToolButton   *toolbutton,
@@ -11591,7 +11592,6 @@ on_go_to_ligand_toolbutton_clicked     (GtkToolButton   *toolbutton,
                                         gpointer         user_data) {
   go_to_ligand();
 }
-
 
 void
 on_move_molecule_here_big_molecules_checkbutton_toggled
@@ -12085,7 +12085,7 @@ on_export_map_filechooserdialog_response
   const char *filename = 0;
 
   if (response_id == GTK_RESPONSE_OK) {
-    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number")); 
+    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number"));
     is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment"));
     if (is_map_fragment) {
       txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
@@ -12652,4 +12652,15 @@ on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
 #ifdef USE_MOLECULES_TO_TRIANGLES
    add_molecular_representation_test();
 #endif
+}
+
+void
+on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+   /* set_use_perspective_projection(1); */
+
+   printf("This caused linking problems - so was removed - must fix\n");
+
 }

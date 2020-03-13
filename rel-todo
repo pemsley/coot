@@ -4,6 +4,16 @@
    o Refine a bit of distorted RNA
      Marc Leibundgut 26/06/2019.
 
+   o how about fixing the raster3d install? Make it dependent on having gfortran
+
+   o Fix the representation of charges in the residue restraints notebook
+
+   o multiple file selection in the dictionary cif chooser (don't spend too much time on this)
+
+   o Fix the H5' problem
+
+* Coot works - the dictionary is wrong.
+
    o add a function to set the window title (don't for get to check
      for use-graphics)
 
@@ -24,11 +34,6 @@
   Give up with this for now - too messy because the file names change.
 
    o Refinement on an alt conf should refine just the atoms with that alt conf.
-
-   o Read in a PDB file that has a TER. Write it out as a mmCIF. It has a blank atom at the
-     end - it should not [Nigel Moriarty]. mmdb bug? ::: 1
-
-* Not a coot bug.
 
    o for drawing bonds - don't make a S-S bond if the S is linked to something else.
 

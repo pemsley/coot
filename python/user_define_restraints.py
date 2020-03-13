@@ -344,6 +344,7 @@ def write_refmac_parallel_plane_restraint(file_name,
   fout = open(file_name, 'w')
   fout.write("EXTE STACK PLAN 1 FIRST RESIDUE ")
   fout.write(str(residue_spec_to_res_no(res_spec_0)))
+  fout.write(" INS . ") # hack
   fout.write(" CHAIN ")
   fout.write(residue_spec_to_chain_id(res_spec_0))
   fout.write(" ATOMS { ")
@@ -351,6 +352,7 @@ def write_refmac_parallel_plane_restraint(file_name,
     fout.write(" " + atom_name + " ")
   fout.write(" } PLAN 2 FIRST RESIDUE ")
   fout.write(str(residue_spec_to_res_no(res_spec_1)))
+  fout.write(" INS . ") # hack
   fout.write(" CHAIN ")
   fout.write(residue_spec_to_chain_id(res_spec_1))
   fout.write(" ATOMS { ")

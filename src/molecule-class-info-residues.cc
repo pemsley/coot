@@ -266,7 +266,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  bool do_trans_peptide_restraints = false;
 		  int n_restraints = restraints.make_restraints(imol_no, geom, flags, do_torsions,
 								do_trans_peptide_restraints,
-								0, 0, false, false, coot::NO_PSEUDO_BONDS);
+								0, 0, false, false, false, coot::NO_PSEUDO_BONDS);
 		  restraints.minimize(flags);
 		  residue_mol->FinishStructEdit();
 
@@ -282,7 +282,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		     n_restraints = restraints_2.make_restraints(imol_no, geom,
 								 flags, do_torsions,
 								 do_trans_peptide_restraints,
-								 0, 0, false, false, coot::NO_PSEUDO_BONDS);
+								 0, 0, false, false, false, coot::NO_PSEUDO_BONDS);
 		     restraints_2.minimize(flags);
 		  }
 
@@ -1632,7 +1632,8 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1, false);
+      std::vector<mmdb::Chain *> chains; // empty
+      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1, false, chains);
 
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();

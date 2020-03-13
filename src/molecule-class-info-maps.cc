@@ -108,7 +108,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    bool do_gompertz = false;
    if (try_gompertz) {
       if (original_fobs_sigfobs_filled) {
-	        do_gompertz = 1;
+	 do_gompertz = 1;
       } else {
 	 if (have_sensible_refmac_params) {
 	    fill_fobs_sigfobs(); // sets original_fobs_sigfobs_filled
@@ -128,14 +128,14 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       clipper::HKL_info::HKL_reference_index hri;
 
       if (debugging)
-	     std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
+	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
 		   << " original data " << std::endl;
 
       if (debugging) {
-	        if (do_gompertz) {
-	            std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
-		                   << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
-		                   << std::endl;
+	 if (do_gompertz) {
+	    std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
+		      << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
+		      << std::endl;
 	 } else {
 	    std::cout << "DEBUG:: no gompertz F/sigF scaling " << std::endl;
 	 }
@@ -269,19 +269,32 @@ molecule_class_info_t::clear_draw_vecs() {
    // crash on double free of the draw vectors. Not sure why. Let's add a lock
 
    bool unlocked = false;
-   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
       std::this_thread::sleep_for(std::chrono::microseconds(10));
       unlocked = false;
    }
-   // std::cout << "debug:: in clear_draw_vecs() draw_vector_sets size " << draw_vector_sets.size()
-   // << std::endl;
    for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-      // std::cout << "clear_draw_vecs(): set " << i << " " << draw_vector_sets[i].data << std::endl;
-      draw_vector_sets[i].size = 0;
-      delete [] draw_vector_sets[i].data;
-      draw_vector_sets[i].data = 0;
+      // draw_vector_sets[i].size = 0;
+      // delete [] draw_vector_sets[i].data;
+      // draw_vector_sets[i].data = 0;
+      draw_vector_sets[i].clear();
    }
-   // draw_vector_sets.clear();
+   draw_vector_sets_lock = false; // unlock
+
+}
+
+void
+molecule_class_info_t::clear_diff_map_draw_vecs() {
+   bool unlocked = false;
+   while (!draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::microseconds(10));
+      unlocked = false;
+   }
+   for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
+      draw_diff_map_vector_sets[i].size = 0;
+      delete [] draw_diff_map_vector_sets[i].data;
+      draw_diff_map_vector_sets[i].data = 0;
+   }
    draw_vector_sets_lock = false; // unlock
 
 }
@@ -290,8 +303,10 @@ molecule_class_info_t::clear_draw_vecs() {
 //
 void
 molecule_class_info_t::set_diff_map_draw_vecs(const coot::CartesianPair* c, int n) {
-   delete [] diff_map_draw_vectors;
-   diff_map_draw_vectors = c; n_diff_map_draw_vectors = n;
+   // delete [] diff_map_draw_vectors;
+   // diff_map_draw_vectors = c; n_diff_map_draw_vectors = n;
+
+   // delete this function
 }
 
 
@@ -312,28 +327,19 @@ molecule_class_info_t::update_map_internal() {
          radius = graphics_info_t::box_radius_em;
 
       if (false)
-	 std::cout << "in update_map_internal() " << radius << " vs x "
-		   << graphics_info_t::box_radius_xray << " em "
-		   << graphics_info_t::box_radius_em << " is-em: "
-		   << is_EM_map() << std::endl;
+          std::cout << "in update_map_internal() " << radius << " vs x "
+                    << graphics_info_t::box_radius_xray << " em "
+                    << graphics_info_t::box_radius_em << " is-em: "
+                    << is_EM_map() << std::endl;
 
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-			                graphics_info_t::RotationCentre_y(),
-			                graphics_info_t::RotationCentre_z());
+                         graphics_info_t::RotationCentre_y(),
+                         graphics_info_t::RotationCentre_z());
 
-      update_map_triangles(radius, rc);  // NXMAP-FIXME
+      update_map_triangles(radius, rc);
 
-      if (graphics_info_t::use_graphics_interface_flag) {
-         if (graphics_info_t::display_lists_for_maps_flag) {
-	         graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
-	         compile_density_map_display_list(SIDE_BY_SIDE_MAIN);
-	         if (graphics_info_t::display_mode_use_secondary_p()) {
-	            graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
-	            compile_density_map_display_list(SIDE_BY_SIDE_SECONDARY);
-	            graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
-	         }
-	      }
-      }
+      // 20200312-PE do stereo stuff here - removed for now.
+
    }
 }
 
@@ -374,18 +380,63 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
    // set original_fobs_sigfobs_filled when done
 
+   std::cout << "DEBUG:: in fill_fobs_sigfobs() with have_sensible_refmac_params "
+            << have_sensible_refmac_params << std::endl;
+
    if (have_sensible_refmac_params) {
 
-      std::pair<std::string, std::string> p =
-	 make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
-      clipper::CCP4MTZfile mtzin;
-      mtzin.open_read(Refmac_mtz_filename());
-      mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
-      mtzin.close_read();
-      std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-		<< original_fobs_sigfobs.num_obs() << " data" << std::endl;
-      if (original_fobs_sigfobs.num_obs() > 100)
-	 original_fobs_sigfobs_filled = 1;
+      // only try this once. If you try to import_hkl_data() when the original_fobs_sigfobs
+      // already contains data, then crashiness.
+      //
+      if (! original_fobs_sigfobs_filled && ! original_fobs_sigfobs_fill_tried_and_failed) {
+
+         try {
+
+            std::pair<std::string, std::string> p =
+               make_import_datanames(Refmac_fobs_col(), Refmac_sigfobs_col(), "", 0);
+            clipper::CCP4MTZfile mtzin;
+            mtzin.open_read(Refmac_mtz_filename());
+            mtzin.import_hkl_data(original_fobs_sigfobs, p.first);
+            mtzin.close_read();
+            std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+                      << original_fobs_sigfobs.num_obs() << " data using data name: "
+                      << p.first << std::endl;
+            if (original_fobs_sigfobs.num_obs() > 10)
+               original_fobs_sigfobs_filled = 1;
+            else
+               original_fobs_sigfobs_fill_tried_and_failed = true;
+
+            // flags
+
+            if (refmac_r_free_flag_sensible) {
+               std::string dataname = "/*/*/[" + refmac_r_free_col + "]";
+               // if refmac_r_free_col already has /x/y/Rfree - use that instead
+               if (refmac_r_free_col.length() > 0)
+                  if (refmac_r_free_col[0] == '/') {
+                     dataname = refmac_r_free_col;
+                     dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
+                  }
+               std::cout << "About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               mtzin.open_read(Refmac_mtz_filename());
+               mtzin.import_hkl_data(original_r_free_flags, dataname);
+               mtzin.close_read();
+
+               std::cout << "INFO:: reading " << Refmac_mtz_filename()
+                         << " using dataname: " << dataname << " provided "
+                         << original_r_free_flags.num_obs() << " R-free flags\n";
+            } else {
+               std::cout << "INFO:: no sensible R-free flag column label\n";
+            }
+         }
+         catch (const clipper::Message_fatal &m) {
+            std::cout << "ERROR:: bad columns " << m.text() << std::endl;
+            have_sensible_refmac_params = false;
+            original_fobs_sigfobs_filled = false;
+            original_fobs_sigfobs_fill_tried_and_failed = true;
+         }
+      }
+   } else {
+      std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
    }
 }
 
@@ -405,7 +456,7 @@ molecule_class_info_t::compile_density_map_display_list(short int first_or_secon
 
 	 glEndList();
       } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE MAIN! " << std::endl;
+	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_MAIN! " << std::endl;
       }
    }
    if (first_or_second == SIDE_BY_SIDE_SECONDARY) {
@@ -452,138 +503,7 @@ void
 molecule_class_info_t::draw_density_map_internal(short int display_lists_for_maps_flag_local,
 						 bool draw_map_local_flag,
 						 short int main_or_secondary) {
-
-   // std::cout << "   draw_density_map_internal() called for " << imol_no << std::endl;
-
-   // 20080619:
-   // When the screen centre is is moved and we have
-   // display_lists_for_maps_flag and we are not displaying the
-   // map currently, then the map triangles are getting updated
-   // (but not displayed of course) but the display list is not
-   // because drawit_for_map is always 0.
-   //
-   // So we try to solve that by giving
-   // compile_density_map_display_list() a different route in.
-   // draw_density_map_internal() is created and that is called with
-   // display_lists_for_maps_flag as 0 (i.e. generate the vectors in a
-   // glNewList() wrapper).
-
-
-//    std::cout << "draw_density_map_internal for map number " << imol_no
-// 	     << " display_lists_for_maps_flag_local " << display_lists_for_maps_flag_local
-// 	     << " draw_map_local_flag " << draw_map_local_flag
-// 	     << std::endl;
-
-
-   // int nvecs = n_draw_vectors; // cartesianpair pointer counter (old code)
-
-   if (draw_map_local_flag) {  // i.e. drawit_for_map (except when compiling a new map display list)
-
-      if (!xmap.is_null()) { // NXMAP-FIXME
-
-// 	 std::cout << "DEBUG:: drawing map for mol " << imol_no
-// 		   << " display_lists_for_maps_flag:  "
-// 		   << display_lists_for_maps_flag_local << " " << theMapContours << std::endl;
-
-	 if (display_lists_for_maps_flag_local) {
-
-	    GLuint display_list_index = 0; // bad
-
-	    // These conditions have been validated by reversing them.
-	    if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_LEFT ||
-		main_or_secondary == IN_STEREO_MONO)
-	       display_list_index = theMapContours.first;
-	    if (main_or_secondary == IN_STEREO_SIDE_BY_SIDE_RIGHT)
-	       display_list_index = theMapContours.second;
-
-	    if (display_list_index > 0) {
-// 	       std::cout << "OK:: using display list " << display_list_index
-// 			 << " when main_or_secondary is " << main_or_secondary << std::endl;
-	       glCallList(display_list_index);
-	    } else {
-	       std::cout << "ERROR:: using display list " << display_list_index
-			 << " when main_or_secondary is " << main_or_secondary << std::endl;
-	    }
-
-
-	 } else {
-
-	    // std::cout << "DEBUG:: some vectors " << nvecs << std::endl;
-	    // std::cout << "   debug draw immediate mode " << std::endl;
-
-	    // std::cout << ".... in draw draw_vector_sets size " << draw_vector_sets.size() << std::endl;
-
-	    // Is it possible that the map is being drawn as it is being deleted?
-	    // I don't see how - but I got a crash here. So let's lock the draw too.
-	    // I got a crash when this lock was in place. Hmm.
-	    bool unlocked = false;
-	    while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) &&
-		   !unlocked) {
-	       std::this_thread::sleep_for(std::chrono::microseconds(1));
-	       unlocked = false;
-	    }
-
-	    if (draw_vector_sets.size() > 0) {
-
-	       // glColor3dv (map_colour[0]);
-	       glLineWidth(graphics_info_t::map_line_width);
-
-	       glBegin(GL_LINES);
-	       unsigned int n_sets = draw_vector_sets.size();
-	       for (unsigned int iset=0; iset<n_sets; iset++) {
-		  if (draw_vector_sets.size() != n_sets) {
-		     std::cout << "Error:: the ground shifted! " << n_sets << " " << draw_vector_sets.size() << std::endl;
-		     break;
-		  }
-		  int n = draw_vector_sets[iset].size;
-		  const coot::CartesianPairInfo &cpi = draw_vector_sets[iset];
-		  for (int i=0; i<n; i++) {
-		     if (n != draw_vector_sets[iset].size) {
-			std::cout << "Error:: the innner ground shifted! "
-				  << n << " " << draw_vector_sets[iset].size << std::endl;
-			break;
-		     }
-		     const coot::CartesianPair &cp = cpi.data[i];
-		     glVertex3f(cp.getStart().x(),
-				cp.getStart().y(),
-				cp.getStart().z());
-		     glVertex3f(cp.getFinish().x(),
-				cp.getFinish().y(),
-				cp.getFinish().z());
-		  }
-	       }
-	       glEnd();
-	    }
-
-	    molecule_class_info_t::draw_vector_sets_lock = false; // unlock
-
-	    if (xmap_is_diff_map == 1) {
-
-	       if (n_diff_map_draw_vectors > 0) {
-
-		  // glColor3dv (map_colour[1]);
-		  // we only need to do this if it wasn't done above.
-		  // if (n_draw_vectors == 0)
-
-		  if (true)
-		     glLineWidth(graphics_info_t::map_line_width);
-
-		  glBegin(GL_LINES);
-		  for (int i=0; i< n_diff_map_draw_vectors; i++) {
-
-		     glVertex3f(diff_map_draw_vectors[i].getStart().get_x(),
-				diff_map_draw_vectors[i].getStart().get_y(),
-				diff_map_draw_vectors[i].getStart().get_z());
-		     glVertex3f(diff_map_draw_vectors[i].getFinish().get_x(),
-				diff_map_draw_vectors[i].getFinish().get_y(),
-				diff_map_draw_vectors[i].getFinish().get_z());
-		  }
-		  glEnd();
-	       }
-	    }
-	 }
-      }
-   }
+   // we don't draw maps like this now.
 }
 
 // not a member of the class because of the burden it puts on the header: CIsoSurface is not needed to compile
@@ -594,6 +514,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 //
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
+
+   std::cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  update_map_triangles()"
+             << std::endl;
 
    // cut glass mode means
    // do_solid_surface_for_density
@@ -623,20 +546,20 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    float dy_radius = radius;
    if (g.dynamic_map_size_display == 1) {
       if (isample_step <= 15 )
-	 dy_radius *= float(isample_step);
+         dy_radius *= float(isample_step);
       else
-	 dy_radius *= 15.0;
+         dy_radius *= 15.0;
    }
 
    //
    if (isample_step <= 0) {
       std::cout << "WARNING:: Bad zoom   ("<< g.zoom
-		<< "):  setting isample_step to 1" << std::endl;
+                << "):  setting isample_step to 1" << std::endl;
       isample_step = 1;
    }
    if (dy_radius <= 0.0) {
       std::cout << "WARNING:: Bad radius (" << dy_radius
-		<< ") setting to 10" << std::endl;
+                << ") setting to 10" << std::endl;
       dy_radius = 10.0;
    }
 
@@ -655,21 +578,18 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
-
-      if (false) {
-         // keep this because it uses threads for contouring
+      if (true) {
          clear_draw_vecs();
          std::vector<std::thread> threads;
-         int n_reams = coot::get_max_number_of_threads();
+         int n_reams = coot::get_max_number_of_threads() - 1;
+         if (n_reams < 1) n_reams = 1;
+
          for (int ii=0; ii<n_reams; ii++) {
-	         int iream_start = ii;
-	         int iream_end   = ii+1;
-	         threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
-					  &xmap,
-					  contour_level, dy_radius, centre,
-					  isample_step,
-					  iream_start, iream_end, n_reams, is_em_map,
-					  &draw_vector_sets));
+            int iream_start = ii;
+            threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+                                          &xmap, contour_level, dy_radius, centre,
+                                          isample_step, iream_start, n_reams, is_em_map,
+                                          &draw_vector_sets));
          }
          for (int ii=0; ii<n_reams; ii++)
             threads[ii].join();
@@ -677,20 +597,53 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       if (xmap_is_diff_map) {
          v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-            -contour_level,
-            dy_radius, centre,
-            isample_step,
-            0,1,1,
-            is_em_map);
-            if (is_dynamically_transformed_map_flag)
-               dynamically_transform(v);
-            set_diff_map_draw_vecs(v.data, v.size);
+                                                     -contour_level,
+                                                     dy_radius, centre,
+                                                     isample_step,
+                                                     0,1,
+                                                     is_em_map);
+         if (is_dynamically_transformed_map_flag)
+            dynamically_transform(v);
+         set_diff_map_draw_vecs(v.data, v.size);
       }
 
+      std::cout << "update_map_triangles() calls setup_glsl_map_rendering()\n";
+
+      setup_glsl_map_rendering(); // turn tri_con into buffers.
+
+
+/*
+Threaded difference map lines:
+if (xmap_is_diff_map) { // do the negative level
+   clear_diff_map_draw_vecs();
+   std::vector<std::thread> threads;
+   int n_reams = coot::get_max_number_of_threads() - 1;
+   if (n_reams < 1) n_reams = 1;
+   for (int ii=0; ii<n_reams; ii++) {
+      int iream_start = ii;
+      threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+                                    &xmap, -contour_level, dy_radius, centre,
+                                    isample_step, iream_start, n_reams, is_em_map,
+                                    &draw_diff_map_vector_sets));
+   }
+   for (int ii=0; ii<n_reams; ii++)
+      threads[ii].join();
+}
+
+if (draw_it_for_solid_density_surface) {
+   tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
+                           contour_level, dy_radius, centre,
+                           isample_step);
+
+
+*/
+
+
+/* single threaded triangles
       if (true) {
          std::cout << "calling my_isosurface.GenerateTriangles_from_Xmap()" << std::endl;
          tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
-               contour_level, dy_radius, centre, isample_step);
+               contour_level, dy_radius, centre, isample_step, iream_start, n_reams, is_em_map);
          std::cout << "done my_isosurface.GenerateTriangles_from_Xmap()" << std::endl;
 
          if (xmap_is_diff_map) {
@@ -701,6 +654,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
          }
          setup_glsl_map_rendering(); // turn tri_con into buffers.
       }
+
+*/
    }
 }
 
@@ -708,24 +663,27 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 					       float contour_level, float dy_radius,
 					       coot::Cartesian centre,
 					       int isample_step,
-					       int iream_start, int iream_end, int n_reams,
+					       int iream_start, int n_reams,
 					       bool is_em_map,
-					       std::vector<coot::CartesianPairInfo> *draw_vector_sets_p) {
+					       std::vector<coot::density_contour_triangles_container_t> *draw_vector_sets_p) {
 
    try {
       CIsoSurface<float> my_isosurface;
-      coot::CartesianPairInfo v;
-      v = my_isosurface.GenerateSurface_from_Xmap(*xmap_p,
-						  contour_level,
-						  dy_radius, centre,
-						  isample_step,
-						  iream_start, iream_end, n_reams,
-						  is_em_map);
+
+      coot::density_contour_triangles_container_t tri_con =
+        my_isosurface.GenerateTriangles_from_Xmap(std::cref(*xmap_p),
+                                                  contour_level, dy_radius, centre, isample_step,
+                                                  iream_start, n_reams, is_em_map);
+
+      // we are about to put the triangles into draw_vectors, so get the lock to
+      // do that, so that the threads don't try to change draw_vectors at the same time.
+      //
       bool unlocked = false;
-      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(10));
-	 unlocked = false;
+      while (! molecule_class_info_t::draw_vector_sets_lock.compare_exchange_weak(unlocked, true)) {
+         std::this_thread::sleep_for(std::chrono::microseconds(10));
+         unlocked = false;
       }
+
       // no longer dynamically change the size of draw_vector_sets
       // clear_draw_vecs will set the size to zero. If we find a element with size 0,
       // replace that one, rather than adding to draw_vector_sets
@@ -734,24 +692,24 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
       //
       bool done = false;
       for (unsigned int i=0; i<draw_vector_sets_p->size(); i++) {
-	 // std::cout << "gensurf_and_add_vecs_threaded_workpackage() checking i " << i << " data "
-	 // << draw_vector_sets_p->at(i).data << " size " << draw_vector_sets_p->at(i).size
-	 // << std::endl;
-	 if (draw_vector_sets_p->at(i).size == 0) {
-	    // std::cout << "   replacing set at " << i << " data" << v.data << " size " << v.size
-	    // << std::endl;
-	    draw_vector_sets_p->at(i).data = v.data;
-	    draw_vector_sets_p->at(i).size = v.size;
-	    done = true;
-	    break;
-	 }
+         // std::cout << "gensurf_and_add_vecs_threaded_workpackage() checking i " << i << " data "
+         // << draw_vector_sets_p->at(i).data << " size " << draw_vector_sets_p->at(i).size
+         // << std::endl;
+         if (draw_vector_sets_p->at(i).empty()) {
+            // std::cout << "   replacing set at " << i << " data" << v.data << " size " << v.size
+            // << std::endl;
+            // perhaps I can std::move this? I don't need tri_con after this.
+            draw_vector_sets_p->at(i) = tri_con;
+            done = true;
+            break;
+         }
       }
       if (! done) {
-	 // OK, let's push this one back then
-	 // std::cout << "gensurf_and_draw_vecs_threaded_workpackage() adding another draw vector set, "
-	 // << "current size " << draw_vector_sets_p->size() << " with " << v.data << " " << v.size
-	 // << std::endl;
-	 draw_vector_sets_p->push_back(v);
+         // OK, let's push this one back then
+         // std::cout << "gensurf_and_draw_vecs_threaded_workpackage() adding another draw vector set, "
+         // << "current size " << draw_vector_sets_p->size() << " with " << v.data << " " << v.size
+         // << std::endl;
+         draw_vector_sets_p->push_back(tri_con);
       }
 
       molecule_class_info_t::draw_vector_sets_lock = false; // unlock
@@ -765,169 +723,235 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 void
 molecule_class_info_t::setup_glsl_map_rendering() {
 
-   std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
-   std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << std::endl;
-   std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals"
-             << std::endl;
 
    // This is called from update_map_triangles().
 
    if (true) { // real map
 
-      // transfer the points
-      float *points = new float[3 * tri_con.points.size()];
-      for (std::size_t i=0; i<tri_con.points.size(); i++) {
-	      points[3*i  ] = 1.0 * tri_con.points[i].x();
-	      points[3*i+1] = 1.0 * tri_con.points[i].y();
-	      points[3*i+2] = 1.0 * tri_con.points[i].z();
+      unsigned int sum_tri_con_points = 0;
+      unsigned int sum_tri_con_normals = 0;
+      unsigned int sum_tri_con_triangles = 0;
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
+         const coot::density_contour_triangles_container_t &tri_con(*it);
+
+         if (false) {
+            std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << " triangles" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals" << std::endl;
+         }
+
+         sum_tri_con_points    += tri_con.points.size();
+         sum_tri_con_normals   += tri_con.normals.size();
+         sum_tri_con_triangles += tri_con.point_indices.size();
       }
 
-      // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
-      n_vertices_for_map_VertexArray = 6 * tri_con.point_indices.size();
-      // That's wrong I think, let me try again
-      // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
-      n_indices_for_triangles    = 3 * tri_con.point_indices.size();
+      if (sum_tri_con_triangles > 0) {
 
-      // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
+         std::vector<int> idx_base_for_points_vec(   draw_vector_sets.size()); // and normals
+         std::vector<int> idx_base_for_triangles_vec(draw_vector_sets.size());
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            if (i==0) {
+               idx_base_for_points_vec[i] = 0;
+               idx_base_for_triangles_vec[i] = 0;
+            } else {
+               idx_base_for_points_vec[i]    = idx_base_for_points_vec[i-1]    + draw_vector_sets[i-1].points.size();
+               idx_base_for_triangles_vec[i] = idx_base_for_triangles_vec[i-1] + draw_vector_sets[i-1].points.size();
+            }
+         }
 
-      int *indices = new int[n_vertices_for_map_VertexArray];
-      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-         indices[6*i  ] = tri_con.point_indices[i].pointID[0];
-         indices[6*i+1] = tri_con.point_indices[i].pointID[1];
-         indices[6*i+2] = tri_con.point_indices[i].pointID[1];
-         indices[6*i+3] = tri_con.point_indices[i].pointID[2];
-         indices[6*i+4] = tri_con.point_indices[i].pointID[2];
-         indices[6*i+5] = tri_con.point_indices[i].pointID[0];
+         // transfer the points
+         float *points = new float[3 * sum_tri_con_points];
+         std::cout << "debug:: sum_tri_con_points: " << sum_tri_con_points << std::endl;
+
+         int idx_points = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_points = idx_base_for_points_vec[i];
+            for (std::size_t j=0; j<tri_con.points.size(); j++) {
+               // std::cout << "using idx_points " << idx_points << std::endl;
+               points[3*idx_points  ] = tri_con.points[j].x();
+               points[3*idx_points+1] = tri_con.points[j].y();
+               points[3*idx_points+2] = tri_con.points[j].z();
+               idx_points++;
+            }
+         }
+
+         // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
+         n_vertices_for_map_VertexArray = 6 * sum_tri_con_triangles; // is this right!? FIXME
+         // That's wrong I think, let me try again
+         // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
+         n_indices_for_triangles    = 3 * sum_tri_con_triangles;
+         n_indices_for_lines        = 6 * sum_tri_con_triangles;
+
+         std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_map_VertexArray << std::endl;
+
+         int *indices_for_lines = new int[n_indices_for_lines];
+         int idx_for_indices = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_points = idx_base_for_points_vec[i];
+            for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+               indices_for_lines[6*idx_for_indices  ] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[0];
+               indices_for_lines[6*idx_for_indices+1] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[1];
+               indices_for_lines[6*idx_for_indices+2] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[1];
+               indices_for_lines[6*idx_for_indices+3] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[2];
+               indices_for_lines[6*idx_for_indices+4] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[2];
+               indices_for_lines[6*idx_for_indices+5] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[0];
+               idx_for_indices++;
+            }
+         }
+
+         int *indices_for_triangles = new int[n_indices_for_triangles];
+         int idx_for_triangles = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_triangles = idx_base_for_triangles_vec[i];
+            for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+               indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+               indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+               indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+               idx_for_triangles++;
+            }
+         }
+
+         // each index has a normal
+
+         int n_normals = sum_tri_con_normals;
+         float *normals = new float[3 * n_normals];
+         int idx_for_normals = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_points = idx_base_for_points_vec[i];
+            for (std::size_t i=0; i<tri_con.normals.size(); i++) {
+               normals[3*idx_for_normals  ] = tri_con.normals[i].x();
+               normals[3*idx_for_normals+1] = tri_con.normals[i].y();
+               normals[3*idx_for_normals+2] = tri_con.normals[i].z();
+               idx_for_normals++;
+            }
+         }
+
+         int n_colours = sum_tri_con_points;
+         float *colours = new float[4 * n_colours];
+         int idx_for_colours = 0;
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            // check here for difference map colours
+            for (std::size_t j=0; j<tri_con.points.size(); j++) {
+               if ((4*idx_for_colours) < (4 * n_colours)) {
+                  colours[4*idx_for_colours  ] = map_colour.red;
+                  colours[4*idx_for_colours+1] = map_colour.green;
+                  colours[4*idx_for_colours+2] = map_colour.blue;
+                  colours[4*idx_for_colours+3] = 1.0f;
+               } else {
+                  std::cout << "oops indexing error for colours"
+                            << idx_for_colours << " " << n_colours << std::endl;
+               }
+               idx_for_colours++;
+            }
+         }
+
+         // why is this needed?
+         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+
+         glGenVertexArrays(1, &m_VertexArrayID_for_map);
+         GLenum err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
+         << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
+         glBindVertexArray(m_VertexArrayID_for_map);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
+         << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
+
+         // positions
+         glGenBuffers(1, &m_VertexBufferID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+         int n_bytes_for_tri_con_points = sizeof(float) * 3 * sum_tri_con_points;
+         std::cout << "debug:: n_bytes_for_tri_con_points " << n_bytes_for_tri_con_points << std::endl;
+         glBufferData(GL_ARRAY_BUFFER, n_bytes_for_tri_con_points, &points[0], GL_STATIC_DRAW);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBufferData() err " << err << std::endl;
+         glEnableVertexAttribArray(0);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err " << err << std::endl;
+         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+
+         // normals
+         glGenBuffers(1, &m_NormalBufferID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+         glBufferData(GL_ARRAY_BUFFER, n_normals * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
+         glEnableVertexAttribArray(1);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
+         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+
+
+         // colours
+         glGenBuffers(1, &m_ColourBufferID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         glBindBuffer(GL_ARRAY_BUFFER, m_ColourBufferID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+         glBufferData(GL_ARRAY_BUFFER, n_colours * 4 * sizeof(float), &colours[0], GL_STATIC_DRAW);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBufferData() for colours err " << err << std::endl;
+         glEnableVertexAttribArray(2);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err colours " << err << std::endl;
+         glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+
+
+         glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_lines_ID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+         // Note to self: is n_vertices_for_VertexArray correct here?
+         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_lines,
+                      &indices_for_lines[0], GL_STATIC_DRAW);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+
+
+         glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
+         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
+                      &indices_for_triangles[0], GL_STATIC_DRAW);
+         err = glGetError();
+         std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+
+         delete [] points;
+         delete [] indices_for_lines;
+         delete [] indices_for_triangles;
+         delete [] colours;
+
       }
-
-      int *indices_for_triangles = new int[n_indices_for_triangles];
-      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-         indices_for_triangles[3*i  ] = tri_con.point_indices[i].pointID[0];
-         indices_for_triangles[3*i+1] = tri_con.point_indices[i].pointID[1];
-         indices_for_triangles[3*i+2] = tri_con.point_indices[i].pointID[2];
-      }
-
-      // each index has a normal
-      int n_normals = tri_con.points.size();
-      float *normals = new float[3 * n_normals];
-      for (int i=0; i<n_normals; i++) {
-         normals[3*i  ] = tri_con.normals[i].x();
-         normals[3*i+1] = tri_con.normals[i].y();
-         normals[3*i+2] = tri_con.normals[i].z();
-      }
-
-      int n_colours = n_vertices_for_map_VertexArray;
-      float *colours = new float[4 * n_colours];
-      // check here for difference map to to the colours
-      for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-         colours[4*i  ] = map_colour.red;
-         colours[4*i+1] = map_colour.green;
-         colours[4*i+2] = map_colour.blue;
-         colours[4*i+3] = 1.0f;
-      }
-
-      // why is this needed?
-      gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
-
-      glGenVertexArrays(1, &m_VertexArrayID_for_map);
-      GLenum err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
-		          << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
-      glBindVertexArray(m_VertexArrayID_for_map);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
-                << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
-
-      // positions
-      glGenBuffers(1, &m_VertexBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
-      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
-      int n_bytes_for_tri_con_points = sizeof(float) * 3 * tri_con.points.size();
-      std::cout << "debug:: n_bytes_for_tri_con_points " << n_bytes_for_tri_con_points << std::endl;
-      glBufferData(GL_ARRAY_BUFFER, n_bytes_for_tri_con_points, &points[0], GL_STATIC_DRAW);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBufferData() err " << err << std::endl;
-      glEnableVertexAttribArray(0);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err " << err << std::endl;
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
-
-
-      // normals
-      glGenBuffers(1, &m_NormalBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
-      glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
-      glBufferData(GL_ARRAY_BUFFER, n_normals * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
-      glEnableVertexAttribArray(1);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
-
-
-      // colours
-      glGenBuffers(1, &m_ColourBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
-      glBindBuffer(GL_ARRAY_BUFFER, m_ColourBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
-      glBufferData(GL_ARRAY_BUFFER, n_colours * 4 * sizeof(float), &colours[0], GL_STATIC_DRAW);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBufferData() for colours err " << err << std::endl;
-      glEnableVertexAttribArray(2);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err colours " << err << std::endl;
-      glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
-
-
-
-      // unsigned int ibo;
-      glGenBuffers(1, &m_IndexBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_map_VertexArray,
-		   &indices[0], GL_STATIC_DRAW);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
-
-
-      glGenBuffers(1, &m_IndexBuffer_for_triangles_ID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_triangles_ID);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-		             &indices_for_triangles[0], GL_STATIC_DRAW);
-      err = glGetError();
-      std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
-
-      delete [] points;
-      delete [] indices;
-      delete [] indices_for_triangles;
-      delete [] colours;
-
    }
 
 
-   std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------"
+   std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "
              << n_vertices_for_map_VertexArray << std::endl;
 
 }
@@ -937,60 +961,12 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 void
 molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 
+   // 20200312-PE empty this old function
+
    if (do_flat_shading)
       return; //
 
    if (draw_it_for_map) {
-      if (true) {
-
-         coot::Cartesian front = unproject(0.0);
-         coot::Cartesian back  = unproject(1.0);
-
-         glEnable(GL_LIGHTING);
-         glEnable(GL_LIGHT0);
-         glEnable(GL_LIGHT1);
-         // glEnable(GL_LIGHT2); // OK, for maps
-         glEnable (GL_BLEND);
-         glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-         if (density_surface_opacity < 1.0) {
-            clipper::Coord_orth front_cl(front.x(), front.y(), front.z());
-            clipper::Coord_orth  back_cl( back.x(),  back.y(),  back.z());
-            tri_con.depth_sort(back_cl, front_cl);
-            // std::cout << " sorted" << std::endl;
-            if (xmap_is_diff_map)
-            tri_con_diff_map_neg.depth_sort(back_cl, front_cl);
-         } else {
-
-            // glEnable(GL_CULL_FACE); // eek! surfaces goes dark...
-
-         }
-
-         // solid_mode is 1 for density maps represented without
-         // density lines - typically for representation of EM maps
-         // and smooth shaded.  The lighting needs to be more ambient
-         // and the material surface has colour (shared with the
-         // colour of the map lines).
-
-         bool solid_mode = ! do_flat_shading;
-
-         setup_density_surface_material(solid_mode, density_surface_opacity);
-
-         glEnable(GL_POLYGON_OFFSET_FILL);
-         glPolygonOffset(2.0, 2.0);
-         glColor4f(0.2, 0.2, 0.2, density_surface_opacity);
-         display_solid_surface_triangles(tri_con, do_flat_shading);
-
-         if (xmap_is_diff_map) {
-            bool is_neg = 1;
-            setup_density_surface_material(solid_mode, density_surface_opacity, is_neg);
-            display_solid_surface_triangles(tri_con_diff_map_neg, do_flat_shading);
-         }
-
-         glDisable(GL_POLYGON_OFFSET_FILL);
-         glDisable(GL_LIGHT2);
-         glDisable(GL_LIGHTING);
-      }
    }
 }
 
@@ -1284,7 +1260,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    }
 
    initialize_map_things_on_read_molecule(mol_name, is_diff_map, is_anomalous_flag,
-					  g.swap_difference_map_colours);
+                                          g.swap_difference_map_colours);
 
    // If use weights, use both strings, else just use the first
    std::pair<std::string, std::string> p = make_import_datanames(f_col, phi_col, weight_col, use_weights);
@@ -1294,26 +1270,26 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    } else {
 
       if (use_weights) {
-	 // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
-	 mtzin.import_hkl_data( f_sigf_data, p.first );
-	 // std::cout << "DEBUG:: Importing phi_fom_data: " << p.second << std::endl;
-	 mtzin.import_hkl_data(phi_fom_data, p.second);
-	 mtzin.close_read();
-	 fphidata.init( f_sigf_data.spacegroup(), f_sigf_data.cell(), f_sigf_data.hkl_sampling() );
-	 fphidata.compute(f_sigf_data, phi_fom_data,
-			  clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
-      } else {
-	 // std::cout << "DEBUG:: Importing f_phi_data: " << p.first << std::endl;
-	 mtzin.import_hkl_data(fphidata, p.first);
-	 mtzin.close_read();
-      }
+         // 	 std::cout << "DEBUG:: Importing f_sigf_data: " << p.first << std::endl;
+         mtzin.import_hkl_data( f_sigf_data, p.first );
+         // std::cout << "DEBUG:: Importing phi_fom_data: " << p.second << std::endl;
+         mtzin.import_hkl_data(phi_fom_data, p.second);
+         mtzin.close_read();
+         fphidata.init( f_sigf_data.spacegroup(), f_sigf_data.cell(), f_sigf_data.hkl_sampling() );
+         fphidata.compute(f_sigf_data, phi_fom_data,
+                          clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
+       } else {
+          // std::cout << "DEBUG:: Importing f_phi_data: " << p.first << std::endl;
+          mtzin.import_hkl_data(fphidata, p.first);
+          mtzin.close_read();
+       }
 
       long T1 = 0; // glutGet(GLUT_ELAPSED_TIME);
 
       int n_reflections = fphidata.num_obs();
       std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
       if (n_reflections <= 0) {
-	 std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
+         std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
       } else {
 	 if (use_reso_limits) {
 	    fft_reso = user_resolution;
@@ -2135,7 +2111,7 @@ molecule_class_info_t::is_EM_map() const {
 
    if (has_xmap()) {
       if (is_em_map_cached_flag == 1) { // -1 means unset
-         ret_is_em = true;
+	 ret_is_em = true;
       }
    }
    return ret_is_em;
@@ -2177,6 +2153,15 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
    map_sigma_ = sqrt(mv.variance);
 
    update_map();
+}
+
+void
+molecule_class_info_t::set_mean_and_sigma() {
+
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, true);
+   map_mean_ = mv.mean;
+   map_sigma_ = sqrt(mv.variance);
+
 }
 
 void
@@ -3052,7 +3037,7 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 //
 int
 molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
-					 const clipper::Cell &cell,
+                                         const clipper::Cell &cell,
                                          std::string phs_filename) {
 
    // clipper::Resolution resolution(reso);  // no.
@@ -3139,14 +3124,14 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 
       initialize_map_things_on_read_molecule(mol_name, false, false, false); // not diff map
 
-      cout << "initializing map...";
+      std::cout << "initializing map...";
       xmap.init(mydata.spacegroup(),
-		mydata.cell(),
-		clipper::Grid_sampling(mydata.spacegroup(),
-				       mydata.cell(),
-				       mydata.resolution(),
-				       graphics_info_t::map_sampling_rate));
-      cout << "done."<< endl;
+                mydata.cell(),
+                clipper::Grid_sampling(mydata.spacegroup(),
+                                       mydata.cell(),
+                                       mydata.resolution(),
+                                       graphics_info_t::map_sampling_rate));
+      std::cout << "done."<< std::endl;
 
       if (0) {
 	 std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " "
@@ -3419,8 +3404,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
       int n_residue_atoms;
       bool use_biased_density_scoring = true;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector<mmdb::Chain *> chains; // empty - apply RTop to atoms of selection
       v = fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma,
-				      n_trials, jiggle_scale_factor, use_biased_density_scoring);
+                                      n_trials, jiggle_scale_factor, use_biased_density_scoring, chains);
    } else {
       std::cout << "WARNING:: residue " << spec << " not found" << std::endl;
    }
@@ -3430,13 +3416,79 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 // Sort so that the biggest numbers are at the top (lowest index) of the sorted list
 bool
 trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
-		       const std::pair<clipper::RTop_orth, float> &b) {
+                       const std::pair<clipper::RTop_orth, float> &b) {
 
    return (b.second < a.second);
 
 }
 
 #ifdef HAVE_CXX_THREAD
+
+float
+molecule_class_info_t::fit_chain_to_map_by_random_jiggle(const std::string &chain_id, const clipper::Xmap<float> &xmap,
+                                                         float map_sigma, int n_trials, float jiggle_scale_factor) {
+   float r = 0;
+
+   mmdb::PPAtom atom_selection = 0;
+   int n_atoms;
+
+   // If we have more than 20 residues, lets do an atom selection and use that
+   // for fitting rather all the atoms.  No Side chains for protein,
+   //
+   std::pair<unsigned int, unsigned int> n_residues(0,0);
+   mmdb::Chain *chain_p = 0;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p_this = model_p->GetChain(ichain);
+         std::string chain_id_this(chain_p_this->GetChainID());
+         if (chain_id_this == std::string(chain_id)) {
+            chain_p = chain_p_this;
+            break;
+         }
+      }
+   }
+   if (chain_p)
+      n_residues = coot::util::get_number_of_protein_or_nucleotides(chain_p);
+
+   int SelHnd = atom_sel.mol->NewSelection(); // d
+
+   if (n_residues.first > 20) {
+      atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+         mmdb::ANY_RES, "*",
+         mmdb::ANY_RES, "*", "*",
+         "CA,C,O,N","*","*",mmdb::SKEY_NEW);
+   } else {
+      if (n_residues.second > 20) {
+         atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+               mmdb::ANY_RES, "*",
+               mmdb::ANY_RES, "*", "*",
+               "P,C1',N1,C2,N3,C4,N4,O2,C5,C6,O4,N9,C8,N7,N6","*","*",mmdb::SKEY_NEW);
+      } else {
+               atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+                  mmdb::ANY_RES, "*",
+                  mmdb::ANY_RES, "*",
+                  "*","*","*","*",mmdb::SKEY_NEW);
+      }
+   }
+
+   atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+   if (n_atoms) {
+      bool use_biased_density_scoring = false; // not for all-molecule
+      std::vector<mmdb::Chain *> chains;
+      chains.push_back(chain_p);
+      r = fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+                                      xmap, map_sigma,
+                                      n_trials, jiggle_scale_factor,
+                                      use_biased_density_scoring,
+                                      chains);
+   }
+   atom_sel.mol->DeleteSelection(SelHnd);
+   return r;
+}
 
 // static
 void
@@ -3514,18 +3566,18 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_2(int thread_index,
 //
 // chain_for_moving is default arg, with value 0.
 //
-// if chain_for_moving is not null, apply the transformation
+// if chain_for_moving is not empty, apply the transformation
 // the the atoms of chain_for_moving rather than to the atom of atom_selection
 //
 float
 molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
-						   int n_atoms,
-						   const clipper::Xmap<float> &xmap,
-						   float map_sigma,
-						   int n_trials,
-						   float jiggle_scale_factor,
-						   bool use_biased_density_scoring,
-						   mmdb::Chain *chain_for_moving) {
+                                                   int n_atoms,
+                                                   const clipper::Xmap<float> &xmap,
+                                                   float map_sigma,
+                                                   int n_trials,
+                                                   float jiggle_scale_factor,
+                                                   bool use_biased_density_scoring,
+                                                   std::vector<mmdb::Chain *> chains_for_moving) {
    float v = 0;
 
    if (! atom_sel.mol) return v;
@@ -3550,8 +3602,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    coot::minimol::molecule direct_mol(atom_selection, n_atoms, direct_initial_atoms);
 
    float (*density_scoring_function)(const coot::minimol::molecule &mol,
-				     const std::vector<std::pair<std::string, int> > &atom_number_list,
-				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
+                                     const std::vector<std::pair<std::string, int> > &atom_number_list,
+                                     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score_linear_interp;
 
    if (true)
       density_scoring_function = coot::util::z_weighted_density_score_nearest;
@@ -3572,13 +3624,13 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       mmdb::Atom *at = atom_selection[iat];
       mmdb::Residue *r = at->GetResidue();
       if (std::find(central_residues.begin(), central_residues.end(), r) == central_residues.end()) {
-	 central_residues.push_back(r);
+         central_residues.push_back(r);
       }
    }
 
    if (false)
       for (unsigned int ii=0; ii<central_residues.size(); ii++)
-	 std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
+         std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
 
    float radius = 4.0;
    for (unsigned int ires=0; ires<central_residues.size(); ires++) {
@@ -3606,7 +3658,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    float best_score = initial_score;
 
    std::cout << "------------------ initial_score " << initial_score
-	     << " -----------------" << std::endl;
+             << " -----------------" << std::endl;
    bool  bested = false;
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
@@ -3671,20 +3723,20 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       }
 
       catch (const std::bad_alloc &ba) {
-	 std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
-	 std::cout << "ERROR:: " << ba.what() << std::endl;
+         std::cout << "ERROR:: ------------------------ out of memory! ----------------- " << std::endl;
+         std::cout << "ERROR:: " << ba.what() << std::endl;
       }
 #endif
    } else {
 
       for (int itrial=0; itrial<n_trials; itrial++) {
-	 float annealing_factor = 1 - float(itrial)/float(n_trials);
-	 std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
-	    coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
-	 coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-	 float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
-	 std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
-	 trial_results[itrial] = p;
+         float annealing_factor = 1 - float(itrial)/float(n_trials);
+         std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
+         coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+         coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+         float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
+         std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+         trial_results[itrial] = p;
       }
    }
 
@@ -3695,9 +3747,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    if (false) {
       unsigned int n_top = 20;
       if (trial_results.size() < 20)
-	 n_top = trial_results.size();
+         n_top = trial_results.size();
       for (unsigned int i_trial=0; i_trial<n_top; i_trial++)
-	 std::cout << " debug pre-sort trial scores: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+         std::cout << " debug pre-sort trial scores: " << i_trial << " " << trial_results[i_trial].second << std::endl;
    }
 
    std::sort(trial_results.begin(),
@@ -3729,21 +3781,21 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    try {
       for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
-	 // does the fitting
-	 graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
-						  centre_pt, atom_numbers,
-						  trial_results[i_trial].second,
-						  density_scoring_function,
-						  &post_fit_trial_results[i_trial]);
+         // does the fitting
+         graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
+         centre_pt, atom_numbers,
+         trial_results[i_trial].second,
+         density_scoring_function,
+         &post_fit_trial_results[i_trial]);
       }
 
       // wait
       std::cout << "waiting for rigid-body fits..." << std::endl;
       bool wait_continue = true;
       while (wait_continue) {
-	 std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	 if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
-	    wait_continue = false;
+         std::this_thread::sleep_for(std::chrono::milliseconds(200));
+         if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+            wait_continue = false;
       }
    }
    catch (const std::bad_alloc &ba) {
@@ -3762,14 +3814,14 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(3) << i_trial << ": prelim-score was "
-		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
-		<< std::setw(5) << this_score;
+      << std::setw(3) << i_trial << ": prelim-score was "
+      << std::setw(7) << trial_results[i_trial].second << " post-fit "
+      << std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
-	 best_score_so_far = this_score;
-	 if (this_score > initial_score) {
-	    std::cout << " ***";
-	 }
+         best_score_so_far = this_score;
+         if (this_score > initial_score) {
+            std::cout << " ***";
+         }
       }
       std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
@@ -3800,10 +3852,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 		<< best_score << std::endl;
       v = best_score;
       if (! best_molecule.is_empty()) {
-	 mmdb::Manager *mol = best_molecule.pcmmdbmanager();
-	 if (mol) {
+         mmdb::Manager *mol = best_molecule.pcmmdbmanager();
+         if (mol) {
 
-	    if (chain_for_moving) {
+            if (!chains_for_moving.empty()) {
 
 	       // move the atoms of chain for moving, not the atoms of the atom selection
 	       //
@@ -3811,40 +3863,47 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	       // We need to find the transformation from the current/original coordintes
 	       // to that fitted mol coordinates and then apply them to all the atom
 	       // in the chain
-	       std::string chain_id = chain_for_moving->GetChainID();
-	       std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
-	       if (mmr.second >= mmr.first) {
-		  std::vector<coot::lsq_range_match_info_t> matches;
-		  coot::lsq_range_match_info_t match(mmr.first,
-						     mmr.second, chain_id,
-						     mmr.first,
-						     mmr.second, chain_id,
-						     COOT_LSQ_MAIN);
-		  matches.push_back(match);
-		  mmdb::Manager *mol_1 = mol;
-		  mmdb::Manager *mol_2 = atom_sel.mol;
-		  std::pair<short int, clipper::RTop_orth> lsq_mat =
-		     coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
-		  const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
-		  coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
-	       }
+
+         std::cout << "DEBUG: we have " << chains_for_moving.size() << " chains for moving" << std::endl;
+         for(unsigned int ich=0; ich<chains_for_moving.size(); ich++) {
+            mmdb::Chain *chain_for_moving = chains_for_moving[ich];
+            std::string chain_id = chain_for_moving->GetChainID();
+            std::cout << "DEBUG:: chain_for_moving " << chain_for_moving << " " << chain_id
+                      << std::endl;
+            std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
+            if (mmr.second >= mmr.first) {
+               std::vector<coot::lsq_range_match_info_t> matches;
+               coot::lsq_range_match_info_t match(mmr.first,
+                   mmr.second, chain_id,
+                   mmr.first,
+                   mmr.second, chain_id,
+                   COOT_LSQ_MAIN);
+               matches.push_back(match);
+               mmdb::Manager *mol_1 = mol;
+               mmdb::Manager *mol_2 = atom_sel.mol;
+               std::pair<short int, clipper::RTop_orth> lsq_mat =
+               coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
+               const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
+               coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
+            }
+         }
 
 	    } else {
 
 	       atom_selection_container_t asc_ligand = make_asc(mol);
 
-	       if (0) { // debug
-		  std::cout << "===== initial positions: =====" << std::endl;
-		  for (int iat=0; iat<n_atoms; iat++) {
-		     std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
-		  }
-		  std::cout << "===== moved to: =====" << std::endl;
-		  for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
-		     std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
-		  }
-	       }
-	       replace_coords(asc_ligand, false, true);
-	    }
+          if (false) { // debug
+             std::cout << "===== initial positions: =====" << std::endl;
+             for (int iat=0; iat<n_atoms; iat++) {
+                std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
+             }
+             std::cout << "===== moved to: =====" << std::endl;
+             for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
+                std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
+             }
+          }
+          replace_coords(asc_ligand, false, true);
+       }
 
 	    have_unsaved_changes_flag = 1;
 	    make_bonds_type_checked();
@@ -3860,6 +3919,17 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    }
    return v;
 }
+
+float
+molecule_class_info_t::fit_molecule_to_map_by_random_jiggle(const clipper::Xmap<float> &xmap,
+                                           float map_sigma, int n_trias, float jiggle_scale_factor) {
+   float r = 0;
+
+   // put the guts of fit_molecule_to_map_by_random_jiggle_and_blur() here.
+
+   return r;
+}
+
 
 // return a fitted molecule
 coot::minimol::molecule
@@ -3968,14 +4038,14 @@ molecule_class_info_t::get_contours(float contour_level,
    coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
                                                                        contour_level,
                                                                        radius, centre,
-                                                                       0,1,1,
+                                                                       0,1,
                                                                        isample_step, is_em_map_local);
    if (v.data) {
       if (v.size > 0) {
          r.resize(v.size);
          for (int i=0; i<v.size; i++) {
-            coot::Cartesian s = v.data[i].getStart();
-            coot::Cartesian f = v.data[i].getFinish();
+            const coot::Cartesian &s = v.data[i].getStart();
+            const coot::Cartesian &f = v.data[i].getFinish();
             clipper::Coord_orth p1(s.x(), s.y(), s.z());
             clipper::Coord_orth p2(f.x(), f.y(), f.z());
             r[i]= std::pair<clipper::Coord_orth, clipper::Coord_orth>(p1,p2);
@@ -4063,4 +4133,16 @@ molecule_class_info_t::update_map_from_mtz_if_changed(const updating_map_params_
       status = 0;
    }
    return status;
+}
+
+#include "coot-utils/sfcalc-genmap.hh"
+
+   // use this molecules mol and the passed data to make a map for some other
+   // molecule
+int
+molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                     const clipper::HKL_data<clipper::data32::Flag> &free,
+                                     clipper::Xmap<float> *xmap_p) {
+   coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+   return 0;
 }

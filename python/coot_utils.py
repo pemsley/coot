@@ -2001,22 +2001,19 @@ def read_vu_file(filename, obj_name):
 #
 def residues_matching_criteria(imol, residue_test_func):
 
-    chain_list = chain_ids(imol)
-    seq_residue_list = []
-    alt_conf_residue_list = []
+    matchers = []
+    # these specs are prefixed by the serial number
+    for molecule_residue_specs in all_residues_with_serial_numbers(imol):
+        rs = molecule_residue_specs[1:]
+        if residue_test_func(residue_spec_to_chain_id(rs),
+                             residue_spec_to_res_no(rs),
+                             residue_spec_to_ins_code(rs),
+                             molecule_residue_specs[0]):
+            matchers.append(rs)
+    return matchers
 
-    for chain_id in chain_list:
-        for serial_number in range(chain_n_residues(chain_id,imol)):
-            res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
-            ins_code = insertion_code_from_serial_number(imol, chain_id, serial_number)
-            r = residue_test_func(chain_id, res_no, ins_code, serial_number)
-            if r:
-                seq_residue_list.append([chain_id, res_no, ins_code])
-    if seq_residue_list:
-        return seq_residue_list
-    else:
-        return False
-
+# Now this is in the API
+#
 # Return residue specs for all residues in imol (each spec is preceeded by True)
 #
 def all_residues(imol):
@@ -2301,6 +2298,34 @@ def delete_atom_by_active_residue():
 # 
 def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
+    # residue is standard residues or phosphorylated version
+    #
+    # BL says:: maybe this can/should be a global function
+    #
+    def is_amino_acid(imol, ch_id, res_no):
+
+        aa_list = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLY", "GLU", "GLN",
+                   "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
+                   "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
+        rn = residue_name(imol, ch_id, res_no, "")
+        if not isinstance(rn, str):
+            return False
+        else:
+            if rn in aa_list:
+                return True
+        return False
+
+    #
+    def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
+                              imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
+
+        print "BL DEBUG:: in overlap_by_main_chain : ---------------- imol-mov: %s imol-ref: %s" %(imol_mov, imol_ref)
+        clear_lsq_matches()
+        map(lambda atom_name:
+            add_lsq_atom_pair([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
+                              [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "])
+        apply_lsq_matches(imol_ref, imol_mov)
+
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
     # then use it.
@@ -2334,11 +2359,17 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         else:
             delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             delete_atom(imol_ligand, "A", 1, "", " OXT", "")
-            overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+            if (is_amino_acid(imol_ligand, "A", 1) and
+                is_amino_acid(imol, chain_id_in, resno)):
+                overlap_by_main_chain(imol_ligand, "A", 1, "",
+                                      imol, chain_id_in, resno, "")
+            else:
+                overlap_ligands(imol_ligand, imol, chain_id_in, resno)
+
             match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
-            print "INFO:: new_chain_id_info: ", new_chain_id_info
+            print "BL DEBUG:: new_chain_id_info: ", new_chain_id_info
             merge_status = new_chain_id_info[0]
             if merge_status == 1:
                 new_res_spec = new_chain_id_info[1]
@@ -2348,8 +2379,9 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                                       residue_spec_to_res_no(new_res_spec),
                                       residue_spec_to_ins_code(new_res_spec),
                                       resno, "")
-                # not needed any more
-                #change_chain_id(imol, new_chain_id, chain_id_in, 1, resno, resno)
+                if not (new_chain_id == chain_id_in):
+                    change_chain_id(imol, new_chain_id, chain_id_in, 0, resno,
+                                    resno)
 
                 replacement_state = refinement_immediate_replacement_state()
                 imol_map = imol_refinement_map()
@@ -3473,12 +3505,18 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 def get_drug_via_wikipedia(drug_name_in):
 
 
-    import urllib2
+    import urllib2, os
     from xml.etree import ElementTree
 
     def get_redirected_drug_name(xml):
         return parse_wiki_drug_xml(xml, '#REDIRECT', True)
-    
+
+    def file_seems_good_qm(file_name):
+        if not os.path.isfile(file_name):
+            return False
+        else:
+            return os.stat(file_name).st_size > 20
+
     def parse_wiki_drug_xml(tree, key, redirect=False):
         key_re = re.compile(key)
         drug_bank_id = False
@@ -3516,41 +3554,79 @@ def get_drug_via_wikipedia(drug_name_in):
             # we want to parse the Etree rather than xml as this is an addurlinfo thingy
             xml = urllib2.urlopen(url)
             xml_tree = ElementTree.parse(xml)
-            
+
+            db_id_list = []
+
             mol_name = parse_wiki_drug_xml(xml_tree, "DrugBank  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["DrugBank", mol_name])
 
-            if not isinstance(mol_name, str):
-                print "WARNING:: mol_name not a string (DrugBank entry from wikipedia)", mol_name
-                # try pubchem as fallback
-                mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
-                if not isinstance(mol_name, str):
+            mol_name = parse_wiki_drug_xml(xml_tree,  "ChemSpider  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["ChemSpider", mol_name])
 
-                    print "WARNING:: mol_name not a string (pubchem entry either)", mol_name
-                    # so was there a redirect?
-                    # if so, get the name and call get_drug_via_wikipedia with it
-                    redirected_drug_name = get_redirected_drug_name(xml_tree)
-                    return get_drug_via_wikipedia(redirected_drug_name)
-                    
-                else:
-		    # old style
-                    pc_mol_uri = "http://pubchem.ncbi.nlm.nih.gov" + \
-                                 "/summary/summary.cgi?cid=" + \
-                                 mol_name + "&disopt=DisplaySDF"
-		    # new style
-		    pc_mol_uri = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + \
-				 mol_name + \
-				 "/record/SDF/?record_type=2d&response_type=display"
+            mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["PubChem", mol_name])
 
-                    file_name = "pc-" + mol_name + ".mol"
-                    coot_get_url(pc_mol_uri, file_name)
-                    
-            else:
-                db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
-                             mol_name + ".mol"
-                file_name = mol_name + ".mol"
-                coot_get_url(db_mol_uri, file_name)
-    return file_name
-                    
+            mol_name = parse_wiki_drug_xml(xml_tree,  "ChEMBL  *= ")
+            if isinstance(mol_name, str):
+                db_id_list.append(["ChEMBL", mol_name])
+
+            # now db_id_list is something like [["DrugBank" , "12234"], ["ChEMBL" , "6789"]]
+            # can we find one of them that works?
+            for db, id in db_id_list:
+                if id:
+                    if db == "DrugBank":
+                        db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
+                                     id + ".mol"
+                        file_name = "drugbank-" + id + ".mol"
+                        print "BL DEBUG:: DrugBank path: getting url:", db_mol_uri
+                        coot_get_url(db_mol_uri, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes db file-name: %s seems good" %file_name
+                            return file_name
+
+                    if db == "ChemSpider":
+                        cs_mol_url = "http://www.chemspider.com/" + \
+                                     "FilesHandler.ashx?type=str&striph=yes&id=" + \
+                                     "cs-" + id + ".mol"
+                        file_name = "cs-" + id + ".mol"
+                        print "BL DEBUG:: DrugBank path: getting url:", cs_mol_ur
+                        coot_get_url(cs_mol_url, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes cs file-name: %s seems good" %file_name
+                            return file_name
+
+                    if db == "ChEMBL":
+                        mol_url = "https://www.ebi.ac.uk/chembl/api/data/molecule/CHEMBL" + \
+                                     id + ".sdf"
+                        file_name = "chembl-" + id + ".sdf"
+                        print "BL DEBUG:: ChEMBL path: getting url:", mol_url
+                        coot_get_url(mol_url, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes chembl file-name: %s seems good" %file_name
+                            return file_name
+
+                    if db == "PubChem":
+                        pc_mol_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + \
+                                     id + "/record/SDF/?record_type=2d&response_type=display"
+                        file_name = "pc-" + id + ".mol"
+                        print "BL DEBUG:: pubchem path: getting url:", pc_mol_url
+                        coot_get_url(pc_mol_url, file_name)
+                        # check that filename is good here
+                        if file_seems_good_qm(file_name):
+                            print "BL DEBUG:: yes pc file-name: %s seems good" %file_name
+                            return file_name
+    # last resort, try a redirect
+    new_id = get_redirected_drug_name(xml_tree)
+    if new_id:
+        return get_drug_via_wikipedia(new_id)
+    return False # nothing was found...
+
 
 def get_SMILES_for_comp_id_from_pdbe(comp_id):
 
