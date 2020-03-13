@@ -515,6 +515,9 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
 
+   std::cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  update_map_triangles()"
+             << std::endl;
+
    // cut glass mode means
    // do_solid_surface_for_density
    // do_flat_shading_for_solid_density_surface is true
@@ -603,6 +606,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             dynamically_transform(v);
          set_diff_map_draw_vecs(v.data, v.size);
       }
+
+      std::cout << "update_map_triangles() calls setup_glsl_map_rendering()\n";
 
       setup_glsl_map_rendering(); // turn tri_con into buffers.
 
@@ -729,61 +734,83 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
-         std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
-         std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << " triangles" << std::endl;
-         std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals" << std::endl;
-         if (tri_con.point_indices.size() == 0) continue;
-         sum_tri_con_points += tri_con.points.size();
-         sum_tri_con_normals += tri_con.normals.size();
+
+         if (false) {
+            std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << " triangles" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals" << std::endl;
+         }
+
+         sum_tri_con_points    += tri_con.points.size();
+         sum_tri_con_normals   += tri_con.normals.size();
          sum_tri_con_triangles += tri_con.point_indices.size();
       }
 
       if (sum_tri_con_triangles > 0) {
+
+         std::vector<int> idx_base_for_points_vec(   draw_vector_sets.size()); // and normals
+         std::vector<int> idx_base_for_triangles_vec(draw_vector_sets.size());
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            if (i==0) {
+               idx_base_for_points_vec[i] = 0;
+               idx_base_for_triangles_vec[i] = 0;
+            } else {
+               idx_base_for_points_vec[i]    = idx_base_for_points_vec[i-1]    + draw_vector_sets[i-1].points.size();
+               idx_base_for_triangles_vec[i] = idx_base_for_triangles_vec[i-1] + draw_vector_sets[i-1].points.size();
+            }
+         }
+
          // transfer the points
          float *points = new float[3 * sum_tri_con_points];
+         std::cout << "debug:: sum_tri_con_points: " << sum_tri_con_points << std::endl;
 
          int idx_points = 0;
-         for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
-            const coot::density_contour_triangles_container_t &tri_con(*it);
-            for (std::size_t i=0; i<tri_con.points.size(); i++) {
-               points[3*idx_points  ] = tri_con.points[i].x();
-               points[3*idx_points+1] = tri_con.points[i].y();
-               points[3*idx_points+2] = tri_con.points[i].z();
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_points = idx_base_for_points_vec[i];
+            for (std::size_t j=0; j<tri_con.points.size(); j++) {
+               // std::cout << "using idx_points " << idx_points << std::endl;
+               points[3*idx_points  ] = tri_con.points[j].x();
+               points[3*idx_points+1] = tri_con.points[j].y();
+               points[3*idx_points+2] = tri_con.points[j].z();
                idx_points++;
             }
          }
 
          // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
-         n_vertices_for_map_VertexArray = 6 * sum_tri_con_triangles;
+         n_vertices_for_map_VertexArray = 6 * sum_tri_con_triangles; // is this right!? FIXME
          // That's wrong I think, let me try again
          // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
          n_indices_for_triangles    = 3 * sum_tri_con_triangles;
+         n_indices_for_lines        = 6 * sum_tri_con_triangles;
 
-         // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_VertexArray << std::endl;
+         std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_map_VertexArray << std::endl;
 
-         int *indices = new int[n_vertices_for_map_VertexArray];
+         int *indices_for_lines = new int[n_indices_for_lines];
          int idx_for_indices = 0;
-         for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
-            const coot::density_contour_triangles_container_t &tri_con(*it);
-            for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-               indices[6*idx_for_indices  ] = tri_con.point_indices[i].pointID[0];
-               indices[6*idx_for_indices+1] = tri_con.point_indices[i].pointID[1];
-               indices[6*idx_for_indices+2] = tri_con.point_indices[i].pointID[1];
-               indices[6*idx_for_indices+3] = tri_con.point_indices[i].pointID[2];
-               indices[6*idx_for_indices+4] = tri_con.point_indices[i].pointID[2];
-               indices[6*idx_for_indices+5] = tri_con.point_indices[i].pointID[0];
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_points = idx_base_for_points_vec[i];
+            for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+               indices_for_lines[6*idx_for_indices  ] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[0];
+               indices_for_lines[6*idx_for_indices+1] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[1];
+               indices_for_lines[6*idx_for_indices+2] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[1];
+               indices_for_lines[6*idx_for_indices+3] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[2];
+               indices_for_lines[6*idx_for_indices+4] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[2];
+               indices_for_lines[6*idx_for_indices+5] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[0];
                idx_for_indices++;
             }
          }
 
          int *indices_for_triangles = new int[n_indices_for_triangles];
          int idx_for_triangles = 0;
-         for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
-            const coot::density_contour_triangles_container_t &tri_con(*it);
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_triangles = idx_base_for_triangles_vec[i];
             for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-               indices_for_triangles[3*idx_for_triangles  ] = tri_con.point_indices[i].pointID[0];
-               indices_for_triangles[3*idx_for_triangles+1] = tri_con.point_indices[i].pointID[1];
-               indices_for_triangles[3*idx_for_triangles+2] = tri_con.point_indices[i].pointID[2];
+               indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+               indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+               indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                idx_for_triangles++;
             }
          }
@@ -793,8 +820,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          int n_normals = sum_tri_con_normals;
          float *normals = new float[3 * n_normals];
          int idx_for_normals = 0;
-         for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
-            const coot::density_contour_triangles_container_t &tri_con(*it);
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            int idx_base_for_points = idx_base_for_points_vec[i];
             for (std::size_t i=0; i<tri_con.normals.size(); i++) {
                normals[3*idx_for_normals  ] = tri_con.normals[i].x();
                normals[3*idx_for_normals+1] = tri_con.normals[i].y();
@@ -803,17 +831,22 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         int n_colours = n_vertices_for_map_VertexArray;
+         int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];
          int idx_for_colours = 0;
-         for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
-            const coot::density_contour_triangles_container_t &tri_con(*it);
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
             // check here for difference map colours
-            for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-               colours[4*idx_for_colours  ] = map_colour.red;
-               colours[4*idx_for_colours+1] = map_colour.green;
-               colours[4*idx_for_colours+2] = map_colour.blue;
-               colours[4*idx_for_colours+3] = 1.0f;
+            for (std::size_t j=0; j<tri_con.points.size(); j++) {
+               if ((4*idx_for_colours) < (4 * n_colours)) {
+                  colours[4*idx_for_colours  ] = map_colour.red;
+                  colours[4*idx_for_colours+1] = map_colour.green;
+                  colours[4*idx_for_colours+2] = map_colour.blue;
+                  colours[4*idx_for_colours+3] = 1.0f;
+               } else {
+                  std::cout << "oops indexing error for colours"
+                            << idx_for_colours << " " << n_colours << std::endl;
+               }
                idx_for_colours++;
             }
          }
@@ -848,7 +881,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
-
 
          // normals
          glGenBuffers(1, &m_NormalBufferID);
@@ -886,33 +918,32 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
 
-
-         // unsigned int ibo;
-         glGenBuffers(1, &m_IndexBufferID);
+         glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
-         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_vertices_for_map_VertexArray,
-         &indices[0], GL_STATIC_DRAW);
+         // Note to self: is n_vertices_for_VertexArray correct here?
+         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_lines,
+                      &indices_for_lines[0], GL_STATIC_DRAW);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
 
-         glGenBuffers(1, &m_IndexBuffer_for_triangles_ID);
+         glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_triangles_ID);
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-         &indices_for_triangles[0], GL_STATIC_DRAW);
+                      &indices_for_triangles[0], GL_STATIC_DRAW);
          err = glGetError();
          std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
          delete [] points;
-         delete [] indices;
+         delete [] indices_for_lines;
          delete [] indices_for_triangles;
          delete [] colours;
 

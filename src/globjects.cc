@@ -3551,7 +3551,7 @@ gint idle_contour_function(gpointer data) {
    //
    // then update maps
 
-   // std::cout << "--- debug:: idle_contour_function() running" << std::endl;
+   std::cout << "--- debug:: idle_contour_function() running" << std::endl;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
          int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;

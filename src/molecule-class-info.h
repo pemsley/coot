@@ -834,10 +834,12 @@ public:        //                      public
       n_vertices_for_map_VertexArray = 0;
       n_vertices_for_model_VertexArray = 0;
       n_indices_for_triangles = 0;
+      n_indices_for_lines = 0;
       // Assigning to GLuint. Hmm
       m_VertexArrayID_for_map  = -1;
       m_VertexBufferID = -1;
-      m_IndexBufferID  = -1;
+      m_IndexBuffer_for_map_lines_ID  = -1;
+      m_IndexBuffer_for_map_triangles_ID = -1;
       m_ColourBufferID = -1;
       m_VertexArray_for_model_ID = -1;
       m_VertexBuffer_for_model_ID = -1;
@@ -3093,9 +3095,10 @@ public:        //                      public
    GLuint n_vertices_for_map_VertexArray;
 
    GLuint n_indices_for_triangles;
+   GLuint n_indices_for_lines;
    GLuint m_VertexBufferID;
-   GLuint m_IndexBufferID;
-   GLuint m_IndexBuffer_for_triangles_ID; // solid and transparent surfaces
+   GLuint m_IndexBuffer_for_map_lines_ID;
+   GLuint m_IndexBuffer_for_map_triangles_ID; // solid and transparent surfaces
    GLuint m_NormalBufferID;
    GLuint m_ColourBufferID;
 

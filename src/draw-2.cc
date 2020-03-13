@@ -378,9 +378,7 @@ void draw_map_molecules() {
                                << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
                                << " with GL err " << err << std::endl;
 
-            // I doubt that I need to do these here:
-            // glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID); // not needed
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBufferID); // needed - it seems!?
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_map_lines_ID);
 
             glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
@@ -422,7 +420,7 @@ void draw_map_molecules() {
                                << " with GL err " << err << std::endl;
             glEnable(GL_BLEND);
             glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_triangles_ID);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_map_triangles_ID);
 
             glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
             err = glGetError();
@@ -894,7 +892,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    if (event->direction == GDK_SCROLL_UP)
       direction = -1;
 
-   std::cout << "scroll " << direction << std::endl;
+   std::cout << "on_glarea_scroll(): scroll direction " << direction << std::endl;
 
    graphics_info_t g;
    int imol_scroll = graphics_info_t::scroll_wheel_map;
@@ -910,8 +908,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
                 << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
-      g.update_maps();
-      //gtk_widget_queue_draw(widget);
+      // g.update_maps();
       g.graphics_draw(); // queue
    } else {
       std::cout << "No map" << std::endl;
