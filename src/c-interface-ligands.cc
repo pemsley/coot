@@ -1440,7 +1440,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       gtk_container_add(GTK_CONTAINER(button), button_hbox);
 
       int imol = 0; // dummy
-      GtkWidget *wp = get_image_widget_for_comp_id(v[i].first, imol);
+      GtkWidget *wp = 0; // = get_image_widget_for_comp_id(v[i].first, imol);
 
       // gtk_image_new_from_file("test.png");
 
