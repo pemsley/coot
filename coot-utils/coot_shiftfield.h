@@ -16,7 +16,7 @@ namespace coot {
    void
    shift_field_b_factor_refinement(const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &fo0,
                                    const clipper::HKL_data<clipper::data32::Flag> &free,
-                                   mmdb::Manager *mol);
+                                   mmdb::Manager *mol, int ncycles);
 
    // update the coordinates of the atoms in mol
    void shift_field_xyz_refinement(const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &fo0,

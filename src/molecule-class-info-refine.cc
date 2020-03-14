@@ -1668,8 +1668,8 @@ molecule_class_info_t::shiftfield_b_factor_refinement(const clipper::HKL_data<cl
                                                       const clipper::HKL_data<clipper::data32::Flag> &free) {
    if (atom_sel.mol) {
       make_backup();
-      for (unsigned int i=0; i<3; i++)
-         coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol);
+      int n_cycles = 3;
+      coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
    }
 
 }
@@ -1680,6 +1680,7 @@ molecule_class_info_t::shiftfield_xyz_factor_refinement(const clipper::HKL_data<
 
    if (atom_sel.mol) {
       make_backup();
-      coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol);
+      int n_cycles = 3;
+      coot::shift_field_xyz_refinement(fobs, free, atom_sel.mol, 2.0);
    }
 }

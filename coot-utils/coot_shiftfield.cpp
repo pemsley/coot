@@ -10,9 +10,8 @@
 void
 coot::shift_field_b_factor_refinement(const clipper::HKL_data< clipper::datatypes::F_sigF<float> > &fo0,
                                       const clipper::HKL_data<clipper::data32::Flag> &free,
-                                      mmdb::Manager *mol)
+                                      mmdb::Manager *mol, int ncyc)
 {
-  int ncyc = 1;
   double radscl = 4.0;
   int freeflag = 0;
   int filter = 2;
