@@ -3351,6 +3351,12 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 /* Used by on_accept_reject_refinement_reject_button_clicked() */
 void stop_refinement_internal();
 
+/*! \brief shiftfield B-factor refinement */
+void shiftfield_b_factor_refinement(int imol);
+
+/*! \brief shiftfield xyz refinement */
+void shiftfield_xyz_factor_refinement(int imol);
+
 /*! \brief turn on (or off) torsion restraints 
 
    Pass with istate=1 for on, istate=0 for off.

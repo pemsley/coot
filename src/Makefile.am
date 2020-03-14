@@ -446,6 +446,7 @@ coot_bin_SOURCES = \
 	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
 	graphics-info-residues.cc	\
+	graphics-info-refine.cc	\
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \

@@ -2516,7 +2516,7 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
                updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
                updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
                GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
-               g_timeout_add(1000, f, u);
+               g_timeout_add(500, f, u);
             }
          }
       }

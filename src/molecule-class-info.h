@@ -1517,7 +1517,7 @@ public:        //                      public
    int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
-   void fill_fobs_sigfobs();
+   void fill_fobs_sigfobs(); // caches
 
    void update_map_in_display_control_widget() const;
    void new_coords_mol_in_display_control_widget() const;  // for a new molecule.
@@ -3408,6 +3408,12 @@ public:        //                      public
    void set_mean_and_sigma();
 
    coot::model_composition_stats_t get_model_composition_statistics() const;
+
+   void shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                       const clipper::HKL_data<clipper::data32::Flag> &free);
+
+   void shiftfield_xyz_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                         const clipper::HKL_data<clipper::data32::Flag> &free);
 
 };
 
