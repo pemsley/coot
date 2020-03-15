@@ -1276,6 +1276,33 @@ test_CO_orientations(int argc, char **argv) {
    return status;
 }
 
+int test_fsc(int argc, char **argv) {
+   int status = 0;
+   if (argc > 2) {
+      std::string fn1 = argv[1];
+      std::string fn2 = argv[2];
+      try {
+         std::cout << "idx resolution count ff-sum f1-sum f2-sum fsc" << std::endl;
+         clipper::CCP4MAPfile file;
+         clipper::Xmap<float> xmap_1;
+         clipper::Xmap<float> xmap_2;
+         std::cout << "# reading map 1" << std::endl;
+         file.open_read(fn1);
+         file.import_xmap(xmap_1);
+         file.close_read();
+         std::cout << "# reading map 2" << std::endl;
+         file.open_read(fn2);
+         file.import_xmap(xmap_2);
+         file.close_read();
+         coot::util::fsc(xmap_1, xmap_2);
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "Failed to open " << fn1 << std::endl;
+      }
+   }
+   return status;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1356,7 +1383,11 @@ int main(int argc, char **argv) {
    if (false)
       test_cablam(argc, argv);
 
-   if (true)
+   if (false)
       test_map_molecule_centre(argc, argv);
+
+   if (true)
+      test_fsc(argc, argv);
+
    return 0;
 }

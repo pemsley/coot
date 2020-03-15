@@ -82,9 +82,10 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
+    $(CLIPPER_LIBS) $(MMDB_LIBS) \
     $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
-libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS) $(CLIPPER_LIBS) $(MMDB_LIBS)
+libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # shelx
 # libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
@@ -106,7 +107,7 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 
 # should libcoot-coord-utils link $CLIPPER_LIBS? Yes, I think so.
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la  $(CLIPPER_LIBS)
+   libcoot-coord-utils.la $(CLIPPER_LIBS)
 
 libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 
@@ -177,7 +178,7 @@ test_segmap_LDADD = \
 	$(top_builddir)/coords/libcoot-coords.la
 
 # other test binaries may need to be linked like this too
-test_coot_utils_SOURCES = test-utils.cc
+test_coot_utils_SOURCES = test-coot-utils.cc
 test_coot_utils_LDADD = \
 	./libcoot-map-heavy.la    \
 	./libcoot-map-utils.la    \

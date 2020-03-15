@@ -510,9 +510,9 @@ coot::util::sharpen_blur_map(const clipper::Xmap<float> &xmap_in, float b_factor
    for (hri = fphis.first(); !hri.last(); hri.next()) {
       float f = fphis[hri].f();
       if (! clipper::Util::is_nan(f)) {
-	 float irs =  hri.invresolsq();
-	 fphis[hri].f() *= exp(-b_factor * irs * 0.25);
-	 count++;
+         float irs =  hri.invresolsq();
+         fphis[hri].f() *= exp(-b_factor * irs * 0.25);
+         count++;
       }
    }
    auto tp_2 = std::chrono::high_resolution_clock::now();
@@ -3483,4 +3483,86 @@ coot::util::map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap
    }
 
    return mmci;
+}
+
+
+
+std::vector<std::pair<clipper::Resolution, double> >
+coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2) {
+
+   std::vector<std::pair<clipper::Resolution, double> > v;
+   std::cout << "# starting FSC" << std::endl;
+
+   int n_bins = 100; //  pass this?
+   float mg = coot::util::max_gridding(xmap_1); // A/grid
+   clipper::Resolution reso(2.0 * mg); // Angstroms
+   std::cout << "# making data info 1" << std::endl;
+   clipper::HKL_info hkl_info_1(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
+   std::cout << "# making data info 2" << std::endl;
+   clipper::HKL_info hkl_info_2(xmap_2.spacegroup(), xmap_2.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info_1);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info_2);
+   std::cout << "# starting Fouriers" << std::endl;
+   xmap_1.fft_to(fphis_1);
+   std::cout << "# done map-1" << std::endl;
+   xmap_2.fft_to(fphis_2);
+   std::cout << "# done map-2" << std::endl;
+   clipper::HKL_info::HKL_reference_index hri;
+   std::vector<double> ff_sum(n_bins, 0.0);
+   std::vector<double> f1_sqrd_sum(n_bins, 0.0);
+   std::vector<double> f2_sqrd_sum(n_bins, 0.0);
+   std::vector<unsigned int> counts(n_bins, 0);
+   double max_reso = 0.0;
+   for (hri = fphis_1.first(); !hri.last(); hri.next()) {
+      float f = fphis_1[hri].f();
+      if (! clipper::Util::is_nan(f)) {
+         float irs = hri.invresolsq();
+         float ir = sqrt(irs);
+         if (ir > max_reso)
+            max_reso = ir;
+      }
+   }
+   for (hri = fphis_1.first(); !hri.last(); hri.next()) {
+      float f_1 = 1000.0 * fphis_1[hri].f();
+      try {
+         if (! clipper::Util::is_nan(f_1)) {
+            float f_2 = 1000.0 * fphis_2[hri].f();
+            float irs = hri.invresolsq();
+            float ir = sqrtf(irs);
+            int bin_no = static_cast<int> (static_cast<double>(n_bins) * ir/max_reso);
+            if (bin_no == n_bins) bin_no = n_bins - 1; // catch the reflection at the edge
+
+            float A_f_1 = f_1 * cosf(fphis_1[hri].phi());
+            float B_f_1 = f_1 * sinf(fphis_1[hri].phi());
+            float A_f_2 = f_2 * cosf(fphis_2[hri].phi());
+            float B_f_2 = f_2 * sinf(fphis_2[hri].phi());
+
+            double prod = A_f_1 * A_f_2 + B_f_1 * B_f_2;
+            ff_sum[bin_no] += prod;
+            if (false)
+               std::cout << hri.hkl().format() << " " << f_1 << " " << fphis_1[hri].phi() << " " << f_2 << " " << fphis_2[hri].phi() << " prod " << prod << std::endl;
+            f1_sqrd_sum[bin_no] += f_1 * f_1;
+            f2_sqrd_sum[bin_no] += f_2 * f_2;
+            counts[bin_no]++;
+         }
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << rte.what() << std::endl;
+      }
+   }
+
+   for(int i=0; i<n_bins; i++) {
+      double fsc = ff_sum[i]/sqrt(f1_sqrd_sum[i] * f2_sqrd_sum[i]);
+      double ir = (static_cast<double>(i) + 0.5) * max_reso/static_cast<double>(n_bins);
+      std::cout << i << " " << ir << " "
+                << counts[i] << " " << ff_sum[i]/static_cast<double>(counts[i]) << " "
+                << f1_sqrd_sum[i]/static_cast<double>(counts[i]) << " "
+                << f2_sqrd_sum[i]/static_cast<double>(counts[i]) << "    "
+                << fsc << std::endl;
+      std::pair<clipper::Resolution, double> p(1.0/ir, fsc);
+      v.push_back(p);
+   }
+
+   return v;
+
 }
