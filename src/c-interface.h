@@ -3351,6 +3351,12 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 /* Used by on_accept_reject_refinement_reject_button_clicked() */
 void stop_refinement_internal();
 
+/*! \brief shiftfield B-factor refinement */
+void shiftfield_b_factor_refinement(int imol);
+
+/*! \brief shiftfield xyz refinement */
+void shiftfield_xyz_factor_refinement(int imol);
+
 /*! \brief turn on (or off) torsion restraints
 
    Pass with istate=1 for on, istate=0 for off.
@@ -5654,7 +5660,14 @@ int backrub_rotamer_intermediate_atoms();
         where there are no atoms atoms.  */
 int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag);
 
+/*! \brief mask map by atom selection */
 int mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_atom_selection, short int invert_flag);
+
+/*! \brief make chain masked maps
+
+   needs to return a list of values
+ */
+int make_masked_maps_split_by_chain(int imol, int imol_map);
 
 /*! \brief set the atom radius for map masking */
 void set_map_mask_atom_radius(float rad);

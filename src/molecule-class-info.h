@@ -1570,7 +1570,7 @@ public:        //                      public
    int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
-   void fill_fobs_sigfobs();
+   void fill_fobs_sigfobs(); // caches
 
 
    void update_map_in_display_control_widget() const;
@@ -3484,6 +3484,24 @@ public:        //                      public
    void set_mean_and_sigma();
 
    coot::model_composition_stats_t get_model_composition_statistics() const;
+
+   void shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                       const clipper::HKL_data<clipper::data32::Flag> &free);
+
+   void shiftfield_xyz_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                         const clipper::HKL_data<clipper::data32::Flag> &free);
+
+   // radial colouring
+   void set_radial_map_colouring_centre(float x, float y, float z);
+   void set_radial_map_colouring_min_radius(float r);
+   void set_radial_map_colouring_max_radius(float r);
+   void set_radial_map_colouring_invert(bool invert_state);
+   void set_radial_map_colouring_saturation(float saturation);
+   clipper::Coord_orth radial_map_colour_centre;
+   double radial_map_colour_radius_min;
+   double radial_map_colour_radius_max;
+   double radial_map_colour_invert_flag;
+   double radial_map_colour_saturation;
 
 };
 

@@ -4057,6 +4057,12 @@ string   static std::string sessionid;
 //  at the same time.
    static std::atomic<bool> on_going_updating_map_lock;
 
+   /*! \brief shiftfield B-factor refinement */
+   void shiftfield_b_factor_refinement(int imol);
+
+   /*! \brief shiftfield xyz refinement */
+   void shiftfield_xyz_factor_refinement(int imol);
+
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

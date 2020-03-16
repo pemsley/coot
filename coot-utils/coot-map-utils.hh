@@ -520,6 +520,9 @@ namespace coot {
 						   float radius,
 						   const std::vector<phitheta> &phi_thetas,
 						   clipper::Xmap<float> &xmap);
+
+      std::vector<std::pair<clipper::Resolution, double> >
+      fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
    }
 }
 

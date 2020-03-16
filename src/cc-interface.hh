@@ -1466,13 +1466,31 @@ int handle_drag_and_drop_string(const std::string &uri);
 /*                      Map Contours                                         */
 /* ------------------------------------------------------------------------- */
 
-#ifdef USE_PYTHON
 /*! \name Map Contouring Functions */
+
+#ifdef USE_PYTHON
 // \{
 //! \brief return two lists: a list of vertices and a list of indices for connection
 PyObject *map_contours(int imol, float contour_level);
 // \}
 #endif // USE_PYTHON
+
+//! \brief radial map colouring centre
+void set_radial_map_colouring_centre(int imol, float x, float y, float z);
+
+//! \brief radial map colouring min
+void set_radial_map_colouring_min_radius(int imol, float r);
+
+//! \brief radial map colouring max
+void set_radial_map_colouring_max_radius(int imol, float r);
+
+//! \brief radial map colouring inverted colour map
+void set_radial_map_colouring_invert(int imol, int invert_state);
+
+//! \brief radial map colouring saturation
+//!
+//! saturation is a number between 0 and 1, typically 0.5
+void set_radial_map_colouring_saturation(int imol, float saturation);
 
 
 

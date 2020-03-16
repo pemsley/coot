@@ -1449,4 +1449,20 @@ bool get_regenerate_bonds_needs_make_bonds_type_checked_state() {
    return g.get_regenerate_bonds_needs_make_bonds_type_checked_state();
 }
 
+/*! \brief shiftfield B-factor refinement */
+void shiftfield_b_factor_refinement(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.shiftfield_b_factor_refinement(imol);
+   }
+}
+
+/*! \brief shiftfield xyz refinement */
+void shiftfield_xyz_factor_refinement(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.shiftfield_xyz_factor_refinement(imol);
+   }
+}
+
 
