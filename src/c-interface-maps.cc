@@ -2539,3 +2539,39 @@ void go_to_map_molecule_centre(int imol_map) {
       }
    }
 }
+
+
+//! \brief radial map colouring centre
+void set_radial_map_colouring_centre(int imol, float x, float y, float z) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_centre(x,y,z);
+}
+
+//! \brief radial map colouring min
+void set_radial_map_colouring_min_radius(int imol, float r) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_min_radius(r);
+}
+
+//! \brief radial map colouring max
+void set_radial_map_colouring_max_radius(int imol, float r) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_max_radius(r);
+}
+
+//! \brief radial map colouring inverted colour map
+void set_radial_map_colouring_invert(int imol, int invert_state) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_invert(invert_state);
+}
+
+//! \brief radial map colouring saturation
+//!
+//! saturation is a number between 0 and 1, typically 0.5
+void set_radial_map_colouring_saturation(int imol, float saturation) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_saturation(saturation);
+}
+
+
+

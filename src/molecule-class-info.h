@@ -3415,6 +3415,18 @@ public:        //                      public
    void shiftfield_xyz_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                                          const clipper::HKL_data<clipper::data32::Flag> &free);
 
+   // radial colouring
+   void set_radial_map_colouring_centre(float x, float y, float z);
+   void set_radial_map_colouring_min_radius(float r);
+   void set_radial_map_colouring_max_radius(float r);
+   void set_radial_map_colouring_invert(bool invert_state);
+   void set_radial_map_colouring_saturation(float saturation);
+   clipper::Coord_orth radial_map_colour_centre;
+   double radial_map_colour_radius_min;
+   double radial_map_colour_radius_max;
+   double radial_map_colour_invert_flag;
+   double radial_map_colour_saturation;
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T
