@@ -832,7 +832,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          }
 
          // set up radial variables
-         clipper::Coord_orth map_centre(363,363,363);
 
          int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];
@@ -842,13 +841,13 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
             // check here for difference map colours
             for (std::size_t j=0; j<tri_con.points.size(); j++) {
-               if (do_radial_colouring) {
-                  if (true) {
+               if (radial_map_colouring_do_radial_colouring) {
+                  if (idx_for_colours < n_colours) {
                      // Oh dear - indexing!
                      clipper::Coord_orth co(points[3 * idx_for_colours], points[3 * idx_for_colours +1], points[3 * idx_for_colours +2]);
-                     double dd = (co-map_centre).lengthsq();
+                     double dd = (co-radial_map_colour_centre).lengthsq();
                      double r = sqrt(dd);
-                     GdkRGBA map_col = radius_to_colour(r, 180, 250);
+                     GdkRGBA map_col = radius_to_colour(r, radial_map_colour_radius_min, radial_map_colour_radius_max);
                      colours[4*idx_for_colours  ] = map_col.red;
                      colours[4*idx_for_colours+1] = map_col.green;
                      colours[4*idx_for_colours+2] = map_col.blue;
@@ -4165,6 +4164,7 @@ molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_
    return 0;
 }
 
+// Weird combination of passed variables and class variables.
 GdkRGBA
 molecule_class_info_t::radius_to_colour(float radius, float min_radius, float max_radius) {
 
@@ -4177,14 +4177,17 @@ molecule_class_info_t::radius_to_colour(float radius, float min_radius, float ma
          f = (radius - min_radius)/range;
       }
    }
+   if (radial_map_colour_invert_flag)
+      f = 1.0 - f;
    return fraction_to_colour(f);
 }
 
 GdkRGBA
 molecule_class_info_t::fraction_to_colour(float fraction) {
    GdkRGBA col;
-   coot::colour_t cc(0.7, 0.3, 0.3);
-   cc.rotate(0.3 * 1.5 * M_PI * fraction);
+   float sat = radial_map_colour_saturation;
+   coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
+   cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
    col.red   = cc.col[0];
    col.green = cc.col[1];
    col.blue  = cc.col[2];
