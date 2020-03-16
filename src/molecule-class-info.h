@@ -1400,6 +1400,8 @@ public:        //                      public
    GdkRGBA previous_map_colour;
    void save_previous_map_colour();
    void restore_previous_map_colour();
+   GdkRGBA radius_to_colour(float radius, float min_radius, float max_radius);
+   GdkRGBA fraction_to_colour(float fraction);
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();

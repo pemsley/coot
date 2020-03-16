@@ -831,21 +831,39 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
+         // set up radial variables
+         clipper::Coord_orth map_centre(363,363,363);
+
          int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];
          int idx_for_colours = 0;
+         bool do_radial_colouring = true;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
             // check here for difference map colours
             for (std::size_t j=0; j<tri_con.points.size(); j++) {
-               if ((4*idx_for_colours) < (4 * n_colours)) {
-                  colours[4*idx_for_colours  ] = map_colour.red;
-                  colours[4*idx_for_colours+1] = map_colour.green;
-                  colours[4*idx_for_colours+2] = map_colour.blue;
-                  colours[4*idx_for_colours+3] = 1.0f;
+               if (do_radial_colouring) {
+                  if (true) {
+                     // Oh dear - indexing!
+                     clipper::Coord_orth co(points[3 * idx_for_colours], points[3 * idx_for_colours +1], points[3 * idx_for_colours +2]);
+                     double dd = (co-map_centre).lengthsq();
+                     double r = sqrt(dd);
+                     GdkRGBA map_col = radius_to_colour(r, 180, 250);
+                     colours[4*idx_for_colours  ] = map_col.red;
+                     colours[4*idx_for_colours+1] = map_col.green;
+                     colours[4*idx_for_colours+2] = map_col.blue;
+                     colours[4*idx_for_colours+3] = 1.0f;
+                  }
                } else {
-                  std::cout << "oops indexing error for colours"
-                            << idx_for_colours << " " << n_colours << std::endl;
+                  if ((4*idx_for_colours) < (4 * n_colours)) {
+                     colours[4*idx_for_colours  ] = map_colour.red;
+                     colours[4*idx_for_colours+1] = map_colour.green;
+                     colours[4*idx_for_colours+2] = map_colour.blue;
+                     colours[4*idx_for_colours+3] = 1.0f;
+                  } else {
+                     std::cout << "oops indexing error for colours"
+                               << idx_for_colours << " " << n_colours << std::endl;
+                  }
                }
                idx_for_colours++;
             }
@@ -4145,4 +4163,32 @@ molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_
                                      clipper::Xmap<float> *xmap_p) {
    coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
    return 0;
+}
+
+GdkRGBA
+molecule_class_info_t::radius_to_colour(float radius, float min_radius, float max_radius) {
+
+   float f = 0.0;
+   if (radius > min_radius) {
+      if (radius > max_radius) {
+         f = 1.0;
+      } else {
+         float range = max_radius - min_radius;
+         f = (radius - min_radius)/range;
+      }
+   }
+   return fraction_to_colour(f);
+}
+
+GdkRGBA
+molecule_class_info_t::fraction_to_colour(float fraction) {
+   GdkRGBA col;
+   coot::colour_t cc(0.7, 0.3, 0.3);
+   cc.rotate(0.3 * 1.5 * M_PI * fraction);
+   col.red   = cc.col[0];
+   col.green = cc.col[1];
+   col.blue  = cc.col[2];
+   col.alpha = 1.0;
+
+   return col;
 }
