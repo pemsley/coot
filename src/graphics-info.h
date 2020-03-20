@@ -3280,6 +3280,10 @@ public:
    // ------- refmac molecules option menu  -----
    static int refmac_molecule;
 
+   // ------- new style refmac usage ---
+   // above needs to be cleaned or fixed.
+   static std::string mtz_file_for_refmac;
+
    // ------ new style combobox usage -------
 
    // the top one of this is probably what you want.
@@ -3974,6 +3978,12 @@ string   static std::string sessionid;
  // for updating (difference) maps - we don't want to set 2 of these (or more) off
 //  at the same time.
    static std::atomic<bool> on_going_updating_map_lock;
+
+   /*! \brief shiftfield B-factor refinement */
+   void shiftfield_b_factor_refinement(int imol);
+
+   /*! \brief shiftfield xyz refinement */
+   void shiftfield_xyz_factor_refinement(int imol);
 
 
 #ifdef USE_PYTHON

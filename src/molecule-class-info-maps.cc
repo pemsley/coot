@@ -1904,6 +1904,8 @@ molecule_class_info_t::unskeletonize_map() {
    xskel_cowtan = empty;
 }
 
+#include "coot-utils/slurp-map.hh"
+
 // Return -1 on error
 int
 molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
@@ -1996,75 +1998,83 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    bool em = false;
 
    if ( map_file_type == CCP4 ) {
-     std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
-     // clipper::CCP4MAPfile file;
-     clipper_map_file_wrapper file;
-     try {
-	file.open_read(filename);
 
-	em = set_is_em_map(file);
+      bool done = false;
+      if (coot::util::is_basic_em_map_file(filename)) {
+         em = true;
+         // fill xmap
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
+      }
 
-	bool use_xmap = true; // not an nxmap
-	if (true) {
+      if (! done) {
+         std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+         // clipper::CCP4MAPfile file;
+         clipper_map_file_wrapper file;
+         try {
+            file.open_read(filename);
 
-	   clipper::Grid_sampling fgs = file.grid_sampling();
+            em = set_is_em_map(file);
 
-	   std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
+            bool use_xmap = true; // not an nxmap
+            if (true) {
 
-	   clipper::Cell fcell = file.cell();
-	   double vol = fcell.volume();
-	   if (vol < 1.0) {
-	      std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
-			<< std::endl;
-	      bad_read = true;
-	   } else {
+               clipper::Grid_sampling fgs = file.grid_sampling();
 
-	      try {
-		 file.import_xmap(xmap);
-	      }
-	      catch (const clipper::Message_generic &exc) {
-		 std::cout << "WARNING:: failed to read " << filename
-			   << " Bad ASU (inconsistant gridding?)." << std::endl;
-		 bad_read = true;
-	      }
-	   }
-	} else {
+               std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
 
-	   // Should never happen.  Not yet.
-	   //
-	   std::cout << "=================== EM Map NXmap =================== " << std::endl;
-	   file.import_nxmap(nxmap);
-	   std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
-	}
-     } catch (const clipper::Message_base &exc) {
-	std::cout << "WARNING:: failed to open " << filename << std::endl;
-	bad_read = true;
-     }
+               clipper::Cell fcell = file.cell();
+               double vol = fcell.volume();
+               if (vol < 1.0) {
+                  std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+                  << std::endl;
+                  bad_read = true;
+               } else {
+                  try {
+                     file.import_xmap(xmap);
+                  }
+                  catch (const clipper::Message_generic &exc) {
+                     std::cout << "WARNING:: failed to read " << filename
+                     << " Bad ASU (inconsistant gridding?)." << std::endl;
+                     bad_read = true;
+                  }
+               }
+            } else {
 
-     std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
+               // Should never happen.  Not yet.
+               //
+               std::cout << "=================== EM Map NXmap =================== " << std::endl;
+               file.import_nxmap(nxmap);
+               std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+            }
+         } catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << filename << std::endl;
+            bad_read = true;
+         }
 
-     if (em) {
+         std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
 
-	// If this was the first map, recentre to the middle of the cell
-	//
-	if (imol_no == 0) {
-	   clipper::Cell c = file.cell();
-	   coot::Cartesian m(0.5*c.descr().a(),
-			     0.5*c.descr().b(),
-			     0.5*c.descr().c());
-	   new_centre.first = true;
-	   new_centre.second = m;
-           std::cout << "INFO:: map appears to be EM map."<< std::endl;
-	}
-	std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
-	file.close_read();
+         if (em) {
 
-	if (new_centre.first) {
-	   graphics_info_t g;
-	   g.setRotationCentre(new_centre.second);
-	}
-     }
+            // If this was the first map, recentre to the middle of the cell
+            //
+            if (imol_no == 0) {
+               clipper::Cell c = file.cell();
+               coot::Cartesian m(0.5*c.descr().a(),
+               0.5*c.descr().b(),
+               0.5*c.descr().c());
+               new_centre.first = true;
+               new_centre.second = m;
+               std::cout << "INFO:: map appears to be EM map."<< std::endl;
+            }
+            std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
+            file.close_read();
 
+            if (new_centre.first) {
+               graphics_info_t g;
+               g.setRotationCentre(new_centre.second);
+            }
+         }
+      }
    } else {
      std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
      clipper::CNSMAPfile file;

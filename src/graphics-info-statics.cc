@@ -12,3 +12,6 @@ bool graphics_info_t::do_debug_refinement = false;
 
 std::atomic<bool> graphics_info_t::on_going_updating_map_lock(false);
 
+std::string graphics_info_t::mtz_file_for_refmac;
+
+

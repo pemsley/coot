@@ -1764,6 +1764,16 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    }
    name_ = molecule_name;
 
+   clipper::Coord_orth cen(xmap.cell().a() * 0.5,
+                           xmap.cell().b() * 0.5,
+                           xmap.cell().c() * 0.5);
+   float cell_a = xmap.cell().a();
+   radial_map_colour_centre = cen;
+   radial_map_colour_radius_min = 0.0;
+   radial_map_colour_radius_max = 0.3 * cell_a;
+   radial_map_colour_invert_flag = false;
+   radial_map_colour_saturation = 0.5;
+
    draw_it_for_map = 1;
    draw_it_for_map_standard_lines = 1; // display the map initially, by default
 
