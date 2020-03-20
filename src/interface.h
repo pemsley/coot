@@ -181,4 +181,6 @@ GtkWidget* create_cfc_dialog (void);
 GtkWidget* create_curlew_dialog (void);
 GtkWidget* create_inputdialog1 (void);
 GtkWidget* create_refinement_restraints_sliders_dialog (void);
+GtkWidget* create_simple_refmac_dialog (void);
+GtkWidget* create_simple_refmac_filechooserdialog (void);
 END_C_DECLS

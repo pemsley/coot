@@ -3280,6 +3280,10 @@ public:
    // ------- refmac molecules option menu  -----
    static int refmac_molecule;
 
+   // ------- new style refmac usage ---
+   // above needs to be cleaned or fixed.
+   static std::string mtz_file_for_refmac;
+
    // ------ new style combobox usage -------
 
    // the top one of this is probably what you want.

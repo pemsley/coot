@@ -4200,7 +4200,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_box_pack_start (GTK_BOX (hbox8), symmetry_colorbutton, FALSE, FALSE, 4);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), "Pick a Colour");
 
   label810 = gtk_label_new ("    ");
   gtk_widget_show (label810);
@@ -29313,9 +29312,6 @@ create_export_map_filechooserdialog (void)
 
   export_map_filechooserdialog = gtk_file_chooser_dialog_new ("Export Map", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_filechooserdialog), 5);
-  g_object_set (export_map_filechooserdialog,
-                "show-hidden", TRUE,
-                NULL);
   gtk_window_set_role (GTK_WINDOW (export_map_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (export_map_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -29801,5 +29797,210 @@ create_refinement_restraints_sliders_dialog (void)
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, okbutton2, "okbutton2");
 
   return refinement_restraints_sliders_dialog;
+}
+
+GtkWidget*
+create_simple_refmac_dialog (void)
+{
+  GtkWidget *simple_refmac_dialog;
+  GtkWidget *dialog_vbox137;
+  GtkWidget *vbox333;
+  GtkWidget *label834;
+  GtkWidget *frame309;
+  GtkWidget *alignment174;
+  GtkWidget *simple_refmac_coordinates_combobox;
+  GtkWidget *label835;
+  GtkWidget *label836;
+  GtkWidget *frame310;
+  GtkWidget *alignment175;
+  GtkWidget *hbox453;
+  GtkWidget *simple_refmac_mtz_file_combobox;
+  GtkWidget *simple_refmac_mtz_file_button;
+  GtkWidget *alignment176;
+  GtkWidget *hbox454;
+  GtkWidget *image14098;
+  GtkWidget *label838;
+  GtkWidget *label837;
+  GtkWidget *dialog_action_area136;
+  GtkWidget *cancelbutton3;
+  GtkWidget *okbutton3;
+
+  simple_refmac_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (simple_refmac_dialog), "Run Refmac");
+  gtk_window_set_type_hint (GTK_WINDOW (simple_refmac_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (simple_refmac_dialog), FALSE);
+
+  dialog_vbox137 = GTK_DIALOG (simple_refmac_dialog)->vbox;
+  gtk_widget_show (dialog_vbox137);
+
+  vbox333 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox333);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox137), vbox333, TRUE, TRUE, 0);
+
+  label834 = gtk_label_new ("");
+  gtk_widget_show (label834);
+  gtk_box_pack_start (GTK_BOX (vbox333), label834, FALSE, FALSE, 0);
+
+  frame309 = gtk_frame_new (NULL);
+  gtk_widget_show (frame309);
+  gtk_box_pack_start (GTK_BOX (vbox333), frame309, TRUE, FALSE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame309), GTK_SHADOW_NONE);
+
+  alignment174 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment174);
+  gtk_container_add (GTK_CONTAINER (frame309), alignment174);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment174), 0, 0, 12, 0);
+
+  simple_refmac_coordinates_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (simple_refmac_coordinates_combobox);
+  gtk_container_add (GTK_CONTAINER (alignment174), simple_refmac_coordinates_combobox);
+
+  label835 = gtk_label_new ("<b>Model Molecule</b>");
+  gtk_widget_show (label835);
+  gtk_frame_set_label_widget (GTK_FRAME (frame309), label835);
+  gtk_label_set_use_markup (GTK_LABEL (label835), TRUE);
+
+  label836 = gtk_label_new ("");
+  gtk_widget_show (label836);
+  gtk_box_pack_start (GTK_BOX (vbox333), label836, FALSE, FALSE, 0);
+
+  frame310 = gtk_frame_new (NULL);
+  gtk_widget_show (frame310);
+  gtk_box_pack_start (GTK_BOX (vbox333), frame310, FALSE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame310), GTK_SHADOW_NONE);
+
+  alignment175 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment175);
+  gtk_container_add (GTK_CONTAINER (frame310), alignment175);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment175), 0, 0, 12, 0);
+
+  hbox453 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox453);
+  gtk_container_add (GTK_CONTAINER (alignment175), hbox453);
+
+  simple_refmac_mtz_file_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (simple_refmac_mtz_file_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox453), simple_refmac_mtz_file_combobox, TRUE, TRUE, 0);
+
+  simple_refmac_mtz_file_button = gtk_button_new ();
+  gtk_widget_show (simple_refmac_mtz_file_button);
+  gtk_box_pack_start (GTK_BOX (hbox453), simple_refmac_mtz_file_button, FALSE, FALSE, 0);
+
+  alignment176 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment176);
+  gtk_container_add (GTK_CONTAINER (simple_refmac_mtz_file_button), alignment176);
+
+  hbox454 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox454);
+  gtk_container_add (GTK_CONTAINER (alignment176), hbox454);
+
+  image14098 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image14098);
+  gtk_box_pack_start (GTK_BOX (hbox454), image14098, FALSE, FALSE, 0);
+
+  label838 = gtk_label_new_with_mnemonic ("File...");
+  gtk_widget_show (label838);
+  gtk_box_pack_start (GTK_BOX (hbox454), label838, FALSE, FALSE, 0);
+
+  label837 = gtk_label_new ("<b>MTZ File</b>");
+  gtk_widget_show (label837);
+  gtk_frame_set_label_widget (GTK_FRAME (frame310), label837);
+  gtk_label_set_use_markup (GTK_LABEL (label837), TRUE);
+
+  dialog_action_area136 = GTK_DIALOG (simple_refmac_dialog)->action_area;
+  gtk_widget_show (dialog_action_area136);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area136), GTK_BUTTONBOX_END);
+
+  cancelbutton3 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (cancelbutton3);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_dialog), cancelbutton3, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (cancelbutton3, GTK_CAN_DEFAULT);
+
+  okbutton3 = gtk_button_new_from_stock ("gtk-ok");
+  gtk_widget_show (okbutton3);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_dialog), okbutton3, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (okbutton3, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) simple_refmac_dialog, "response",
+                    G_CALLBACK (on_simple_refmac_dialog_response),
+                    NULL);
+  g_signal_connect ((gpointer) simple_refmac_dialog, "close",
+                    G_CALLBACK (on_simple_refmac_dialog_close),
+                    NULL);
+  g_signal_connect ((gpointer) simple_refmac_mtz_file_button, "clicked",
+                    G_CALLBACK (on_simple_refmac_mtz_file_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_dialog, simple_refmac_dialog, "simple_refmac_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_dialog, dialog_vbox137, "dialog_vbox137");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, vbox333, "vbox333");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label834, "label834");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, frame309, "frame309");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, alignment174, "alignment174");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, simple_refmac_coordinates_combobox, "simple_refmac_coordinates_combobox");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label835, "label835");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label836, "label836");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, frame310, "frame310");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, alignment175, "alignment175");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, hbox453, "hbox453");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, simple_refmac_mtz_file_combobox, "simple_refmac_mtz_file_combobox");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, simple_refmac_mtz_file_button, "simple_refmac_mtz_file_button");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, alignment176, "alignment176");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, hbox454, "hbox454");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, image14098, "image14098");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label838, "label838");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label837, "label837");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_dialog, dialog_action_area136, "dialog_action_area136");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, cancelbutton3, "cancelbutton3");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, okbutton3, "okbutton3");
+
+  return simple_refmac_dialog;
+}
+
+GtkWidget*
+create_simple_refmac_filechooserdialog (void)
+{
+  GtkWidget *simple_refmac_filechooserdialog;
+  GtkWidget *dialog_vbox138;
+  GtkWidget *dialog_action_area137;
+  GtkWidget *button35;
+  GtkWidget *button36;
+
+  simple_refmac_filechooserdialog = gtk_file_chooser_dialog_new ("", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  gtk_container_set_border_width (GTK_CONTAINER (simple_refmac_filechooserdialog), 5);
+  gtk_window_set_role (GTK_WINDOW (simple_refmac_filechooserdialog), "GtkFileChooserDialog");
+  gtk_window_set_type_hint (GTK_WINDOW (simple_refmac_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox138 = GTK_DIALOG (simple_refmac_filechooserdialog)->vbox;
+  gtk_widget_show (dialog_vbox138);
+
+  dialog_action_area137 = GTK_DIALOG (simple_refmac_filechooserdialog)->action_area;
+  gtk_widget_show (dialog_action_area137);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area137), GTK_BUTTONBOX_END);
+
+  button35 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (button35);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_filechooserdialog), button35, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (button35, GTK_CAN_DEFAULT);
+
+  button36 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_show (button36);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_filechooserdialog), button36, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (button36, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) simple_refmac_filechooserdialog, "response",
+                    G_CALLBACK (on_simple_refmac_filechooserdialog_response),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_filechooserdialog, simple_refmac_filechooserdialog, "simple_refmac_filechooserdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_filechooserdialog, dialog_vbox138, "dialog_vbox138");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_filechooserdialog, dialog_action_area137, "dialog_action_area137");
+  GLADE_HOOKUP_OBJECT (simple_refmac_filechooserdialog, button35, "button35");
+  GLADE_HOOKUP_OBJECT (simple_refmac_filechooserdialog, button36, "button36");
+
+  gtk_widget_grab_default (button36);
+  return simple_refmac_filechooserdialog;
 }
 
