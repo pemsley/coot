@@ -2025,9 +2025,9 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 
    if (debug) {
       std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size()
-		<< " residues " << std::endl;
+                << " residues " << std::endl;
       for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
-	 std::cout << "   " << specs[ilocal] << std::endl;
+         std::cout << "   " << specs[ilocal] << std::endl;
    }
 
    for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
@@ -2036,360 +2036,371 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       std::string atom_name_selection = "*";
 
       if (atom_mask_mode != 0) { // main chain for standard amino acids
-	 mmdb::Residue *res = get_residue(specs[ilocal], mol);
-	 if (res) {
-	    std::string residue_name(res->GetResName());
-	    if (is_standard_residue_name(residue_name)) {
+         mmdb::Residue *res = get_residue(specs[ilocal], mol);
 
-	       // PDBv3 FIXME
-	       //
-	       if (atom_mask_mode == ATOM_MASK_MAINCHAIN)
-		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-	       if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN)
-		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
-	       if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN_OR_CB)
-		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
-	    } else {
-	       if (atom_mask_mode == 4)
-		  atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
-	       if (atom_mask_mode == 5)
-		  atom_name_selection = "%%%%%%"; // nothing
-	    }
-	 }
+         if (res) {
+            std::string residue_name(res->GetResName());
+            if (is_standard_residue_name(residue_name)) {
+
+               // PDBv3 FIXME
+               //
+               if (atom_mask_mode == ATOM_MASK_MAINCHAIN)
+                  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+               if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN)
+                  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+               if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN_OR_CB)
+                  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+            } else {
+               if (atom_mask_mode == 4)
+                  atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+               if (atom_mask_mode == 5)
+                  atom_name_selection = "%%%%%%"; // nothing
+            }
+         }
+      }
+
+      if (debug) {
+         mmdb::Residue *res = get_residue(specs[ilocal], mol);
+         std::cout << "debug during atom selection trying residue "
+                   << specs[ilocal] << " got residue " << res
+                   << std::endl;
       }
 
       mol->SelectAtoms(SelHnd, 1,
-		       specs[ilocal].chain_id.c_str(),
-		       specs[ilocal].res_no,
-		       specs[ilocal].ins_code.c_str(),
-		       specs[ilocal].res_no,
-		       specs[ilocal].ins_code.c_str(),
-		       res_name_selection.c_str(),
-		       atom_name_selection.c_str(),
-		       "*", // elements
-		       "*", // alt loc.
-		       mmdb::SKEY_OR
-		       );
+         specs[ilocal].chain_id.c_str(),
+         specs[ilocal].res_no,
+         specs[ilocal].ins_code.c_str(),
+         specs[ilocal].res_no,
+         specs[ilocal].ins_code.c_str(),
+         res_name_selection.c_str(),
+         atom_name_selection.c_str(),
+         "*", // elements
+         "*", // alt loc.
+         mmdb::SKEY_OR
+      );
    }
 
    std::vector<mmdb::Residue *> neighb_residues;
    for (unsigned int inb=0; inb<specs_for_masking_neighbs.size(); inb++) {
       mmdb::Residue *r = get_residue(specs_for_masking_neighbs[inb], mol);
       if (r)
-	 neighb_residues.push_back(r);
+         neighb_residues.push_back(r);
    }
 
    clipper::Xmap<float> calc_map =
-      coot::util::calc_atom_map(mol, SelHnd,
-				reference_map.cell(),
-				reference_map.spacegroup(),
-				reference_map.grid_sampling());
+   coot::util::calc_atom_map(mol, SelHnd,
+                             reference_map.cell(),
+                             reference_map.spacegroup(),
+                             reference_map.grid_sampling());
 
-   if (debug)
-      std::cout << "DEBUG:: map_to_model_correlation_stats() calc_map null status: "
-		<< calc_map.is_null() << std::endl;
-
-   if (not (calc_map.is_null())) {
-      clipper::Xmap<short int> masked_map(reference_map.spacegroup(),
-					  reference_map.cell(),
-					  reference_map.grid_sampling());
-      clipper::Xmap_base::Map_reference_index ix;
-      for (ix = masked_map.first(); !ix.last(); ix.next())
-	 masked_map[ix] = 0;
-      mmdb::PPAtom atom_selection = 0;
-      int n_atoms;
-      mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
-
-      // debugging atom selection
-      if (debug) {
-	 std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
-	 for (int iat=0; iat<n_atoms; iat++)
-	    std::cout << "    " << iat << ": " << atom_selection[iat]->name << " "
-		      << atom_spec_t(atom_selection[iat]) << std::endl;
-      }
-
-      // atom selection grid:
-      //
-      //
-      std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
       if (debug)
-	 std::cout << "INFO:: mol residue set extents: "
-		   << selection_extents.first.format() << " to "
-		   << selection_extents.second.format() << std::endl;
+         std::cout << "DEBUG:: map_to_model_correlation_stats() calc_map null status: "
+                   << calc_map.is_null() << std::endl;
 
-      // double border = 4.1;
-      double border = 3.1; // border is used to create selection_grid.
-                           // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
+      if (not (calc_map.is_null())) {
+         clipper::Xmap<short int> masked_map(reference_map.spacegroup(),
+         reference_map.cell(),
+         reference_map.grid_sampling());
+         clipper::Xmap_base::Map_reference_index ix;
+         for (ix = masked_map.first(); !ix.last(); ix.next())
+            masked_map[ix] = 0;
+         mmdb::Atom **atom_selection = 0;
+         int n_atoms;
+         mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
-      bool good_frac_coords = false;  // force loop evaluation for the first time
+         // debugging atom selection
+         if (debug) {
+            std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
+            for (int iat=0; iat<n_atoms; iat++)
+               std::cout << "    " << iat << ": " << atom_selection[iat]->name << " "
+                         << atom_spec_t(atom_selection[iat]) << std::endl;
+         }
 
-      clipper::Coord_orth ex_pt_1_co;
-      clipper::Coord_orth ex_pt_2_co;
-      clipper::Coord_frac ex_pt_1_fc;
-      clipper::Coord_frac ex_pt_2_fc;
-      unsigned int n_rounds = 0;
-      while (! good_frac_coords) {
-	 n_rounds++;
-	 ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
-					  selection_extents.first.y()-border,
-					  selection_extents.first.z()-border);
-	 ex_pt_2_co = clipper::Coord_orth(selection_extents.second.x()+border,
-					  selection_extents.second.y()+border,
-					  selection_extents.second.z()+border);
-	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
-	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
-	 if (false) { // debug
-	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
-	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
-	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
-	    std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
-	    std::cout << "using cell " << reference_map.cell().descr().format() << std::endl;
-	    clipper::Mat33<double> mat = reference_map.cell().matrix_frac();
-	    std::cout << "mat: \n" << mat.format() << std::endl;
-	 }
-	 good_frac_coords = true;
-	 for (int i=0; i<3; i++) {
-	    // Yes, this still can happen, but we can rescue (see later)
-	    // std::cout << "comparing: " << ex_pt_2_fc[i] << " should be greater than "
-	    // << ex_pt_1_fc[i] << std::endl;
-	    if (ex_pt_2_fc[i] < ex_pt_1_fc[i]) {
-	       // std::cout << "opps false " << std::endl;
-	       good_frac_coords = false;
-	       border += 1.4;
-	    }
-	 }
-	 // Opps. We didn't converge - but we don't want to stay here.
-	 if (n_rounds >= 10)
-	    good_frac_coords = true;
-      }
+         if (n_atoms == 0)
+         return stats;
 
-      // If needed, try to rescue using a different method - that works for P1. Maybe this should
-      // replace the method above?
-      //
-      if (n_rounds == 10) {
-	 std::pair<clipper::Coord_frac, clipper::Coord_frac> nfc =
-	    find_struct_fragment_coord_fracs_v2(selection_extents, reference_map.cell());
-	 ex_pt_1_fc = nfc.first;
-	 ex_pt_2_fc = nfc.second;
-      }
+         // atom selection grid:
+         //
+         //
+         std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
+         if (debug)
+         std::cout << "INFO:: mol residue set extents: "
+         << selection_extents.first.format() << " to "
+         << selection_extents.second.format() << std::endl;
 
-      clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
-				       ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
-      if (debug) {
-	 std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
-	 std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
-	 std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
-	 std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
-	 std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
-      }
+         // double border = 4.1;
+         double border = 3.1; // border is used to create selection_grid.
+         // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
 
-      for (int iat=0; iat<n_atoms; iat++) {
-	 clipper::Coord_orth co(atom_selection[iat]->x,
-				atom_selection[iat]->y,
-				atom_selection[iat]->z);
+         bool good_frac_coords = false;  // force loop evaluation for the first time
 
-	 if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
-	    atom_radius = refmac_atom_radius(atom_selection[iat]);
+         clipper::Coord_orth ex_pt_1_co;
+         clipper::Coord_orth ex_pt_2_co;
+         clipper::Coord_frac ex_pt_1_fc;
+         clipper::Coord_frac ex_pt_2_fc;
+         unsigned int n_rounds = 0;
+         while (! good_frac_coords) {
+            n_rounds++;
+            ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
+            selection_extents.first.y()-border,
+            selection_extents.first.z()-border);
+            ex_pt_2_co = clipper::Coord_orth(selection_extents.second.x()+border,
+            selection_extents.second.y()+border,
+            selection_extents.second.z()+border);
+            ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
+            ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
+            if (false) { // debug
+               std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+               std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
+               std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+               std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+               std::cout << "using cell " << reference_map.cell().descr().format() << std::endl;
+               clipper::Mat33<double> mat = reference_map.cell().matrix_frac();
+               std::cout << "mat: \n" << mat.format() << std::endl;
+            }
+            good_frac_coords = true;
+            for (int i=0; i<3; i++) {
+               // Yes, this still can happen, but we can rescue (see later)
+               // std::cout << "comparing: " << ex_pt_2_fc[i] << " should be greater than "
+               // << ex_pt_1_fc[i] << std::endl;
+               if (ex_pt_2_fc[i] < ex_pt_1_fc[i]) {
+                  // std::cout << "opps false " << std::endl;
+                  good_frac_coords = false;
+                  border += 1.4;
+               }
+            }
+            // Opps. We didn't converge - but we don't want to stay here.
+            if (n_rounds >= 10)
+            good_frac_coords = true;
+         }
 
-	 clipper::Coord_frac cf = co.coord_frac(masked_map.cell());
-	 clipper::Coord_frac box0(
-				  cf.u() - atom_radius/masked_map.cell().descr().a(),
-				  cf.v() - atom_radius/masked_map.cell().descr().b(),
-				  cf.w() - atom_radius/masked_map.cell().descr().c());
+         // If needed, try to rescue using a different method - that works for P1. Maybe this should
+         // replace the method above?
+         //
+         if (n_rounds == 10) {
+            std::pair<clipper::Coord_frac, clipper::Coord_frac> nfc =
+            find_struct_fragment_coord_fracs_v2(selection_extents, reference_map.cell());
+            ex_pt_1_fc = nfc.first;
+            ex_pt_2_fc = nfc.second;
+         }
 
-	 clipper::Coord_frac box1(
-				  cf.u() + atom_radius/masked_map.cell().descr().a(),
-				  cf.v() + atom_radius/masked_map.cell().descr().b(),
-				  cf.w() + atom_radius/masked_map.cell().descr().c());
+         clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
+         ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
+         if (debug) {
+            std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+            std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
+            std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+            std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+            std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
+         }
 
-	 clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
-				box1.coord_grid(masked_map.grid_sampling()));
+         for (int iat=0; iat<n_atoms; iat++) {
+            clipper::Coord_orth co(atom_selection[iat]->x,
+               atom_selection[iat]->y,
+               atom_selection[iat]->z);
 
-	 float atom_radius_sq = atom_radius * atom_radius;
+               if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
+               atom_radius = refmac_atom_radius(atom_selection[iat]);
 
-	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+               clipper::Coord_frac cf = co.coord_frac(masked_map.cell());
+               clipper::Coord_frac box0(
+                  cf.u() - atom_radius/masked_map.cell().descr().a(),
+                  cf.v() - atom_radius/masked_map.cell().descr().b(),
+                  cf.w() - atom_radius/masked_map.cell().descr().c());
 
-	 if (debug) {
-	    std::cout << "INFO:: masking iat " << iat << " box grid: " << grid.format() << std::endl;
-	    std::cout << "INFO:: masking iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
-	 }
+                  clipper::Coord_frac box1(
+                     cf.u() + atom_radius/masked_map.cell().descr().a(),
+                     cf.v() + atom_radius/masked_map.cell().descr().b(),
+                     cf.w() + atom_radius/masked_map.cell().descr().c());
 
-	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
-	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() < atom_radius_sq) {
-		     if (0)
-			std::cout << "masked point at "
-				  << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
-				  << " centre point: " << co.format() << " "
-				  << (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq()
-				  << std::endl;
-		     masked_map[iw] = 1;
-		  }
-	       }
-	    }
-	 }
-      }
+                     clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
+                     box1.coord_grid(masked_map.grid_sampling()));
 
-      // masked map is 1 over the atoms of the selected residues (specs).
-      //
-      // Now we need to (potentially) cut into that near the atoms of neighb_residues.
-      //
-      for (unsigned int ir=0; ir<neighb_residues.size(); ir++) {
-	 mmdb::PPAtom residue_atoms = 0;
-	 int n_residue_atoms;
-	 mmdb::Residue *residue_p = neighb_residues[ir];
-	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (int iat=0; iat<n_residue_atoms; iat++) {
-	    mmdb::Atom *at = residue_atoms[iat];
-	    clipper::Coord_orth pt = co(at);
+                     float atom_radius_sq = atom_radius * atom_radius;
 
-	    if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
-	       atom_radius = refmac_atom_radius(at);
-	    else
-	       atom_radius = atom_radius_in;
+                     clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
 
-	    clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
-	    clipper::Coord_frac box0(
-				     cf.u() - atom_radius/masked_map.cell().descr().a(),
-				     cf.v() - atom_radius/masked_map.cell().descr().b(),
-				     cf.w() - atom_radius/masked_map.cell().descr().c());
+                     if (debug) {
+                        std::cout << "INFO:: masking iat " << iat << " box grid: " << grid.format() << std::endl;
+                        std::cout << "INFO:: masking iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
+                     }
 
-	    clipper::Coord_frac box1(
-				     cf.u() + atom_radius/masked_map.cell().descr().a(),
-				     cf.v() + atom_radius/masked_map.cell().descr().b(),
-				     cf.w() + atom_radius/masked_map.cell().descr().c());
+                     for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+                        for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+                           for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                              if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() < atom_radius_sq) {
+                                 if (0)
+                                 std::cout << "masked point at "
+                                 << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
+                                 << " centre point: " << co.format() << " "
+                                 << (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq()
+                                 << std::endl;
+                                 masked_map[iw] = 1;
+                              }
+                           }
+                        }
+                     }
+                  }
 
-	    clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
-				   box1.coord_grid(masked_map.grid_sampling()));
+                  // masked map is 1 over the atoms of the selected residues (specs).
+                  //
+                  // Now we need to (potentially) cut into that near the atoms of neighb_residues.
+                  //
+                  for (unsigned int ir=0; ir<neighb_residues.size(); ir++) {
+                     mmdb::PPAtom residue_atoms = 0;
+                     int n_residue_atoms;
+                     mmdb::Residue *residue_p = neighb_residues[ir];
+                     residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                     for (int iat=0; iat<n_residue_atoms; iat++) {
+                        mmdb::Atom *at = residue_atoms[iat];
+                        clipper::Coord_orth pt = co(at);
 
-	    float atom_radius_sq = atom_radius * atom_radius;
+                        if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
+                        atom_radius = refmac_atom_radius(at);
+                        else
+                        atom_radius = atom_radius_in;
 
-	    clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
-	    for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
-	       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-		  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-		     if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() < atom_radius_sq) {
-			if (masked_map[iw] == 1) {
-			   masked_map[iw] = 0;
-			   if (0)
-			      std::cout << "cutting into mask at point "
-					<< iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
-					<< " for neighb atom at: " << pt.format() << " "
-					<< (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq()
-					<< std::endl;
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
+                        clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
+                        clipper::Coord_frac box0(
+                           cf.u() - atom_radius/masked_map.cell().descr().a(),
+                           cf.v() - atom_radius/masked_map.cell().descr().b(),
+                           cf.w() - atom_radius/masked_map.cell().descr().c());
+
+                           clipper::Coord_frac box1(
+                              cf.u() + atom_radius/masked_map.cell().descr().a(),
+                              cf.v() + atom_radius/masked_map.cell().descr().b(),
+                              cf.w() + atom_radius/masked_map.cell().descr().c());
+
+                              clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
+                              box1.coord_grid(masked_map.grid_sampling()));
+
+                              float atom_radius_sq = atom_radius * atom_radius;
+
+                              clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+                              for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+                                 for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+                                    for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                                       if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() < atom_radius_sq) {
+                                          if (masked_map[iw] == 1) {
+                                             masked_map[iw] = 0;
+                                             if (0)
+                                             std::cout << "cutting into mask at point "
+                                             << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
+                                             << " for neighb atom at: " << pt.format() << " "
+                                             << (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq()
+                                             << std::endl;
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
 
 
-      double sum_x  = 0;
-      double sum_y  = 0;
-      double sum_x_sqd  = 0;
-      double sum_y_sqd  = 0;
-      double sum_xy = 0;
-      double y;
-      double x;
-      int n = 0;
+                        double sum_x  = 0;
+                        double sum_y  = 0;
+                        double sum_x_sqd  = 0;
+                        double sum_y_sqd  = 0;
+                        double sum_xy = 0;
+                        double y;
+                        double x;
+                        int n = 0;
 
-      std::vector<double> map_samples; // for KS-test of flatness of difference map
-      bool debug_grid_points = true;
+                        std::vector<double> map_samples; // for KS-test of flatness of difference map
+                        bool debug_grid_points = true;
 
-//       std::ofstream gp;
-//       if (debug_grid_points) {
-// 	 gp = std::ifstream("xy-points.tab");
-//       }
+                        //       std::ofstream gp;
+                        //       if (debug_grid_points) {
+                        // 	 gp = std::ifstream("xy-points.tab");
+                        //       }
 
-      // scan the selection grid
-      //
-      clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
+                        // scan the selection grid
+                        //
+                        clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
 
-      if (debug) {
-	 std::cout << "INFO:: correl " << " box grid: " << selection_grid.format() << std::endl;
-	 std::cout << "INFO:: correl iu range: " << iix.coord().format() << " to " << selection_grid.max().u() << std::endl;
-      }
-      for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) {
-	 for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) {
-	    for (iw = iv; iw.coord().w() <= selection_grid.max().w(); iw.next_w() ) {
-	       if (masked_map[iw]) {
-		  x = calc_map[iw];
-		  if (! clipper::Util::is_nan(x)) {
-		     y = reference_map[iw];
-		     if (! clipper::Util::is_nan(y)) {
-			if (0)
-			   std::cout << "xy-pair: " << x << " " << y << " "
-				     << iw.coord().u() << " "
-				     << iw.coord().v() << " "
-				     << iw.coord().w() << "\n";
-			sum_x  += x;
-			sum_y  += y;
-			sum_xy += x * y;
-			sum_x_sqd += x*x;
-			sum_y_sqd += y*y;
-			if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
-			   map_samples.push_back(y);
-			n++;
-		     } else {
-			// std::cout << "null reference map data point at " << iw.coord().format() << std::endl;
-		     }
-		  } else {
-		     // std::cout << "null calc map data point at " << iw.coord().format() << std::endl;
-		  }
-	       }
-	    }
-	 }
-      }
+                        if (debug) {
+                           std::cout << "INFO:: correl " << " box grid: " << selection_grid.format() << std::endl;
+                           std::cout << "INFO:: correl iu range: " << iix.coord().format() << " to " << selection_grid.max().u() << std::endl;
+                        }
+                        for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) {
+                           for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) {
+                              for (iw = iv; iw.coord().w() <= selection_grid.max().w(); iw.next_w() ) {
+                                 if (masked_map[iw]) {
+                                    x = calc_map[iw];
+                                    if (! clipper::Util::is_nan(x)) {
+                                       y = reference_map[iw];
+                                       if (! clipper::Util::is_nan(y)) {
+                                          if (0)
+                                          std::cout << "xy-pair: " << x << " " << y << " "
+                                          << iw.coord().u() << " "
+                                          << iw.coord().v() << " "
+                                          << iw.coord().w() << "\n";
+                                          sum_x  += x;
+                                          sum_y  += y;
+                                          sum_xy += x * y;
+                                          sum_x_sqd += x*x;
+                                          sum_y_sqd += y*y;
+                                          if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
+                                          map_samples.push_back(y);
+                                          n++;
+                                       } else {
+                                          // std::cout << "null reference map data point at " << iw.coord().format() << std::endl;
+                                       }
+                                    } else {
+                                       // std::cout << "null calc map data point at " << iw.coord().format() << std::endl;
+                                    }
+                                 }
+                              }
+                           }
+                        }
 
-//       if (debug_grid_points)
-// 	 gp.close();
+                        //       if (debug_grid_points)
+                        // 	 gp.close();
 
-      if (debug) {
-	 // just checking that the maps are what we expect them to be...
-	 clipper::CCP4MAPfile mapout;
-	 mapout.open_write("calc.map");
-	 mapout.export_xmap(calc_map);
-	 mapout.close_write();
+                        if (debug) {
+                           // just checking that the maps are what we expect them to be...
+                           clipper::CCP4MAPfile mapout;
+                           mapout.open_write("calc.map");
+                           mapout.export_xmap(calc_map);
+                           mapout.close_write();
 
-	 clipper::CCP4MAPfile mapout_mask;
-	 mapout_mask.open_write("masked.map");
-	 mapout_mask.export_xmap(masked_map);
-	 mapout_mask.close_write();
-      }
+                           clipper::CCP4MAPfile mapout_mask;
+                           mapout_mask.open_write("masked.map");
+                           mapout_mask.export_xmap(masked_map);
+                           mapout_mask.close_write();
+                        }
 
-      stats = density_correlation_stats_info_t(double(n), sum_xy,
-					       sum_x_sqd, sum_y_sqd,
-					       sum_x, sum_y);
+                        stats = density_correlation_stats_info_t(double(n), sum_xy,
+                        sum_x_sqd, sum_y_sqd,
+                        sum_x, sum_y);
 
-      if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
-	 stats.density_values = map_samples;
+                        if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
+                        stats.density_values = map_samples;
 
-      double top = double(n) * sum_xy - sum_x * sum_y;
-      double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
-      double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
-      if (debug) {
-	 std::cout << ".... n is " << n << std::endl;
-	 std::cout << ".... sum_xy is " << sum_xy << std::endl;
-	 std::cout << ".... sum_x is " << sum_x << std::endl;
-	 std::cout << ".... sum_y is " << sum_y << std::endl;
-	 std::cout << ".... top is " << top << std::endl;
-	 std::cout << ".... b_1 is " << b_1 << std::endl;
-	 std::cout << ".... b_2 is " << b_2 << std::endl;
-      }
+                        double top = double(n) * sum_xy - sum_x * sum_y;
+                        double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
+                        double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
+                        if (debug) {
+                           std::cout << ".... n is " << n << std::endl;
+                           std::cout << ".... sum_xy is " << sum_xy << std::endl;
+                           std::cout << ".... sum_x is " << sum_x << std::endl;
+                           std::cout << ".... sum_y is " << sum_y << std::endl;
+                           std::cout << ".... top is " << top << std::endl;
+                           std::cout << ".... b_1 is " << b_1 << std::endl;
+                           std::cout << ".... b_2 is " << b_2 << std::endl;
+                        }
 
-      if (b_1 < 0) b_1 = 0;
-      if (b_2 < 0) b_2 = 0;
+                        if (b_1 < 0) b_1 = 0;
+                        if (b_2 < 0) b_2 = 0;
 
-      double c = top/(sqrt(b_1) * sqrt(b_2));
-      if (debug)
-	 std::cout << "INFO:: map vs model correlation: "
-		   << c << " vs " << stats.correlation() << std::endl;
-      ret_val = c;
-   }
-   mol->DeleteSelection(SelHnd);
+                        double c = top/(sqrt(b_1) * sqrt(b_2));
+                        if (debug)
+                        std::cout << "INFO:: map vs model correlation: "
+                        << c << " vs " << stats.correlation() << std::endl;
+                        ret_val = c;
+                     }
+                     mol->DeleteSelection(SelHnd);
 
    return stats;
 }
@@ -2473,6 +2484,9 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
 						 unsigned short int atom_mask_mode,
 						 float atom_radius, // for masking
 						 const clipper::Xmap<float> &reference_map) {
+
+   std::cout << "DEBUG:: --------------- map_to_model_correlation_per_residue() "
+             << specs.size() << std::endl;
 
    std::vector<std::pair<residue_spec_t, float> > v;
    int SelHnd = mol->NewSelection(); // d
@@ -2659,26 +2673,26 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
       std::string atom_name_selection = "*";
 
       if (atom_mask_mode != 0) { // main chain for standard amino acids
-	 mmdb::Residue *res = get_residue(specs[ispec], mol);
-	 if (res) {
-	    std::string residue_name(res->GetResName());
-	    if (is_standard_residue_name(residue_name)) {
+         mmdb::Residue *res = get_residue(specs[ispec], mol);
+         if (res) {
+            std::string residue_name(res->GetResName());
+            if (is_standard_residue_name(residue_name)) {
 
-	       // PDBv3 FIXME
-	       //
-	       if (atom_mask_mode == 1 || atom_mask_mode == 4)
-		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-	       if (atom_mask_mode == 2 || atom_mask_mode == 5)
-		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
-	       if (atom_mask_mode == 3)
-		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
-	    } else {
-	       if (atom_mask_mode == 4)
-		  atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
-	       if (atom_mask_mode == 5)
-		  atom_name_selection = "%%%%%%"; // nothing
-	    }
-	 }
+               // PDBv3 FIXME
+               //
+               if (atom_mask_mode == 1 || atom_mask_mode == 4)
+               atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+               if (atom_mask_mode == 2 || atom_mask_mode == 5)
+               atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+               if (atom_mask_mode == 3)
+               atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+            } else {
+               if (atom_mask_mode == 4)
+               atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+               if (atom_mask_mode == 5)
+               atom_name_selection = "%%%%%%"; // nothing
+            }
+         }
       }
 
       mol->SelectAtoms(SelHnd, 1,
@@ -2693,15 +2707,16 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 		       "*", // alt loc.
 		       mmdb::SKEY_OR
 		       );
-      if (false) { // debugging selection
-	 mmdb::PPAtom atom_selection = 0;
-	 int n_atoms;
-	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
-	 std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
-		   << " for mask mode " << atom_mask_mode << std::endl;
-	 for (int iat=0; iat<n_atoms; iat++)
-	    std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
+      if (false) { // debugging selection
+         mmdb::PPAtom atom_selection = 0;
+         int n_atoms;
+         mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+         std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
+                   << " for mask mode " << atom_mask_mode << std::endl;
+         for (int iat=0; iat<n_atoms; iat++)
+            std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
       }
    }
 
@@ -2711,8 +2726,8 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
    if (not (calc_map.is_null())) {
       // fill with null residue specs
       clipper::Xmap<residue_spec_t> contributor_map(xmap.spacegroup(),
-						    xmap.cell(),
-						    xmap.grid_sampling());
+                                                    xmap.cell(),
+                                                    xmap.grid_sampling());
       clipper::Xmap_base::Map_reference_index ix;
       mmdb::PPAtom atom_selection = 0;
       int n_atoms;
@@ -2725,68 +2740,68 @@ coot::util::map_to_model_correlation_stats_per_residue(mmdb::Manager *mol,
 
 
       for (int iat=0; iat<n_atoms; iat++) {
-	 residue_spec_t res_spec(atom_selection[iat]);
-	 clipper::Coord_orth co(atom_selection[iat]->x,
-				atom_selection[iat]->y,
-				atom_selection[iat]->z);
-	 clipper::Coord_frac cf = co.coord_frac(xmap.cell());
-	 clipper::Coord_frac box0(
-				  cf.u() - atom_radius/xmap.cell().descr().a(),
-				  cf.v() - atom_radius/xmap.cell().descr().b(),
-				  cf.w() - atom_radius/xmap.cell().descr().c());
+         residue_spec_t res_spec(atom_selection[iat]);
+         clipper::Coord_orth co(atom_selection[iat]->x,
+            atom_selection[iat]->y,
+            atom_selection[iat]->z);
+            clipper::Coord_frac cf = co.coord_frac(xmap.cell());
+            clipper::Coord_frac box0(
+               cf.u() - atom_radius/xmap.cell().descr().a(),
+               cf.v() - atom_radius/xmap.cell().descr().b(),
+               cf.w() - atom_radius/xmap.cell().descr().c());
 
-	 clipper::Coord_frac box1(
-				  cf.u() + atom_radius/xmap.cell().descr().a(),
-				  cf.v() + atom_radius/xmap.cell().descr().b(),
-				  cf.w() + atom_radius/xmap.cell().descr().c());
+         clipper::Coord_frac box1(
+            cf.u() + atom_radius/xmap.cell().descr().a(),
+            cf.v() + atom_radius/xmap.cell().descr().b(),
+            cf.w() + atom_radius/xmap.cell().descr().c());
 
-	 clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
-				box1.coord_grid(xmap.grid_sampling()));
+         clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
+                                box1.coord_grid(xmap.grid_sampling()));
 
-	 float atom_radius_sq = atom_radius * atom_radius;
-	 clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min() ), iu, iv, iw;
-	 for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
-	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
-	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-		  if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - co).lengthsq() < atom_radius_sq) {
-		     if (false)
-			std::cout << "specs: masked point at "
-// 				  << iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()).format()
-// 				  << " centre point: " << co.format() << " "
-// 				  << (iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()) - co).lengthsq()
-				  << iw.coord().format()
-				  << std::endl;
-		     if (contributor_map[iw].int_user_data != MANY_CONTRIBUTORS) {
-			// so it was either set once or not at all (so far).
-			if (contributor_map[iw].unset_p()) {
-			   // was a default residue spec (an as-yet untouched grid point).
-			   contributor_map[iw] = res_spec;
-			} else {
-			   if (contributor_map[iw] == res_spec) {
-			      // OK, cool we are in the same residue
-			   } else {
-			      // Oops. A bang.  Mask this point out
-			      // std::cout << "   4 a bang for grid point " << iw.coord().format() << " "
-			      // << contributor_map[iw] << " vs " << res_spec << std::endl;
-			      contributor_map[iw] = many_contributors;
-			   }
-			}
-		     } else {
-			// std::cout << iw.coord().format() << " was already a many_contributor" << std::endl;
-		     }
-		  }
-	       }
-	    }
-	 }
+         float atom_radius_sq = atom_radius * atom_radius;
+         clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min()), iu, iv, iw;
+         for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+            for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+               for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                  if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - co).lengthsq() < atom_radius_sq) {
+                     if (false)
+                        std::cout << "specs: masked point at "
+                        // 				  << iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()).format()
+                        // 				  << " centre point: " << co.format() << " "
+                        // 				  << (iw.coord().coord_frac(reference_map.grid_sampling()).coord_orth(reference_map.cell()) - co).lengthsq()
+                                  << iw.coord().format()
+                                  << std::endl;
+                     if (contributor_map[iw].int_user_data != MANY_CONTRIBUTORS) {
+                        // so it was either set once or not at all (so far).
+                        if (contributor_map[iw].unset_p()) {
+                           // was a default residue spec (an as-yet untouched grid point).
+                           contributor_map[iw] = res_spec;
+                        } else {
+                           if (contributor_map[iw] == res_spec) {
+                              // OK, cool we are in the same residue
+                           } else {
+                              // Oops. A bang.  Mask this point out
+                              // std::cout << "   4 a bang for grid point " << iw.coord().format() << " "
+                              // << contributor_map[iw] << " vs " << res_spec << std::endl;
+                              contributor_map[iw] = many_contributors;
+                           }
+                        }
+                     } else {
+                        // std::cout << iw.coord().format() << " was already a many_contributor" << std::endl;
+                     }
+                  }
+               }
+            }
+         }
       }
 
       for (ix = contributor_map.first(); !ix.last(); ix.next()) {
-	 if (! contributor_map[ix].unset_p()) {
-	    if (contributor_map[ix].int_user_data != MANY_CONTRIBUTORS) {
-	       const residue_spec_t &res_spec = contributor_map[ix];
-	       res_map[res_spec].add(xmap[ix]);
-	    }
-	 }
+         if (! contributor_map[ix].unset_p()) {
+            if (contributor_map[ix].int_user_data != MANY_CONTRIBUTORS) {
+               const residue_spec_t &res_spec = contributor_map[ix];
+               res_map[res_spec].add(xmap[ix]);
+            }
+         }
       }
    }
    mol->DeleteSelection(SelHnd);
