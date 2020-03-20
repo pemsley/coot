@@ -3574,7 +3574,7 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
                 << f1_sqrd_sum[i]/static_cast<double>(counts[i]) << " "
                 << f2_sqrd_sum[i]/static_cast<double>(counts[i]) << "    "
                 << fsc << std::endl;
-      std::pair<clipper::Resolution, double> p(1.0/ir, fsc);
+      std::pair<clipper::Resolution, double> p(clipper::Resolution(1.0/ir), fsc);
       v.push_back(p);
    }
 
