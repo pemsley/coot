@@ -12958,20 +12958,18 @@ on_simple_refmac_dialog_response       (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data)
 {
-   GtkWidget *w;
-
    if (response_id == GTK_RESPONSE_CLOSE) {
       /* do I need to do this? */
       /* gtk_widget_destroy(dialog); */
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_destroy(dialog);
+      gtk_widget_destroy(GTK_WIDGET(dialog));
    }
 
    if (response_id == GTK_RESPONSE_OK) {
-      simple_refmac_run_refmac(dialog);
-      gtk_widget_destroy(dialog);
+      simple_refmac_run_refmac(GTK_WIDGET(dialog));
+      gtk_widget_destroy(GTK_WIDGET(dialog));
    }
 
 }
