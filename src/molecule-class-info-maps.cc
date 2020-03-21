@@ -3598,7 +3598,7 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_1(int thread_index,
    std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
       coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
    coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-   float this_score = density_scoring_function(jiggled_mol, atom_numbers, *xmap_masked_p);
+   float this_score = density_scoring_function(jiggled_mol, atom_numbers, std::cref(*xmap_masked_p));
    std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
    *trial_results_p = p;
 }
@@ -3625,7 +3625,7 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_2(int thread_index,
    molecule_class_info_t m;
    coot::minimol::molecule fitted_mol = m.rigid_body_fit(trial_mol, xmap_masked, map_sigma);
    // sorting and selection works by sorting the score of fitted_mols.
-   float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
+   float this_score = density_scoring_function(fitted_mol, atom_numbers, std::cref(xmap_masked));
    std::cout << " thread_index " << std::setw(2) << thread_index
 	     << " pre-score " << std::setw(5) << pre_score
 	     << " post-fit-score " << std::setw(5) << this_score << std::endl;
@@ -3714,7 +3714,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	 for (unsigned int ii=0; ii<r_residues.size(); ii++) {
 	    if (std::find(neighbs.begin(), neighbs.end(), r_residues[ii]) == neighbs.end())
 	       if (std::find(central_residues.begin(), central_residues.end(), r_residues[ii]) == central_residues.end())
-		  neighbs.push_back(r_residues[ii]);
+	          neighbs.push_back(r_residues[ii]);
 	 }
       }
    }
@@ -3760,11 +3760,11 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
       try {
-	 unsigned int n_threads = coot::get_max_number_of_threads();
+         unsigned int n_threads = coot::get_max_number_of_threads();
 
-	 for (int itrial=0; itrial<n_trials; itrial++) {
+         for (int itrial=0; itrial<n_trials; itrial++) {
 
-	    auto tp_1 = std::chrono::high_resolution_clock::now();
+            auto tp_1 = std::chrono::high_resolution_clock::now();
 
 
 	    graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
@@ -3782,7 +3782,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	    // this is useful for debugging, but makes a mess
 	    if (false)
 	       std::cout << "pushing trial thread into pool: " << itrial << " " << d21
-			 << " microseconds" << std::endl;
+	                 << " microseconds" << std::endl;
 	 }
 
 	 // wait for thread pool to finish jobs.
