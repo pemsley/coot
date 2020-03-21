@@ -778,8 +778,8 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
 								       new_cell);
 
    std::cout << "INFO:: creating new map for transformed map with spacegroup: " << new_space_group.symbol_hm()
-	     << " cell: " << new_cell.format() << " grid-sampling " << new_gs.format()
-	     << std::endl;
+             << " cell: " << new_cell.format() << " grid-sampling " << new_gs.format()
+             << std::endl;
 
    xmap.init(new_space_group, new_cell, new_gs);
 
@@ -815,7 +815,7 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    for ( iu = i0; iu.coord().u() <= g1.u(); iu.next_u() )
       for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() )
          for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
-	    iw_pos = iw.coord().coord_frac(grid).coord_orth(xmap.cell());
+            iw_pos = iw.coord().coord_frac(grid).coord_orth(xmap.cell());
             dpt =    iw_pos.transform(rtop_inv);
             d2 = (iw_pos - to_pt).lengthsq();
             density_points.push_back(coot::util::map_ref_triple_t(d2, iw, coot::util::density_at_point(xmap_in, dpt)));
@@ -830,9 +830,9 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
 
 clipper::Grid_sampling
 coot::util::suggested_grid_sampling(const clipper::Grid_sampling &orig_sampling,
-				    const clipper::Cell &orig_cell,
-				    const clipper::Spacegroup &new_space_group,
-				    const clipper::Cell &new_cell) {
+                                   const clipper::Cell &orig_cell,
+                                   const clipper::Spacegroup &new_space_group,
+                                   const clipper::Cell &new_cell) {
 
    float sampling_a = orig_cell.a()/float(orig_sampling.nu());
    float sampling_b = orig_cell.b()/float(orig_sampling.nv());
