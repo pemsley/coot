@@ -82,6 +82,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
+    $(top_builddir)/utils/libcoot-utils.la \
     $(CLIPPER_LIBS) $(MMDB_LIBS) \
     $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
