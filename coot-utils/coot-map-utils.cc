@@ -3491,7 +3491,7 @@ coot::util::map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap
          mmci.updated_centre = current_centre;
          mmci.success = true;
          mmci.sum_of_densities = sum_density;
-         mmci.suggested_contour_level = 2.5 * average_positive_density;
+         mmci.suggested_contour_level = 2.0 * average_positive_density;
       } else {
          break;
       }
