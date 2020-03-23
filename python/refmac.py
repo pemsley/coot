@@ -286,14 +286,12 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     log_file_name_disambiguator = strip_path(file_name_sans_extension(pdb_in_filename))
     # this should be a database filename:
-    refmac_log_file_name = ""
-    if (len(ccp4i_project_dir) > 0) :
-        refmac_log_file_name += ccp4i_project_dir
-    refmac_log_file_name += "refmac-from-coot-"
-    refmac_log_file_name += log_file_name_disambiguator
-    refmac_log_file_name += "-"
-    refmac_log_file_name += str(refmac_count)
-    refmac_log_file_name += ".log"
+    refmac_log_file_name = os.path.join(get_directory("coot-refmac"),
+                                        (ccp4i_project_dir if (len(ccp4i_project_dir) > 0) else "") + \
+                                        "refmac-from-coot-" + \
+                                        log_file_name_disambiguator + \
+                                        "-" + \
+                                        str(refmac_count) + ".log")
 
     refmac_count = imol_refmac_count + refmac_count + 1
 
@@ -555,11 +553,11 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
 
     if os.path.isfile(mtz_file_name):
         if valid_model_molecule_qm(imol):
-            dir_state = make_directory_maybe("coot-refmac")
-            if not dir_state == 0:
+            coot_refmac_dir = get_directory("coot-refmac")
+            if not coot_refmac_dir:
                 print "Failed to make coot-refmac directory\n"
             else:
-                stub = "coot-refmac/refmac-for-phases"
+                stub = os.path.join(coot_refmac_dir, "refmac-for-phases")
                 pdb_in = stub + ".pdb"
                 pdb_out = stub + "-tmp.pdb"
                 mtz_out = stub + ".mtz"
