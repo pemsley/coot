@@ -79,4 +79,5 @@ namespace coot {
 					       const gsl_vector *v, gsl_vector *df,
 					       std::atomic<unsigned int> &done_count_for_threads);
 
+
 }
