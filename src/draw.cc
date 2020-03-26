@@ -441,8 +441,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // lsq atom blobs
       if (graphics_info_t::lsq_plane_atom_positions->size() > 0) {
-	 graphics_info_t g;
-	 g.render_lsq_plane_atoms();
+         graphics_info_t g;
+         g.render_lsq_plane_atoms();
       }
 
       // ligand flash bond
@@ -451,9 +451,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // draw reference object, which sits at the model origin.
       //
       if (graphics_info_t::show_origin_marker_flag) { 
-	 glLineWidth(1.0);
-	 glColor3f(0.7,0.7,0.2);
-	 myWireCube (0.6);
+         glLineWidth(1.0);
+         glColor3f(0.8,0.8,0.8);
+	      myWireCube (0.6);
       }
 
       graphics_info_t::draw_generic_objects();
