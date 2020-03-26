@@ -353,16 +353,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_dipoles();
 
 	 // draw display list objects
-	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT0);
-	    glEnable(GL_LIGHT1);
-	    // glEnable(GL_LIGHT3);
-	    // glEnable(GL_LIGHT4);
-	    glDisable(GL_LIGHT2);
- 	    n_display_list_objects +=
- 	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
-	    glDisable(GL_LIGHTING);
+         if (true) {
+	    if (graphics_info_t::molecules[ii].has_display_list_objects()) {
+	       glEnable(GL_LIGHTING);
+	       glEnable(GL_LIGHT0);
+	       glEnable(GL_LIGHT1);
+	       // glDisable(GL_LIGHT2);
+               n_display_list_objects += graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
+	       glDisable(GL_LIGHTING);
+	    }
 	 }
 	 
 	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
