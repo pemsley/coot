@@ -136,8 +136,8 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 
    if (verbose_mode)
       std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
-		<< res->GetChainID() << " to a " << residue_type
-		<< std::endl;
+                << res->GetChainID() << " to a " << residue_type
+                << std::endl;
 
    // get the standard orientation residue for this residue type
    mmdb::PPResidue     SelResidue;
@@ -145,15 +145,15 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 
    if (g.standard_residues_asc.n_selected_atoms == 0) {
       std::cout << "WARNING:: 0 standard atoms selected in mutate" << std::endl
-		<< "WARNING:: did you fail to read the standard residues "
-		<< "correctly?" << std::endl;
+                << "WARNING:: did you fail to read the standard residues "
+                << "correctly?" << std::endl;
       return 0;
    } else {
       if (g.standard_residues_asc.mol == NULL) {
-	 std::cout << "WARNING:: null standard_residues_asc in mutate" << std::endl
-		   << "WARNING:: did you fail to read the standard residues "
-		   << "correctly   ?" << std::endl;
-	 return 0;
+         std::cout << "WARNING:: null standard_residues_asc in mutate" << std::endl
+                   << "WARNING:: did you fail to read the standard residues "
+                   << "correctly   ?" << std::endl;
+         return 0;
       }
    }
 
@@ -177,7 +177,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
    } else {
 
       std::map<std::string, clipper::RTop_orth> rtops =
-	 coot::util::get_ori_to_this_res(res); // the passed res.
+         coot::util::get_ori_to_this_res(res); // the passed res.
 
       if (rtops.size() == 0) {
 
