@@ -1375,10 +1375,16 @@ namespace coot {
       // routines needs to make sure that this is the case.
       void add_plane(const std::vector<std::pair<int, double> > atom_index_sigma_in,
 		     const std::vector<bool> &fixed_atom_flags) {
-	 restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
-						   atom_index_sigma_in,
-						   fixed_atom_flags));
+	 if (! convert_plane_restraints_to_improper_dihedral_restraints_flag)
+	    restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
+						      atom_index_sigma_in,
+						      fixed_atom_flags));
+	 else
+	    convert_plane_restraints_to_improper_dihedral_restraints(atom_index_sigma_in, fixed_atom_flags);
       }
+
+      void convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_sigma_in,
+		     const std::vector<bool> &fixed_atom_flags);
 
       //used for start pos restraints
       bool add(restraint_type_t rest_type, int atom_1,
@@ -1494,6 +1500,19 @@ namespace coot {
 		       int i_no_res_atoms,
 		       mmdb::PResidue SelRes,
 		       const protein_geometry &geom);
+
+      // called by above.
+      //
+      // this was the way planes were done 2004-2019
+      int add_planes_multiatom_eigen(int idr, mmdb::PPAtom res_selection,
+				     int i_no_res_atoms,
+				     mmdb::PResidue SelRes,
+				     const protein_geometry &geom);
+
+      int add_planes_as_improper_dihedrals(int idr, mmdb::PPAtom res_selection,
+                                           int i_no_res_atoms,
+                                           mmdb::PResidue SelRes,
+                                           const protein_geometry &geom);
 
       restraint_counts_t
       apply_mods(int idr, mmdb::PPAtom res_selection,
@@ -2498,8 +2517,15 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_trans_peptide;
       // std::pair<unsigned int, unsigned int> restraints_limits_target_pos; // atom pull
 
-      // so that each thread gets a more or less similar number of plane restraints
+      // so that each thread gets a more or less similar number of plane restraints.
+      // (not needed I think - that happens anyway)
       void disperse_plane_restraints();
+
+      // plane restraint should be sets of 4-atom chiral-like restraints?
+      bool convert_plane_restraints_to_improper_dihedral_restraints_flag;
+      void set_convert_plane_restraints_to_improper_dihedral_restraints(bool state) {
+	 convert_plane_restraints_to_improper_dihedral_restraints_flag = state;
+      }
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 

@@ -3888,9 +3888,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-      << std::setw(3) << i_trial << ": prelim-score was "
-      << std::setw(7) << trial_results[i_trial].second << " post-fit "
-      << std::setw(5) << this_score;
+		<< std::setw(3) << i_trial << ": prelim-score was "
+		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
+		<< std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
          best_score_so_far = this_score;
          if (this_score > initial_score) {

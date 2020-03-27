@@ -1602,8 +1602,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		     if (other_fixed_flags[ii])
 			fixed_flags[ii] = true;
 
-		  // geom.link(i).link_plane_restraint[ip].dist_esd()
-
+		  // position and sigma
 		  std::vector<std::pair<int, double> > pos_sigma;
 		  for (unsigned int ii=0; ii<it->second.size(); ii++) { 
 		     double sigma_esd = geom.link(i).link_plane_restraint[ip].dist_esd();
