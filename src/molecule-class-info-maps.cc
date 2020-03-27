@@ -108,18 +108,18 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    bool do_gompertz = false;
    if (try_gompertz) {
       if (original_fobs_sigfobs_filled) {
-	 do_gompertz = 1;
+         do_gompertz = 1;
       } else {
-	 if (have_sensible_refmac_params) {
-	    fill_fobs_sigfobs(); // sets original_fobs_sigfobs_filled
-	    if (have_sensible_refmac_params) {
-	       if (original_fobs_sigfobs_filled) {
-		  do_gompertz = 1;
-	       } else {
-		  std::cout << "WARNING:: Failure to read in F, sigF data" << std::endl;
-	       }
-	    }
-	 }
+         if (have_sensible_refmac_params) {
+            fill_fobs_sigfobs(); // sets original_fobs_sigfobs_filled
+            if (have_sensible_refmac_params) {
+               if (original_fobs_sigfobs_filled) {
+                  do_gompertz = 1;
+               } else {
+                  std::cout << "WARNING:: Failure to read in F, sigF data" << std::endl;
+               }
+            }
+         }
       }
    }
 
@@ -128,58 +128,58 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       clipper::HKL_info::HKL_reference_index hri;
 
       if (debugging)
-	 std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
-		   << " original data " << std::endl;
+      std::cout << "DEBUG:: sharpen: using saved " << original_fphis.num_obs()
+      << " original data " << std::endl;
 
       if (debugging) {
-	 if (do_gompertz) {
-	    std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
-		      << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
-		      << std::endl;
-	 } else {
-	    std::cout << "DEBUG:: no gompertz F/sigF scaling " << std::endl;
-	 }
+         if (do_gompertz) {
+            std::cout << "DEBUG:: do_gompertz: " << do_gompertz << " with "
+            << original_fobs_sigfobs.num_obs() << " F,sigF reflections"
+            << std::endl;
+         } else {
+            std::cout << "DEBUG:: no gompertz F/sigF scaling " << std::endl;
+         }
       }
 
 
       if (debugging) {
-	 for (hri = original_fphis.first(); !hri.last(); hri.next()) {
+         for (hri = original_fphis.first(); !hri.last(); hri.next()) {
 
-	    if (debugging)
-	       std::cout << "original_fphis: " << original_fphis[hri].f() << " "
-			 << hri.invresolsq() << std::endl;
-	    n_count++;
-	    if (n_count == 50)
-	       break;
-	 }
+            if (debugging)
+            std::cout << "original_fphis: " << original_fphis[hri].f() << " "
+            << hri.invresolsq() << std::endl;
+            n_count++;
+            if (n_count == 50)
+            break;
+         }
       }
 
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(original_fphis.spacegroup(),
-								  original_fphis.cell(),
-								  original_fphis.hkl_sampling());
+      original_fphis.cell(),
+      original_fphis.hkl_sampling());
       fphis = original_fphis;
 
       if (debugging) {
-	 n_count = 0;
-	 for (hri = fphis.first(); !hri.last(); hri.next()) {
-	    if (debugging)
-	       std::cout << "new fphis: " << fphis[hri].f() << " "
-			 << hri.invresolsq() << std::endl;
-	    n_count++;
-	    if (n_count == 50)
-	       break;
-	 }
+         n_count = 0;
+         for (hri = fphis.first(); !hri.last(); hri.next()) {
+            if (debugging)
+            std::cout << "new fphis: " << fphis[hri].f() << " "
+            << hri.invresolsq() << std::endl;
+            n_count++;
+            if (n_count == 50)
+            break;
+         }
       }
 
       if (debugging)
-	 std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
-		   << fphis.num_obs() << " data " << std::endl;
+      std::cout << "INFO:: sharpening " << original_fphis.num_obs() << " "
+      << fphis.num_obs() << " data " << std::endl;
 
       n_count = 0;
       int n_gompertz_count = 0;
       double gompertz_sum = 0.0; // for checking values
       for (hri = fphis.first(); !hri.last(); hri.next()) {
-	 n_data++;
+         n_data++;
 
 	 // std::cout << " " << hri.invresolsq() << std::endl;
 
@@ -831,12 +831,13 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         // set up radial variables
+         // each vertex/point has a colour
+
+         colour_map_using_other_map_flag = true;
 
          int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];
          int idx_for_colours = 0;
-         bool do_radial_colouring = true;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
             // check here for difference map colours
@@ -854,14 +855,24 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                      colours[4*idx_for_colours+3] = 1.0f;
                   }
                } else {
-                  if ((4*idx_for_colours) < (4 * n_colours)) {
-                     colours[4*idx_for_colours  ] = map_colour.red;
-                     colours[4*idx_for_colours+1] = map_colour.green;
-                     colours[4*idx_for_colours+2] = map_colour.blue;
+                  if (colour_map_using_other_map_flag) {
+                     clipper::Coord_orth co(points[3 * idx_for_colours], points[3 * idx_for_colours +1], points[3 * idx_for_colours +2]);
+                     GdkRGBA map_col = position_to_colour_using_other_map(co);
+                     colours[4*idx_for_colours  ] = map_col.red;
+                     colours[4*idx_for_colours+1] = map_col.green;
+                     colours[4*idx_for_colours+2] = map_col.blue;
                      colours[4*idx_for_colours+3] = 1.0f;
                   } else {
-                     std::cout << "oops indexing error for colours"
-                               << idx_for_colours << " " << n_colours << std::endl;
+                     // basic/standard single colour map
+                     if ((4*idx_for_colours) < (4 * n_colours)) {
+                        colours[4*idx_for_colours  ] = map_colour.red;
+                        colours[4*idx_for_colours+1] = map_colour.green;
+                        colours[4*idx_for_colours+2] = map_colour.blue;
+                        colours[4*idx_for_colours+3] = 1.0f;
+                     } else {
+                        std::cout << "oops indexing error for colours"
+                                  << idx_for_colours << " " << n_colours << std::endl;
+                     }
                   }
                }
                idx_for_colours++;
@@ -972,6 +983,18 @@ molecule_class_info_t::setup_glsl_map_rendering() {
              << n_vertices_for_map_VertexArray << std::endl;
 
 }
+
+
+GdkRGBA
+molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_orth &position) {
+
+   // float v = coot::util::random()/static_cast<float>(RAND_MAX);
+   double dd = (position-clipper::Coord_orth(0,0,-20)).lengthsq();
+   float v = sqrt(dd) * 0.02;
+   GdkRGBA c = fraction_to_colour(v);
+   return c;
+}
+
 
 
 // not const because we sort in place the triangles of tri_con

@@ -342,8 +342,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 	    glDisable(GL_LIGHTING);
 	 }
-	 
-	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
+
+	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);

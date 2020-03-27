@@ -3507,6 +3507,13 @@ public:        //                      public
    double radial_map_colour_invert_flag;
    double radial_map_colour_saturation;
 
+   // colour by other map (e.g. correlation)
+   bool colour_map_using_other_map_flag;
+   void set_colour_map_using_other_map(bool state) {
+      colour_map_using_other_map_flag = state;
+   }
+   GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

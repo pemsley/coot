@@ -1790,6 +1790,8 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    radial_map_colour_invert_flag = false;
    radial_map_colour_saturation = 0.5;
 
+   colour_map_using_other_map_flag = false;
+
    draw_it_for_map = 1;
    draw_it_for_map_standard_lines = 1; // display the map initially, by default
 

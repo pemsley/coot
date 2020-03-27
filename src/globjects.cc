@@ -2537,10 +2537,10 @@ do_button_zoom(gdouble x, gdouble y) {
       int iv = 1 + int (0.009*(info.zoom + info.dynamic_map_zoom_offset));
       if (iv != info.graphics_sample_step) {
 
-	 for (int imap=0; imap<info.n_molecules(); imap++) {
-	    info.molecules[imap].update_map(); // uses g.zoom
-	 }
-	 info.graphics_sample_step = iv;
+         for (int imap=0; imap<info.n_molecules(); imap++) {
+            info.molecules[imap].update_map(); // uses g.zoom
+         }
+         info.graphics_sample_step = iv;
       }
    }
    // redraw it

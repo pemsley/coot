@@ -33,6 +33,7 @@ public:
    unsigned int line_colour_uniform_location;
    unsigned int eye_position_uniform_location;
    unsigned int hud_projection_uniform_location;
+   unsigned int zoom_uniform_location;
    // general purpose, not class member uniform locations
    void set_int_for_uniform(const std::string &uniform_name, int value) const;
 };

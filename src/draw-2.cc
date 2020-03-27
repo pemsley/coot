@@ -347,7 +347,7 @@ glm::mat4 get_view_rotation() {
 }
 
 void draw_map_molecules() {
-   glLineWidth(1.0f);
+   glLineWidth(0.2f);
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
@@ -790,10 +790,12 @@ on_glarea_render(GtkGLArea *glarea) {
 
       draw_central_cube(glarea);
       draw_origin_cube(glarea);
-      err = glGetError();
-      if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
-      draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
-      err = glGetError(); if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
+
+      if (false) {
+         draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+         err = glGetError(); if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
+      }
 
       err = glGetError(); if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
 
@@ -843,6 +845,11 @@ on_glarea_render(GtkGLArea *glarea) {
       glClearColor(0.5, 0.2, 0.2, 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+      // std::cout << "debug uniform: " << graphics_info_t::shader_for_blur.zoom_uniform_location
+      //                                << " " << graphics_info_t::zoom << std::endl;
+      glUniform1f(graphics_info_t::shader_for_blur.zoom_uniform_location, graphics_info_t::zoom);
+      err = glGetError(); if (err) std::cout << "on_glarea_render() blur-A err " << err << std::endl;
+
       GLuint pid = graphics_info_t::shader_for_blur.get_program_id();
       glActiveTexture(GL_TEXTURE0 + 1);
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_colour());
@@ -850,10 +857,10 @@ on_glarea_render(GtkGLArea *glarea) {
       glActiveTexture(GL_TEXTURE0 + 2);
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
       glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
-      err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render() blur-B err " << err << std::endl;
 
       glDrawArrays(GL_TRIANGLES, 0, 6);
-      err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
    }
 
    graphics_info_t::frame_counter++;
@@ -904,7 +911,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       if (direction == -1)
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
-      std::cout << "####### Now contour level for map " << imol_scroll << "is "
+      std::cout << "####### Now contour level for map " << imol_scroll << " is "
                 << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
@@ -913,6 +920,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    } else {
       std::cout << "No map" << std::endl;
    }
+   std::cout << "done on_glarea_scroll()" << std::endl;
    return TRUE;
 }
 
@@ -1074,8 +1082,6 @@ void translate_in_screen_z(float step_size) {
    glm::vec3 step = 0.1 * (rc - ep);
    glm::vec4 step_4(step_size * step, 1.0);
    graphics_info_t::add_to_rotation_centre(step_4);
-
-
 
 }
 
