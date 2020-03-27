@@ -46,12 +46,12 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
-  float specular_strength = 0.5;
+  float specular_strength = 0.2;
 
-  vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
+  vec4 specular_light_colour = vec4(0.6, 0.6, 0.6, 1.0);
   vec3 lightdir = normalize(vec3(-2,-1, 5));
   float dp = dot(Normal, -lightdir);
-  dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
+  dp = max(dp, 0.2); // no negative dot products for diffuse for now, also, zero is avoided.
 
   float m  = clamp(gl_FragCoord.z, 0.0f, 1.0f);
 
@@ -61,8 +61,8 @@ void main() {
 
   vec4 bg_col = bg_colour;
 
-  vec3 eye_pos =  vec3(0.0, 0.0, 1.0);
-  // vec3 eye_pos =  eye_pos_transfer.xyz;
+  // vec3 eye_pos =  vec3(0.0, 0.0, 5.0);
+  vec3 eye_pos =  eye_pos_transfer.xyz;
 
   vec3 view_dir = eye_pos - frag_pos; // view_dir.z positive is a good idea.
   view_dir = normalize(view_dir);
@@ -72,23 +72,21 @@ void main() {
   vec3 reflect_dir = reflect(lightdir, norm_2);
   float dp_view_reflect = dot(view_dir, reflect_dir);
   dp_view_reflect = max(dp_view_reflect, 0.0);
-  // float spec = pow(dp_view_reflect, 1.2); shows lots of shape of the density
-  float spec = pow(dp_view_reflect, 3.2);
+  float spec = pow(dp_view_reflect, 6.2);
   vec4 specular = specular_strength * spec * specular_light_colour;
 
   vec4 line_colour_local = line_colour;
 
   vec4 col_1 = line_colour_local;  // ambient
-  float ambient_strength = 0.5;
+  float ambient_strength = 0.6;
   vec4 col_2 = line_colour_local * dp;
   vec4 col_3 = col_2 + col_1 * ambient_strength + specular;
-  // col_3 = specular;
   vec4 col_4 = mix(bg_col, col_3, f_2);
 
-  // the angle between the eye direction and the triangle normal)
+  if (false)
+     col_4 = col_3; // for no depth cue
 
-  // we need blend to be enabled for this to have an effect, I think.
-  // col_4.a = (1.0 - dp) * 0.6;
+  // col_4.a = 0.03; // needs alpha in the GL context? GL_BLEND enabled?
 
   out_col = col_4;
 

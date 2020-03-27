@@ -30,7 +30,7 @@ layout(location = 0) out vec4 out_color;
 vec3 occlude() {
 
        vec3 r = vec3(0.0, 0.0, 0.2); // return r;
-       int n_pixels_max = 8;
+       int n_pixels_max = 38;
        // most of the image:
        int n_sampled = 0;
        int n_closer_neighbours = 0; // ambient occlusion (testing)
@@ -39,6 +39,7 @@ vec3 occlude() {
        float closer_sum = 0.0;
        for (int ix=0; ix<n_pixels_max; ix++) {
           for (int iy=0; iy<n_pixels_max; iy++) {
+             if ((abs(ix)+abs(iy))> n_pixels_max) continue;
              // deal with double counting at some stage
              if (true) {
                 {
@@ -80,17 +81,16 @@ vec3 occlude() {
              }
           }
        }
-       // Note to self, ambient occlusion looks good when the background is
-       // black - when it is grey, the ambient occlusion needs to be less
        if (n_sampled > 0) {
           r = texture(screenTexture, TexCoords).rgb;
           if ((2 * n_closer_neighbours) >= n_sampled) {
              float aos = float(n_closer_neighbours)/float(n_sampled);
-             aos = closer_sum;
-             float f = 1.0 + 0.05 * aos;
-             f = clamp(f, 0.0, 1.0);
-             r *=  f;
-             // r = vec3(0.0, 1.0, 0.0);
+             aos = 0.5 + - closer_sum * 1.1;
+             aos = 0.5 + - closer_sum * 0.0009;
+             aos = float(n_closer_neighbours)/float(n_sampled); // 0.5 to 1
+             float f = 2.0 * aos - 1.0;  // 0.0 to 1.0 (very occluded to no occluded)
+             float ff = 1.0 - f * 0.995;
+             r *=  ff;
           }
        } else{
           r = vec3(1.0, 0.0, 0.0);
@@ -105,11 +105,13 @@ void main() {
 
    // result      = texture(screenTexture, TexCoords).rgb;
    float depth = texture(screenDepth,   TexCoords).x;
-   gl_FragDepth = depth;
-   if (depth > 1.0) {
-      result = vec3(0,0,0);
-   } else {
+   gl_FragDepth = depth; // needed for depth for next shader
+
+   bool do_occlude = true;
+   if (do_occlude) {
       result = occlude();
+   } else {
+      result = texture(screenTexture, TexCoords).rgb;
    }
 
    // result = vec3(depth, depth, depth);

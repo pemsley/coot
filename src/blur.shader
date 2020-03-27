@@ -31,9 +31,14 @@ layout(location = 0) out vec4 out_color;
 //
 float get_weight_xy(float r_sqrd, float tightness) {
 
+   // the weight that we want to give to the colour of this
+   // pixel depends on the depth of this n_pixel
+   // and the distance that this pixel is away from the
+   // central pixel.
+
    float r = sqrt(r_sqrd); // between 0.0 and 1.0
    float t = clamp(tightness, 0.0, 1.0);
-   float f_1 = 1.0 - 0.6 * t * r; // 0.2 needs tweaking
+   float f_1 = 1.0 - 0.9 * t * r; // 0.2 needs tweaking
    float f_2 = clamp(f_1, 0.0, 1.0);
    return f_2;
 
@@ -46,9 +51,11 @@ float get_weight_xy(float r_sqrd, float tightness) {
 
 // blur things at the back more than things at the front
 // - how much should this pixel get blurred?
+// return value between 0.0 and 1.0
+//
 float get_weight_z_1(float depth_centre) {
 
-    float w = abs(depth_centre - 0.158);
+    float w = 1.3 * abs(depth_centre - 0.231);
     return w;
 
 }
@@ -57,37 +64,41 @@ float get_weight_z_1(float depth_centre) {
 //  What weight should this pixel have to colour that pixel?
 float get_weight_z_2(float depth_this, float depth_centre) {
 
-    float c = 0.5652; // 0.66 looks good, but we
-                      // need a "protected" z region - say from  0.05 to 0.3
+    float c = 0.652; // 0.66 looks good, but we
+                     // need a "protected" z region - say from  0.05 to 0.3
+
     float depth_delta = abs(depth_centre - depth_this);
     float w = 0.0; // too far, by default.
-    if (depth_delta < c) w = 0.55 + (c - depth_delta)/c;
+    if (depth_delta < c) w = 0.61205 + (c - depth_delta)/c;
+
     return w;
+
 }
 
-vec3 sampling_blur() {
+vec3 sampling_blur(const int n_pixels_max) {
 
-    // at some stage, fix the double addition when x =0 and when y = 0
+    // at some stage, fix the double addition when x = 0 and when y = 0
 
     vec2 tex_scale = 1.0/textureSize(screenTexture, 0); // the size of single texel
     // the bigger the z value (it ranges from 0 (front) to 1.0 (back)), the more I want
     // to blur this pixel. Bigger z means more sampling
     vec3 sum = vec3(0,0,0); // return this
-    int n_pixels_max = 6;
     float depth_centre = texture(screenDepth, TexCoords).x;
     float w_1 = get_weight_z_1(depth_centre); // w_1 is 0.0 at the front/no-blur
-    float tightness = ((1.0 - 0.158) - w_1)/(1.0 - 0.158); // tightness between 0 (close to rotation centre to 1.0 (at the back)
+    float tightness = ((1.0 - 0.231) - w_1)/(1.0 - 0.231); // tightness between 0 (close to rotation centre to 1.0 (at the back)
     vec3 r = vec3(0.0, 0.125, 0.0);
-    if (depth_centre > 0.0 && depth_centre < 0.3) { // the front (in sceen z) doesn't get blurred
+    // restore this to 0.1 to 0.3 when the blur is improved
+    if (depth_centre >= 0.0 && depth_centre <= 0.231) { // the front (in screen z) doesn't get blurred
        return texture(screenTexture, TexCoords).rgb;
+       // return vec3(0.1, 0.8, 0.1);
     } else {
        // most of the image:
        int n_sampled = 0;
-       int n_closer_neighbours = 0; // ambient occlusion (testing)
        float sum_weight = 0.0;
        for (int ix=0; ix<n_pixels_max; ix++) {
           for (int iy=0; iy<n_pixels_max; iy++) {
              float r_sqrd = (ix*ix + iy*iy) / (n_pixels_max * n_pixels_max);
+             if (r_sqrd > 1.0) continue;
              float weight_xy = get_weight_xy(r_sqrd, tightness);
              if (weight_xy > 0.0) {
                 {
@@ -100,7 +111,6 @@ vec3 sampling_blur() {
                       n_sampled += 1;
                       sum_weight += weight;
                    }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
                 }
                 {
                    vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, -tex_scale.y * iy);
@@ -112,7 +122,6 @@ vec3 sampling_blur() {
                       n_sampled += 1;
                       sum_weight += weight;
                    }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
                 }
                 {
                    vec2 offset_coords = TexCoords + vec2(-tex_scale.x * ix, tex_scale.y * iy);
@@ -124,7 +133,6 @@ vec3 sampling_blur() {
                       n_sampled += 1;
                       sum_weight += weight;
                    }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
                 }
                 {
                    vec2 offset_coords = TexCoords + vec2(-tex_scale.x * ix, -tex_scale * iy);
@@ -136,13 +144,12 @@ vec3 sampling_blur() {
                       n_sampled += 1;
                       sum_weight += weight;
                    }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
                 }
              }
           }
        }
        if (n_sampled > 0) {
-          r = sum/sum_weight;
+          r = sum/(sum_weight * 0.9);
        } else{
           r = texture(screenTexture, TexCoords).rgb;
        }
@@ -154,17 +161,20 @@ void main() {
 
    vec3 result = vec3(0,0,0);
 
-   if (true) {
-      result = sampling_blur();
+   bool do_filter = true;
+
+   if (do_filter) {
+      result = sampling_blur(5);
    } else {
       result = texture(screenTexture, TexCoords).rgb; // don't blur
       float depth_centre = texture(screenDepth, TexCoords).x;
-      if (depth_centre < 0.19) {
-          result = vec3(1.0, 0.0, 0.0);
-      }
+//       if (depth_centre == 1.0) {
+//          result = vec3(1.0, 0.0, 0.0);
+//       } else {
+//          result = vec3(0.0, 0.0, 0.0);
+//       }
    }
 
    out_color = vec4(result, 1.0);
 
 }
-
