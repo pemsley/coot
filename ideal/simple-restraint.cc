@@ -537,6 +537,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    n_threads = 0;
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    log_cosh_target_distance_scale_factor = 3000.0;
+   convert_plane_restraints_to_improper_dihedral_restraints_flag = false; // as it was in 2019.
 }
 
 void
@@ -3846,6 +3847,11 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
+         if (restraints_usage_flag & PLANES_MASK)
+            local.n_plane_restraints += add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms,
+                                                               residue_p, geom);
+
+
 	 if (restraints_usage_flag & CHIRAL_VOLUME_MASK) {
 	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
 						residue_p, geom);
@@ -6896,6 +6902,15 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
 
+   return add_planes_multiatom_eigen(idr, res_selection, i_no_res_atoms, SelRes, geom);
+}
+
+int
+coot::restraints_container_t::add_planes_multiatom_eigen(int idr, mmdb::PPAtom res_selection,
+							 int i_no_res_atoms,
+							 mmdb::PResidue SelRes,
+							 const coot::protein_geometry &geom) {
+
    bool debug = false;
 
    if (debug)
@@ -6968,6 +6983,111 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
    return n_plane_restr; 
 }
 
+int
+coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PPAtom res_selection,
+                                           int i_no_res_atoms,
+                                           mmdb::PResidue SelRes,
+                                           const protein_geometry &geom) {
+   int n_impropers = 0;
+   int index1, index2, index3, index4;
+
+   std::vector<std::string> string_atom_names(i_no_res_atoms);
+   for (int iat=0; iat<i_no_res_atoms; iat++)
+      string_atom_names[iat] = res_selection[iat]->name;
+
+   for (unsigned int ic=0; ic<geom[idr].second.improper_dihedral_restraint.size(); ic++) {
+
+      const dict_improper_dihedral_restraint_t &dict_restraint = geom[idr].second.improper_dihedral_restraint[ic];
+
+      if (true) {
+         for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
+            const std::string &pdb_atom_name1 = string_atom_names[iat1];
+            if (pdb_atom_name1 == dict_restraint.atom_id_1_4c()) {
+
+               for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
+                  const std::string &pdb_atom_name2 = string_atom_names[iat2];
+                  if (pdb_atom_name2 == dict_restraint.atom_id_2_4c()) {
+
+                     for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
+                        const std::string &pdb_atom_name3 = string_atom_names[iat3];
+                        if (pdb_atom_name3 == dict_restraint.atom_id_3_4c()) {
+
+                           for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
+                              const std::string &pdb_atom_name4 = string_atom_names[iat4];
+                              if (pdb_atom_name4 == dict_restraint.atom_id_4_4c()) {
+
+				 std::string alt_conf_1 = res_selection[iat1]->altLoc;
+				 std::string alt_conf_2 = res_selection[iat2]->altLoc;
+				 std::string alt_conf_3 = res_selection[iat3]->altLoc;
+				 std::string alt_conf_4 = res_selection[iat4]->altLoc;
+
+                                 if (((alt_conf_1 == alt_conf_4) || (alt_conf_1 == "")) &&
+                                     ((alt_conf_2 == alt_conf_4) || (alt_conf_2 == "")) &&
+                                     ((alt_conf_3 == alt_conf_4) || (alt_conf_3 == ""))) {
+
+				    res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
+				    res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
+				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
+				    res_selection[iat4]->GetUDData(udd_atom_index_handle, index4);
+
+				    std::vector<bool> fixed_flags =
+				    make_fixed_flags(index4, index1, index2, index3);
+                                    int IMPROPER_DIHEDRAL_RESTRAINT = 4096;
+#if 0
+                                    simple_restraint sr(IMPROPER_DIHEDRAL_RESTRAINT,
+                                                        index4, index1, index2, index3,
+                                                        sigma, fixed_flags);
+                                    restraints_vec.push_back(sr); // push_back_restraint()
+#endif
+				    n_impropers;
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return n_impropers;
+
+}
+
+
+
+void
+coot::restraints_container_t::convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_and_sigma,
+										       const std::vector<bool> &fixed_atom_flags) {
+
+   if (atom_index_and_sigma.size() == 4) {
+
+#if 0
+      double sigma = 0.01;
+      simple_restraint sr(IMPROPER_DIHEDRAL_RESTRAINT,
+                          atom_and_index_sigma[3].first, atom_and_index_sigma[0].first, atom_and_index_sigma[1].first, atom_and_index_sigma[2].first,
+                          sigma, fixed_flags);
+      restraints_vec.push_back(sr);
+#endif
+
+   } else {
+
+      // is 5 (planar peptide restraints from link restraints). We shouldn't get here by any other
+      // (say monomer dictionary) means.
+
+      if (atom_index_and_sigma.size() == 5) {
+
+      } else {
+
+         std::cout << "ERROR:: in convert_plane_restraints_to_improper_dihedral_restraints() "
+                   << atom_index_and_sigma.size() << std::endl;
+      }
+   }
+
+}
+
+
 
 int
 coot::restraints_container_t::add_rama(const coot::rama_triple_t &rt, const coot::protein_geometry &geom) {
@@ -6990,30 +7110,30 @@ coot::restraints_container_t::add_rama(std::string link_type,
 				       const coot::protein_geometry &geom) {
 
    // Old notes:
-   // TRANS    psi      1 N      1 CA     1 C      2 N   
-   // TRANS    phi      1 C      2 N      2 CA     2 C   
+   // TRANS    psi      1 N      1 CA     1 C      2 N
+   // TRANS    phi      1 C      2 N      2 CA     2 C
    // TRANS    omega    1 CA     1 C      2 N      2 CA
    //
    // New assignements:
    // TRANS    psi    (2nd N) (2nd CA) (2nd C ) (3nd N)
-   // TRANS    phi    (1st C) (2nd N ) (2nd CA) (2nd C) 
-   // 
+   // TRANS    phi    (1st C) (2nd N ) (2nd CA) (2nd C)
+   //
    // So Rama_atoms in this order:
    //   0       1        2      3         4
    // (1st C) (2nd N) (2nd CA) (2nd C) (3rd N)
 
-   
+
    //std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type for " << this_res
    //     << std::endl;
-   
+
    int n_rama = 0;
-      
+
    mmdb::PPAtom prev_sel;
    mmdb::PPAtom this_sel;
    mmdb::PPAtom post_sel;
    int n_first_res_atoms, n_second_res_atoms, n_third_res_atoms;
 
-   prev_res->GetAtomTable(prev_sel,  n_first_res_atoms); 
+   prev_res->GetAtomTable(prev_sel,  n_first_res_atoms);
    this_res->GetAtomTable(this_sel, n_second_res_atoms);
    post_res->GetAtomTable(post_sel,  n_third_res_atoms);
 
