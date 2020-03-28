@@ -1274,7 +1274,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    // n_steps_per_relcalc_nbcs *= 10;
 
    n_times_called++;
-   n_small_cycles_accumulator += n_times_called * nsteps_max;
+   n_small_cycles_accumulator += nsteps_max;
 
    // std::cout << "------------ ::minimize() " << size() << " " << n_small_cycles_accumulator << std::endl;
 
@@ -1309,8 +1309,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
          unsigned int n_restraints = size();
-         std::cout << "minimize() nbc updated made " << n_new << " (new) nbc restraints: " << n_restraints << " total - timings: "
-                   << d10 << " " << d21 << " milliseconds" << std::endl;
+         std::cout << "minimize() nbc updated made " << n_new << " (new) nbc restraints: " << n_restraints
+                   << " total - timings: " << d10 << " " << d21 << " milliseconds" << std::endl;
       }
       n_small_cycles_accumulator = 0;
    }
@@ -1344,17 +1344,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   restraints_usage_flag = usage_flags;
-
    if (do_numerical_gradients_flag) {
       std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
       debug_atoms();
    }
-
-   // BOND + density fail: BONDS regularize works
-   // restraints_usage_flag = BONDS_AND_ANGLES;
-
-   // We get ~1ms/residue with bond and angle terms and no density terms.
 
    std::vector<refinement_lights_info_t> lights; // = chi_squareds("--------", m_s->x, false);
 
@@ -1442,7 +1435,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
                gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
                void *params = static_cast<void *>(this);
                // useful - but not for everyone
-               // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
+               numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
             restraints_lock = false;
 	    break;
@@ -1804,7 +1797,8 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    int n_bond_restraints = 0; 
    int n_angle_restraints = 0; 
    int n_torsion_restraints = 0; 
-   int n_plane_restraints = 0; 
+   int n_plane_restraints = 0;
+   int n_improper_dihedral_restraints = 0;
    int n_non_bonded_restraints = 0;
    int n_chiral_volumes = 0;
    int n_rama_restraints = 0;
@@ -1824,6 +1818,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    double start_pos_distortion = 0;
    double target_pos_distortion = 0;
    double trans_peptide_distortion = 0;
+   double improper_dihedral_distortion = 0;
 
    // const be gone :-) (I only do this because we are interfacing with a
    // GSL function. Ideally params should be const void * for most of it's usages.
@@ -1875,6 +1870,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       baddies["Angles"].update_if_worse(dist, i);
 	    }
 	 }
+
+         if (restraints_usage_flag & IMPROPER_DIHEDRALS_MASK) {
+            if (restraint.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT) {
+               n_improper_dihedral_restraints++;
+               double dist = coot::distortion_score_improper_dihedral(restraint, v);
+               improper_dihedral_distortion += dist;
+               baddies["ImproperDihedrals"].update_if_worse(dist, i);
+            }
+         }
 
 	 if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
 	    if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
@@ -2037,7 +2041,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
-   } 
+   }
    if (n_angle_restraints == 0) {
       if (print_summary)
 	 std::cout << "angles:     N/A " << std::endl;
@@ -2058,7 +2062,21 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
-   } 
+   }
+   if (n_improper_dihedral_restraints == 0) {
+      if (print_summary)
+	 std::cout << "improper-dihedrals: N/A " << std::endl;
+   } else {
+      double idd = improper_dihedral_distortion/static_cast<double>(n_improper_dihedral_restraints);
+      if (print_summary)
+         std::cout << "improper-dihedrals: " << idd << std::endl;
+      r += "   improper-dihedrals: ";
+      r += util::float_to_string_using_dec_pl(idd, 3);
+      r += " ";
+      r += util::int_to_string(n_improper_dihedral_restraints);
+      r += "\n";
+      // add worst baddie handling here
+   }
    if (n_torsion_restraints == 0) {
       if (print_summary)
 	 std::cout << "torsions:   N/A " << std::endl;
@@ -2108,7 +2126,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (pd > 0.0)
 	 spd = sqrt(pd);
       if (print_summary)
-	 std::cout << "planes:     " << spd << std::endl;
+	 std::cout << "planes:     " << spd << " from " << n_plane_restraints << std::endl;
       r += "   planes: ";
       r += coot::util::float_to_string_using_dec_pl(spd, 3);
       r += "\n";
@@ -3672,6 +3690,9 @@ coot::restraints_container_t::make_monomer_restraints(int imol,
 
    // std::cout << "------------------------ in make_monomer_restraints() "
    // << do_residue_internal_torsions << std::endl;
+
+   std::cout << "------------------------ in make_monomer_restraints() "
+             << restraints_usage_flag << std::endl;
    
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(imol, geom, do_residue_internal_torsions);
@@ -3847,9 +3868,16 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-         if (restraints_usage_flag & PLANES_MASK)
-            local.n_plane_restraints += add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms,
-                                                               residue_p, geom);
+         std::cout << "debug:: in make_monomer_restraints_by_residue() Here 1 " << restraints_usage_flag
+                   << std::endl;
+         if (restraints_usage_flag & IMPROPER_DIHEDRALS_MASK) {
+            std::cout << "debug:: in make_monomer_restraints_by_residue() Here 2 " << std::endl;
+	    int n = add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms, residue_p, geom);
+            std::cout << "#################################################" << std::endl;
+	    std::cout << "debug:: in make_monomer_restraints_by_residue() made "
+		      << n << " improper_dihedrals" << std::endl;
+            local.n_improper_dihedral_restr += n;
+	 }
 
 
 	 if (restraints_usage_flag & CHIRAL_VOLUME_MASK) {
@@ -6902,7 +6930,17 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
 
-   return add_planes_multiatom_eigen(idr, res_selection, i_no_res_atoms, SelRes, geom);
+   std::cout << "debug:: in add_planes(): with convert_plane_restraints_to_improper_dihedral_restraints_flag "
+	     << convert_plane_restraints_to_improper_dihedral_restraints_flag << std::endl;
+   if (! convert_plane_restraints_to_improper_dihedral_restraints_flag) {
+      int n_added = add_planes_multiatom_eigen(idr, res_selection, i_no_res_atoms, SelRes, geom);
+      std::cout << "debug:: n_added (multiatom-eigen) " << n_added << std::endl;
+      return n_added;
+   } else {
+      int n_added = add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms, SelRes, geom);
+      std::cout << "debug:: n_added (improper_dihedrals) " << n_added << std::endl;
+      return n_added;
+   }
 }
 
 int
@@ -6998,7 +7036,7 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
    for (unsigned int ic=0; ic<geom[idr].second.improper_dihedral_restraint.size(); ic++) {
 
       const dict_improper_dihedral_restraint_t &dict_restraint = geom[idr].second.improper_dihedral_restraint[ic];
-
+      
       if (true) {
          for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
             const std::string &pdb_atom_name1 = string_atom_names[iat1];
@@ -7015,7 +7053,7 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
                            for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
                               const std::string &pdb_atom_name4 = string_atom_names[iat4];
                               if (pdb_atom_name4 == dict_restraint.atom_id_4_4c()) {
-
+                                 
 				 std::string alt_conf_1 = res_selection[iat1]->altLoc;
 				 std::string alt_conf_2 = res_selection[iat2]->altLoc;
 				 std::string alt_conf_3 = res_selection[iat3]->altLoc;
@@ -7032,14 +7070,12 @@ coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PP
 
 				    std::vector<bool> fixed_flags =
 				    make_fixed_flags(index4, index1, index2, index3);
-                                    int IMPROPER_DIHEDRAL_RESTRAINT = 4096;
-#if 0
+				    float sigma = dict_restraint.sigma;
                                     simple_restraint sr(IMPROPER_DIHEDRAL_RESTRAINT,
-                                                        index4, index1, index2, index3,
+                                                        index1, index2, index3, index4,
                                                         sigma, fixed_flags);
                                     restraints_vec.push_back(sr); // push_back_restraint()
-#endif
-				    n_impropers;
+				    n_impropers++;
 				 }
 			      }
 			   }

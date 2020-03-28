@@ -43,5 +43,7 @@ void crankshaft_peptide_rotation_optimization_scm(int imol, SCM residue_spec_smc
 void crankshaft_peptide_rotation_optimization_py(int imol, PyObject *residue_spec_py);
 #endif
 
+void convert_dictionary_planes_to_improper_dihedrals();
+
 
 //! \}

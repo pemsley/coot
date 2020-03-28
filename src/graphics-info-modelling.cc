@@ -426,8 +426,9 @@ graphics_info_t::refinement_loop_threaded() {
 
    graphics_info_t g;
 
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // for now
-   flags = g.set_refinement_flags(); // flags should not be needed for minimize()
+   coot::restraint_usage_Flags flags = g.set_refinement_flags(); // flags should not be needed for minimize()
+
+   std::cout << "debug:: ########### in refinement_loop_threaded() flags is " << flags << std::endl;
 
    // continue_threaded_refinement_loop = true; not here - set it in the calling function
    while (continue_threaded_refinement_loop) {
@@ -540,6 +541,7 @@ coot::restraint_usage_Flags
 graphics_info_t::set_refinement_flags() const {
 
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+   flags = coot::TYPICAL_RESTRAINTS_WITH_IMPROPERS;
    if (do_torsion_restraints) {
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
    }
@@ -547,6 +549,8 @@ graphics_info_t::set_refinement_flags() const {
    if (do_rama_restraints)
       flags = coot::ALL_RESTRAINTS;
 
+   flags = coot::TYPICAL_RESTRAINTS_WITH_IMPROPERS;
+   std::cout << "#################### debug:: in set_refinement_flags() flags is " << flags << std::endl;
    return flags;
 }
 
@@ -1066,6 +1070,12 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
+   std::cout << "----------- made restraints container now convert_dictionary_planes_to_improper_dihedrals_flag is "
+             << convert_dictionary_planes_to_improper_dihedrals_flag << std::endl;
+   if (convert_dictionary_planes_to_improper_dihedrals_flag) {
+      last_restraints->set_convert_plane_restraints_to_improper_dihedral_restraints(true);
+   }
+
    // This seems not to work yet.
    // last_restraints->set_dist_crit_for_bonded_pairs(9.0);
 
@@ -1100,8 +1110,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
    last_restraints->set_rama_type(restraints_rama_type);
    last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
-   // if planar peptide restraints are used
-
+                                                                  // if planar peptide restraints are used
    // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
    // It's the planes, chiral and angles too. Possibly bonds too.
    // How about marking non-H atoms in restraints that contain H atoms as
@@ -1175,7 +1184,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    if (is_valid_map_molecule(Imol_Refinement_Map()) || (! use_map_flag)) {
       float weight = geometry_vs_map_weight;
       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+      coot::restraint_usage_Flags flags = set_refinement_flags();
       bool do_residue_internal_torsions = false;
       if (do_torsion_restraints) { 
 	 do_residue_internal_torsions = 1;

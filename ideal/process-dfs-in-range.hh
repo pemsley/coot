@@ -32,6 +32,10 @@ namespace coot {
    process_dfs_plane(const simple_restraint &restraint,
 		     const gsl_vector *v,
 		     std::vector<double> &results);
+   void
+   process_dfs_improper_dihedral(const simple_restraint &restraint,
+		     const gsl_vector *v,
+		     std::vector<double> &results);
 
    void
    process_dfs_parallel_planes(const simple_restraint &restraint,

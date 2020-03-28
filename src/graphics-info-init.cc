@@ -26,6 +26,7 @@ graphics_info_t::init() {
 
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
+      convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
       geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
 

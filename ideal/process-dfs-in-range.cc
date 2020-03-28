@@ -378,6 +378,10 @@ coot::process_dfs_in_range(int thread_idx,
          if (rest.restraint_type == coot::PLANE_RESTRAINT)
             process_dfs_plane(rest, v, results);
 
+      if (restraints_p->restraints_usage_flag & coot::IMPROPER_DIHEDRALS_MASK)
+         if (rest.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT)
+            process_dfs_improper_dihedral(rest, v, results);
+
       if (restraints_p->restraints_usage_flag & coot::TRANS_PEPTIDE_MASK)
          if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT)
             process_dfs_trans_peptide(rest, v, results);
@@ -815,6 +819,102 @@ coot::process_dfs_chiral_volume(const coot::simple_restraint &restraint,
    }
 }
 
+
+void
+coot::process_dfs_improper_dihedral(const coot::simple_restraint &restraint,
+				                        const gsl_vector *v,
+				                        std::vector<double> &results) { // fill results
+
+   double cv;
+   double distortion;
+
+   int idx;
+
+   idx = 3*( restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*( restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*( restraint.atom_index_3);
+   clipper::Coord_orth a3(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*restraint.atom_index_4;
+   clipper::Coord_orth centre(gsl_vector_get(v, idx),
+			      gsl_vector_get(v, idx+1),
+			      gsl_vector_get(v, idx+2));
+
+   clipper::Coord_orth a = a1 - centre;
+   clipper::Coord_orth b = a2 - centre;
+   clipper::Coord_orth c = a3 - centre;
+
+   cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+   distortion = cv;
+   if (false) // debug
+      std::cout << "process_dfs_improper_dihedral " << distortion << "\n";
+
+   double P0_x_contrib =
+      - (b.y()*c.z() - b.z()*c.y())
+      - (a.z()*c.y() - a.y()*c.z())
+      - (a.y()*b.z() - a.z()*b.y());
+
+   double P0_y_contrib =
+      - (b.z()*c.x() - b.x()*c.z())
+      - (a.x()*c.z() - a.z()*c.x())
+      - (a.z()*b.x() - a.x()*b.z());
+
+   double P0_z_contrib =
+      - (b.x()*c.y() - b.y()*c.x())
+      - (a.y()*c.x() - a.x()*c.y())
+      - (a.x()*b.y() - a.y()*b.x());
+
+   double P1_x_contrib = b.y()*c.z() - b.z()*c.y();
+   double P1_y_contrib = b.z()*c.x() - b.x()*c.z();
+   double P1_z_contrib = b.x()*c.y() - b.y()*c.x();
+
+   double P2_x_contrib = a.z()*c.y() - a.y()*c.z();
+   double P2_y_contrib = a.x()*c.z() - a.z()*c.x();
+   double P2_z_contrib = a.y()*c.x() - a.x()*c.y();
+
+   double P3_x_contrib = a.y()*b.z() - a.z()*b.y();
+   double P3_y_contrib = a.z()*b.x() - a.x()*b.z();
+   double P3_z_contrib = a.x()*b.y() - a.y()*b.x();
+
+   double sigma = restraint.sigma;
+   double s = 2.0 * distortion/(sigma * sigma);
+
+   if (!restraint.fixed_atom_flags[0]) {
+      idx = 3*( restraint.atom_index_1);
+      results[idx  ] += s * P1_x_contrib;
+      results[idx+1] += s * P1_y_contrib;
+      results[idx+2] += s * P1_z_contrib;
+   }
+
+   if (!restraint.fixed_atom_flags[1]) {
+      idx = 3*( restraint.atom_index_2);
+      results[idx  ] += s * P2_x_contrib;
+      results[idx+1] += s * P2_y_contrib;
+      results[idx+2] += s * P2_z_contrib;
+   }
+
+   if (!restraint.fixed_atom_flags[2]) {
+      idx = 3*( restraint.atom_index_3);
+      results[idx  ] += s * P3_x_contrib;
+      results[idx+1] += s * P3_y_contrib;
+      results[idx+2] += s * P3_z_contrib;
+   }
+
+   if (!restraint.fixed_atom_flags[3]) {
+      idx = 3*( restraint.atom_index_4);
+      results[idx  ] += s * P0_x_contrib;
+      results[idx+1] += s * P0_y_contrib;
+      results[idx+2] += s * P0_z_contrib;
+   }
+}
+
 void
 coot::process_dfs_plane(const coot::simple_restraint &plane_restraint,
 		       const gsl_vector *v,
@@ -1102,7 +1202,7 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
    } else {
 
       double scale = log_cosh_target_distance_scale_factor;
-      double top_out_dist = 4.0;  // Angstroms, needs tweaking?
+     double top_out_dist = 4.0;  // Angstroms, needs tweaking?
       double k = 1.0 / top_out_dist;
 
       clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
