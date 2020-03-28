@@ -428,8 +428,6 @@ graphics_info_t::refinement_loop_threaded() {
 
    coot::restraint_usage_Flags flags = g.set_refinement_flags(); // flags should not be needed for minimize()
 
-   std::cout << "debug:: ########### in refinement_loop_threaded() flags is " << flags << std::endl;
-
    // continue_threaded_refinement_loop = true; not here - set it in the calling function
    while (continue_threaded_refinement_loop) {
 
@@ -542,6 +540,9 @@ graphics_info_t::set_refinement_flags() const {
 
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
    flags = coot::TYPICAL_RESTRAINTS_WITH_IMPROPERS;
+
+   // Oh, these will interact badly.
+
    if (do_torsion_restraints) {
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
    }
@@ -549,8 +550,6 @@ graphics_info_t::set_refinement_flags() const {
    if (do_rama_restraints)
       flags = coot::ALL_RESTRAINTS;
 
-   flags = coot::TYPICAL_RESTRAINTS_WITH_IMPROPERS;
-   std::cout << "#################### debug:: in set_refinement_flags() flags is " << flags << std::endl;
    return flags;
 }
 
@@ -1070,8 +1069,6 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
-   std::cout << "----------- made restraints container now convert_dictionary_planes_to_improper_dihedrals_flag is "
-             << convert_dictionary_planes_to_improper_dihedrals_flag << std::endl;
    if (convert_dictionary_planes_to_improper_dihedrals_flag) {
       last_restraints->set_convert_plane_restraints_to_improper_dihedral_restraints(true);
    }
