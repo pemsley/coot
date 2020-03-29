@@ -10,3 +10,8 @@ glm::vec4 new_unproject(float z);
 glm::vec4 new_unproject(float mouse_x, float mouse_y, float z);
 
 glm::mat4 get_molecule_mvp();
+
+void setup_key_bindings();
+
+// map the function already in the key map with name description to the given key
+void remap_key(const std::string &description, int);

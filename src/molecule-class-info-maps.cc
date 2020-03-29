@@ -833,7 +833,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // each vertex/point has a colour
 
-         colour_map_using_other_map_flag = true;
+         colour_map_using_other_map_flag = false;
 
          int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];

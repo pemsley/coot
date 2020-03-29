@@ -446,3 +446,4 @@ graphics_info_t::init() {
       preset_number_refmac_cycles->push_back(50);
 
    }
+

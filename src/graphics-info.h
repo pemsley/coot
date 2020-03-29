@@ -112,6 +112,8 @@ struct FT_character {
 
 #include "atom-pull.hh"
 
+#include "key-bindings.hh"
+
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
 #define HAVE_CURL_H
@@ -923,6 +925,7 @@ public:
    void initialize_molecules() { }
 
    void init();
+   void setup_key_bindings();
 
    static bool prefer_python;
 
@@ -4091,9 +4094,11 @@ string   static std::string sessionid;
    static std::shared_ptr<SceneSetup> mol_tri_scene_setup;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-// text
+   // text
    static std::map<GLchar, FT_character> ft_characters;
    void load_freetype_font_textures();
+
+   static std::map<int, key_bindings_t> key_bindings_map;
 };
 
 

@@ -711,10 +711,12 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    unsigned int index_offset = 0;
    graphics_info_t::screen_framebuffer.init(w,h, index_offset, "screen/occlusion");
-   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
+                                          << err << std::endl;
    index_offset = 1;
    graphics_info_t::blur_framebuffer.init(w,h, index_offset, "blur");
-   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
+                                          << err << std::endl;
 
    setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
 
@@ -731,7 +733,6 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur C shader-framebuffer err " << err << std::endl;
    graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
-
 
 
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
@@ -758,6 +759,8 @@ on_glarea_realize(GtkGLArea *glarea) {
 #endif
 
    err = glGetError(); if (true) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
+
+   setup_key_bindings();
 }
 
 gboolean
@@ -1093,10 +1096,73 @@ void move_backwards() {
    translate_in_screen_z(-1.0);
 }
 
+
+
+void
+setup_key_bindings() {
+
+   auto l1 = []() { adjust_clipping(0.3); };
+   auto l2 = []() { adjust_clipping(-0.3); };
+   auto l3 = []() { move_forwards(); };
+   auto l4 = []() { move_backwards(); };
+   auto l5 = []() { blob_under_pointer_to_screen_centre(); };
+
+   auto l6 = []() {
+                if (graphics_info_t::idle_function_spin_rock_token != -1) {
+                   std::cout << "Removing the idle function\n";
+                   g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
+                   graphics_info_t::idle_function_spin_rock_token = -1;
+                } else {
+                   int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
+                   graphics_info_t::idle_function_spin_rock_token = toi;
+                }
+             };
+
+   auto l7 = []() {
+                int imol_scroll = graphics_info_t::scroll_wheel_map;
+                if (graphics_info_t::is_valid_map_molecule(imol_scroll))
+                   graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+                int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glarea);
+                graphics_info_t g;
+                g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
+                graphics_info_t::display_density_level_this_image = 1;
+             };
+
+   auto l8 = []() {
+                int imol_scroll = graphics_info_t::scroll_wheel_map;
+                if (graphics_info_t::is_valid_map_molecule(imol_scroll))
+                   graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+                int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glarea);
+                graphics_info_t g;
+                g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
+                graphics_info_t::display_density_level_this_image = 1;
+             };
+
+   auto l9 = []() {
+                update_go_to_atom_from_current_position();
+             };
+
+   std::vector<std::pair<int, key_bindings_t> > kb_vec;
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_i,      key_bindings_t(l6, "spin")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_plus,   key_bindings_t(l7, "increase contour level")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_minus,  key_bindings_t(l8, "decrease contour level")));
+   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
+
+   graphics_info_t g;
+   std::vector<std::pair<int, key_bindings_t> >::const_iterator it;
+   for (it=kb_vec.begin(); it!=kb_vec.end(); it++)
+     g.key_bindings_map[it->first] = it->second;
+}
+
+
+
 gboolean
 on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
-   std::cout << "on_glarea_key_press_notify() " << std::endl;
    graphics_info_t g;
    gboolean handled = false;
 
@@ -1108,56 +1174,69 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       std::cout << "Zoom out " << std::endl;
       graphics_info_t::zoom *= 1.1;
    }
+   
+   // move this function into graphics_info_t?
+   std::map<int, key_bindings_t>::const_iterator it = g.key_bindings_map.find(event->keyval);
 
+   if (it != g.key_bindings_map.end()) {
+     const key_bindings_t &kb = it->second;
+     std::cout << "key-binding for key " << it->first << " " << kb.description
+               << std::endl;
+     if (kb.type == key_bindings_t::BUILT_IN)
+       (kb.func)();
+   }
+
+   
+   
    // I want to be able to push out the front clipping plane (say, for making a figure or movie)
 
-   if (event->keyval == GDK_KEY_d) {
-      adjust_clipping(0.3);
-   }
+   // if (event->keyval == GDK_KEY_d) {
+   //    adjust_clipping(0.3);
+   // }
 
-   if (event->keyval == GDK_KEY_f) {
-      adjust_clipping(-0.3);
-   }
+   // if (event->keyval == GDK_KEY_f) {
+   //    adjust_clipping(-0.3);
+   // }
 
-   if (event->keyval == GDK_KEY_w) { // "forwards" in perspective view
-      move_forwards();
-   }
+   // if (event->keyval == GDK_KEY_w) { // "forwards" in perspective view
+   //    move_forwards();
+   // }
 
-   if (event->keyval == GDK_KEY_s) { // "forwards" in perspective view
-      move_backwards();
-   }
+   // if (event->keyval == GDK_KEY_s) { // "forwards" in perspective view
+   //    move_backwards();
+   // }
 
-   if (event->keyval == GDK_KEY_g) {
-      blob_under_pointer_to_screen_centre();
-   }
+   // if (event->keyval == GDK_KEY_g) {
+   //    blob_under_pointer_to_screen_centre();
+   // }
 
-   if (event->keyval == GDK_KEY_i) {
-      std::cout << "Debug idle_function_spin_rock_token " << graphics_info_t::idle_function_spin_rock_token
-                << std::endl;
-      if (graphics_info_t::idle_function_spin_rock_token != -1) {
-         std::cout << "Removing the idle function\n";
-         g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
-         graphics_info_t::idle_function_spin_rock_token = -1;
-      } else {
-         int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
-         graphics_info_t::idle_function_spin_rock_token = toi;
-      }
-   }
+   // if (event->keyval == GDK_KEY_i) {
+   //    std::cout << "Debug idle_function_spin_rock_token " << graphics_info_t::idle_function_spin_rock_token
+   //              << std::endl;
+   //    if (graphics_info_t::idle_function_spin_rock_token != -1) {
+   //       std::cout << "Removing the idle function\n";
+   //       g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
+   //       graphics_info_t::idle_function_spin_rock_token = -1;
+   //    } else {
+   //       int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
+   //       graphics_info_t::idle_function_spin_rock_token = toi;
+   //    }
+   // }
 
-   // GDK_KEY_equals should be the same as GDK_KEY_plus
-   if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal) {
-      int s = graphics_info_t::scroll_wheel_map;
-      if (graphics_info_t::is_valid_map_molecule(s)) {
-         if (event->keyval == GDK_KEY_minus)
-            graphics_info_t::molecules[s].pending_contour_level_change_count--;
-         if (event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal)
-            graphics_info_t::molecules[s].pending_contour_level_change_count++;
-         int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
-         g.set_density_level_string(s, g.molecules[s].contour_level);
-         g.display_density_level_this_image = 1;
-         handled = TRUE;
-      }
-   }
+   // // GDK_KEY_equals should be the same as GDK_KEY_plus
+   // if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal) {
+   //    int s = graphics_info_t::scroll_wheel_map;
+   //    if (graphics_info_t::is_valid_map_molecule(s)) {
+   //       if (event->keyval == GDK_KEY_minus)
+   //          graphics_info_t::molecules[s].pending_contour_level_change_count--;
+   //       if (event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal)
+   //          graphics_info_t::molecules[s].pending_contour_level_change_count++;
+   //       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+   //       g.set_density_level_string(s, g.molecules[s].contour_level);
+   //       g.display_density_level_this_image = 1;
+   //       handled = TRUE;
+   //    }
+   // }
 
    // fix the type here
    if (int(event->keyval) == graphics_info_t::update_go_to_atom_from_current_residue_key) {

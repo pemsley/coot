@@ -2261,7 +2261,7 @@ short int progressive_residues_in_chain_check(const char *chain_id, int imol) {
       std::cout << "no such molecule number in progressive_residues_in_chain_check\n";
       return 0;
    }
-} 
+}
 
 
 
@@ -2270,17 +2270,17 @@ short int progressive_residues_in_chain_check(const char *chain_id, int imol) {
 int chain_n_residues(const char *chain_id, int imol) {
 
    graphics_info_t g;
-   if (is_valid_model_molecule(imol)) {
-      return g.molecules[imol].chain_n_residues(chain_id);
-   } else { 
-      return -1;
-   }
    std::string cmd = "chain-n-residues";
    std::vector<coot::command_arg_t> args;
    args.push_back(coot::util::single_quote(chain_id));
    args.push_back(imol);
    add_to_history_typed(cmd, args);
    
+   if (is_valid_model_molecule(imol)) {
+      return g.molecules[imol].chain_n_residues(chain_id);
+   } else {
+      return -1;
+   }
 }
 
 // Return "" on failure.
