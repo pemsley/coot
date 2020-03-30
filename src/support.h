@@ -70,6 +70,8 @@ void        add_pixmap_directory       (const gchar     *directory);
 /* This is used to create the pixmaps in the interface. */
 GtkWidget*  create_pixmap              (GtkWidget       *widget,
                                         const gchar     *filename);
+GtkWidget*  create_pixmap_gtk3_version (GtkWidget       *widget,
+                                        const gchar     *filename);
 
 
 #if (GTK_MAJOR_VERSION > 1)

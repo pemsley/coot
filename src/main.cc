@@ -236,17 +236,19 @@ main (int argc, char *argv[]) {
    setup_splash_screen();
 
    GtkWidget *splash = NULL;
-
    if (graphics_info_t::use_graphics_interface_flag) {
-
       if (cld.use_splash_screen) {
 	 std::string f = cld.alternate_splash_screen_file_name;
-	 if (f == "") {
+	 if (f.empty()) {
 	    splash = create_splash_screen_window();
 	 } else {
 	    splash = create_splash_screen_window_for_file(f.c_str());
 	 }
-	 gtk_widget_show(splash);
+         if (splash) {
+            gtk_widget_show(splash);
+         } else{
+            std::cout << "ERROR:: in main() splash is null " << std::endl;
+         }
       }
 
       while(gtk_main_iteration() == FALSE);

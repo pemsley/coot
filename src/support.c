@@ -97,6 +97,31 @@ add_pixmap_directory                   (const gchar     *directory)
                                         g_strdup (directory));
 }
 
+
+GtkWidget *
+create_pixmap_gtk3_version(GtkWidget *widget, const gchar *filename) {
+
+  GtkWidget *image = 0;
+  GList *elem;
+  gchar *found_filename = NULL;
+
+  if (check_file_exists("./", filename)) {
+    image = gtk_image_new_from_file (filename);
+  } else {
+     elem = pixmaps_directories;
+     while (elem) {
+       found_filename = check_file_exists ((gchar*)elem->data, filename);
+       if (found_filename)
+         break;
+       elem = elem->next;
+     }
+     if (found_filename)
+       image = gtk_image_new_from_file (found_filename);
+  }
+
+  return image;
+}
+
 /* This is an internally used function to create pixmaps. */
 GtkWidget*
 create_pixmap                          (GtkWidget       *widget,
