@@ -20,6 +20,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -337,35 +338,35 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
           double interface_stab_en = -9999.9;
 
           PyObject *tmp;
-          tmp = PyFloat_FromString(interface_area_py, NULL);
+          tmp = PyFloat_FromString(interface_area_py);
           if (tmp)
               interface_area = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_area_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_area_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 	 
-          tmp = PyFloat_FromString(interface_solv_en_py, NULL);
+          tmp = PyFloat_FromString(interface_solv_en_py);
           if (tmp)
               interface_solv_en = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_solv_en_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_solv_en_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 	 
-          tmp = PyFloat_FromString(interface_pvalue_py, NULL);
+          tmp = PyFloat_FromString(interface_pvalue_py);
           if (tmp)
               interface_pvalue = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_pvalue_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_pvalue_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 
-          tmp = PyFloat_FromString(interface_stab_en_py, NULL);
+          tmp = PyFloat_FromString(interface_stab_en_py);
           if (tmp)
               interface_stab_en = PyFloat_AsDouble(tmp);
           else
-              std::cout << "Not a number: " << PyString_AsString(display_python(interface_stab_en_py))
+            std::cout << "Not a number: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(interface_stab_en_py)))
                         << std::endl;
           Py_XDECREF(tmp);
 
@@ -392,8 +393,8 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
               PyObject *mol_1_chain_id_py = PyDict_GetItemString(molecule_1_dictionary_py, "chain_id");
               PyObject *mol_2_chain_id_py = PyDict_GetItemString(molecule_2_dictionary_py, "chain_id");
 	    
-              imol_1 = PyInt_AsLong(molecule_number_1_py);
-              imol_2 = PyInt_AsLong(molecule_number_2_py);
+              imol_1 = PyLong_AsLong(molecule_number_1_py);
+              imol_2 = PyLong_AsLong(molecule_number_2_py);
             
               PyObject *bonds_info_py = PyList_GetItem(interface_py, 1);
               if (PyList_Check(bonds_info_py)) {
@@ -406,16 +407,16 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
 
               try { 
 
-                  std::string chain_id_1 = PyString_AsString(mol_1_chain_id_py);
-                  std::string chain_id_2 = PyString_AsString(mol_2_chain_id_py);
+                std::string chain_id_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(mol_1_chain_id_py));
+                std::string chain_id_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(mol_2_chain_id_py));
 	    
                   std::string symop_1 = "---"; // unset
                   std::string symop_2 = "---"; // unset
 
-                  if (PyString_Check(molecule_1_symop_py))
-                      symop_1 = PyString_AsString(molecule_1_symop_py);
-                  if (PyString_AsString(molecule_2_symop_py))
-                      symop_2 = PyString_AsString(molecule_2_symop_py);
+                  if (PyUnicode_Check(molecule_1_symop_py))
+                    symop_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(molecule_1_symop_py));
+                  if (PyUnicode_Check(molecule_2_symop_py))
+                    symop_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(molecule_2_symop_py));
 
                   std::vector<coot::residue_spec_t> mol_1_residue_specs = 
                       residue_records_list_py_to_residue_specs(mol_1_residue_records, chain_id_1);
@@ -462,7 +463,7 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
    if (pisa_treeview_info.size() > 0)
        coot::pisa_interfaces_gui(pisa_treeview_info);
       
-   return PyInt_FromLong(-1);
+   return PyLong_FromLong(-1);
 }
 #endif /* USE_PYTHON */
 
@@ -527,7 +528,7 @@ coot::get_pisa_interface_bond_info_py(PyObject *bonds_info_py) {
        int bond_info_py_length = PyObject_Length(bond_info_py);
        if (bond_info_py_length == 3) {
            PyObject *bond_type_py = PyList_GetItem(bond_info_py, 0);
-           std::string bond_str = PyString_AsString(bond_type_py);
+           std::string bond_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bond_type_py));
            // 'h-bonds 'salt-bridges 'ss-bonds 'cov-bonds
            if (bond_str == "h-bonds") { 
                pibi.n_h_bonds++;
@@ -609,16 +610,17 @@ residue_records_list_py_to_residue_specs(PyObject *mol_1_residues, const std::st
           PyObject *ins_code_py = PyDict_GetItemString(PyList_GetItem(mol_1_residues, ires), "ins_code");
 
 	 try { 
-	    std::string seq_num_string = PyString_AsString(seq_num_py);
+           std::string seq_num_string = PyBytes_AS_STRING(PyUnicode_AsUTF8String(seq_num_py));
 	    int seq_num = coot::util::string_to_int(seq_num_string);
-	    std::string ins_code = PyString_AsString(ins_code_py);
+	    std::string ins_code = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_py));
 	    
 	    coot::residue_spec_t rs(chain_id, seq_num, ins_code);
 	    r.push_back(rs);
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING bad seq-num from pisa interfaces xml "
-		      << PyString_AsString(display_python(seq_num_py)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(seq_num_py)))
+                      << std::endl;
 	 }
       }
    }
@@ -823,22 +825,25 @@ void add_pisa_interface_bond_py(int imol_1, int imol_2, PyObject *pisa_bond_py,
 	 string bond_type = "";
 	 std::string colour = "grey";
          std::string tmp;
-	 if (strcmp(PyString_AsString(bond_type_py), "h-bonds") == 0) { 
+
+         // surely this can't be the way to compare python strings?
+         
+	 if (strcmp(myPyString_AsString(bond_type_py), "h-bonds") == 0) { 
 	    bond_type = "h-bond";
 	    generic_object_number = h_bonds_generic_objects_number;
 	    colour = "orange";
 	 }
-	 if (strcmp(PyString_AsString(bond_type_py), "salt-bridges") == 0) {
+	 if (strcmp(myPyString_AsString(bond_type_py), "salt-bridges") == 0) {
 	    bond_type = "salt-bridge";
 	    generic_object_number = salt_bridges_generic_objects_number;
 	    colour = "green";
 	 }
-	 if (strcmp(PyString_AsString(bond_type_py), "cov-bonds") == 0) {
+	 if (strcmp(myPyString_AsString(bond_type_py), "cov-bonds") == 0) {
 	    bond_type = "cov-bond";
 	    generic_object_number = cov_bonds_generic_objects_number;
 	    colour = "red";
 	 }
-	 if (strcmp(PyString_AsString(bond_type_py), "ss-bonds") == 0) {
+	 if (strcmp(myPyString_AsString(bond_type_py), "ss-bonds") == 0) {
 	    bond_type = "ss-bond";
 	    generic_object_number = ss_bonds_generic_objects_number;
 	    colour = "yellow";

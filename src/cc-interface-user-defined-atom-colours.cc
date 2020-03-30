@@ -43,9 +43,9 @@ void set_user_defined_atom_colour_by_residue_py(int imol, PyObject *residue_spec
 		  if (l2 == 2) {
 		     PyObject *spec_py = PyTuple_GetItem(tuple_py, 0);
 		     PyObject *idx_py  = PyTuple_GetItem(tuple_py, 1);
-		     if (PyInt_Check(idx_py)) {
+		     if (PyLong_Check(idx_py)) {
 			coot::residue_spec_t spec = residue_spec_from_py(spec_py);
-			long ci = PyInt_AsLong(idx_py);
+			long ci = PyLong_AsLong(idx_py);
 			std::pair<coot::residue_spec_t, int> p(spec, ci);
 			cis.push_back(p);
 		     }
@@ -72,9 +72,9 @@ void set_user_defined_atom_colour_py(int imol, PyObject *atom_specs_colour_index
 		  if (l2 == 2) {
 		     PyObject *spec_py = PyTuple_GetItem(tuple_py, 0);
 		     PyObject *idx_py  = PyTuple_GetItem(tuple_py, 1);
-		     if (PyInt_Check(idx_py)) {
+		     if (PyLong_Check(idx_py)) {
 			coot::atom_spec_t spec = atom_spec_from_python_expression(spec_py);
-			long ci = PyInt_AsLong(idx_py);
+			long ci = PyLong_AsLong(idx_py);
 			std::pair<coot::atom_spec_t, int> p(spec, ci);
 			cis.push_back(p);
 		     }

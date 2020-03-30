@@ -4,6 +4,8 @@
 #include <iostream>
 
 #include <Python.h>
+#include "python-3-interface.hh"
+
 #include "structmember.h"
 
 typedef struct {
@@ -20,7 +22,7 @@ PathologyData_dealloc(PathologyData* self)
 {
     Py_XDECREF(self->invresolsq_max);
     Py_XDECREF(self->fp_list);
-    self->ob_type->tp_free((PyObject*) self);
+    // self->ob_type->tp_free((PyObject*) self); FIXME Python3 - how did that ever compile?
 }
 
 
@@ -113,13 +115,13 @@ PathologyData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self = (PathologyData *)type->tp_alloc(type, 0);
     if (self != NULL) {
-       self->invresolsq_max = PyString_FromString("");
+       self->invresolsq_max = myPyString_FromString("");
        if (self->invresolsq_max == NULL) {
 	     Py_DECREF(self);
 	     return NULL;
        }
         
-       self->fp_list = PyString_FromString("");
+       self->fp_list = myPyString_FromString("");
        if (self->fp_list == NULL) {
 	     Py_DECREF(self);
 	     return NULL;
@@ -158,6 +160,8 @@ PathologyData_init(PathologyData *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
+#if 0
+// FIXME Python3 no idea how to fix this at the moment.
 
 static PyTypeObject pathology_data_PathologyDataType = {
     PyObject_HEAD_INIT(NULL)
@@ -206,13 +210,18 @@ static PyMethodDef pathology_data_methods[] = {
 };
 
 
+#endif // don't compile
+
+
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
 init_pathology_data() {
-   
+
+#if 0  
+
     pathology_data_PathologyDataType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&pathology_data_PathologyDataType) < 0)
         return;
@@ -222,6 +231,9 @@ init_pathology_data() {
 
     Py_INCREF(&pathology_data_PathologyDataType);
     PyModule_AddObject(m, "PathologyData", (PyObject *)&pathology_data_PathologyDataType);
+
+#endif
+
 }
 
 #endif // USE_PYTHON

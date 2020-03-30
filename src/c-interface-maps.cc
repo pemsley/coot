@@ -1218,13 +1218,18 @@ PyObject *get_map_colour_py(int imol) {
 
   PyObject *r = Py_False;
   if (is_valid_map_molecule(imol)) {
-    std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
-    if (colour_v.size() > 2) {
-      r = PyList_New(colour_v.size());
-      for (unsigned int i=0; i<colour_v.size(); i++) {
-        PyList_SetItem(r, i, PyFloat_FromDouble(colour_v[i]));
-      }
-    }
+    std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
+    r = PyList_New(2);
+    PyObject *col_1 = PyList_New(3);
+    PyObject *col_2 = PyList_New(3);
+    PyList_SetItem(col_1, 0, PyFloat_FromDouble(colours.first.red));
+    PyList_SetItem(col_1, 1, PyFloat_FromDouble(colours.first.green));
+    PyList_SetItem(col_1, 2, PyFloat_FromDouble(colours.first.blue));
+    PyList_SetItem(col_2, 0, PyFloat_FromDouble(colours.second.red));
+    PyList_SetItem(col_2, 1, PyFloat_FromDouble(colours.second.green));
+    PyList_SetItem(col_2, 2, PyFloat_FromDouble(colours.second.blue));
+    PyList_SetItem(r, 0, col_1);
+    PyList_SetItem(r, 1, col_2);
   }
   if (PyBool_Check(r)) {
     Py_XINCREF(r);
@@ -1732,9 +1737,9 @@ int average_map_py(PyObject *map_number_and_scales) {
       if (ns == 2) {
 	 PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
 	 PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
-	 if (PyInt_Check(map_number_py)) {
-	   if (PyFloat_Check(map_scale_py) || PyInt_Check(map_scale_py)) {
-	       int map_number = PyInt_AsLong(map_number_py);
+	 if (PyLong_Check(map_number_py)) {
+	   if (PyFloat_Check(map_scale_py) || PyLong_Check(map_scale_py)) {
+	       int map_number = PyLong_AsLong(map_number_py);
 	       if (is_valid_map_molecule(map_number)) {
 		  float scale = PyFloat_AsDouble(map_scale_py);
 		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
@@ -1744,11 +1749,11 @@ int average_map_py(PyObject *map_number_and_scales) {
 		  std::cout << "Invalid map number " << map_number << std::endl;
 	       }
 	    } else {
-	     std::cout << "Bad scale " << PyString_AsString(display_python(map_scale_py))   // FIXME
+	     std::cout << "Bad scale " << PyUnicode_AsUTF8String(display_python(map_scale_py))   // FIXME
 	     		 << std::endl;
 	    }
 	 } else {
-	   std::cout << "Bad map number " << PyString_AsString(display_python(map_number_py))  // FIXME
+	   std::cout << "Bad map number " << PyUnicode_AsUTF8String(display_python(map_number_py))  // FIXME
 	         << std::endl;
 	 }
       }
@@ -1830,8 +1835,8 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
       int n = PyObject_Length(map_molecule_number_list);
       for (int i=0; i<n; i++) {
     PyObject *mol_number_py = PyList_GetItem(map_molecule_number_list, i);
-    if (PyInt_Check(mol_number_py)) {
-       int map_number = PyInt_AsLong(mol_number_py);
+    if (PyLong_Check(mol_number_py)) {
+       int map_number = PyLong_AsLong(mol_number_py);
        if (is_valid_map_molecule(map_number)) {
           v.push_back(map_number);
        }
@@ -2460,7 +2465,7 @@ PyObject *amplitude_vs_resolution_py(int imol_map) {
       for (std::size_t i=0; i<data.size(); i++) {
     PyObject *o = PyList_New(3);
     PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_average_fsqrd()));
-    PyList_SetItem(o, 1, PyInt_FromLong(data[i].count));
+    PyList_SetItem(o, 1, PyLong_FromLong(data[i].count));
     PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_invresolsq()));
       }
    }

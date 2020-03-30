@@ -1,6 +1,7 @@
 
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -29,19 +30,19 @@ coot::scripting_function(const std::string &function_name,
       if (o) {
 	 if (PyBool_Check(o)) {
 	    r.type = coot::command_arg_t::BOOL;
-	    r.b = PyInt_AsLong(o);
+	    r.b = PyLong_AsLong(o);
 	 }
 	 if (PyFloat_Check(o)) {
 	    r.type = coot::command_arg_t::FLOAT;
 	    r.f = PyFloat_AsDouble(o);
 	 }
-	 if (PyInt_Check(o)) {
+	 if (PyLong_Check(o)) {
 	    r.type = coot::command_arg_t::INT;
-	    r.i = PyInt_AsLong(o);
+	    r.i = PyLong_AsLong(o);
 	 }
-	 if (PyString_Check(o)) {
+	 if (PyUnicode_Check(o)) {
 	    r.type = coot::command_arg_t::STRING;
-	    r.s = PyString_AsString(o);
+	    r.s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
 	 }
       }
 #endif
@@ -125,7 +126,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	       s = spec.format();
 	    }
 
-	    PyObject *atom_index_py = PyInt_FromLong(atom_index);
+	    PyObject *atom_index_py = PyLong_FromLong(atom_index);
 	    PyTuple_SetItem(coords_py, 0, PyFloat_FromDouble(pt.x()));
 	    PyTuple_SetItem(coords_py, 1, PyFloat_FromDouble(pt.y()));
 	    PyTuple_SetItem(coords_py, 2, PyFloat_FromDouble(pt.z()));
@@ -137,10 +138,10 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	 }
 	 PyTuple_SetItem(all_atom_positions_py, icol, atom_set_py);
       }
-      PyTuple_SetItem(r, 0, PyString_FromString("atom-positions"));
+      PyTuple_SetItem(r, 0, myPyString_FromString("atom-positions"));
       PyTuple_SetItem(r, 1, all_atom_positions_py);
    } else {
-      PyTuple_SetItem(r, 0, PyString_FromString("atom-positions"));
+      PyTuple_SetItem(r, 0, myPyString_FromString("atom-positions"));
       PyTuple_SetItem(r, 1, PyList_New(0));
    }
 
@@ -162,9 +163,9 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	    PyObject *p0_py   = PyTuple_New(3);
 	    PyObject *p1_py   = PyTuple_New(3);
 	    PyObject *positions_and_order_py = PyTuple_New(5);
-	    PyObject *order_py = PyInt_FromLong(cc);
-	    PyObject *atom_index_1_py = PyInt_FromLong(iat_1);
-	    PyObject *atom_index_2_py = PyInt_FromLong(iat_2);
+	    PyObject *order_py = PyLong_FromLong(cc);
+	    PyObject *atom_index_1_py = PyLong_FromLong(iat_1);
+	    PyObject *atom_index_2_py = PyLong_FromLong(iat_2);
 	    PyTuple_SetItem(p0_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_x()));
 	    PyTuple_SetItem(p0_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_y()));
 	    PyTuple_SetItem(p0_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_z()));
@@ -181,7 +182,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
       }
       PyTuple_SetItem(bonds_tuple, icol, line_set_py);
    }
-   PyTuple_SetItem(r, 2, PyString_FromString("bonds"));
+   PyTuple_SetItem(r, 2, myPyString_FromString("bonds"));
    PyTuple_SetItem(r, 3, bonds_tuple);
 
    int n_rama_spots = bonds_box.n_ramachandran_goodness_spots;
@@ -203,7 +204,7 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
 	 PyList_SetItem(rama_info_py, i, p_py);
       }
    }
-   PyTuple_SetItem(r, 4, PyString_FromString("rama-goodness"));
+   PyTuple_SetItem(r, 4, myPyString_FromString("rama-goodness"));
    PyTuple_SetItem(r, 5, rama_info_py);
 
    PyObject *cis_peptides_py = PyList_New(bonds_box.n_cis_peptide_markups);
@@ -213,16 +214,16 @@ graphics_info_t::pyobject_from_graphical_bonds_container(int imol,
       PyObject *is_pre_pro_cis_peptide_py = PyBool_FromLong(m.is_pre_pro_cis_peptide);
       PyObject *is_twisted_py             = PyBool_FromLong(m.is_twisted);
       PyObject *atom_index_list_py = PyList_New(4);
-      PyList_SetItem(atom_index_list_py, 0, PyInt_FromLong(m.atom_index_quad.index1));
-      PyList_SetItem(atom_index_list_py, 1, PyInt_FromLong(m.atom_index_quad.index2));
-      PyList_SetItem(atom_index_list_py, 2, PyInt_FromLong(m.atom_index_quad.index3));
-      PyList_SetItem(atom_index_list_py, 3, PyInt_FromLong(m.atom_index_quad.index4));
+      PyList_SetItem(atom_index_list_py, 0, PyLong_FromLong(m.atom_index_quad.index1));
+      PyList_SetItem(atom_index_list_py, 1, PyLong_FromLong(m.atom_index_quad.index2));
+      PyList_SetItem(atom_index_list_py, 2, PyLong_FromLong(m.atom_index_quad.index3));
+      PyList_SetItem(atom_index_list_py, 3, PyLong_FromLong(m.atom_index_quad.index4));
       PyList_SetItem(cis_pep_py, 0, is_pre_pro_cis_peptide_py);
       PyList_SetItem(cis_pep_py, 1, is_twisted_py);
       PyList_SetItem(cis_pep_py, 2, atom_index_list_py);
       PyList_SetItem(cis_peptides_py, i, cis_pep_py);
    }
-   PyTuple_SetItem(r, 6, PyString_FromString("cis-peptides"));
+   PyTuple_SetItem(r, 6, myPyString_FromString("cis-peptides"));
    PyTuple_SetItem(r, 7, cis_peptides_py);
 
    return r;
@@ -305,8 +306,8 @@ PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restrai
 
    PyObject *fixed_atom_flags_py = PyList_New(restraint.fixed_atom_flags.size());
    for (std::size_t i=0; i<restraint.fixed_atom_flags.size(); i++)
-      PyList_SetItem(fixed_atom_flags_py, i,   PyInt_FromLong(restraint.fixed_atom_flags[i]));
-   PyDict_SetItemString(r, "restraint_type",   PyString_FromString(restraint.type().c_str()));
+      PyList_SetItem(fixed_atom_flags_py, i,   PyLong_FromLong(restraint.fixed_atom_flags[i]));
+   PyDict_SetItemString(r, "restraint_type",   myPyString_FromString(restraint.type().c_str()));
    PyDict_SetItemString(r, "target_value",     PyFloat_FromDouble(restraint.target_value));
    PyDict_SetItemString(r, "sigma",            PyFloat_FromDouble(restraint.sigma));
    PyDict_SetItemString(r, "fixed_atom_flags", fixed_atom_flags_py);
@@ -341,7 +342,7 @@ PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distor
       r = PyDict_New();
       PyObject *atom_indices_py = PyList_New(gd.atom_indices.size());
       for (std::size_t i=0; i<gd.atom_indices.size(); i++)
-	 PyList_SetItem(atom_indices_py, i, PyInt_FromLong(gd.atom_indices[i]));
+	 PyList_SetItem(atom_indices_py, i, PyLong_FromLong(gd.atom_indices[i]));
       PyDict_SetItemString(r, "distortion_score", PyFloat_FromDouble(gd.distortion_score));
       PyDict_SetItemString(r, "restraint",        restraint_to_py(gd.restraint));
       PyDict_SetItemString(r, "residue_spec",     residue_spec_to_py(gd.residue_spec));

@@ -614,18 +614,18 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
    std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
    if (!specs.size()) {
       std::cout << "WARNING:: Ooops - no specs in " 
-		<< PyString_AsString(display_python(residue_specs_py))
+		<< PyUnicode_AsUTF8String(display_python(residue_specs_py))
 		<< std::endl;
    } else {
       std::pair<std::pair<int, int>, std::vector<int> > p = 
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       PyObject *mol_list_py = PyList_New(p.second.size());
       for (unsigned int i=0; i< p.second.size(); i++)
-        PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
+        PyList_SetItem(mol_list_py, i, PyLong_FromLong(p.second[i]));
       r = PyList_New(2);
       PyObject *loop_molecules = PyList_New(2);
-      PyList_SetItem(loop_molecules, 0, PyInt_FromLong(p.first.first));
-      PyList_SetItem(loop_molecules, 1, PyInt_FromLong(p.first.second));
+      PyList_SetItem(loop_molecules, 0, PyLong_FromLong(p.first.first));
+      PyList_SetItem(loop_molecules, 1, PyLong_FromLong(p.first.second));
 
       PyList_SetItem(r, 0, loop_molecules);
       PyList_SetItem(r, 1, mol_list_py);
@@ -797,11 +797,11 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
    coot::atom_spec_t s2 = atom_spec_from_python_expression(spec_2);
    if (s1.string_user_data != "OK")
      std::cout << "WARNING:: problem with atom spec "
-               << PyString_AsString(display_python(spec_1)) << std::endl;
+               << PyUnicode_AsUTF8String(display_python(spec_1)) << std::endl;
    else 
      if (s2.string_user_data != "OK")
        std::cout << "WARNING:: problem with atom spec "
-                 << PyString_AsString(display_python(spec_2)) << std::endl;
+                 << PyUnicode_AsUTF8String(display_python(spec_2)) << std::endl;
      else 
        make_link(imol, s1, s2, link_name, length);
 }

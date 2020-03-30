@@ -162,7 +162,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -py3 -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -239,25 +239,26 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-if COOT_USE_PYTHON
-if MAKE_ENHANCED_LIGAND_TOOLS
-coot_embedded_la_SOURCES = coot-embedded.cc
-coot_extended_la_SOURCES = coot-extended.cc
+_coot_embedded_la_SOURCES = coot-embedded.cc
+_coot_extended_la_SOURCES = coot-extended.cc
 # use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
-coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-coot_embedded_la_LIBADD = \
+_coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+_coot_embedded_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
                        $(PYTHON_LIBS)
-coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-coot_extended_la_LIBADD = \
+_coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+_coot_extended_la_LIBADD = \
                        $(top_builddir)/pli/libcoot-pli.la   \
                        $(top_builddir)/geometry/libcoot-geometry.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
 
-pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
-endif
-endif
+pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la
+
+_coot_la_SOURCES = coot.cc coot_wrap_python.cc
+_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+
+pyexec_LTLIBRARIES += _coot.la
 
 
 if OS_WIN32
@@ -579,7 +580,6 @@ coot_bin_SOURCES = \
         json.hpp
 
 if COOT_USE_PYTHON
-   coot_bin_SOURCES += coot_wrap_python.cc
    EXTRA_DIST += coot_wrap_python_pre.cc
 endif
 if COOT_USE_PYTHON

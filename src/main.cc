@@ -175,6 +175,12 @@ main (int argc, char *argv[]) {
    command_line_data cld = parse_command_line(argc, argv);
    cld.handle_immediate_settings();
 
+
+#ifdef USE_PYTHON
+   setup_python(argc, argv);
+   // setup_python_classes();
+#endif
+
 #ifdef WITH_SOUND
    test_sound(argc, argv);
 #endif // WITH_SOUND
@@ -203,7 +209,7 @@ main (int argc, char *argv[]) {
 
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      load_gtk_resources();
+      // load_gtk_resources();
       gtk_init (&argc, &argv);
       // activate to force icons in menus; cannot get it to work with
       // cootrc. Bug?
@@ -419,11 +425,6 @@ main (int argc, char *argv[]) {
 
    // remove Curlew from the File menu with old compiler?
    remove_file_curlew_menu_item_maybe();
-
-   setup_python(argc, argv);
-#ifdef USE_PYTHON
-   setup_python_classes();
-#endif
 
 #ifdef USE_GUILE
 

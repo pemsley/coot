@@ -4845,8 +4845,6 @@ void set_flev_idle_ligand_interactions(int state);
 /* Toggle for animated ligand interaction display above */
 void toggle_flev_idle_ligand_interactions();
 
-void add_molecular_representation_test();
-
 
 /* \} */
 
@@ -7127,8 +7125,14 @@ void wii_status();
 #endif
 
 void full_screen(int mode);
+
+/*
+temporarily remove this - linking problems?
 void set_use_perspective_projection(int state);
 
+void add_molecular_representation_test();
+
+*/
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

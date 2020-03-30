@@ -153,7 +153,7 @@ coot::get_ligand_interactions(const std::string &file_name,
    boost::python::object o(boost::python::handle<>(Py_False));
    float h_bond_dist_max = 3.6;
    float residues_near_radius = 5.0; // pass this
-   std::string ligand_spec_py_str = PyString_AsString(PyObject_Str(ligand_spec_py));
+   std::string ligand_spec_py_str = PyUnicode_AsUTF8String(PyObject_Str(ligand_spec_py));
 
    if (! PyList_Check(ligand_spec_py)) {
       // tell me what it was
@@ -166,12 +166,12 @@ coot::get_ligand_interactions(const std::string &file_name,
 	 PyObject  *chain_id_py = PyList_GetItem(ligand_spec_py, 0);
 	 PyObject     *resno_py = PyList_GetItem(ligand_spec_py, 1);
 	 PyObject  *ins_code_py = PyList_GetItem(ligand_spec_py, 2);
-	 if (! PyInt_Check(resno_py)) {
+	 if (! PyLong_Check(resno_py)) {
 	    std::cout << "WARNING:: resno in spec is not Int in " << ligand_spec_py_str << std::endl;
 	 } else {
-	    int res_no = PyInt_AsLong(resno_py);
-	    std::string chain_id = PyString_AsString(chain_id_py);
-	    std::string ins_code  = PyString_AsString(ins_code_py);
+	    int res_no = PyLong_AsLong(resno_py);
+	    std::string chain_id = PyUnicode_AsUTF8String(chain_id_py);
+	    std::string ins_code  = PyUnicode_AsUTF8String(ins_code_py);
 	    residue_spec_t rs(chain_id, res_no, ins_code);
 	    mmdb::Manager *mol = new mmdb::Manager;
 	    mol->ReadCoorFile(file_name.c_str());
@@ -238,7 +238,7 @@ coot::get_ligand_interactions(const std::string &file_name,
 			      PyObject *is_water_py = Py_False;
 			      if (v[i].is_H_bond_to_water)
 				 is_water_py = Py_True;
-			      PyList_SetItem(item_py, 0, PyInt_FromLong(v[i].bond_type));
+			      PyList_SetItem(item_py, 0, PyLong_FromLong(v[i].bond_type));
 			      PyList_SetItem(item_py, 1, PyFloat_FromDouble(v[i].bond_length));
 			      PyList_SetItem(item_py, 2, pas_1.pyobject());
 			      PyList_SetItem(item_py, 3, pas_2.pyobject());
@@ -264,7 +264,7 @@ coot::get_ligand_interactions(const std::string &file_name,
 				 std::vector<std::string> lran = stack_instance.ligand_ring_atom_names;
 				 PyObject *atom_name_list_py = PyList_New(lran.size());
 				 for (std::size_t k=0; k<lran.size(); k++)
-				    PyList_SetItem(atom_name_list_py, k, PyString_FromString(lran[k].c_str()));
+				    PyList_SetItem(atom_name_list_py, k, myPyString_FromString(lran[k].c_str()));
 				 PyList_SetItem(pi_stack_instance_py, 0, atom_name_list_py);
 				 PyList_SetItem(pi_stack_info_py, j, pi_stack_instance_py);
 			      }
@@ -391,7 +391,7 @@ coot::contact_dots_from_coordinates_file(const std::string &file_name, bool add_
 		  PyList_SetItem(coords_py, 2, PyFloat_FromDouble(dot.pos.z()));
 		  PyList_SetItem(dot_py, 0, PyFloat_FromDouble(dot.overlap));
 		  PyList_SetItem(dot_py, 1, coords_py);
-		  PyList_SetItem(dot_py, 2, PyString_FromString(dot.col.c_str()));
+		  PyList_SetItem(dot_py, 2, myPyString_FromString(dot.col.c_str()));
 		  PyList_SetItem(dots_list_py, ii, dot_py);
 	       }
 	       PyDict_SetItemString(dots_map_py, col_key.c_str(), dots_list_py);
@@ -415,8 +415,8 @@ coot::contact_dots_from_coordinates_file(const std::string &file_name, bool add_
 	    }
 
 	    PyObject *typed_clashes_py = PyList_New(2);
-	    // PyList_SetItem(typed_clashes_py, 0, PyString_FromString(clashes.type.c_str()));
-	    PyList_SetItem(typed_clashes_py, 0, PyString_FromString("clashes"));
+	    // PyList_SetItem(typed_clashes_py, 0, myPyString_FromString(clashes.type.c_str()));
+	    PyList_SetItem(typed_clashes_py, 0, myPyString_FromString("clashes"));
 	    PyList_SetItem(typed_clashes_py, 1, clashes_py);
 	    PyList_SetItem(atom_overlaps_py, 0, dots_map_py);
 	    PyList_SetItem(atom_overlaps_py, 1, typed_clashes_py);

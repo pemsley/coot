@@ -23,6 +23,7 @@
 #ifdef USE_PYTHON
 #define PYTHONH
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -38,20 +39,37 @@
 
 #include "graphics-info.h"
 
+
+PyObject *myPyString_FromString(const char *str) {
+
+   PyObject *r = 0;
+
+   return r;
+}
+
+char *myPyString_AsString(PyObject *r) {
+
+   char *s = 0;
+
+   return s;
+
+}
+
+
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to
 // include c-interface.h which would cause (resolvable, I think, not
 // checked) problems.
 // BL says:: not sure about this, guess/hope it's ok as is!?
 // 
-// return a python string, decode to c++ using PyString_AsString
+// return a python string, decode to c++ using PyUnicode_AsUTF8String
 
 PyObject * display_python(PyObject *o) {
 
    PyObject *dest;
    const char *mess = "object: %s\n";
-   dest = PyString_FromString(mess);
-   return PyString_Format(dest, o);
+   dest = myPyString_FromString(mess);
+   return PyUnicode_Format(dest, o);
 }
 
 
@@ -69,21 +87,21 @@ make_atom_spec_py(PyObject *spec) {
       PyObject  *ins_code_py = PyList_GetItem(spec, 2);
       PyObject *atom_name_py = PyList_GetItem(spec, 3);
       PyObject  *alt_conf_py = PyList_GetItem(spec, 4);
-      if (PyString_Check(chain_id_py)  &&
-	  PyString_Check(ins_code_py)  &&
-	  PyString_Check(atom_name_py) &&
-	  PyString_Check(alt_conf_py)  &&
-	  PyInt_Check(resno_py)) { 
-	 std::string chain_id = PyString_AsString(chain_id_py);
-	 int resno = PyInt_AsLong(resno_py);
-	 std::string ins_code  = PyString_AsString(ins_code_py);
-	 std::string atom_name = PyString_AsString(atom_name_py);
-	 std::string alt_conf  = PyString_AsString(alt_conf_py);
+      if (PyUnicode_Check(chain_id_py)  &&
+	  PyUnicode_Check(ins_code_py)  &&
+	  PyUnicode_Check(atom_name_py) &&
+	  PyUnicode_Check(alt_conf_py)  &&
+	  PyLong_Check(resno_py)) {
+         std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_py));
+	 int resno = PyLong_AsLong(resno_py);
+	 std::string ins_code  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_py));
+	 std::string atom_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_name_py));
+	 std::string alt_conf  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alt_conf_py));
 	 as = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
 	 good_spec = 1;
       } else {
 	 std::cout << "WARNING:: badly formated atom spec: "
-		   << PyString_AsString(display_python(spec))
+		   << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(spec)))
 		   << std::endl;
       } 
    }
@@ -105,9 +123,9 @@ make_residue_spec_py(PyObject *spec) {
       PyObject  *chain_id_py = PyList_GetItem(spec, 0+offset);
       PyObject     *resno_py = PyList_GetItem(spec, 1+offset);
       PyObject  *ins_code_py = PyList_GetItem(spec, 2+offset);
-      std::string chain_id = PyString_AsString(chain_id_py);
-      int resno = PyInt_AsLong(resno_py);
-      std::string ins_code  = PyString_AsString(ins_code_py);
+      std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_py));
+      int resno = PyLong_AsLong(resno_py);
+      std::string ins_code  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_py));
       rs = coot::residue_spec_t(chain_id, resno, ins_code);
       good_spec = 1;
    }
@@ -118,8 +136,8 @@ make_residue_spec_py(PyObject *spec) {
 int key_sym_code_py(PyObject *po) {
 
    int r = -1;
-   if (PyString_Check(po)) { 
-      std::string s = PyString_AsString(po);
+   if (PyUnicode_Check(po)) { 
+      std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(po));
       r = coot::util::decode_keysym(s);
    }
    return r;
@@ -134,7 +152,7 @@ py_symop_strings_to_space_group(PyObject *symop_string_list) {
       int n = PyObject_Length(symop_string_list);
       std::string sgo;
       for (int i=0; i<n; i++) {
-	 std::string se = PyString_AsString(PyList_GetItem(symop_string_list, i));
+	 std::string se = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(symop_string_list, i)));
 	 sgo += se;
 	 sgo += " ; ";
       }

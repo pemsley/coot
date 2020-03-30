@@ -26,6 +26,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -1017,11 +1018,11 @@ PyObject *refmac_parameters_py(int imol) {
 	 // values have dont have to go in in reverse order.
 	for (unsigned int i=0; i<refmac_params.size(); i++) {
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
-	      PyList_Append(r, PyInt_FromLong(refmac_params[i].i));
+	      PyList_Append(r, PyLong_FromLong(refmac_params[i].i));
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
 	      PyList_Append(r, PyFloat_FromDouble(refmac_params[i].val));
 	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
-	      PyList_Append(r, PyString_FromString(refmac_params[i].s.c_str()));
+	      PyList_Append(r, myPyString_FromString(refmac_params[i].s.c_str()));
 	 }
       }
    }
@@ -1364,7 +1365,7 @@ PyObject *get_refmac_sad_atom_info_py() {
     float fp = sad_atoms[i].fp;
     float fpp = sad_atoms[i].fpp;
     float lambda = sad_atoms[i].lambda;
-    PyList_Append(ls, PyString_FromString(atom_name.c_str()));
+    PyList_Append(ls, myPyString_FromString(atom_name.c_str()));
     if (fabs(fp + 9999) <= 0.1) {
       Py_INCREF(Py_None);
       PyList_Append(ls, Py_None);

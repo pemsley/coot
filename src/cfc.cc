@@ -91,8 +91,8 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 		  PyObject *mol_idx_py  = PyList_GetItem(o, 0);
 		  PyObject *lig_spec_py = PyList_GetItem(o, 1);
 
-		  if (PyInt_Check(mol_idx_py)) {
-		     int imol = PyInt_AsLong(mol_idx_py);
+		  if (PyLong_Check(mol_idx_py)) {
+		     int imol = PyLong_AsLong(mol_idx_py);
 		     coot::residue_spec_t ligand_spec = residue_spec_from_py(lig_spec_py);
 
 		     if (graphics_info_t::is_valid_model_molecule(imol)) {
@@ -153,7 +153,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(pos_py, 0, PyFloat_FromDouble(water_positions[iw].pos.x()));
 	    PyList_SetItem(pos_py, 1, PyFloat_FromDouble(water_positions[iw].pos.y()));
 	    PyList_SetItem(pos_py, 2, PyFloat_FromDouble(water_positions[iw].pos.z()));
-	    PyList_SetItem(o, 0, PyInt_FromLong(water_positions[iw].ligand_idx));
+	    PyList_SetItem(o, 0, PyLong_FromLong(water_positions[iw].ligand_idx));
 	    PyList_SetItem(o, 1, residue_spec_to_py(water_positions[iw].residue_spec()));
 	    PyList_SetItem(o, 2, pos_py);
 	    PyList_SetItem(water_attribs_py, iw, o);
@@ -168,9 +168,9 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(pos_py, 1, PyFloat_FromDouble(chemical_features[i].pos.y()));
 	    PyList_SetItem(pos_py, 2, PyFloat_FromDouble(chemical_features[i].pos.z()));
 
-	    PyList_SetItem(o, 0, PyString_FromString(chemical_features[i].type.c_str()));
+	    PyList_SetItem(o, 0, myPyString_FromString(chemical_features[i].type.c_str()));
 	    PyList_SetItem(o, 1, pos_py);
-	    PyList_SetItem(o, 2, PyInt_FromLong(chemical_features[i].imol));
+	    PyList_SetItem(o, 2, PyLong_FromLong(chemical_features[i].imol));
 	    PyList_SetItem(o, 3, residue_spec_to_py(chemical_features[i].residue_spec));
 	    PyList_SetItem(chemical_feature_attribs_py, i, o);
 	 }
@@ -180,7 +180,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	 // ------------------------------------------------------------------------
 
 	 PyObject *residue_sidechain_attribs_py = PyList_New(1);
-	 PyObject *x_py = PyInt_FromLong(12);
+	 PyObject *x_py = PyLong_FromLong(12);
 
 	 // PyList_SetItem(residue_sidechain_attribs_py, 0, x_py);
 
@@ -281,20 +281,20 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 	    PyObject *site_idx_py          = PyTuple_GetItem(tup, 0);
 	    PyObject *imol_residue_spec_py = PyTuple_GetItem(tup, 1);
 	    
-	    if (PyInt_Check(site_idx_py) || PyLong_Check(site_idx_py)) { // Argh! PyInt_Check() passes on Mac, fails on PC.
+	    if (PyLong_Check(site_idx_py) || PyLong_Check(site_idx_py)) { // Argh! PyLong_Check() passes on Mac, fails on PC.
 	                                                                 // (it was actually a numpy int64, but keep
 	                                                                 //  this extra test now that we have it)
 	       if (PyList_Check(imol_residue_spec_py)) {
 		  int ll = PyObject_Length(imol_residue_spec_py);
 		  if (ll == 2) {
 		     int site_idx = -1;
-		     if (PyInt_Check(site_idx_py))
-			 site_idx = PyInt_AsLong(site_idx_py);
 		     if (PyLong_Check(site_idx_py))
-			 site_idx = PyInt_AsLong(site_idx_py);
+			 site_idx = PyLong_AsLong(site_idx_py);
+		     if (PyLong_Check(site_idx_py))
+			 site_idx = PyLong_AsLong(site_idx_py);
 		     PyObject *imol_py     = PyList_GetItem(imol_residue_spec_py, 0);
 		     PyObject *res_spec_py = PyList_GetItem(imol_residue_spec_py, 1);
-		     int imol = PyInt_AsLong(imol_py);
+		     int imol = PyLong_AsLong(imol_py);
 		     std::pair<bool, coot::residue_spec_t> spec =
 			make_residue_spec_py(res_spec_py);
 
@@ -319,7 +319,7 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 		  std::cout << "ERROR:: chemical_feature_clusters_accept_site_clusters_info_py (null dp)" << std::endl;
 	       } else { 
 		  std::cout << "ERROR:: chemical_feature_clusters_accept_site_clusters_info_py() site_idx_py type: "
-			    << PyString_AsString(dp2) << std::endl;
+			    << PyUnicode_AsUTF8String(dp2) << std::endl;
 	    }
 	    } 
 	 }
@@ -336,7 +336,7 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
       PyObject *li = PyList_New(it->second.size());
       for (unsigned int i=0; i<it->second.size(); i++) { 
 	 PyObject *l = PyList_New(2);
-	 PyList_SetItem(l, 0, PyInt_FromLong(it->second[i].first));
+	 PyList_SetItem(l, 0, PyLong_FromLong(it->second[i].first));
 	 PyList_SetItem(l, 1, residue_spec_to_py(it->second[i].second));
 	 PyList_SetItem(li, i, l);
       }
@@ -1015,7 +1015,7 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 			    << "cfc_extract_cluster_info() (null dp)" << std::endl;
 	       } else { 
 		  std::cout << "ERROR:: not a list for water_cluster item in "
-			    << "cfc_extract_cluster_info()" << PyString_AsString(dp)
+			    << "cfc_extract_cluster_info()" << PyUnicode_AsUTF8String(dp)
 			    << std::endl;
 	       }
 
@@ -1094,8 +1094,8 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 		  PyObject *iclust_py = PyList_GetItem(item_py, 2);
 
 		  coot::residue_spec_t water_spec = residue_spec_from_py(spec_py);
-		  int imol_water = PyInt_AsLong(imol_py);
-		  int iclust     = PyInt_AsLong(iclust_py);
+		  int imol_water = PyLong_AsLong(imol_py);
+		  int iclust     = PyLong_AsLong(iclust_py);
 
 		  clustered_feature_info_from_python cw(imol_water, water_spec, iclust);
 		  v_cw.push_back(cw);
@@ -1178,8 +1178,8 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 	 int n = PyObject_Length(facn_py);
 
 	 std::string type;
-	 if (PyString_Check(type_py))
-	    type = PyString_AsString(type_py);
+	 if (PyUnicode_Check(type_py))
+	    type = PyUnicode_AsUTF8String(type_py);
 
 	 pharmacophore_model_cluster_means[type] = extract_cluster_means(means_py);
 
@@ -1199,9 +1199,9 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 		  PyObject *cluster_number_py     = PyList_GetItem(pharm_py, 1);
 
 		  if (PyList_Check(pos_imol_spec_list_py)) {
-		     if (PyInt_Check(cluster_number_py)) {
+		     if (PyLong_Check(cluster_number_py)) {
 
-			int cluster_number = PyInt_AsLong(cluster_number_py);
+			int cluster_number = PyLong_AsLong(cluster_number_py);
 
 			int n_pos_imol_spec_list =
 			   PyObject_Length(pos_imol_spec_list_py);
@@ -1213,14 +1213,14 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 			   PyObject *spec_py = PyList_GetItem(pos_imol_spec_list_py, 2);
 
 			   if (PyList_Check(pos_py)) {
-			      if (PyInt_Check(imol_py)) {
+			      if (PyLong_Check(imol_py)) {
 				 if (PyList_Check(spec_py)) {
 
 				    PyObject *x_py = PyList_GetItem(pos_py, 0);
 				    PyObject *y_py = PyList_GetItem(pos_py, 1);
 				    PyObject *z_py = PyList_GetItem(pos_py, 2);
 
-				    int imol = PyInt_AsLong(imol_py);
+				    int imol = PyLong_AsLong(imol_py);
 
 				    coot::residue_spec_t res_spec =
 				       residue_spec_from_py(spec_py);

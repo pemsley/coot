@@ -1424,7 +1424,7 @@ void run_clear_backups_py(int retval) {
    if (r == NULL || r == Py_None) {
       // not false and not not false, function didn't run then...
       std::cout << "WARNING:: clear_backups_maybe() returns "
-		<< PyString_AsString(PyObject_Str(r))
+		<< PyUnicode_AsUTF8String(PyObject_Str(r))
 		<< std::endl;
       coot_real_exit(retval);
    } else {

@@ -26,6 +26,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -1219,7 +1220,8 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	 if (PyList_Check(attribute_expression)) { 
 	    int attr_expression_length = PyObject_Length(attribute_expression);
 	    if (attr_expression_length != 8) {
-	       char *ps = PyString_AsString(display_python(attribute_expression));
+               // char *ps = PyUnicode_AsUTF8String(display_python(attribute_expression));
+	       char *ps = 0; // FIXME Python3
 	       if (ps) {
 		  std::string ae(ps);
 		  std::cout << "Incomplete attribute expression: " << ae << std::endl;
@@ -1233,28 +1235,29 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 	       alt_conf_py        = PyList_GetItem(attribute_expression, 5);
 	       attribute_name_py  = PyList_GetItem(attribute_expression, 6);
 	       attribute_value_py = PyList_GetItem(attribute_expression, 7);
-	       int imol = PyInt_AsLong(imol_py);
+	       int imol = PyLong_AsLong(imol_py);
 	       if (is_valid_model_molecule(imol)) {
 
-		  if (! PyString_Check(chain_id_py)) {
+		  if (! PyUnicode_Check(chain_id_py)) {
 		     std::cout << "WARNING:: bad chain " << chain_id_py << std::endl;
 		  } else {
-		     std::string chain_id = PyString_AsString(chain_id_py);
-		     int resno = PyInt_AsLong(resno_py);
+                     // std::string chain_id = PyUnicode_AsUTF8String(chain_id_py);
+		     std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsEncodedString(chain_id_py, "UTF-8", "strict"));
+		     int resno = PyLong_AsLong(resno_py);
 
 		     std::string inscode        = "-*-unset-*-:";
 		     std::string atom_name      = "-*-unset-*-:";
 		     std::string alt_conf       = "-*-unset-*-:";
 		     std::string attribute_name = "-*-unset-*-:";
 
-		     if (PyString_Check(ins_code_py))
-			inscode        = PyString_AsString(ins_code_py);
-		     if (PyString_Check(atom_name_py))
-			atom_name      = PyString_AsString(atom_name_py);
-		     if (PyString_Check(alt_conf_py))
-			alt_conf       = PyString_AsString(alt_conf_py);
-		     if (PyString_Check(attribute_name_py))
-			attribute_name = PyString_AsString(attribute_name_py);
+		     if (PyUnicode_Check(ins_code_py))
+			inscode        = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_py));
+		     if (PyUnicode_Check(atom_name_py))
+			atom_name      = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_name_py));
+		     if (PyUnicode_Check(alt_conf_py))
+			alt_conf       = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alt_conf_py));
+		     if (PyUnicode_Check(attribute_name_py))
+			attribute_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(attribute_name_py));
 
 		     if ((inscode        == "-*-unset-*-:") ||
 			 (atom_name      == "-*-unset-*-:") ||
@@ -1262,15 +1265,15 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 			 (attribute_name == "-*-unset-*-:")) {
 
 			std::cout << "WARNING:: bad attribute expression: "
-				  << PyString_AsString(attribute_expression)
+				  << PyUnicode_AsUTF8String(attribute_expression)
 				  << std::endl;
 
 		     } else {
 
 			coot::atom_attribute_setting_help_t att_val;
-			if (PyString_Check(attribute_value_py)) {
+			if (PyUnicode_Check(attribute_value_py)) {
 			   // std::cout << "a string value :" << att_val.s << ":" << std::endl;
-			   att_val = coot::atom_attribute_setting_help_t(PyString_AsString(attribute_value_py));
+			   att_val = coot::atom_attribute_setting_help_t(PyBytes_AS_STRING(PyUnicode_AsUTF8String(attribute_value_py)));
 			} else {
 			   att_val = coot::atom_attribute_setting_help_t(float(PyFloat_AsDouble(attribute_value_py)));
 			   // std::cout << "a float value :" << att_val.val << ":" << std::endl;
@@ -1350,7 +1353,7 @@ PyObject *all_residues_with_serial_numbers_py(int imol) {
       for (std::size_t i=0; i<specs.size(); i++) {
 	 PyObject *spec_py = residue_spec_to_py(specs[i]);
 	 int iserial = specs[i].int_user_data;
-	 PyList_Insert(spec_py, 0, PyInt_FromLong(iserial));
+	 PyList_Insert(spec_py, 0, PyLong_FromLong(iserial));
 	 PyList_SetItem(r, i, spec_py);
       }
    }
@@ -1595,8 +1598,8 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
 	       bool soft_mode_hard_mode = false;
-	       if (PyString_Check(mode_1)) {
-		  std::string s = PyString_AsString(mode_1);
+	       if (PyUnicode_Check(mode_1)) {
+                  std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(mode_1));
 		  if (s == "soft-mode/hard-mode")
 		     soft_mode_hard_mode = true;
 	       }
@@ -2424,7 +2427,7 @@ chain_id_py(int imol, int ichain) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::Chain *chain_p = mol->GetChain(1,ichain);
       if (chain_p) 
-	 r = PyString_FromString(chain_p->GetChainID());
+	 r = myPyString_FromString(chain_p->GetChainID());
    }
    std::string cmd = "chain_id";
    std::vector<coot::command_arg_t> args;
@@ -3136,7 +3139,7 @@ void set_b_factor_residues_py(int imol, PyObject *residue_specs_b_value_tuple_li
 		  if (l2 == 2) {
 		     PyObject *spec_py = PyTuple_GetItem(tuple_py, 0);
 		     PyObject *bfac_py = PyTuple_GetItem(tuple_py, 1);
-		     if (PyFloat_Check(bfac_py) || PyInt_Check(bfac_py)) {
+		     if (PyFloat_Check(bfac_py) || PyLong_Check(bfac_py)) {
 			coot::residue_spec_t spec = residue_spec_from_py(spec_py);
 			double b = PyFloat_AsDouble(bfac_py);
 			std::pair<coot::residue_spec_t, double> p(spec, b);
@@ -3542,7 +3545,7 @@ PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *ato
       graphics_info_t g;
       if (false) // debug
 	 std::cout << "add_target_position_restraints_for_intermediate_atoms_py processing "
-		   << PyString_AsString(display_python(atom_spec_position_list)) << std::endl;
+		   << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(atom_spec_position_list))) << std::endl;
       std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > atom_spec_position_vec;
       unsigned int len = PyObject_Length(atom_spec_position_list);
       for (std::size_t i=0; i<len; i++) {
@@ -3568,7 +3571,7 @@ PyObject *add_target_position_restraints_for_intermediate_atoms_py(PyObject *ato
 	       PyObject *ds = display_python(position_py);
 	       if (ds)
 		  std::cout << "WARNING:: position is not a list "
-			    << PyString_AsString(ds) << std::endl;
+			    << PyUnicode_AsUTF8String(ds) << std::endl;
 	       else
 		  std::cout << "WARNING:: position is not a list - null from display_python() with input"
 			    << position_py << std::endl;
@@ -3698,7 +3701,7 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
    for (int i=0; i<l_length; i++) {
       le = PyList_GetItem(add_molecules, i);
 //      int ii = (int)le;
-      int ii = PyInt_AsLong(le);
+      int ii = PyLong_AsLong(le);
       vam.push_back(ii);
    } 
    
@@ -3706,14 +3709,14 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol) {
       merge_molecules_by_vector(vam, imol);
 
    r = PyList_New(v.second.size() + 1);
-   PyList_SetItem(r, 0, PyInt_FromLong(v.first));
+   PyList_SetItem(r, 0, PyLong_FromLong(v.first));
 
    // 20180529-PE return a residue spec on merging if we can, else return a
    // chain id as before.
    //
    for (unsigned int i=0; i<v.second.size(); i++) {
       if (v.second[i].is_chain) {
-	 PyObject *o = PyString_FromString(v.second[i].chain_id.c_str());
+	 PyObject *o = myPyString_FromString(v.second[i].chain_id.c_str());
 	 PyList_SetItem(r, i+1, o);
       } else {
 	 PyObject *o = residue_spec_to_py(v.second[i].spec);
@@ -3930,8 +3933,8 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
       g.update_go_to_atom_window_on_changed_mol(imol);
       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
       v = PyList_New(2);
-      PyList_SetItem(v, 0, PyInt_FromLong(r.first));
-      PyList_SetItem(v, 1, PyString_FromString(r.second.c_str()));
+      PyList_SetItem(v, 0, PyLong_FromLong(r.first));
+      PyList_SetItem(v, 1, myPyString_FromString(r.second.c_str()));
    }
    return v;
 }
@@ -4074,9 +4077,9 @@ PyObject *missing_atom_info_py(int imol) {
 	 std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
 	 std::string altconf("");
 	 PyObject *l = PyList_New(0);
-	 PyList_Append(l, PyString_FromString(chain_id.c_str()));
-	 PyList_Append(l, PyInt_FromLong(resno));
-	 PyList_Append(l, PyString_FromString(inscode.c_str()));
+	 PyList_Append(l, myPyString_FromString(chain_id.c_str()));
+	 PyList_Append(l, PyLong_FromLong(resno));
+	 PyList_Append(l, myPyString_FromString(inscode.c_str()));
 	 PyList_Append(r, l);
 	 Py_XDECREF(l);
       }
@@ -4675,12 +4678,12 @@ rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
 	       PyObject *chain_id_py    = PyList_GetItem(range_py, 0);
 	       PyObject *resno_start_py = PyList_GetItem(range_py, 1);
 	       PyObject *resno_end_py   = PyList_GetItem(range_py, 2);
-	       if (PyString_Check(chain_id_py)) {
-		 std::string chain_id = PyString_AsString(chain_id_py);
-		 if (PyInt_Check(resno_start_py)) {
-		   int resno_start = PyInt_AsLong(resno_start_py);
-		   if (PyInt_Check(resno_end_py)) {
-		     int resno_end = PyInt_AsLong(resno_end_py);
+	       if (PyUnicode_Check(chain_id_py)) {
+		 std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_py));
+		 if (PyLong_Check(resno_start_py)) {
+		   int resno_start = PyLong_AsLong(resno_start_py);
+		   if (PyLong_Check(resno_end_py)) {
+		     int resno_end = PyLong_AsLong(resno_end_py);
 		     // recall that mmdb does crazy things with
 		     // the residue selection if the second
 		     // residue is before the first residue in
@@ -5283,7 +5286,7 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
       std::pair<bool, std::string> ch =
 	 graphics_info_t::molecules[imol].chain_id_for_shelxl_residue_number(resno);
       if (ch.first)
-	 r = PyString_FromString(ch.second.c_str());
+	 r = myPyString_FromString(ch.second.c_str());
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -5629,7 +5632,7 @@ PyObject *add_alt_conf_py(int imol, const char*chain_id, int res_no, const char 
 	 g.split_residue(imol, std::string(chain_id), res_no,
 			 std::string(ins_code), std::string(alt_conf));
       if (p.first) {
-	 r = PyString_FromString(p.second.c_str());
+	 r = myPyString_FromString(p.second.c_str());
       }
    }
    if (PyBool_Check(r)) {
@@ -5937,10 +5940,10 @@ add_residue_with_atoms_py(int imol, PyObject *residue_spec_py, const std::string
                                    PyObject *pos_x_py    = PyList_GetItem(pos_list_py, 0);
                                    PyObject *pos_y_py    = PyList_GetItem(pos_list_py, 1);
                                    PyObject *pos_z_py    = PyList_GetItem(pos_list_py, 2);
-                                   std::string name     = PyString_AsString(name_py);
-                                   std::string alt_conf = PyString_AsString(alt_conf_py);
-                                   std::string ele      = PyString_AsString(ele_py);
-                                   std::string seg_id   = PyString_AsString(seg_id_py);
+                                   std::string name     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(name_py));
+                                   std::string alt_conf = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alt_conf_py));
+                                   std::string ele      = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ele_py));
+                                   std::string seg_id   = PyBytes_AS_STRING(PyUnicode_AsUTF8String(seg_id_py));
                                    float x = PyFloat_AsDouble(pos_x_py);
                                    float y = PyFloat_AsDouble(pos_y_py);
                                    float z = PyFloat_AsDouble(pos_z_py);

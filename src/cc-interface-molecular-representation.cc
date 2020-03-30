@@ -24,9 +24,9 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
    if (is_valid_model_molecule(imol)) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
       // check that these are strings
-      std::string atom_selection = PyString_AsString(atom_selection_py);
-      std::string ColorScheme    = PyString_AsString(ColorScheme_py);
-      std::string style          = PyString_AsString(style_py);
+      std::string atom_selection = PyUnicode_AsUTF8String(atom_selection_py);
+      std::string ColorScheme    = PyUnicode_AsUTF8String(ColorScheme_py);
+      std::string style          = PyUnicode_AsUTF8String(style_py);
       status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
 #endif
    }

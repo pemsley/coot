@@ -21,6 +21,7 @@
 
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -120,14 +121,14 @@ PyObject *score_rotamers_py(int imol,
    PyObject *r = PyList_New(v.size());
    for (unsigned int i=0; i<v.size(); i++) { 
       PyObject *item = PyList_New(5);
-      PyObject *name_py  = PyString_FromString(v[i].name.c_str());
+      PyObject *name_py  = myPyString_FromString(v[i].name.c_str());
       PyObject *prob_py  = PyFloat_FromDouble(v[i].rotamer_probability_score);;
       PyObject *fit_py   = PyFloat_FromDouble(v[i].density_fit_score);;
       PyObject *clash_py = PyFloat_FromDouble(v[i].clash_score);;
       PyObject *atom_list_py = PyList_New(v[i].density_score_for_atoms.size());
       for (unsigned int iat=0; iat<v[i].density_score_for_atoms.size(); iat++) {
 	 PyObject *atom_item = PyList_New(2);
-	 PyObject *p0 = PyString_FromString(v[i].density_score_for_atoms[iat].first.c_str());
+	 PyObject *p0 = myPyString_FromString(v[i].density_score_for_atoms[iat].first.c_str());
 	 PyObject *p1 = PyFloat_FromDouble(v[i].density_score_for_atoms[iat].second);
 	 PyList_SetItem(atom_item, 0, p0);
 	 PyList_SetItem(atom_item, 1, p1);
@@ -236,7 +237,7 @@ void register_interesting_positions_list_py(PyObject *pos_list) {
 	       PyObject *item_item_0 = PyList_GetItem(item, 0);
 	       PyObject *item_item_1 = PyList_GetItem(item, 1);
 
-	       if (PyString_Check(item_item_1)) {
+	       if (PyUnicode_Check(item_item_1)) {
 		  if (PyList_Check(item_item_0)) {
 
 		     unsigned int l_item_item = PyObject_Length(item_item_0);
@@ -252,7 +253,7 @@ void register_interesting_positions_list_py(PyObject *pos_list) {
 				 clipper::Coord_orth pos(PyFloat_AsDouble(x),
 							 PyFloat_AsDouble(y),
 							 PyFloat_AsDouble(z));
-				 std::string s = PyString_AsString(item_item_1);
+				 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(item_item_1));
 				 std::pair<clipper::Coord_orth, std::string> p(pos,s);
 				 v.push_back(p);
 			      }
@@ -536,16 +537,16 @@ PyObject *glyco_tree_residue_id_py(int imol, PyObject *residue_spec_py) {
       << id.res_type << std::endl;
       if (! id.res_type.empty()) {
          PyObject *parent_spec_py = residue_spec_to_py(id.parent_res_spec);
-         PyObject *prime_flag_sym = PyString_FromString("unset");
+         PyObject *prime_flag_sym = myPyString_FromString("unset");
          if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
-            prime_flag_sym = PyString_FromString("prime");
+            prime_flag_sym = myPyString_FromString("prime");
          if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
-            prime_flag_sym = PyString_FromString("non-prime");
+            prime_flag_sym = myPyString_FromString("non-prime");
 
-         PyObject *level = PyInt_FromLong(id.level);
-         PyObject *res_type = PyString_FromString(id.res_type.c_str());
-         PyObject *link_type = PyString_FromString(id.link_type.c_str());
-         PyObject *parent = PyString_FromString(id.parent_res_type.c_str());
+         PyObject *level = PyLong_FromLong(id.level);
+         PyObject *res_type = myPyString_FromString(id.res_type.c_str());
+         PyObject *link_type = myPyString_FromString(id.link_type.c_str());
+         PyObject *parent = myPyString_FromString(id.parent_res_type.c_str());
          r = PyList_New(6);
          PyList_SetItem(r, 0, level);
          PyList_SetItem(r, 1, prime_flag_sym);

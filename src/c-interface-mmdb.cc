@@ -308,7 +308,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
 		  // printf("there were %d residues\n", n_residues);
                   if (n_residues > 0) {
                      mmdb::Chain *chain_p = new mmdb::Chain;
-                     std::string chain_id = PyString_AsString(chain_id_python);
+                     std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_python));
                      chain_p->SetChainID(chain_id.c_str());
                      for (int ires=0; ires<n_residues; ires++) {
                         PyObject *python_residue = PyList_GetItem(residues_list, ires);
@@ -332,11 +332,11 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                            int n_atoms = PyObject_Length(atoms_list);
                            if (n_atoms > 0) {
                               mmdb::Residue *residue_p = new mmdb::Residue;
-                              std::string resname = PyString_AsString(python_residue_name);
-                              int resno = PyInt_AsLong(python_residue_number);
+                              std::string resname = PyBytes_AS_STRING(PyUnicode_AsUTF8String(python_residue_name));
+                              int resno = PyLong_AsLong(python_residue_number);
                               // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
                               // std::cout << "DEBUG:: Found resname: " << resname << std::endl;
-                              std::string inscode = PyString_AsString(python_residue_inscode);
+                              std::string inscode = PyBytes_AS_STRING(PyUnicode_AsUTF8String(python_residue_inscode));
                               residue_p->SetResName(resname.c_str());
                               residue_p->seqNum = resno;
                               memcpy(residue_p->insCode, inscode.c_str(), sizeof(mmdb::InsCode));
@@ -347,8 +347,8 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                     std::cout << "bad atom expression, length "
                                               << len_residue_expr << std::endl;
                                     const char *mess =  "object: %S\n";
-                                    PyObject *bad_python = PyString_FromFormat(mess, atom_expression);
-                                    std::string bad_str = PyString_AsString(bad_python);
+                                    PyObject *bad_python = PyUnicode_FromFormat(mess, atom_expression);
+                                    std::string bad_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bad_python));
                                     std::cout << bad_str << std::endl;
                                  } else {
                                     // normal case
@@ -364,9 +364,9 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
 				      if ( (len_occ_b_ele == 3) || (len_occ_b_ele == 4)) {
                                           if (len_pos_expr == 3) {
                                              PyObject *atom_name_python = PyList_GetItem(name_alt_conf_pair, 0);
-                                             std::string atom_name = PyString_AsString(atom_name_python);
+                                             std::string atom_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_name_python));
                                              PyObject *alt_conf_python = PyList_GetItem(name_alt_conf_pair, 1);
-                                             std::string alt_conf = PyString_AsString(alt_conf_python);
+                                             std::string alt_conf = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alt_conf_python));
                                              PyObject *occ_python = PyList_GetItem(occ_b_ele, 0);
                                              PyObject *b_python = PyList_GetItem(occ_b_ele, 1);
                                              PyObject *ele_python = PyList_GetItem(occ_b_ele, 2);
@@ -374,14 +374,14 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
 					     bool have_segid = 0;
 					     if (len_occ_b_ele == 4) {
                                                PyObject *segid_python = PyList_GetItem(occ_b_ele, 3);
-                                               if (PyString_Check(segid_python)) { 
+                                               if (PyUnicode_Check(segid_python)) { 
 						 have_segid = 1;
-						 segid = PyString_AsString(segid_python);
+						 segid = PyBytes_AS_STRING(PyUnicode_AsUTF8String(segid_python));
                                                } 
 					     }
 					     
                                              float occ = PyFloat_AsDouble(occ_python);
-                                             std::string ele = PyString_AsString(ele_python);
+                                             std::string ele = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ele_python));
                                              float x = PyFloat_AsDouble(PyList_GetItem(pos_expr, 0));
                                              float y = PyFloat_AsDouble(PyList_GetItem(pos_expr, 1));
                                              float z = PyFloat_AsDouble(PyList_GetItem(pos_expr, 2));
@@ -390,7 +390,8 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                              bool have_aniso = 0;
                                              float b=0, b_u11=0, b_u22=0, b_u33=0, b_u12=0, b_u13=0, b_u23=0;
                                              PyObject *b_iso_python, *b_u11_python, *b_u22_python, *b_u33_python, *b_u12_python, *b_u13_python, *b_u23_python;
-                                             if (PyObject_TypeCheck(b_python, &PyFloat_Type) || PyObject_TypeCheck(b_python, &PyLong_Type) || PyObject_TypeCheck(b_python, &PyInt_Type)) {
+                                             // if (PyObject_TypeCheck(b_python, &PyFloat_Type) || PyObject_TypeCheck(b_python, &PyLong_Type) || PyObject_TypeCheck(b_python, &PyInt_Type)) {
+                                             if (true) { // FIXME Python3
                                                 //if the atom has an isotropic B-factor only
                                                 b = PyFloat_AsDouble(b_python);
                                              } else if (PyObject_TypeCheck(b_python, &PyList_Type) && PyObject_Length(b_python) == 7) {
@@ -417,7 +418,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                                 std::cout << "bad b-factor"
                                                        << std::endl;
                                                 PyObject *bad_python = display_python(b_python);
-                                                std::string bad_str = PyString_AsString(bad_python);
+                                                std::string bad_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bad_python));
                                                 std::cout << bad_str << std::endl;
                                              }
                                              
@@ -444,21 +445,21 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                              std::cout << "bad atom (position expression) "
                                                        << std::endl;
                                              PyObject *bad_python = display_python(pos_expr);
-                                             std::string bad_str = PyString_AsString(bad_python);
+                                             std::string bad_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bad_python));
                                              std::cout << bad_str << std::endl;
                                           }
                                        } else {
                                           std::cout << "bad atom (occ b element expression) "
                                                     << std::endl;
                                           PyObject *bad_python = display_python(occ_b_ele);
-                                          std::string bad_str = PyString_AsString(bad_python);
+                                          std::string bad_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bad_python));
                                           std::cout << bad_str << std::endl;
                                        }
                                     } else {
                                        std::cout << "bad atom (name alt-conf expression) "
                                                  << std::endl;
                                        PyObject *bad_python = display_python(name_alt_conf_pair);
-                                       std::string bad_str = PyString_AsString(bad_python);
+                                       std::string bad_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(bad_python));
                                        std::cout << bad_str << std::endl;
                                     }
                                  }

@@ -49,6 +49,11 @@
  * GLM conversion: Paul Emsley
  */
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
+#endif
+
 #include "graphics-info.h"
 
 float

@@ -29,6 +29,7 @@
 #ifndef PYTHONH
 #define PYTHONH
 #include <Python.h>
+#include "python-3-interface.hh"
 #endif
 #endif
 
@@ -219,7 +220,7 @@ SCM coot_sys_build_type_scm() {
 PyObject *coot_sys_build_type_py() {
 
    std::string sb = COOT_SYS_BUILD_TYPE;
-   PyObject *r = PyString_FromString(sb.c_str());
+   PyObject *r = myPyString_FromString(sb.c_str());
    return r;
 }
 #endif // USE_PYTHON
@@ -350,7 +351,7 @@ PyObject *molecule_name_stub_py(int imol, int include_path_flag) {
    std::string r;
    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].name_sans_extension(include_path_flag);
-   return PyString_FromString(r.c_str());
+   return myPyString_FromString(r.c_str());
 }
 #endif
 
@@ -2384,9 +2385,9 @@ PyObject *map_colour_components_py(int imol) {
    PyObject *r;
    r = Py_False;
    if (is_valid_map_molecule(imol)) {
-      double rc = graphics_info_t::molecules[imol].map_colour[0][0];
-      double gc = graphics_info_t::molecules[imol].map_colour[0][1];
-      double bc = graphics_info_t::molecules[imol].map_colour[0][2];
+      double rc = graphics_info_t::molecules[imol].map_colour.red;
+      double gc = graphics_info_t::molecules[imol].map_colour.green;
+      double bc = graphics_info_t::molecules[imol].map_colour.blue;
       r = PyList_New(3);
       // put red at the front of the resulting list
       PyList_SetItem(r, 0, PyFloat_FromDouble(rc));
@@ -3203,14 +3204,14 @@ PyObject *additional_representation_info_py(int imol) {
 	 int type = rep.atom_sel_info.type;
 	 if (type == coot::atom_selection_info_t::BY_STRING)
 	    atom_spec_py
-	       = PyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
+	       = myPyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
 	 else
 	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
 	       atom_spec_py = PyList_New(4);
-	       PyObject *chain_id_py    = PyString_FromString(rep.atom_sel_info.chain_id.c_str());
-	       PyObject *resno_start_py = PyInt_FromLong(rep.atom_sel_info.resno_start);
-	       PyObject *resno_end_py   = PyInt_FromLong(rep.atom_sel_info.resno_end);
-	       PyObject *ins_code_py    = PyString_FromString(rep.atom_sel_info.ins_code.c_str());
+	       PyObject *chain_id_py    = myPyString_FromString(rep.atom_sel_info.chain_id.c_str());
+	       PyObject *resno_start_py = PyLong_FromLong(rep.atom_sel_info.resno_start);
+	       PyObject *resno_end_py   = PyLong_FromLong(rep.atom_sel_info.resno_end);
+	       PyObject *ins_code_py    = myPyString_FromString(rep.atom_sel_info.ins_code.c_str());
 	       PyList_SetItem(atom_spec_py, 0, chain_id_py);
 	       PyList_SetItem(atom_spec_py, 1, resno_start_py);
 	       PyList_SetItem(atom_spec_py, 2, resno_end_py);
@@ -3220,8 +3221,8 @@ PyObject *additional_representation_info_py(int imol) {
 	 Py_XDECREF(atom_spec_py);
 
      Py_XINCREF(is_show_flag_py);
-	 PyList_SetItem(l, 0, PyInt_FromLong(ir));
-	 PyList_SetItem(l, 1, PyString_FromString(s.c_str()));
+	 PyList_SetItem(l, 0, PyLong_FromLong(ir));
+	 PyList_SetItem(l, 1, myPyString_FromString(s.c_str()));
 	 PyList_SetItem(l, 2, is_show_flag_py);
 	 PyList_SetItem(l, 3, bond_width_py);
 	 PyList_Append(r, l);
@@ -5483,8 +5484,8 @@ void display_maps_py(PyObject *pyo) {
       int n = PyObject_Length(pyo);
       for (int i=0; i<n; i++) {
 	 PyObject *item_py = PyList_GetItem(pyo, i);
-	 if (PyInt_Check(item_py)) {
-	    int imol = PyInt_AsLong(item_py);
+	 if (PyLong_Check(item_py)) {
+	    int imol = PyLong_AsLong(item_py);
 	    if (is_valid_map_molecule(imol)) {
 	       map_on[imol] = true;
 	    }
@@ -5762,7 +5763,7 @@ PyObject *space_group_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
       std::string s =  graphics_info_t::molecules[imol].show_spacegroup();
-      r = PyString_FromString(s.c_str());
+      r = myPyString_FromString(s.c_str());
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -5817,7 +5818,7 @@ PyObject *symmetry_operators_py(int imol) {
 	    graphics_info_t::molecules[imol].get_symop_strings();
 	 o = PyList_New(sv.size());
 	 for (unsigned int i=0; i<sv.size(); i++) {
-	    PyList_SetItem(o, i, PyString_FromString(sv[i].c_str()));
+	    PyList_SetItem(o, i, myPyString_FromString(sv[i].c_str()));
 	 }
       } else {
 	 std::cout << "WARNING:: in symmetry_operators_py() null space group " << std::endl;
@@ -5848,7 +5849,7 @@ symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
    PyObject *o = Py_False;
    clipper::Spacegroup sg = py_symop_strings_to_space_group(symmetry_operators);
    if (! sg.is_null())
-      o = PyString_FromString(sg.symbol_hm().c_str());
+      o = myPyString_FromString(sg.symbol_hm().c_str());
    if PyBool_Check(o) {
      Py_INCREF(o);
    }
@@ -6090,12 +6091,12 @@ PyObject *py_clean_internal(PyObject *o) {
    } else {
       if (PyBool_Check(o)) {
 	 // apparently doesnt seem to need resetting
-	 int i = PyInt_AsLong(o);
+	 int i = PyLong_AsLong(o);
 	 ret = o;
       } else {
-	 if (PyInt_Check(o)) {
+	 if (PyLong_Check(o)) {
 	    // apparently doesnt seem to need resetting
-	    int i=PyInt_AsLong(o);
+	    int i=PyLong_AsLong(o);
 	    ret = o;
 	 } else {
 	    if (PyFloat_Check(o)) {
@@ -6103,7 +6104,7 @@ PyObject *py_clean_internal(PyObject *o) {
 	       double f = PyFloat_AsDouble(o);
 	       ret = PyFloat_FromDouble(f);
 	    } else {
-	       if (PyString_Check(o)) {
+	       if (PyUnicode_Check(o)) {
 		  ret = o;
 	       } else {
 		  if (PyFunction_Check(o)) {
@@ -6114,7 +6115,8 @@ PyObject *py_clean_internal(PyObject *o) {
 			ret = o;
 		     } else {
 			std::cout <<"WARNING:: py_clean_internal: incomprehensible argument passed  "
-				  << PyString_AsString(PyObject_Str(o)) <<std::endl;
+				  << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyObject_Str(o)))
+                                  <<std::endl;
 		     }
 		  }
 	       }
@@ -6155,7 +6157,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
       // Build the name object
       const char *modulename = "__main__";
-      pName = PyString_FromString(modulename);
+      pName = myPyString_FromString(modulename);
       pModule = PyImport_Import(pName);
       pModule = PyImport_AddModule("__main__");
       globals = PyModule_GetDict(pModule);
@@ -6346,9 +6348,9 @@ PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
 // 	     << res.insertion_code  << std::endl;
    Py_XINCREF(Py_True);
    PyList_SetItem(r, 0, Py_True);
-   PyList_SetItem(r, 1, PyString_FromString(res.chain_id.c_str()));
-   PyList_SetItem(r, 2, PyInt_FromLong(res.res_no));
-   PyList_SetItem(r, 3, PyString_FromString(res.ins_code.c_str()));
+   PyList_SetItem(r, 1, myPyString_FromString(res.chain_id.c_str()));
+   PyList_SetItem(r, 2, PyLong_FromLong(res.res_no));
+   PyList_SetItem(r, 3, myPyString_FromString(res.ins_code.c_str()));
 
    return r;
 }
@@ -6398,9 +6400,9 @@ PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
       PyList_SetItem(r, 1, res_no_py);
       PyList_SetItem(r, 2, ins_code_py);
    } else {
-      PyList_SetItem(r, 0, PyString_FromString(res_spec_default.chain_id.c_str()));
-      PyList_SetItem(r, 1, PyInt_FromLong(res_spec_default.res_no));
-      PyList_SetItem(r, 2, PyString_FromString(res_spec_default.ins_code.c_str()));
+      PyList_SetItem(r, 0, myPyString_FromString(res_spec_default.chain_id.c_str()));
+      PyList_SetItem(r, 1, PyLong_FromLong(res_spec_default.res_no));
+      PyList_SetItem(r, 2, myPyString_FromString(res_spec_default.ins_code.c_str()));
    }
    return r;
 }
@@ -6992,11 +6994,22 @@ run_python_script(const char *filename_in) {
 #ifdef USE_PYTHON
 
    std::string s = coot::util::intelligent_debackslash(filename_in);
+#if 0 // as it was for Python2  
    std::string simple = "execfile(";
    simple += single_quote(s);
    simple += ")";
    std::cout << "Running python script " << s  << std::endl;
    PyRun_SimpleString(simple.c_str());
+#endif
+
+   if (coot::file_exists(filename_in)) {
+      FILE *fp = fopen(filename_in, "r");
+      PyRun_SimpleFile(fp, filename_in);
+      fclose(fp);
+   } else {
+      std::cout << "WARNING:: in run_python_script() file " << filename_in
+                << " does not exist" << std::endl;
+   }
 
 #endif // USE_PYTHON
 }
@@ -8540,7 +8553,7 @@ PyObject *view_name_py(int view_number) {
    if (view_number < n_view)
       if (view_number >= 0) {
          std::string name = graphics_info_t::views[view_number].view_name;
-         r = PyString_FromString(name.c_str());
+         r = myPyString_FromString(name.c_str());
       }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -8573,7 +8586,7 @@ PyObject *view_description_py(int view_number) {
       if (view_number < int(graphics_info_t::views.size())) {
          std::string d = graphics_info_t::views[view_number].description;
          if (d != "") {
-            r = PyString_FromString(d.c_str());
+            r = myPyString_FromString(d.c_str());
          }
       }
    if (PyBool_Check(r)) {
@@ -8820,7 +8833,7 @@ void go_to_view_py(PyObject *view) {
             double zoom_target = PyFloat_AsDouble(target_zoom_python);
 
             PyObject *name_target_python = PyList_GetItem(view, 3);
-            std::string name_target = PyString_AsString(name_target_python);
+            std::string name_target = PyBytes_AS_STRING(PyUnicode_AsUTF8String(name_target_python));
 
             coot::view_info_t view_target(quat_target, rc_target, zoom_target, name_target);
 

@@ -26,6 +26,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -454,7 +455,7 @@ PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const c
 	 coot::richardson_rotamer d(res, alt_conf, graphics_info_t::molecules[imol].atom_sel.mol,
 				    0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
-	 r = PyString_FromString(prob.rotamer_name.c_str());
+	 r = myPyString_FromString(prob.rotamer_name.c_str());
 #endif      
       }
    }

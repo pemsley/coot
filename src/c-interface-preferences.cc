@@ -24,6 +24,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -1001,7 +1002,7 @@ SCM save_state_file_name_scm() {
 #ifdef USE_PYTHON
 PyObject *save_state_file_name_py() {
    std::string f = graphics_info_t::save_state_file_name;
-   return PyString_FromString(f.c_str());
+   return myPyString_FromString(f.c_str());
 }
 #endif // USE_PYTHON
 
@@ -1309,7 +1310,7 @@ SCM movie_file_name_prefix() {
 #ifdef USE_PYTHON
 PyObject * movie_file_name_prefix_py() {
    PyObject *r;
-   r = PyString_FromString(graphics_info_t::movie_file_prefix.c_str());
+   r = myPyString_FromString(graphics_info_t::movie_file_prefix.c_str());
    return r;
 }
 #endif // PYTHON

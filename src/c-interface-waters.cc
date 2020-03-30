@@ -23,6 +23,7 @@
  
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -245,7 +246,7 @@ PyObject *select_atom_under_pointer_py() {
       if (pi.success) {
 	 mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
 	 r = PyList_New(2);
-	 PyObject *r0 = PyInt_FromLong(pi.imol);
+	 PyObject *r0 = PyLong_FromLong(pi.imol);
 	 PyObject *r1 = atom_spec_to_py(coot::atom_spec_t(at));
 	 normal_cursor();
       }
@@ -295,7 +296,7 @@ PyObject *water_chain_from_shelx_ins_py(int imol) {
       mmdb::Chain *water_chain =
 	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
       if (water_chain) {
-	 r = PyString_FromString(water_chain->GetChainID());
+	 r = myPyString_FromString(water_chain->GetChainID());
       } 
    }
    if (PyBool_Check(r)) {
@@ -309,7 +310,7 @@ PyObject *water_chain_py(int imol) {
    if (is_valid_model_molecule(imol)) {
       mmdb::Chain *water_chain = graphics_info_t::molecules[imol].water_chain();
       if (water_chain) {
-	 r = PyString_FromString(water_chain->GetChainID());
+	 r = myPyString_FromString(water_chain->GetChainID());
       } 
    }
    if (PyBool_Check(r)) {
@@ -527,7 +528,7 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
      PyObject *metal_results = PyList_New(metals.size());
      for (unsigned int i=0; i<metals.size(); i++) {
        std::string ele = coot::util::contact_atoms_info_t::ele_to_string(metals[i].second);
-       PyObject *metal_str_py = PyString_FromString(ele.c_str());
+       PyObject *metal_str_py = myPyString_FromString(ele.c_str());
        PyObject *metal_results_ele = PyList_New(2);
        PyObject *spec = atom_spec_to_py(coot::atom_spec_t(metals[i].first.central_atom()));
        PyList_SetItem(metal_results_ele, 0, spec);

@@ -24,6 +24,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -1588,7 +1589,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    check_pms += pms;
    check_pms += ")";
    v = safe_python_command_with_return(check_pms);
-   ret = PyInt_AsLong(v);
+   ret = PyLong_AsLong(v);
    if (ret == 1) {
      std::string ss = pms;
      ss += "(";
@@ -1597,13 +1598,13 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
      ss += int_to_string(mode);
      ss += ")";
      PyObject *res = safe_python_command_with_return(ss);
-     PyObject *fmt =  PyString_FromString("result: \%s");
+     PyObject *fmt =  myPyString_FromString("result: \%s");
      PyObject *tuple = PyTuple_New(1);
      PyTuple_SetItem(tuple, 0, res);
      //PyString_Format(p, tuple);
-     PyObject *msg = PyString_Format(fmt, tuple);
+     PyObject *msg = PyUnicode_Format(fmt, tuple);
 
-     std::cout << PyString_AsString(msg)<<std::endl;;
+     std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
      Py_DECREF(msg);
    }
    Py_XDECREF(v);
@@ -1660,17 +1661,17 @@ graphics_info_t::run_post_set_rotation_centre_hook_py() {
       check_ps += ps;
       check_ps += ")";
       v = safe_python_command_with_return(check_ps);
-      ret = PyInt_AsLong(v);
+      ret = PyLong_AsLong(v);
       if (ret == 1) {
         std::string ss = ps;
         ss += "()";
         PyObject *res = safe_python_command_with_return(ss);
-        PyObject *fmt =  PyString_FromString("result: \%s");
+        PyObject *fmt =  myPyString_FromString("result: \%s");
         PyObject *tuple = PyTuple_New(1);
         PyTuple_SetItem(tuple, 0, res);
-        PyObject *msg = PyString_Format(fmt, tuple);
+        PyObject *msg = PyUnicode_Format(fmt, tuple);
 
-        std::cout << PyString_AsString(msg)<<std::endl;;
+        std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
         Py_DECREF(msg);
       }
       Py_XDECREF(v);
@@ -6113,13 +6114,13 @@ void graphics_info_t::run_user_defined_click_func() {
     for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
        PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
        // we need to add the model number too
-       PyObject *model_number_py = PyInt_FromLong(user_defined_atom_pick_specs[i].model_number);
+       PyObject *model_number_py = PyLong_FromLong(user_defined_atom_pick_specs[i].model_number);
        PyList_Insert(spec_py, 0, model_number_py);
 
        // continue output from above
-       PyObject *fmt = PyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
-       PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
-       std::cout <<PyString_AsString(msg) << " ";
+       PyObject *fmt = myPyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
+       PyObject *msg = PyUnicode_Format(fmt, PyList_AsTuple(spec_py));
+       std::cout << myPyString_AsString(msg) << " ";
        PyTuple_SetItem(arg_list_py, i, spec_py);
        Py_DECREF(fmt);
        Py_DECREF(msg);
@@ -6172,12 +6173,12 @@ graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
 
   //  PyObject *r = PyTuple_New(6);
   PyObject *r = PyList_New(6);
-  PyList_SetItem(r, 0, PyInt_FromLong(spec.int_user_data));
-  PyList_SetItem(r, 1, PyString_FromString(spec.chain_id.c_str()));
-  PyList_SetItem(r, 2, PyInt_FromLong(spec.res_no));
-  PyList_SetItem(r, 3, PyString_FromString(spec.ins_code.c_str()));
-  PyList_SetItem(r, 4, PyString_FromString(spec.atom_name.c_str()));
-  PyList_SetItem(r, 5, PyString_FromString(spec.alt_conf.c_str()));
+  PyList_SetItem(r, 0, PyLong_FromLong(spec.int_user_data));
+  PyList_SetItem(r, 1, myPyString_FromString(spec.chain_id.c_str()));
+  PyList_SetItem(r, 2, PyLong_FromLong(spec.res_no));
+  PyList_SetItem(r, 3, myPyString_FromString(spec.ins_code.c_str()));
+  PyList_SetItem(r, 4, myPyString_FromString(spec.atom_name.c_str()));
+  PyList_SetItem(r, 5, myPyString_FromString(spec.alt_conf.c_str()));
 
   return r;
 }

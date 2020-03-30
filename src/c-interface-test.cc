@@ -977,8 +977,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    }
 
    if (0) {
-     int i = PyInt_AsLong(i_py); // map molecule
-     int j = PyInt_AsLong(j_py);
+     int i = PyLong_AsLong(i_py); // map molecule
+     int j = PyLong_AsLong(j_py);
 
      // was_found, imol, atom_spec
      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();

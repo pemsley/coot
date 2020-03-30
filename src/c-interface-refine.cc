@@ -27,6 +27,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include <stdlib.h>
@@ -974,7 +975,7 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
 	    PyObject *spec_2_py = atom_spec_to_py(spec_2);
 	    PyObject *l = PyList_New(5);
-	    PyList_SetItem(l, 0, PyString_FromString("bond"));
+	    PyList_SetItem(l, 0, myPyString_FromString("bond"));
 	    PyList_SetItem(l, 1, spec_1_py);
 	    PyList_SetItem(l, 2, spec_2_py);
 	    PyList_SetItem(l, 3, PyFloat_FromDouble(d));
@@ -992,7 +993,7 @@ PyObject *list_extra_restraints_py(int imol) {
 	    double a = g.molecules[imol].extra_restraints.angle_restraints[it].angle;
 	    double e = g.molecules[imol].extra_restraints.angle_restraints[it].esd;
 	    PyObject *l = PyList_New(6);
-	    PyList_SetItem(l, 0, PyString_FromString("angle"));
+	    PyList_SetItem(l, 0, myPyString_FromString("angle"));
 	    PyList_SetItem(l, 1, spec_1_py);
 	    PyList_SetItem(l, 2, spec_2_py);
 	    PyList_SetItem(l, 3, spec_3_py);
@@ -1014,14 +1015,14 @@ PyObject *list_extra_restraints_py(int imol) {
 	    double e = g.molecules[imol].extra_restraints.torsion_restraints[it].esd;
 	    int    p = g.molecules[imol].extra_restraints.torsion_restraints[it].period;
 	    PyObject *l = PyList_New(8);
-	    PyList_SetItem(l, 0, PyString_FromString("torsion"));
+	    PyList_SetItem(l, 0, myPyString_FromString("torsion"));
 	    PyList_SetItem(l, 1, spec_1_py);
 	    PyList_SetItem(l, 2, spec_2_py);
 	    PyList_SetItem(l, 3, spec_3_py);
 	    PyList_SetItem(l, 4, spec_4_py);
 	    PyList_SetItem(l, 5, PyFloat_FromDouble(t));
 	    PyList_SetItem(l, 6, PyFloat_FromDouble(e));
-	    PyList_SetItem(l, 7, PyInt_FromLong(p));
+	    PyList_SetItem(l, 7, PyLong_FromLong(p));
 	    PyList_Append(r, l);
 	 }
 	 
@@ -1030,7 +1031,7 @@ PyObject *list_extra_restraints_py(int imol) {
 	    double esd = g.molecules[imol].extra_restraints.start_pos_restraints[is].esd;
 	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
 	    PyObject *l = PyList_New(3);
-	    PyList_SetItem(l, 0, PyString_FromString("start pos"));
+	    PyList_SetItem(l, 0, myPyString_FromString("start pos"));
 	    PyList_SetItem(l, 1, spec_1_py);
 	    PyList_SetItem(l, 2, PyFloat_FromDouble(esd));
 	    PyList_Append(r, l);
@@ -1128,9 +1129,9 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
       if (restraint_spec_length == 2) {
          PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
          PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
-         if ((strcmp(PyString_AsString(restraint_type_py), "start pos") == 0) ||
-             (strcmp(PyString_AsString(restraint_type_py), "start_pos") == 0) ||
-             (strcmp(PyString_AsString(restraint_type_py), "start-pos") == 0)) {
+         if ((strcmp(myPyString_AsString(restraint_type_py), "start pos") == 0) ||
+             (strcmp(myPyString_AsString(restraint_type_py), "start_pos") == 0) ||
+             (strcmp(myPyString_AsString(restraint_type_py), "start-pos") == 0)) {
             coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
             graphics_info_t::molecules[imol].remove_extra_start_pos_restraint(spec_1);
             //graphics_draw(); //there is currently no graphical representation for start_pos restraints
@@ -1140,7 +1141,7 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
          PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
          PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
          PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
-         if (strcmp(PyString_AsString(restraint_type_py), "bond") == 0 ) {
+         if (strcmp(myPyString_AsString(restraint_type_py), "bond") == 0 ) {
             coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
             coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
             graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
@@ -1153,7 +1154,7 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
          PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
          PyObject *spec_3_py = PyList_GetItem(restraint_spec, 3);
          
-         if (strcmp(PyString_AsString(restraint_type_py), "angle") == 0 ) {
+         if (strcmp(myPyString_AsString(restraint_type_py), "angle") == 0 ) {
             coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
             coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
             coot::atom_spec_t spec_3 = atom_spec_from_python_expression(spec_3_py);
@@ -1168,7 +1169,7 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
          PyObject *spec_3_py = PyList_GetItem(restraint_spec, 3);
          PyObject *spec_4_py = PyList_GetItem(restraint_spec, 4);
          
-         if (strcmp(PyString_AsString(restraint_type_py), "torsion") == 0 ) {
+         if (strcmp(myPyString_AsString(restraint_type_py), "torsion") == 0 ) {
             coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
             coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
             coot::atom_spec_t spec_3 = atom_spec_from_python_expression(spec_3_py);
@@ -1326,15 +1327,15 @@ void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_nam
 	       PyObject *at_3_py = PyList_GetItem(tors_info, 2);
 	       PyObject *at_4_py = PyList_GetItem(tors_info, 3);
 	       PyObject *tors_py = PyList_GetItem(tors_info, 4);
-	       if (PyString_Check(at_1_py)) {
-		  if (PyString_Check(at_2_py)) {
-		     if (PyString_Check(at_3_py)) {
-			if (PyString_Check(at_4_py)) {
+	       if (PyUnicode_Check(at_1_py)) {
+		  if (PyUnicode_Check(at_2_py)) {
+		     if (PyUnicode_Check(at_3_py)) {
+			if (PyUnicode_Check(at_4_py)) {
 			   if (PyFloat_Check(tors_py)) {
-			      std::string at_name_1 = PyString_AsString(at_1_py);
-			      std::string at_name_2 = PyString_AsString(at_2_py);
-			      std::string at_name_3 = PyString_AsString(at_3_py);
-			      std::string at_name_4 = PyString_AsString(at_4_py);
+                              std::string at_name_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(at_1_py));
+                              std::string at_name_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(at_2_py));
+                              std::string at_name_3 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(at_3_py));
+                              std::string at_name_4 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(at_4_py));
 			      double tors = PyFloat_AsDouble(tors_py);
 			      std::string id = "ring-torsion-";
 			      id += coot::util::int_to_string(tors_info_vec.size()+1);

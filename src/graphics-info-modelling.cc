@@ -23,6 +23,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -2165,15 +2166,15 @@ graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
 
    if (rr.found_restraints_flag) {
       PyObject *lights_py = Py_False;
-      PyObject *progress_py = PyInt_FromLong(rr.progress);
-      PyObject *info_py = PyString_FromString(rr.info_text.c_str());
+      PyObject *progress_py = PyLong_FromLong(rr.progress);
+      PyObject *info_py = myPyString_FromString(rr.info_text.c_str());
       if (rr.lights.size())
 	lights_py = PyList_New(rr.lights.size());
       for (unsigned int il=0; il<rr.lights.size(); il++) {
 	PyObject *light_py = PyList_New(3);
 	PyObject *value_py = PyFloat_FromDouble(rr.lights[il].value);
-	PyObject *label_py = PyString_FromString(rr.lights[il].label.c_str());
-	PyObject *name_py  = PyString_FromString(rr.lights[il].name.c_str());
+	PyObject *label_py = myPyString_FromString(rr.lights[il].label.c_str());
+	PyObject *name_py  = myPyString_FromString(rr.lights[il].name.c_str());
 
 	PyList_SetItem(light_py, 0, name_py);
 	PyList_SetItem(light_py, 1, label_py);

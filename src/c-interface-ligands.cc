@@ -21,6 +21,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -253,7 +254,7 @@ PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id
    if (rtop_info.success) {
       PyObject *match_info = PyList_New(2);
       PyList_SetItem(match_info, 0, PyFloat_FromDouble(rtop_info.dist_score));
-      PyList_SetItem(match_info, 1, PyInt_FromLong(rtop_info.n_match));
+      PyList_SetItem(match_info, 1, PyLong_FromLong(rtop_info.n_match));
       python_status = PyList_New(2);
       PyList_SetItem(python_status, 0, rtop_to_python(rtop_info.rtop));
       PyList_SetItem(python_status, 1, match_info);
@@ -309,7 +310,7 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
       PyObject *match_info;
       match_info = PyList_New(2);
       PyList_SetItem(match_info, 0, PyFloat_FromDouble(rtop_info.dist_score));
-      PyList_SetItem(match_info, 1, PyInt_FromLong(rtop_info.n_match));
+      PyList_SetItem(match_info, 1, PyLong_FromLong(rtop_info.n_match));
       python_status = PyList_New(2);
       PyList_SetItem(python_status, 0, rtop_to_python(rtop_info.rtop));
       PyList_SetItem(python_status, 1, match_info);
@@ -1667,7 +1668,7 @@ PyObject *dipole_to_py(std::pair<coot::dipole, int> dp) {
   PyList_SetItem(co_py, 0, PyFloat_FromDouble(co.x()));
   PyList_SetItem(co_py, 1, PyFloat_FromDouble(co.y()));
   PyList_SetItem(co_py, 2, PyFloat_FromDouble(co.z()));
-  PyList_SetItem(r, 0, PyInt_FromLong(dp.second));
+  PyList_SetItem(r, 0, PyLong_FromLong(dp.second));
   PyList_SetItem(r, 1, co_py);
   return r;
 }
@@ -1958,7 +1959,7 @@ PyObject *comp_id_to_name_py(const char *comp_id) {
    int imol = coot::protein_geometry::IMOL_ENC_ANY;
    std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id, imol);
    if (name.first) {
-      r = PyString_FromString(name.second.c_str());
+      r = myPyString_FromString(name.second.c_str());
    }
    if (PyBool_Check(r)) {
       Py_INCREF(r);

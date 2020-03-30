@@ -2,6 +2,7 @@
 
 #if defined (USE_PYTHON)
 #include "Python.h"
+#include "python-3-interface.hh"
 #endif
 
 #include "graphics-info.h"
@@ -33,10 +34,10 @@ PyObject *get_generic_object_py(unsigned int idx) {
       const coot::generic_display_object_t &gdo = g.generic_objects_p->at(idx);
       if (! gdo.is_closed_flag) {
 	 // also, is_transparent_flag, is_solid_flag, opacity
-	 PyDict_SetItemString(r, "name", PyString_FromString(gdo.name.c_str()));
-	 PyDict_SetItemString(r, "imol", PyInt_FromLong(gdo.imol));
-	 PyDict_SetItemString(r, "is_displayed_flag", PyInt_FromLong(gdo.is_displayed_flag));
-	 PyDict_SetItemString(r, "is_solid_flag", PyInt_FromLong(gdo.is_solid_flag));
+	 PyDict_SetItemString(r, "name", myPyString_FromString(gdo.name.c_str()));
+	 PyDict_SetItemString(r, "imol", PyLong_FromLong(gdo.imol));
+	 PyDict_SetItemString(r, "is_displayed_flag", PyLong_FromLong(gdo.is_displayed_flag));
+	 PyDict_SetItemString(r, "is_solid_flag", PyLong_FromLong(gdo.is_solid_flag));
 	 if (gdo.lines_set.size() > 0) {
 	    PyObject *lines_set_py = PyList_New(gdo.lines_set.size());
 	    for (std::size_t i=0; i<gdo.lines_set.size(); i++) {
@@ -58,8 +59,8 @@ PyObject *get_generic_object_py(unsigned int idx) {
 		  PyList_SetItem(lines_py, j, line_py);
 	       }
 	       PyDict_SetItemString(line_set_dict, "colour", colour_py);
-	       PyDict_SetItemString(line_set_dict, "colour_name", PyString_FromString(ls.colour_name.c_str()));
-	       PyDict_SetItemString(line_set_dict, "width", PyInt_FromLong(ls.width));
+	       PyDict_SetItemString(line_set_dict, "colour_name", myPyString_FromString(ls.colour_name.c_str()));
+	       PyDict_SetItemString(line_set_dict, "width", PyLong_FromLong(ls.width));
 	       PyDict_SetItemString(line_set_dict, "lines", lines_py);
 	       PyList_SetItem(lines_set_py, i, line_set_dict);
 	    }
@@ -72,7 +73,7 @@ PyObject *get_generic_object_py(unsigned int idx) {
 	       PyObject *point_set_dict = PyDict_New();
 	       PyObject *colour_py = colour_holder_to_py(ps.colour);
 	       PyObject *points_py = PyList_New(ps.points.size());
-	       PyObject *size_py   = PyInt_FromLong(ps.size); // radius
+	       PyObject *size_py   = PyLong_FromLong(ps.size); // radius
 	       for (std::size_t j=0; j<ps.points.size(); j++) {
 		  const clipper::Coord_orth &pt = ps.points[j];
 		  PyObject *pt_py = PyList_New(3);
@@ -81,7 +82,7 @@ PyObject *get_generic_object_py(unsigned int idx) {
 		  PyList_SetItem(points_py, j, pt_py);
 	       }
 	       PyDict_SetItemString(point_set_dict, "colour", colour_py);
-	       PyDict_SetItemString(point_set_dict, "colour_name", PyString_FromString(ps.colour_name.c_str()));
+	       PyDict_SetItemString(point_set_dict, "colour_name", myPyString_FromString(ps.colour_name.c_str()));
 	       PyDict_SetItemString(point_set_dict, "size", size_py);
 	       PyDict_SetItemString(point_set_dict, "points", points_py);
 	       PyList_SetItem(points_set_py, i, point_set_dict);

@@ -551,9 +551,9 @@ PyObject *origin_pre_shift_py(int imol) {
       try { 
 	 clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
 	 r = PyList_New(0);
-	 PyList_Append(r, PyInt_FromLong(int(round(cf.u()))));
-	 PyList_Append(r, PyInt_FromLong(int(round(cf.v()))));
-	 PyList_Append(r, PyInt_FromLong(int(round(cf.w()))));
+	 PyList_Append(r, PyLong_FromLong(int(round(cf.u()))));
+	 PyList_Append(r, PyLong_FromLong(int(round(cf.v()))));
+	 PyList_Append(r, PyLong_FromLong(int(round(cf.w()))));
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;

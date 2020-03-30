@@ -9,28 +9,18 @@ void start_command_line_python_maybe(char **argv) {
 
 #ifdef USE_PYTHON
    
-#if PY_MAJOR_VERSION > 2 
-   Py_Main(0, argv);
-#else
-#if PY_MINOR_VERSION > 2 
-   Py_Main(0, argv);
-#endif     // PY_MINOR_VERSION
-#endif     // PY_MAJOR_VERSION
+   // Py_Main(0, argv);
+   Py_Main(0, 0); // fixme - how do I convert to argv to wchar_t - if at all?
 
-     //  Skip initialization registration of signal handlers, useful
-     //  when Python is embedded. Version 2.4 or later. Thanks Stuart
-     //  McNicholas for letting me know about this.
-     //
-     // Question: Do we need to check that we are not using command
-     // line python no graphics before we use this?
-     // 
-#if PY_MAJOR_VERSION > 2
+   //  Skip initialization registration of signal handlers, useful
+   //  when Python is embedded. Version 2.4 or later. Thanks Stuart
+   //  McNicholas for letting me know about this.
+   //
+   // Question: Do we need to check that we are not using command
+   // line python no graphics before we use this?
+   //
    Py_InitializeEx(0);
-#endif     
-#if PY_MAJOR_VERSION == 2
-#if PY_MINOR_VERSION > 3
-   Py_InitializeEx(0);
+
 #endif
-#endif
-#endif
+
 }

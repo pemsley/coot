@@ -23,6 +23,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -622,8 +623,8 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 		  PyList_Append(l_residue_data, res_l);
 		  Py_XDECREF(res_l);
 	       }
-	       PyList_Append(r, PyString_FromString(cd.peer_chain_id.c_str()));
-	       PyList_Append(r, PyString_FromString(diffs.target_chain_id.c_str()));
+	       PyList_Append(r, myPyString_FromString(cd.peer_chain_id.c_str()));
+	       PyList_Append(r, myPyString_FromString(diffs.target_chain_id.c_str()));
 	       PyList_Append(r, l_residue_data);
 	       Py_XDECREF(l_residue_data);
 	    }
@@ -748,9 +749,9 @@ PyObject *ncs_ghosts_py(int imol) {
        if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p()) {
 	 rtop_py = rtop_to_python(ncs_ghosts[ighost].rtop);
        }
-       PyObject *target_chain_id_py = PyString_FromString(ncs_ghosts[ighost].target_chain_id.c_str());
-       PyObject *chain_id_py = PyString_FromString(ncs_ghosts[ighost].chain_id.c_str());
-       PyObject *name_py = PyString_FromString(ncs_ghosts[ighost].name.c_str());
+       PyObject *target_chain_id_py = myPyString_FromString(ncs_ghosts[ighost].target_chain_id.c_str());
+       PyObject *chain_id_py = myPyString_FromString(ncs_ghosts[ighost].chain_id.c_str());
+       PyObject *name_py = myPyString_FromString(ncs_ghosts[ighost].name.c_str());
 
        PyList_SetItem(ghost_py, 0, name_py);
        PyList_SetItem(ghost_py, 1, chain_id_py);

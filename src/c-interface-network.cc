@@ -20,6 +20,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -184,7 +185,7 @@ SCM coot_get_url_as_string(const char *url) {
 PyObject *coot_get_url_as_string_py(const char *url) {
    PyObject *r  = Py_False;
    std::string s = coot_get_url_as_string_internal(url);
-   r = PyString_FromString(s.c_str());
+   r = myPyString_FromString(s.c_str());
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
@@ -316,8 +317,8 @@ get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
    command += single_quote(drugname);
    command += ")";
    PyObject *r = safe_python_command_with_return(command);
-   if (PyString_Check(r))
-      s = PyString_AsString(r);
+   if (PyUnicode_Check(r))
+     s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(r));
    Py_XDECREF(r);
    return s;
 }
@@ -381,7 +382,7 @@ PyObject *curl_progress_info_py(const char *file_name) {
      CURLcode status = curl_easy_getinfo(c, info, &dv);
      if (status == CURLE_OK) {
        PyObject *py_v   = PyFloat_FromDouble(dv);
-       PyObject *py_sym = PyString_FromString("content-length-download");
+       PyObject *py_sym = myPyString_FromString("content-length-download");
        PyDict_SetItem(r, py_sym, py_v);
      }
 
@@ -389,7 +390,7 @@ PyObject *curl_progress_info_py(const char *file_name) {
      status = curl_easy_getinfo(c, info, &dv);
      if (status == CURLE_OK) {
        PyObject *py_v   = PyFloat_FromDouble(dv);
-       PyObject *py_sym = PyString_FromString("size-download");
+       PyObject *py_sym = myPyString_FromString("size-download");
        PyDict_SetItem(r, py_sym, py_v);
      }
    } else {

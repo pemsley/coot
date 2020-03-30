@@ -166,8 +166,10 @@ def load_from_search_load_path(file):
     print "DEBUG:: search_load_path is ", search_load_path
     f = os.path.join(search_load_path, file)
     if f:
+        import importlib
         print "load", file
-        execfile(f, globals())
+        # execfile(f, globals())
+        importlib.reload(f)
     else:
         print "Error finding", file
 
@@ -187,7 +189,11 @@ for coot_python_file in python_list:
             # if you wish to rather use modules use, e.g.
             # exec "from " + base + " import *"
             # and set PYTHONPATH to point to COOT_PYTHON_DIR
-            execfile(filename)
+
+            # execfile(filename)
+            import importlib
+            importlib.reload(filename)
+
         except:
             traceback.print_exc()
             print "ERROR:: couldn't load ", coot_python_file

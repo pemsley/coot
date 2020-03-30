@@ -99,6 +99,8 @@ PyObject *get_environment_distances_representation_py(int imol, PyObject *residu
 
 }
 
+#include "python-3-interface.hh"
+
 //! \brief return a Python object for the radii of the atoms in the dictionary
 //
 PyObject *get_dictionary_radii() {
@@ -118,9 +120,9 @@ PyObject *get_dictionary_radii() {
       for (std::size_t j=0; j<ai.size(); j++) {
 	 const std::string &atom_name = ai[j].atom_id_4c;
 	 double r = g.Geom_p()->get_vdw_radius(atom_name, residue_name, imol_enc, use_vdwH_flag);
-	 PyDict_SetItem(atoms_dict_py, PyString_FromString(atom_name.c_str()), PyFloat_FromDouble(r));
+	 PyDict_SetItem(atoms_dict_py, myPyString_FromString(atom_name.c_str()), PyFloat_FromDouble(r));
       }
-      PyDict_SetItem(residue_dict_py, PyString_FromString(residue_name.c_str()), atoms_dict_py);
+      PyDict_SetItem(residue_dict_py, myPyString_FromString(residue_name.c_str()), atoms_dict_py);
    }
    r = residue_dict_py;
    return r;
