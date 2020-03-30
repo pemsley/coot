@@ -1171,14 +1171,16 @@ store_window_position(int window_type, GtkWidget *widget) {
 // BL says:: in windows root is not properly defined as in X11, so ok to use
 // simple gdk_window_get_position function, I hope!
 #ifdef WINDOWS_MINGW
-   gdk_window_get_position (widget->window, &upositionx, &upositiony);
+   gdk_window_get_position(widget->window, &upositionx, &upositiony);
 #else
-   std::cout << "GTK-FIXME no widget window" << std::endl;
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   graphics_info_t::file_selection_dialog_x_size = allocation.width;
+   graphics_info_t::file_selection_dialog_y_size = allocation.height;
+
    gtk_window_get_position(GTK_WINDOW(widget), &upositionx, &upositiony);
 #endif // MINGW
-
-//    std::cout << "in store_window_position, widget is " << widget
-//      	     << " widget->window is " << widget->window << std::endl;
 
    if (window_type == COOT_MODEL_REFINE_DIALOG) {
       graphics_info_t::model_fit_refine_x_position = upositionx;
@@ -1211,24 +1213,23 @@ store_window_position(int window_type, GtkWidget *widget) {
    if (window_type == COOT_DISPLAY_CONTROL_WINDOW) {
       graphics_info_t::display_manager_x_position = upositionx;
       graphics_info_t::display_manager_y_position = upositiony;
-   std::cout << "GTK-FIXME no widget allocation" << std::endl;
-      // graphics_info_t::display_manager_x_size = widget->allocation.width;
-      // graphics_info_t::display_manager_y_size = widget->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      graphics_info_t::display_manager_x_size = allocation.width;
+      graphics_info_t::display_manager_y_size = allocation.height;
    }
 
    if (window_type == COOT_DISPLAY_CONTROL_MAPS_VBOX) {
-      std::cout << "GTK-FIXME no widget allocation" << std::endl;
-      // graphics_info_t::display_manager_maps_vbox_x_size =
-      // widget->allocation.width;
-      // graphics_info_t::display_manager_maps_vbox_y_size =
-      // widget->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      graphics_info_t::display_manager_maps_vbox_x_size = allocation.width;
+      graphics_info_t::display_manager_maps_vbox_y_size = allocation.height;
    }
    if (window_type == COOT_DISPLAY_CONTROL_MOLECULES_VBOX) {
-      std::cout << "GTK-FIXME no widget allocation" << std::endl;
-      // graphics_info_t::display_manager_molecules_vbox_x_size =
-      // widget->allocation.width;
-      // graphics_info_t::display_manager_molecules_vbox_y_size =
-      // widget->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      graphics_info_t::display_manager_molecules_vbox_x_size = allocation.width;
+      graphics_info_t::display_manager_molecules_vbox_y_size = allocation.height;
    }
    if (window_type == COOT_DISPLAY_CONTROL_PANE) {
       // This is a klude because this version of gtk doesn't seem to
@@ -1312,9 +1313,10 @@ void
 store_window_size(int window_type, GtkWidget *widget) {
 
    if (window_type == COOT_FILESELECTION_DIALOG) {
-      std::cout << "GTK-FIXME no widget allocation" << std::endl;
-      // graphics_info_t::file_selection_dialog_x_size = widget->allocation.width;
-      // graphics_info_t::file_selection_dialog_y_size = widget->allocation.height;
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      graphics_info_t::file_selection_dialog_x_size = allocation.width;
+      graphics_info_t::file_selection_dialog_y_size = allocation.height;
    }
 }
 
