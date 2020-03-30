@@ -223,17 +223,11 @@ main (int argc, char *argv[]) {
 
    } else {
 
-      // not needed from 2.36
-#if (GLIB_MAJOR_VERSION == 2)
-#if (GLIB_MINOR_VERSION < 36)
-      g_type_init(); // for lbg command-line mode, so that
-                     // goo_canvas_new() works cleanly.
-#endif
-#endif
 #ifdef WINDOWS_MINGW
       // in Windows we don't want a crash dialog if no-graphics
       SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
 #endif // MINGW
+
    }
 
    // popup widget is only filled with graphics at the end of startup
@@ -442,8 +436,16 @@ main (int argc, char *argv[]) {
 
    desensitive_scripting_menu_item_maybe(window1);
 
+   // Hack this in to get Python scripts to work - not sure where the correct place to put this is.
+   //
+#ifdef USE_PYTHON
+   handle_command_line_data(cld);
+#endif
+
 #if ! defined (USE_GUILE)
 #ifdef USE_PYTHON
+
+   // these scripts are stored by handle_command_line_data()
    run_command_line_scripts();
    if (graphics_info_t::use_graphics_interface_flag)
       gtk_main ();

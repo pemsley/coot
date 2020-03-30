@@ -475,6 +475,7 @@ coot_bin_SOURCES = \
 	history_list.hh		 \
         idles.hh                 \
 	interface.h              \
+	key-bindings.hh		 \
         manipulation-modes.hh    \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh 	 \
@@ -519,6 +520,7 @@ coot_bin_SOURCES = \
 	protein_db-interface.cc  \
 	python-classes.cc	 \
 	python-classes.hh	 \
+	python-3-interface.hh 	 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
