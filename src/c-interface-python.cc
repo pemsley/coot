@@ -42,16 +42,14 @@
 
 PyObject *myPyString_FromString(const char *str) {
 
-   PyObject *r = 0;
-
+   PyObject *r = PyUnicode_FromString(str);
    return r;
 }
 
 char *myPyString_AsString(PyObject *r) {
 
-   char *s = 0;
-
-   return s;
+   // maybe I should check the type before doing this coversion?
+   return PyBytes_AS_STRING(PyUnicode_AsUTF8String(r));
 
 }
 
