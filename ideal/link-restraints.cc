@@ -1226,7 +1226,8 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
                         mmdb::Model *model_p = first->GetModel();
                         if (model_p) {
                            int n_links = model_p->GetNumberOfLinks();
-                           std::cout << "-------------------------------------- n_links " << n_links << std::endl;
+                           // std::cout << "-------------------------------------- n_links "
+                           //           << n_links << std::endl;
                            if (n_links > 0) {
                               mmdb::Residue *r_1 = first;
                               mmdb::Residue *r_2 = second;
@@ -1234,7 +1235,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
                               residue_spec_t SS_residue_2_spec(r_2);
                               for (int i_link=1; i_link<=n_links; i_link++) {
                                  mmdb::PLink link = model_p->GetLink(i_link);
-                                 std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atom_specs = coot::link_atoms(link, model_p);
+                                 std::pair<atom_spec_t, atom_spec_t> link_atom_specs = link_atoms(link, model_p);
                                  residue_spec_t link_residue_spec_1(link_atom_specs.first);
                                  residue_spec_t link_residue_spec_2(link_atom_specs.second);
                                  if (link_residue_spec_1  == SS_residue_1_spec) is_linked = true;

@@ -1435,7 +1435,7 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
                gsl_vector *non_const_v = const_cast<gsl_vector *> (m_s->x); // because there we use gls_vector_set()
                void *params = static_cast<void *>(this);
                // useful - but not for everyone
-               numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
+               // numerical_gradients(non_const_v, params, m_s->gradient, "failed-gradients.tab");
             }
             restraints_lock = false;
 	    break;
@@ -3868,14 +3868,12 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-         std::cout << "debug:: in make_monomer_restraints_by_residue() Here 1 " << restraints_usage_flag
-                   << std::endl;
          if (restraints_usage_flag & IMPROPER_DIHEDRALS_MASK) {
-            std::cout << "debug:: in make_monomer_restraints_by_residue() Here 2 " << std::endl;
+            // dictionaries need to be converted for this to happen.
 	    int n = add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms, residue_p, geom);
-            std::cout << "#################################################" << std::endl;
-	    std::cout << "debug:: in make_monomer_restraints_by_residue() made "
-		      << n << " improper_dihedrals" << std::endl;
+            if (false)
+               std::cout << "debug:: in make_monomer_restraints_by_residue() made "
+                         << n << " improper_dihedrals" << std::endl;
             local.n_improper_dihedral_restr += n;
 	 }
 
@@ -6934,11 +6932,11 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 	     << convert_plane_restraints_to_improper_dihedral_restraints_flag << std::endl;
    if (! convert_plane_restraints_to_improper_dihedral_restraints_flag) {
       int n_added = add_planes_multiatom_eigen(idr, res_selection, i_no_res_atoms, SelRes, geom);
-      std::cout << "debug:: n_added (multiatom-eigen) " << n_added << std::endl;
+      // std::cout << "debug:: n_added (multiatom-eigen) " << n_added << std::endl;
       return n_added;
    } else {
       int n_added = add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms, SelRes, geom);
-      std::cout << "debug:: n_added (improper_dihedrals) " << n_added << std::endl;
+      // std::cout << "debug:: n_added (improper_dihedrals) " << n_added << std::endl;
       return n_added;
    }
 }
