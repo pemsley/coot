@@ -391,7 +391,8 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
       std::string icon_url = url_curlew_prefix + "/" + icon;
       std::string icon_fn  = coot::util::append_dir_file(download_dir,
                              coot::util::file_name_non_directory(icon));
-      coot_get_url(icon_url.c_str(), icon_fn.c_str());
+      if (!coot::file_exists(icon_fn))
+        coot_get_url(icon_url.c_str(), icon_fn.c_str());
       if (coot::file_exists(icon_fn)) {
          GError *error = NULL;
          GtkWidget *w = gtk_image_new_from_file(icon_fn.c_str());

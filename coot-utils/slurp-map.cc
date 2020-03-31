@@ -5,6 +5,8 @@
 #include "utils/coot-utils.hh"
 #include "slurp-map.hh"
 
+// Test on 5778, 10289, 6338
+
 bool
 coot::util::is_basic_em_map_file(const std::string &file_name) {
 
@@ -176,14 +178,16 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    clipper::Xmap<float> &xmap = *xmap_p;
 
    if (true) {
-      std::cout << "debug grid " << grid.format() << std::endl;
-      std::cout << "debug gr " << gr.format() << std::endl;
-      std::cout << "debug i0 " << i0.coord().format() << " gr_max " << gr_max.format() << std::endl;
+      std::cout << "debug:: slurp_map() grid " << grid.format() << std::endl;
+      std::cout << "debug:: slurp_map() gr " << gr.format() << std::endl;
+      std::cout << "debug:: slurp_map() i0 " << i0.coord().format() << " gr_max " << gr_max.format() << std::endl;
    }
 
    bool is_xyz_ordering = false;
-   if (axis_order_xyz[0] == 0 && axis_order_xyz[1] == 1 && axis_order_xyz[2] == 2)
-      is_xyz_ordering = true;
+
+   if (false)
+      if (axis_order_xyz[0] == 0 && axis_order_xyz[1] == 1 && axis_order_xyz[2] == 2)
+         is_xyz_ordering = true;
    
    if (is_xyz_ordering) {
       int offset = 0;

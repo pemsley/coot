@@ -3975,8 +3975,13 @@ string   static std::string sessionid;
    // we should not wait
    void conditionally_wait_for_refinement_to_finish();
 
- // for updating (difference) maps - we don't want to set 2 of these (or more) off
-//  at the same time.
+   static bool convert_dictionary_planes_to_improper_dihedrals_flag;
+   void set_convert_dictionary_planes_to_improper_dihedrals(bool state) {
+      convert_dictionary_planes_to_improper_dihedrals_flag = state;
+   }
+
+   // for updating (difference) maps - we don't want to set 2 of these (or more) off
+   //  at the same time.
    static std::atomic<bool> on_going_updating_map_lock;
 
    /*! \brief shiftfield B-factor refinement */

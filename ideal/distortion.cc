@@ -776,21 +776,21 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       }
 
       if (restraints->restraints_usage_flag & coot::ANGLES_MASK) { // 2: angles
-	 if (this_restraint.restraint_type == coot::ANGLE_RESTRAINT) {
-	    d = coot::distortion_score_angle(this_restraint, v);
-	    // std::cout << "dsm: angle thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
-	    local_sum += d;
-	    continue;
-	 }
+         if (this_restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+	         d = coot::distortion_score_angle(this_restraint, v);
+	         // std::cout << "dsm: angle thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
+	         local_sum += d;
+	         continue;
+	      }
       }
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
-	 if ( this_restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	    double d =  coot::distortion_score_trans_peptide(i, this_restraint, v);
-	    local_sum += d;
-	    // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
-	    continue;
-	 }
+         if ( this_restraint.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	         double d =  coot::distortion_score_trans_peptide(i, this_restraint, v);
+	         local_sum += d;
+	         // std::cout << "dsm: trans-peptide " << thread_id << " idx " << i << " " << d << std::endl;
+	         continue;
+	      }
       }
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
@@ -803,12 +803,21 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
       }
 
       if (restraints->restraints_usage_flag & coot::PLANES_MASK) { // 8: planes
-	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
-	    d =  coot::distortion_score_plane((*restraints)[i], v);
-	    local_sum += d;
-	    // std::cout << "dsm: plane " << thread_id << " idx " << i << " " << d << std::endl;
-	    continue;
-	 }
+         if ( this_restraint.restraint_type == coot::PLANE_RESTRAINT) {
+	         d =  coot::distortion_score_plane(this_restraint, v);
+	         local_sum += d;
+	         // std::cout << "dsm: plane " << thread_id << " idx " << i << " " << d << std::endl;
+	         continue;
+	      }
+      }
+
+      if (restraints->restraints_usage_flag & coot::IMPROPER_DIHEDRALS_MASK) {
+         if (this_restraint.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT) {
+            double d = coot::distortion_score_improper_dihedral(this_restraint, v);
+            // std::cout << "dsm: improper_dihedral_restraint thread_idx "
+            //           << thread_id << " idx " << i << " " << d << std::endl;
+            local_sum += d;
+         }
       }
 
       if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) { // 128
@@ -1578,6 +1587,54 @@ coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restra
       std::cout << " distortion score chiral: " << distortion << "\n";
    }
 
+
+   return distortion;
+}
+
+
+double
+coot::distortion_score_improper_dihedral(const coot::simple_restraint &id_restraint,
+				                         const gsl_vector *v) {
+
+   int idx = 3*(id_restraint.atom_index_4);
+
+   // this might be right.
+   clipper::Coord_orth centre(gsl_vector_get(v, idx),
+                              gsl_vector_get(v, idx+1),
+                              gsl_vector_get(v, idx+2));
+
+   idx = 3*(id_restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v, idx),
+                          gsl_vector_get(v, idx+1),
+                          gsl_vector_get(v, idx+2));
+   idx = 3*(id_restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v, idx),
+                          gsl_vector_get(v, idx+1),
+                          gsl_vector_get(v, idx+2));
+   idx = 3*(id_restraint.atom_index_3);
+   clipper::Coord_orth a3(gsl_vector_get(v, idx),
+                          gsl_vector_get(v, idx+1),
+                          gsl_vector_get(v, idx+2));
+
+   clipper::Coord_orth a = a1 - centre;
+   clipper::Coord_orth b = a2 - centre;
+   clipper::Coord_orth c = a3 - centre;
+
+   double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+   double distortion = cv;
+
+   distortion *= distortion;
+   double s = id_restraint.sigma;
+   distortion /= s * s; // needs checking
+
+   if (false) {
+      std::cout << "debug:: distortion_score_improper_dihedral(): atom indices: "
+		          << id_restraint.atom_index_1 << " "
+                          << id_restraint.atom_index_2 << " "
+		          << id_restraint.atom_index_3 << " "
+		          << id_restraint.atom_index_4 << " ";
+      std::cout << " distortion score improper-dihedral: " << distortion << "\n";
+   }
 
    return distortion;
 }

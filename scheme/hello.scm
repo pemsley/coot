@@ -87,6 +87,6 @@
 		    (first-non-trivial-name name-strings)))))
 	       (d-string (format #f "~a ~a. Welcome to Coot ~a" time-str personal-name (coot-version))))
 	  
-	  (format #t "~a~%" hello-str)
+	  (format #t "~a~%~!" hello-str)
 	  (set-display-intro-string d-string)))))
 

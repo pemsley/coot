@@ -2959,10 +2959,10 @@ if test -n "$build_python" ; then
    cd Python-$pver
 
    # --with-ensurepip=install
-   echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
+   echo INFO:: ./configure $generic_prefix --enable-shared --with-ensurepip=install $python_lib_flags $python_spec_flags for python
    # 
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --enable-shared $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --enable-shared --with-ensurepip=install $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -4154,7 +4154,7 @@ if [ "$architecture" = x86_64 ] ; then
    #coot_optim_args="CXXFLAGS=\"-g -O\""
 
 
-   export CXXFLAGS="-g -O"
+   export CXXFLAGS="-g -O3 -ffast-math"
    #   unset CXXFLAGS
 fi
 
