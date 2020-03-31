@@ -354,6 +354,7 @@
 		 (tlc-text "XXX")
 		 (log-file-name "pyrogen.log"))
 
+             ;; no need to do this test twice.
 	     (if (not (enhanced-ligand-coot?))
 
 		 #t ;; don't test pyrogen
