@@ -144,6 +144,7 @@ namespace coot {
 
       // return a long int between 0 and RAND_MAX
       long int random();
+      float random_f();
       std::string intelligent_debackslash(const std::string &s);
       std::string remove_trailing_slash(const std::string &s);
 
@@ -176,6 +177,8 @@ namespace coot {
    is_mmcif_filename(const std::string &filename);
 
    bool file_exists(const std::string &filename);
+
+   bool file_is_empty(const std::string &filename);
 
    bool is_directory_p(const std::string &filename);
 
