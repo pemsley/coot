@@ -4659,6 +4659,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	    if (add_it) { 
 
 	       // Don't make a bump between the CD of a PRO at residue(n) and the atoms of n-1
+               // Hmm... Is that sensible?
 	    
 	       std::string res_name_1 = at_1->GetResName();
 	       std::string res_name_2 = at_2->GetResName();
@@ -4669,25 +4670,27 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << at_1->GetAtomName() << " " << at_2->GetAtomName()
 			    << std::endl;
 
-	       if (res_name_1 == "PRO" || res_name_1 == "HYP") {
-		  int res_no_pro   = res_no_1;
-		  int res_no_other = res_no_2;
-		  if (res_no_pro == (res_no_other + 1)) {
-		     std::string atom_name = at_1->name;
-		     if (atom_name == " CD ") {  // PDBv3 FIXME
-			add_it = false;
+               if (false) {
+	          if (res_name_1 == "PRO" || res_name_1 == "HYP") {
+		     int res_no_pro   = res_no_1;
+		     int res_no_other = res_no_2;
+		     if (res_no_pro == (res_no_other + 1)) {
+		        std::string atom_name = at_1->name;
+		        if (atom_name == " CD ") {  // PDBv3 FIXME
+			   add_it = false;
+		        }
 		     }
-		  }
-	       }
-	       if (res_name_2 == "PRO" || res_name_2 == "HYP") {
-		  int res_no_pro   = res_no_2;
-		  int res_no_other = res_no_1;
-		  if (res_no_pro == (res_no_other + 1)) {
-		     std::string atom_name = at_2->name;
-		     if (atom_name == " CD ") {  // PDBv3 FIXME
-			add_it = false;
-		     } 
-		  }
+	          }
+	          if (res_name_2 == "PRO" || res_name_2 == "HYP") {
+		     int res_no_pro   = res_no_2;
+		     int res_no_other = res_no_1;
+		     if (res_no_pro == (res_no_other + 1)) {
+		        std::string atom_name = at_2->name;
+		        if (atom_name == " CD ") {  // PDBv3 FIXME
+			   add_it = false;
+		        }
+		     }
+	          }
 	       }
 
 	       // hack to remove C1-OD1 NBC on N-linked glycosylation
