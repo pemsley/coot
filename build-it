@@ -4381,7 +4381,7 @@ if [ "$run_tests" = true ] ; then
    fi
 
    # run python tests too, maybe (i.e. if we build with python)
-   if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+   if [ "$ENABLE_PYTHON_COOT" = "disablethisfornow" ] ; then 
        echo running python test... >&2
        test_coot_python > $LOGS/test-python.log 2>&1
        rp=$?
