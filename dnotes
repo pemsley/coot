@@ -3986,10 +3986,11 @@ INFO::
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
+     Use configure-it-for-release
    o git commit -a
-   o git push [maybe here? not sure]
    o git tag Release-0.x.y
    o git commit
+   o git push [maybe here? not sure]
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
         OK, disable the build-latest cron-job 
