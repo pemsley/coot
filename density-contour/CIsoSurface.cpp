@@ -580,7 +580,7 @@ CIsoSurface<T>::rangeify(const clipper::Grid_map &grid, int isample_step,
       int fg1 = gmin +  isection_start      * num_sections_per_step;
       int fg2 = gmin + (isection_start + 1) * num_sections_per_step + 1;
 
-      if (true)
+      if (false)
          std::cout << "rangeify input: start: " << isection_start
                    << " " << n_section_sets << " gmin " << gmin << " gmax " << gmax
                    << "   output " << fg1 << " " << fg2 << std::endl;
@@ -897,7 +897,7 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    base_grid.w() = rt.first;
 
    int grid_size = (rt.second-rt.first+1) * (grid.max().u() - grid.min().u() + 1) * (grid.max().v() - grid.min().v() + 1);
-   std::cout << "debug:: allocating ptScalarField grid.size() " << grid_size << std::endl;
+   // std::cout << "debug:: allocating ptScalarField grid.size() " << grid_size << std::endl;
    T* ptScalarField = new T[grid_size];
 
    //cout << "box0: " << box0.format() << endl
