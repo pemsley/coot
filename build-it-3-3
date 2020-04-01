@@ -3422,8 +3422,35 @@ if [ "$build_boost" = true ] ; then
 
       gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
       cd boost_$boost_version
+
+      # compilation falls over
+
+      # cc.compile.c++ bin.v2/libs/python/build/gcc-9/release/address-model-/python-3.6/threading-multi/visibility-hidden/long.o
+      # In file included from ./boost/python/detail/prefix.hpp:13,
+      #           from ./boost/python/long.hpp:8,
+      #           from libs/python/src/long.cpp:5:
+      # ./boost/python/detail/wrap_python.hpp:57:11: fatal error: pyconfig.h: No such file or directory
+      #    57 | # include <pyconfig.h>
+      #       |           ^~~~~~~~~~~~
+      # compilation terminated.
+
+      # But pyconfig.h is here:
+      # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
+
+      address_model=64
+      export PYTHON_PATH=$install_top_dir/bin/python
       # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
-      ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,thread,serialization --without-icu
+      ./bootstrap.sh --prefix=$install_top_dir --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization --without-icu
+
+      # now edit the project-config.jam file using python line
+
+      cp project-config.jam project-config.jam-orig
+      awk -v itd=$install_top_dir '
+         /using python : 3.6/ { print "   ",$1,$2,$3,$4,$5,"python3 :", itd "/include/python3.6m :", itd "/lib/libpython3.6m.so ;" }
+         $0 !~ "using python : 3.6 "
+      ' project-config.jam-orig > project-config.jam
+      # that was flipping hard work.
+
       # bjam no longer exists
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
       cd - 
@@ -3431,6 +3458,7 @@ if [ "$build_boost" = true ] ; then
    ) > $HOSTLOGDIR/16-boost.log
 fi
 
+echo done boost 444444444444444444444444444444444444444444444444444444444444444444444444
 
 
 #################################################################
