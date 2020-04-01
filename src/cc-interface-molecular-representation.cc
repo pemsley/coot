@@ -24,9 +24,9 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
    if (is_valid_model_molecule(imol)) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
       // check that these are strings
-      std::string atom_selection = PyUnicode_AsUTF8String(atom_selection_py);
-      std::string ColorScheme    = PyUnicode_AsUTF8String(ColorScheme_py);
-      std::string style          = PyUnicode_AsUTF8String(style_py);
+      std::string atom_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_selection_py));
+      std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
+      std::string style          = PyBytes_AS_STRING(PyUnicode_AsUTF8String(style_py));
       status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
 #endif
    }
@@ -65,7 +65,7 @@ void remove_molecular_representation(int imol, int rep_no) {
 
 #include "cc-interface.hh"
 
-void add_molecular_representation_test() {
+extern "C" void add_molecular_representation_test() {
    int status = -1;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
    if (active_atom.first) {
