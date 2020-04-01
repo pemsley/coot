@@ -515,9 +515,6 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
 
-   std::cout << "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  update_map_triangles()"
-             << std::endl;
-
    // cut glass mode means
    // do_solid_surface_for_density
    // do_flat_shading_for_solid_density_surface is true
@@ -606,8 +603,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             dynamically_transform(v);
          set_diff_map_draw_vecs(v.data, v.size);
       }
-
-      std::cout << "update_map_triangles() calls setup_glsl_map_rendering()\n";
 
       setup_glsl_map_rendering(); // turn tri_con into buffers.
 
@@ -723,8 +718,9 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 void
 molecule_class_info_t::setup_glsl_map_rendering() {
 
-
    // This is called from update_map_triangles().
+
+   bool debug = false;
 
    if (true) { // real map
 
@@ -762,7 +758,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // transfer the points
          float *points = new float[3 * sum_tri_con_points];
-         std::cout << "debug:: sum_tri_con_points: " << sum_tri_con_points << std::endl;
+         // std::cout << "debug:: sum_tri_con_points: " << sum_tri_con_points << std::endl;
 
          int idx_points = 0;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
@@ -784,7 +780,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          n_indices_for_triangles    = 3 * sum_tri_con_triangles;
          n_indices_for_lines        = 6 * sum_tri_con_triangles;
 
-         std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_map_VertexArray << std::endl;
+         // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_map_VertexArray << std::endl;
 
          int *indices_for_lines = new int[n_indices_for_lines];
          int idx_for_indices = 0;
@@ -884,91 +880,93 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          glGenVertexArrays(1, &m_VertexArrayID_for_map);
          GLenum err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
-         << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
+         if (debug)
+            std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
+                      << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
          glBindVertexArray(m_VertexArrayID_for_map);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
-         << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
+         if (debug)
+            std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
+                      << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
 
          // positions
          glGenBuffers(1, &m_VertexBufferID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
          glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
          int n_bytes_for_tri_con_points = sizeof(float) * 3 * sum_tri_con_points;
-         std::cout << "debug:: n_bytes_for_tri_con_points " << n_bytes_for_tri_con_points << std::endl;
+         // std::cout << "debug:: n_bytes_for_tri_con_points " << n_bytes_for_tri_con_points << std::endl;
          glBufferData(GL_ARRAY_BUFFER, n_bytes_for_tri_con_points, &points[0], GL_STATIC_DRAW);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBufferData() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBufferData() err " << err << std::endl;
          glEnableVertexAttribArray(0);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err " << err << std::endl;
          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
          // normals
          glGenBuffers(1, &m_NormalBufferID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
          glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
          glBufferData(GL_ARRAY_BUFFER, n_normals * 3 * sizeof(float), &normals[0], GL_STATIC_DRAW);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBufferData() for normals err " << err << std::endl;
          glEnableVertexAttribArray(1);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err normals " << err << std::endl;
          glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
 
          // colours
          glGenBuffers(1, &m_ColourBufferID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
          glBindBuffer(GL_ARRAY_BUFFER, m_ColourBufferID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
          glBufferData(GL_ARRAY_BUFFER, n_colours * 4 * sizeof(float), &colours[0], GL_STATIC_DRAW);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBufferData() for colours err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBufferData() for colours err " << err << std::endl;
          glEnableVertexAttribArray(2);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err colours " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glEnableVertexAttribArray() err colours " << err << std::endl;
          glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, 0);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
 
          glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
          // Note to self: is n_vertices_for_VertexArray correct here?
          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_lines,
                       &indices_for_lines[0], GL_STATIC_DRAW);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
 
          glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
                       &indices_for_triangles[0], GL_STATIC_DRAW);
          err = glGetError();
-         std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+         // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
          delete [] points;
          delete [] indices_for_lines;
@@ -979,8 +977,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
    }
 
 
-   std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "
-             << n_vertices_for_map_VertexArray << std::endl;
+   if (false)
+      std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "
+                << n_vertices_for_map_VertexArray << std::endl;
 
 }
 

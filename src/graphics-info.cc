@@ -1615,12 +1615,15 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 void
 graphics_info_t::run_post_set_rotation_centre_hook() {
 
+   // Don't run the post update hook at the moment.
+  // Python is not wired up (correctly)
+
 #if defined USE_GUILE
-   run_post_set_rotation_centre_hook_scm();
+   // run_post_set_rotation_centre_hook_scm();
 #endif // GUILE
 
 #ifdef USE_PYTHON
-   run_post_set_rotation_centre_hook_py();
+   // run_post_set_rotation_centre_hook_py();
 #endif
 
 }

@@ -555,9 +555,9 @@ draw_molecular_triangles() {
          //Can retrieve reference to the light if so preferred
          // This doesn't move the lights
          // FCXXCoord random_trans(50.0 * coot::util::random()/float(RAND_MAX),
-         // 		                 50.0 * coot::util::random()/float(RAND_MAX),
+         // 		           50.0 * coot::util::random()/float(RAND_MAX),
          //                        50.0 * coot::util::random()/float(RAND_MAX));
-	      FCXXCoord light_pos = pos + diff * 10; //  + random_trans;
+         FCXXCoord light_pos = pos + diff * 10; //  + random_trans;
          FCXXCoord neg_light_pos = pos + diff * 10; // - random_trans;
 
          graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
@@ -572,7 +572,8 @@ draw_molecular_triangles() {
                      GLenum err = glGetError();
                      if (err) std::cout << "gl error pre-renderer in draw_molecular_triangles() " << err << std::endl;
                      // turns on glLighting.
-                     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+                     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer,
+                                                                                           eye_pos);
                      err = glGetError();
                      if (err) std::cout << "gl error in draw_molecular_triangles() " << err << std::endl;
                   }
@@ -902,8 +903,6 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    if (event->direction == GDK_SCROLL_UP)
       direction = -1;
 
-   std::cout << "on_glarea_scroll(): scroll direction " << direction << std::endl;
-
    graphics_info_t g;
    int imol_scroll = graphics_info_t::scroll_wheel_map;
 
@@ -914,7 +913,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       if (direction == -1)
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
-      std::cout << "####### Now contour level for map " << imol_scroll << " is "
+      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
                 << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
       g.display_density_level_this_image = 1;
@@ -923,7 +922,6 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    } else {
       std::cout << "No map" << std::endl;
    }
-   std::cout << "done on_glarea_scroll()" << std::endl;
    return TRUE;
 }
 
@@ -935,6 +933,11 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);
    g.SetMouseClicked(event->x, event->y); // Hmm
+   int x_as_int, y_as_int;
+   GdkModifierType state;
+   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+
+   g.check_if_in_range_defines(event, state);
    return TRUE;
 }
 

@@ -38,8 +38,8 @@
              [Erec Stebbins]
              (set-use-variable-bond-thickness 1)
 
-  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
-             [Hannah Bridges]
+  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic"
+             rather than disconnected) [Hannah Bridges]
 
   o CHANGE:  Edit -> Copy Fragment now has a "Move it Here" check-button
 

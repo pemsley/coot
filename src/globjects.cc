@@ -1875,10 +1875,22 @@ setup_for_mol_triangles() {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 
+   std::cout << "################ setup_for_mol_triangles() started ############" << std::endl;
+
+   GLenum err = glGetError(); std::cout << "   setup_for_mol_triangles() A err " << err << std::endl;
+
    graphics_info_t::mol_tri_renderer = RendererGLSL::create();
+
+   err = glGetError(); std::cout << "   setup_for_mol_triangles() B calling init() currently err "
+                                 << err << std::endl;
+
    graphics_info_t::mol_tri_renderer->init();
 
+   err = glGetError(); std::cout << "   setup_for_mol_triangles() C err " << err << std::endl;
+
    graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
+
+   err = glGetError(); std::cout << "   setup_for_mol_triangles() D err " << err << std::endl;
 
    //Add a simple light..set some parameters and move it
    auto simpleLight = Light::defaultLight();
@@ -3542,8 +3554,6 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 //
 gint idle_contour_function(gpointer data) {
 
-   std::cout << "idle_contour_function() started" << std::endl;
-
    gint continue_status = 0;
    bool something_changed = false;
 
@@ -3551,7 +3561,6 @@ gint idle_contour_function(gpointer data) {
    //
    // then update maps
 
-   std::cout << "--- debug:: idle_contour_function() running" << std::endl;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
          int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
@@ -3572,10 +3581,9 @@ gint idle_contour_function(gpointer data) {
 	              }
 	          }
 
-            graphics_info_t g;
-            std::cout << "idle_contour_function() update_maps()" << std::endl;
-	          g.molecules[imol].update_map();
-	          continue_status = 0;
+           graphics_info_t g;
+	   g.molecules[imol].update_map();
+	   continue_status = 0;
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            g.display_density_level_this_image = 1;
            something_changed = true;
