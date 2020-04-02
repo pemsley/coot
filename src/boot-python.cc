@@ -10,7 +10,12 @@ void start_command_line_python_maybe(bool command_line_mode_flag, int argc, char
 
 #ifdef USE_PYTHON
 
-   std::cout << "Debug:: here in start_command_line_python_maybe() " << std::endl;
+   // we should only come here if --no-graphics --python was used
+   //
+   // for normal Python setup, we want to Py_InitializeEx(0) (so that Ctrl-C works)
+
+   std::cout << "Debug:: here in start_command_line_python_maybe() with command_line_mode_flag"
+             << command_line_mode_flag << std::endl;
 
    //  Skip initialization registration of signal handlers, useful
    //  when Python is embedded. Version 2.4 or later. Thanks Stuart
@@ -20,10 +25,9 @@ void start_command_line_python_maybe(bool command_line_mode_flag, int argc, char
    // line python no graphics before we use this?
    //
    // I want Ctrl-C to exit the program, unless I am command line mode
+
    if (command_line_mode_flag)
       Py_InitializeEx(1);
-   else
-      Py_InitializeEx(0);
 
    wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)));
    _argv[0] = Py_DecodeLocale(argv[0], NULL);

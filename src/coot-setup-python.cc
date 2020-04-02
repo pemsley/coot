@@ -66,7 +66,7 @@ void setup_python(int argc, char **argv) {
       wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
       _argv[i] = arg;
    }
-   Py_Initialize();
+   Py_InitializeEx(0);
    PySys_SetArgv(argc, _argv);
 
 #endif     
