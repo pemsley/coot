@@ -31,6 +31,8 @@ vec3 occlude() {
 
        vec3 r = vec3(0.0, 0.0, 0.2); // return r;
        int n_pixels_max = 38;
+       n_pixels_max = 45;
+       n_pixels_max = 48;
        // most of the image:
        int n_sampled = 0;
        int n_closer_neighbours = 0; // ambient occlusion (testing)
