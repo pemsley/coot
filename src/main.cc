@@ -372,8 +372,7 @@ main (int argc, char *argv[]) {
 
    }
 
-   GtkWidget *splash = NULL;
-   do_splash_screen(cld);
+   GtkWidget *splash = do_splash_screen(cld);
 
    setup_symm_lib();
    setup_rgb_reps();
