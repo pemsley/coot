@@ -299,6 +299,13 @@ PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
 //! \}
 
+// maybe we need to spefify_other things like the colour table.
+void
+colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
+
+void
+colour_map_by_other_map_turn_off(int imol_map);
+
 
 //! \name Multi-Residue Torsion
 //! \{

@@ -873,6 +873,10 @@ public:        //                      public
       // draw_it_for_solid_density_surface = 0;
       density_surface_opacity = 0.5;
 
+      // other map
+      colour_map_using_other_map_flag = false;
+      other_map_for_colouring_p = 0;
+
       // animated ligand interaction representation
       draw_animated_ligand_interactions_flag = 0;
 
@@ -2058,6 +2062,8 @@ public:        //                      public
    void set_map_colour(GdkRGBA col) { map_colour = col; update_map(); }
    std::vector<std::string> set_map_colour_strings() const;
    std::pair<GdkRGBA, GdkRGBA> map_colours() const;
+   void colour_map_using_map(const clipper::Xmap<float> &xmap);
+   const clipper::Xmap<float> *other_map_for_colouring_p;
 
    // save yourself and update have_unsaved_changes_flag status
    //

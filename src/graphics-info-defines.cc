@@ -1323,19 +1323,16 @@ graphics_info_t::check_if_in_db_main_define(GdkEventButton *event) {
 void
 graphics_info_t::check_if_in_rotamer_define(GdkEventButton *event) {
 
-  std::cout << "check_if_in_rotamer_define() " << event << std::endl;
-
    graphics_info_t g;
    if (g.in_rotamer_define) {
       pick_info naii = atom_pick(event);
-      std::cout << "check_if_in_rotamer_define() naii.success " << naii.success << std::endl;
       if (naii.success == GL_TRUE) {
 	 g.do_rotamers(naii.atom_index, naii.imol);
 	 g.in_rotamer_define = 0;
 	 pick_pending_flag = 0;
 	 normal_cursor();
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_rotamer_togglebutton");
-	 if (0) { 
+	 if (false) {
 	    if (moving_atoms_asc) {
 	       std::cout << "debug moving atoms to moving-atoms.pdb" << std::endl;
 	       moving_atoms_asc->mol->WritePDBASCII("moving-atoms.pdb");

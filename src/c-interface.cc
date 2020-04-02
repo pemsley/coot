@@ -2427,6 +2427,34 @@ void restore_previous_map_colour(int imol) {
    add_to_history_typed(cmd, args);
 }
 
+void
+colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_map_used_for_colouring)) {
+         graphics_info_t g;
+         clipper::Xmap<float> &xmap_for_colouring = g.molecules[imol_map_used_for_colouring].xmap;
+
+         std::cout << "------------- colour_map_by_other_map() API calling molecules colour_map_using_map()"
+                   << std::endl;
+         g.molecules[imol_map].colour_map_using_map(xmap_for_colouring);
+      }
+   }
+
+}
+
+
+void
+colour_map_by_other_map_turn_off(int imol_map) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t::molecules[imol_map].colour_map_using_other_map_flag = false;
+      std::cout << "FIXME:: make the map update" << std::endl;
+   }
+
+}
+
+
 
 // -------------------------------------------------------------------
 

@@ -829,7 +829,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // each vertex/point has a colour
 
-         colour_map_using_other_map_flag = false;
+         // colour_map_using_other_map_flag = false;
 
          int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];
@@ -987,10 +987,30 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 GdkRGBA
 molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_orth &position) {
 
+   GdkRGBA c;
+   c.red   = 0.0;
+   c.green = 0.1;
+   c.blue  = 0.0;
+   c.alpha = 1.0;
+   if (other_map_for_colouring_p) {
+      float dv = coot::util::density_at_point(*other_map_for_colouring_p, position);
+      float v = 20.0 * dv; // some function of dv;
+      if (v > 1.0) v = 1.0;
+      if (v < 0.0) v = 0.0;
+      c = fraction_to_colour(v);
+   } else {
+      return c;
+   }
+
+#if 0  // testing function
+
    // float v = coot::util::random()/static_cast<float>(RAND_MAX);
-   double dd = (position-clipper::Coord_orth(0,0,-20)).lengthsq();
+
+   clipper::Coord_orth pt_central(0,0,-20);
+   double dd = (position - pt_central).lengthsq();
    float v = sqrt(dd) * 0.02;
    GdkRGBA c = fraction_to_colour(v);
+#endif
    return c;
 }
 
@@ -4216,4 +4236,13 @@ molecule_class_info_t::fraction_to_colour(float fraction) {
    col.alpha = 1.0;
 
    return col;
+}
+
+void
+molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap) {
+
+  colour_map_using_other_map_flag = true;
+  other_map_for_colouring_p = &xmap;
+  update_map();
+
 }
