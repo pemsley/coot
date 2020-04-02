@@ -107,7 +107,7 @@ graphics_info_t::init() {
 
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
-      geom_p->set_verbose(true);
+      geom_p->set_verbose(false); // was true
 
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
@@ -161,6 +161,8 @@ graphics_info_t::init() {
 
       // command line scripts:
       command_line_scripts = new std::vector<std::string>;
+
+      console_display_commands.display_commands_flag = false;
 
       // LSQ matching info
       lsq_matchers = new std::vector<coot::lsq_range_match_info_t>;
