@@ -152,128 +152,41 @@ int setup_database();
 #include "draw.hh" // for test_gtk3_adjustment_changed() - maybe that should go elsewhere?
 #include "draw-2.hh"
 
-// This main is used for both python/guile useage and unscripted.
-int
-main (int argc, char *argv[]) {
 
-   GtkWidget *window1 = NULL;
-   GtkWidget *glarea = NULL;
+GtkWidget *do_splash_screen(const command_line_data &cld) {
 
-   graphics_info_t graphics_info;
-
-#ifdef ENABLE_NLS // not used currently in Gtk1. Gkt2, yes.
-   //
-   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
-   bind_textdomain_codeset (PACKAGE, "UTF-8");
-   textdomain (PACKAGE);
-#endif
-
-#ifdef USE_LIBCURL
-   curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
-#endif
-
-   command_line_data cld = parse_command_line(argc, argv);
-   cld.handle_immediate_settings();
-
-
-#ifdef USE_PYTHON
-   setup_python(argc, argv);
-   // setup_python_classes();
-#endif
-
-#ifdef WITH_SOUND
-   test_sound(argc, argv);
-#endif // WITH_SOUND
-
-   if (cld.run_internal_tests_and_exit) {
-      // do self tests
-      std::cout << "Running internal self tests" << std::endl;
-      // return true on success
-      clipper::Test_core test_core;       bool result_core    = test_core();
-      clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
-      std::cout<<" Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
-      std::cout<<" Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
-      // return 1 on success
-      int gis = test_internal();
-      int shell_exit_code = 1;
-      if (result_core)
-	 if (result_contrib)
-	    if (gis == 1)
-	       shell_exit_code = 0;
-      return shell_exit_code;
-   }
-
-   if (graphics_info_t::show_citation_notice == 1) {
-      show_citation_request();
-   }
-
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-      // load_gtk_resources();
-      gtk_init (&argc, &argv);
-      // activate to force icons in menus; cannot get it to work with
-      // cootrc. Bug?
-      // seems to be neccessary to make sure the type is realized
-      // and we use newer g_object_set instead of deprecated (gtk3)
-      // gtk_settings_set_long_property
-      g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
-      g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
-      g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-      // glutInit(&argc, argv);
-
-   } else {
-
-#ifdef WINDOWS_MINGW
-      // in Windows we don't want a crash dialog if no-graphics
-      SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
-#endif // MINGW
-
-   }
-
-   // popup widget is only filled with graphics at the end of startup
-   // which is not what we want.
-   //
+   GtkWidget *splash_screen = 0;
    setup_splash_screen();
 
-   GtkWidget *splash = NULL;
-   if (graphics_info_t::use_graphics_interface_flag) {
-      if (cld.use_splash_screen) {
-	 std::string f = cld.alternate_splash_screen_file_name;
-	 if (f.empty()) {
-	    splash = create_splash_screen_window();
-	 } else {
-	    splash = create_splash_screen_window_for_file(f.c_str());
-	 }
-         if (splash) {
-            gtk_widget_show(splash);
+   if (cld.use_splash_screen) {
+      if (graphics_info_t::use_graphics_interface_flag) {
+         std::string f = cld.alternate_splash_screen_file_name;
+         if (f.empty()) {
+            splash_screen = create_splash_screen_window();
+         } else {
+            splash_screen = create_splash_screen_window_for_file(f.c_str());
+         }
+         if (splash_screen) {
+            gtk_widget_show(splash_screen);
          } else{
             std::cout << "ERROR:: in main() splash is null " << std::endl;
          }
-      }
 
-      while(gtk_main_iteration() == FALSE);
-      while (gtk_events_pending()) {
-	 usleep(3000);
-	 gtk_main_iteration();
+         while(gtk_main_iteration() == FALSE);
+         while (gtk_events_pending()) {
+            usleep(3000);
+            gtk_main_iteration();
+         }
       }
    }
+   return splash_screen;
+}
 
-   setup_symm_lib();
-   setup_rgb_reps();
-   check_reference_structures_dir();
-#ifdef USE_MYSQL_DATABASE
-   setup_database();
-#endif
+void do_main_window(const command_line_data &cld) {
 
-   // static vector usage
-   // and reading in refmac geometry restratints info:
-   //
-   graphics_info.init();
+   GtkWidget *window1 = create_window1();
 
-   if (graphics_info_t::use_graphics_interface_flag) {
-
-      window1 = create_window1();
-
+   if (true) {
       std::string version_string = VERSION;
       std::string main_title = "Coot " + version_string;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
@@ -297,7 +210,7 @@ main (int argc, char *argv[]) {
       GtkWidget *vbox = lookup_widget(window1, "vbox1");
       GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
 
-      glarea = my_gtkglarea(graphics_hbox);
+      GtkWidget *glarea = my_gtkglarea(graphics_hbox);
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glarea = glarea; // have I done this elsewhere?
 
@@ -306,10 +219,13 @@ main (int argc, char *argv[]) {
 	 setup_application_icon(GTK_WINDOW(window1));
 	 // adjust screen size settings
 	 int small_screen = setup_screen_size_settings();
-	 if (!cld.small_screen_display)
-	    cld.small_screen_display = small_screen;
 
-	 graphics_info.glarea = glarea; // save it in the static
+         // this needs to be fixed. I don't want to touch cld in this function.
+         // Perhaps this function should return a flag for the small screen state?
+         // or set something in graphics_info_t?
+         //
+	 // if (!cld.small_screen_display)
+         //    cld.small_screen_display = small_screen;
 
 	 gtk_widget_show(glarea);
 	 if (graphics_info_t::glarea_2)
@@ -373,6 +289,116 @@ main (int argc, char *argv[]) {
 		   << "  (Check that your X11 server is working and has (at least)"
 		   << "  \"Thousands of Colors\" and supports GLX.)" << std::endl;
       }
+   }
+}
+
+int
+do_self_tests() {
+
+   std::cout << "INFO:: Running internal self tests" << std::endl;
+   // return true on success
+   clipper::Test_core test_core;       bool result_core    = test_core();
+   clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
+   std::cout<<" INFO:: Test Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
+   std::cout<<" INFO:: Test Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
+   // return 1 on success
+   int gis = test_internal();
+   int shell_exit_code = 1;
+   if (result_core)
+      if (result_contrib)
+         if (gis == 1)
+            shell_exit_code = 0;
+   return shell_exit_code;
+
+}
+
+// This main is used for both python/guile useage and unscripted.
+int
+main (int argc, char *argv[]) {
+
+   int shell_exit_code = 0;
+   GtkWidget *window1 = NULL;
+   GtkWidget *glarea = NULL;
+
+   graphics_info_t graphics_info;
+
+#ifdef ENABLE_NLS // not used currently in Gtk1. Gkt2, yes.
+   //
+   bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
+   bind_textdomain_codeset (PACKAGE, "UTF-8");
+   textdomain (PACKAGE);
+#endif
+
+#ifdef USE_LIBCURL
+   curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
+#endif
+
+   command_line_data cld = parse_command_line(argc, argv);
+   cld.handle_immediate_settings();
+
+#ifdef USE_PYTHON
+   setup_python(argc, argv);
+   // setup_python_classes();
+#endif
+
+#ifdef WITH_SOUND
+   test_sound(argc, argv);
+#endif // WITH_SOUND
+
+   if (cld.run_internal_tests_and_exit)
+      shell_exit_code = do_self_tests();
+
+   if (graphics_info_t::show_citation_notice == 1)
+      show_citation_request();
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      // load_gtk_resources();
+      gtk_init (&argc, &argv);
+      // activate to force icons in menus; cannot get it to work with
+      // cootrc. Bug?
+      // seems to be neccessary to make sure the type is realized
+      // and we use newer g_object_set instead of deprecated (gtk3)
+      // gtk_settings_set_long_property
+      g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
+      g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
+      g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
+      // glutInit(&argc, argv);
+
+   } else {
+
+#ifdef WINDOWS_MINGW
+      // in Windows we don't want a crash dialog if no-graphics
+      SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
+#endif // MINGW
+
+   }
+
+   // replace the following with 
+   // GtkWidget *splash = do_splash_screen();
+
+   // popup widget is only filled with graphics at the end of startup
+   // which is not what we want.
+   //
+
+   GtkWidget *splash = NULL;
+   do_splash_screen(cld);
+
+   setup_symm_lib();
+   setup_rgb_reps();
+   check_reference_structures_dir();
+#ifdef USE_MYSQL_DATABASE
+   setup_database();
+#endif
+
+   // static vector usage
+   // and reading in refmac geometry restratints info:
+   //
+   graphics_info.init();
+
+   // put this if block in its own function
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      do_main_window(cld);
    }
 
    // Mac users often start somewhere where thy can't write files
@@ -462,7 +488,7 @@ main (int argc, char *argv[]) {
 
 #endif // ! USE_GUILE
 
-   return 0;
+   return shell_exit_code;
 }
 
 void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
