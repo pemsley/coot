@@ -96,12 +96,6 @@
 
 #include "geometry/dict-utils.hh"
 
-// A few non-class members - should be somewhere else, I guess.
-//
-void initialize_graphics_molecules() {
-  graphics_info_t g;
-  g.initialize_molecules();
-}
 
 // return a vector of the current valid map molecules
 std::vector<int>

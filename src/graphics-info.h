@@ -922,8 +922,6 @@ public:
    enum { USE_PYTHON_STATE_COMMANDS = 2, USE_SCM_STATE_COMMANDS = 1 };
 
    //
-   void initialize_molecules() { }
-
    void init();
    void setup_key_bindings();
 
@@ -4108,8 +4106,6 @@ class molecule_rot_t {
    static float x_axis_angle;
    static float y_axis_angle;
 };
-
-void initialize_graphics_molecules();
 
 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);

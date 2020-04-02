@@ -135,7 +135,7 @@ void setup_symm_lib();
 void setup_rgb_reps();
 void check_reference_structures_dir();
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1);
-void start_command_line_python_maybe(char **argv);
+#include "boot-python.hh"
 
 #ifdef USE_MYSQL_DATABASE
 #include "mysql/mysql.h"
@@ -362,7 +362,6 @@ main (int argc, char *argv[]) {
       g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
       g_object_set(gtk_settings_get_default(), "gtk-menu-images", TRUE, NULL);
       g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-      // glutInit(&argc, argv);
 
    } else {
 
@@ -372,13 +371,6 @@ main (int argc, char *argv[]) {
 #endif // MINGW
 
    }
-
-   // replace the following with 
-   // GtkWidget *splash = do_splash_screen();
-
-   // popup widget is only filled with graphics at the end of startup
-   // which is not what we want.
-   //
 
    GtkWidget *splash = NULL;
    do_splash_screen(cld);
@@ -390,12 +382,7 @@ main (int argc, char *argv[]) {
    setup_database();
 #endif
 
-   // static vector usage
-   // and reading in refmac geometry restratints info:
-   //
    graphics_info.init();
-
-   // put this if block in its own function
 
    if (graphics_info_t::use_graphics_interface_flag) {
       do_main_window(cld);
@@ -404,14 +391,6 @@ main (int argc, char *argv[]) {
    // Mac users often start somewhere where thy can't write files
    //
    change_directory_maybe();
-
-
-   // allocate some memory for the molecules
-   //
-   std::cout << "initalize graphics molecules...";
-   std::cout.flush();
-   initialize_graphics_molecules();
-   std::cout << "done." << std::endl;
 
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    handle_command_line_data(cld);  // and add a flag if listener
@@ -453,7 +432,6 @@ main (int argc, char *argv[]) {
    // Must be the last thing in this function, code after it does not get
    // executed (if we are using guile)
    //
-
    my_wrap_scm_boot_guile(argc, argv);
 
    //
@@ -476,9 +454,11 @@ main (int argc, char *argv[]) {
    // these scripts are stored by handle_command_line_data()
    run_command_line_scripts();
    if (graphics_info_t::use_graphics_interface_flag)
-      gtk_main ();
-   else
-      start_command_line_python_maybe(argv);
+      gtk_main();
+   else {
+      std::cout << "------------ start command line python here " << std::endl;
+      start_command_line_python_maybe(true, argc, argv);
+   }
 
 #else
    // not python or guile
