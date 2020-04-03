@@ -1512,6 +1512,8 @@ coot_prerelease_exists=
 
 # coot_version_pre no longer has .tar.gz extension
 
+echo =========================== build_coot_prerelease is $build_coot_prerelease ========================
+
 if test "$build_coot_prerelease" = 1 ; then 
 
    echo debug:: ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
@@ -1556,8 +1558,17 @@ else
 
     ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-    coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
-        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    echo ========== awk results:
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html
+    echo ==== with tail ==========
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1
+    echo =========== from ${AUTOBUILD_SOURCES}/index.html 
+    cat ${AUTOBUILD_SOURCES}/index.html 
+    echo ==============
+    coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
@@ -4029,6 +4040,11 @@ fi
 ###############################################################################
 #
 echo BUILDING coot: version $coot_version, guile=$ENABLE_GUILE_COOT, python=$ENABLE_PYTHON_COOT
+
+if [ -z "$coot_version" ] ; then
+   echo coot_version is empty - exit now
+   my_exit 2 coot_version not set
+fi
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
