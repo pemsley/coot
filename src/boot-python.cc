@@ -6,6 +6,8 @@
 
 #include "boot-python.hh"
 
+// There is no maybe - rename.
+//
 void start_command_line_python_maybe(bool command_line_mode_flag, int argc, char **argv) {
 
 #ifdef USE_PYTHON

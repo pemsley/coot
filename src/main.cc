@@ -396,26 +396,8 @@ main (int argc, char *argv[]) {
                                    // should be started.
 #endif
 
-   // which gets looked at later in c_inner_main's make_port_listener_maybe()
-
-   // For the graphics to be able to see the data set in the .coot
-   // file, we must put the gl_extras() call after
-   // c_wrapper_scm_boot_guile().  So all the graphics
-   // e.g. create_window1, gl_extras, and the submenu stuff should go
-   // into the c_inner_main (I think)
-   //
-
    if (splash)
       gtk_widget_destroy(splash);
-
-   // This should not be here, I think.  You can never turn it off -
-   // because scripting/guile is not booted until after here - which
-   // means its controlling parameter
-   // (graphics_info_t::run_state_file_status) can never be changed
-   // from the default.  It should be in c-inner-main, after the
-   // run_command_line_scripts() call.
-   //
-   // run_state_file_maybe();
 
    // before we run the scripting, let's make default preferences
    make_preferences_internal_default();
@@ -455,7 +437,6 @@ main (int argc, char *argv[]) {
    if (graphics_info_t::use_graphics_interface_flag)
       gtk_main();
    else {
-      std::cout << "------------ start command line python here " << std::endl;
       start_command_line_python_maybe(true, argc, argv);
    }
 

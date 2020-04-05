@@ -22,13 +22,13 @@
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
+#include <iostream>
 
-#ifdef USE_PYGTK
+#if 1 // was #ifdef USE_PYGTK, we want a test for PyGObject, I suppose.
 
 #include <gtk/gtk.h>
 
-#include <pygobject.h>
-#include <pygtk/pygtk.h>
+#include <pygobject-3.0/pygobject.h>
 
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -66,7 +66,8 @@ PyMethodDef coot_python_functions[] = {
 // TMP
 // static
 PyTypeObject *_PyGObject_Type;
-#define PyGObject_Type (*_PyGObject_Type)
+
+// #define PyGObject_Type (*_PyGObject_Type)
 
 #include "coot-glue.hh"
 // for glue:
@@ -86,7 +87,7 @@ PyObject *
 _wrap_main_menubar(PyObject *self)
 {
    GtkWidget *ret;
-   
+
    ret = main_menubar();
    
    /* pygobject_new handles NULL checking */
@@ -147,24 +148,72 @@ coot_python_register_classes(PyObject *d) {
 }
 
 
-
+/* not sure what this is...
 DL_EXPORT(void)
 #ifdef WIN32
 __declspec(dllexport)
 #endif
-initcoot_python() {
+*/
 
-   PyObject *m, *d;
-   init_pygobject ();
-   init_pygtk ();
+PyObject *some_test_function_py(PyObject *a, PyObject *b) {
+   PyObject *o = Py_None;
+   return o;
+}
+
+void
+initcoot_python_gobject() {
+
+   return;
    
-   m = Py_InitModule ("coot_python", coot_python_functions);
-   d = PyModule_GetDict (m);
-   
+   std::cout << "-------------------- in initcoot_python() " << std::endl;
+
+   int req_major = -1, req_minor = -1, req_micro = -1;
+   pygobject_init(req_major, req_minor, req_micro);
+
+   PyMethodDef XYZMethods[] = {
+	 { "some_test_function", some_test_function_py, METH_O, NULL},
+	 { NULL, NULL, 0, NULL }
+   };
+
+   /* Python2
+   PyObject *m = Py_InitModule3("coot_python", coot_python_functions);
+   PyObject *d = PyModule_GetDict(m);
    coot_python_register_classes (d);
-   
-   if (PyErr_Occurred ()) {
-      Py_FatalError ("can't initialise module coot_python");
+   */
+
+   static struct PyModuleDef XYZ_module_e = {
+    PyModuleDef_HEAD_INIT,
+    "_xyz_coot",
+    "Some Doc String Here",
+    -1,
+    XYZMethods,
+    NULL, // reload
+    NULL, // traverse
+    NULL, // clear
+    NULL  // free
+   };
+
+   struct PyModuleDef *XYZ_module = new struct PyModuleDef;
+   *XYZ_module = XYZ_module_e;
+
+   PyObject *m = PyModule_Create(XYZ_module);
+
+   if (m) {
+
+      PyObject *pMap = NULL;
+      pMap = PyDict_New();
+      Py_INCREF(pMap);
+      int mao = PyModule_AddObject(m, "spam", pMap);
+      if (mao < 0) {
+         // Py_DECREF(pMap);
+      } else {
+         std::cout << "WARNING:: PyModule_AddObject() returned bad " << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: PyModule_Create() returned null " << std::endl;
+   }
+   if (PyErr_Occurred()) {
+      Py_FatalError ("can't initialise module _xyz_coot");
    }
 }
 
