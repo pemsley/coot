@@ -961,6 +961,41 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
    return TRUE;
 }
 
+void
+do_drag_pan_gtk3(GtkWidget *widget) {
+
+   // This should be a graphics_info_t function?
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(widget, &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   glm::mat4 mvp = get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+
+   graphics_info_t g;
+   float mouseX_1 = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
+   float mouseY_1 = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
+   float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
+   float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
+
+   glm::mat4 vp_inv = glm::inverse(mvp);
+
+   glm::vec4 screenPos_1 = glm::vec4(mouseX_1, -mouseY_1, 1.0f, 1.0f);
+   glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
+   glm::vec4 worldPos_1 = vp_inv * screenPos_1;
+   glm::vec4 worldPos_2 = vp_inv * screenPos_2;
+
+   glm::vec4 delta(worldPos_1 - worldPos_2);
+
+   float delta_scale_factor = 1.0;
+   if (graphics_info_t::perspective_projection_flag)
+      delta_scale_factor = 20.0; // move the front a lot more
+   g.add_to_rotation_centre(delta_scale_factor * delta);
+   g.update_maps();
+   int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+}
+
 gboolean
 on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
@@ -969,64 +1004,49 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    // split this function up before it gets too big.
 
+   bool control_is_pressed = false;
+   bool   shift_is_pressed = false;
+   if (event->state & GDK_CONTROL_MASK) control_is_pressed = true;
+   if (event->state & GDK_SHIFT_MASK) shift_is_pressed = true;
+
    g.mouse_current_x = event->x;
    g.mouse_current_y = event->y;
 
    if (event->state & GDK_BUTTON1_MASK) {
 
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      int w = allocation.width;
-      int h = allocation.height;
+      if (control_is_pressed) {
 
-      float tbs = g.get_trackball_size();
+         do_drag_pan_gtk3(widget);
 
-      if (graphics_info_t::perspective_projection_flag)
-         tbs = 1.0;
+      } else {
 
-      glm::quat tb_quat =
-         g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
-                                   (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
-                                   tbs);
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(widget, &allocation);
+         int w = allocation.width;
+         int h = allocation.height;
 
-      glm::quat product = tb_quat * graphics_info_t::glm_quat;
-      // glm::quat product = graphics_info_t::glm_quat * tb_quat;
+         float tbs = g.get_trackball_size();
 
-      graphics_info_t::glm_quat = glm::normalize(product);
+         if (graphics_info_t::perspective_projection_flag)
+            tbs = 1.0;
+
+         glm::quat tb_quat =
+            g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
+                                      (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
+                                      tbs);
+
+         glm::quat product = tb_quat * graphics_info_t::glm_quat;
+         // glm::quat product = graphics_info_t::glm_quat * tb_quat;
+
+         graphics_info_t::glm_quat = glm::normalize(product);
+      }
    }
 
 
    if (event->state & GDK_BUTTON2_MASK) {
 
       // View Panning
-
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(widget, &allocation);
-      int w = allocation.width;
-      int h = allocation.height;
-
-      glm::mat4 mvp = get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
-
-      float mouseX_1 = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
-      float mouseY_1 = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
-      float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
-      float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
-
-      glm::mat4 vp_inv = glm::inverse(mvp);
-
-      glm::vec4 screenPos_1 = glm::vec4(mouseX_1, -mouseY_1, 1.0f, 1.0f);
-      glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, 1.0f, 1.0f);
-      glm::vec4 worldPos_1 = vp_inv * screenPos_1;
-      glm::vec4 worldPos_2 = vp_inv * screenPos_2;
-
-      glm::vec4 delta(worldPos_1 - worldPos_2);
-
-      float delta_scale_factor = 1.0;
-      if (graphics_info_t::perspective_projection_flag)
-         delta_scale_factor = 20.0; // move the front a lot more
-      g.add_to_rotation_centre(delta_scale_factor * delta);
-      g.update_maps();
-      int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+      do_drag_pan_gtk3(widget);
 
    }
 
