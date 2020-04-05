@@ -829,8 +829,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // each vertex/point has a colour
 
-         // colour_map_using_other_map_flag = false;
-
          int n_colours = sum_tri_con_points;
          float *colours = new float[4 * n_colours];
          int idx_for_colours = 0;
@@ -841,7 +839,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                if (radial_map_colouring_do_radial_colouring) {
                   if (idx_for_colours < n_colours) {
                      // Oh dear - indexing!
-                     clipper::Coord_orth co(points[3 * idx_for_colours], points[3 * idx_for_colours +1], points[3 * idx_for_colours +2]);
+                     int idx_base = 3 * idx_for_colours;
+                     clipper::Coord_orth co(points[idx_base], points[idx_base+1], points[idx_base+2]);
                      double dd = (co-radial_map_colour_centre).lengthsq();
                      double r = sqrt(dd);
                      GdkRGBA map_col = radius_to_colour(r, radial_map_colour_radius_min, radial_map_colour_radius_max);
@@ -852,7 +851,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                   }
                } else {
                   if (colour_map_using_other_map_flag) {
-                     clipper::Coord_orth co(points[3 * idx_for_colours], points[3 * idx_for_colours +1], points[3 * idx_for_colours +2]);
+                     int idx_base = 3 * idx_for_colours;
+                     clipper::Coord_orth co(points[idx_base], points[idx_base+1], points[idx_base+2]);
                      GdkRGBA map_col = position_to_colour_using_other_map(co);
                      colours[4*idx_for_colours  ] = map_col.red;
                      colours[4*idx_for_colours+1] = map_col.green;
@@ -864,7 +864,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                         colours[4*idx_for_colours  ] = map_colour.red;
                         colours[4*idx_for_colours+1] = map_colour.green;
                         colours[4*idx_for_colours+2] = map_colour.blue;
-                        colours[4*idx_for_colours+3] = 1.0f;
+                        colours[4*idx_for_colours+3] = 0.3f;
                      } else {
                         std::cout << "oops indexing error for colours"
                                   << idx_for_colours << " " << n_colours << std::endl;
@@ -880,14 +880,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          glGenVertexArrays(1, &m_VertexArrayID_for_map);
          GLenum err = glGetError();
-         if (debug)
-            std::cout << "setup_glsl_map_rendering() glGenVertexArrays() " << err
-                      << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
          glBindVertexArray(m_VertexArrayID_for_map);
          err = glGetError();
-         if (debug)
-            std::cout << "setup_glsl_map_rendering() glBindVertexArray() " << err
-                      << " for m_VertexArrayID " << m_VertexArrayID_for_map << std::endl;
 
          // positions
          glGenBuffers(1, &m_VertexBufferID);
@@ -976,11 +970,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       }
    }
 
-
    if (false)
       std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "
                 << n_vertices_for_map_VertexArray << std::endl;
-
 }
 
 
