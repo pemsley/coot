@@ -137,6 +137,9 @@ open_cif_dictionary_file_selector_dialog() {
    if (graphics_info_t::use_graphics_interface_flag) {
 
       GtkWidget *fileselection = coot_cif_dictionary_chooser(); // a chooser or a fileselection
+      add_sort_button_fileselection(fileselection);
+      set_directory_for_fileselection(fileselection);
+      set_file_selection_dialog_size(fileselection);
 
       // add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
       // add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
@@ -380,6 +383,8 @@ GtkWidget *wrapped_create_undo_molecule_chooser_dialog() {
 void
 manage_column_selector(const char *filename) {
 
+   std::cout << "debug:: in manage_column_selector" << std::endl;
+
    if (graphics_info_t::use_graphics_interface_flag) {
       // try to read as phs, cif etc, if not, return a selection
       // widget
@@ -387,10 +392,11 @@ manage_column_selector(const char *filename) {
       GtkWidget *w = coot::column_selector_using_cmtz(filename);
 
       if (w) {
-	 gtk_widget_show(w);
-	 gtk_window_present(GTK_WINDOW(w));
+         gtk_widget_show(w);
+         gtk_window_present(GTK_WINDOW(w));
       }
    }
+
    std::string cmd = "manage-column-selector";
    std::vector<coot::command_arg_t> args;
    args.push_back(filename);

@@ -31,6 +31,8 @@ int merge_fragments(int imol) {
    if (is_valid_model_molecule(imol)) {
       status = graphics_info_t::molecules[imol].merge_fragments();
       graphics_draw();
+      graphics_info_t g;
+      g.update_validation_graphs(imol);
    }
 
    return status;

@@ -1109,17 +1109,44 @@ coot::util::random() {
 }
 
 
+float
+coot::util::random_f() {
+
+   float r = static_cast<float>(random());
+   float irm = 1.0/static_cast<float>(RAND_MAX);
+
+   return r * irm;
+}
+
+
+
 bool
 coot::file_exists(const std::string &filename) {
 
    struct stat s;
    int fstat = stat(filename.c_str(), &s);
    if ( fstat == -1 ) { // file not exist
-      return 0;
+      return false;
    } else {
-      return 1;
+      return true;
    }
 }
+
+bool
+coot::file_is_empty(const std::string &filename) {
+
+   struct stat s;
+   int fstat = stat(filename.c_str(), &s);
+   if ( fstat == -1 ) { // file not exist
+      return false;
+   } else {
+      off_t ss = s.st_size;
+      if (ss == 0)
+         return true;
+   }
+   return false;
+}
+
 
 bool coot::is_directory_p(const std::string &filename) {
 

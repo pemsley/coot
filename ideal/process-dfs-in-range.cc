@@ -20,9 +20,9 @@
 void
 coot::restraints_container_t::make_df_restraints_indices() {
 
-   // std::cout << "---------------------------------------------------------------" << std::endl;
-   // std::cout << "            make_df_restraints_indices() " << size() << std::endl;
-   // std::cout << "---------------------------------------------------------------" << std::endl;
+   std::cout << "---------------------------------------------------------------" << std::endl;
+   std::cout << "            make_df_restraints_indices() " << size() << std::endl;
+   std::cout << "---------------------------------------------------------------" << std::endl;
 
    // does restraints index vectors and df_by_thread_results
 
@@ -87,10 +87,10 @@ coot::restraints_container_t::make_df_restraints_indices() {
 
    if (false) { // debug thread-based restraints splitting
       for (std::size_t ii=0; ii<restraints_indices.size(); ii++) {
-	 std::cout << "::: thread " << ii << " has restraints ";
-	 for (std::size_t jj=0; jj<restraints_indices[ii].size(); jj++)
-	    std::cout << " " << restraints_indices[ii][jj];
-	 std::cout << std::endl;
+	      std::cout << "::: thread " << ii << " has restraints ";
+	      for (std::size_t jj=0; jj<restraints_indices[ii].size(); jj++)
+	         std::cout << " " << restraints_indices[ii][jj];
+	      std::cout << std::endl;
       }
    }
 
@@ -130,7 +130,7 @@ coot::restraints_container_t::clear_df_by_thread_results() {
    for (std::size_t i=0; i<df_by_thread_results.size(); i++) {
       std::vector<double> &v = df_by_thread_results[i];
       for (std::size_t j=0; j<v.size(); j++) {
-	 v[j] = 0.0;
+	      v[j] = 0.0;
       }
    }
 }
@@ -192,26 +192,44 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
    unsigned int n_r_s = restraints_p->restraints_indices.size();
    unsigned int n_variables = restraints_p->n_variables();
 
+   // consolidate - ~300us, GM restraints don't slow things down!? How can that be? Cache misses?
+   //
+   bool do_single_threaded_method = true;
+
+   if (do_single_threaded_method) {
+      for (std::size_t i_r_s=0; i_r_s<n_r_s; i_r_s++) {
+         const std::vector<double> &results_block = restraints_p->df_by_thread_results[i_r_s];
+         for (unsigned int i=0; i<n_variables; i++) {
+            if (results_block[i] != 0.0) { // this does speed things up a bit
+               *gsl_vector_ptr(df, i) += results_block[i];
+            }
+         }
+      }
+   } else {
+     // use consolidate_derivatives
+
+   // fill results_block
+   // void consolidate_dfs_for_atoms(int thread_index, std::pair<int, int> atom_indices,
+   //                                std::vector<double> *results_block_p,
+   //                                std::atomic<unsigned int> &done_count_for_threads);
+   // No, actually, before you do that - you've tried something like this before, I think.
+   // consolidate_derivatives.
+
    /*
       using threads slows things down by ~250us (baah!)
 
       unsigned int n_var_split = n_variables/2;
       done_count_for_threads = 0;
-      restraints_p->thread_pool_p->push(consolidate_derivatives, n_r_s,           0, n_var_split, restraints_p->df_by_thread_results, df, std::ref(done_count_for_threads));
-      restraints_p->thread_pool_p->push(consolidate_derivatives, n_r_s, n_var_split, n_variables, restraints_p->df_by_thread_results, df, std::ref(done_count_for_threads));
+      restraints_p->thread_pool_p->push(consolidate_derivatives, n_r_s,
+                                        0, n_var_split, restraints_p->df_by_thread_results,
+                                        df, std::ref(done_count_for_threads));
+      restraints_p->thread_pool_p->push(consolidate_derivatives, n_r_s, n_var_split,
+                                        n_variables, restraints_p->df_by_thread_results,
+                                        df, std::ref(done_count_for_threads));
       while (done_count_for_threads != 2)
          std::this_thread::sleep_for(std::chrono::microseconds(1));
    */
 
-   // consolidate - ~300us, GM restraints don't slow things down!? How can that be? Cache misses?
-   //
-   for (std::size_t i_r_s=0; i_r_s<n_r_s; i_r_s++) {
-      const std::vector<double> &results_block = restraints_p->df_by_thread_results[i_r_s];
-      for (unsigned int i=0; i<n_variables; i++) {
-         if (results_block[i] != 0.0) { // this does speed things up a bit
-            *gsl_vector_ptr(df, i) += results_block[i];
-         }
-      }
    }
 
    //x auto tp_4 = std::chrono::high_resolution_clock::now();
@@ -233,10 +251,10 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
 
       for (std::size_t ii=0; ii<restraints_p->df_by_thread_atom_indices.size(); ii++) {
          restraints_p->thread_pool_p->push(process_electron_density_dfs_for_atoms,
-            restraints_p->df_by_thread_atom_indices[ii],
-            restraints_p, v, df,
-            std::ref(done_count_for_threads));
-         }
+                                           restraints_p->df_by_thread_atom_indices[ii],
+                                           restraints_p, v, df,
+                                           std::ref(done_count_for_threads));
+      }
 
       //x auto tp_6 = std::chrono::high_resolution_clock::now();
 
@@ -258,7 +276,7 @@ coot::split_the_gradients_with_threads(const gsl_vector *v,
       auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
       auto d76 = chrono::duration_cast<chrono::microseconds>(tp_7 - tp_6).count();
       if (true)
-	 std::cout << "timings:: distortion "
+	      std::cout << "timings:: distortion "
 		   << "d10 " << std::setw(5) << d10 << " "
 		   << "d21 " << std::setw(5) << d21 << " "
 		   << "d32 " << std::setw(5) << d32 << " "
@@ -313,7 +331,7 @@ coot::process_dfs_in_range(int thread_idx,
       if (restraints_indices[i] >= n_restraints)
          continue;
 
-      const simple_restraint &rest = restraints_p->at(restraints_indices[i]);
+      const simple_restraint &rest = (*restraints_p)[restraints_indices[i]];
 
       if (false)
          std::cout << "process_dfs_in_range() i " << i << " restraint index " << restraints_indices[i]
@@ -359,6 +377,10 @@ coot::process_dfs_in_range(int thread_idx,
       if (restraints_p->restraints_usage_flag & coot::PLANES_MASK)
          if (rest.restraint_type == coot::PLANE_RESTRAINT)
             process_dfs_plane(rest, v, results);
+
+      if (restraints_p->restraints_usage_flag & coot::IMPROPER_DIHEDRALS_MASK)
+         if (rest.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT)
+            process_dfs_improper_dihedral(rest, v, results);
 
       if (restraints_p->restraints_usage_flag & coot::TRANS_PEPTIDE_MASK)
          if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT)
@@ -549,7 +571,7 @@ coot::process_dfs_angle(const coot::simple_restraint &restraint,
       // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib*w_ds_dth);
 
       if (false)
-	 std::cout << "debug angle gradient: " << idx << " "
+         std::cout << "debug angle gradient: " << idx << " "
 		   << " theta " << theta << " target_value " << target_value << " "
 		   << std::setw(12) << x_k_contrib << " "
 		   << std::setw(12) << y_k_contrib << " "
@@ -794,6 +816,102 @@ coot::process_dfs_chiral_volume(const coot::simple_restraint &restraint,
       results[idx  ] += s * P3_x_contrib;
       results[idx+1] += s * P3_y_contrib;
       results[idx+2] += s * P3_z_contrib;
+   }
+}
+
+
+void
+coot::process_dfs_improper_dihedral(const coot::simple_restraint &restraint,
+				                        const gsl_vector *v,
+				                        std::vector<double> &results) { // fill results
+
+   double cv;
+   double distortion;
+
+   int idx;
+
+   idx = 3*( restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*( restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*( restraint.atom_index_3);
+   clipper::Coord_orth a3(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*restraint.atom_index_4;
+   clipper::Coord_orth centre(gsl_vector_get(v, idx),
+			      gsl_vector_get(v, idx+1),
+			      gsl_vector_get(v, idx+2));
+
+   clipper::Coord_orth a = a1 - centre;
+   clipper::Coord_orth b = a2 - centre;
+   clipper::Coord_orth c = a3 - centre;
+
+   cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+   distortion = cv;
+   if (false) // debug
+      std::cout << "process_dfs_improper_dihedral " << distortion << "\n";
+
+   double P0_x_contrib =
+      - (b.y()*c.z() - b.z()*c.y())
+      - (a.z()*c.y() - a.y()*c.z())
+      - (a.y()*b.z() - a.z()*b.y());
+
+   double P0_y_contrib =
+      - (b.z()*c.x() - b.x()*c.z())
+      - (a.x()*c.z() - a.z()*c.x())
+      - (a.z()*b.x() - a.x()*b.z());
+
+   double P0_z_contrib =
+      - (b.x()*c.y() - b.y()*c.x())
+      - (a.y()*c.x() - a.x()*c.y())
+      - (a.x()*b.y() - a.y()*b.x());
+
+   double P1_x_contrib = b.y()*c.z() - b.z()*c.y();
+   double P1_y_contrib = b.z()*c.x() - b.x()*c.z();
+   double P1_z_contrib = b.x()*c.y() - b.y()*c.x();
+
+   double P2_x_contrib = a.z()*c.y() - a.y()*c.z();
+   double P2_y_contrib = a.x()*c.z() - a.z()*c.x();
+   double P2_z_contrib = a.y()*c.x() - a.x()*c.y();
+
+   double P3_x_contrib = a.y()*b.z() - a.z()*b.y();
+   double P3_y_contrib = a.z()*b.x() - a.x()*b.z();
+   double P3_z_contrib = a.x()*b.y() - a.y()*b.x();
+
+   double sigma = restraint.sigma;
+   double s = 2.0 * distortion/(sigma * sigma);
+
+   if (!restraint.fixed_atom_flags[0]) {
+      idx = 3*( restraint.atom_index_1);
+      results[idx  ] += s * P1_x_contrib;
+      results[idx+1] += s * P1_y_contrib;
+      results[idx+2] += s * P1_z_contrib;
+   }
+
+   if (!restraint.fixed_atom_flags[1]) {
+      idx = 3*( restraint.atom_index_2);
+      results[idx  ] += s * P2_x_contrib;
+      results[idx+1] += s * P2_y_contrib;
+      results[idx+2] += s * P2_z_contrib;
+   }
+
+   if (!restraint.fixed_atom_flags[2]) {
+      idx = 3*( restraint.atom_index_3);
+      results[idx  ] += s * P3_x_contrib;
+      results[idx+1] += s * P3_y_contrib;
+      results[idx+2] += s * P3_z_contrib;
+   }
+
+   if (!restraint.fixed_atom_flags[3]) {
+      idx = 3*( restraint.atom_index_4);
+      results[idx  ] += s * P0_x_contrib;
+      results[idx+1] += s * P0_y_contrib;
+      results[idx+2] += s * P0_z_contrib;
    }
 }
 
@@ -1084,7 +1202,7 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
    } else {
 
       double scale = log_cosh_target_distance_scale_factor;
-      double top_out_dist = 4.0;  // Angstroms, needs tweaking?
+     double top_out_dist = 4.0;  // Angstroms, needs tweaking?
       double k = 1.0 / top_out_dist;
 
       clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
@@ -1436,8 +1554,8 @@ coot::process_dfs_rama(const coot::simple_restraint &rama_restraint,
       double multiplier_psi = 1.0;
 
       if (restraints->rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-	 std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
-	 if (false)
+	      std::pair<float,float> zo_rama_pair = restraints->zo_rama_grad(rama_restraint.rama_plot_residue_type, phir, psir);
+	         if (false)
 	    std::cout << "debug:: in my_df_rama() rama_plot_residue_type is "
 		      << rama_restraint.rama_plot_residue_type << " gradients "
 		      << zo_rama_pair.first << " " << zo_rama_pair.second

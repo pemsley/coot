@@ -335,13 +335,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
             glEnable(GL_LIGHTING);
             glEnable(GL_LIGHT0);
             glEnable(GL_LIGHT1);
-            glEnable(GL_LIGHT3);
-            glEnable(GL_LIGHT4);
-            glDisable(GL_LIGHT2);
- 	    n_display_list_objects +=
- 	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
-	    glDisable(GL_LIGHTING);
-	 }
+            n_display_list_objects +=
+               graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
+            glDisable(GL_LIGHTING);
+	      }
 
 	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
 	    glEnable(GL_LIGHTING);
@@ -431,7 +428,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       if (graphics_info_t::show_origin_marker_flag) {
          glLineWidth(1.0);
-         glColor3f(0.7,0.7,0.2);
+         glColor3f(0.8,0.8,0.8);
          myWireCube (0.6);
       }
 

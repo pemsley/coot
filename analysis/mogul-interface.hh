@@ -49,6 +49,15 @@ namespace coot {
       mogul_item() {
 	 max_badness = 5.0;
 	 type = NONE;
+	 value = 0;
+	 idx_1 = 0;
+	 idx_2 = 0;
+	 counts = 0;
+	 mean = 0;
+	 median = 0;
+	 std_dev = 0;
+	 z = 0;
+	 max_badness = 0;
       }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in,
 		 float value_in,

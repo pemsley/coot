@@ -7148,42 +7148,11 @@ molecule_class_info_t::has_display_list_objects() {
 int
 molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
-   //    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size()
-   // << std::endl;
-   //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
-
-   GLfloat  ambientLight[] = { 0.01f, 0.01f, 0.01f, 0.f };
-   GLfloat  diffuseLight[] = { 0.04f, 0.04f, 0.04f, 0.f };
-   GLfloat specularLight[] = { 0.04f, 0.04f, 0.04f, 0.f };
-
-   // set light0 here too? // FIXME-lighting
-
-   // Assign created components to GL_LIGHT1
-   glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
-   glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
-   glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight);
-
    int n_objects = 0;
    if (draw_it) {
       if (display_list_tags.size() > 0) {
-	 // glEnable(GL_LIGHTING);
-
-	 // glEnable(GL_LIGHT0); // bright.
-	 // glEnable(GL_LIGHT1); // dim, off axis
-
-	 // glEnable(GL_LIGHT2); // very dark
-
-	 // glDisable(GL_LIGHT0);
-	 // glDisable(GL_LIGHT1);
-	 // glDisable(GL_LIGHT2);
-
-         glEnable(GL_LIGHT0);
-         glEnable(GL_LIGHT1);
-         glDisable(GL_LIGHT2);
-         glDisable(GL_LIGHT3);
-         glDisable(GL_LIGHT4);
-
 	 std::vector<coot::display_list_object_info>::const_iterator it;
+         glEnable(GL_COLOR_MATERIAL);
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 	    if (! it->is_closed) {
 	       if (it->display_it) {
@@ -7197,7 +7166,7 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 	       }
 	    }
 	 }
-	 glDisable(GL_LIGHTING);
+         glDisable(GL_COLOR_MATERIAL);
       }
    }
    return n_objects;
@@ -7289,30 +7258,10 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       }
 
-      GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
-
+      GLfloat bgcolor[4] = {0.8, 0.8, 0.8, 0.8};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 40);
-      //Let the returned colour dictate: note obligatory order of these calls
-      glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-      glEnable(GL_COLOR_MATERIAL);
-
-      GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
-      GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
-      // GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
-      GLfloat  mat_shininess[] = {50.0};
-
-      glShadeModel(GL_SMOOTH);
-
-//       // Do these things do anything??
-//       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-//       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-//       glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-//       glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-
-      glEnable(GL_DEPTH_TEST);
-      glEnable(GL_NORMALIZE);
 
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
 	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box_local.bonds_[ii];

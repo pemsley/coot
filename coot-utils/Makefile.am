@@ -39,7 +39,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh \
 	coot_shiftfield.h shiftfield.h
 
 
@@ -70,7 +70,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
-	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp
+	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc
 
 
 
@@ -84,7 +84,9 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
-    $(CLIPPER_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
+    $(top_builddir)/utils/libcoot-utils.la \
+    $(CLIPPER_LIBS) $(MMDB_LIBS) \
+    $(GSL_LIBS) $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) $(PYTHON_LIBS)
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 

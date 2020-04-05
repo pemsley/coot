@@ -537,6 +537,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    n_threads = 0;
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    log_cosh_target_distance_scale_factor = 3000.0;
+   convert_plane_restraints_to_improper_dihedral_restraints_flag = false; // as it was in 2019.
 }
 
 void
@@ -1273,7 +1274,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    // n_steps_per_relcalc_nbcs *= 10;
 
    n_times_called++;
-   n_small_cycles_accumulator += n_times_called * nsteps_max;
+   n_small_cycles_accumulator += nsteps_max;
 
    // std::cout << "------------ ::minimize() " << size() << " " << n_small_cycles_accumulator << std::endl;
 
@@ -1308,8 +1309,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
          unsigned int n_restraints = size();
-         std::cout << "minimize() nbc updated made " << n_new << " (new) nbc restraints: " << n_restraints << " total - timings: "
-                   << d10 << " " << d21 << " milliseconds" << std::endl;
+         std::cout << "minimize() nbc updated made " << n_new << " (new) nbc restraints: " << n_restraints
+                   << " total - timings: " << d10 << " " << d21 << " milliseconds" << std::endl;
       }
       n_small_cycles_accumulator = 0;
    }
@@ -1343,17 +1344,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
       }
    }
 
-   restraints_usage_flag = usage_flags;
-
    if (do_numerical_gradients_flag) {
       std::cout << "debug:: minimize_inner called with usage_flags " << usage_flags << std::endl;
       debug_atoms();
    }
-
-   // BOND + density fail: BONDS regularize works
-   // restraints_usage_flag = BONDS_AND_ANGLES;
-
-   // We get ~1ms/residue with bond and angle terms and no density terms.
 
    std::vector<refinement_lights_info_t> lights; // = chi_squareds("--------", m_s->x, false);
 
@@ -1803,7 +1797,8 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    int n_bond_restraints = 0; 
    int n_angle_restraints = 0; 
    int n_torsion_restraints = 0; 
-   int n_plane_restraints = 0; 
+   int n_plane_restraints = 0;
+   int n_improper_dihedral_restraints = 0;
    int n_non_bonded_restraints = 0;
    int n_chiral_volumes = 0;
    int n_rama_restraints = 0;
@@ -1823,6 +1818,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    double start_pos_distortion = 0;
    double target_pos_distortion = 0;
    double trans_peptide_distortion = 0;
+   double improper_dihedral_distortion = 0;
 
    // const be gone :-) (I only do this because we are interfacing with a
    // GSL function. Ideally params should be const void * for most of it's usages.
@@ -1874,6 +1870,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       baddies["Angles"].update_if_worse(dist, i);
 	    }
 	 }
+
+         if (restraints_usage_flag & IMPROPER_DIHEDRALS_MASK) {
+            if (restraint.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT) {
+               n_improper_dihedral_restraints++;
+               double dist = coot::distortion_score_improper_dihedral(restraint, v);
+               improper_dihedral_distortion += dist;
+               baddies["ImproperDihedrals"].update_if_worse(dist, i);
+            }
+         }
 
 	 if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
 	    if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
@@ -2036,7 +2041,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
-   } 
+   }
    if (n_angle_restraints == 0) {
       if (print_summary)
 	 std::cout << "angles:     N/A " << std::endl;
@@ -2057,7 +2062,21 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
-   } 
+   }
+   if (n_improper_dihedral_restraints == 0) {
+      if (print_summary)
+	 std::cout << "improper-dihedrals: N/A " << std::endl;
+   } else {
+      double idd = improper_dihedral_distortion/static_cast<double>(n_improper_dihedral_restraints);
+      if (print_summary)
+         std::cout << "improper-dihedrals: " << idd << std::endl;
+      r += "   improper-dihedrals: ";
+      r += util::float_to_string_using_dec_pl(idd, 3);
+      r += " ";
+      r += util::int_to_string(n_improper_dihedral_restraints);
+      r += "\n";
+      // add worst baddie handling here
+   }
    if (n_torsion_restraints == 0) {
       if (print_summary)
 	 std::cout << "torsions:   N/A " << std::endl;
@@ -2107,7 +2126,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (pd > 0.0)
 	 spd = sqrt(pd);
       if (print_summary)
-	 std::cout << "planes:     " << spd << std::endl;
+	 std::cout << "planes:     " << spd << " from " << n_plane_restraints << std::endl;
       r += "   planes: ";
       r += coot::util::float_to_string_using_dec_pl(spd, 3);
       r += "\n";
@@ -3671,6 +3690,9 @@ coot::restraints_container_t::make_monomer_restraints(int imol,
 
    // std::cout << "------------------------ in make_monomer_restraints() "
    // << do_residue_internal_torsions << std::endl;
+
+   std::cout << "------------------------ in make_monomer_restraints() "
+             << restraints_usage_flag << std::endl;
    
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(imol, geom, do_residue_internal_torsions);
@@ -3845,6 +3867,16 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	 if (restraints_usage_flag & PLANES_MASK)
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
+
+         if (restraints_usage_flag & IMPROPER_DIHEDRALS_MASK) {
+            // dictionaries need to be converted for this to happen.
+	    int n = add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms, residue_p, geom);
+            if (false)
+               std::cout << "debug:: in make_monomer_restraints_by_residue() made "
+                         << n << " improper_dihedrals" << std::endl;
+            local.n_improper_dihedral_restr += n;
+	 }
+
 
 	 if (restraints_usage_flag & CHIRAL_VOLUME_MASK) {
 	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
@@ -4627,6 +4659,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	    if (add_it) { 
 
 	       // Don't make a bump between the CD of a PRO at residue(n) and the atoms of n-1
+               // Hmm... Is that sensible?
 	    
 	       std::string res_name_1 = at_1->GetResName();
 	       std::string res_name_2 = at_2->GetResName();
@@ -4637,25 +4670,27 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << at_1->GetAtomName() << " " << at_2->GetAtomName()
 			    << std::endl;
 
-	       if (res_name_1 == "PRO" || res_name_1 == "HYP") {
-		  int res_no_pro   = res_no_1;
-		  int res_no_other = res_no_2;
-		  if (res_no_pro == (res_no_other + 1)) {
-		     std::string atom_name = at_1->name;
-		     if (atom_name == " CD ") {  // PDBv3 FIXME
-			add_it = false;
+               if (false) {
+	          if (res_name_1 == "PRO" || res_name_1 == "HYP") {
+		     int res_no_pro   = res_no_1;
+		     int res_no_other = res_no_2;
+		     if (res_no_pro == (res_no_other + 1)) {
+		        std::string atom_name = at_1->name;
+		        if (atom_name == " CD ") {  // PDBv3 FIXME
+			   add_it = false;
+		        }
 		     }
-		  }
-	       }
-	       if (res_name_2 == "PRO" || res_name_2 == "HYP") {
-		  int res_no_pro   = res_no_2;
-		  int res_no_other = res_no_1;
-		  if (res_no_pro == (res_no_other + 1)) {
-		     std::string atom_name = at_2->name;
-		     if (atom_name == " CD ") {  // PDBv3 FIXME
-			add_it = false;
-		     } 
-		  }
+	          }
+	          if (res_name_2 == "PRO" || res_name_2 == "HYP") {
+		     int res_no_pro   = res_no_2;
+		     int res_no_other = res_no_1;
+		     if (res_no_pro == (res_no_other + 1)) {
+		        std::string atom_name = at_2->name;
+		        if (atom_name == " CD ") {  // PDBv3 FIXME
+			   add_it = false;
+		        }
+		     }
+	          }
 	       }
 
 	       // hack to remove C1-OD1 NBC on N-linked glycosylation
@@ -6896,6 +6931,25 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
 
+   std::cout << "debug:: in add_planes(): with convert_plane_restraints_to_improper_dihedral_restraints_flag "
+	     << convert_plane_restraints_to_improper_dihedral_restraints_flag << std::endl;
+   if (! convert_plane_restraints_to_improper_dihedral_restraints_flag) {
+      int n_added = add_planes_multiatom_eigen(idr, res_selection, i_no_res_atoms, SelRes, geom);
+      // std::cout << "debug:: n_added (multiatom-eigen) " << n_added << std::endl;
+      return n_added;
+   } else {
+      int n_added = add_planes_as_improper_dihedrals(idr, res_selection, i_no_res_atoms, SelRes, geom);
+      // std::cout << "debug:: n_added (improper_dihedrals) " << n_added << std::endl;
+      return n_added;
+   }
+}
+
+int
+coot::restraints_container_t::add_planes_multiatom_eigen(int idr, mmdb::PPAtom res_selection,
+							 int i_no_res_atoms,
+							 mmdb::PResidue SelRes,
+							 const coot::protein_geometry &geom) {
+
    bool debug = false;
 
    if (debug)
@@ -6968,6 +7022,109 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
    return n_plane_restr; 
 }
 
+int
+coot::restraints_container_t::add_planes_as_improper_dihedrals(int idr, mmdb::PPAtom res_selection,
+                                           int i_no_res_atoms,
+                                           mmdb::PResidue SelRes,
+                                           const protein_geometry &geom) {
+   int n_impropers = 0;
+   int index1, index2, index3, index4;
+
+   std::vector<std::string> string_atom_names(i_no_res_atoms);
+   for (int iat=0; iat<i_no_res_atoms; iat++)
+      string_atom_names[iat] = res_selection[iat]->name;
+
+   for (unsigned int ic=0; ic<geom[idr].second.improper_dihedral_restraint.size(); ic++) {
+
+      const dict_improper_dihedral_restraint_t &dict_restraint = geom[idr].second.improper_dihedral_restraint[ic];
+      
+      if (true) {
+         for (int iat1=0; iat1<i_no_res_atoms; iat1++) {
+            const std::string &pdb_atom_name1 = string_atom_names[iat1];
+            if (pdb_atom_name1 == dict_restraint.atom_id_1_4c()) {
+
+               for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
+                  const std::string &pdb_atom_name2 = string_atom_names[iat2];
+                  if (pdb_atom_name2 == dict_restraint.atom_id_2_4c()) {
+
+                     for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
+                        const std::string &pdb_atom_name3 = string_atom_names[iat3];
+                        if (pdb_atom_name3 == dict_restraint.atom_id_3_4c()) {
+
+                           for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
+                              const std::string &pdb_atom_name4 = string_atom_names[iat4];
+                              if (pdb_atom_name4 == dict_restraint.atom_id_4_4c()) {
+                                 
+				 std::string alt_conf_1 = res_selection[iat1]->altLoc;
+				 std::string alt_conf_2 = res_selection[iat2]->altLoc;
+				 std::string alt_conf_3 = res_selection[iat3]->altLoc;
+				 std::string alt_conf_4 = res_selection[iat4]->altLoc;
+
+                                 if (((alt_conf_1 == alt_conf_4) || (alt_conf_1 == "")) &&
+                                     ((alt_conf_2 == alt_conf_4) || (alt_conf_2 == "")) &&
+                                     ((alt_conf_3 == alt_conf_4) || (alt_conf_3 == ""))) {
+
+				    res_selection[iat1]->GetUDData(udd_atom_index_handle, index1);
+				    res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
+				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
+				    res_selection[iat4]->GetUDData(udd_atom_index_handle, index4);
+
+				    std::vector<bool> fixed_flags =
+				    make_fixed_flags(index4, index1, index2, index3);
+				    float sigma = dict_restraint.sigma;
+                                    simple_restraint sr(IMPROPER_DIHEDRAL_RESTRAINT,
+                                                        index1, index2, index3, index4,
+                                                        sigma, fixed_flags);
+                                    restraints_vec.push_back(sr); // push_back_restraint()
+				    n_impropers++;
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return n_impropers;
+
+}
+
+
+
+void
+coot::restraints_container_t::convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_and_sigma,
+										       const std::vector<bool> &fixed_atom_flags) {
+
+   if (atom_index_and_sigma.size() == 4) {
+
+#if 0
+      double sigma = 0.01;
+      simple_restraint sr(IMPROPER_DIHEDRAL_RESTRAINT,
+                          atom_and_index_sigma[3].first, atom_and_index_sigma[0].first, atom_and_index_sigma[1].first, atom_and_index_sigma[2].first,
+                          sigma, fixed_flags);
+      restraints_vec.push_back(sr);
+#endif
+
+   } else {
+
+      // is 5 (planar peptide restraints from link restraints). We shouldn't get here by any other
+      // (say monomer dictionary) means.
+
+      if (atom_index_and_sigma.size() == 5) {
+
+      } else {
+
+         std::cout << "ERROR:: in convert_plane_restraints_to_improper_dihedral_restraints() "
+                   << atom_index_and_sigma.size() << std::endl;
+      }
+   }
+
+}
+
+
 
 int
 coot::restraints_container_t::add_rama(const coot::rama_triple_t &rt, const coot::protein_geometry &geom) {
@@ -6990,30 +7147,30 @@ coot::restraints_container_t::add_rama(std::string link_type,
 				       const coot::protein_geometry &geom) {
 
    // Old notes:
-   // TRANS    psi      1 N      1 CA     1 C      2 N   
-   // TRANS    phi      1 C      2 N      2 CA     2 C   
+   // TRANS    psi      1 N      1 CA     1 C      2 N
+   // TRANS    phi      1 C      2 N      2 CA     2 C
    // TRANS    omega    1 CA     1 C      2 N      2 CA
    //
    // New assignements:
    // TRANS    psi    (2nd N) (2nd CA) (2nd C ) (3nd N)
-   // TRANS    phi    (1st C) (2nd N ) (2nd CA) (2nd C) 
-   // 
+   // TRANS    phi    (1st C) (2nd N ) (2nd CA) (2nd C)
+   //
    // So Rama_atoms in this order:
    //   0       1        2      3         4
    // (1st C) (2nd N) (2nd CA) (2nd C) (3rd N)
 
-   
+
    //std::cout << "DEBUG:: --------- :: Adding RAMA phi_psi_restraints_type for " << this_res
    //     << std::endl;
-   
+
    int n_rama = 0;
-      
+
    mmdb::PPAtom prev_sel;
    mmdb::PPAtom this_sel;
    mmdb::PPAtom post_sel;
    int n_first_res_atoms, n_second_res_atoms, n_third_res_atoms;
 
-   prev_res->GetAtomTable(prev_sel,  n_first_res_atoms); 
+   prev_res->GetAtomTable(prev_sel,  n_first_res_atoms);
    this_res->GetAtomTable(this_sel, n_second_res_atoms);
    post_res->GetAtomTable(post_sel,  n_third_res_atoms);
 

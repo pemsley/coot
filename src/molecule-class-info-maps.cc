@@ -1893,6 +1893,8 @@ molecule_class_info_t::unskeletonize_map() {
    xskel_cowtan = empty;
 }
 
+#include "coot-utils/slurp-map.hh"
+
 // Return -1 on error
 int
 molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
@@ -1985,75 +1987,83 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    bool em = false;
 
    if ( map_file_type == CCP4 ) {
-     std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
-     // clipper::CCP4MAPfile file;
-     clipper_map_file_wrapper file;
-     try {
-	file.open_read(filename);
 
-	em = set_is_em_map(file);
+      bool done = false;
+      if (coot::util::is_basic_em_map_file(filename)) {
+         em = true;
+         // fill xmap
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap);
+      }
 
-	bool use_xmap = true; // not an nxmap
-	if (true) {
+      if (! done) {
+         std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+         // clipper::CCP4MAPfile file;
+         clipper_map_file_wrapper file;
+         try {
+            file.open_read(filename);
 
-	   clipper::Grid_sampling fgs = file.grid_sampling();
+            em = set_is_em_map(file);
 
-	   std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
+            bool use_xmap = true; // not an nxmap
+            if (true) {
 
-	   clipper::Cell fcell = file.cell();
-	   double vol = fcell.volume();
-	   if (vol < 1.0) {
-	      std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
-			<< std::endl;
-	      bad_read = true;
-	   } else {
+               clipper::Grid_sampling fgs = file.grid_sampling();
 
-	      try {
-		 file.import_xmap(xmap);
-	      }
-	      catch (const clipper::Message_generic &exc) {
-		 std::cout << "WARNING:: failed to read " << filename
-			   << " Bad ASU (inconsistant gridding?)." << std::endl;
-		 bad_read = true;
-	      }
-	   }
-	} else {
+               std::cout << ".......................... grid sampling " << fgs.format() << std::endl;
 
-	   // Should never happen.  Not yet.
-	   //
-	   std::cout << "=================== EM Map NXmap =================== " << std::endl;
-	   file.import_nxmap(nxmap);
-	   std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
-	}
-     } catch (const clipper::Message_base &exc) {
-	std::cout << "WARNING:: failed to open " << filename << std::endl;
-	bad_read = true;
-     }
+               clipper::Cell fcell = file.cell();
+               double vol = fcell.volume();
+               if (vol < 1.0) {
+                  std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+                  << std::endl;
+                  bad_read = true;
+               } else {
+                  try {
+                     file.import_xmap(xmap);
+                  }
+                  catch (const clipper::Message_generic &exc) {
+                     std::cout << "WARNING:: failed to read " << filename
+                     << " Bad ASU (inconsistant gridding?)." << std::endl;
+                     bad_read = true;
+                  }
+               }
+            } else {
 
-     std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
+               // Should never happen.  Not yet.
+               //
+               std::cout << "=================== EM Map NXmap =================== " << std::endl;
+               file.import_nxmap(nxmap);
+               std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+            }
+         } catch (const clipper::Message_base &exc) {
+            std::cout << "WARNING:: failed to open " << filename << std::endl;
+            bad_read = true;
+         }
 
-     if (em) {
+         std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
 
-	// If this was the first map, recentre to the middle of the cell
-	//
-	if (imol_no == 0) {
-	   clipper::Cell c = file.cell();
-	   coot::Cartesian m(0.5*c.descr().a(),
-			     0.5*c.descr().b(),
-			     0.5*c.descr().c());
-	   new_centre.first = true;
-	   new_centre.second = m;
-           std::cout << "INFO:: map appears to be EM map."<< std::endl;
-	}
-	std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
-	file.close_read();
+         if (em) {
 
-	if (new_centre.first) {
-	   graphics_info_t g;
-	   g.setRotationCentre(new_centre.second);
-	}
-     }
+            // If this was the first map, recentre to the middle of the cell
+            //
+            if (imol_no == 0) {
+               clipper::Cell c = file.cell();
+               coot::Cartesian m(0.5*c.descr().a(),
+               0.5*c.descr().b(),
+               0.5*c.descr().c());
+               new_centre.first = true;
+               new_centre.second = m;
+               std::cout << "INFO:: map appears to be EM map."<< std::endl;
+            }
+            std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
+            file.close_read();
 
+            if (new_centre.first) {
+               graphics_info_t g;
+               g.setRotationCentre(new_centre.second);
+            }
+         }
+      }
    } else {
      std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
      clipper::CNSMAPfile file;
@@ -3565,7 +3575,7 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_1(int thread_index,
 						      int n_atoms,
 						      const std::vector<mmdb::Atom *> &initial_atoms,
 						      const clipper::Coord_orth &centre_pt,
-						      float jiggle_scale_factor,
+						      float jiggle_translation_scale_factor,
 						      const std::vector<std::pair<std::string, int> > &atom_numbers,
 						      const clipper::Xmap<float> *xmap_masked_p,
 						      float (*density_scoring_function)(const coot::minimol::molecule &mol,
@@ -3573,11 +3583,11 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_1(int thread_index,
 											const clipper::Xmap<float> &map),
 						      std::pair<clipper::RTop_orth, float> *trial_results_p) {
    molecule_class_info_t m;
-   float annealing_factor = 1 - float(i_trial)/float(n_trials);
+   float annealing_factor = 1.0 - static_cast<float>(i_trial)/static_cast<float>(n_trials);
    std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
-      coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+      coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_translation_scale_factor, annealing_factor);
    coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-   float this_score = density_scoring_function(jiggled_mol, atom_numbers, *xmap_masked_p);
+   float this_score = density_scoring_function(jiggled_mol, atom_numbers, std::cref(*xmap_masked_p));
    std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
    *trial_results_p = p;
 }
@@ -3604,8 +3614,8 @@ molecule_class_info_t::jiggle_fit_multi_thread_func_2(int thread_index,
    molecule_class_info_t m;
    coot::minimol::molecule fitted_mol = m.rigid_body_fit(trial_mol, xmap_masked, map_sigma);
    // sorting and selection works by sorting the score of fitted_mols.
-   float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-   std::cout << " thread_index " << std::setw(2) << thread_index
+   float this_score = density_scoring_function(fitted_mol, atom_numbers, std::cref(xmap_masked));
+   std::cout << "jiggle_fit_multi_thread_func_2() thread_index " << std::setw(2) << thread_index
 	     << " pre-score " << std::setw(5) << pre_score
 	     << " post-fit-score " << std::setw(5) << this_score << std::endl;
    post_fit_scores_p->second = this_score; // hand the score back
@@ -3659,8 +3669,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    if (true)
       density_scoring_function = coot::util::z_weighted_density_score_nearest;
 
-   if (use_biased_density_scoring)
-      density_scoring_function = coot::util::biased_z_weighted_density_score;
+   // if (use_biased_density_scoring)
+   //   density_scoring_function = coot::util::biased_z_weighted_density_score;
 
 
    // what residues are near to but not in atom_selection?
@@ -3688,13 +3698,13 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       mmdb::Residue *res_ref = central_residues[ires];
       std::pair<bool, clipper::Coord_orth> pt = residue_centre(res_ref);
       if (pt.first) {
-	 std::vector<mmdb::Residue *> r_residues =
-	    coot::residues_near_position(pt.second, atom_sel.mol, radius);
-	 for (unsigned int ii=0; ii<r_residues.size(); ii++) {
-	    if (std::find(neighbs.begin(), neighbs.end(), r_residues[ii]) == neighbs.end())
-	       if (std::find(central_residues.begin(), central_residues.end(), r_residues[ii]) == central_residues.end())
-		  neighbs.push_back(r_residues[ii]);
-	 }
+         std::vector<mmdb::Residue *> r_residues =
+         coot::residues_near_position(pt.second, atom_sel.mol, radius);
+         for (unsigned int ii=0; ii<r_residues.size(); ii++) {
+            if (std::find(neighbs.begin(), neighbs.end(), r_residues[ii]) == neighbs.end())
+            if (std::find(central_residues.begin(), central_residues.end(), r_residues[ii]) == central_residues.end())
+            neighbs.push_back(r_residues[ii]);
+         }
       }
    }
 
@@ -3708,9 +3718,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    float best_score = initial_score;
 
-   std::cout << "------------------ initial_score " << initial_score
-             << " -----------------" << std::endl;
-   bool  bested = false;
+   std::cout << "---------------- initial_score " << initial_score << " ---------------" << std::endl;
+   bool bested = false;
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
 
@@ -3739,20 +3748,22 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
       try {
-	 unsigned int n_threads = coot::get_max_number_of_threads();
+         unsigned int n_threads = coot::get_max_number_of_threads();
 
-	 for (int itrial=0; itrial<n_trials; itrial++) {
+         for (int itrial=0; itrial<n_trials; itrial++) {
 
-	    auto tp_1 = std::chrono::high_resolution_clock::now();
+            auto tp_1 = std::chrono::high_resolution_clock::now();
 
+            // throw into the mix a model that has been only small rotated/translate
+            // or maybe nothing at all.
 
-	    graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
+            graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
 						     initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
 						     &xmap_masked, // pointer arg, no std::ref()
 						     density_scoring_function, &trial_results[itrial]);
 
-	    auto tp_2 = std::chrono::high_resolution_clock::now();
-	    auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+            auto tp_2 = std::chrono::high_resolution_clock::now();
+            auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
 	    // not to self: it takes 40ms to copy a const xmap reference to the function.
 	    // question for self: was it actually a reference though? I suspect not, because
 	    // std::ref() was not in the code until I (just) added it.
@@ -3761,7 +3772,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	    // this is useful for debugging, but makes a mess
 	    if (false)
 	       std::cout << "pushing trial thread into pool: " << itrial << " " << d21
-			 << " microseconds" << std::endl;
+	                 << " microseconds" << std::endl;
 	 }
 
 	 // wait for thread pool to finish jobs.
@@ -3804,16 +3815,16 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    }
 
    std::sort(trial_results.begin(),
-	     trial_results.end(),
- 	     trial_results_comparer);
+             trial_results.end(),
+             trial_results_comparer);
 
    // sorted results (debugging)
    if (false) {
       unsigned int n_top = 20;
       if (trial_results.size() < 20)
-	 n_top = trial_results.size();
+         n_top = trial_results.size();
       for (unsigned int i_trial=0; i_trial<n_top; i_trial++)
-	 std::cout << " debug sorted trials: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+         std::cout << " debug sorted trials: " << i_trial << " " << trial_results[i_trial].second << std::endl;
    }
 
    // Here grid-search each of top n_for_rigid solution, replacing
@@ -3833,11 +3844,12 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    try {
       for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
          // does the fitting
-         graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, std::ref(xmap_masked), map_sigma,
-         centre_pt, atom_numbers,
-         trial_results[i_trial].second,
-         density_scoring_function,
-         &post_fit_trial_results[i_trial]);
+         graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol,
+                                                  std::cref(xmap_masked), map_sigma,
+                                                  centre_pt, atom_numbers,
+                                                  trial_results[i_trial].second,
+                                                  density_scoring_function,
+                                                  &post_fit_trial_results[i_trial]);
       }
 
       // wait
@@ -3865,9 +3877,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-      << std::setw(3) << i_trial << ": prelim-score was "
-      << std::setw(7) << trial_results[i_trial].second << " post-fit "
-      << std::setw(5) << this_score;
+		<< std::setw(3) << i_trial << ": prelim-score was "
+		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
+		<< std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
          best_score_so_far = this_score;
          if (this_score > initial_score) {
@@ -3880,27 +3892,37 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 #endif // HAVE_CXX_THREAD
 
    std::sort(post_fit_trial_results.begin(),
-	     post_fit_trial_results.end(),
- 	     trial_results_comparer);
+             post_fit_trial_results.end(),
+             trial_results_comparer);
 
-    if (post_fit_trial_results[0].second > initial_score) {
-       bested = true;
-       best_rtop = post_fit_trial_results[0].first; // the rtop from before the rigid-body fitting
-       coot::minimol::molecule  post_fit_mol = direct_mol;
-       post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
-       coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap_masked, map_sigma);
-       best_molecule = fitted_mol;
+   if (true) {
+      unsigned int n_top = 10;
+      if (trial_results.size() < 10)
+         n_top = trial_results.size();
+      for (unsigned int i_trial=0; i_trial<n_top; i_trial++)
+         std::cout << " debug:: raw        sorted trials: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+      for (int i_trial=0; i_trial<n_for_rigid; i_trial++)
+         std::cout << " debug:: post-rigid sorted trials: " << i_trial << " " << post_fit_trial_results[i_trial].second << std::endl;
+   }
 
-       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-       std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
-       best_score = this_score;
-    }
+   if (post_fit_trial_results[0].second > initial_score) {
+      bested = true;
+      best_rtop = post_fit_trial_results[0].first; // the rtop from before the rigid-body fitting
+      coot::minimol::molecule  post_fit_mol = direct_mol;
+      post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
+      coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap_masked, map_sigma);
+      best_molecule = fitted_mol;
+
+      float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
+      std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+      best_score = this_score;
+   }
 
    //
    if (bested) {
       make_backup();
-      std::cout << "INFO:: Improved fit from " << initial_score << " to "
-		<< best_score << std::endl;
+      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+
       v = best_score;
       if (! best_molecule.is_empty()) {
          mmdb::Manager *mol = best_molecule.pcmmdbmanager();
@@ -3908,62 +3930,63 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
             if (!chains_for_moving.empty()) {
 
-	       // move the atoms of chain for moving, not the atoms of the atom selection
-	       //
-	       // now fitted_mol contains the atoms of the atom selection fitted to density
-	       // We need to find the transformation from the current/original coordintes
-	       // to that fitted mol coordinates and then apply them to all the atom
-	       // in the chain
+               // move the atoms of chain for moving, not the atoms of the atom selection
+               //
+               // now fitted_mol contains the atoms of the atom selection fitted to density
+               // We need to find the transformation from the current/original coordintes
+               // to that fitted mol coordinates and then apply them to all the atom
+               // in the chain
 
-         std::cout << "DEBUG: we have " << chains_for_moving.size() << " chains for moving" << std::endl;
-         for(unsigned int ich=0; ich<chains_for_moving.size(); ich++) {
-            mmdb::Chain *chain_for_moving = chains_for_moving[ich];
-            std::string chain_id = chain_for_moving->GetChainID();
-            std::cout << "DEBUG:: chain_for_moving " << chain_for_moving << " " << chain_id
-                      << std::endl;
-            std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
-            if (mmr.second >= mmr.first) {
-               std::vector<coot::lsq_range_match_info_t> matches;
-               coot::lsq_range_match_info_t match(mmr.first,
-                   mmr.second, chain_id,
-                   mmr.first,
-                   mmr.second, chain_id,
-                   COOT_LSQ_MAIN);
-               matches.push_back(match);
-               mmdb::Manager *mol_1 = mol;
-               mmdb::Manager *mol_2 = atom_sel.mol;
-               std::pair<short int, clipper::RTop_orth> lsq_mat =
-               coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
-               const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
-               coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
+               std::cout << "DEBUG: we have " << chains_for_moving.size() << " chains for moving"
+               << std::endl;
+
+               for (unsigned int ich=0; ich<chains_for_moving.size(); ich++) {
+                  mmdb::Chain *chain_for_moving = chains_for_moving[ich];
+                  std::string chain_id = chain_for_moving->GetChainID();
+                  std::cout << "DEBUG:: chain_for_moving " << chain_for_moving << " " << chain_id
+                  << std::endl;
+                  std::pair<int, int> mmr = coot::util::min_and_max_residues(chain_for_moving);
+                  if (mmr.second >= mmr.first) {
+                     std::vector<coot::lsq_range_match_info_t> matches;
+                     coot::lsq_range_match_info_t match(mmr.first,
+                                                        mmr.second, chain_id,
+                                                        mmr.first,
+                                                        mmr.second, chain_id,
+                                                        COOT_LSQ_MAIN);
+                     matches.push_back(match);
+                     mmdb::Manager *mol_1 = mol;
+                     mmdb::Manager *mol_2 = atom_sel.mol;
+                     std::pair<short int, clipper::RTop_orth> lsq_mat =
+                        coot::util::get_lsq_matrix(mol_1, mol_2, matches, 1, false);
+                     if (lsq_mat.first) {
+                        const clipper::RTop_orth &rtop_of_fitted_mol = lsq_mat.second;
+                        coot::util::transform_chain(chain_for_moving, rtop_of_fitted_mol);
+                        std::cout << "DEBUG:: transforming chain " << chain_id << ":\n";
+                        std::cout << rtop_of_fitted_mol.format() << "\n";
+
+                     } else {
+                        std::cout << "WARNING:: failed to make a rtop matrix" << std::endl;
+                     }
+                  }
+               }
+
+	         } else {
+
+               // there were no chains for moving, so we apply the rtop to everything
+               // with replace_coords().
+
+               atom_selection_container_t asc_ligand = make_asc(mol);
+               replace_coords(asc_ligand, false, true);
             }
+
+            have_unsaved_changes_flag = 1;
+            make_bonds_type_checked();
+         } else {
+            std::cout << "ERROR:: fit_to_map_by_random_jiggle(): mol is null! " << std::endl;
          }
-
-	    } else {
-
-	       atom_selection_container_t asc_ligand = make_asc(mol);
-
-          if (false) { // debug
-             std::cout << "===== initial positions: =====" << std::endl;
-             for (int iat=0; iat<n_atoms; iat++) {
-                std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
-             }
-             std::cout << "===== moved to: =====" << std::endl;
-             for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
-                std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
-             }
-          }
-          replace_coords(asc_ligand, false, true);
-       }
-
-	    have_unsaved_changes_flag = 1;
-	    make_bonds_type_checked();
-	 } else {
-	    std::cout << "ERROR:: fit_to_map_by_random_jiggle(): mol is null! " << std::endl;
-	 }
-	 delete mol;
+         delete mol;
       } else {
-	 std::cout << "ERROR:: fit_to_map_by_random_jiggle(): best_molecule is empty!" << std::endl;
+         std::cout << "ERROR:: fit_to_map_by_random_jiggle(): best_molecule is empty!" << std::endl;
       }
    } else {
       std::cout << " nothing better found " << std::endl;

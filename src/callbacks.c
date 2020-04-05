@@ -10069,7 +10069,8 @@ void
 on_model_toolbar_refmac_button_clicked (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
-  wrapped_create_run_refmac_dialog();
+  /* wrapped_create_run_refmac_dialog(); */
+  wrapped_create_simple_refmac_dialog();
 
 }
 
@@ -12662,5 +12663,92 @@ on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
    /* set_use_perspective_projection(1); */
 
    printf("This caused linking problems - so was removed - must fix\n");
+}
+
+void
+on_simple_refmac_dialog_response       (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data)
+{
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      /* do I need to do this? */
+      /* gtk_widget_destroy(dialog); */
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_destroy(GTK_WIDGET(dialog));
+   }
+
+   if (response_id == GTK_RESPONSE_OK) {
+      simple_refmac_run_refmac(GTK_WIDGET(dialog));
+      gtk_widget_destroy(GTK_WIDGET(dialog));
+   }
+
+}
+
+
+void
+on_simple_refmac_dialog_close          (GtkDialog       *dialog,
+                                        gpointer         user_data)
+{
+   /* Do I need to do anything here? */
+}
+
+void
+on_simple_refmac_mtz_file_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = create_simple_refmac_filechooserdialog();
+   GtkWidget *simple_refmac_dialog = lookup_widget(GTK_WIDGET(button), "simple_refmac_dialog");
+   /* automtically file filter only mtz files */
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.mtz");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(w), filterselect);
+   /* we need to find the file combo box in the simple refmac dialog */
+   g_object_set_data(G_OBJECT(w), "simple_refmac_dialog", simple_refmac_dialog);
+   gtk_widget_show(w);
+}
+
+void
+on_simple_refmac_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data)
+{
+   const gchar *file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   GtkWidget *simple_refmac_dialog = 0;
+   GtkWidget *file_combobox = 0;
+   /* get rid of these with GTK3 */
+   GtkTreeModel *model_from_combobox = 0;
+   GtkListStore *store_from_model = 0;
+
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      printf("on_simple_refmac_filechooserdialog_response() Close\n");
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      printf("on_simple_refmac_filechooserdialog_response() Cancel\n");
+   }
+
+   if (response_id == GTK_RESPONSE_OK) {
+      simple_refmac_dialog = g_object_get_data(G_OBJECT(dialog), "simple_refmac_dialog");
+      if (simple_refmac_dialog) {
+         file_combobox = lookup_widget(GTK_WIDGET(simple_refmac_dialog), "simple_refmac_mtz_file_combobox");
+         if (file_combobox) {
+#if (GTK_MAJOR_VERSION > 2)
+            gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(file_combobox));
+#else
+            model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(file_combobox));
+            store_from_model = GTK_LIST_STORE(model_from_combobox);
+            gtk_list_store_clear(store_from_model);
+#endif
+            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(file_combobox), file_name);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(file_combobox), 0);
+         }
+      }
+   }
+
+   gtk_widget_destroy(GTK_WIDGET(dialog));
 
 }

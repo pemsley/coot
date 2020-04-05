@@ -1466,4 +1466,11 @@ void shiftfield_xyz_factor_refinement(int imol) {
    }
 }
 
+void convert_dictionary_planes_to_improper_dihedrals() {
+   graphics_info_t g;
+   g.Geom_p()->all_plane_restraints_to_improper_dihedrals();
+   g.Geom_p()->delete_plane_restraints();
+   g.set_convert_dictionary_planes_to_improper_dihedrals(true);
+
+}
 

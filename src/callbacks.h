@@ -4790,5 +4790,21 @@ on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
                                         gpointer         user_data);
 
 void
-on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
+on_simple_refmac_dialog_response       (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);
+
+void
+on_simple_refmac_dialog_close          (GtkDialog       *dialog,
+                                        gpointer         user_data);
+
+void
+on_simple_refmac_mtz_file_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_simple_refmac_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
                                         gpointer         user_data);

@@ -333,7 +333,7 @@
 	   #t))))
 
 
-
+(if #f
 (greg-testcase "Pyrogen Runs OK?"  #t
    (lambda ()
 
@@ -354,6 +354,7 @@
 		 (tlc-text "XXX")
 		 (log-file-name "pyrogen.log"))
 
+             ;; no need to do this test twice.
 	     (if (not (enhanced-ligand-coot?))
 
 		 #t ;; don't test pyrogen
@@ -379,9 +380,9 @@
 			   (format #t "INFO:: pyrogen test will try to read ~s~%~!" pdb-file-name)
 			   ;; add test for chirality in the dictionary here 
 			   (valid-model-molecule? imol)))))))))))
+)
 
-
-
+(if #f
 (greg-testcase "pyrogen dictionary does not make double-quoted atom names" #t
    (lambda ()
 
@@ -420,7 +421,7 @@
 					       (set! passes #f)))))
 				     atoms-info)
 			   passes))))))))))
-
+)
 
 ;; FLEV will not make a PNG if it is not compiled with 
 ;; C++-11 - and that is OK for 0.8.9.x.

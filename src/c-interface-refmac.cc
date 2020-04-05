@@ -1,5 +1,5 @@
 /* src/c-interface-build-gui.cc
- * 
+ *
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007, 2008 The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
@@ -7,17 +7,17 @@
  * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008, 2009 The University of Oxford
  * Copyright 2015, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -45,7 +45,7 @@
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #include <windows.h>
 #endif
- 
+
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "callbacks.h"
@@ -127,11 +127,16 @@ void execute_refmac_internal(GtkWidget *window,
    // this should overwrite whatever has been set as refmac parameters before
    // we do it before checking for phases, so that these can be included later
 
-   coot::mtz_column_types_info_t *saved_f_phi_columns = 0; // hack to compile
-      // = static_cast<coot::mtz_column_types_info_t *>(gtk_object_get_user_data(GTK_OBJECT(window)));
+   // coot::mtz_column_types_info_t *saved_f_phi_columns
+   //   = static_cast<coot::mtz_column_types_info_t *>(gtk_object_get_user_data(GTK_OBJECT(window)));
+
+   coot::mtz_column_types_info_t *saved_f_phi_columns
+      = static_cast<coot::mtz_column_types_info_t *>(g_object_get_data(G_OBJECT(window), "f_phi_columns"));
+
 
    if (! saved_f_phi_columns) {
-      std::cout << "ERROR:: Null saved_f_phi_columns" << std::endl;
+      std::cout << "ERROR:: in execute_refmac_internal(): Null saved_f_phi_columns"
+                << " it was not attached to the window" << std::endl;
    } else {
 
       std::string phib_string = "";
@@ -150,13 +155,13 @@ void execute_refmac_internal(GtkWidget *window,
 
 	 if (refmac_use_twin_state() == 0) {
 	    // for now we only use Is in twin not in 'normal' refinement
-	    icol = saved_f_phi_columns->selected_refmac_fobs_col;
-	    if ((icol >=0 ) && (icol < int(saved_f_phi_columns->f_cols.size()))) { 
-	       fobs_col = saved_f_phi_columns->f_cols[icol].column_label;  // Minmin crash
-	    } else {
+	   icol = saved_f_phi_columns->selected_refmac_fobs_col;
+	   if ((icol >=0 ) && (icol < int(saved_f_phi_columns->f_cols.size()))) {
+	      fobs_col = saved_f_phi_columns->f_cols[icol].column_label;  // Minmin crash
+	   } else {
 	       std::cout << "ERROR:: trapped inappropriate access of f_cols in execute_refmac() "
-			 << icol << " " << saved_f_phi_columns->f_cols.size() << std::endl;
-	    } 
+                    << icol << " " << saved_f_phi_columns->f_cols.size() << std::endl;
+	   }
 	 } else {
 	    // for twin we check both Is and Fs
 	    // first check the I
@@ -174,11 +179,11 @@ void execute_refmac_internal(GtkWidget *window,
 	    sigfiobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
 	 }
 	 icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-	 if (icol >= 0) { 
-	    // 
+	 if (icol >= 0) {
+	    //
 	    sensible_r_free_col = 1;
 	    r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-	 } else { 
+	 } else {
 	    sensible_r_free_col = 0;
 	    r_free_col = "";
 	 }
@@ -275,11 +280,11 @@ void execute_refmac_internal(GtkWidget *window,
 	 }
 
 	 icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-	 if (icol >= 0) { 
-	    // 
+	 if (icol >= 0) {
+	    //
 	    sensible_r_free_col = 1;
 	    r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-	 } else { 
+	 } else {
 	    sensible_r_free_col = 0;
 	    r_free_col = "";
 	 }
@@ -287,10 +292,10 @@ void execute_refmac_internal(GtkWidget *window,
 	 // We save the phase and FOM as 'fourier_*_labels' too, so that they are saved!?
 	 if (phase_combine_flag == 1) {
 	    icol = saved_f_phi_columns->selected_refmac_phi_col;
-	    if (icol == -1) { 
+	    if (icol == -1) {
 	       printf("INFO:: no phase available (phi/fom)! \n");
-	    } else { 
-	       phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
+	    } else {
+	       phi_label = saved_f_phi_columns->phi_cols[icol].column_label;
 	       icol = saved_f_phi_columns->selected_refmac_fom_col;
 	       fom_label = saved_f_phi_columns->weight_cols[icol].column_label;
 	       if (! have_mtz_file) {
@@ -309,7 +314,7 @@ void execute_refmac_internal(GtkWidget *window,
 	    icol = saved_f_phi_columns->selected_refmac_hla_col;
 	    if (icol == -1) {
 	       printf("INFO:: no phase available (HLs)! \n");
-	    } else { 
+	    } else {
 	       hla_label = saved_f_phi_columns->hl_cols[icol].column_label;
 	       icol = saved_f_phi_columns->selected_refmac_hlb_col;
 	       hlb_label = saved_f_phi_columns->hl_cols[icol].column_label;
@@ -331,15 +336,15 @@ void execute_refmac_internal(GtkWidget *window,
 
 	 if (have_mtz_file){
 	    g.store_refmac_params(std::string(mtz_in_filename),
-				  std::string(fobs_col), 
-				  std::string(sigfobs_col), 
+				  std::string(fobs_col),
+				  std::string(sigfobs_col),
 				  std::string(r_free_col),
 				  sensible_r_free_col);
 	    set_refmac_used_mtz_file(1);
 	 } else {
 	    graphics_info_t::molecules[imol_map_refmac].store_refmac_params(std::string(mtz_in_filename),
-									    std::string(fobs_col), 
-									    std::string(sigfobs_col), 
+									    std::string(fobs_col),
+									    std::string(sigfobs_col),
 									    std::string(r_free_col),
 									    sensible_r_free_col);
 	    set_refmac_used_mtz_file(0);
@@ -369,7 +374,7 @@ void execute_refmac_internal(GtkWidget *window,
 	       std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
 	       std::cout << "to make the map" << std::endl;
 	       std::cout << "WARNING:: Turning off phase combination." << std::endl;
-	       phase_combine_flag = 0;		      
+	       phase_combine_flag = 0;
 	    }
 	 }
       }
@@ -452,9 +457,9 @@ void execute_refmac_internal(GtkWidget *window,
       // 	    std::cout << "DEBUG:: attempting to write pdb input file "
       // 		      << pdb_in_filename << std::endl;
       int ierr = g.molecules[imol_coords].write_pdb_file(pdb_in_filename);
-      if (!ierr) { 
-	 std::cout << "refmac ccp4i project dir " 
-		   << graphics_info_t::refmac_ccp4i_project_dir 
+      if (!ierr) {
+	 std::cout << "refmac ccp4i project dir "
+		   << graphics_info_t::refmac_ccp4i_project_dir
 		   << std::endl;
 	 int run_refmac_with_no_labels = 0;
 
@@ -503,12 +508,20 @@ void execute_refmac_internal(GtkWidget *window,
 
 void execute_refmac(GtkWidget *window) {
 
-   std::cout << "needs more thought re comboboxtext usage" << std::endl;
-
-#if 0 // remove this after merge?
-
    // The passed window, is the refmac dialog, where one selects the
    // coords molecule and the map molecule.
+
+   std::cout << "DEBUG::: ------- starting execute_refmac()" << std::endl;
+
+
+   coot::mtz_column_types_info_t *saved_f_phi_columns
+      = static_cast<coot::mtz_column_types_info_t *>(g_object_get_data(G_OBJECT(window), "f_phi_columns"));
+
+   if (! saved_f_phi_columns) {
+      std::cout << "ERROR:: in execute_refmac(): Null saved_f_phi_columns"
+                << " it was not attached to the window" << std::endl;
+   }
+
 
    graphics_info_t g;
    // GtkWidget *option_menu = lookup_widget(window, "run_refmac_coords_optionmenu");
@@ -520,6 +533,9 @@ void execute_refmac(GtkWidget *window) {
    int imol_coords = graphics_info_t::refmac_molecule;
 
    int id = gtk_combo_box_get_active(GTK_COMBO_BOX(combobox_coords));
+
+   std::cout << "debug in execute_refmac ---- start " << combobox_coords << " " << imol_coords
+             << "  " << id << std::endl;
 
    if (! is_valid_model_molecule(imol_coords)) {
 
@@ -667,9 +683,9 @@ void execute_refmac(GtkWidget *window) {
 		     std::cout << "DEBUG:: mtz_out_filename: " << mtz_out_filename << std::endl;
 		     std::cout << "DEBUG:: pdb_out_filename: " << pdb_out_filename << std::endl;
 
-		     std::cout << "DEBUG:: calling refmac_thing() with "
-			       << window << " " << have_mtz_file << " "
-			       << imol_map_refmac << " mtz_in_filename " << mtz_in_filename << " "
+		     std::cout << "DEBUG:: calling execute_refmac_internal() with "
+			       << window << " have_mtz_file: " << have_mtz_file << " imol_map_refmac: "
+			       << imol_map_refmac << " mtz_in_filename " << mtz_in_filename << " imol_coords: "
 			       << imol_coords << " pdb_in_filename " << pdb_in_filename << " pdb_out_filename "
 			       << pdb_out_filename << " mtz_out_filename " << mtz_out_filename << " "
 			       << diff_map_flag << " " << refmac_count_string << " "
@@ -707,21 +723,21 @@ void set_refmac_use_sad(int state) {
 //    graphics_info_t g;
 //    g.fill_option_menu_with_refmac_options(optionmenu);
 
-// } 
+// }
 
 // void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu) {
 
 //    graphics_info_t g;
 //    g.fill_option_menu_with_refmac_methods_options(optionmenu);
 
-// } 
+// }
 
 // void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu) {
 
 //    graphics_info_t g;
 //    g.fill_option_menu_with_refmac_phase_input_options(optionmenu);
 
-// } 
+// }
 
 // void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu) {
 
@@ -735,7 +751,7 @@ void set_refmac_use_sad(int state) {
 //    graphics_info_t g;
 //    g.fill_option_menu_with_refmac_file_labels_options(optionmenu);
 
-// } 
+// }
 
 // void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu) {
 
@@ -744,7 +760,7 @@ void set_refmac_use_sad(int state) {
 
 // }
 
-// void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
+// void update_refmac_column_labels_frame(GtkWidget *optionmenu,
 // 				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
 // 				       GtkWidget *r_free_menu,
 // 				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu) {
@@ -773,7 +789,7 @@ fill_refmac_sad_atom_entry(GtkWidget *w) {
     std::string lambda_str = "";
     if (fabs(fp + 9999) >= 0.1) {
       fp_str = graphics_info_t::float_to_string(fp);
-    } 
+    }
     if (fabs(fpp + 9999) >= 0.1) {
       fpp_str = graphics_info_t::float_to_string(fpp);
     }
@@ -789,7 +805,10 @@ fill_refmac_sad_atom_entry(GtkWidget *w) {
 
 void
 wrapped_create_run_refmac_dialog() {
-   
+
+   std::cout << "DEBUG:: Here we are in wrapped_create_run_refmac_dialog()"
+             << std::endl;
+
    GtkWidget *window = create_run_refmac_dialog();
    GCallback callback_func = G_CALLBACK(refmac_molecule_button_select);
 
@@ -801,17 +820,9 @@ wrapped_create_run_refmac_dialog() {
    GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
    GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
 
-   // GtkWidget *optionmenu;
-   // optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
-   // fill_option_menu_with_refmac_methods_options(optionmenu);
-
    GtkWidget *combobox;
    combobox = lookup_widget(window, "run_refmac_method_combobox");
    fill_combobox_with_refmac_methods_options(combobox);
-
-   // optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
-   // fill_option_menu_with_refmac_phase_input_options(optionmenu);
-   // if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) have_file = 1;
 
    combobox = lookup_widget(window, "run_refmac_phase_input_combobox");
    fill_combobox_with_refmac_phase_input_options(combobox);
@@ -820,16 +831,8 @@ wrapped_create_run_refmac_dialog() {
 
    set_refmac_molecule(imol_coords);
 
-   // optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
-   // fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
-
    combobox = lookup_widget(window, "run_refmac_coords_combobox");
    fill_combobox_with_coordinates_options(combobox, callback_func, imol_coords);
-
-   // optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
-   /*  fill_option_menu_with_refmac_options(optionmenu); */
-   // fill_option_menu_with_refmac_labels_options(optionmenu); // change the name of this function -
-   // they are molecules with refmac mtz files.
 
    combobox = lookup_widget(window, "run_refmac_map_combobox");
    fill_combobox_with_refmac_mtz_file_options(combobox);
@@ -851,11 +854,11 @@ wrapped_create_run_refmac_dialog() {
       GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
       gtk_widget_show(checkbutton);
       if (get_refmac_phase_input()) {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
-	 gtk_widget_show(labels);
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+         gtk_widget_show(labels);
       } else {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-	 gtk_widget_hide(labels);
+         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+         gtk_widget_hide(labels);
       }
       GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
       GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
@@ -864,41 +867,37 @@ wrapped_create_run_refmac_dialog() {
       gtk_widget_hide(twin_check_button);
 
       if (refmac_runs_with_nolabels() >= 2) {
-	 /* add the tls, twin and sad buttons */
-	 gtk_widget_show(twin_check_button);
-	 /* update the check buttons */
-	 GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
-	 store_refmac_mtz_file_label(mtz_file_label);
-	 /* set the filename if there */
-	 const gchar *mtz_filename = get_saved_refmac_file_filename();
-	 if (mtz_filename) {
-	    gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
-	    // fill_option_menu_with_refmac_file_labels_options(optionmenu);
-	    fill_combobox_with_refmac_file_labels_options(combobox);
-	 }
-	 if (refmac_use_twin_state()) {
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
-	    gtk_widget_hide(sad_extras);
-	 } else {
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
-	 }
-	 if (get_refmac_phase_input() == 3) {
-	    gtk_widget_set_sensitive(twin_check_button, FALSE);
-	    gtk_widget_show(sad_extras);
-	    /* fill the entry with 1st existing atom */
-	    fill_refmac_sad_atom_entry(window);
-	 } else {
-	    gtk_widget_set_sensitive(twin_check_button, TRUE);
-	    gtk_widget_hide(sad_extras);
-	 }
-
+         /* add the tls, twin and sad buttons */
+         gtk_widget_show(twin_check_button);
+         /* update the check buttons */
+         GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
+         store_refmac_mtz_file_label(mtz_file_label);
+         /* set the filename if there */
+         const gchar *mtz_filename = get_saved_refmac_file_filename();
+         if (mtz_filename) {
+            gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
+            // fill_option_menu_with_refmac_file_labels_options(optionmenu);
+            fill_combobox_with_refmac_file_labels_options(combobox);
+         }
+         if (refmac_use_twin_state()) {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
+            gtk_widget_hide(sad_extras);
+         } else {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
+         }
+         if (get_refmac_phase_input() == 3) {
+            gtk_widget_set_sensitive(twin_check_button, FALSE);
+            gtk_widget_show(sad_extras);
+            /* fill the entry with 1st existing atom */
+            fill_refmac_sad_atom_entry(window);
+         } else {
+            gtk_widget_set_sensitive(twin_check_button, TRUE);
+            gtk_widget_hide(sad_extras);
+	      }
       }
    } else {
       gtk_widget_show(labels);
    }
-
-   // optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
-   // fill_option_menu_with_refmac_ncycle_options(optionmenu);
 
    combobox = lookup_widget(window, "run_refmac_ncycle_combobox");
    fill_combobox_with_refmac_ncycles_options(combobox);
@@ -913,12 +912,19 @@ wrapped_create_run_refmac_dialog() {
    /*  I don't care about CCP4i
        optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
        clear_refmac_ccp4i_project();
-       add_ccp4i_projects_to_optionmenu(optionmenu, 
+       add_ccp4i_projects_to_optionmenu(optionmenu,
        COOT_COORDS_FILE_SELECTION,
        GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
    */
-				    
+
+
+   // partially written and will crash
+
+   coot::mtz_column_types_info_t *f_phi_columns = new coot::mtz_column_types_info_t;
+   // graphics_info_t g;
+   // g.fill_f_phi_columns_with_refmac_data(f_phi_columns);
+   g_object_set_data(G_OBJECT(window), "f_phi_columns", f_phi_columns);
 
    gtk_widget_show(window);
 
@@ -1030,6 +1036,19 @@ PyObject *refmac_parameters_py(int imol) {
 }
 #endif	/* USE_PYTHON */
 
+
+
+//       int slen = mtz_in_filename.length(); c
+//       if (slen > 4) {
+// 	 mtz_out_filename = mtz_in_filename.substr(0,slen - 4) + "-refmac-";
+// 	 mtz_out_filename += g.int_to_string(g.molecules[imol_coords].Refmac_count());
+// 	 mtz_out_filename += ".mtz";
+//       } else {
+// 	 mtz_out_filename = "post-refmac";
+// 	 mtz_out_filename += g.int_to_string(g.molecules[imol_coords].Refmac_count());
+// 	 mtz_out_filename += ".mtz";
+//       }
+
 // If ccp4i_project_dir is "", then carry on and put the log file in
 // this directory.  If not, put it in the appropriate project dir. The
 // pdb_in etc filename are manipulated in the calling routine.
@@ -1126,7 +1145,7 @@ execute_refmac_real(std::string pdb_in_filename,
    ilang = coot::STATE_PYTHON;
 #endif
 #endif
-   if (ilang == coot::STATE_PYTHON) { 
+   if (ilang == coot::STATE_PYTHON) {
       cmd = g.state_command(cmds, ilang);
 #ifdef USE_PYTHON
       safe_python_command(cmd);
@@ -1134,8 +1153,8 @@ execute_refmac_real(std::string pdb_in_filename,
    } else {
       cmd = g.state_command(cmds, ilang);
       safe_scheme_command(cmd);
-   } 
-} 
+   }
+}
 
 int set_refmac_molecule(int imol) {
    std::string cmd = "set-refmac-molecule";
@@ -1157,13 +1176,13 @@ void set_refmac_counter(int imol, int refmac_count) {
    } else {
       std::cout << "WARNING:: refmac counter of molecule number " << imol
 		<< " not incremented to " << refmac_count << std::endl;
-   } 
+   }
    std::string cmd = "set-refmac-counter";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    args.push_back(refmac_count);
    add_to_history_typed(cmd, args);
-} 
+}
 
 
 std::string refmac_name(int imol) {
@@ -1174,10 +1193,10 @@ std::string refmac_name(int imol) {
    args.push_back(imol);
    add_to_history_typed(cmd, args);
    return g.molecules[imol].Refmac_in_name();
-} 
+}
 
 int get_refmac_refinement_method() {
-  
+
   graphics_info_t g;
   return g.refmac_refinement_method;
 }
@@ -1189,7 +1208,7 @@ void set_refmac_refinement_method(int method) {
 }
 
 int get_refmac_phase_input() {
-  
+
   graphics_info_t g;
   return g.refmac_phase_input;
 }
@@ -1225,7 +1244,7 @@ int refmac_use_sad_state() {
 }
 
 int get_refmac_ncycles() {
-  
+
   graphics_info_t g;
   return g.refmac_ncycles;
 }
@@ -1265,7 +1284,7 @@ int refmac_use_intensities_state() {
   graphics_info_t g;
   return g.refmac_use_intensities_flag;
 }
-  
+
 
 int refmac_imol_coords() {
 
@@ -1275,7 +1294,7 @@ int refmac_imol_coords() {
 
 /*! \brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
   list with atom_name and  fp, and fpp (and/or wavelength),
-  -9999 to not use fp/fpp or wavelength 
+  -9999 to not use fp/fpp or wavelength
   adds a new atom or overwrites existing ones with new parameters */
 void
 add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
@@ -1286,7 +1305,7 @@ add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
 }
 
 /* !brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
-  list with atom_name and  fp, and fpp 
+  list with atom_name and  fp, and fpp
   adds a new atom or overwrites existing ones with new parameters */
 void
 add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp) {
@@ -1297,7 +1316,7 @@ add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp) {
 }
 
 /* !brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
-  list with atom_name and wavlength, fp and fpp will be calculated 
+  list with atom_name and wavlength, fp and fpp will be calculated
   adds a new atom or overwrites existing ones with new parameters */
 void
 add_refmac_sad_atom_lambda(const char *atom_name, float lambda) {
@@ -1415,9 +1434,12 @@ const gchar *get_saved_refmac_file_filename() {
 void
 set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename) {
 
-   if (imol < graphics_n_molecules()) {
+   if (is_valid_model_molecule(imol)) {
       std::cout << "DEBUG:: storing file name " << mtz_filename << " as refmac mtz file name "
-		<< " for molecule " << imol << std::endl;
+                << " for molecule " << imol << std::endl;
       graphics_info_t::molecules[imol].store_refmac_mtz_filename(std::string(mtz_filename));
+   } else {
+      std::cout << "WARNING: in set_stored_refmac_file_mtz_filename() given imol " << imol
+                << std::endl;
    }
 }

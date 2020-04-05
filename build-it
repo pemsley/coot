@@ -1512,6 +1512,8 @@ coot_prerelease_exists=
 
 # coot_version_pre no longer has .tar.gz extension
 
+echo =========================== build_coot_prerelease is $build_coot_prerelease ========================
+
 if test "$build_coot_prerelease" = 1 ; then 
 
    echo debug:: ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
@@ -1556,8 +1558,17 @@ else
 
     ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-    coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
-        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    echo ========== awk results:
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html
+    echo ==== with tail ==========
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1
+    echo =========== from ${AUTOBUILD_SOURCES}/index.html 
+    cat ${AUTOBUILD_SOURCES}/index.html 
+    echo ==============
+    coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
        coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
@@ -2959,10 +2970,10 @@ if test -n "$build_python" ; then
    cd Python-$pver
 
    # --with-ensurepip=install
-   echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
+   echo INFO:: ./configure $generic_prefix --enable-shared --with-ensurepip=install $python_lib_flags $python_spec_flags for python
    # 
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --enable-shared $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --enable-shared --with-ensurepip=install $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -4029,6 +4040,11 @@ fi
 ###############################################################################
 #
 echo BUILDING coot: version $coot_version, guile=$ENABLE_GUILE_COOT, python=$ENABLE_PYTHON_COOT
+
+if [ -z "$coot_version" ] ; then
+   echo coot_version is empty - exit now
+   my_exit 2 coot_version not set
+fi
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
@@ -4154,7 +4170,7 @@ if [ "$architecture" = x86_64 ] ; then
    #coot_optim_args="CXXFLAGS=\"-g -O\""
 
 
-   export CXXFLAGS="-g -O"
+   export CXXFLAGS="-g -O3 -ffast-math"
    #   unset CXXFLAGS
 fi
 
@@ -4381,7 +4397,7 @@ if [ "$run_tests" = true ] ; then
    fi
 
    # run python tests too, maybe (i.e. if we build with python)
-   if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+   if [ "$ENABLE_PYTHON_COOT" = "disablethisfornow" ] ; then 
        echo running python test... >&2
        test_coot_python > $LOGS/test-python.log 2>&1
        rp=$?

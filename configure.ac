@@ -1,19 +1,19 @@
 dnl configure.in
-dnl 
+dnl
 dnl Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
 dnl Copyright 2008 The University of Oxford
 dnl Author: Paul Emsley
-dnl 
+dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
 dnl the Free Software Foundation; either version 3 of the License, or (at
 dnl your option) any later version.
-dnl 
+dnl
 dnl This program is distributed in the hope that it will be useful, but
 dnl WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 dnl General Public License for more details.
-dnl 
+dnl
 dnl You should have received a copy of the GNU General Public License
 dnl along with this program; if not, write to the Free Software
 dnl Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(coot, 0.9-pre-gtk3)
+AC_INIT(coot, 0.9.9-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -69,6 +69,9 @@ AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [C
 
 dnl AC_OPENMP
 AX_OPENMP
+dnl thanks John Bollinger
+AC_SUBST([OPENMP_CFLAGS])
+AC_SUBST([OPENMP_CXXFLAGS])
 
 AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional experimental features ],
  coot_modern_language_tools="true",
@@ -99,7 +102,7 @@ AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)
 
 
 dnl We need to put a PKG_CHECK_MODULES in early so that pkg-config is
-dnl setup first (it seems to be a side-effect of using PKG_CHECK_MODULES), 
+dnl setup first (it seems to be a side-effect of using PKG_CHECK_MODULES),
 dnl setting ac_cv_env_PKG_CONFIG and related. This is because the conditional
 dnl  use of PKG_CHECK_MODULES for GPP4 causes problems when setting up pkg-config
 dnl
@@ -142,8 +145,8 @@ case "$target" in
    *linux* ) ;;
    *irix* )
 	if test "`basename $CXX`" = CC; then
-	   case "$CXXFLAGS" in 
-	      *LANG::std* ) ;; 
+	   case "$CXXFLAGS" in
+	      *LANG::std* ) ;;
               * )
 		  CXXFLAGS="$CXXFLAGS -LANG:std -ptused"
            esac
@@ -155,7 +158,7 @@ case "$target" in
            chmod +x libtool
 	fi
     ;;
-esac           
+esac
 
 
 dnl Check for MMDB.
@@ -209,12 +212,12 @@ PKG_CHECK_MODULES(GTK, gtk+-3.0 >= 3.18)
 # I don't know what is happening here yet.
 
 # PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
-# if test -n "$GNOME_CANVAS_CFLAGS" ; then 
+# if test -n "$GNOME_CANVAS_CFLAGS" ; then
    # GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
 # fi
 # AC_SUBST(GNOME_CANVAS_CFLAGS)
 
-# AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
+# AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1])
 
 MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
 AC_SUBST(MAKE_COOTRC_CMD)
@@ -224,7 +227,7 @@ dnl ============================ OPENGL ===================
 #
 if test "$have_windows_mingw" = yes; then
   AC_CHECK_HEADER([GL/gl.h], [], AC_MSG_ERROR([GL header not found]))
-  AC_CHECK_LIB(opengl32, main, COOT_OPENGL_LIBS="-lopengl32", AC_MSG_ERROR([GL lib required])) 
+  AC_CHECK_LIB(opengl32, main, COOT_OPENGL_LIBS="-lopengl32", AC_MSG_ERROR([GL lib required]))
 else
   AC_CHECK_LIB(GL, glLineWidth, COOT_OPENGL_LIBS="-lGL")
 fi
@@ -312,7 +315,7 @@ fi
 
 if test x$coot_enhanced_ligand_additions = xtrue ; then
    ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
-else 	
+else
    ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
 
@@ -341,7 +344,7 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 #
 if test $coot_gtk2 = TRUE ; then
   SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
-else 
+else
   # the creation of coot.py in the src dir (currently) relies on
   # SWIG_FLAGS being blank for the GTK1 version.
   SWIG_FLAGS=""
@@ -449,10 +452,10 @@ fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 auxil/Makefile
-auxil/catcheck/Makefile	
-auxil/rama/Makefile	
-auxil/sec-str/Makefile	
-auxil/strand-analysis/Makefile	
+auxil/catcheck/Makefile
+auxil/rama/Makefile
+auxil/sec-str/Makefile
+auxil/strand-analysis/Makefile
 auxil/vectors/Makefile
 rcrane/Makefile
 ])
@@ -467,4 +470,3 @@ rcrane/Makefile
 
 # or maybe:
 #],[sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in > po/Makefile])
-

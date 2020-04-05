@@ -5524,7 +5524,7 @@ coot::dictionary_residue_restraints_t::plane_restraint_to_improper_dihedrals(uns
    return q;
 }
 
-void coot::protein_geometry::plane_restraint_to_improper_dihedrals() {
+void coot::protein_geometry::all_plane_restraints_to_improper_dihedrals() {
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       dict_res_restraints[i].second.improper_dihedral_restraint.clear();

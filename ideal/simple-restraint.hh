@@ -198,8 +198,9 @@ namespace coot {
 			  START_POS_RESTRAINT=128,
 			  TARGET_POS_RESTRAINT=256, // restraint to make an atom be at a position
 			  PARALLEL_PLANES_RESTRAINT=512,
-			  GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
-			  TRANS_PEPTIDE_RESTRAINT=2048
+                          GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
+                          TRANS_PEPTIDE_RESTRAINT=2048,
+                          IMPROPER_DIHEDRAL_RESTRAINT=4096
    };
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
@@ -261,9 +262,11 @@ namespace coot {
 
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
 				// typical restraints add trans peptide restraints and geman-mcclure
-				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512+1024+2048,
+				TYPICAL_RESTRAINTS                = 1+2+  8+16+32+128+256+512+1024+2048,
+				TYPICAL_RESTRAINTS_NO_PLANES      = 1+2+    16+32+128+256+512+1024+2048,
+				TYPICAL_RESTRAINTS_WITH_IMPROPERS = 1+2+  8+16+32+128+256+512+1024+2048+4096,  // for testing planes -> improper-dihedrals
 				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024+2048,
-				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024+2048 // adds torsions and ramas
+				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024+2048+4096 // adds torsions and ramas
 
    };
 
@@ -277,7 +280,8 @@ namespace coot {
 	  START_POS_RESTRAINT_MASK = 128,
 	  PARALLEL_PLANES_MASK = 256,
 	  GEMAN_MCCLURE_DISTANCE_MASK = 1024,
-	  TRANS_PEPTIDE_MASK = 2048
+	  TRANS_PEPTIDE_MASK = 2048,
+     IMPROPER_DIHEDRALS_MASK = 4096
    };
 
 
@@ -537,6 +541,25 @@ namespace coot {
 	 is_H_non_bonded_contact = false;
 	 is_single_Hydrogen_atom_angle_restraint = false;
       }
+
+     // improper dihedral (new-style 4 atom plane restraints)
+     simple_restraint(restraint_type_t restraint_type_in,
+		      int index_1, int index_2, int index_3, int index_4,
+		      float sigma_in, const std::vector<bool> &fixed_atom_flags_in) {
+
+       restraint_type = restraint_type_in;
+
+       atom_index_1 = index_1;
+       atom_index_2 = index_2;
+       atom_index_3 = index_3;
+       atom_index_4 = index_4;
+
+       fixed_atom_flags = fixed_atom_flags_in;
+       sigma = sigma_in;
+       is_user_defined_restraint = false;
+       is_H_non_bonded_contact = false;
+       is_single_Hydrogen_atom_angle_restraint = false;
+     }
 
       // Non-bonded - are you sure that this is the constructor that you want?
       simple_restraint(restraint_type_t restraint_type_in,
@@ -887,6 +910,8 @@ namespace coot {
 					 const gsl_vector *v);
    double distortion_score_plane(const simple_restraint &plane_restraint,
 				  const gsl_vector *v);
+   double distortion_score_improper_dihedral(const simple_restraint &id_restraint,
+				  const gsl_vector *v);
    double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
 					 const gsl_vector *v);
    double distortion_score_rama(const simple_restraint &chiral_restraint,
@@ -1015,12 +1040,14 @@ namespace coot {
 	 int n_plane_restraints;
 	 int n_chiral_restr;
 	 int n_torsion_restr;
+	 int n_improper_dihedral_restr;
 	 restraint_counts_t() {
 	    n_bond_restraints = 0;
 	    n_angle_restraints = 0;
 	    n_plane_restraints =0;
 	    n_chiral_restr = 0;
 	    n_torsion_restr = 0;
+            n_improper_dihedral_restr = 0;
 	 }
 	 void operator+=(const restraint_counts_t &r) {
 	    n_bond_restraints += r.n_bond_restraints;
@@ -1028,12 +1055,14 @@ namespace coot {
 	    n_plane_restraints += r.n_plane_restraints;
 	    n_chiral_restr += r.n_chiral_restr;
 	    n_torsion_restr += r.n_torsion_restr;
+            n_improper_dihedral_restr += r.n_improper_dihedral_restr;
 	 }
 	 void report(bool do_residue_internal_torsions) {
 	    std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
 	    std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
 	    std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
 	    std::cout << "created " << n_chiral_restr << " chiral vol restraints " << std::endl;
+	    std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
 	    if (do_residue_internal_torsions)
 	       std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
 	 }
@@ -1375,10 +1404,16 @@ namespace coot {
       // routines needs to make sure that this is the case.
       void add_plane(const std::vector<std::pair<int, double> > atom_index_sigma_in,
 		     const std::vector<bool> &fixed_atom_flags) {
-	 restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
-						   atom_index_sigma_in,
-						   fixed_atom_flags));
+	 if (! convert_plane_restraints_to_improper_dihedral_restraints_flag)
+	    restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
+						      atom_index_sigma_in,
+						      fixed_atom_flags));
+	 else
+	    convert_plane_restraints_to_improper_dihedral_restraints(atom_index_sigma_in, fixed_atom_flags);
       }
+
+      void convert_plane_restraints_to_improper_dihedral_restraints(const std::vector<std::pair<int, double> > atom_index_sigma_in,
+		     const std::vector<bool> &fixed_atom_flags);
 
       //used for start pos restraints
       bool add(restraint_type_t rest_type, int atom_1,
@@ -1494,6 +1529,19 @@ namespace coot {
 		       int i_no_res_atoms,
 		       mmdb::PResidue SelRes,
 		       const protein_geometry &geom);
+
+      // called by above.
+      //
+      // this was the way planes were done 2004-2019
+      int add_planes_multiatom_eigen(int idr, mmdb::PPAtom res_selection,
+				     int i_no_res_atoms,
+				     mmdb::PResidue SelRes,
+				     const protein_geometry &geom);
+
+      int add_planes_as_improper_dihedrals(int idr, mmdb::PPAtom res_selection,
+                                           int i_no_res_atoms,
+                                           mmdb::PResidue SelRes,
+                                           const protein_geometry &geom);
 
       restraint_counts_t
       apply_mods(int idr, mmdb::PPAtom res_selection,
@@ -1716,11 +1764,13 @@ namespace coot {
 	 unsigned int n_link_angle_restr;
 	 unsigned int n_link_plane_restr;
 	 unsigned int n_link_trans_peptide;
+         unsigned int n_link_improper_dihedral_restr;
 	 void add(const link_restraints_counts &lrc) {
 	    n_link_bond_restr    += lrc.n_link_bond_restr;
 	    n_link_angle_restr   += lrc.n_link_angle_restr;
 	    n_link_plane_restr   += lrc.n_link_plane_restr;
 	    n_link_trans_peptide += lrc.n_link_trans_peptide;
+	    n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
 	 }
 	 void report() const {
 	    std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
@@ -2498,8 +2548,15 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_trans_peptide;
       // std::pair<unsigned int, unsigned int> restraints_limits_target_pos; // atom pull
 
-      // so that each thread gets a more or less similar number of plane restraints
+      // so that each thread gets a more or less similar number of plane restraints.
+      // (not needed I think - that happens anyway)
       void disperse_plane_restraints();
+
+      // plane restraint should be sets of 4-atom chiral-like restraints?
+      bool convert_plane_restraints_to_improper_dihedral_restraints_flag;
+      void set_convert_plane_restraints_to_improper_dihedral_restraints(bool state) {
+	 convert_plane_restraints_to_improper_dihedral_restraints_flag = state;
+      }
 
       void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
 

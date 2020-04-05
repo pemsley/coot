@@ -180,8 +180,12 @@ void manage_refmac_column_selection(GtkWidget *w);
 void fill_combobox_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
 void handle_column_label_make_fourier_v2(GtkWidget *column_label_window); /* gtk3 version */
-void wrapped_create_run_refmac_dialog();
 
+/* old */
+void wrapped_create_run_refmac_dialog();
+/* new */
+void wrapped_create_simple_refmac_dialog();
+void simple_refmac_run_refmac(GtkWidget *dialog);
 
 void on_remarks_dialog_close_button_clicked     (GtkButton *button,
 						 gpointer         user_data);

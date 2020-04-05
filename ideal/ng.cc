@@ -1092,8 +1092,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 	    if (atom_name_1 == " C  ")
 	       if (atom_name_2 == " C  ")
 		  if (at_2->residue->index - at_1->residue->index == 1) {
-		     std::cout << "-------- Here 1 " << at_1->residue->index << " " << at_2->residue->index
-			       << std::endl;
+                     if (false)
+		        std::cout << "DEBUG:: in make_non_bonded_contact_restraints_ng() C to C neighbs "
+                                  << at_1->residue->index << " " << at_2->residue->index
+			          << std::endl;
 		     mc_atoms_tandem = true;
 		  }
 	    if (atom_name_1 == " N  ")
@@ -1278,7 +1280,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
 
       }
    }
+
+   std::cout << "debug:: D make_df_restraints_indicies() called here\n";
    make_df_restraints_indices();
+	// is the following needed? I doubt.
    make_distortion_electron_density_ranges();
 
 	return n_nbc_restraints;
