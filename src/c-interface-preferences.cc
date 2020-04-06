@@ -1327,6 +1327,8 @@ void set_make_movie_mode(int make_movie_flag) {
 #ifdef USE_GUILE
 void try_load_scheme_extras_dir() {
 
+   // Function no longer used? Check and delete.
+
    char *s = getenv("COOT_SCHEME_EXTRAS_DIR");
    if (s) {
 

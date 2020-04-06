@@ -16,9 +16,6 @@ void start_command_line_python_maybe(bool command_line_mode_flag, int argc, char
    //
    // for normal Python setup, we want to Py_InitializeEx(0) (so that Ctrl-C works)
 
-   std::cout << "Debug:: here in start_command_line_python_maybe() with command_line_mode_flag"
-             << command_line_mode_flag << std::endl;
-
    //  Skip initialization registration of signal handlers, useful
    //  when Python is embedded. Version 2.4 or later. Thanks Stuart
    //  McNicholas for letting me know about this.
