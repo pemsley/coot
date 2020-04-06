@@ -281,7 +281,7 @@ glm::mat4 get_molecule_mvp() {
 //
 glm::vec3 get_eye_position() {
 
-   glm::vec3 test_vector_1(1.0, 0.0, 0.0);
+   glm::vec3 test_vector_1(0.0, 0.0, 1.0);
    glm::vec3 test_vector_2(1.0, 1.0, 0.0);
 
    glm::mat4 vr = get_view_rotation();
@@ -361,6 +361,14 @@ void draw_map_molecules() {
 
    glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
    glDepthFunc(GL_LESS);
+
+   // run throgh this molecule loop twice - for opaque then transparent maps
+
+   bool transparent_maps_loop = true;
+   if (transparent_maps_loop) { // needed for transparent maps
+      glEnable(GL_BLEND); // already set? Test.
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   }
 
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
@@ -588,9 +596,14 @@ draw_molecular_triangles() {
 void
 draw_molecules() {
 
-   draw_map_molecules();
+   // opaque things
+
    draw_model_molecules();
    draw_molecular_triangles(); // Martin's renderings
+
+   // transparent things... (maybe this function (draw_molecules()) should not be split out).
+
+   draw_map_molecules();
 }
 
 void
@@ -987,11 +1000,12 @@ do_drag_pan_gtk3(GtkWidget *widget) {
    glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
    glm::vec4 delta(worldPos_1 - worldPos_2);
+   glm::vec3 delta_v3(delta);
 
    float delta_scale_factor = 1.0;
    if (graphics_info_t::perspective_projection_flag)
       delta_scale_factor = 20.0; // move the front a lot more
-   g.add_to_rotation_centre(delta_scale_factor * delta);
+   g.add_to_rotation_centre(delta_scale_factor * delta_v3);
    g.update_maps();
    int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
 }
@@ -1102,24 +1116,29 @@ view_spin_func(gpointer data) {
 
 void translate_in_screen_z(float step_size) {
 
+   // this looks a bit weird without perspective view
+
    glm::vec3 ep = get_eye_position();
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   glm::vec3 delta = rc - ep;
+   glm::vec3 delta_uv = normalize(delta);
 
-   glm::vec3 step = 0.1 * (rc - ep);
-   glm::vec4 step_4(step_size * step, 1.0);
-   graphics_info_t::add_to_rotation_centre(step_4);
+   // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
+   glm::vec3 step = 0.01 * step_size * graphics_info_t::zoom * delta_uv;
+
+   std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
+             << " zoom " << graphics_info_t::zoom << " step " << glm::to_string(step) << std::endl;
+   graphics_info_t::add_to_rotation_centre(step);
 
 }
 
 void move_forwards() {
-   translate_in_screen_z(1.0);
-}
-
-void move_backwards() {
    translate_in_screen_z(-1.0);
 }
 
-
+void move_backwards() {
+   translate_in_screen_z(1.0);
+}
 
 void
 setup_key_bindings() {
@@ -1167,6 +1186,13 @@ setup_key_bindings() {
 
    auto l11 = []() { graphics_info_t::zoom *= 1.1; };
 
+   auto l12 = []() { move_forwards(); };
+
+   auto l13 = []() { move_backwards(); };
+
+   // do front and back clipping planes forward and backward
+   // what keys to attach that to though?
+
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
@@ -1178,13 +1204,14 @@ setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom in")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l12, "Move backward")));
 
    // control keys
    
-   auto l12 = []() { show_go_to_residue_keyboarding_mode_window(); };
-   key_bindings_t go_to_blob_key_binding(l12, "Show Go To Residue Keyboarding Window");
-   keyboard_key_t kbk(GDK_KEY_g, true);
-   std::pair<keyboard_key_t, key_bindings_t> p(kbk, go_to_blob_key_binding);
+   auto l14 = []() { show_go_to_residue_keyboarding_mode_window(); };
+   key_bindings_t go_to_blob_key_binding(l14, "Show Go To Residue Keyboarding Window");
+   std::pair<keyboard_key_t, key_bindings_t> p(keyboard_key_t(GDK_KEY_g, true), go_to_blob_key_binding);
    kb_vec.push_back(p);
 
    graphics_info_t g;
