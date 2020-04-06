@@ -1,17 +1,17 @@
 #  Copyright 2012 by the University of Oxford
 #  Copyright 2014 by Medical Research Council
 #  Author: Paul Emsley
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or (at
 #  your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -27,331 +27,331 @@ import gzip
 class PDB_Entry:
 
     def __init__(self, entry_attrib, xml_file_name):
-	self.xml_file_name = xml_file_name
-	self.pdbid                 = False
-	self.Fo_Fc_correlation     = False
-	self.IoverSigma            = False
-	self.numMillerIndices      = False
-	self.percent_RSRZ_outliers = False
-	self.absolute_percentile_percent_RSRZ_outliers = False
-	self.relative_percentile_percent_RSRZ_outliers = False
-	self.percent_RSRZ_outliers                     = False
-	self.acentric_outliers     = False
-	self.centric_outliers      = False
-	self.EDS_R                 = False
-	self.EDS_resolution        = False
-	self.EDS_resolution_low    = False
-	self.DataAnisotropy        = False
-	self.DataCompleteness      = False
-	self.Fo_Fc_correlation     = False
-	self.WilsonBaniso          = False
-	self.WilsonBestimate       = False
-	self.relative_percentile_RNAsuiteness = False
-	self.absolute_percentile_RNAsuiteness = False
-	self.RNAsuiteness          = False
-	self.TwinL                 = False
-	self.TwinFraction          = False
-	self.TwinL2                = False
-	self.xtriage_input_columns = False
-	self.TransNCS              = False
-	self.DCC_R                 = False
-	self.DCC_refinement_program = False
-	self.DCC_Rfree              = False
-	self.absolute_percentile_DCC_Rfree = False
-	self.relative_percentile_DCC_Rfree = False
-	self.CCP4version        = False
-	self.RefmacVersion      = False
-	self.bulk_solvent_k     = False
-	self.bulk_solvent_b     = False
-	self.absolute_percentile_percent_rama_outliers = False
-	self.absolute_percentile_percent_rota_outliers = False
-	self.relative_percentile_percent_rama_outliers = False
-	self.relative_percentile_percent_rota_outliers = False
-	self.percent_rama_outliers                     = False
-	self.percent_rota_outliers                     = False
-	self.RestypesNotcheckedForBondAngleGeometry    = False
+        self.xml_file_name = xml_file_name
+        self.pdbid                 = False
+        self.Fo_Fc_correlation     = False
+        self.IoverSigma            = False
+        self.numMillerIndices      = False
+        self.percent_RSRZ_outliers = False
+        self.absolute_percentile_percent_RSRZ_outliers = False
+        self.relative_percentile_percent_RSRZ_outliers = False
+        self.percent_RSRZ_outliers                     = False
+        self.acentric_outliers     = False
+        self.centric_outliers      = False
+        self.EDS_R                 = False
+        self.EDS_resolution        = False
+        self.EDS_resolution_low    = False
+        self.DataAnisotropy        = False
+        self.DataCompleteness      = False
+        self.Fo_Fc_correlation     = False
+        self.WilsonBaniso          = False
+        self.WilsonBestimate       = False
+        self.relative_percentile_RNAsuiteness = False
+        self.absolute_percentile_RNAsuiteness = False
+        self.RNAsuiteness          = False
+        self.TwinL                 = False
+        self.TwinFraction          = False
+        self.TwinL2                = False
+        self.xtriage_input_columns = False
+        self.TransNCS              = False
+        self.DCC_R                 = False
+        self.DCC_refinement_program = False
+        self.DCC_Rfree              = False
+        self.absolute_percentile_DCC_Rfree = False
+        self.relative_percentile_DCC_Rfree = False
+        self.CCP4version        = False
+        self.RefmacVersion      = False
+        self.bulk_solvent_k     = False
+        self.bulk_solvent_b     = False
+        self.absolute_percentile_percent_rama_outliers = False
+        self.absolute_percentile_percent_rota_outliers = False
+        self.relative_percentile_percent_rama_outliers = False
+        self.relative_percentile_percent_rota_outliers = False
+        self.percent_rama_outliers                     = False
+        self.percent_rota_outliers                     = False
+        self.RestypesNotcheckedForBondAngleGeometry    = False
 
-	try:
-	    self.pdbid = entry_attrib['pdbid']
-	except KeyError as e:
-	    pass
-	
-        try: 
-	    self.PDB_revision_number                       = entry_attrib['PDB-revision-number']
-	    self.absolute_percentile_clashscore            = entry_attrib['absolute-percentile-clashscore']
-	    self.relative_percentile_clashscore            = entry_attrib['relative-percentile-clashscore']
-	    self.attemptedValidationSteps                  = entry_attrib['attemptedValidationSteps']
-	    self.clashscore                                = entry_attrib['clashscore']
-	    self.num_H_reduce                              = entry_attrib['num-H-reduce']
-	except KeyError as e:
-	    print 'PDB_Entry: KeyError with key', e
+    try:
+        self.pdbid = entry_attrib['pdbid']
+    except KeyError as e:
+        pass
 
-	try:
-	    self.RestypesNotcheckedForBondAngleGeometry    = entry_attrib['RestypesNotcheckedForBondAngleGeometry']
-	except KeyError as e:
-	    pass
+    try:
+            self.PDB_revision_number                       = entry_attrib['PDB-revision-number']
+            self.absolute_percentile_clashscore            = entry_attrib['absolute-percentile-clashscore']
+            self.relative_percentile_clashscore            = entry_attrib['relative-percentile-clashscore']
+            self.attemptedValidationSteps                  = entry_attrib['attemptedValidationSteps']
+            self.clashscore                                = entry_attrib['clashscore']
+            self.num_H_reduce                              = entry_attrib['num-H-reduce']
+    except KeyError as e:
+            print('PDB_Entry: KeyError with key', e)
 
-	try:
-	    self.percent_rama_outliers                     = entry_attrib['percent-rama-outliers']
-	    self.percent_rota_outliers                     = entry_attrib['percent-rota-outliers']
-	    self.absolute_percentile_percent_rama_outliers = entry_attrib['absolute-percentile-percent-rama-outliers']
-	    self.absolute_percentile_percent_rota_outliers = entry_attrib['absolute-percentile-percent-rota-outliers']
-	    self.relative_percentile_percent_rama_outliers = entry_attrib['relative-percentile-percent-rama-outliers']
-	    self.relative_percentile_percent_rota_outliers = entry_attrib['relative-percentile-percent-rota-outliers']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
+    try:
+        self.RestypesNotcheckedForBondAngleGeometry    = entry_attrib['RestypesNotcheckedForBondAngleGeometry']
+    except KeyError as e:
+        pass
 
-	# need data for these of course
-	try:
-	    self.Fo_Fc_correlation = entry_attrib['Fo_Fc_correlation']
-	    self.IoverSigma        = entry_attrib['IoverSigma']
-	    self.numMillerIndices                          = entry_attrib['numMillerIndices']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
-	
-	try:
-	    self.absolute_percentile_percent_RSRZ_outliers = entry_attrib['absolute-percentile-percent-RSRZ-outliers']
-	    self.relative_percentile_percent_RSRZ_outliers = entry_attrib['relative-percentile-percent-RSRZ-outliers']
-	    self.percent_RSRZ_outliers                     = entry_attrib['percent-RSRZ-outliers']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
-	    
-	try:
-	    self.acentric_outliers                         = entry_attrib['acentric_outliers']
-	    self.centric_outliers                          = entry_attrib['centric_outliers']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
-	    
-	try:
-	    self.EDS_R              = entry_attrib['EDS_R']
-	    self.EDS_resolution     = entry_attrib['EDS_resolution']
-	    self.EDS_resolution_low = entry_attrib['EDS_resolution_low']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
+    try:
+        self.percent_rama_outliers                     = entry_attrib['percent-rama-outliers']
+        self.percent_rota_outliers                     = entry_attrib['percent-rota-outliers']
+        self.absolute_percentile_percent_rama_outliers = entry_attrib['absolute-percentile-percent-rama-outliers']
+        self.absolute_percentile_percent_rota_outliers = entry_attrib['absolute-percentile-percent-rota-outliers']
+        self.relative_percentile_percent_rama_outliers = entry_attrib['relative-percentile-percent-rama-outliers']
+        self.relative_percentile_percent_rota_outliers = entry_attrib['relative-percentile-percent-rota-outliers']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.DataAnisotropy                            = entry_attrib['DataAnisotropy']
-	    self.DataCompleteness                          = entry_attrib['DataCompleteness']
-	    self.Fo_Fc_correlation                         = entry_attrib['Fo_Fc_correlation']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
-	
-	try:
-	    self.WilsonBaniso                              = entry_attrib['WilsonBaniso']
-	    self.WilsonBestimate                           = entry_attrib['WilsonBestimate']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
+    # need data for these of course
+    try:
+        self.Fo_Fc_correlation = entry_attrib['Fo_Fc_correlation']
+        self.IoverSigma        = entry_attrib['IoverSigma']
+        self.numMillerIndices                          = entry_attrib['numMillerIndices']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.relative_percentile_RNAsuiteness          = entry_attrib['relative-percentile-RNAsuiteness']
-	    self.absolute_percentile_RNAsuiteness          = entry_attrib['absolute-percentile-RNAsuiteness']
-	    self.RNAsuiteness                              = entry_attrib['RNAsuiteness']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
-	
-	try:
-	    self.TwinL              = entry_attrib['TwinL']
-	    self.TwinFraction       = entry_attrib['TwinFraction']
-	    self.TwinL2             = entry_attrib['TwinL2']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have these
-	    pass
+    try:
+        self.absolute_percentile_percent_RSRZ_outliers = entry_attrib['absolute-percentile-percent-RSRZ-outliers']
+        self.relative_percentile_percent_RSRZ_outliers = entry_attrib['relative-percentile-percent-RSRZ-outliers']
+        self.percent_RSRZ_outliers                     = entry_attrib['percent-RSRZ-outliers']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.xtriage_input_columns                     = entry_attrib['xtriage_input_columns']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have one
-	    pass
+    try:
+        self.acentric_outliers                         = entry_attrib['acentric_outliers']
+        self.centric_outliers                          = entry_attrib['centric_outliers']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.TransNCS                                  = entry_attrib['TransNCS']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have one
-	    pass
+    try:
+        self.EDS_R              = entry_attrib['EDS_R']
+        self.EDS_resolution     = entry_attrib['EDS_resolution']
+        self.EDS_resolution_low = entry_attrib['EDS_resolution_low']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.DCC_R                                     = entry_attrib['DCC_R']
-	    self.DCC_refinement_program                    = entry_attrib['DCC_refinement_program']
-	    self.DCC_Rfree                                 = entry_attrib['DCC_Rfree']
-	    self.absolute_percentile_DCC_Rfree             = entry_attrib['absolute-percentile-DCC_Rfree']
-	    self.relative_percentile_DCC_Rfree             = entry_attrib['relative-percentile-DCC_Rfree']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have one
-	    pass
+    try:
+        self.DataAnisotropy                            = entry_attrib['DataAnisotropy']
+        self.DataCompleteness                          = entry_attrib['DataCompleteness']
+        self.Fo_Fc_correlation                         = entry_attrib['Fo_Fc_correlation']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.CCP4version                               = entry_attrib['CCP4version']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have one
-	    pass
+    try:
+        self.WilsonBaniso                              = entry_attrib['WilsonBaniso']
+        self.WilsonBestimate                           = entry_attrib['WilsonBestimate']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.RefmacVersion      = entry_attrib['RefmacVersion']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have one
-	    pass
+    try:
+        self.relative_percentile_RNAsuiteness          = entry_attrib['relative-percentile-RNAsuiteness']
+        self.absolute_percentile_RNAsuiteness          = entry_attrib['absolute-percentile-RNAsuiteness']
+        self.RNAsuiteness                              = entry_attrib['RNAsuiteness']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	try:
-	    self.bulk_solvent_k     = entry_attrib['bulk_solvent_k']
-	    self.bulk_solvent_b     = entry_attrib['bulk_solvent_b']
-	except KeyError as e:
-	    # it is OK if a Entry doesnt have one
-	    pass
+    try:
+        self.TwinL              = entry_attrib['TwinL']
+        self.TwinFraction       = entry_attrib['TwinFraction']
+        self.TwinL2             = entry_attrib['TwinL2']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have these
+        pass
 
-	
+    try:
+        self.xtriage_input_columns                     = entry_attrib['xtriage_input_columns']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have one
+        pass
+
+    try:
+        self.TransNCS                                  = entry_attrib['TransNCS']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have one
+        pass
+
+    try:
+        self.DCC_R                                     = entry_attrib['DCC_R']
+        self.DCC_refinement_program                    = entry_attrib['DCC_refinement_program']
+        self.DCC_Rfree                                 = entry_attrib['DCC_Rfree']
+        self.absolute_percentile_DCC_Rfree             = entry_attrib['absolute-percentile-DCC_Rfree']
+        self.relative_percentile_DCC_Rfree             = entry_attrib['relative-percentile-DCC_Rfree']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have one
+        pass
+
+    try:
+        self.CCP4version                               = entry_attrib['CCP4version']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have one
+        pass
+
+    try:
+        self.RefmacVersion      = entry_attrib['RefmacVersion']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have one
+        pass
+
+    try:
+        self.bulk_solvent_k     = entry_attrib['bulk_solvent_k']
+        self.bulk_solvent_b     = entry_attrib['bulk_solvent_b']
+    except KeyError as e:
+        # it is OK if a Entry doesnt have one
+        pass
+
+
 class ModelledSubgroup:
-    
+
     # <bond-outlier atom0="CD" atom1="CE" mean="1.508" obs="1.561" stdev="0.025" z="2.11"/>
     class bond_outlier:
-	def __init__(self, bond_attrib):
-	    # print 'bond_attrib: ', bond_attrib
-	    self.atom0  = False
-	    self.atom1  = False
-	    self.mean   = False
-	    self.obs    = False
-	    self.stddev = False
-	    self.z      = False
-	    try:
-		self.atom0  = bond_attrib['atom0']
-		self.atom1  = bond_attrib['atom1']
-		self.mean   = bond_attrib['mean']
-		self.obs    = bond_attrib['obs']
-		self.stdev  = bond_attrib['stdev']
-		self.z      = bond_attrib['z']
-	    except KeyError as e:
-		pass
+       def __init__(self, bond_attrib):
+           # print 'bond_attrib: ', bond_attrib
+           self.atom0  = False
+           self.atom1  = False
+           self.mean   = False
+           self.obs    = False
+           self.stddev = False
+           self.z      = False
+           try:
+               self.atom0  = bond_attrib['atom0']
+               self.atom1  = bond_attrib['atom1']
+               self.mean   = bond_attrib['mean']
+               self.obs    = bond_attrib['obs']
+               self.stdev  = bond_attrib['stdev']
+               self.z      = bond_attrib['z']
+           except KeyError as e:
+               pass
 
     # <mog-bond-outlier Zscore="8.78" atoms="C2',N1'" mean="1.46" mindiff="0.10" numobs="26" obsval="1.32" stdev="0.02"/>
     class mog_bond_outlier:
-	def __init__(self, mog_bond_attrib):
-	    # print 'mog_bond_attrib: ', mog_bond_attrib
-	    self.Zscore  = False
-	    self.atoms   = False
-	    self.mean    = False
-	    self.mindiff = False
-	    self.numobs  = False
-	    self.obsval  = False
-	    self.stdev   = False
-	    try:
-		self.Zscore  = mog_bond_attrib['Zscore']
-		self.atoms   = mog_bond_attrib['atoms']
-		self.mean    = mog_bond_attrib['mean']
-		self.mindiff = mog_bond_attrib['mindiff']
-		self.numobs  = mog_bond_attrib['numobs']
-		self.obsval  = mog_bond_attrib['obsval']
-		self.stdev   = mog_bond_attrib['stdev']
-	    except KeyError as e:
-		pass
+        def __init__(self, mog_bond_attrib):
+            # print 'mog_bond_attrib: ', mog_bond_attrib
+            self.Zscore  = False
+            self.atoms   = False
+            self.mean    = False
+            self.mindiff = False
+            self.numobs  = False
+            self.obsval  = False
+            self.stdev   = False
+            try:
+                self.Zscore  = mog_bond_attrib['Zscore']
+                self.atoms   = mog_bond_attrib['atoms']
+                self.mean    = mog_bond_attrib['mean']
+                self.mindiff = mog_bond_attrib['mindiff']
+                self.numobs  = mog_bond_attrib['numobs']
+                self.obsval  = mog_bond_attrib['obsval']
+                self.stdev   = mog_bond_attrib['stdev']
+            except KeyError as e:
+                pass
 
     # <angle-outlier atom0="C4" atom1="C5" atom2="C7" mean="119.000" obs="121.304" stdev="0.600" z="3.84"/>
     class angle_outlier:
-	def __init__(self, angle_attrib):
-	    # print 'angle_attrib: ', angle_attrib
-	    self.atom0  = False
-	    self.atom1  = False
-	    self.atom2  = False
-	    self.mean   = False
-	    self.obs    = False
-	    self.stddev = False
-	    self.z      = False
-	    try:
-		self.atom0  = angle_attrib['atom0']
-		self.atom1  = angle_attrib['atom1']
-		self.atom2  = angle_attrib['atom2']
-		self.mean   = angle_attrib['mean']
-		self.obs    = angle_attrib['obs']
-		self.stdev  = angle_attrib['stdev']
-		self.z      = angle_attrib['z']
-	    except KeyError as e:
-		pass
+        def __init__(self, angle_attrib):
+            # print 'angle_attrib: ', angle_attrib
+            self.atom0  = False
+            self.atom1  = False
+            self.atom2  = False
+            self.mean   = False
+            self.obs    = False
+            self.stddev = False
+            self.z      = False
+            try:
+                self.atom0  = angle_attrib['atom0']
+                self.atom1  = angle_attrib['atom1']
+                self.atom2  = angle_attrib['atom2']
+                self.mean   = angle_attrib['mean']
+                self.obs    = angle_attrib['obs']
+                self.stdev  = angle_attrib['stdev']
+                self.z      = angle_attrib['z']
+            except KeyError as e:
+                pass
 
     # <mog-angle-outlier Zscore="4.09" atoms="O1',C1,C2" mean="107.14" mindiff="0.92" numobs="97"
     #                    obsval="113.79" stdev="1.63"/>
     class mog_angle_outlier:
-	def __init__(self, mog_angle_attrib):
-	    # print 'mog_angle_attrib: ', mog_angle_attrib
-	    self.Zscore  = False
-	    self.atoms   = False
-	    self.mean    = False
-	    self.mindiff = False
-	    self.numobs  = False
-	    self.obsval  = False
-	    self.stdev   = False
-	    try:
-		self.Zscore  = mog_angle_attrib['Zscore']
-		self.atoms   = mog_angle_attrib['atoms']
-		self.mean    = mog_angle_attrib['mean']
-		self.mindiff = mog_angle_attrib['mindiff']
-		self.numobs  = mog_angle_attrib['numobs']
-		self.obsval  = mog_angle_attrib['obsval']
-		self.stdev   = mog_angle_attrib['stdev']
-	    except KeyError as e:
-		pass
+        def __init__(self, mog_angle_attrib):
+            # print 'mog_angle_attrib: ', mog_angle_attrib
+            self.Zscore  = False
+            self.atoms   = False
+            self.mean    = False
+            self.mindiff = False
+            self.numobs  = False
+            self.obsval  = False
+            self.stdev   = False
+            try:
+                self.Zscore  = mog_angle_attrib['Zscore']
+                self.atoms   = mog_angle_attrib['atoms']
+                self.mean    = mog_angle_attrib['mean']
+                self.mindiff = mog_angle_attrib['mindiff']
+                self.numobs  = mog_angle_attrib['numobs']
+                self.obsval  = mog_angle_attrib['obsval']
+                self.stdev   = mog_angle_attrib['stdev']
+            except KeyError as e:
+                pass
 
-	
+
     # <clash atom="O" cid="116" clashmag="0.52" dist="2.09"/>
     class clash:
-	def __init__(self, clash_attrib):
-	    # print 'clash_attrib: ', clash_attrib
-	    self.atom     = False
-	    self.cid      = False
-	    self.clashmag = False
-	    self.dist     = False
-	    try:
-		self.atom     = clash_attrib['atom']
-		self.cid      = clash_attrib['cid']
-		self.clashmag = clash_attrib['clashmag']
-		self.dist     = clash_attrib['dist']
-	    except KeyError as e:
-		pass
+        def __init__(self, clash_attrib):
+            # print 'clash_attrib: ', clash_attrib
+            self.atom     = False
+            self.cid      = False
+            self.clashmag = False
+            self.dist     = False
+            try:
+                self.atom     = clash_attrib['atom']
+                self.cid      = clash_attrib['cid']
+                self.clashmag = clash_attrib['clashmag']
+                self.dist     = clash_attrib['dist']
+            except KeyError as e:
+                pass
 
 
     def __init__(self, subgroup):
 
-	# individual bits that may or may not be there:
-	self.bond_outliers      = []
-	self.angle_outliers     = []
-	self.mog_bond_outliers  = []
-	self.mog_angle_outliers = []
-	self.clashes            = []
-	self.rsrz     = False
-	self.RNAscore = False
-	self.suite    = False
-	self.flippable_sidechain = None # i.e. unset ATM.
-	self.rama = False
-	self.num_H_reduce = False
-	
-	subgroup_attrib = subgroup.attrib
-	for child in subgroup:
-	    if child.tag == 'bond-outlier':
-		bo = self.bond_outlier(child.attrib)
-		if bo:
-		    self.bond_outliers.append(bo)
-	    if child.tag == 'mog-bond-outlier':
-		bo = self.mog_bond_outlier(child.attrib)
-		if bo:
-		    self.mog_bond_outliers.append(bo)
-	    if child.tag == 'angle-outlier':
-		ao = self.angle_outlier(child.attrib)
-		if ao:
-		    self.angle_outliers.append(ao)
-	    if child.tag == 'mog-angle-outlier':
-		ao = self.mog_angle_outlier(child.attrib)
-		if ao:
-		    self.mog_angle_outliers.append(ao)
-	    if child.tag == 'clash':
-		c = self.clash(child.attrib)
-		if c:
-		    self.clashes.append(c)
-	
+    # individual bits that may or may not be there:
+    self.bond_outliers      = []
+    self.angle_outliers     = []
+    self.mog_bond_outliers  = []
+    self.mog_angle_outliers = []
+    self.clashes            = []
+    self.rsrz     = False
+    self.RNAscore = False
+    self.suite    = False
+    self.flippable_sidechain = None # i.e. unset ATM.
+    self.rama = False
+    self.num_H_reduce = False
+
+    subgroup_attrib = subgroup.attrib
+    for child in subgroup:
+        if child.tag == 'bond-outlier':
+            bo = self.bond_outlier(child.attrib)
+        if bo:
+            self.bond_outliers.append(bo)
+        if child.tag == 'mog-bond-outlier':
+            bo = self.mog_bond_outlier(child.attrib)
+        if bo:
+            self.mog_bond_outliers.append(bo)
+        if child.tag == 'angle-outlier':
+            ao = self.angle_outlier(child.attrib)
+        if ao:
+            self.angle_outliers.append(ao)
+        if child.tag == 'mog-angle-outlier':
+            ao = self.mog_angle_outlier(child.attrib)
+        if ao:
+            self.mog_angle_outliers.append(ao)
+        if child.tag == 'clash':
+            c = self.clash(child.attrib)
+        if c:
+            self.clashes.append(c)
+
 	try:
 	    self.altcode   = subgroup_attrib['altcode']
 	    self.resnum    = subgroup_attrib['resnum']
@@ -365,7 +365,7 @@ class ModelledSubgroup:
 	    self.avgoccu   = False
 	    self.rsr       = False
 	    self.rama      = False
-	    
+
 	    try:
 		self.rsr   = subgroup_attrib['rsr']
 	    except KeyError as e:
@@ -401,7 +401,7 @@ class ModelledSubgroup:
 	    except KeyError as e:
 		# it is OK if a ModelledSubgroup doesnt have a rscc
 		pass
-	    
+
 	    try:
 		self.rsrz = subgroup_attrib['rsrz']
 	    except KeyError as e:
@@ -419,9 +419,9 @@ class ModelledSubgroup:
 		pass
 
 	    return None
-	
+
 	except KeyError as e:
-	    print 'ModelledSubgroup: KeyError with key', e
+	    print('ModelledSubgroup: KeyError with key', e)
 
     # Is this a residue for which we want to create a button?
     #
@@ -457,7 +457,7 @@ class ModelledSubgroup:
 		   problems.append(s)
 	   except TypeError as e:
 	       pass
-	   
+
        for ao in self.mog_angle_outliers:
 	   try:
 	       if abs(float(ao.Zscore)) > 2:
@@ -482,7 +482,7 @@ class ModelledSubgroup:
 	       is_bad = True
 	       s = "Bad RSRZ " + self.rsrz
 	       problems.append(s)
-	       
+
        if self.RNAscore:
 	   if float(self.RNAscore) < 0.5:
 	       is_bad = True
@@ -504,7 +504,7 @@ class ModelledSubgroup:
 #
 def parse_wwpdb_validation_xml(xml_string):
 
-    try: 
+    try:
 	tree = et.fromstring(xml_string)
 	modelled_subgroups = []
 	for child in tree:
@@ -518,7 +518,7 @@ def parse_wwpdb_validation_xml(xml_string):
 	validation_info = [entry_info, modelled_subgroups]
 	return validation_info
     except IOError as e:
-	print e
+	print(e)
 	return False
 
 
@@ -537,7 +537,7 @@ class validation_entry_to_canvas:
 	self.abs_bar_width = 6
 	self.abs_bar_height = int(self.bar_height * 1.6)
 	self.vbox = False
-	
+
 	if self.entry_validation_info != False:
 	    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 	    title = "PDB Validation Report for " # ...
@@ -605,7 +605,7 @@ class validation_entry_to_canvas:
             pangolayout.set_text(s)
             y_level  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 90
             da.window.draw_layout(gc, 10, y_level, pangolayout)
-        
+
 
     def draw_rgb_image(self, da, gc, x, y):
 
@@ -617,14 +617,14 @@ class validation_entry_to_canvas:
 	x = int(self.x_bar_offset + 0.01 * abs_percent * self.bar_length - 0.5 * self.abs_bar_width)
 	y = int(y_min - self.bar_height * 0.25)
 	da.window.draw_rectangle(gc, True, x, y, self.abs_bar_width, self.abs_bar_height)
-	
+
     def arcs_for_rel(self, rel_percent, y_min, da, gc):
 	x = int(self.x_bar_offset + 0.01 * rel_percent * self.bar_length - 0.5 * self.abs_bar_width)
 	y = int(y_min - self.bar_height * 0.25)
 	da.window.draw_rectangle(gc, False, x, y, self.abs_bar_width, self.abs_bar_height)
 
     # Worse, Better
-    def draw_bottom_labels(self, da, gc, n_sliders): 
+    def draw_bottom_labels(self, da, gc, n_sliders):
 	x_worse  = self.x_bar_offset
 	y_worse  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 15
 	x_better = self.x_bar_offset + self.bar_length - 32
@@ -636,11 +636,11 @@ class validation_entry_to_canvas:
 	font_desc.set_style(pango.STYLE_ITALIC)
 	pl_wb.set_font_description(font_desc)
         da.window.draw_layout(gc, x_worse,  y_worse,  pl_wb)
-	
+
         pl_wb.set_text('Better')
         da.window.draw_layout(gc, x_better, y_better, pl_wb)
-	
-    
+
+
     # percentile box descriptions
     def draw_key(self, da, gc, n_sliders):
 	x_key_box_abs =  self.x_bar_offset
@@ -650,8 +650,8 @@ class validation_entry_to_canvas:
 	y_key_box_rel = y_key_box_abs + 20
 
 	x_key_1 =  x_key_box_abs + 10
-	y_key_1  = y_key_box_abs 
-	
+	y_key_1  = y_key_box_abs
+
 	x_key_2 =  x_key_1
 	y_key_2  = y_key_1 + 20
 
@@ -663,26 +663,26 @@ class validation_entry_to_canvas:
         pl = da.create_pango_layout("")
         font_desc = pango.FontDescription('Sans 9')
 	pl.set_font_description(font_desc)
-	
+
         pl.set_text('Percentile relative to all x-ray structures')
         da.window.draw_layout(gc, x_key_1, y_key_1, pl)
         pl.set_text('Percentile relative to x-ray structures of similar resolution')
         da.window.draw_layout(gc, x_key_2, y_key_2, pl)
-	
+
 
     # return True if the bar for the absolute percentile was drawn,
     # otherwise return False
     #
     def draw_slider(self, name, x_for_rj, abs_str, rel_str, value_str, slider_no, da, gc):
-	
+
 	y = self.y_bar_offset + self.y_pixels_bar_spacing*(slider_no+1)
 
 	# colour bar
 	self.draw_rgb_image(da, gc, self.x_bar_offset, y)
-	
+
 	local_gc = gc;
 	local_gc.set_foreground(local_gc.get_colormap().alloc_color("#888888"))
-	
+
 	da.window.draw_rectangle(local_gc, False, self.x_bar_offset, y, self.bar_length, self.bar_height)
 	local_gc.set_foreground(local_gc.get_colormap().alloc_color("#000000"))
 
@@ -695,7 +695,7 @@ class validation_entry_to_canvas:
         da.window.draw_layout(gc, 4+x_for_rj, y-6, pangolayout)
 
 	# Values text
-	if isinstance(value_str, types.StringType):
+	if isinstance(value_str, bytes):
 	    x_for_value = self.x_bar_offset + self.bar_length + 12
 	    pangolayout.set_text(value_str)
 	    # print "value", x_for_value, y
@@ -710,10 +710,10 @@ class validation_entry_to_canvas:
 		abs = float(abs_str)
 		self.bar_for_abs( abs, y, da, gc)
 		return True
-		
+
 	    rel = float(rel_str)
 	except TypeError as e:
-	    print e
+	    print(e)
 
 	# hopefully we don't get here.
 	return False
@@ -728,15 +728,15 @@ class validation_entry_to_canvas:
 		y_min_2 = 20 + 30*(slider_no+2)
 		abs_1 = float(pc_ranks[slider_no])
 		abs_2 = float(pc_ranks[slider_no+1])
-		
+
 		x_1 = int(self.x_bar_offset + 0.01 * abs_1 * self.bar_length)
 		y_1 = int(y_min_1 + self.bar_height + 1)
-		
+
 		x_2 = int(self.x_bar_offset + 0.01 * abs_2 * self.bar_length)
 		y_2 = int(y_min_2 - self.bar_height * 0.25)
-		
+
 		da.window.draw_line(gc, x_1, y_1, x_2, y_2)
-	
+
 
     def draw_sliders(self, da, gc):
 
@@ -746,7 +746,7 @@ class validation_entry_to_canvas:
 	abs = self.entry_validation_info.absolute_percentile_DCC_Rfree
 	rel = self.entry_validation_info.relative_percentile_DCC_Rfree
 	value = self.entry_validation_info.DCC_Rfree
-	if abs != False and rel != False: 
+	if abs != False and rel != False:
 	    state = self.draw_slider("Rfree", 114, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
@@ -755,43 +755,43 @@ class validation_entry_to_canvas:
 	abs   = self.entry_validation_info.absolute_percentile_clashscore
 	rel   = self.entry_validation_info.relative_percentile_clashscore
 	value = self.entry_validation_info.clashscore
-	if abs != False and rel != False: 
+	if abs != False and rel != False:
 	    state = self.draw_slider("Clashscore", 78, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
-    
+
 	abs   = self.entry_validation_info.absolute_percentile_percent_rama_outliers
 	rel   = self.entry_validation_info.relative_percentile_percent_rama_outliers
 	value = self.entry_validation_info.percent_rama_outliers
-	if abs != False and rel != False: 
+	if abs != False and rel != False:
 	    state = self.draw_slider("Ramachandran Outliers", 0, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
-    
+
 	abs = self.entry_validation_info.absolute_percentile_percent_rota_outliers
 	rel = self.entry_validation_info.relative_percentile_percent_rota_outliers
 	value = self.entry_validation_info.percent_rota_outliers
-	if abs != False and rel != False: 
+	if abs != False and rel != False:
 	    state = self.draw_slider("Sidechain Outliers", 32, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
-	    
+
 	abs = self.entry_validation_info.relative_percentile_percent_RSRZ_outliers
 	rel = self.entry_validation_info.absolute_percentile_percent_RSRZ_outliers
 	value = self.entry_validation_info.percent_RSRZ_outliers
-	if abs != False and rel != False: 
+	if abs != False and rel != False:
 	    state = self.draw_slider("RSRZ Outliers", 56, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
-	
+
 	abs = self.entry_validation_info.relative_percentile_RNAsuiteness
 	rel = self.entry_validation_info.absolute_percentile_RNAsuiteness
 	value = self.entry_validation_info.RNAsuiteness
-	if abs != False and rel != False: 
+	if abs != False and rel != False:
 	    state = self.draw_slider("RNASuiteness", 57, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
@@ -806,7 +806,7 @@ class validation_entry_to_canvas:
         pangolayout = da.create_pango_layout("")
         font_desc = pango.FontDescription('Sans 13')
 	pangolayout.set_font_description(font_desc)
-	
+
         pangolayout.set_text('Metric')
 	y_level = 15
         da.window.draw_layout(gc, 100, y_level, pangolayout)
@@ -821,7 +821,7 @@ def add_residue_buttons(subgroups, vbox, imol):
 	# print "go to imol ", imol, "residue", residue_spec
 	set_go_to_atom_molecule(imol)
 	set_go_to_atom_from_res_spec(residue_spec)
-	
+
     if vbox:
 	vbox_residue_buttons = gtk.VBox(False, 0)
 	scrolled_win = gtk.ScrolledWindow()
@@ -853,7 +853,7 @@ def add_residue_buttons(subgroups, vbox, imol):
 		    vbox_residue_buttons.pack_start(residue_button, False, 2)
 		    residue_button.show()
 		except ValueError:
-		    print 'problem parsing', group.chain, group.resnum, group.icode
+		    print('problem parsing', group.chain, group.resnum, group.icode)
 	vbox.pack_start(scrolled_win, True, 2)
 	scrolled_win.show()
 	vbox_residue_buttons.show()
@@ -881,29 +881,29 @@ def pdb_validate(accession_code, imol):
             status = coot_get_url(url, gz_file_name)
             # turn the gz_file_name into a string
             vi = False
-            try: 
+            try:
                 gz = gzip.open(gz_file_name)
                 xml_string = gz.read()
                 vi = parse_wwpdb_validation_xml(xml_string)
                 gz.close()
             except IOError as e:
-                print e
+                print(e)
             if vi:
                 entry_validation_info = vi[0]
                 subgroups = vi[1]
                 ss = sort_subgroups(subgroups)
                 validation_to_gui(entry_validation_info, ss, imol)
             else:
-                print "something went wrong when getting", url
+                print("something went wrong when getting", url)
                 s = "Something went wrong"
                 add_status_bar_text(s)
-            
+
         else:
-            print 'WARNING:: invalid accession code', accession_code
+            print('WARNING:: invalid accession code', accession_code)
     except KeyError as e:
-        print "Failure to get validation for ", accession_code
-    
-    
+        print("Failure to get validation for ", accession_code)
+
+
 # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
 # xml_list = ["1FV2.xml"]
@@ -928,5 +928,3 @@ def pdb_validate(accession_code, imol):
 # gtk.main()
 
 # pdb_validate('1cbs')
-
-
