@@ -1836,19 +1836,19 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
    float v = 0.0;
    if (is_valid_map_molecule(imol_map)) {
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t g;
-	 coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
-	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
-	 if (r) {
-	    mmdb::PPAtom residue_atoms = 0;
-	    int n_residue_atoms;
-	    r->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (int iat=0; iat<n_residue_atoms; iat++) {
-	       mmdb::Atom *at = residue_atoms[iat];
-	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
-	       v += d_at * at->occupancy;
-	    }
-	 }
+         graphics_info_t g;
+         coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+         mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
+         if (r) {
+            mmdb::PPAtom residue_atoms = 0;
+            int n_residue_atoms;
+            r->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+               v += d_at * at->occupancy;
+            }
+         }
       }
    }
    return v;
@@ -1920,9 +1920,9 @@ SCM map_statistics_scm(int imol) {
   if (is_valid_map_molecule(imol)) {
      map_statistics_t ms = graphics_info_t::molecules[imol].map_statistics();
      r = scm_list_4(scm_double2num(ms.mean),
-		    scm_double2num(ms.sd),
-		    scm_double2num(ms.skew),
-		    scm_double2num(ms.kurtosis));
+                    scm_double2num(ms.sd),
+                    scm_double2num(ms.skew),
+                    scm_double2num(ms.kurtosis));
   }
   return r;
 }
@@ -1960,13 +1960,13 @@ void set_density_size_from_widget(const char *text) {
       g.box_radius_xray = tmp;
    } else {
       std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
-		<< text << "\".  Assuming 10A" << std::endl;
+                << text << "\".  Assuming 10A" << std::endl;
       g.box_radius_xray = 10.0;
    }
    //
    for (int ii=0; ii<g.n_molecules(); ii++) {
       if (is_valid_map_molecule(ii))
-	  g.molecules[ii].update_map();
+         g.molecules[ii].update_map();
    }
    graphics_draw();
 }
