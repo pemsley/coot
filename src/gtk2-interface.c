@@ -2302,9 +2302,11 @@ create_window1 (void)
   g_signal_connect ((gpointer) ncs_ghost_control1, "activate",
                     G_CALLBACK (on_ncs_ghost_control1_activate),
                     NULL);
+  /* were did this come from?
   g_signal_connect ((gpointer) perspective_projection1, "activate",
                     G_CALLBACK (on_perspective_projection1_activate),
                     NULL);
+  */
   g_signal_connect ((gpointer) draw_representation_tools, "activate",
                     G_CALLBACK (on_draw_representation_tools_activate),
                     NULL);
@@ -29427,9 +29429,10 @@ create_simple_refmac_dialog (void)
   simple_refmac_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (simple_refmac_dialog), "Run Refmac");
   gtk_window_set_type_hint (GTK_WINDOW (simple_refmac_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (simple_refmac_dialog), FALSE);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (simple_refmac_dialog), FALSE);
 
-  dialog_vbox137 = GTK_DIALOG (simple_refmac_dialog)->vbox;
+  // dialog_vbox137 = GTK_DIALOG (simple_refmac_dialog)->vbox;
+  dialog_vbox137 = gtk_dialog_get_action_area(GTK_DIALOG (simple_refmac_dialog));
   gtk_widget_show (dialog_vbox137);
 
   vbox333 = gtk_vbox_new (FALSE, 0);
@@ -29506,19 +29509,20 @@ create_simple_refmac_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (frame310), label837);
   gtk_label_set_use_markup (GTK_LABEL (label837), TRUE);
 
-  dialog_action_area136 = GTK_DIALOG (simple_refmac_dialog)->action_area;
+  // dialog_action_area136 = GTK_DIALOG (simple_refmac_dialog)->action_area;
+  dialog_action_area136 = gtk_dialog_get_action_area(GTK_DIALOG (simple_refmac_dialog));
   gtk_widget_show (dialog_action_area136);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area136), GTK_BUTTONBOX_END);
 
   cancelbutton3 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (cancelbutton3);
   gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_dialog), cancelbutton3, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (cancelbutton3, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (cancelbutton3, GTK_CAN_DEFAULT);
 
   okbutton3 = gtk_button_new_from_stock ("gtk-ok");
   gtk_widget_show (okbutton3);
   gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_dialog), okbutton3, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (okbutton3, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (okbutton3, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) simple_refmac_dialog, "response",
                     G_CALLBACK (on_simple_refmac_dialog_response),
@@ -29571,22 +29575,24 @@ create_simple_refmac_filechooserdialog (void)
   gtk_window_set_role (GTK_WINDOW (simple_refmac_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (simple_refmac_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
-  dialog_vbox138 = GTK_DIALOG (simple_refmac_filechooserdialog)->vbox;
+  // dialog_vbox138 = GTK_DIALOG (simple_refmac_filechooserdialog)->vbox;
+  dialog_vbox138 = gtk_dialog_get_action_area(GTK_DIALOG (simple_refmac_filechooserdialog));
   gtk_widget_show (dialog_vbox138);
 
-  dialog_action_area137 = GTK_DIALOG (simple_refmac_filechooserdialog)->action_area;
+  // dialog_action_area137 = GTK_DIALOG (simple_refmac_filechooserdialog)->action_area;
+  dialog_action_area137 = gtk_dialog_get_action_area(GTK_DIALOG (simple_refmac_filechooserdialog));
   gtk_widget_show (dialog_action_area137);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area137), GTK_BUTTONBOX_END);
 
   button35 = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_show (button35);
   gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_filechooserdialog), button35, GTK_RESPONSE_CANCEL);
-  GTK_WIDGET_SET_FLAGS (button35, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button35, GTK_CAN_DEFAULT);
 
   button36 = gtk_button_new_from_stock ("gtk-open");
   gtk_widget_show (button36);
   gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_filechooserdialog), button36, GTK_RESPONSE_OK);
-  GTK_WIDGET_SET_FLAGS (button36, GTK_CAN_DEFAULT);
+  // GTK_WIDGET_SET_FLAGS (button36, GTK_CAN_DEFAULT);
 
   g_signal_connect ((gpointer) simple_refmac_filechooserdialog, "response",
                     G_CALLBACK (on_simple_refmac_filechooserdialog_response),

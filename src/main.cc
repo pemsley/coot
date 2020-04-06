@@ -387,7 +387,7 @@ main (int argc, char *argv[]) {
       do_main_window(cld);
    }
 
-   // Mac users often start somewhere where thy can't write files
+   // Mac users often start somewhere where they can't write files
    //
    change_directory_maybe();
 

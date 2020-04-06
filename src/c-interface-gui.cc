@@ -136,10 +136,10 @@ open_cif_dictionary_file_selector_dialog() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-      GtkWidget *fileselection = coot_cif_dictionary_chooser(); // a chooser or a fileselection
-      add_sort_button_fileselection(fileselection);
-      set_directory_for_fileselection(fileselection);
-      set_file_selection_dialog_size(fileselection);
+      GtkWidget *filechooser = coot_cif_dictionary_chooser(); // a chooser or a fileselection
+      add_sort_button_fileselection(filechooser);
+      set_directory_for_coot_file_chooser(filechooser);
+      set_file_selection_dialog_size(filechooser);
 
       // add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
       // add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
@@ -153,14 +153,13 @@ open_cif_dictionary_file_selector_dialog() {
 
 	 std::cout << "GTK-FIXME no action area" << std::endl;
 
-	 GtkWidget *aa_hbutton_box = gtk_dialog_get_header_bar(GTK_DIALOG(fileselection));
+	 GtkWidget *aa_hbutton_box = gtk_dialog_get_header_bar(GTK_DIALOG(filechooser));
 	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
-	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbutton_box);
-	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbutton_box);
+	    add_cif_dictionary_selector_molecule_selector(filechooser, aa_hbutton_box);
+	    add_cif_dictionary_selector_create_molecule_checkbutton(filechooser, aa_hbutton_box);
 	 }
       }
-      // there is no file selector now
-      gtk_widget_show(fileselection);
+      gtk_widget_show(filechooser);
    }
 }
 

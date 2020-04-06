@@ -508,6 +508,8 @@ void execute_refmac_internal(GtkWidget *window,
 
 void execute_refmac(GtkWidget *window) {
 
+#if 0
+
    // The passed window, is the refmac dialog, where one selects the
    // coords molecule and the map molecule.
 

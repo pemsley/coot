@@ -163,6 +163,7 @@ void
 coot::setup_refmac_parameters(GtkWidget *window,
                               const coot::mtz_column_types_info_t &col_labs) {
 
+#if 0 // old optionmenu stuff - needs cleanup/delete   
 /*
   unsigned int i;
   GtkWidget *fobs_option_menu    = lookup_widget(window, "refmac_fobs_optionmenu");
