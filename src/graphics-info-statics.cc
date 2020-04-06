@@ -14,7 +14,7 @@ bool graphics_info_t::do_debug_refinement = false;
 
 std::atomic<bool> graphics_info_t::on_going_updating_map_lock(false);
 
-std::map<int, key_bindings_t> graphics_info_t::key_bindings_map;
+std::map<keyboard_key_t, key_bindings_t> graphics_info_t::key_bindings_map;
 
 std::string graphics_info_t::mtz_file_for_refmac;
 

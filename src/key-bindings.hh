@@ -1,4 +1,40 @@
 
+class keyboard_key_t {
+public:
+   int gdk_key;
+   bool ctrl_is_pressed;
+   keyboard_key_t(int g) {
+      gdk_key = g;
+      ctrl_is_pressed = false;
+   }
+   keyboard_key_t(int g, bool state) {
+      gdk_key = g;
+      ctrl_is_pressed = state;
+   }
+   bool operator<(const keyboard_key_t &other) const {
+      if (other.gdk_key < gdk_key) {
+         return true;
+      } else {
+         if (other.gdk_key == gdk_key) {
+            if (other.ctrl_is_pressed) {
+               if (ctrl_is_pressed) {
+                  return false;
+               } else {
+                  return true;
+               }
+            } else {
+               if (ctrl_is_pressed) {
+                  return false; // hmm.
+               } else {
+                  return false;
+               }
+            }
+         } else {
+            return false;
+         }
+      }
+   }
+};
 
 class key_bindings_t {
 

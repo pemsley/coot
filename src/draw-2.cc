@@ -1161,22 +1161,34 @@ setup_key_bindings() {
                 graphics_info_t::display_density_level_this_image = 1;
              };
 
-   auto l9 = []() {
-                update_go_to_atom_from_current_position();
-             };
+   auto l9 = []() { update_go_to_atom_from_current_position(); };
 
-   std::vector<std::pair<int, key_bindings_t> > kb_vec;
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_i,      key_bindings_t(l6, "spin")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_plus,   key_bindings_t(l7, "increase contour level")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_minus,  key_bindings_t(l8, "decrease contour level")));
-   kb_vec.push_back(std::pair<int, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
+   auto l10 = []() { graphics_info_t::zoom *= 0.9; };
+
+   auto l11 = []() { graphics_info_t::zoom *= 1.1; };
+
+   std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_i,      key_bindings_t(l6, "spin")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_plus,   key_bindings_t(l7, "increase contour level")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_minus,  key_bindings_t(l8, "decrease contour level")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom in")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
+
+   // control keys
+   
+   auto l12 = []() { show_go_to_residue_keyboarding_mode_window(); };
+   key_bindings_t go_to_blob_key_binding(l12, "Show Go To Residue Keyboarding Window");
+   keyboard_key_t kbk(GDK_KEY_g, true);
+   std::pair<keyboard_key_t, key_bindings_t> p(kbk, go_to_blob_key_binding);
+   kb_vec.push_back(p);
 
    graphics_info_t g;
-   std::vector<std::pair<int, key_bindings_t> >::const_iterator it;
+   std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); it++)
      g.key_bindings_map[it->first] = it->second;
 }
@@ -1186,80 +1198,28 @@ setup_key_bindings() {
 gboolean
 on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
+   // move this function into graphics_info_t?
+
    graphics_info_t g;
    gboolean handled = false;
 
-   if (event->keyval == GDK_KEY_n) {
-      std::cout << "Zoom in " << std::endl;
-      graphics_info_t::zoom *= 0.9;
-   }
-   if (event->keyval == GDK_KEY_m) {
-      std::cout << "Zoom out " << std::endl;
-      graphics_info_t::zoom *= 1.1;
-   }
-   
-   // move this function into graphics_info_t?
-   std::map<int, key_bindings_t>::const_iterator it = g.key_bindings_map.find(event->keyval);
+   bool control_is_pressed_flag = false;
+   if (event->state & GDK_CONTROL_MASK) control_is_pressed_flag = true;
+   keyboard_key_t kbk(event->keyval, control_is_pressed_flag);
+
+   std::cout << "looking for " << kbk.gdk_key << " " << kbk.ctrl_is_pressed << std::endl;
+   std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
 
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     std::cout << "key-binding for key " << it->first << " " << kb.description
+     std::cout << "key-binding for key " << it->first.gdk_key << " " << it->first.ctrl_is_pressed << " " << kb.description
                << std::endl;
      if (kb.type == key_bindings_t::BUILT_IN)
        (kb.func)();
+   } else {
+      std::cout << "not found " << std::endl;
    }
 
-   
-   
-   // I want to be able to push out the front clipping plane (say, for making a figure or movie)
-
-   // if (event->keyval == GDK_KEY_d) {
-   //    adjust_clipping(0.3);
-   // }
-
-   // if (event->keyval == GDK_KEY_f) {
-   //    adjust_clipping(-0.3);
-   // }
-
-   // if (event->keyval == GDK_KEY_w) { // "forwards" in perspective view
-   //    move_forwards();
-   // }
-
-   // if (event->keyval == GDK_KEY_s) { // "forwards" in perspective view
-   //    move_backwards();
-   // }
-
-   // if (event->keyval == GDK_KEY_g) {
-   //    blob_under_pointer_to_screen_centre();
-   // }
-
-   // if (event->keyval == GDK_KEY_i) {
-   //    std::cout << "Debug idle_function_spin_rock_token " << graphics_info_t::idle_function_spin_rock_token
-   //              << std::endl;
-   //    if (graphics_info_t::idle_function_spin_rock_token != -1) {
-   //       std::cout << "Removing the idle function\n";
-   //       g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
-   //       graphics_info_t::idle_function_spin_rock_token = -1;
-   //    } else {
-   //       int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
-   //       graphics_info_t::idle_function_spin_rock_token = toi;
-   //    }
-   // }
-
-   // // GDK_KEY_equals should be the same as GDK_KEY_plus
-   // if (event->keyval == GDK_KEY_minus || event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal) {
-   //    int s = graphics_info_t::scroll_wheel_map;
-   //    if (graphics_info_t::is_valid_map_molecule(s)) {
-   //       if (event->keyval == GDK_KEY_minus)
-   //          graphics_info_t::molecules[s].pending_contour_level_change_count--;
-   //       if (event->keyval == GDK_KEY_plus || event->keyval == GDK_KEY_equal)
-   //          graphics_info_t::molecules[s].pending_contour_level_change_count++;
-   //       int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
-   //       g.set_density_level_string(s, g.molecules[s].contour_level);
-   //       g.display_density_level_this_image = 1;
-   //       handled = TRUE;
-   //    }
-   // }
 
    // fix the type here
    if (int(event->keyval) == graphics_info_t::update_go_to_atom_from_current_residue_key) {
