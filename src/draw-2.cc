@@ -231,8 +231,6 @@ glm::mat4 get_molecule_mvp() {
       std::cout << "get_molecule_mvp: " << glm::to_string(mvp) << std::endl;
    }
 
-// #if 0
-
    if (graphics_info_t::perspective_projection_flag) {
 
       // for fun/testing
@@ -246,20 +244,20 @@ glm::mat4 get_molecule_mvp() {
       // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
 
       // the difference between these after rotation by the mouse quaternion will give us "up"
-      glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
       glm::vec4 test_pt_1(1.0, 0.0, 0.0, 1.0);
       glm::vec4 test_pt_2(1.0, 1.0, 0.0, 1.0);
+      glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
 
       glm::mat4 vr = get_view_rotation();
       glm::vec4 rp_z = vr * test_pt_z;
       glm::vec4 rp_1 = vr * test_pt_1;
       glm::vec4 rp_2 = vr * test_pt_2;
       glm::vec4 up4 = rp_2 - rp_1;
-      glm::vec3 up = glm::vec3(up4);
-      glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rp_1);
-      ep += rc;
+      glm::vec3 up = glm::normalize(glm::vec3(up4));
+      glm::vec3 ep = get_eye_position();
 
-      std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
+      std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc)
+                << " up " << glm::to_string(up) << std::endl;
 
       view_matrix = glm::lookAt(ep, rc, up);
       float z_front =  2.0;
@@ -271,7 +269,7 @@ glm::mat4 get_molecule_mvp() {
       glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
       mvp = projection_matrix_persp * view_matrix * model_matrix;
    }
-// #endif
+
 
    return mvp;
 }
@@ -364,7 +362,7 @@ void draw_map_molecules() {
 
    // run throgh this molecule loop twice - for opaque then transparent maps
 
-   bool transparent_maps_loop = true;
+   bool transparent_maps_loop = false;
    if (transparent_maps_loop) { // needed for transparent maps
       glEnable(GL_BLEND); // already set? Test.
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1126,8 +1124,9 @@ void translate_in_screen_z(float step_size) {
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
    glm::vec3 step = 0.01 * step_size * graphics_info_t::zoom * delta_uv;
 
-   std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
-             << " zoom " << graphics_info_t::zoom << " step " << glm::to_string(step) << std::endl;
+   if (false) // debug
+      std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
+                << " zoom " << graphics_info_t::zoom << " step " << glm::to_string(step) << std::endl;
    graphics_info_t::add_to_rotation_centre(step);
 
 }
@@ -1234,7 +1233,6 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->state & GDK_CONTROL_MASK) control_is_pressed_flag = true;
    keyboard_key_t kbk(event->keyval, control_is_pressed_flag);
 
-   std::cout << "looking for " << kbk.gdk_key << " " << kbk.ctrl_is_pressed << std::endl;
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
 
    if (it != g.key_bindings_map.end()) {
