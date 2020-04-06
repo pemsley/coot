@@ -8,7 +8,7 @@ def fill_option_menu_with_string_options(menu, string_list,
         if (default_option_value == item):
             count = string_list.index(item)
             menu.set_active(count)
-            print "setting menu active ", default_option_value, count
+            print("setting menu active ", default_option_value, count)
 
 def acedrg_link_generation_control_window():
 
@@ -133,7 +133,7 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                 return [True] + parts
 
     def make_acedrg_bond(*clicks):
-        print "BL DEBUG:: we received these clicks:", clicks
+        print("BL DEBUG:: we received these clicks:", clicks)
 
         bond_list = ['single', 'double']
         bond_order = get_option_menu_active_item(option_menu,
@@ -143,8 +143,8 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
         if (len(clicks) == 2):
             click_1 = clicks[0]
             click_2 = clicks[1]
-            print "BL DEBUG:: click_1", click_1
-            print "BL DEBUG:: click_2", click_2
+            print("BL DEBUG:: click_1", click_1)
+            print("BL DEBUG:: click_2", click_2)
             if ((len(click_1) == 7) and
                 (len(click_2) == 7)):
                 resname_1 = residue_name(*click_1[1:5])
@@ -161,7 +161,7 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
 
                 if not (isinstance(resname_1, str) and
                         isinstance(resname_2, str)):
-                    print "Bad resnames: %s and %s " %(resname_1, resname_2)
+                    print("Bad resnames: %s and %s " %(resname_1, resname_2))
                     return False # just in case
                 else:
                     if not (imol_click_1 == imol_click_2):
@@ -189,9 +189,9 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                         # then we don't need to specify the file - if they
                         # are not, then use cif_fn_1 (or cif_fn_2)
                         
-                        print "BL DEBUG:: cif_fn_1:", cif_fn_1
-                        print "BL DEBUG:: cif_fn_2:", cif_fn_2
-                        print "BL DEBUG:: ns:      ", ns
+                        print("BL DEBUG:: cif_fn_1:", cif_fn_1)
+                        print("BL DEBUG:: cif_fn_2:", cif_fn_2)
+                        print("BL DEBUG:: ns:      ", ns)
 
                         if (bond_order == 'double'):
                             s += " BOND-TYPE DOUBLE"
@@ -224,7 +224,7 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                                  " 1 "
                             s += ss
 
-                        print "BL DEBUG:: LINK string:", s
+                        print("BL DEBUG:: LINK string:", s)
                         st_1 = "acedrg-link-from-coot-" + \
                                resname_1 + "-" + \
                                resname_2

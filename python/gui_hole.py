@@ -45,7 +45,7 @@ def hole_ify():
     def start_button_cb(*args):
         global start_pos
         start_pos = rotation_centre()
-        print "Start pos set to:", start_pos
+        print("Start pos set to:", start_pos)
         status_bar_pos(start_pos, "start")
         
     start_button.connect("clicked", start_button_cb)
@@ -53,7 +53,7 @@ def hole_ify():
     def end_button_cb(*args):
         global end_pos
         end_pos = rotation_centre()
-        print "End pos set to:", end_pos
+        print("End pos set to:", end_pos)
         status_bar_pos(end_pos, "end")
         
     end_button.connect("clicked", end_button_cb)
@@ -66,7 +66,7 @@ def hole_ify():
         global start_pos, end_pos
         imol = get_option_menu_active_molecule(*option_menu_and_model_mol_list)
         if isinstance(imol, int):
-            print start_pos, end_pos
+            print(start_pos, end_pos)
             if not isinstance(start_pos, list):
                 add_status_bar_text("Start position not set")
             else:
@@ -74,7 +74,7 @@ def hole_ify():
                     add_status_bar_text("End position not set")
                 else:
                     # main?
-                    print "hole", imol, start_pos, end_pos
+                    print("hole", imol, start_pos, end_pos)
                     # get this from an entry ideally.
                     export_dots_file_name = hole_export_entry.get_text()
                     colour_map_multiplier = 1
@@ -82,7 +82,7 @@ def hole_ify():
                     hole_args = [imol] + start_pos + end_pos + \
                                 [colour_map_multiplier, colour_map_offset, 1,
                                  True, export_dots_file_name]
-                    print "BL DEBUG:: hole_args", hole_args
+                    print("BL DEBUG:: hole_args", hole_args)
                     hole(*hole_args)
                     delete_event()
                     

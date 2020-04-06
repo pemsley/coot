@@ -69,6 +69,30 @@ void setup_python(int argc, char **argv) {
    Py_InitializeEx(0);
    PySys_SetArgv(argc, _argv);
 
+#endif // USE_PYMAC_INIT
+
+
+   std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
+
+   int err = import_python_module("coot", 0);
+   if (err == -1) {
+      std::cout << "ERROR:: could not import coot.py" << std::endl;
+   } else {
+      std::cout << "INFO:: coot.py imported" << std::endl;
+      std::string coot_load_modules_dot_py = "coot_load_modules.py";
+      std::string coot_py_file_name = coot::util::append_dir_file(pydirectory, coot_load_modules_dot_py);
+      if (coot::file_exists(coot_py_file_name)) {
+         PyRun_SimpleString("global use_gui_qm; use_gui_qm = False");
+         FILE *fp = fopen(coot_py_file_name.c_str(), "r");
+         PyRun_SimpleFile(fp, coot_py_file_name.c_str());
+         fclose(fp);
+         std::cout << "read " << coot_py_file_name << std::endl;
+      } else {
+         std::cout << "WARNING:: No coot modules found! Python scripting crippled. "
+                   << std::endl;
+      }
+   }
+
 
 #if 1 // Add a test for PyGObject (the new Python GTK interface)
 
@@ -77,10 +101,8 @@ void setup_python(int argc, char **argv) {
                       // the status-bar, menu-bar etc.
                       // Done.
 
-#endif
-
-#endif     
-#endif     
+#endif // GObject
+#endif // USE_PYTHON
 
 }
 

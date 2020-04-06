@@ -114,7 +114,7 @@ if (use_gui_qm != 2):
                 ["New Dictionary cif file name: ", "new-dictionary-RXC.cif"]],
                False,
                "   OK   ",
-               lambda (ref_comp_id_txt, new_comp_id_txt, new_cif_file_name_txt): match_this_residue_and_dictionary(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, new_cif_file_name_txt, ref_comp_id_txt, new_comp_id_txt))
+               lambda ref_comp_id_txt_new_comp_id_txt_new_cif_file_name_txt: match_this_residue_and_dictionary(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, ref_comp_id_txt_new_comp_id_txt_new_cif_file_name_txt[2], ref_comp_id_txt_new_comp_id_txt_new_cif_file_name_txt[0], ref_comp_id_txt_new_comp_id_txt_new_cif_file_name_txt[1]))
         
 
     add_simple_coot_menu_menuitem(

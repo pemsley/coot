@@ -31,7 +31,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
         n_ligand_atoms = het_group_n_atoms(rn)
 
         if (not isNumber(n_ligand_atoms)):
-            print "BL ERROR:: failed liagnd atoms not a number."
+            print("BL ERROR:: failed liagnd atoms not a number.")
             return False
         else:
             refmac_out_sfs_file_name = os.path.join(refmac_dir, \
@@ -47,7 +47,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                                       refmac_out_sfs_file_name,
                                                       fobs_col, sig_fobs_col, rfree_col)
             if not r:
-                print "BL ERROR:: failed calculating sfs in refmac"
+                print("BL ERROR:: failed calculating sfs in refmac")
                 return False
             else:
                 # happy path
@@ -65,7 +65,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                str(res_no) + " " + \
                                chain_id]
 
-        print "BL DEBUG:: in get_correlation(): refmac_extra_params:", refmac_extra_params
+        print("BL DEBUG:: in get_correlation(): refmac_extra_params:", refmac_extra_params)
 
         ligand_spec = [chain_id, res_no, ins_code]
         refmac_out_sfs_file_name = local_refmac(stub_name)
@@ -105,8 +105,8 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
 
             c = map_to_model_correlation_stats_py(imol, [ligand_spec],
                                                   neighbs, 10, imol_map)
-            print "BL INFO:: residue %s density statistics %s!" \
-                  %(ligand_spec, c)
+            print("BL INFO:: residue %s density statistics %s!" \
+                  %(ligand_spec, c))
             return c
 
     # Return an error status (False, i.e. not a list) or a list
@@ -123,7 +123,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                res_no, ins_code,
                                "ligand-check", use_cache_qm)
 
-        print "BL DEBUG:: run_results (mogul): ", chain_id, res_no, run_result
+        print("BL DEBUG:: run_results (mogul): ", chain_id, res_no, run_result)
 
         if not run_result:
             return False
@@ -190,24 +190,23 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                  residue_spec_to_ins_code(ligand_spec))
             env_residues = residues_near_residue(imol, ligand_spec, radius)
             non_water_env_residues = filter_out_waters(imol, env_residues)
-            env_residues = map(lambda res_spec: residue_info(imol,
+            env_residues = [residue_info(imol,
                                                              residue_spec_to_chain_id(res_spec),
                                                              residue_spec_to_res_no(res_spec),
-                                                             residue_spec_to_ins_code(res_spec)),
-                               non_water_env_residues)
+                                                             residue_spec_to_ins_code(res_spec)) for res_spec in non_water_env_residues]
             # this is a list of residue info not atoms, so flatten
             env_atoms = []
-            map(env_atoms.extend, env_residues)
+            list(map(env_atoms.extend, env_residues))
             if isinstance(atoms, list):
-                r1 = map(lambda atom: atom[1][1][0] \
+                r1 = [atom[1][1][0] \
                          if isinstance(atom[1][1], list) \
-                         else atom[1][1], atoms)
+                         else atom[1][1] for atom in atoms]
             else:
                 r1 = False
             if env_atoms:
-                r2 = map(lambda atom: atom[1][1][0] \
+                r2 = [atom[1][1][0] \
                          if isinstance(atom[1][1], list) \
-                         else atom[1][1], env_atoms)
+                         else atom[1][1] for atom in env_atoms]
             else:
                 r2 = False
 
@@ -220,8 +219,8 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
 
         v1 = lig_env_temp_factors[0]
         v2 = lig_env_temp_factors[1]
-        print "b-factor kolmogorov-smirnov lig:", stub_name, ligand_spec, v1
-        print "b-factor kolmogorov-smirnov env:", stub_name, ligand_spec, v2
+        print("b-factor kolmogorov-smirnov lig:", stub_name, ligand_spec, v1)
+        print("b-factor kolmogorov-smirnov env:", stub_name, ligand_spec, v2)
         temp_factor_median_ratio = median_ratio(v1, v2)
         kolmogorov_smirnov_result = kolmogorov_smirnov(v1, v2)
 

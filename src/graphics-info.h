@@ -3990,7 +3990,7 @@ string   static std::string sessionid;
    static glm::vec3 get_rotation_centre() {
      return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
    }
-   static void add_to_rotation_centre(const glm::vec4 &offset) {
+   static void add_to_rotation_centre(const glm::vec3 &offset) {
      rotation_centre_x += offset.x;
      rotation_centre_y += offset.y;
      rotation_centre_z += offset.z;

@@ -121,7 +121,7 @@ class ligand_validation_metrics_gui:
         da.window.draw_layout(gc, 4+x_for_rj, y-3, pangolayout)
 
 	# Values text
-	if isinstance(value_str, types.StringType):
+	if isinstance(value_str, bytes):
 	    x_for_value = self.x_bar_offset + self.bar_length + 12
 	    pangolayout.set_text(value_str)
 	    # print "Drawing Value value", x_for_value, y, value_str
@@ -139,7 +139,7 @@ class ligand_validation_metrics_gui:
 		
 	    rel = float(rel_str)
 	except TypeError as e:
-	    print e
+	    print(e)
 
 	# hopefully we don't get here.
 	return False

@@ -59,8 +59,8 @@ def add_coot_toolbar_separator():
   try:
     coot_main_toolbar = coot_python.main_toolbar()
   except:
-    print """BL ERROR:: coot_python module not available!!
-    So we cannot make toolbar_separator!"""
+    print("""BL ERROR:: coot_python module not available!!
+    So we cannot make toolbar_separator!""")
     return False
 
   # main body
@@ -85,7 +85,7 @@ if (have_coot_python):
       try:
         apply(item[1])
       except:
-        print "BL INFO:: unable to execute function", item[1]
+        print("BL INFO:: unable to execute function", item[1])
 
     # takes list with [["item_name", func],...]
     def create_show_pop_menu(item_n_funcn_list, event):
@@ -213,7 +213,7 @@ if (have_coot_python):
         return False
           
       def save_function(*args):
-        print "Save me"
+        print("Save me")
 
       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
       window.set_title("Toolbar Selection")
@@ -263,7 +263,7 @@ if (have_coot_python):
             icon_combobox = icon_selection_combobox(icon_model)
             button_icon = False
 
-            all_toolbar_labels = map(lambda x: x[0], toolbar_label_list())
+            all_toolbar_labels = [x[0] for x in toolbar_label_list()]
             if (check_button_label in all_toolbar_labels):
                 check_button.set_active(True)
                 # now try to get the icon
@@ -317,7 +317,7 @@ if (have_coot_python):
     def remove_toolbar_button_gui():
       
       def remove_toolbar_button(entry_text):
-        print "remove button", entry_text
+        print("remove button", entry_text)
         for toolbar_child in coot_main_toolbar.get_children():
           if (type(toolbar_child) == gtk.ToolButton or
               type(toolbar_child) == gtk.ToggleToolButton):
@@ -337,12 +337,12 @@ if (have_coot_python):
       major, minor, micro = gtk.pygtk_version
       if (major >= 2 and minor >= 10):
         # have assistant
-        print "BL DEBUG:: run assistant"
+        print("BL DEBUG:: run assistant")
         add_toolbar_button_assistant()
       else:
         # no assistant available -> simple GUI
         add_toolbar_button_simple_gui()
-        print "BL DEBUG:: no assistant, so simple GUI"
+        print("BL DEBUG:: no assistant, so simple GUI")
       
 
     def toolbar_hide_text():
@@ -571,7 +571,7 @@ def save_toolbar_to_init_file(button_label, callback_function,
   if (not home and os.name == 'nt'):
     home = os.getenv('COOT_HOME')
   if not home:
-    print "BL ERROR:: could not find a home directory"
+    print("BL ERROR:: could not find a home directory")
   else:
     filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
     remove_line_containing_from_file(["coot_toolbar_button", button_label],
@@ -586,7 +586,7 @@ def remove_toolbar_from_init_file(button_label):
   if (not home and os.name == 'nt'):
     home = os.getenv('COOT_HOME')
   if not home:
-    print "BL ERROR:: could not find a home directory"
+    print("BL ERROR:: could not find a home directory")
   else:    
     filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
     remove_str_ls = ["coot_toolbar_button", button_label]

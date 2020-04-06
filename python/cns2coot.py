@@ -37,7 +37,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
         try:
            fin = open(pdb_file,'r')
         except IOError:
-           print "BL WARNING:: Cannot read ", pdb_file
+           print("BL WARNING:: Cannot read ", pdb_file)
         if (fin):
            lines = fin.readlines()
            for line in lines:
@@ -47,7 +47,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
                   fin.close()
                   break
         else:
-           print "BL WARNING:: IOError in ", pdb_file 
+           print("BL WARNING:: IOError in ", pdb_file) 
         return s
 
     #  return "" on bad, else return a string that is the space group.
@@ -65,7 +65,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
         try:
            fin = open(pdb_file,'r')
         except IOError:
-           print "BL WARNING:: Cannot read ", pdb_file
+           print("BL WARNING:: Cannot read ", pdb_file)
         if (fin):
            lines = fin.readlines()
            for line in lines: 
@@ -76,7 +76,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
                   fin.close()
                   break
         else:
-           print "BL WARNING:: IOError in ", pdb_file
+           print("BL WARNING:: IOError in ", pdb_file)
         return s
 
     def get_symm_from_pdb_file_2(pdb_file):
@@ -86,7 +86,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
         try:
            fin = open(pdb_file,'r')
         except IOError:
-           print "BL WARNING:: Cannot read ", pdb_file
+           print("BL WARNING:: Cannot read ", pdb_file)
         if (fin):
            lines = fin.readlines()
            for line in lines:
@@ -97,7 +97,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
                   fin.close()
                   break
         else:
-           print "BL WARNING:: IOError in ", pdb_file
+           print("BL WARNING:: IOError in ", pdb_file)
         return s
 
     # Return a symmetry string
@@ -108,7 +108,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
         try: 
            e = os.environ['CCP4']
         except:
-           print "CCP4 not set up."
+           print("CCP4 not set up.")
            return False
         if (e):
            s = False
@@ -117,7 +117,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
            try:
               fin=open(e,'r')
            except:
-              print "Problems opening ", e
+              print("Problems opening ", e)
            if (fin):
               lines = fin.readlines()
               for line in lines: 
@@ -128,7 +128,7 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
               fin.close()
            return s
         else:
-           print "Problems with CCP4 set up"
+           print("Problems with CCP4 set up")
         
     # main body
     map1_prefix = strip_extension(twofofc_coeffs)
@@ -137,23 +137,23 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
     map2_tmp = map2_prefix + "_tmp.pdb"
     cell = get_cell_from_pdb(model_pdb)
 
-    print "map1_prefix: ", map1_prefix
-    print "map2_prefix: ", map2_prefix
-    print "cell: ", cell
+    print("map1_prefix: ", map1_prefix)
+    print("map2_prefix: ", map2_prefix)
+    print("cell: ", cell)
 
     symm1 = get_symm_from_pdb_file(model_pdb)
     pdbset_log = "cns2coot-pdbset-tmp.log"
 
-    print "symm1: ", symm1
+    print("symm1: ", symm1)
     popen_command("pdbset",["XYZIN",model_pdb,"XYZOUT",map1_tmp],["CELL " + string.join(cell), "SPACEGROUP " + symm1],pdbset_log,0)
     symm2 = get_symm_from_pdb_file_2(map1_tmp)
-    print "symm2: ", symm2
+    print("symm2: ", symm2)
     symm = get_symm_from_symop_lib(symm2)
 
     if not(symm):
-       print "Failed to find symm in symop.lib!"
+       print("Failed to find symm in symop.lib!")
     else:
-       print "INFO:: SYMM is ", symm
+       print("INFO:: SYMM is ", symm)
        map1_mtz = map1_prefix + ".mtz"
        map2_mtz = map2_prefix + ".mtz"
        map_coot_mtz = map1_prefix + "-coot.mtz"

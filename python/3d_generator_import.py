@@ -1,3 +1,4 @@
+import numbers
 
 # Dont prejudice (well we do later anyway)
 # this could be e.g. "acedrg" or "cprodrg" or "pyrogen" at the moment
@@ -141,7 +142,7 @@ def import_from_3d_generator_from_mdl(mdl_file_name, comp_id):
             if my_favourite_3d_generator == "cprodrg":
                 import_from_prodrg("mini-no", comp_id)
             else:
-                print "WARNING:: No 3d generator available"
+                print("WARNING:: No 3d generator available")
                 info_dialog("WARNING:: No 3d generator available")
 
 
@@ -184,8 +185,8 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
             if not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
                 return False
             else:
-                print "----------- overlap-ligands %s %s %s %s ------------" \
-                      %(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+                print("----------- overlap-ligands %s %s %s %s ------------" \
+                      %(imol_ligand, imol_ref, chain_id_ref, res_no_ref))
                 # this can return the rtop operator or False (for fail of course).
                 return overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
             
@@ -273,7 +274,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
                                                         aa_chain_id, aa_res_no)
 
                 if overlapped_flag:
-                    print "------ overlapped-flag was true!!!!!"
+                    print("------ overlapped-flag was true!!!!!")
                     set_mol_displayed(aa_imol, 0)
                     set_mol_active(aa_imol, 0)
                     col = get_molecule_bonds_colour_map_rotation(aa_imol)
@@ -340,7 +341,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
 
         stub = comp_id + "-" + generator
         log_file_name = os.path.join(working_dir, stub + ".log")
-        print "::::::::: args", args
+        print("::::::::: args", args)
         if (generator == "acedrg"):
             status = popen_command(generator, args, [], log_file_name, True,
                                    local_env=acedrg_env())
@@ -388,7 +389,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
        libcheck_exe_file = find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
 
        if (not libcheck_exe_file):
-           print " BL WARNING:: libcheck not found!"
+           print(" BL WARNING:: libcheck not found!")
        else:
            status = popen_command(libcheck_exe_file, [], libcheck_data_lines,
                                   log_file_name, True)
@@ -407,7 +408,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
                            translate_molecule_by(imol, *sc_mc)
                        read_cif_dictionary(cif_file_name)
            else:
-               print "OOPs.. libcheck returned exit status", status
+               print("OOPs.. libcheck returned exit status", status)
 
 
 
@@ -435,7 +436,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
             else:
                 args = ["--no-mogul", "-M", "--residue-type", comp_id, smiles_text]
 
-        print "---------- args:", args
+        print("---------- args:", args)
         # BL says:: may have to find pyrogen first?! FIXME
         status = popen_command("pyrogen", args, [], log_file_name, True)
 
@@ -471,7 +472,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
                 use_pyrogen(three_letter_code)
     else:
         # invalid smiles length
-        print "BL WARNING:: no smiles text found. Bailing out."
+        print("BL WARNING:: no smiles text found. Bailing out.")
         return False
 
 
@@ -523,14 +524,14 @@ def mdl_update_timeout_func():
 
     # print "sbase_now_time %s    sbase_latest_time %s" %(sbase_now_time, sbase_transfer_latest_time)
 
-    if (operator.isNumberType(mdl_now_time)):
-        if operator.isNumberType(mdl_latest_time):
+    if (isinstance(mdl_now_time, numbers.Number)):
+        if isinstance(mdl_latest_time, numbers.Number):
             if (mdl_now_time > mdl_latest_time):
                 mdl_latest_time = mdl_now_time
                 import_from_prodrg('mini-prep')
 
-    if operator.isNumberType(sbase_transfer_latest_time):
-        if operator.isNumberType(sbase_now_time):
+    if isinstance(sbase_transfer_latest_time, numbers.Number):
+        if isinstance(sbase_now_time, numbers.Number):
             if (sbase_now_time > sbase_transfer_latest_time):
                 sbase_transfer_latest_time = sbase_now_time
                 try: # sort of check if file exists?
@@ -539,13 +540,13 @@ def mdl_update_timeout_func():
                     fin.close()
                     imol = get_ccp4srs_monomer_and_dictionary(tlc_symbol)
                     if not valid_model_molecule_qm(imol):
-                        print "failed to get SBase molecule for", tlc_symbol
+                        print("failed to get SBase molecule for", tlc_symbol)
                     else:
                         # it was read OK, do an overlap
                         using_active_atom(overlap_ligands, imol,
                                           "aa_imol", "aa_chain_id", "aa_res_no")
                 except:
-                    print "BL ERROR:: reading sbase file", sbase_to_coot_tlc
+                    print("BL ERROR:: reading sbase file", sbase_to_coot_tlc)
                 
     return True # return value, keep running; FIXME:: how to stop?
 
@@ -605,7 +606,7 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
                 "MOLOUT", prodrg_output_mol_file,
                 "XYZOUT", prodrg_output_pdb_file,
                 "LIBOUT", prodrg_output_lib_file]
-    print "arg_list", arg_list
+    print("arg_list", arg_list)
     status = popen_command(cprodrg,
                            arg_list,
                            ["COORDS BOTH", "MINI FLAT", "END"],

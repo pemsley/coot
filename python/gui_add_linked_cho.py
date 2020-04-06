@@ -499,7 +499,7 @@ class glyco_validate:
     #
     def parse_privateer_log(self, log_file_name, imol, glyco_tree_residues):
 
-        print 'parse_privateer_log', log_file_name, imol, glyco_tree_residues
+        print('parse_privateer_log', log_file_name, imol, glyco_tree_residues)
 
         pvi = []
         f = open(log_file_name)
@@ -522,13 +522,13 @@ class glyco_validate:
                                     new_item = (r, words)
                                     pvi.append(new_item)
                             except TypeError as e:
-                                print e
-        print "parsed", log_file_name
+                                print(e)
+        print("parsed", log_file_name)
         return pvi
 
     def make_validation_dialog(self, imol, privateer_validation_info):
 
-        print "make_validation_dialog", privateer_validation_info
+        print("make_validation_dialog", privateer_validation_info)
         buttons = []
         for vi in privateer_validation_info:
             residue_spec = vi[0]
@@ -556,9 +556,9 @@ class glyco_validate:
             active_residue = active_atom[:4]
             glyco_tree_residues = glyco_tree_residues_py(imol, active_residue)
 
-            print 'imol', imol
-            print 'active_residue', active_residue
-            print 'glyco_tree_residues', glyco_tree_residues
+            print('imol', imol)
+            print('active_residue', active_residue)
+            print('glyco_tree_residues', glyco_tree_residues)
 
             fp_col='FP'
             sigfp_col='SIGFP'    
@@ -569,18 +569,18 @@ class glyco_validate:
                 self.make_validation_dialog(imol, pvi)
 
         except KeyError as e:
-            print e
+            print(e)
 
         # no active atom
         except TypeError as e:
-            print e
+            print(e)
 
     def auto_delete_residues_internal(self, imol, glyco_tree_residues):
         fp_col='FP'
         sigfp_col='SIGFP'
         pvi = self.make_privateer_validation_info(imol, fp_col, sigfp_col, glyco_tree_residues)
         for res_info in pvi:
-            print "test", res_info
+            print("test", res_info)
             res_status = res_info[1][12]
             if res_status == 'check' or res_status == 'no':
                 delete_residue_by_spec(imol, res_info[0])
@@ -593,7 +593,7 @@ class glyco_validate:
             glyco_tree_residues = glyco_tree_residues_py(imol, active_residue)
             self.auto_delete_residues_internal(imol, glyco_tree_residues)
         except TypeError as e:
-            print e
+            print(e)
     
             
 # graphics...

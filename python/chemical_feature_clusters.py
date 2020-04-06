@@ -1,22 +1,22 @@
 #  Copyright 2016 by Medical Research Council
 #  Author: Paul Emsley
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or (at
 #  your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #  02110-1301, USA
 
-from __future__ import print_function
+
 import math
 import itertools
 import coot
@@ -29,7 +29,7 @@ import res_spec_utils as rsu
 
 
 def cluster_star_obj(obj, pos, thick, v_0):
-    
+
     delta_0 = v_0
     delta_r2 = delta_0/math.sqrt(2)
     delta_r3 = delta_0/math.sqrt(3)
@@ -107,19 +107,19 @@ def cluster_and_display_waters(site_number, w_positions_np):
             bic[n] = bic_l
 
       for key in bic:
-          print("   water bic", key, bic[key])
-      
-      key, value = max(iter(bic.items()), key=lambda x:x[1])
+          print(("   water bic", key, bic[key]))
+
+      key, value = max(iter(list(bic.items())), key=lambda x:x[1])
       return key
-    
+
 
    n_components = optimize_n(w_positions_np, len(w_positions_np))
-   print("optimize_n for water:::::::::::::", n_components)
+   print(("optimize_n for water:::::::::::::", n_components))
    dpgmm = mixture.GMM(n_components, covariance_type='spherical', n_iter=40)
    dpgmm.fit(w_positions_np)
 
    cluster_assignments = dpgmm.predict(w_positions_np)
-   
+
    color_list=['green', 'greentint', "sea", 'yellow', "yellowtint", "aquamarine", "forestgreen",
 	       "goldenrod", "orangered", "orange", "cyan", 'red', "blue"]
    color_list.extend(color_list)
@@ -137,17 +137,17 @@ def cluster_and_display_waters(site_number, w_positions_np):
    means   = dpgmm.means_
    cvs     = dpgmm._get_covars()
    weights = dpgmm.weights_
-   
+
    obj = coot.new_generic_object_number("CFC Site " + str(site_number) + " selected waters")
    for i,pos in enumerate(w_positions_np):
        mean = means[cluster_assignments[i]]
        # reject spheres at the origin - (from DPGMM strangeness)
        d = mean[0]*mean[0] + mean[1]*mean[1] + mean[2]*mean[2]
        if d > 1.0:
-	   col = color_list[cluster_assignments[i]]
-	   coot.to_generic_object_add_point(obj, col, 10, pos[0], pos[1], pos[2])
+           col = color_list[cluster_assignments[i]]
+           coot.to_generic_object_add_point(obj, col, 10, pos[0], pos[1], pos[2])
        else:
-	   print("reject prediction", i, "for cluster", cluster_assignments[i])
+           print(("reject prediction", i, "for cluster", cluster_assignments[i]))
 
    # set_display_generic_object(obj, 1)
 
@@ -163,15 +163,15 @@ def cluster_and_display_waters(site_number, w_positions_np):
       # print "weight", weights[i], "prec", precs[i]
       # print "weight", weights[i]
       # print "v", v
-      
+
       if d > 1.0:
 
-	  pos = mean
-	  thick = 2
-	  cluster_star_obj(obj, pos, thick, v[0])
+          pos = mean
+          thick = 2
+          cluster_star_obj(obj, pos, thick, v[0])
 
       else:
-	  print("reject", mean, v)
+          print(("reject", mean, v))
 
    coot.set_display_generic_object(obj, 1)
 
@@ -185,8 +185,8 @@ def cluster_and_display_chemical_features(site_number, type, chemical_features_l
 
    def optimize_n(type, positions_np, n_data):
 
-      print("cluster_and_display_chemical_features.optimize_n called " \
-             "with n_data = ", n_data)
+      print(("cluster_and_display_chemical_features.optimize_n called " \
+             "with n_data = ", n_data))
 
       bic = {}
       for n in [x+1 for x in range(10)]:
@@ -201,7 +201,7 @@ def cluster_and_display_chemical_features(site_number, type, chemical_features_l
             bic[n] = bic_l
 
       if len(bic) > 1:
-          key, value = max(iter(bic.items()), key=lambda x:x[1])
+          key, value = max(iter(list(bic.items())), key=lambda x:x[1])
           return key
       else:
           return 1
@@ -216,7 +216,7 @@ def cluster_and_display_chemical_features(site_number, type, chemical_features_l
          if type == 'Aromatic':
              lambda_c = 3000
          bic = score - lambda_c * 0.5 * n_data * n
-         print(type, len(positions_np), n, "converged?", gmm.converged_, "score:", score, "bic", bic)
+         print((type, len(positions_np), n, "converged?", gmm.converged_, "score:", score, "bic", bic))
 
    def get_cfc_col(type):
        if type == "Donor":
@@ -235,7 +235,7 @@ def cluster_and_display_chemical_features(site_number, type, chemical_features_l
    # positions_np = np.array([item[0] for item in chemical_features_list])
 
    ext_chemical_features_list = [item[0] for item in chemical_features_list]
-   
+
    for item_b in chemical_features_list:
       delta = 0.25
       item = item_b[0]
@@ -260,11 +260,11 @@ def cluster_and_display_chemical_features(site_number, type, chemical_features_l
    n = 1
    if n_data > 1:
        n = optimize_n(type, positions_np, n_data)
-       
+
    if n <= len(chemical_features_list):
        gmm = mixture.GMM(n_components=n, covariance_type='spherical', n_iter=20)
        gmm.fit(positions_np)
-       print(type, len(positions_np), n, "converged? ", gmm.converged_, "score:", sum(gmm.score(positions_np)))
+       print((type, len(positions_np), n, "converged? ", gmm.converged_, "score:", sum(gmm.score(positions_np))))
 
        cluster_assignments = gmm.predict(positions_np)
 
@@ -283,7 +283,7 @@ def cluster_and_display_chemical_features(site_number, type, chemical_features_l
            # coot.to_generic_object_add_dodecahedron(cfc_obj, cfc_col, 0.2, mean[0], mean[1], mean[2])
            coot.to_generic_object_add_pentakis_dodecahedron(cfc_obj, cfc_col, 2.3, 0.1, mean[0], mean[1], mean[2])
        coot.set_display_generic_object(cfc_obj, 1)
-           
+
        return [type, features, means_as_list]
 
    # oops too many parameters for the model
@@ -303,8 +303,8 @@ def make_ball_and_stick_by_spec(imol, ligand_spec):
 #
 def cfc_process_site(site_number, imol_ligand_specs, imol_first, first_ligand_spec):
 
-   print("debug:: in cfc_process_site with imol_ligand_specs", imol_ligand_specs)
-   print("debug:: in cfc_process_site with non-first imol_ligand_specs", imol_ligand_specs[1:])
+   print(("debug:: in cfc_process_site with imol_ligand_specs", imol_ligand_specs))
+   print(("debug:: in cfc_process_site with non-first imol_ligand_specs", imol_ligand_specs[1:]))
 
    # print("calling residues_near_residue_py", imol_first, first_ligand_spec)
    env_residue_specs = coot.residues_near_residue_py(imol_first, first_ligand_spec, 6)
@@ -319,33 +319,33 @@ def cfc_process_site(site_number, imol_ligand_specs, imol_first, first_ligand_sp
        #     print("   ", spec, get_residue_name(imol_first, spec))
 
        for res_spec in protein_res_specs:
-	   chain_id = rsu.residue_spec_to_chain_id(res_spec)
-	   res_no   = rsu.residue_spec_to_res_no(res_spec)
-	   coot.add_lsq_match(res_no, res_no, chain_id, res_no, res_no, chain_id, 1)
+           chain_id = rsu.residue_spec_to_chain_id(res_spec)
+           res_no   = rsu.residue_spec_to_res_no(res_spec)
+           coot.add_lsq_match(res_no, res_no, chain_id, res_no, res_no, chain_id, 1)
 
        for imol_and_spec in imol_ligand_specs[1:]:  # lsq fit others to the first in the list
-	   print('============================ lsq-match ', imol_first, imol_and_spec, imol_and_spec[0])
+           print(('============================ lsq-match ', imol_first, imol_and_spec, imol_and_spec[0]))
            imol,spec = imol_and_spec
-	   # coot.apply_lsq_matches_py(imol_first, imol_and_spec[0])
-	   coot.apply_lsq_matches_py(imol_first, imol)
+           # coot.apply_lsq_matches_py(imol_first, imol_and_spec[0])
+           coot.apply_lsq_matches_py(imol_first, imol)
            make_ball_and_stick_by_spec(imol, spec)
-	   # pass
+           # pass
 
-       print("Here with first_ligand_spec:", first_ligand_spec)
+       print(("Here with first_ligand_spec:", first_ligand_spec))
        ligand_centre = coot.residue_centre_py(imol_first,
                                               rsu.residue_spec_to_chain_id(first_ligand_spec),
                                               rsu.residue_spec_to_res_no(first_ligand_spec), '')
        coot.set_go_to_atom_molecule(imol_first)
        coot.set_rotation_centre(*ligand_centre)
-                                    
+
 
    combo_list = []
-   try: 
+   try:
 
-       # we have a large radius for the water selection          
+       # we have a large radius for the water selection
        radius = 10  # water must be within radius of it's own ligand
        radius_2 = 5 # water must be with radius_2 of any ligand atom (not just its own)
-       
+
        combo_list = coot.chemical_feature_clusters_py(env_residue_specs,
                                                       imol_ligand_specs,
                                                       radius, radius_2)
@@ -393,7 +393,7 @@ def cfc_process_site(site_number, imol_ligand_specs, imol_first, first_ligand_sp
        # dpgmm = mixture.DPGMM(n_components=25, covariance_type='spherical', alpha=1.101,
        #                       n_iter=40000, params='wmc', init_params='wmc', tol=1e-4,
        #                       verbose=0)
-       # 
+       #
        # the number of clusters is highly related to the dist_cutoff (the
        # distance of an accepted water atom to any any atom in any of the
        # ligands = currently 4.2)
@@ -406,10 +406,10 @@ def cfc_process_site(site_number, imol_ligand_specs, imol_first, first_ligand_sp
 
        print("water means:")
        for mean in means:
-           print("   ", mean)
+           print(("   ", mean))
 
        # each water has been assigned a cluster, that is the cluster_assignments
-       #   
+       #
        # need to convert the array cluster_assignments to a list of items:
        #   [imol water_residue_spec cluster_number]
        #
@@ -464,7 +464,7 @@ def cfc_process_sites(sites):
     # what is a site?  Good question!
 
     for site in sites:
-       print("in cfc_process_sites() site:", site)
+       print(("in cfc_process_sites() site:", site))
 
     # this adds a static empty non-null widget
     #
@@ -475,14 +475,14 @@ def cfc_process_sites(sites):
     sorted_sites = sorted(sites)
     # this is debugging/testing/checking the above sort:
     for i,site in enumerate(sorted_sites):
-       print("sorted site #{} site: {}".format(i, site))
+       print(("sorted site #{} site: {}".format(i, site)))
 
     imol_first = sites[0][0]
     first_spec = sites[0][1]
     print(("   debug:: in cfc_proces_sites: first_spec:", first_spec))
     for i,site in enumerate(sorted_sites):
-       print("   debug site-idx", i, "site:", site)
-        
+       print(("   debug site-idx", i, "site:", site))
+
     site_number = 0
     cfc_process_site(site_number, sites, imol_first, first_spec)
 
@@ -502,9 +502,9 @@ class cfc_ligand_sites:
             bic[n] = bic_l
 
       for key in bic:
-          print("bic", key, bic[key])
-      
-      key, value = max(bic.iteritems(), key=lambda x:x[1])
+          print(("bic", key, bic[key]))
+
+      key, value = max(iter(list(bic.items())), key=lambda x:x[1])
       return key
 
 
@@ -536,10 +536,10 @@ class cfc_ligand_sites:
                del merge_map[key_longest_list]
                if not(merged_something):
                    continue_merging = False
-                             
+
        return cluster_assignments
-  
-    
+
+
    # cluster the ligands - i.e. give us the sites
    #
    def find_the_sites(self, file_name_comp_id_list):
@@ -554,7 +554,7 @@ class cfc_ligand_sites:
           imol = coot.handle_read_draw_molecule_with_recentre(fn_comp_id[0], 0)
           # what are the residue specs for the given comp_ids?
           residue_specs = coot.get_residue_specs_in_mol_py(imol, comp_id)
-          print(fn, residue_specs)
+          print((fn, residue_specs))
 
           for spec in residue_specs:
               # centre = residue_centre_from_spec_py(imol, spec)
@@ -580,7 +580,7 @@ class cfc_ligand_sites:
           coords = [x[0] for x in coords_with_spec]
           positions_np = np.array(coords)
           n_components = self.optimize_n(positions_np, len(positions_np))
-          print( "optimize_n for sites::::::::::::", n_components)
+          print(( "optimize_n for sites::::::::::::", n_components))
           dpgmm = mixture.GMM(n_components, covariance_type='full', n_iter=40)
           dpgmm.fit(positions_np)
 
@@ -592,20 +592,20 @@ class cfc_ligand_sites:
           print(means)
           print(weights)
 
-          print("cluster_assignments", cluster_assignments)
+          print(("cluster_assignments", cluster_assignments))
 
           merge_map = self.find_mergeable_clusters(means, weights)
           # which key (i.e. cluster index) has the most number of other clusters
           # that can be merged in?
           #
-	  # convert to a list of ints (not <type 'numpy.int64'>) (because, on decoding Python->C++ object
-	  # we do a PyInt_Check for the site_idx (and a <type 'numpy.int64'> fails that test)
-	  #
+          # convert to a list of ints (not <type 'numpy.int64'>) (because, on decoding Python->C++ object
+          # we do a PyInt_Check for the site_idx (and a <type 'numpy.int64'> fails that test)
+          #
           new_cluster_assignments = [int(x) for x in self.merge_clusters(cluster_assignments, merge_map)]
-          print("new cluster_assignments", new_cluster_assignments)
- 
+          print(("new cluster_assignments", new_cluster_assignments))
+
           specs = [x[1:] for x in coords_with_spec]
-          cluster_assignments_with_specs = zip(new_cluster_assignments, specs)
+          cluster_assignments_with_specs = list(zip(new_cluster_assignments, specs))
 
           sites = coot.chemical_feature_clusters_accept_site_clusters_info_py(cluster_assignments_with_specs)
 
@@ -640,7 +640,7 @@ class cfc_ligand_sites:
                       except KeyError as e:
                          merge_map[j] = [i]
        return merge_map
-   
+
 
    def __init__(self, file_name_comp_id_list):
       self.sites = []
@@ -649,4 +649,3 @@ class cfc_ligand_sites:
 
    def get_sites(self):
        return self.sites
-

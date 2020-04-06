@@ -112,18 +112,17 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
                   link_type + "-" + parent_res_name + ".tab"
         model_fn = os.path.join(dir, fn_file)
         if not os.path.isfile(model_fn):
-            print "model file does not exist", model_fn
+            print("model file does not exist", model_fn)
         else:
             try:
                 f = open(filename, 'r')
                 lines = f.readlines()
                 f.close()
             except:
-                print "BL WARNING: couldnt open file ", filename
+                print("BL WARNING: couldnt open file ", filename)
                 return False # with something?
-            print "INFO:: read %s lines from file %s" %(lines, model_fn)
-            new_restraints = map(lambda line: line2extra_bond_restraint_spec(line),
-                                 lines)
+            print("INFO:: read %s lines from file %s" %(lines, model_fn))
+            new_restraints = [line2extra_bond_restraint_spec(line) for line in lines]
             # print "BL DEBUG:: ", new_restraints
             add_extra_bond_restraints_py(imol, new_restraints)
 
@@ -139,19 +138,19 @@ def test_get_cho_restraints(imol):
                 if (rn == "NAG"):
                     residue_spec = [chain_id, res_no, ""]
                     rl = glyco_tree_residues_py(imol, residue_spec)
-                    print "rl:", rl
+                    print("rl:", rl)
                     print_glyco_tree(imol, chain_id, res_no, "")
                     if not isinstance(rl, list):
-                        print "bad glyco-tree for residue", residue_spec
+                        print("bad glyco-tree for residue", residue_spec)
                     else:
                         if (len(rl) > 3):
                             id = glyco_tree_residue_id(imol, residue_spec)
-                            print "residue %s residue id %s" %(residue_spec, id)
+                            print("residue %s residue id %s" %(residue_spec, id))
                             add_cho_restraints_for_residue_with_id(imol,
                                                                    residue_spec,
                                                                    id)
                         else:
-                            print "BL WARNING:: rl <=3", rl
+                            print("BL WARNING:: rl <=3", rl)
 
 def correlation_coefficient_of_this_tree():
     with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
@@ -161,5 +160,5 @@ def correlation_coefficient_of_this_tree():
         cc = map_to_model_correlation(aa_imol, residues, [], 0,
                                       imol_refinement_map())
         txt = "residues %s\ncc: %5.3f" %(residues, cc)
-        print txt
+        print(txt)
         info_dialog(txt)

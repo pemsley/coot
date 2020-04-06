@@ -49,4 +49,4 @@ def brute_lsqman(pdb1_imol, pdb2_imol):
         handle_read_draw_molecule(pdbout_filename)
         lsqman_count += 1
     else:
-        print "lsqman failed - sorry. I don't know what to say."
+        print("lsqman failed - sorry. I don't know what to say.")

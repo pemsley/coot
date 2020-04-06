@@ -1,3 +1,4 @@
+import numbers
 
 
 # Is this true? Dont understand this
@@ -71,8 +72,8 @@ def download_binary_dialog(version_string, use_curl=False):
                 if curl_info:
                     v1 = curl_info['content-length-download']
                     v2 = curl_info['size-download']                        
-                    if operator.isNumberType(v1):
-                        if operator.isNumberType(v2):
+                    if isinstance(v1, numbers.Number):
+                        if isinstance(v2, numbers.Number):
                             f = v2 / v1
                             #print "count %s, active_count %s, f: %s" %(count, active_count, f)
                             progress_bar.set_fraction(f)
@@ -111,7 +112,7 @@ def download_binary_dialog(version_string, use_curl=False):
 
             # only start when ok button is pressed
             gobject.timeout_add(500, idle_func) # update every 500ms is god enough?!
-            if not operator.isNumberType(revision):
+            if not isinstance(revision, numbers.Number):
                 info_dialog("Failed to communicate with server")
             else:
                 # BL says:: check if we have a download available already?! (from before)
@@ -134,7 +135,7 @@ def download_binary_dialog(version_string, use_curl=False):
 
                         if ((not ret) and
                             (not pending_install_in_place == "cancelled")):
-                            print "run_download_binary_curl failed"
+                            print("run_download_binary_curl failed")
                             pending_install_in_place = "fail"
 
                     run_python_thread(threaded_func, [])
@@ -300,23 +301,23 @@ def check_for_updates_gui(use_curl=False):
     
     def get_server_info_status_thread():
         url = make_latest_version_url()
-        print "INFO:: get URL", url
+        print("INFO:: get URL", url)
         if use_curl:
             # non pythonic
             #x=get_url_as_string(url) # FIXME to trick the firewall
             latest_version_server_response = coot_get_url_as_string(url)
         else:
             # pythonic version
-            import urllib
+            import urllib.request, urllib.parse, urllib.error
             try:
-                latest_version_server_response = urllib.urlopen(url).read()
+                latest_version_server_response = urllib.request.urlopen(url).read()
             except:
                 info_dialog("Could not establish connection to get latest version on server")
                 return
         try:
             handle_latest_version_server_response(latest_version_server_response)
         except:
-            print "BL INFO:: problem getting server response from for url", url            # for now we give file-not-found, there should be some other form
+            print("BL INFO:: problem getting server response from for url", url)            # for now we give file-not-found, there should be some other form
             # of error
             handle_latest_version_server_response("The requested URL was not found on this server")
 
@@ -331,7 +332,7 @@ def check_for_updates_gui(use_curl=False):
         global server_info_status
         if (count > 2000):  # try for 20 seconds, otherwise timeout.
             # fail_with_timeout
-            print "final fail: server_info_status:", server_info_status
+            print("final fail: server_info_status:", server_info_status)
             # maybe some info here too?!!? 
             return False  # stop running this idle function
         elif (server_info_status == "file-not-found"):

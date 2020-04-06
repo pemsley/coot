@@ -78,6 +78,6 @@ def coot_all_atom_contact_dots_func():
            if generic_object_name(i) in coot_probe_object_names:
               close_generic_object(i)
            else:
-               print generic_object_name(i), "is not in", coot_probe_object_names
+               print(generic_object_name(i), "is not in", coot_probe_object_names)
         coot_all_atom_contact_dots(aa_imol)
 

@@ -11,8 +11,8 @@ def mtz_file_name2refinement_column_labels(file_name):
     if (not read_success == 1):
 
         # unhappy path
-        print "Failed to read columms from file %s for map molecule %s" \
-              %(file_name, imol_map())
+        print("Failed to read columms from file %s for map molecule %s" \
+              %(file_name, imol_map()))
 
     else:
         
@@ -25,11 +25,11 @@ def mtz_file_name2refinement_column_labels(file_name):
         l2 = sigf_cols.size()
         l3 = rfree_cols.size()
 
-        if (not all(map(lambda x: x > 0, [l1, l2 ,l3]))):
+        if (not all([x > 0 for x in [l1, l2 ,l3]])):
 
             # unhappy path
-            print "Failed to find columns of the necessary types from %s: %s %s %s!" \
-                  %(file_name, l1, l2, l3)
+            print("Failed to find columns of the necessary types from %s: %s %s %s!" \
+                  %(file_name, l1, l2, l3))
             return False, False, False
             
         else:
@@ -62,7 +62,7 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 
         if (not isinstance(m, list)):
             # unhappy path
-            print "BL WARNING:: no ligand metrics found."
+            print("BL WARNING:: no ligand metrics found.")
         else:
             # happy path ;-)
             diff_d = 0.05
@@ -122,9 +122,9 @@ if (0):
 
             f_col_label, sigf_col_label, r_free_col_label = \
                          mtz_file_name2refinement_column_labels(refmac_input_mtz_file_name)
-            print "    f_col_label:", f_col_label
-            print " sigf-col-label:", sigf_col_label
-            print "rfree-col-label:", r_free_col_label
+            print("    f_col_label:", f_col_label)
+            print(" sigf-col-label:", sigf_col_label)
+            print("rfree-col-label:", r_free_col_label)
 
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:

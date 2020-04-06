@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 def cairoplot_pathology_plots(mtz, fp, sigfp):
     import cairo
     import cairoplot
-    try: 
-        print "getting data for", mtz
+    try:
+        print("getting data for", mtz)
         data = coot.pathology_data(mtz, fp, sigfp)
         # print len(data), data
         prefix,tail = os.path.splitext(mtz)
@@ -54,9 +54,9 @@ def plots(mtz, fp, sigfp):
     intensity_data = False
     if fp[0] == 'I':
         intensity_data = True
-        
+
     data = pathology.PathologyData(mtz, fp, sigfp)
-    # try: 
+    # try:
     if True:
         prefix,tail = os.path.splitext(mtz)
         fp_lab = "FP"
@@ -64,7 +64,7 @@ def plots(mtz, fp, sigfp):
         if (intensity_data):
             fp_lab = "I"
             sigfp_lab = "SIGI"
-        
+
         labels = [("Resolution", fp_lab),
                   ('Resolution', fp_lab + '/' + sigfp_lab),
                   (fp_lab, sigfp_lab),
@@ -90,7 +90,7 @@ def plots(mtz, fp, sigfp):
             else:
                 x_labels = None
             """
-            
+
             fig1 = plt.figure()
             xdata = [x[0] for x in data.fp_vs_reso()]
             ydata = [y[1] for y in data.fp_vs_reso()]
@@ -98,19 +98,19 @@ def plots(mtz, fp, sigfp):
             ymin = 0
             if (intensity_data):
                 ymin = min(ydata)
-            
+
             xmax = max(xdata)
             ymax = max(ydata)
             plt.xlim(0, xmax)
             plt.ylim(ymin, ymax)
-                     
+
             s = 8
             # If this is F data the the y axis min should be 0.
             # The x-axis min should be 0.
-            print "making plot", png_file_name
+            print("making plot", png_file_name)
             l = plt.scatter(xdata, ydata, s, alpha=0.2)
             plt.savefig(png_file_name)
-            
+
 
     # except TypeError as e:
     #            print "caught TypeError:", e

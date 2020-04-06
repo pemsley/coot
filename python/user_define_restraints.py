@@ -13,7 +13,7 @@ def user_defined_add_single_bond_restraint():
     atom_spec_1 = args[0]
     atom_spec_2 = args[1]
     imol = atom_spec_1[1]
-    print "BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2)
+    print("BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2))
     add_extra_bond_restraint(imol,
                              atom_spec_1[2],
                              atom_spec_1[3],
@@ -48,7 +48,7 @@ def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
             atom_spec_1 = args[0]
             atom_spec_2 = args[1]
             imol = atom_spec_1[1]
-            print "BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2)
+            print("BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2))
             add_extra_bond_restraint(imol,
                                      atom_spec_1[2],
                                      atom_spec_1[3],
@@ -86,7 +86,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
   spec_1 and spec_2 are 7-element atom_specs
   """
 
-  print "add_base_restraint", imol, spec_1, spec_2, atom_name_1, atom_name_2, dist
+  print("add_base_restraint", imol, spec_1, spec_2, atom_name_1, atom_name_2, dist)
   
   add_extra_bond_restraint(imol,
                            spec_1[2],
@@ -104,7 +104,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
 def a_u_restraints(spec_1, spec_2):
 
   imol = spec_1[1]
-  print "BL DEBUG:: add_base_restraint a u",imol, spec_1, spec_2, " N6 ", " O4 ", 3.12
+  print("BL DEBUG:: add_base_restraint a u",imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 3.05)
   add_base_restraint(imol, spec_1, spec_2, " C2 ", " O2 ", 3.90)
@@ -115,7 +115,7 @@ def a_u_restraints(spec_1, spec_2):
 def g_c_restraints(spec_1, spec_2):
 
   imol = spec_1[1]
-  print "BL DEBUG:: add_base_restraint gc", imol, spec_1, spec_2, " O6 ", " N4 ", 3.08
+  print("BL DEBUG:: add_base_restraint gc", imol, spec_1, spec_2, " O6 ", " N4 ", 3.08)
   add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 3.04)
   add_base_restraint(imol, spec_1, spec_2, " N2 ", " O2 ", 3.14)
@@ -144,10 +144,10 @@ def user_defined_RNA_A_form():
   def make_restr(*args):
     spec_1 = args[0]
     spec_2 = args[1]
-    print "BL DEBUG:: have specs", spec_1, spec_2
+    print("BL DEBUG:: have specs", spec_1, spec_2)
     res_name_1 = res_name_from_atom_spec(spec_1)
     res_name_2 = res_name_from_atom_spec(spec_2)
-    print "BL DEBUG:: have resnames", res_name_1, res_name_2
+    print("BL DEBUG:: have resnames", res_name_1, res_name_2)
     # just check the first letter, should be save
     if (res_name_1[0] == "G" and
         res_name_2[0] == "C"):
@@ -301,9 +301,9 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
                   os.path.join(dir_stub, "prosmart.log"),
                   False)
     if (not os.path.isfile(prosmart_out)):
-      print "file not found", prosmart_out
+      print("file not found", prosmart_out)
     else:
-      print "Reading ProSMART restraints from", prosmart_out
+      print("Reading ProSMART restraints from", prosmart_out)
       add_refmac_extra_restraints(imol_target, prosmart_out)
 
 def res_name2plane_atom_name_list(res_name):
@@ -365,7 +365,7 @@ def write_refmac_parallel_plane_restraint(file_name,
 
 def add_parallel_planes_restraint(imol, rs_0, rs_1):
 
-  print "in add_parallel_planes_restraint: rs_0: %s rs_1 %s" %(rs_0, rs_1)
+  print("in add_parallel_planes_restraint: rs_0: %s rs_1 %s" %(rs_0, rs_1))
 
   rn_0 = residue_spec_to_residue_name(imol, rs_0)
   rn_1 = residue_spec_to_residue_name(imol, rs_1)
@@ -397,8 +397,8 @@ def user_defined_add_planes_restraint():
                         residue_spec_to_res_no(atom_spec_to_residue_spec(atom_1)),
                         residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_1)))
 
-    print "BL DEBUG:: got resname 0", rn_0
-    print "BL DEBUG:: got resname 1", rn_1
+    print("BL DEBUG:: got resname 0", rn_0)
+    print("BL DEBUG:: got resname 1", rn_1)
 
     atom_ls_0 = res_name2plane_atom_name_list(rn_0)
     atom_ls_1 = res_name2plane_atom_name_list(rn_1)
@@ -574,7 +574,7 @@ if (have_coot_python):
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
           delete_extra_restraints_worse_than(aa_imol, n)
       except:
-        print "BL WARNING:: no float given"
+        print("BL WARNING:: no float given")
       
     add_simple_coot_menu_menuitem(
       menu,

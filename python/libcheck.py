@@ -1,4 +1,4 @@
-# libcheck.py 
+# libcheck.py
 #
 # Copyright 2004, 2005, 2006 by Paul Emsley, The University of York
 # Copyright 2005, 2006 by Bernhard Lohkamp
@@ -36,18 +36,18 @@ libcheck_exe = "libcheck"
 # Return -3 on libcheck failure
 # Return -4 on refmac failure
 # Return @var{imol} on success
-# Return @code{handle-read-draw-molecule} error code on failure to 
+# Return @code{handle-read-draw-molecule} error code on failure to
 #       read resultant pdb file
-# 
+#
 # Actually, it would be nice to know if this code represented a full
 # description - or a minimal one... perhaps we can parse the log
 # file and call a pop-up that will tell us.
-# 
-# @var{dict_cif_libin should be a string}.  If it is "" then it is 
+#
+# @var{dict_cif_libin should be a string}.  If it is "" then it is
 # ignored.  If it is not "" then it is used to create input to
 # libcheck (not a command line argument) so that bespoke dictionary
 # libraries can produce coords using "Get Monomer".
-# 
+#
 # might not do all above mentioned things in python, yet
 #
 def monomer_molecule_from_3_let_code(code, dict_cif_libin,
@@ -59,21 +59,21 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
   # else return False
   #
   def libcheck_minimal_qm(filename):
-	
-	# BL says: a quick fix for now, maybe we want to use something like
-	# Paul's call_with_input_file funcn at some point
-	ret = False
-	try:
-		f = open(filename, 'r')
-		lines = f.readlines()
-		for line in lines:
-			if "has the minimal description" in line:
-				ret = True
-				break
-		f.close()
-	except:
-		print "BL WARNING: couldnt open file ", filename
-	return ret
+
+    # BL says: a quick fix for now, maybe we want to use something like
+    # Paul's call_with_input_file funcn at some point
+    ret = False
+    try:
+        f = open(filename, 'r')
+        lines = f.readlines()
+        for line in lines:
+            if "has the minimal description" in line:
+                ret = True
+                break
+        f.close()
+    except:
+        print("BL WARNING: couldnt open file ", filename)
+    return ret
 
   # move file_name to some file name with a date extension
   #
@@ -86,7 +86,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
         try:
           os.rename(file_name, new_file_name)
         except:
-          print "BL WARNING:: could not rename file %s to %s" %(file_name, new_file_name)
+          print("BL WARNING:: could not rename file %s to %s" %(file_name, new_file_name))
 
   # the exe and log_file_name (and command_lines_args perhaps)
   # relative to dir (not the calling dir)
@@ -95,9 +95,9 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
                          data_lines, log_file_name, to_screen_flag):
     import os
 
-    print ("BL INFO:: run_command_in_dir dir:"
+    print(("BL INFO:: run_command_in_dir dir:"
            "%s exe: %s cl_args: %s data_lines: %s log_file: %s"
-           %(run_dir, exe_name, command_line_args, data_lines, log_file_name))
+           %(run_dir, exe_name, command_line_args, data_lines, log_file_name)))
     current = os.getcwd()
     norm_dir = os.path.normpath(run_dir)
     os.chdir(norm_dir)
@@ -116,11 +116,11 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
                            pdb_file_name, post_refmac_pdb_file_name):
 
     # print "================= debug: libcheck_monomer_gui: dir_prefix: %s   code_str: %s   cif_file_name: %s   pdb_file_name: %s   post_refmac_pdb_file_name: %s" %(dir_prefix, code_str, cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
-    
+
     if (len(dict_cif_libin) == 0):
       libcheck_input = ["N", "MON " + code_str[0:3], ""]
     else:
-      # BL says:: Paul's code says FILE_CIF as argument, but I beleave this should be 
+      # BL says:: Paul's code says FILE_CIF as argument, but I beleave this should be
       # FILE_L. FILE_CIF is for coordinate cif files and not dictionary cif file (which is
       # what we have here, I think)
       #      libcheck_input = ["N","FILE_CIF " + dict_cif_libin,"MON " + code_str,""]
@@ -142,7 +142,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
     if (libcheck_exe_file):
       libstatus = run_command_in_dir(dir_prefix, libcheck_exe_file, [], libcheck_input, log_file_name, True)
 
-      print "BL INFO:: libcheck status:", libstatus
+      print("BL INFO:: libcheck status:", libstatus)
 
       if (not isNumber(libstatus)):
 
@@ -167,9 +167,9 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
           #
           # So we first need to check that the output of
           # libcheck exists.
-          # 
+          #
           if (not os.path.isfile(cif_file_name)):
-            print "libcheck failed to write the output cif file", cif_file_name
+            print("libcheck failed to write the output cif file", cif_file_name)
             log_text = log_file2text(log_file_name, dir_prefix)
             if isinstance(log_text, str):
               simple_text_dialog("Libcheck log", log_text, 400, 400)
@@ -181,7 +181,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
             refmac_exe = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
             refmac_status = popen_command(refmac_exe, refmac_command_line, refmac_input, refmac_log_file_name)
 
-            print "INFO:: libcheck-minimal? is ", libcheck_minimal_desc_status
+            print("INFO:: libcheck-minimal? is ", libcheck_minimal_desc_status)
 
             if (not isNumber(refmac_status)):
               return -4 # refmac fails
@@ -201,7 +201,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
                 return handle_libcheck_cif_and_pdb(cif_file_name,
                                                    pdb_file_name,
                                                    post_refmac_pdb_file_name)
-                   
+
   def handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name):
 
     #print "================= debug:: handle-libcheck-cif-and-pdb: cif-file-name: %s pdb-file-name: %s post-refmac-pdb-file-name: %s" %(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
@@ -215,11 +215,11 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
         read_cif_dictionary(cif_file_name)
         return pdb_status  # return imol of the ligand
     return -1 # on fail
-    
+
 
   # main body
   if not isinstance(code, str):
-    print "WARNING:: Oops code %s was not a string " %code
+    print("WARNING:: Oops code %s was not a string " %code)
     return -2
   else:
 
@@ -242,7 +242,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
         os.path.isfile(cif_file_name)):
       return handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name,
                                          post_refmac_pdb_file_name)
-      
+
     else:
       libcheck_exe_file = find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
       if (not libcheck_exe_file):
@@ -255,5 +255,5 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
         if (not isNumber(v)):
           v = -1
         return v
-      
+
 #monomer_molecule_from_3_let_code("3GP","")

@@ -1,3 +1,4 @@
+import numbers
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) <year>  <name of author>
 #
@@ -51,7 +52,7 @@ def delete_coot_backup_files(action_type):
             dir_str = "./coot-backup"
         dirs.append("./coot-backup")
     now = int(time.time())
-    if (not operator.isNumberType(clear_out_backup_old_days)):
+    if (not isinstance(clear_out_backup_old_days, numbers.Number)):
         clear_out_backup_old_days = 7
     n_days = clear_out_backup_old_days
     last_week = (now - (n_days * 24 * 60 * 60))   # clear out more than 7 days
@@ -80,7 +81,7 @@ def delete_coot_backup_files(action_type):
     if (action_type == 'delete'):
         for file in files:
             file_name, dir_name = os.path.split(file)
-            print "Deleting old file %s from %s" %(file_name, dir_name)
+            print("Deleting old file %s from %s" %(file_name, dir_name))
             os.remove(file)
         # now create a last-backup file with a time stamp:
         for directory in dirs:
@@ -116,7 +117,7 @@ def clear_backup_gui():
                     " old backup files (%.1fMb) \n" %file_stats[1] + \
                     "   Delete Them?"
         label = gtk.Label(label_str)
-        ok_button.connect("clicked", lambda w: map(eval, ["delete_coot_backup_files('delete')", "coot_real_exit(0)"]))
+        ok_button.connect("clicked", lambda w: list(map(eval, ["delete_coot_backup_files('delete')", "coot_real_exit(0)"])))
         cancel_button.connect("clicked", lambda w: coot_real_exit(0))
 
         ok_text = " Consider yourself patted on the back! "
@@ -164,7 +165,7 @@ def clear_backups_maybe():
     global clear_out_backup_run_n_days
     
     now = int(time.time())
-    if (not operator.isNumberType(clear_out_backup_run_n_days)):
+    if (not isinstance(clear_out_backup_run_n_days, numbers.Number)):
         clear_out_backup_run_n_days = 7
     n_days = clear_out_backup_run_n_days
     last_week = (now - (n_days * 24 * 60 * 60))   # clear out every 7 days
@@ -198,7 +199,7 @@ def clear_backups_maybe():
                     ret = clear_backup_gui()
                     return ret
                 else:
-                    print "INFO:: backup clearout done %s days ago" %((now - val) * 24 * 60 * 60)
+                    print("INFO:: backup clearout done %s days ago" %((now - val) * 24 * 60 * 60))
                     return False
             except:
                 return False

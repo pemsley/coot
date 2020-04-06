@@ -27,9 +27,9 @@ def filter_coot(fn,ls):
   ret_ls = []
   if len(ls) > 0:
    for i in range(len(ls)):
-     print i, ls[i]
+     print(i, ls[i])
      if fn(ls[i]):
-        print i, ls[i]
+        print(i, ls[i])
         ret_ls.append(ls[i])
      else: pass
   else:

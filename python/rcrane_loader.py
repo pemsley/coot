@@ -47,7 +47,7 @@ def import_rcrane_wrapper():
        try:
            move(rcraneSettingsFilename, join(dirname(rcraneSettingsFilename), "rcrane.py.bak"))
        except IOError:
-           print "Cannot move ~/.coot-preferences/rcrane.py to ~/.coot-preferences/rcrane.py.bak"
+           print("Cannot move ~/.coot-preferences/rcrane.py to ~/.coot-preferences/rcrane.py.bak")
            return False
 
        #let the user know what we just did

@@ -808,6 +808,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
                indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                idx_for_triangles++;
+
+               // as we install these we should find out where the triangles centres are (or maybe before now)
+               // so that we can use the centres for sorting.
             }
          }
 

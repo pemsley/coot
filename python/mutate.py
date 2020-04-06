@@ -23,7 +23,7 @@
 def mutate_chain(imol, chain_id, sequence):
 
    if (len(sequence) != chain_n_iresidues(chain_id, imol)) :
-       print "sequence mismatch: molecule", chain_n_residues(chain_id, imol), "new sequences:", len(sequence)
+       print("sequence mismatch: molecule", chain_n_residues(chain_id, imol), "new sequences:", len(sequence))
    else:
        make_backup(imol) # do backup first
        backup_mode = backup_state(imol)
@@ -34,7 +34,7 @@ def mutate_chain(imol, chain_id, sequence):
            res = mutate_single_residue_by_serial_number(ires, chain_id, imol, sequence_list[ires])
            if (res != 1) :
                baddies += 1
-       print "multi_mutate of %s residues had %s baddies" % (len(sequence),baddies)
+       print("multi_mutate of %s residues had %s baddies" % (len(sequence),baddies))
 
        set_have_unsaved_changes(imol)
        if (backup_mode == 1) :
@@ -53,8 +53,8 @@ def multi_mutate(mutate_function, imol, start_res_no, chain_id, sequence):
           if (result != 1) :
               # add a baddy if result was 0 (fail)
               baddies += 1
-          print "multi_mutate of", len(sequence), "residues had", baddies, "errors"
-   else: print "BL WARNING:: no sequence or sequence of no length found!"
+          print("multi_mutate of", len(sequence), "residues had", baddies, "errors")
+   else: print("BL WARNING:: no sequence or sequence of no length found!")
 
 # The stop-res-no is inclusive, so usage e.g. 
 # mutate_resiude_range(0,"A",1,2,"AC")
@@ -71,7 +71,7 @@ def mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, sequence):
       make_backup(imol)
       n_residues = stop_res_no - start_res_no + 1
       if (len(sequence) != n_residues) :
-         print "sequence length mismatch:", len(sequence), n_residues
+         print("sequence length mismatch:", len(sequence), n_residues)
       else:
          backup_mode = backup_state(imol)
          turn_off_backup(imol)
@@ -103,16 +103,16 @@ def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
           altloc = ""
           inscode = ""
           resno = ires + start_res_no
-          print "auto-fit-best-rotamer ", resno, altloc, inscode, chain_id, \
-                imol, mol_for_map, clash
+          print("auto-fit-best-rotamer ", resno, altloc, inscode, chain_id, \
+                imol, mol_for_map, clash)
           score = auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
                                         imol, mol_for_map, clash, 0.5)
-          print "   Best score: ", score
+          print("   Best score: ", score)
 #          number_list(start_res_no,stop_res_no)
        if (backup_mode == 1) :
            turn_on_backup(imol)
    else:
-       print "WARNING:: no map set for refinement.  Can't fit"
+       print("WARNING:: no map set for refinement.  Can't fit")
 
 # mutate and autofit whole chain
 #
@@ -137,7 +137,7 @@ def three_letter_code2single_letter(residue_type):
                     "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K",
                     "MET": "M", "PHE": "F", "PRO": "P", "SER": "S",
                     "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
-    if (dic_type_1lc.has_key(residue_type)):
+    if (residue_type in dic_type_1lc):
        res_type_1lc = dic_type_1lc[residue_type]
     else:
        # if not standard aa then set it to Ala
@@ -170,7 +170,7 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
    if (type(sequence) is not StringType):
       s = "sequence must be a string"
       info_dialog(s)
-      print s
+      print(s)
    else:
       residue_range_length = resno_end - resno_start + 1
       seq_length = len(sequence)
@@ -178,12 +178,12 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
       if not (residue_range_length == seq_length):
          s = "residue range must equal sequence length"
          info_dialog(s)
-         print s
+         print(s)
       else:
-         residue_types = map(nucleotide_letter2three_letter_code,
-                             sequence.upper())
+         residue_types = list(map(nucleotide_letter2three_letter_code,
+                             sequence.upper()))
          for res_no, res_type in map(None,
-                                     range(resno_start, resno_end + 1),
+                                     list(range(resno_start, resno_end + 1)),
                                      residue_types):
             if res_type:
                mutate_base(imol, chain_id, res_no, "", res_type)
@@ -205,7 +205,7 @@ def mutate_residue_redundant(residue_number, chain_id, imol,
                     "HIS": "H", "ILE": "I", "LEU": "L", "LYS": "K",
                     "MET": "M", "PHE": "F", "PRO": "P", "SER": "S",
                     "THR": "T", "TRP": "W", "TYR": "Y", "VAL": "V"}
-    if (dic_type_1lc.has_key(residue_type)):
+    if (residue_type in dic_type_1lc):
        res_type_1lc = dic_type_1lc[residue_type]
     else:
        # if not standard aa then set it to Ala
@@ -236,13 +236,13 @@ def poly_ala(imol, res_type = False):
       dic_sg = {"SER": "S", "Ser": "S", "GLY": "G", "Gly": "G"}
       if (res_type):
          # residue name given!
-         if ((len(res_type) == 1) and (res_type in dic_sg.values())):
+         if ((len(res_type) == 1) and (res_type in list(dic_sg.values()))):
             single_letter_code = res_type
          else:
-            if (dic_sg.has_key(res_type)):
+            if (res_type in dic_sg):
                single_letter_code = dic_sg[res_type]
             else:
-               print "BL WARNING:: unrecognised residue name %s given" %res_type
+               print("BL WARNING:: unrecognised residue name %s given" %res_type)
                return
       else:
          single_letter_code = "A"
@@ -258,7 +258,7 @@ def poly_ala(imol, res_type = False):
          turn_on_backup(imol)
 
    else:
-       print "BL WARNING:: no valid model molecule", imol
+       print("BL WARNING:: no valid model molecule", imol)
 
 # Delete (back to the CB stub) the side change in the range
 # resno-start to resno-end

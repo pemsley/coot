@@ -63,97 +63,97 @@ def generic_objects_gui():
       import gtk, pango
       pygtk_flag = True
     except:
-      print "BL WARNING:: no pygtk2. Function wont work!!!"
-	  
+      print("BL WARNING:: no pygtk2. Function wont work!!!")
+
     if (pygtk_flag and using_gui()):
       # Now we run the gui
       def delete_event(*args):
-	# BL says: first we shall close the generic objects
-	# or not
-	#for generic_object_number in range(n_objects):
-	#	set_display_generic_object(generic_object_number, 0)
-	gen_window.destroy()
-	return False
+        # BL says: first we shall close the generic objects
+        # or not
+        #for generic_object_number in range(n_objects):
+        # set_display_generic_object(generic_object_number, 0)
+        gen_window.destroy()
+        return False
 
 
       def check_button_callback(widget, generic_object_number):
-	button_state = widget.get_active()
-	object_state = generic_object_is_displayed_qm(generic_object_number)
-	if ((button_state == True) and (object_state == 0)):
-	  set_display_generic_object(generic_object_number,1)
-	if ((button_state == False) and (object_state == 1)):
-	  set_display_generic_object(generic_object_number,0)
+        button_state = widget.get_active()
+        object_state = generic_object_is_displayed_qm(generic_object_number)
+        if ((button_state == True) and (object_state == 0)):
+          set_display_generic_object(generic_object_number,1)
+        if ((button_state == False) and (object_state == 1)):
+          set_display_generic_object(generic_object_number,0)
 
       def all_check_button_callback(widget):
-	show_all = widget.get_active()
-	for check_button in open_generic_objects:
-	  if (show_all):
-	    check_button.set_active(True)
-	  else:
-	    check_button.set_active(False)
+        show_all = widget.get_active()
+        for check_button in open_generic_objects:
+          if (show_all):
+            check_button.set_active(True)
+          else:
+            check_button.set_active(False)
 
       n_objects = number_of_generic_objects()
-	
+
       if (n_objects > 0):
-	gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-	gen_window.set_title("Generic objects")
-	vbox = gtk.VBox(False, 0)
-	open_generic_objects = []
-	no_active_generic_objects = 0
+        gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        gen_window.set_title("Generic objects")
+        vbox = gtk.VBox(False, 0)
+        open_generic_objects = []
+        no_active_generic_objects = 0
 
-	for generic_object_number in range(n_objects):
+        for generic_object_number in range(n_objects):
 
-	  print "INFO:: generic object attributes: ", \
-		generic_object_number, \
-		generic_object_name(generic_object_number), \
-		is_closed_generic_object_qm(generic_object_number)
+          print("INFO:: generic object attributes: ", \
+                generic_object_number, \
+                generic_object_name(generic_object_number), \
+                is_closed_generic_object_qm(generic_object_number))
 
-	  if (is_closed_generic_object_qm(generic_object_number) == 0):
-	    name = generic_object_name(generic_object_number)
+          if (is_closed_generic_object_qm(generic_object_number) == 0):
+            name = generic_object_name(generic_object_number)
 
-	    if (name):
-	      label = str(generic_object_number) + "  " + name
-	      frame = gtk.Frame(label=None)
-	      check_button = gtk.CheckButton(label)
+            if (name):
+              label = str(generic_object_number) + "  " + name
+              frame = gtk.Frame(label=None)
+              check_button = gtk.CheckButton(label)
 
-		# this callback gets called by the
-		# gtk-toggle-button-set-active just below,
-		# which is why we need the state and active
-		# test.
-	      check_button.connect("toggled", 
-		     check_button_callback, generic_object_number)
-	      current_state = generic_object_is_displayed_qm(generic_object_number)
-	      if (current_state == 1):
-		check_button.set_active(True)
-		no_active_generic_objects += 1
+                # this callback gets called by the
+                # gtk-toggle-button-set-active just below,
+                # which is why we need the state and active
+                # test.
+              check_button.connect("toggled", 
+                     check_button_callback, generic_object_number)
+              current_state = generic_object_is_displayed_qm(generic_object_number)
+              if (current_state == 1):
+                check_button.set_active(True)
+                no_active_generic_objects += 1
 
-	      vbox.add(frame)
-	      frame.add(check_button)
-	      frame.show()
-	      check_button.show()
-	      open_generic_objects.append(check_button)
+              vbox.add(frame)
+              frame.add(check_button)
+              frame.show()
+              check_button.show()
+              open_generic_objects.append(check_button)
 
-	if (len(open_generic_objects) > 1):
-	  hsep = gtk.HSeparator()
-	  label = "Show/hide all"
-	  frame = gtk.Frame(label=None)
-	  check_button = gtk.CheckButton(label)
-	  check_button.connect("toggled", all_check_button_callback)
-	  if (len(open_generic_objects) == no_active_generic_objects):
-	    check_button.set_active(True)
-	  vbox.add(hsep)
-	  hsep.show()
-	  vbox.add(frame)
-	  frame.add(check_button)
-	  frame.show()
-	  check_button.show()
+        if (len(open_generic_objects) > 1):
+          hsep = gtk.HSeparator()
+          label = "Show/hide all"
+          frame = gtk.Frame(label=None)
+          check_button = gtk.CheckButton(label)
+          check_button.connect("toggled", all_check_button_callback)
+          if (len(open_generic_objects) == no_active_generic_objects):
+            check_button.set_active(True)
+          vbox.add(hsep)
+          hsep.show()
+          vbox.add(frame)
+          frame.add(check_button)
+          frame.show()
+          check_button.show()
 
-	gen_window.connect("delete_event", delete_event)
+        gen_window.connect("delete_event", delete_event)
 
-	vbox.show()
-	gen_window.add(vbox)
-	gen_window.set_border_width(10)
-	gen_window.show()
+        vbox.show()
+        gen_window.add(vbox)
+        gen_window.set_border_width(10)
+        gen_window.show()
 
 
 # return status
@@ -172,10 +172,10 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
 
   global reduce_command
   
-  print "running reduce on", pdb_in
+  print("running reduce on", pdb_in)
   # could try find_exe too!
   if not command_in_path_qm(reduce_command):
-    print "command for reduce %s is not found in path" %reduce_command
+    print("command for reduce %s is not found in path" %reduce_command)
   else:
     # need full path to find het dict
     full_reduce_command = find_exe(reduce_command, "PATH")
@@ -194,16 +194,16 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
     if no_flip_or_build == "no-flip":
         mode = "-NOFLIP"
 
-    print "======= reduce_on_pdb_file: command %s args %s with pdb_out: %s" \
+    print("======= reduce_on_pdb_file: command %s args %s with pdb_out: %s" \
           %(reduce_command,
             [mode, pdb_in] + dict_args,
-            pdb_out)
+            pdb_out))
     status = popen_command(reduce_command,
                            [mode, pdb_in] + dict_args,
                            [],
                            pdb_out)
 
-    print "======== status", status
+    print("======== status", status)
 
     # 20130107 returning (status == 0) is problematic because sometimes/often reduce exits
     # with status 1 but it has worked OK!
@@ -240,7 +240,7 @@ def probe(imol):
     write_reduce_het_dict(imol, reduce_het_dict_file_name)
     if not reduce_command:
       # couldnt find reduce
-      print "BL WARNING:: Could not locate the program reduce!! Please check if installed!"
+      print("BL WARNING:: Could not locate the program reduce!! Please check if installed!")
     else:
 
       dict_args = []
@@ -256,9 +256,9 @@ def probe(imol):
 
       arg_list += dict_args
 
-      print "BL INFO:: running reduce: %s %s and ouptut to: %s" \
-            %(reduce_command , arg_list, reduce_out_pdb_file)
-      print "BL INFO:: running reduce: REDUCE_HET_DICT env var:", os.getenv('REDUCE_HET_DICT')
+      print("BL INFO:: running reduce: %s %s and ouptut to: %s" \
+            %(reduce_command , arg_list, reduce_out_pdb_file))
+      print("BL INFO:: running reduce: REDUCE_HET_DICT env var:", os.getenv('REDUCE_HET_DICT'))
       
       reduce_status = popen_command(reduce_command,
                                     arg_list,
@@ -268,7 +268,7 @@ def probe(imol):
       # dont check for status as meaningless...
       if not probe_command:
         # couldnt find probe
-        print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
+        print("BL WARNING:: Could not locate the program probe!! Please check if installed!")
       else:
         probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
         probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
@@ -282,17 +282,17 @@ def probe(imol):
                                      probe_out)
 
         if (probe_status):
-          print "BL WARNING:: probe failed, cannot continue!"
+          print("BL WARNING:: probe failed, cannot continue!")
         else:
           # by default, we don't want to click on the
           # imol-probe molecule (I think :-)
           recentre_status = recentre_on_read_pdb()
           novalue = set_recentre_on_read_pdb(0)
           if (reduce_molecule_updates_current):
-            print "======= update molecule ======="
+            print("======= update molecule =======")
             imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
           else:
-            print "======= read new pdb file ======="
+            print("======= read new pdb file =======")
             imol_probe = read_pdb(probe_pdb_in)
 
           if recentre_status == 1:
@@ -343,11 +343,11 @@ def prepare_file_for_probe(file_in, file_out):
     try:
       fin = open(file_in,'r')
     except IOError:
-      print "BL WARNING:: Cannot read ", file_in
+      print("BL WARNING:: Cannot read ", file_in)
     try:
       fout = file(file_out,'w')
     except IOError:
-      print "BL WARNING:: Cannot write ", file_out
+      print("BL WARNING:: Cannot write ", file_out)
     if (fin and fout):
        lines = fin.readlines()
        for line in lines:
@@ -390,9 +390,9 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
 	       + str(res_no) + ")),file2"
 
     # no longer use std-bonds
-    print "probe command", probe_command, \
+    print("probe command", probe_command, \
           ["-mc", "-u", "-quiet", "-drop", "-both",
-          atom_sel, "file2", probe_pdb_in_1, probe_pdb_in_2]
+          atom_sel, "file2", probe_pdb_in_1, probe_pdb_in_2])
 
     # if unset, then set it.
     if (interactive_probe_is_OK_qm == 'unset'):
@@ -447,7 +447,7 @@ def get_probe_dots_from(pdb_file_name, point, radius):
                     # was needed to make this work
             # within_str  # problems with atom selection
             pdb_file_name]
-    print "popen_comand on", probe_command, args
+    print("popen_comand on", probe_command, args)
     popen_command(probe_command, args, [], probe_out, False)
     handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
     graphics_draw()
@@ -510,7 +510,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
   # now, add (append) each of the con-file-names to the end of
   # pdb-name
   if (not os.path.isfile(tmp_pdb_name)):
-    print "ERROR:: tmp file name not found", tmp_pdb_name
+    print("ERROR:: tmp file name not found", tmp_pdb_name)
   else:
     conn_file_names.insert(0, tmp_pdb_name)
     fn_all = open(pdb_name, 'w')
@@ -546,7 +546,7 @@ def toggle_interactive_probe_dots(widget=None):
       set_do_probe_dots_post_refine(0)
   else:
     # no alternative for now (could just go by state and change back and forth)
-    print "BL WARNING:: no widget"
+    print("BL WARNING:: no widget")
 
 
 def set_reduce_het_dict():
@@ -588,7 +588,7 @@ def set_reduce_het_dict():
         os.environ['REDUCE_HET_DICT'] = red_het_dict
         return True
       else:
-        print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+        print("BL WARNING:: could neither find nor set REDUCE_HET_DICT !")
         return False
       
     else:
@@ -615,6 +615,6 @@ def set_reduce_het_dict():
           return True
         else:
           # finally give up
-          print "BL WARNING:: could neither find nor set REDUCE_HET_DICT !"
+          print("BL WARNING:: could neither find nor set REDUCE_HET_DICT !")
           return False
       
