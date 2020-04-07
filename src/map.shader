@@ -46,7 +46,7 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
-  float specular_strength = 0.3;
+  float specular_strength = 0.7; // 1.5 is very shiny
 
   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
   vec3 lightdir = normalize(vec3(-2,-1, 5));
@@ -73,7 +73,8 @@ void main() {
   float dp_view_reflect = dot(view_dir, reflect_dir);
   dp_view_reflect = max(dp_view_reflect, 0.0);
   // when the exponent is low, the specular_strength needs to be reduced
-  float spec = pow(dp_view_reflect, 1.02); // shows lots of shape of the density
+  // a low exponent means lots of the map is specular (around the edges)
+  float spec = pow(dp_view_reflect, 6.62); // shows lots of shape of the density
   // float spec = pow(dp_view_reflect, 0.4);
   vec4 specular = specular_strength * spec * specular_light_colour;
 
@@ -89,7 +90,8 @@ void main() {
   // the angle between the eye direction and the triangle normal)
 
   // we need blend to be enabled for this to have an effect, I think.
-  col_4.a = (1.0 - dp) * 0.6;
+  if (false)
+     col_4.a = 2.0 * spec;
 
   out_col = col_4;
 

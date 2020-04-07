@@ -98,6 +98,7 @@ vec3 sampling_blur(int n_pixels_max) {
                   float k = 0.001; // gaussian scale
                   dbrs = 1.0;
                   float gauss = 1.0/dbrs * exp(-0.5 * k * r_sqrd/(blur_radius*blur_radius));
+                  gauss = 1.0;
                   float depth_factor = 2.0 * (1.0 - depth_centre); // 0 -> 1
                   depth_factor = 1.0;
                   sum_outer += colour_ij * gauss * (1.0 - depth_ij) * depth_factor;
@@ -106,10 +107,11 @@ vec3 sampling_blur(int n_pixels_max) {
             }
          }
       }
-      float Sc = 1.5/float(n_pixels_max*n_pixels_max);
+      float Sc = 1.0/float(n_pixels_max*n_pixels_max);
       // result = 0.5 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
       // result = 0.1 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
-      result = 0.2 * orig_colour + 0.6 * centre_points_scale * sum_inner + Sc * sum_outer;
+      // result = 0.2 * orig_colour + 0.6 * centre_points_scale * sum_inner + Sc * sum_outer;
+      result = 0.1 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
       if (n_inner_neighbs == 0 && n_outer_neighbs == 0)
          result = orig_colour;
    }
@@ -142,11 +144,11 @@ void main() {
 
    vec3 result = vec3(0,0,0);
 
-   bool do_depth_blur = false;
-   bool do_outline    = true;
+   bool do_depth_blur = true;
+   bool do_outline    = false;
 
    if (do_depth_blur) {
-      result = sampling_blur(14);
+      result = sampling_blur(8); // 14 is good
    } else {
       if (do_outline) {
          result = make_outline();
