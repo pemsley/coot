@@ -878,8 +878,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         // why is this needed?
-         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+         // why is this needed? Is it needed? Done by caller? (or should be?)
+         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
          glGenVertexArrays(1, &m_VertexArrayID_for_map);
          GLenum err = glGetError();

@@ -950,11 +950,13 @@ int first_unsaved_coords_imol() {
 
 void hardware_stereo_mode() {
 
+   // this should be a graphics-info function. Move me. FIXME
+
    if (graphics_info_t::use_graphics_interface_flag) {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
 	 } else {
@@ -963,9 +965,9 @@ void hardware_stereo_mode() {
 		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  ||
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
-	       if (graphics_info_t::glarea_2) {
-		  gtk_widget_destroy(graphics_info_t::glarea_2);
-		  graphics_info_t::glarea_2 = NULL;
+	       if (graphics_info_t::glareas.size() == 2) {
+		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
 
@@ -974,8 +976,8 @@ void hardware_stereo_mode() {
 	    if (glarea) {
 	       // std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
 	       if (graphics_info_t::idle_function_spin_rock_token) {
-		  toggle_idle_spin_function(); // turn it off;
-	       }
+                  toggle_idle_spin_function(); // turn it off;
+               }
 // BL says:: maybe we should set the set_display_lists_for_maps here for
 // windows, actually Mac as well if I remember correctly
 // well, it seems actually to be a GTK2 (or gtkglext) thing!!
@@ -984,20 +986,20 @@ void hardware_stereo_mode() {
 //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
              set_display_lists_for_maps(0);
 #endif // WINDOWS_MINGW
-	       gtk_widget_destroy(graphics_info_t::glarea);
-	       graphics_info_t::glarea = glarea;
-	       gtk_widget_show(glarea);
-	       // antialiasing?
-	       graphics_info_t g;
-	       g.draw_anti_aliasing();
-	       graphics_draw();
-	    } else {
-	       std::cout << "WARNING:: switch to hardware_stereo_mode failed\n";
-	       graphics_info_t::display_mode = previous_mode;
-	    }
-	 }
+               gtk_widget_destroy(graphics_info_t::glareas[0]);
+               graphics_info_t::glareas[0] = glarea;
+               gtk_widget_show(glarea);
+               // antialiasing?
+               graphics_info_t g;
+               g.draw_anti_aliasing();
+               graphics_draw();
+            } else {
+               std::cout << "WARNING:: switch to hardware_stereo_mode failed\n";
+               graphics_info_t::display_mode = previous_mode;
+            }
+         }
       } else {
-	 std::cout << "Already in hardware stereo mode" << std::endl;
+         std::cout << "Already in hardware stereo mode" << std::endl;
       }
    }
    add_to_history_simple("hardware-stereo-mode");
@@ -1011,7 +1013,7 @@ void zalman_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
 	 } else {
@@ -1020,9 +1022,9 @@ void zalman_stereo_mode() {
 		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  ||
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
-	       if (graphics_info_t::glarea_2) {
-		  gtk_widget_destroy(graphics_info_t::glarea_2);
-		  graphics_info_t::glarea_2 = NULL;
+	       if (graphics_info_t::glareas.size() == 2) {
+		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
 
@@ -1033,8 +1035,8 @@ void zalman_stereo_mode() {
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
-	       gtk_widget_destroy(graphics_info_t::glarea);
-	       graphics_info_t::glarea = glarea;
+	       gtk_widget_destroy(graphics_info_t::glareas[0]);
+	       graphics_info_t::glareas[0] = glarea;
 	       gtk_widget_show(glarea);
 	       // antialiasing?
 	       graphics_info_t g;
@@ -1059,11 +1061,11 @@ void mono_mode() {
 
       if (graphics_info_t::display_mode != coot::MONO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
-         GtkWidget *gl_widget = lookup_widget(graphics_info_t::glarea, "window1");
+         GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
          int x_size = gtk_widget_get_allocated_width(gl_widget);
          int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
@@ -1080,12 +1082,12 @@ void mono_mode() {
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
-	       gtk_widget_destroy(graphics_info_t::glarea);
-	       if (graphics_info_t::glarea_2) {
-		  gtk_widget_destroy(graphics_info_t::glarea_2);
-		  graphics_info_t::glarea_2 = NULL;
+	       gtk_widget_destroy(graphics_info_t::get_main_window());
+	       if (graphics_info_t::glareas.size() == 2) {
+		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  graphics_info_t::glareas[1] = NULL;
 	       }
-	       graphics_info_t::glarea = glarea;
+	       graphics_info_t::glareas[0] = glarea;
 	       gtk_widget_show(glarea);
                // now we shall resize to half the window size if we had
                // side-by-side stereo before
@@ -1122,50 +1124,50 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
       // generated 2 new glareas by calling gl_extras().
       //
       if (!((graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) ||
-	    (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
-	    (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO))) {
+            (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
+            (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO))) {
 
-	 if (use_wall_eye_flag == 1) {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 } else {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
-	 }
-	 // int previous_mode = graphics_info_t::display_mode;
-	 short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
-	 if (use_wall_eye_flag)
-	    stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
-	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
-	 if (glarea) {
-	    if (graphics_info_t::idle_function_spin_rock_token) {
-	       toggle_idle_spin_function(); // turn it off;
-	    }
-	    gtk_widget_destroy(graphics_info_t::glarea);
-	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
-	    gtk_widget_show(glarea);
-	    gtk_widget_show(graphics_info_t::glarea_2);
-	    update_maps();
-	    // antialiasing?
-	    graphics_info_t g;
-	    g.draw_anti_aliasing();
-	    redraw_background();
-	    graphics_draw();
-	 } else {
-	    std::cout << "WARNING:: switch to side by side mode failed!\n";
-	 }
+         if (use_wall_eye_flag == 1) {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+         } else {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
+         }
+         // int previous_mode = graphics_info_t::display_mode;
+         short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
+         if (use_wall_eye_flag)
+            stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+         GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *glarea = gl_extras(vbox, stereo_mode);
+         if (glarea) {
+            if (graphics_info_t::idle_function_spin_rock_token) {
+               toggle_idle_spin_function(); // turn it off;
+            }
+            gtk_widget_destroy(graphics_info_t::glareas[0]);
+            graphics_info_t::glareas[0] = glarea; // glarea_2 is stored by gl_extras()
+            gtk_widget_show(glarea);
+            gtk_widget_show(graphics_info_t::glareas[1]);
+            update_maps();
+            // antialiasing?
+            graphics_info_t g;
+            g.draw_anti_aliasing();
+            redraw_background();
+            graphics_draw();
+         } else {
+            std::cout << "WARNING:: switch to side by side mode failed!\n";
+         }
       } else {
 
-	 if (use_wall_eye_flag == 1) {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 } else {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
-	 }
-	 // were were already in some sort of side by side stereo mode:
-	 graphics_draw();
+         if (use_wall_eye_flag == 1) {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+         } else {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
+         }
+         // were were already in some sort of side by side stereo mode:
+         graphics_draw();
       }
    }
    std::vector<coot::command_arg_t> args;
@@ -1179,27 +1181,28 @@ void set_dti_stereo_mode(short int state) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       if (state) {
-	 short int stereo_mode;
-	 if (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
-	    // int previous_mode = graphics_info_t::display_mode;
-	    stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
-	 } else {
-	    stereo_mode = coot::SIDE_BY_SIDE_STEREO;
-	 }
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
-	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
-	 if (graphics_info_t::use_graphics_interface_flag) {
-	    if (graphics_info_t::idle_function_spin_rock_token) {
-	       toggle_idle_spin_function(); // turn it off;
-	    }
-	    gtk_widget_destroy(graphics_info_t::glarea);
-	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
-	    gtk_widget_show(glarea);
-	    gtk_widget_show(graphics_info_t::glarea_2);
-	    graphics_draw();
-	 } else {
-	    std::cout << "WARNING:: switch to side by side mode failed!\n";
-	 }
+         short int stereo_mode;
+         if (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
+            // int previous_mode = graphics_info_t::display_mode;
+            stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
+         } else {
+            stereo_mode = coot::SIDE_BY_SIDE_STEREO;
+         }
+         GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *glarea = gl_extras(vbox, stereo_mode);
+         if (graphics_info_t::use_graphics_interface_flag) {
+            if (graphics_info_t::idle_function_spin_rock_token) {
+               toggle_idle_spin_function(); // turn it off;
+            }
+            gtk_widget_destroy(graphics_info_t::glareas[0]);
+            graphics_info_t::glareas[0] = glarea;
+            gtk_widget_show(glarea);
+            if (graphics_info_t::glareas.size() == 2)
+               gtk_widget_show(graphics_info_t::glareas[1]);
+            graphics_draw();
+         } else {
+            std::cout << "WARNING:: switch to side by side mode failed!\n";
+         }
       }
    }
    // add_to_history_simple("dti-side-by-side-stereo-mode");
@@ -1459,7 +1462,7 @@ void toggle_idle_spin_function() {
 
    if (g.idle_function_spin_rock_token == 0) {
       // g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
-      g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glarea);
+      g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glareas[0]);
    } else {
 
       std::cout << "GTK-FIXME remove spin idle function here!" << std::endl;
@@ -1615,8 +1618,8 @@ set_main_window_title(const char *s) {
    graphics_info_t g;
    if (s) {
       if (g.use_graphics_interface_flag){
-	 if (g.glarea) {
-	    GtkWidget *win = lookup_widget(g.glarea, "window1");
+	 if (g.get_main_window()) {
+	    GtkWidget *win = g.get_main_window();
 	    if (win) {
 	       std::string ss(s);
 	       if (! ss.empty()) {
@@ -2189,9 +2192,9 @@ void set_symmetry_whole_chain(int imol, int state) {
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
       if (is_valid_model_molecule(imol)) {
-	 g.molecules[imol].symmetry_whole_chain_flag = state;
-	 if (g.glarea)
-	    g.update_things_on_move_and_redraw();
+         g.molecules[imol].symmetry_whole_chain_flag = state;
+         if (! g.glareas.empty())
+            g.update_things_on_move_and_redraw();
       }
    }
    std::string cmd = "set-symmetry-whole-chain";
@@ -2744,7 +2747,7 @@ void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 void set_rotation_centre(float x, float y, float z) {
    graphics_info_t g;
    g.setRotationCentre(coot::Cartesian(x,y,z));
-   if (g.glarea)
+   if (! g.glareas.empty())
       g.update_things_on_move_and_redraw();
    std::string cmd = "set-rotation-centre";
    std::vector<coot::command_arg_t> args;
@@ -3037,20 +3040,24 @@ int get_default_bond_thickness() {
 }
 
 int make_ball_and_stick(int imol,
-			const char *atom_selection_str,
-			float bond_thickness,
-			float sphere_size,
-			int do_spheres_flag) {
+                        const char *atom_selection_str,
+                        float bond_thickness,
+                        float sphere_size,
+                        int do_spheres_flag) {
 
    int i = imol;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
       int dloi =
       graphics_info_t::molecules[imol].make_ball_and_stick(std::string(atom_selection_str),
-							   bond_thickness,
-							   sphere_size, do_spheres_flag,
-							   glci, g.Geom_p());
+                                                           bond_thickness,
+                                                           sphere_size, do_spheres_flag,
+                                                           glci, g.Geom_p());
       // std::cout << "dloi: " << dloi << std::endl;
       graphics_draw();
    }
@@ -3125,7 +3132,11 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
       coot::atom_selection_info_t info(atom_selection_str);
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
 									 bond_width,
@@ -3151,7 +3162,11 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
 
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
@@ -3549,7 +3564,7 @@ void set_draw_axes(int i) {
 
 
 GtkWidget *main_window() {
-   return graphics_info_t::glarea;
+   return graphics_info_t::get_main_window();
 };
 
 int graphics_n_molecules() {
@@ -4118,36 +4133,40 @@ void make_image_povray(const char *filename) {
 #ifdef USE_GUILE
 
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   int x_size = allocation.width;
-   int y_size = allocation.height;
-   std::string cmd("(raytrace 'povray ");
-   cmd += single_quote(pov_name);
-   cmd += " ";
-   cmd += single_quote(filename);
-   cmd += " ";
-   cmd += graphics_info_t::int_to_string(x_size);
-   cmd += " ";
-   cmd += graphics_info_t::int_to_string(y_size);
-   cmd += ")";
-   safe_scheme_command(cmd);
+   if (! graphics_info_t::glareas.empty()) {
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+      int x_size = allocation.width;
+      int y_size = allocation.height;
+      std::string cmd("(raytrace 'povray ");
+      cmd += single_quote(pov_name);
+      cmd += " ";
+      cmd += single_quote(filename);
+      cmd += " ";
+      cmd += graphics_info_t::int_to_string(x_size);
+      cmd += " ";
+      cmd += graphics_info_t::int_to_string(y_size);
+      cmd += ")";
+      safe_scheme_command(cmd);
+   }
 
 #else
 #ifdef USE_PYTHON
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   int x_size = allocation.width;
-   int y_size = allocation.height;
-   std::string cmd("raytrace('povray',");
-   cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
-   cmd += ",";
-   cmd += single_quote(coot::util::intelligent_debackslash(filename));
-   cmd += ",";
-   cmd += graphics_info_t::int_to_string(x_size);
-   cmd += ",";
-   cmd += graphics_info_t::int_to_string(y_size);
-   cmd += ")";
-   safe_python_command(cmd);
+   if (! graphics_info_t::glareas.empty()) {
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+      int x_size = allocation.width;
+      int y_size = allocation.height;
+      std::string cmd("raytrace('povray',");
+      cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
+      cmd += ",";
+      cmd += single_quote(coot::util::intelligent_debackslash(filename));
+      cmd += ",";
+      cmd += graphics_info_t::int_to_string(x_size);
+      cmd += ",";
+      cmd += graphics_info_t::int_to_string(y_size);
+      cmd += ")";
+      safe_python_command(cmd);
+   }
 #endif // USE_PYTHON
 #endif // USE_GUILE
 }
@@ -4158,7 +4177,7 @@ void make_image_povray_py(const char *filename) {
    pov_name += ".pov";
    povray(pov_name.c_str());
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    int x_size = allocation.width;
    int y_size = allocation.height;
    std::string cmd("raytrace('povray',");
@@ -5976,7 +5995,7 @@ void set_refine_ramachandran_angles(int state) {
    // Adjust the GUI
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string w_name = "main_toolbar_restraints_rama_label";
-      GtkWidget *w = lookup_widget(graphics_info_t::glarea, w_name.c_str());
+      GtkWidget *w = lookup_widget(graphics_info_t::glareas[0], w_name.c_str());
       if (w) {
 	 if (state) {
 	    if (graphics_info_t::restraints_rama_type == coot::RAMA_TYPE_ZO) {
@@ -7061,7 +7080,7 @@ import_python_module(const char *module_name, int use_namespace) {
 
    if (false)
       std::cout << "Importing python module " << module_name
-		<< " using command " << simple << std::endl;
+                << " using command " << simple << std::endl;
 
    err = PyRun_SimpleString(simple.c_str());
 #endif // USE_PYTHON
@@ -7077,19 +7096,19 @@ void add_on_rama_choices(){  // the the menu
    // first delete all the current menu items.
    //
    graphics_info_t g;
-   GtkWidget* menu = lookup_widget(GTK_WIDGET(g.glarea), "rama_plot_menu");
+   GtkWidget* menu = lookup_widget(GTK_WIDGET(g.get_main_window()), "rama_plot_menu");
 
    if (menu) {
       gtk_container_foreach(GTK_CONTAINER(menu),
-			    my_delete_ramachandran_mol_option,
-			    (gpointer) menu);
+                            my_delete_ramachandran_mol_option,
+                            (gpointer) menu);
 
       std::string name;
       for (int i=0; i<g.n_molecules(); i++) {
-	 if (g.molecules[i].has_model() > 0) {
-	    name = graphics_info_t::molecules[i].dotted_chopped_name();
-	    update_ramachandran_plot_menu_manual(i, name.c_str());
-	 }
+         if (g.molecules[i].has_model() > 0) {
+            name = graphics_info_t::molecules[i].dotted_chopped_name();
+            update_ramachandran_plot_menu_manual(i, name.c_str());
+         }
       }
    }
 }
@@ -7124,41 +7143,41 @@ void print_sequence_chain(int imol, const char *chain_id) {
       mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 if (std::string(chain_p->GetChainID()) == chain_id) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::PResidue residue_p;
-	    int residue_count_block = 0;
-	    int residue_count_line = 0;
-	    if (nres > 0 ) {
-	       residue_count_block = chain_p->GetResidue(0)->GetSeqNum();
-	       residue_count_line  = residue_count_block;
-	       if (residue_count_block > 0)
-		  while (residue_count_block > 10)
-		     residue_count_block -= 10;
-	       if (residue_count_line > 0)
-		  while (residue_count_line > 50)
-		     residue_count_line -= 50;
-	    }
-	    for (int ires=0; ires<nres; ires++) {
-	       residue_p = chain_p->GetResidue(ires);
-	       seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
-	       if (residue_count_block == 10) {
-		  if (with_spaces)
-		     seq += " ";
-		  residue_count_block = 0;
-	       }
-	       if (residue_count_line == 50) {
-		  seq += "\n";
-		  residue_count_line = 0;
-	       }
-	       residue_count_block++;
-	       residue_count_line++;
-	    }
-	 }
+         chain_p = model_p->GetChain(ichain);
+         if (std::string(chain_p->GetChainID()) == chain_id) {
+            int nres = chain_p->GetNumberOfResidues();
+            mmdb::PResidue residue_p;
+            int residue_count_block = 0;
+            int residue_count_line = 0;
+            if (nres > 0 ) {
+               residue_count_block = chain_p->GetResidue(0)->GetSeqNum();
+               residue_count_line  = residue_count_block;
+               if (residue_count_block > 0)
+                  while (residue_count_block > 10)
+                     residue_count_block -= 10;
+               if (residue_count_line > 0)
+                  while (residue_count_line > 50)
+                     residue_count_line -= 50;
+            }
+            for (int ires=0; ires<nres; ires++) {
+               residue_p = chain_p->GetResidue(ires);
+               seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
+               if (residue_count_block == 10) {
+                  if (with_spaces)
+                     seq += " ";
+                  residue_count_block = 0;
+               }
+               if (residue_count_line == 50) {
+                  seq += "\n";
+                  residue_count_line = 0;
+               }
+               residue_count_block++;
+               residue_count_line++;
+            }
+         }
       }
       std::cout << ">" << graphics_info_t::molecules[imol].name_sans_extension(0)
-		<< " chain " << chain_id << std::endl;
+                << " chain " << chain_id << std::endl;
       std::cout << seq << std::endl;
    }
 }
@@ -7170,23 +7189,23 @@ void do_sequence_view(int imol) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
-	 do_old_style = 1;
+         do_old_style = 1;
       } else {
-	 // was it a big shelx molecule?
-	 if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
-	    std::pair<bool, int> max_resno =
-	       coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-	    if (max_resno.first)
-	       if (max_resno.second > 3200)
-		  do_old_style = 1;
-	 }
+         // was it a big shelx molecule?
+         if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
+            std::pair<bool, int> max_resno =
+               coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+            if (max_resno.first)
+               if (max_resno.second > 3200)
+                  do_old_style = 1;
+         }
       }
 
 
       if (do_old_style) {
-	 sequence_view_old_style(imol);
+         sequence_view_old_style(imol);
       } else {
-	 nsv(imol);
+         nsv(imol);
       }
    }
 }
@@ -7779,25 +7798,25 @@ void set_background_colour(double red, double green, double blue) {
    graphics_info_t g;
 
    if (g.use_graphics_interface_flag) {
-     if(g.glarea_2) {
-       g.make_current_gl_context(g.glarea_2);
-       glClearColor(red,green,blue,1.0);
-       g.background_colour[0] = red;
-       g.background_colour[1] = green;
-       g.background_colour[2] = blue;
-       // glFogfv(GL_FOG_COLOR, g.background_colour);
-     }
-     g.make_current_gl_context(g.glarea);
-     glClearColor(red,green,blue,1.0);
-     g.background_colour[0] = red;
-     g.background_colour[1] = green;
-     g.background_colour[2] = blue;
-     // glFogfv(GL_FOG_COLOR, g.background_colour);
-     if (g.do_anti_aliasing_flag) {
-       // update the antialias?!
-       g.draw_anti_aliasing();
-     }
-     graphics_draw();
+      if(g.glareas.size() == 2) {
+         g.make_current_gl_context(g.glareas[1]);
+         glClearColor(red,green,blue,1.0);
+         g.background_colour[0] = red;
+         g.background_colour[1] = green;
+         g.background_colour[2] = blue;
+         // glFogfv(GL_FOG_COLOR, g.background_colour);
+      }
+      g.make_current_gl_context(g.glareas[0]);
+      glClearColor(red,green,blue,1.0);
+      g.background_colour[0] = red;
+      g.background_colour[1] = green;
+      g.background_colour[2] = blue;
+      // glFogfv(GL_FOG_COLOR, g.background_colour);
+      if (g.do_anti_aliasing_flag) {
+         // update the antialias?!
+         g.draw_anti_aliasing();
+      }
+      graphics_draw();
    }
 }
 
@@ -7810,15 +7829,15 @@ redraw_background() {
    double green = g.background_colour[1];
    double blue  = g.background_colour[2];
    if (g.use_graphics_interface_flag && !background_is_black_p()) {
-     if(g.glarea_2) {
-       g.make_current_gl_context(g.glarea_2);
-       glClearColor(red,green,blue,1.0);
-       // glFogfv(GL_FOG_COLOR, g.background_colour);
-     }
-     g.make_current_gl_context(g.glarea);
-     glClearColor(red,green,blue,1.0);
-     // glFogfv(GL_FOG_COLOR, g.background_colour);
-     graphics_draw();
+      if(g.glareas.size() == 2) {
+         g.make_current_gl_context(g.glareas[1]);
+         glClearColor(red,green,blue,1.0);
+         // glFogfv(GL_FOG_COLOR, g.background_colour);
+      }
+      g.make_current_gl_context(g.glareas[0]);
+      glClearColor(red,green,blue,1.0);
+      // glFogfv(GL_FOG_COLOR, g.background_colour);
+      graphics_draw();
    }
 
 }

@@ -3668,8 +3668,9 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    // I don't think that this should be here - it should be in caller function
    //
-   if (graphics_info_t::glarea)
-      graphics_info_t::graphics_draw();
+   // OK (I agree)
+   // if (graphics_info_t::glareas[0])
+   //    graphics_info_t::graphics_draw();
 }
 
 void
@@ -3682,8 +3683,9 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
    bonds_box_type = coot::COLOUR_BY_MOLECULE_BONDS;
    make_glsl_bonds_type_checked();
 
-   if (graphics_info_t::glarea)
-      graphics_info_t::graphics_draw();
+   // Put this in the caller
+   // if (graphics_info_t::glarea)
+   //    graphics_info_t::graphics_draw();
 
 }
 
@@ -3758,7 +3760,7 @@ molecule_class_info_t::make_bonds_type_checked() {
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
    //
-   gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+   gl_context_info_t glci = graphics_info_t::get_gl_context_info();
 
    // make glsl triangles
    glUseProgram(graphics_info_t::shader_for_models.get_program_id());
@@ -3814,7 +3816,8 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       sum_n_vertices += n_slices * (n_stacks+1) * ll.num_lines;
    }
 
-   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+   // This needs fixing? Or more thought?
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits = make_generic_vertices_for_atoms(index_to_colour);
 

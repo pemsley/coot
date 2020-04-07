@@ -297,7 +297,7 @@ glm::vec3 get_eye_position() {
 glm::vec4 new_unproject(float z) {
    // z is 1 and -1 for front and back (or vice verse).
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    float w = allocation.width;
    float h = allocation.height;
    graphics_info_t g;
@@ -476,7 +476,7 @@ draw_model_molecules() {
       if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
 
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
-         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glarea));
+         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
          GLuint pid = shader.get_program_id(); // surely not needed?
          shader.Use();
@@ -545,7 +545,7 @@ draw_molecular_triangles() {
    // where is the eye?  That's what we want.
    // front plane is at z=0;
    GtkAllocation allocation;
-   GtkWidget *widget = graphics_info_t::glarea;
+   GtkWidget *widget = graphics_info_t::glareas[0];
    if (! widget) return;
    gtk_widget_get_allocation(widget, &allocation);
    coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
@@ -923,7 +923,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1)
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
-      int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+      int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
       std::cout << "INFO:: contour level for map " << imol_scroll << " is "
                 << g.molecules[imol_scroll].contour_level << std::endl;
       g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
@@ -1005,7 +1005,8 @@ do_drag_pan_gtk3(GtkWidget *widget) {
       delta_scale_factor = 20.0; // move the front a lot more
    g.add_to_rotation_centre(delta_scale_factor * delta_v3);
    g.update_maps();
-   int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+   if (graphics_info_t::glareas.size() > 0)
+      int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 }
 
 gboolean
@@ -1163,7 +1164,8 @@ setup_key_bindings() {
                 int imol_scroll = graphics_info_t::scroll_wheel_map;
                 if (graphics_info_t::is_valid_map_molecule(imol_scroll))
                    graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-                int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glarea);
+                if (graphics_info_t::glareas.size() > 0)
+                   int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
                 graphics_info_t g;
                 g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
                 graphics_info_t::display_density_level_this_image = 1;
@@ -1173,7 +1175,8 @@ setup_key_bindings() {
                 int imol_scroll = graphics_info_t::scroll_wheel_map;
                 if (graphics_info_t::is_valid_map_molecule(imol_scroll))
                    graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
-                int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glarea);
+                if (graphics_info_t::glareas.size() > 0)
+                   int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
                 graphics_info_t g;
                 g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
                 graphics_info_t::display_density_level_this_image = 1;

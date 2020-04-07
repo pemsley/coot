@@ -2235,7 +2235,7 @@ graphics_info_t::flash_selection(int imol,
 
    return;
 
-   if (glarea) {
+   if (glareas[0]) {
       if (nSelAtoms) {
 	 // now we can make an atom_selection_container_t with our new
 	 // atom selection that we will use to find bonds.
@@ -2275,7 +2275,7 @@ graphics_info_t::flash_selection(int imol,
 void
 graphics_info_t::flash_position(const clipper::Coord_orth &pos) {
 
-   if (glarea) {
+   if (glareas[0]) {
       int n_flash = residue_selection_flash_frames_number; // default 3
       flash_intermediate_atom_pick_flag = 1;
       intermediate_flash_point = pos;
@@ -3443,8 +3443,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    if (good_settings) {
 
       GtkWidget *widget = create_rotate_translate_obj_dialog();
-      GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
-							"window1"));
+      GtkWindow *main_window = GTK_WINDOW(get_main_window());
       gtk_window_set_transient_for(GTK_WINDOW(widget), main_window);
 
       do_rot_trans_adjustments(widget);
@@ -4201,7 +4200,7 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       /* set focus to glarea widget - we need this to get key presses. */
       std::cout << "Focus on the table " << std::endl;
       // GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
-      gtk_widget_grab_focus(GTK_WIDGET(glarea)); // but set focus to the graphics.
+      gtk_widget_grab_focus(GTK_WIDGET(glareas[0])); // but set focus to the graphics.
 
       fill_rotamer_selection_buttons(dialog, atom_index, imol);
 

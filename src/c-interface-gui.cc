@@ -1102,19 +1102,15 @@ void set_graphics_window_size(int x_size, int y_size) {
       graphics_info_t g;
       g.graphics_x_size = x_size;
       g.graphics_y_size = y_size;
-      if (g.glarea) {
-	 GtkWidget *win = lookup_widget(g.glarea, "window1");
+      GtkWidget *win = g.get_main_window();
+      if (win) {
 	 GtkWindow *window = GTK_WINDOW(win);
-
          gtk_window_resize(window, x_size, y_size);
 
 	 while (gtk_events_pending())
 	    gtk_main_iteration();
 	 while (gdk_events_pending())
 	    gtk_main_iteration();
-// 	 std::cout << "DEBUG:: set " << window << " to size "
-// 		   << x_size << " " << y_size << std::endl;
-	 graphics_draw();
       }
       graphics_draw();
    }
@@ -1147,7 +1143,7 @@ void set_graphics_window_position(int x_pos, int y_pos) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
-      GtkWidget *main = lookup_widget(g.glarea, "window1");
+      GtkWidget *main = g.get_main_window();
       if (main) {
 	 gtk_widget_set_size_request(main, x_pos, y_pos);
 	 while (gtk_events_pending())
@@ -2031,9 +2027,9 @@ void set_contour_by_sigma_step_maybe(GtkWidget *window, int imol) {
 /*  ------------------------------------------------------------------------ */
 void set_transient_and_position(int widget_type, GtkWidget *window) {
 
-   if (graphics_info_t::glarea) {
-      GtkWindow *main_window =
-	 GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1"));
+   GtkWidget *main_window_widget = graphics_info_t::get_main_window();
+   if (main_window_widget) {
+      GtkWindow *main_window = GTK_WINDOW(main_window_widget);
       gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       if (widget_type == COOT_DELETE_WINDOW) {
 	 bool done_set_pos = false;
@@ -2549,8 +2545,8 @@ void toggle_pointer_distances_show_distances(GtkToggleButton *togglebutton) {
 void hide_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = 0;
-      GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
-					"model_fit_refine_toolbar_handlebox");
+      GtkWidget *handle_box = lookup_widget(graphics_info_t::get_main_window(),
+                                            "model_fit_refine_toolbar_handlebox");
 
       if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
 	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
@@ -2573,7 +2569,7 @@ void hide_modelling_toolbar() {
 void show_modelling_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = 0;
-      GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
+      GtkWidget *handle_box = lookup_widget(graphics_info_t::get_main_window(),
 					    "model_fit_refine_toolbar_handlebox");
 
       if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
@@ -2596,12 +2592,12 @@ void show_modelling_toolbar() {
 void
 show_model_toolbar_all_icons() {
 
-  GtkWidget *hsep           = lookup_widget(graphics_info_t::glarea,
-					    "model_toolbar_hsep_toolitem2");
-  GtkWidget *vsep           = lookup_widget(graphics_info_t::glarea,
-					    "model_toolbar_vsep_toolitem2");
-  GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::glarea,
-						 "model_toolbar_all_icons");
+   GtkWidget *hsep           = lookup_widget(graphics_info_t::get_main_window(),
+                                             "model_toolbar_hsep_toolitem2");
+   GtkWidget *vsep           = lookup_widget(graphics_info_t::get_main_window(),
+                                             "model_toolbar_vsep_toolitem2");
+   GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::get_main_window(),
+                                                  "model_toolbar_all_icons");
 
   for (unsigned int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
     show_model_toolbar_icon(i);
@@ -2626,12 +2622,12 @@ show_model_toolbar_all_icons() {
 void
 show_model_toolbar_main_icons() {
 
-  GtkWidget *hsep           = lookup_widget(graphics_info_t::glarea,
-					    "model_toolbar_hsep_toolitem2");
-  GtkWidget *vsep           = lookup_widget(graphics_info_t::glarea,
-					    "model_toolbar_vsep_toolitem2");
-  GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::glarea,
-						 "model_toolbar_main_icons");
+   GtkWidget *hsep           = lookup_widget(graphics_info_t::get_main_window(),
+                                             "model_toolbar_hsep_toolitem2");
+   GtkWidget *vsep           = lookup_widget(graphics_info_t::get_main_window(),
+                                             "model_toolbar_vsep_toolitem2");
+   GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::get_main_window(),
+                                                  "model_toolbar_main_icons");
 
   for (unsigned int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
     if ((*graphics_info_t::model_toolbar_icons)[i].default_show_flag == 1) {
@@ -2675,6 +2671,8 @@ update_main_toolbar_icons_menu() {
 void
 update_toolbar_icons_menu(int toolbar_index) {
 
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
     const gchar *user_defined_name;
     const gchar *main_icons_name;
     const gchar *all_icons_name;
@@ -2692,12 +2690,12 @@ update_toolbar_icons_menu(int toolbar_index) {
         toolbar_icons = *graphics_info_t::main_toolbar_icons;
     }
 
-  GtkWidget *user_defined_button = lookup_widget(graphics_info_t::glarea,
-						 user_defined_name);
-  GtkWidget *main_icons_button   = lookup_widget(graphics_info_t::glarea,
-						 main_icons_name);
-  GtkWidget *all_icons_button    = lookup_widget(graphics_info_t::glarea,
-						 all_icons_name);
+    GtkWidget *user_defined_button = lookup_widget(graphics_info_t::get_main_window(),
+                                                   user_defined_name);
+    GtkWidget *main_icons_button   = lookup_widget(graphics_info_t::get_main_window(),
+                                                   main_icons_name);
+    GtkWidget *all_icons_button    = lookup_widget(graphics_info_t::get_main_window(),
+                                                   all_icons_name);
 
   int activate = 1;   // 0 is user defined, 1 all icons, 2 main/default icons
 
@@ -3072,7 +3070,7 @@ GtkWidget *close_model_fit_dialog(GtkWidget *dialog_hbox) {
    GtkWidget *w = NULL;
    if (graphics_info_t::model_fit_refine_dialog_was_sucked) {
       GtkWidget *main_window_side_frame =
-	 lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
+	 lookup_widget(graphics_info_t::get_main_window(),
 		       "main_window_model_fit_dialog_frame");
       gtk_widget_destroy(dialog_hbox);
       gtk_widget_hide(main_window_side_frame);
@@ -3112,8 +3110,7 @@ GtkWidget *wrapped_create_model_fit_refine_dialog() {
       } else {
 	 if (graphics_info_t::model_fit_refine_dialog_stays_on_top_flag == 1) {
 	    gtk_window_set_transient_for(GTK_WINDOW(widget),
-					 GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
-								  "window1")));
+					 GTK_WINDOW(graphics_info_t::get_main_window()));
 
 	    if (graphics_info_t::model_fit_refine_x_position > -1) {
 
@@ -3213,8 +3210,7 @@ update_model_fit_refine_dialog_buttons(GtkWidget *dialog) {
 /*! \brief hide the horizontal main toolbar in the GTK2 version */
 void hide_main_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = lookup_widget(graphics_info_t::glarea,
-			        		"main_toolbar");
+      GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(), "main_toolbar");
       if (!w) {
 	 std::cout << "failed to lookup main toolbar" << std::endl;
       } else {
@@ -3228,8 +3224,7 @@ void hide_main_toolbar() {
   (the toolbar is shown by default) */
 void show_main_toolbar() {
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = lookup_widget(graphics_info_t::glarea,
-					    "main_toolbar");
+      GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(), "main_toolbar");
 
       if (!w) {
 	 std::cout << "failed to lookup main toolbar" << std::endl;
@@ -3246,8 +3241,7 @@ void set_main_toolbar_style(int istate) {
    graphics_info_t::main_toolbar_style_state = istate;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *toolbar;
-      toolbar = lookup_widget(graphics_info_t::glarea,
-                              "main_toolbar");
+      toolbar = lookup_widget(graphics_info_t::get_main_window(), "main_toolbar");
       // may have to keep text somewhere?!?! FIXME
       if (istate <= 1) {
           gtk_toolbar_set_style(GTK_TOOLBAR (toolbar), GTK_TOOLBAR_ICONS);
@@ -5089,16 +5083,18 @@ int accept_reject_dialog_docked_state(){
 
 // functions to show/hide/sensitise docked accept/reject dialog
 void set_accept_reject_dialog_docked_show(int state){
+
    if (graphics_info_t::use_graphics_interface_flag) {
-	  graphics_info_t::accept_reject_dialog_docked_show_flag = state;
-	  if (state == 0) {
-		 GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
-		 // hide the widget and make sensitive again
-		 gtk_widget_set_sensitive(dialog, TRUE);
-		 gtk_widget_hide(dialog);
-		 // reset the widget
-		 set_accept_reject_dialog(0);
-	  }
+      graphics_info_t::accept_reject_dialog_docked_show_flag = state;
+      if (state == 0) {
+         GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::get_main_window()),
+                                           "accept_reject_dialog_frame_docked");
+         // hide the widget and make sensitive again
+         gtk_widget_set_sensitive(dialog, TRUE);
+         gtk_widget_hide(dialog);
+         // reset the widget
+         set_accept_reject_dialog(0);
+      }
    }
 }
 
@@ -5265,7 +5261,11 @@ void add_additional_representation_by_widget(GtkWidget *dialog) {
 					 aas.second.second.res_no,
 					 aas.second.second.res_no,
 					 aas.second.second.ins_code);
-	 gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+         GtkWidget *glarea_0 = 0;
+         GtkWidget *glarea_1 = 0;
+         if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+         if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+	 gl_context_info_t glci(glarea_0, glarea_1);
 	 g.molecules[imol_active].add_additional_representation(representation_type,
 								bonds_box_type,
 								bond_width,
@@ -5283,7 +5283,11 @@ void add_additional_representation_by_widget(GtkWidget *dialog) {
 	 int resno_1 = atoi(resno_1s.c_str());
 	 int resno_2 = atoi(resno_2s.c_str());
 	 coot::atom_selection_info_t asi(chain_id, resno_1, resno_2, ins_code);
-	 gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+         GtkWidget *glarea_0 = 0;
+         GtkWidget *glarea_1 = 0;
+         if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+         if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+	 gl_context_info_t glci(glarea_0, glarea_1);
 	 graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									bonds_box_type,
 									bond_width,
@@ -5295,7 +5299,11 @@ void add_additional_representation_by_widget(GtkWidget *dialog) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
       coot::atom_selection_info_t asi(s);
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
       graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 								     bonds_box_type,
 								     bond_width,
@@ -5507,7 +5515,7 @@ void
 add_on_sequence_view_choices() {
 
    graphics_info_t g;
-   GtkWidget *menu = lookup_widget(GTK_WIDGET(g.glarea), "seq_view_menu");
+   GtkWidget *menu = lookup_widget(GTK_WIDGET(g.get_main_window()), "seq_view_menu");
 
    if (menu) {
       gtk_container_foreach(GTK_CONTAINER(menu),
@@ -5646,7 +5654,7 @@ void set_visible_toolbar_multi_refine_stop_button(short int state) {
 
    graphics_info_t g;
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = lookup_widget(g.glarea, "toolbar_multi_refine_stop_button");
+      GtkWidget *w = lookup_widget(g.get_main_window(), "toolbar_multi_refine_stop_button");
       if (w) {
 	 if (state) {
 	    gtk_widget_show(w);
@@ -5661,7 +5669,7 @@ void set_visible_toolbar_multi_refine_continue_button(short int state) {
 
    graphics_info_t g;
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = lookup_widget(g.glarea, "toolbar_multi_refine_continue_button");
+      GtkWidget *w = lookup_widget(g.get_main_window(), "toolbar_multi_refine_continue_button");
       if (w) {
 	 if (state) {
 	    gtk_widget_show(w);
@@ -5677,7 +5685,7 @@ void set_visible_toolbar_multi_refine_cancel_button(short int state) {
 
    graphics_info_t g;
    if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w = lookup_widget(g.glarea, "toolbar_multi_refine_cancel_button");
+      GtkWidget *w = lookup_widget(g.get_main_window(), "toolbar_multi_refine_cancel_button");
       if (w) {
 	 if (state) {
 	    gtk_widget_show(w);
@@ -5698,11 +5706,11 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
       if (bt == "cancel")
-	 w = lookup_widget(g.glarea, "toolbar_multi_refine_cancel_button");
+	 w = lookup_widget(g.get_main_window(), "toolbar_multi_refine_cancel_button");
       if (bt == "continue")
-	 w = lookup_widget(g.glarea, "toolbar_multi_refine_continue_button");
+	 w = lookup_widget(g.get_main_window(), "toolbar_multi_refine_continue_button");
       if (bt == "stop")
-	 w = lookup_widget(g.glarea, "toolbar_multi_refine_stop_button");
+	 w = lookup_widget(g.get_main_window(), "toolbar_multi_refine_stop_button");
 
       if (w) {
 	 if (state) {

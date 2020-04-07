@@ -280,7 +280,7 @@ int test_function(int i, int j) {
       std::cout << "sizeof(int): " << sizeof(int) << std::endl;
 
       if (graphics_info_t::use_graphics_interface_flag) {
-	 GtkWidget *w = lookup_widget(graphics_info_t::glarea,
+	 GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(),
 				      "main_window_model_fit_dialog_frame");
 	 if (!w) {
 	    std::cout << "failed to lookup toolbar" << std::endl;

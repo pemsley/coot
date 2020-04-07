@@ -1169,7 +1169,9 @@ setup_ligands_progress_bar() {
    gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
    gtk_container_add(GTK_CONTAINER (window), vbox);
 
-   GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+   graphics_info_t g;
+   GtkWidget *main_window = g.get_main_window();
+   // was: lookup_widget(graphics_info_t::glarea, "window1");
    gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(main_window));
 
    gtk_widget_show(vbox);

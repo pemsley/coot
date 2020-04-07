@@ -53,9 +53,8 @@ graphics_info_t::raster3d(std::string filename) {
    background.col[2] = background_colour[2];
    int width  = 600;
    int height = 600;
-   if (glarea) {
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(glarea, &allocation);
+   if (glareas.size() > 0) {
+      GtkAllocation allocation = get_glarea_allocation();
       width  = allocation.width;
       height = allocation.height;
    } 
@@ -126,8 +125,7 @@ graphics_info_t::povray(std::string filename) {
    background.col[0] = background_colour[0];
    background.col[1] = background_colour[1];
    background.col[2] = background_colour[2];
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(glarea, &allocation);
+   GtkAllocation allocation = get_glarea_allocation();
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    allocation.width,
 			    allocation.height, 
@@ -206,12 +204,9 @@ graphics_info_t::renderman(std::string filename) {
    background.col[2] = background_colour[2];
    int width = 600;
    int height = 600;
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(glarea, &allocation);
-   if (glarea) {
-      width  = allocation.width;
-      height = allocation.height;
-   }
+   GtkAllocation allocation = get_glarea_allocation();
+   width  = allocation.width;
+   height = allocation.height;
    bool is_bb = background_is_black_p(); 
 
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
@@ -793,8 +788,7 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Polar_ccp4 polar = clipper::Rotation(view_matrix_cl).polar_ccp4();
       std::cout << "kappa: " << polar.kappa() << std::endl;
 
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
       int x0 = allocation.width/2;
       int y0 = allocation.height/2;
       coot::Cartesian screen_edge1 = unproject_xyz(0, 0, 0);

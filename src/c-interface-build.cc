@@ -4786,8 +4786,8 @@ void set_secondary_structure_restraints_type(int itype) {
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string wa_name = "main_toolbar_restraints_alpha_label";
       std::string wb_name = "main_toolbar_restraints_beta_label";
-      GtkWidget *w_a = lookup_widget(graphics_info_t::glarea, wa_name.c_str());
-      GtkWidget *w_b = lookup_widget(graphics_info_t::glarea, wb_name.c_str());
+      GtkWidget *w_a = lookup_widget(graphics_info_t::get_main_window(), wa_name.c_str());
+      GtkWidget *w_b = lookup_widget(graphics_info_t::get_main_window(), wb_name.c_str());
       if (itype == 0) {
 	 gtk_widget_hide(w_a);
 	 gtk_widget_hide(w_b);

@@ -34,10 +34,10 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
    bool do_second = false;
 
    if (graphics_info_t::display_mode_use_secondary_p()) {
-      if (widget == graphics_info_t::glarea_2) {
-    do_second = true;
+      if (widget == graphics_info_t::glareas[1]) {
+         do_second = true;
       } else {
-    do_first = true;
+         do_first = true;
       }
    }
 
@@ -58,13 +58,13 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       float trans_fac = 0.038;
 
       if (do_first) {
-    view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
-    glMultMatrixf(view_skew_matrix);
-    glTranslatef(trans_fac, 0.0, 0.0);
+         view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+         glMultMatrixf(view_skew_matrix);
+         glTranslatef(trans_fac, 0.0, 0.0);
       } else {
-    view_skew_matrix[8] = -skew_factor;
-    glMultMatrixf(view_skew_matrix);
-    glTranslatef(-trans_fac, 0.0, 0.0);
+         view_skew_matrix[8] = -skew_factor;
+         glMultMatrixf(view_skew_matrix);
+         glTranslatef(-trans_fac, 0.0, 0.0);
       }
    }
 }
@@ -97,7 +97,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
       gl_context = GL_CONTEXT_SECONDARY;
 
-   gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
+   GtkWidget *glarea_0 = 0;
+   GtkWidget *glarea_1 = 0;
+   graphics_info_t g;
+   if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+   if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+   gl_context_info_t glci(glarea_0, glarea_1);
 
    bool is_bb = graphics_info_t::background_is_black_p();
 
@@ -345,7 +350,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);
 	    glDisable(GL_LIGHT2);
-	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info, graphics_info_t::time_holder_for_ligand_interactions);
+            gl_context_info_t gl_info = graphics_info_t::get_gl_context_info();
+	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
+                                                                             graphics_info_t::time_holder_for_ligand_interactions);
 	    glDisable(GL_LIGHTING);
 	 }
 
@@ -656,17 +663,17 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
       draw_hardware_stereo(widget, event);
    } else {
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-    draw_zalman_stereo(widget, event);
+         draw_zalman_stereo(widget, event);
       } else {
-    if (graphics_info_t::display_mode_use_secondary_p()) {
-       if (widget == graphics_info_t::glarea_2) {
-          draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
-       } else {
-          draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
-       }
-    } else {
-       draw_mono(widget, event, IN_STEREO_MONO);
-    }
+         if (graphics_info_t::display_mode_use_secondary_p()) {
+            if (graphics_info_t::glareas.size() == 2) {
+               draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
+            } else {
+               draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
+            }
+         } else {
+            draw_mono(widget, event, IN_STEREO_MONO);
+         }
       }
    }
    return TRUE;

@@ -163,8 +163,7 @@ int blob_under_pointer_to_screen_centre() {
          // glm::vec4 glm_front = new_unproject(-0.3);
          // glm::vec4 glm_back  = new_unproject( 1.0);
 
-         GtkAllocation allocation;
-         gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+         GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
          int w = allocation.width;
          int h = allocation.height;
 

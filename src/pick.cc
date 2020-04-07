@@ -156,8 +156,7 @@ atom_pick_gtk3(GdkEventButton *event){
 
    // modern version of getting front and back (the position in 3D space of the mouse on
    // the front clipping plane and the back clipping plane)
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(g.glarea, &allocation);
+   GtkAllocation allocation = g.get_glarea_allocation();
    int w = allocation.width;
    int h = allocation.height;
    float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;

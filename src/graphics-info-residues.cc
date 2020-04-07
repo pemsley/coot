@@ -197,8 +197,7 @@ graphics_info_t::graphics_ligand_view() {
       try {
 	 
 	 graphics_info_t g;
-         GtkAllocation allocation;
-         gtk_widget_get_allocation(glarea, &allocation);
+         GtkAllocation allocation = get_glarea_allocation();
 
 	 std::pair<lig_build::pos_t, lig_build::pos_t> ext = 
 	    g.graphics_ligand_mol.ligand_extents();

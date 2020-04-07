@@ -1038,8 +1038,7 @@ int graphics_info_t::move_reference_chain_to_symm_chain_position() {
 
    int r = 0;
    if (use_graphics_interface_flag) { 
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      GtkAllocation allocation = get_glarea_allocation();
       int iw = allocation.width;
       int ih = allocation.height;
       coot::Cartesian front = unproject_xyz(iw/2, ih/2, 0);

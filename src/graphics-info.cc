@@ -284,7 +284,7 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
       // gtk_label_set_xalign (label1, 0.0);
 
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
-      gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1")));
+      gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glareas[0], "window1")));
    }
    return w;
 }
@@ -324,8 +324,8 @@ graphics_info_t::draw_anti_aliasing() {
    // I did however change to using background_is_black_p().
 
   // first for stereo
-  if (glarea_2) {
-    if (make_current_gl_context(glarea_2)) {
+  if (glareas.size() == 2) {
+    if (make_current_gl_context(glareas[1])) {
       if (do_anti_aliasing_flag) {
          // should we also add a (quality) hint here?
          glEnable(GL_LINE_SMOOTH);
@@ -343,8 +343,8 @@ graphics_info_t::draw_anti_aliasing() {
     }
   }
   // normal path
-  if (glarea) {
-    if (make_current_gl_context(glarea)) {
+  if (glareas[0]) {
+    if (make_current_gl_context(glareas[0])) {
       if (do_anti_aliasing_flag) {
    glEnable(GL_LINE_SMOOTH);
    glEnable(GL_BLEND);
@@ -1024,7 +1024,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       gpointer user_data = 0;
       smooth_scroll_current_step = 0;
       smooth_scroll_delta = coot::Cartesian(xd, yd, zd);
-      gtk_widget_add_tick_callback(glarea, smooth_scroll_animation_func, user_data, NULL);
+      gtk_widget_add_tick_callback(glareas[0], smooth_scroll_animation_func, user_data, NULL);
 
       // restore state
       smooth_scroll_on = 0;
@@ -4503,7 +4503,7 @@ graphics_info_t::pick_cursor_real() {
       GdkCursorType c = pick_cursor_index;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
-      GdkWindow *window = gtk_widget_get_window(glarea);
+      GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
    }
@@ -4518,7 +4518,7 @@ graphics_info_t::normal_cursor() {
     GdkCursorType c = GDK_LEFT_PTR;
     GdkCursor *cursor;
     cursor = gdk_cursor_new (c);
-    GdkWindow *window = gtk_widget_get_window(glarea);
+    GdkWindow *window = gtk_widget_get_window(glareas[0]);
     gdk_window_set_cursor(window, cursor);
     // gdk_cursor_destroy (cursor);
       }
@@ -4533,7 +4533,7 @@ graphics_info_t::watch_cursor() {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
-      GdkWindow *window = gtk_widget_get_window(glarea);
+      GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
       while (gtk_events_pending()) {
@@ -4550,7 +4550,7 @@ graphics_info_t::fleur_cursor() {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
       cursor = gdk_cursor_new (c);
-      GdkWindow *window = gtk_widget_get_window(glarea);
+      GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy (cursor);
    }

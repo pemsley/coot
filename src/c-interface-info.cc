@@ -2691,21 +2691,10 @@ PyObject *get_pointer_position_frac_py() {
    if (graphics_info_t::use_graphics_interface_flag) {
 
       graphics_info_t g;
-      double x = g.GetMouseBeginX();
-      double y = g.GetMouseBeginY();
-
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(g.glarea, &allocation);
-
-      double x_max = allocation.width;
-      double y_max = allocation.height;
-
-      double xf = x/x_max;
-      double yf = y/y_max;
-
+      std::pair<double, double> xy = g.get_pointer_position_frac();
       r = PyList_New(2);
-      PyList_SetItem(r, 0, PyFloat_FromDouble(xf));
-      PyList_SetItem(r, 1, PyFloat_FromDouble(yf));
+      PyList_SetItem(r, 0, PyFloat_FromDouble(xy.first));
+      PyList_SetItem(r, 1, PyFloat_FromDouble(xy.second));
 
    }
    if (PyBool_Check(r))

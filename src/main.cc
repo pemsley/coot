@@ -186,6 +186,8 @@ void do_main_window(const command_line_data &cld) {
 
    GtkWidget *window1 = create_window1();
 
+   graphics_info_t::set_main_window(window1);
+
    if (true) {
       std::string version_string = VERSION;
       std::string main_title = "Coot " + version_string;
@@ -208,12 +210,15 @@ void do_main_window(const command_line_data &cld) {
 
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
       GtkWidget *vbox = lookup_widget(window1, "vbox1");
+      // make this a grid, so that we can have 2x3 (say) graphics contexts
       GtkWidget *graphics_hbox = lookup_widget(window1, "main_window_graphics_hbox");
 
       GtkWidget *glarea = my_gtkglarea(graphics_hbox);
       my_glarea_add_signals_and_events(glarea);
-      graphics_info_t::glarea = glarea; // have I done this elsewhere?
-
+      graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
+      std::cout << "debug:: in main glarea.size() is " << graphics_info_t::glareas.size()
+                << std::endl;
+      
       if (true) {
 	 // application icon:
 	 setup_application_icon(GTK_WINDOW(window1));
@@ -228,8 +233,11 @@ void do_main_window(const command_line_data &cld) {
          //    cld.small_screen_display = small_screen;
 
 	 gtk_widget_show(glarea);
-	 if (graphics_info_t::glarea_2)
-	    gtk_widget_show(graphics_info_t::glarea_2);
+
+         // other. Surely this never happens?
+	 if (graphics_info_t::glareas.size() > 1)
+	    gtk_widget_show(graphics_info_t::glareas[1]);
+
 	 // and setup (store) the status bar
 	 GtkWidget *sb = lookup_widget(window1, "main_window_statusbar");
 	 graphics_info_t::statusbar = sb;

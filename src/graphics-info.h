@@ -932,15 +932,17 @@ public:
    static std::queue<std::chrono::time_point<std::chrono::system_clock> > frame_draw_queue;
 
    static void graphics_draw() {
-     if (glarea) {
-       std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
-       frame_draw_queue.push(tp_now);
-       gtk_widget_queue_draw(glarea);
-       if (make_movie_flag)
-	       dump_a_movie_image();
-     }
-     if (glarea_2)
-       gtk_widget_queue_draw(glarea_2);
+      if (glareas.size()) {
+         for (unsigned int i=0; i<glareas.size(); i++) {
+            GtkWidget *glarea = glareas[i];
+            if (glarea) {
+               // frame_draw_queue.push(tp_now);
+               gtk_widget_queue_draw(glarea);
+               if (make_movie_flag)
+                  dump_a_movie_image();
+            }
+         }
+      }
    }
 
 
@@ -996,35 +998,29 @@ public:
 
    enum {GL_CONTEXT_MAIN = 0, GL_CONTEXT_SECONDARY = 1};
 
-   static bool make_gl_context_current(short int gl_context_current_request) {
-     bool r = 0;
-     if (display_mode_use_secondary_p()) {
-       if (gl_context_current_request == GL_CONTEXT_SECONDARY) {
-	 if (glarea_2) {
-	   make_current_gl_context(glarea_2);
-	 }
-       }
-       if (gl_context_current_request == GL_CONTEXT_MAIN) {
-	 if (glarea) {
-	   make_current_gl_context(glarea);
-	 }
-       }
-     } else {
-       if (gl_context_current_request == GL_CONTEXT_MAIN) {
-	 if (glarea) {
-	   make_current_gl_context(glarea);
-	 }
-       }
-     }
-     return r;
-   }
-
+   static void make_gl_context_current(bool gl_context_current_request_index);
 
 
    // ------------- main window -----------------------
-   static GtkWidget *glarea; // so that the molecule redraw function
-                             // in c-interface.cc can find which window to redraw.
-   static GtkWidget *glarea_2;
+   static GtkWidget *main_window;
+   static void set_main_window(GtkWidget *w) { main_window = w; }
+   static GtkWidget *get_main_window() { return main_window; }
+   // ------------- glareas -----------------------
+   static std::vector<GtkWidget *> glareas;
+   static GtkAllocation get_glarea_allocation() {
+      GtkAllocation allocation;
+      if (!glareas.empty())
+         gtk_widget_get_allocation(glareas[0], &allocation);
+      return allocation;
+   }
+   static gl_context_info_t get_gl_context_info() {
+      gl_context_info_t glc; // null default
+      if (glareas.size() > 0) glc.widget_1 = glareas[0];
+      if (glareas.size() > 1) glc.widget_2 = glareas[1];
+      return glc;
+   }
+
+   // ------------- statusbar -----------------------
    static GtkWidget *statusbar;
    static guint statusbar_context_id;
    static short int model_fit_refine_dialog_was_sucked;
@@ -1379,6 +1375,8 @@ public:
    void display_where_is_pointer() const {
       std::cout << "Pointer at" << RotationCentre() << std::endl;
    }
+
+   std::pair<double, double> get_pointer_position_frac() const;
 
    // x_diff and y_diff are the scale factors to the x and y
    // drag vectors.

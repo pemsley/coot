@@ -98,8 +98,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
    bool debug = false;
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
-   GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
-						     "window1"));
+   GtkWindow *main_window = GTK_WINDOW(graphics_info_t::get_main_window());
    GtkWidget *label = NULL;
 
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
@@ -426,7 +425,7 @@ wrapped_create_accept_reject_refinement_dialog() {
 
   GtkWidget *w = 0;
   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
-    w = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
+    w = lookup_widget(GTK_WIDGET(graphics_info_t::get_main_window()), "accept_reject_dialog_frame_docked");
   } else {
      if (graphics_info_t::accept_reject_dialog)
 	w = graphics_info_t::accept_reject_dialog;
@@ -591,8 +590,7 @@ graphics_info_t::store_window_position(int window_type, GtkWidget *widget) {
 void
 graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) {
 
-   GtkWindow *main_window =
-      GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1"));
+   GtkWindow *main_window = GTK_WINDOW(get_main_window());
    gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
 
    if (widget_type == COOT_EDIT_CHI_DIALOG) {
@@ -641,7 +639,7 @@ graphics_info_t::add_status_bar_text(const std::string &text) const {
 	 std::string sbt = text;
 	 // If it is "too long" chop it down.
 	 unsigned int max_width = 130;
-	 GtkWidget *main_window = lookup_widget(glarea, "window1");
+	 GtkWidget *main_window = get_main_window();
 	 // some conversion between the window width and the max text length
 	 GdkWindow *window = gtk_widget_get_window(main_window);
 	 GtkAllocation allocation;
@@ -2249,7 +2247,7 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
    // don't have toolbar equivalents of those.
    //
    if (toolbar_button_name != "not-found") {
-      GtkWidget *toggle_button = lookup_widget(graphics_info_t::glarea,
+      GtkWidget *toggle_button = lookup_widget(graphics_info_t::get_main_window(),
 					       toolbar_button_name.c_str());
 //       std::cout << "DEBUG:: toggle_button for gtk2 toolbar: " << button_name << "->"
 // 		<< toolbar_button_name << " " << toggle_button << std::endl;
@@ -4286,7 +4284,7 @@ graphics_info_t::wrapped_create_lsq_plane_dialog() {
    GtkWidget *w = create_lsq_plane_dialog();
    pick_cursor_maybe();
    lsq_plane_dialog = w;
-   GtkWindow *main_window = GTK_WINDOW(lookup_widget(glarea, "window1"));
+   GtkWindow *main_window = GTK_WINDOW(get_main_window());
    gtk_window_set_transient_for(GTK_WINDOW(w), main_window);
 
    return w;
@@ -4375,4 +4373,25 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
 	 }
       }
    }
+}
+
+
+
+std::pair<double, double>
+graphics_info_t::get_pointer_position_frac() const {
+
+   double x = GetMouseBeginX();
+   double y = GetMouseBeginY();
+
+   GtkAllocation allocation;
+   GtkWidget *glarea = glareas[0];
+   gtk_widget_get_allocation(glarea, &allocation);
+
+   double x_max = allocation.width;
+   double y_max = allocation.height;
+
+   double xf = x/x_max;
+   double yf = y/y_max;
+
+   return std::pair<double, double> (xf, yf);
 }

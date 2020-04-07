@@ -512,8 +512,7 @@ std::string graphics_info_t::browser_open_command = "firefox -remote";
 // (triple star)
 //
 
-GtkWidget *graphics_info_t::glarea = NULL;
-GtkWidget *graphics_info_t::glarea_2 = NULL;
+std::vector<GtkWidget *> graphics_info_t::glareas;
 GtkWidget *graphics_info_t::statusbar = NULL;
 guint      graphics_info_t::statusbar_context_id = 0;
 std::string graphics_info_t::main_window_title;
@@ -1613,7 +1612,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
      if (context_count == 1) {
 	drawing_area = drawing_area_tmp;
      } else {
-	graphics_info_t::glarea_2 = drawing_area_tmp;
+	graphics_info_t::glarea[1] = drawing_area_tmp;
      }
 
      {
@@ -1625,9 +1624,9 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
 
  	if (context_count > 1) { // more than the first context
 	   // std::cout << " =============== " << context_count << std::endl;
-	  if (graphics_info_t::glarea) {
- 	   gl_context_x_size = graphics_info_t::glarea->allocation.width;
- 	   gl_context_y_size = graphics_info_t::glarea->allocation.height;
+	  if (graphics_info_t::glareas[0]) {
+ 	   gl_context_x_size = graphics_info_t::glareas[0]->allocation.width;
+ 	   gl_context_y_size = graphics_info_t::glareas[0]->allocation.height;
 	  }
 	   // std::cout << " ===============" << gl_context_x_size
 	   // << " "<< gl_context_y_size << std::endl;
@@ -2123,7 +2122,7 @@ draw_crosshairs_maybe() {
       //
       // adjust for the width being strange
       GtkAllocation allocation;
-      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
       float adjustment = float(allocation.height) / float(allocation.width);
       s *= adjustment;
 
@@ -2609,7 +2608,7 @@ do_ztrans_and_clip(gdouble x, gdouble y) {
    gdouble x_diff = x - g.GetMouseBeginX();
    gdouble y_diff = y - g.GetMouseBeginY();
 
-   coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glarea);
+   coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
 
 //    // Like Frank showed me in Pymol?
 //    double slab_change = 0.05  * (x_diff + y_diff); // about 0.2?
@@ -3274,13 +3273,13 @@ void keypad_translate_xyz(short int axis, short int direction) {
 
   graphics_info_t g;
   if (axis == 3) {
-    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glarea);
+    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
     v *= 0.05 * float(direction);
     g.add_vector_to_RotationCentre(v);
   } else {
     gdouble x_diff, y_diff;
     x_diff = y_diff = 0;
-    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glarea);
+    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glareas[0]);
     if (axis == 1) x_diff = 1;
     if (axis == 2) y_diff = 1;
     g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction),
@@ -3389,7 +3388,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 // std::cout << "here in key_release_event for -" << std::endl;
 	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
@@ -3407,7 +3406,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       if (s >= 0) {
 
 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 
 	 // graphics_info_t::molecules[s].change_contour(1); // positive change
 	 // graphics_info_t::molecules[s].update_map();
@@ -4175,7 +4174,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
          if (imol_map_for_scroll>=0) {
             // short int istate = info.molecules[s].change_contour(-1);
             info.molecules[imol_map_for_scroll].pending_contour_level_change_count--;
-            int contour_idle_token = g_idle_add(idle_contour_function, info.glarea);
+            int contour_idle_token = g_idle_add(idle_contour_function, info.glareas[0]);
             float cl = info.molecules[imol_map_for_scroll].contour_level;
             info.set_density_level_string(imol_map_for_scroll, cl);
             info.display_density_level_this_image = 1;
