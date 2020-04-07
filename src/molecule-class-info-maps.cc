@@ -582,10 +582,9 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
          if (n_reams < 1) n_reams = 1;
 
          for (int ii=0; ii<n_reams; ii++) {
-            int iream_start = ii;
             threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
                                           &xmap, contour_level, dy_radius, centre,
-                                          isample_step, iream_start, n_reams, is_em_map,
+                                          isample_step, ii, n_reams, is_em_map,
                                           &draw_vector_sets));
          }
          for (int ii=0; ii<n_reams; ii++)
@@ -714,6 +713,40 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
+// static
+void
+molecule_class_info_t::depth_sort() {
+
+}
+
+void
+molecule_class_info_t::sort_map_triangles() {
+
+   // sort and update map_triangle_centres
+
+   // maybe we don't need to malloc every frame? Keep it as member data.
+
+   // std::vector<std::pair<int, TRIANGLE> map_triangle_centres; // with associated mid-points and indices
+
+
+#if 0
+   // now update the gl buffer:
+
+   GLenum err = glGetError();
+   glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+   err = glGetError();
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
+   err = glGetError();
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
+                &indices_for_triangles[0], GL_STATIC_DRAW);
+   err = glGetError();
+
+#endif
+
+   // delete [] indices_for_triangles;
+}
+
+
 
 void
 molecule_class_info_t::setup_glsl_map_rendering() {
@@ -756,6 +789,19 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
+         // put the triangle mid-points into a single vector
+         int idx_for_mid_points = 0;
+         // std::vector<std::pair<int, TRIANGLE> > map_triangle_centres(sum_tri_con_triangles);
+         map_triangle_centres.resize(sum_tri_con_triangles); // class member
+         for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+            const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
+            for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+               map_triangle_centres[idx_for_mid_points].first = idx_for_mid_points;
+               map_triangle_centres[idx_for_mid_points].second = tri_con.point_indices[j];
+               idx_for_mid_points++;
+            }
+         }
+
          // transfer the points
          float *points = new float[3 * sum_tri_con_points];
          // std::cout << "debug:: sum_tri_con_points: " << sum_tri_con_points << std::endl;
@@ -788,12 +834,12 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
             int idx_base_for_points = idx_base_for_points_vec[i];
             for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
-               indices_for_lines[6*idx_for_indices  ] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[0];
-               indices_for_lines[6*idx_for_indices+1] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[1];
-               indices_for_lines[6*idx_for_indices+2] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[1];
-               indices_for_lines[6*idx_for_indices+3] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[2];
-               indices_for_lines[6*idx_for_indices+4] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[2];
-               indices_for_lines[6*idx_for_indices+5] = 1 * idx_base_for_points + tri_con.point_indices[j].pointID[0];
+               indices_for_lines[6*idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+               indices_for_lines[6*idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+               indices_for_lines[6*idx_for_indices+2] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+               indices_for_lines[6*idx_for_indices+3] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+               indices_for_lines[6*idx_for_indices+4] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+               indices_for_lines[6*idx_for_indices+5] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
                idx_for_indices++;
             }
          }
@@ -941,6 +987,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
 
+         // indices for map lines
          glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
@@ -953,6 +1000,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
 
+
+         // indices for map triangles
 
          glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
          err = glGetError();

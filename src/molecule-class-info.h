@@ -1274,6 +1274,9 @@ public:        //                      public
    // no need for consolidation before draw time.
    // just lines: std::vector<coot::CartesianPairInfo> draw_vector_sets;
    std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+   std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
+   void sort_map_triangles();
+   static void depth_sort();
 
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
    // const coot::CartesianPair* diff_map_draw_vectors;
