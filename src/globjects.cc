@@ -1448,19 +1448,6 @@ framebuffer graphics_info_t::screen_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer;
 bool graphics_info_t::perspective_projection_flag = false;
 
-// GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
-//programID_for_central_cube should be
-Shader graphics_info_t::shader_for_maps;
-Shader graphics_info_t::shader_for_models;
-Shader graphics_info_t::shader_for_central_cube;
-Shader graphics_info_t::shader_for_origin_cube;
-Shader graphics_info_t::shader_for_hud_text;
-Shader graphics_info_t::shader_for_screen;
-Shader graphics_info_t::shader_for_blur;
-std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
-long graphics_info_t::frame_counter = 0;
-long graphics_info_t::frame_counter_at_last_display = 0;
-std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
 // --------------------------------------------------------------------------------------------
 

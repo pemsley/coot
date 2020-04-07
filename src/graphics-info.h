@@ -930,6 +930,8 @@ public:
    static bool do_expose_swap_buffers_flag;
 
    static std::queue<std::chrono::time_point<std::chrono::system_clock> > frame_draw_queue;
+   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
+   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time_for_per_second_counter;
 
    static void graphics_draw() {
       if (glareas.size()) {
@@ -1006,6 +1008,7 @@ public:
    static void set_main_window(GtkWidget *w) { main_window = w; }
    static GtkWidget *get_main_window() { return main_window; }
    // ------------- glareas -----------------------
+   std::chrono::time_point<std::chrono::system_clock> tp_now;
    static std::vector<GtkWidget *> glareas;
    static GtkAllocation get_glarea_allocation() {
       GtkAllocation allocation;
@@ -4028,7 +4031,6 @@ string   static std::string sessionid;
    static framebuffer screen_framebuffer;
    static framebuffer blur_framebuffer;
    static bool perspective_projection_flag;
-   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
    void init_shaders();
 
