@@ -38,10 +38,10 @@ Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name)
 }
 
 void Shader::init(const std::string &file_name, Shader::Entity_t e) {
-   // don't init if we have already been init.
-   // (maybe this is not the best way of dealing with double-reading)
-   if (! VertexSource.empty())
-      return;
+
+   // clear then go
+   VertexSource.clear();
+   FragmentSource.clear();
 
    std::cout << "::: Shader compile " << file_name << std::endl;
 

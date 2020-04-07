@@ -48,18 +48,8 @@ float quadVertices[] = { // vertex attributes for a quad that fills the entire s
 
 void init_shaders() {
 
-   // put this function into graphics_info_t at some stage.
-
-   std::cout << "--------------------- init_shaders() --------" << std::endl;
-   graphics_info_t::shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
-   graphics_info_t::shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
-   graphics_info_t::shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
-   graphics_info_t::shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
-   graphics_info_t::shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
-   // we use the above to make an image/texture in the framebuffer and use then
-   // shader_for_screen to convert that framebuffer to the screen buffer.
-   graphics_info_t::shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
-   graphics_info_t::shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
+   graphics_info_t g;
+   g.init_shaders();
 
 }
 
@@ -1240,12 +1230,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     std::cout << "key-binding for key " << it->first.gdk_key << " " << it->first.ctrl_is_pressed << " " << kb.description
-               << std::endl;
-     if (kb.type == key_bindings_t::BUILT_IN)
-       (kb.func)();
+     std::cout << "key-binding for key " << it->first.gdk_key << " "
+               << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+     kb.run();
    } else {
-      std::cout << "not found " << std::endl;
+      std::cout << "not found " << event->keyval << std::endl;
    }
 
 

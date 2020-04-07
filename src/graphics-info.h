@@ -4030,6 +4030,7 @@ string   static std::string sessionid;
    static bool perspective_projection_flag;
    static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
    // ---------------------------------------------
+   void init_shaders();
 
    static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
    void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
@@ -4104,6 +4105,9 @@ string   static std::string sessionid;
    void load_freetype_font_textures();
 
    static std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
+   static void add_key_binding(keyboard_key_t k, key_bindings_t kb) {
+      key_bindings_map[k] = kb;
+   }
 };
 
 

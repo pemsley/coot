@@ -945,6 +945,8 @@ int model_toolbar_style_state();
 void set_main_toolbar_style(int state);
 int main_toolbar_style_state();
 
+
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */

@@ -29,3 +29,14 @@ SCM coot_has_python_p();
 #ifdef USE_GUILE
 SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
 #endif
+
+#ifdef USE_PYTHON
+void add_key_binding_gtk3_py(int key, int ctrl_key, PyObject *func, const std::string &description);
+#endif
+
+#ifdef USE_GUILE
+void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::string &description);
+#endif
+
+void reload_shaders();
+
