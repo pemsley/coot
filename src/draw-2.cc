@@ -269,18 +269,30 @@ glm::mat4 get_molecule_mvp() {
 //
 glm::vec3 get_eye_position() {
 
-   glm::vec3 test_vector_1(0.0, 0.0, 1.0);
-   glm::vec3 test_vector_2(1.0, 1.0, 0.0);
+   if (! graphics_info_t::perspective_projection_flag) {
 
-   glm::mat4 vr = get_view_rotation();
-   glm::vec4 rot_test_vector_1 = glm::vec4(test_vector_1, 1.0) * vr;
-   glm::vec4 rot_test_vector_2 = glm::vec4(test_vector_2, 1.0) * vr;
+      // orthograph eye position is inferred from centre psotion
+      // and zoom and view rotation.
 
-   glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
-   glm::vec3 rc = graphics_info_t::get_rotation_centre();
-   ep += rc;
+      glm::vec3 test_vector_1(0.0, 0.0, 1.0);
+      glm::vec3 test_vector_2(1.0, 1.0, 0.0);
 
-   return ep;
+      glm::mat4 vr = get_view_rotation();
+      glm::vec4 rot_test_vector_1 = glm::vec4(test_vector_1, 1.0) * vr;
+      glm::vec4 rot_test_vector_2 = glm::vec4(test_vector_2, 1.0) * vr;
+
+      glm::vec3 ep = graphics_info_t::zoom * glm::vec3(rot_test_vector_1);
+      glm::vec3 rc = graphics_info_t::get_rotation_centre();
+      ep += rc;
+
+      return ep;
+   } else {
+
+      // Perspective projection we manipulate the eye position directly
+
+      return graphics_info_t::eye_position;
+
+   }
 
 }
 
