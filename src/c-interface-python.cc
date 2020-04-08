@@ -64,9 +64,8 @@ char *myPyString_AsString(PyObject *r) {
 
 PyObject * display_python(PyObject *o) {
 
-   PyObject *dest;
    const char *mess = "object: %s\n";
-   dest = myPyString_FromString(mess);
+   PyObject *dest = myPyString_FromString(mess);
    return PyUnicode_Format(dest, o);
 }
 

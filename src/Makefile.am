@@ -478,6 +478,7 @@ coot_bin_SOURCES = \
 	history_list.hh		 \
         idles.hh                 \
 	interface.h              \
+	key-bindings.cc		 \
 	key-bindings.hh		 \
         manipulation-modes.hh    \
 	lsq-dialog-values.hh     \

@@ -31,7 +31,9 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
 #endif
 
 #ifdef USE_PYTHON
-void add_key_binding_gtk3_py(int key, int ctrl_key, PyObject *func, const std::string &description);
+void add_key_binding_gtk3_py(int key, int ctrl_key,
+                             const std::string &function_as_string,
+                             const std::string &description);
 #endif
 
 #ifdef USE_GUILE
