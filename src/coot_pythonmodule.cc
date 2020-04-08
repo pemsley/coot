@@ -219,6 +219,8 @@ PyInit_myextension(void)
         Py_DECREF(module);
         return NULL;
     }
+    if (PyErr_Occurred())
+       PyErr_PrintEx(0);
 
     std::cout << "done PyInit_myextension() " << module << std::endl;
     return module;
@@ -228,9 +230,11 @@ PyInit_myextension(void)
 void
 initcoot_python_gobject() {
 
-   if (false) {
+   if (true) {
       PyObject *o = PyInit_myextension();
       PyObject *me = PyImport_ImportModule("myextension");
+      if (PyErr_Occurred())
+         PyErr_PrintEx(0);
       
       std::cout << "me: " << me << std::endl;
    }

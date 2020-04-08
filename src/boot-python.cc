@@ -31,7 +31,7 @@ void start_command_line_python_maybe(bool command_line_mode_flag, int argc, char
    wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)));
    _argv[0] = Py_DecodeLocale(argv[0], NULL);
 
-   Py_Main(1, _argv); // do I want command line argumesents? If so, see coot-setup-python.cc
+   Py_Main(1, _argv); // do I want command line arguments? If so, see coot-setup-python.cc
                   // to see how to make wchar_** args
 
 #endif

@@ -947,10 +947,13 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    g.SetMouseBegin(event->x,event->y);
    g.SetMouseClicked(event->x, event->y); // Hmm
    int x_as_int, y_as_int;
-   GdkModifierType state;
-   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+   GdkModifierType mask;
+   // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state); Old-style - keep for grepping
+   GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+   GdkDevice *mouse = gdk_seat_get_pointer(seat);
+   gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
 
-   g.check_if_in_range_defines(event, state);
+   g.check_if_in_range_defines(event, mask);
    return TRUE;
 }
 
@@ -1207,6 +1210,8 @@ setup_key_bindings() {
 
    auto l15 = []() { safe_python_command("skip_to_next_ncs_chain('backward')"); };
 
+   auto l16 = []() { undo_last_move(); };
+
    // do front and back clipping planes forward and backward
    // what keys to attach that to though?
 
@@ -1225,13 +1230,24 @@ setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
 
    // control keys
-   
+
    auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); };
    key_bindings_t go_to_blob_key_binding(lc1, "Show Go To Residue Keyboarding Window");
-   std::pair<keyboard_key_t, key_bindings_t> p(keyboard_key_t(GDK_KEY_g, true), go_to_blob_key_binding);
-   kb_vec.push_back(p);
+   std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_blob_key_binding);
+   kb_vec.push_back(p1);
+
+   auto lc2 = []() { apply_undo(); };
+   key_bindings_t undo_key_binding(lc2, "Undo");
+   std::pair<keyboard_key_t, key_bindings_t> p2(keyboard_key_t(GDK_KEY_z, true), undo_key_binding);
+   kb_vec.push_back(p2);
+
+   auto lc3 = []() { apply_redo(); };
+   key_bindings_t redo_key_binding(lc3, "Redo");
+   std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
+   kb_vec.push_back(p3);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); it++)
