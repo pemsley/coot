@@ -1148,8 +1148,11 @@ void move_backwards() {
    translate_in_screen_z(1.0);
 }
 
+#include "cc-interface-scripting.hh"
 void
 setup_key_bindings() {
+
+   graphics_info_t g;
 
    auto l1 = []() { adjust_clipping(0.3); };
    auto l2 = []() { adjust_clipping(-0.3); };
@@ -1200,6 +1203,10 @@ setup_key_bindings() {
 
    auto l13 = []() { move_backwards(); };
 
+   auto l14 = []() { safe_python_command("skip_to_next_ncs_chain('forward')"); };
+
+   auto l15 = []() { safe_python_command("skip_to_next_ncs_chain('backward')"); };
+
    // do front and back clipping planes forward and backward
    // what keys to attach that to though?
 
@@ -1216,15 +1223,16 @@ setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
 
    // control keys
    
-   auto l14 = []() { show_go_to_residue_keyboarding_mode_window(); };
-   key_bindings_t go_to_blob_key_binding(l14, "Show Go To Residue Keyboarding Window");
+   auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); };
+   key_bindings_t go_to_blob_key_binding(lc1, "Show Go To Residue Keyboarding Window");
    std::pair<keyboard_key_t, key_bindings_t> p(keyboard_key_t(GDK_KEY_g, true), go_to_blob_key_binding);
    kb_vec.push_back(p);
 
-   graphics_info_t g;
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); it++)
      g.key_bindings_map[it->first] = it->second;

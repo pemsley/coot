@@ -24,8 +24,6 @@
 #endif
 #include <iostream>
 
-#if 1 // was #ifdef USE_PYGTK, we want a test for PyGObject, I suppose.
-
 #include <gtk/gtk.h>
 
 #include <pygobject-3.0/pygobject.h>
@@ -160,62 +158,83 @@ PyObject *some_test_function_py(PyObject *a, PyObject *b) {
    return o;
 }
 
+
+struct module_state {
+    PyObject *error;
+};
+
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+
+static PyObject *
+error_out(PyObject *m) {
+    struct module_state *st = GETSTATE(m);
+    PyErr_SetString(st->error, "something bad happened");
+    return NULL;
+}
+
+static PyMethodDef myextension_methods[] = {
+    {"error_out", (PyCFunction)error_out, METH_NOARGS, NULL},
+    {NULL, NULL}
+};
+
+
+static int myextension_traverse(PyObject *m, visitproc visit, void *arg) {
+    Py_VISIT(GETSTATE(m)->error);
+    return 0;
+}
+
+static int myextension_clear(PyObject *m) {
+    Py_CLEAR(GETSTATE(m)->error);
+    return 0;
+}
+
+
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "myextension",
+        NULL,
+        sizeof(struct module_state),
+        myextension_methods,
+        NULL,
+        myextension_traverse,
+        myextension_clear,
+        NULL
+};
+
+
+PyObject *
+PyInit_myextension(void)
+{
+
+   std::cout << "starting PyInit_myextension() " << std::endl;
+
+    PyObject *module = PyModule_Create(&moduledef);
+
+    if (module == NULL)
+        return NULL;
+    struct module_state *st = GETSTATE(module);
+
+    st->error = PyErr_NewException("myextension.Error", NULL, NULL);
+    if (st->error == NULL) {
+        Py_DECREF(module);
+        return NULL;
+    }
+
+    std::cout << "done PyInit_myextension() " << module << std::endl;
+    return module;
+}
+
+
 void
 initcoot_python_gobject() {
 
-   return;
-   
-   std::cout << "-------------------- in initcoot_python() " << std::endl;
-
-   int req_major = -1, req_minor = -1, req_micro = -1;
-   pygobject_init(req_major, req_minor, req_micro);
-
-   PyMethodDef XYZMethods[] = {
-	 { "some_test_function", some_test_function_py, METH_O, NULL},
-	 { NULL, NULL, 0, NULL }
-   };
-
-   /* Python2
-   PyObject *m = Py_InitModule3("coot_python", coot_python_functions);
-   PyObject *d = PyModule_GetDict(m);
-   coot_python_register_classes (d);
-   */
-
-   static struct PyModuleDef XYZ_module_e = {
-    PyModuleDef_HEAD_INIT,
-    "_xyz_coot",
-    "Some Doc String Here",
-    -1,
-    XYZMethods,
-    NULL, // reload
-    NULL, // traverse
-    NULL, // clear
-    NULL  // free
-   };
-
-   struct PyModuleDef *XYZ_module = new struct PyModuleDef;
-   *XYZ_module = XYZ_module_e;
-
-   PyObject *m = PyModule_Create(XYZ_module);
-
-   if (m) {
-
-      PyObject *pMap = NULL;
-      pMap = PyDict_New();
-      Py_INCREF(pMap);
-      int mao = PyModule_AddObject(m, "spam", pMap);
-      if (mao < 0) {
-         // Py_DECREF(pMap);
-      } else {
-         std::cout << "WARNING:: PyModule_AddObject() returned bad " << std::endl;
-      }
-   } else {
-      std::cout << "WARNING:: PyModule_Create() returned null " << std::endl;
-   }
-   if (PyErr_Occurred()) {
-      Py_FatalError ("can't initialise module _xyz_coot");
+   if (false) {
+      PyObject *o = PyInit_myextension();
+      PyObject *me = PyImport_ImportModule("myextension");
+      
+      std::cout << "me: " << me << std::endl;
    }
 }
 
 
-#endif // USE_PYGTK
+// #endif // USE_PYGTK

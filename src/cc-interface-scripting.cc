@@ -21,19 +21,15 @@
 // put other scripting functions in here
 
 #ifdef USE_PYTHON
-
 // Prefered:
-// void add_key_binding_gtk3_py(int key, int ctrl_key, PyObject *func, const std::string &description) {
-// Current
-void add_key_binding_gtk3_py(int key, int ctrl_key, const std::string &function_as_string, const std::string &description) {
+void add_key_binding_gtk3_py(int key, int ctrl_key, PyObject *func, const std::string &description) {
 
    keyboard_key_t k(key, ctrl_key);
-   // key_bindings_t kb(func, description);
-   key_bindings_t kb(function_as_string, description);
+   key_bindings_t kb(func, description);
    graphics_info_t::add_key_binding(k, kb);
-
 }
 #endif
+
 
 #ifdef USE_GUILE
 void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::string &description) {

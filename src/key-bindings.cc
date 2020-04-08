@@ -14,25 +14,30 @@ key_bindings_t::run() const {
         func();
 #ifdef USE_PYTHON
      if (type == PYTHON) {
-        PyRun_SimpleString(scripting_function_text.c_str());
-     }
+        if (! scripting_function_text.empty())
+           PyRun_SimpleString(scripting_function_text.c_str());
 
-     // This is when we get a propr function - but (currently) if I pass that, then
-     // the error messages disappear
+        // This is when we get a propr function - but (currently) if I pass that, then
+        // the error messages disappear
 
-     // if (type == PYTHON) {
-     if (false) {
-        // PyRun_SimpleString(scripting_function_text.c_str()); // no
-        PyObject *arg_list = PyTuple_New(0);
-        PyObject *result_py = PyEval_CallObject(function_py, arg_list);
-        const char *mess = "object: %s\n";
-        PyObject *dest = PyUnicode_FromString(mess);
-        PyObject *d_py = PyUnicode_Format(dest, result_py);
-        if (PyUnicode_Check(d_py)) {
-           std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(d_py));
-           std::cout << s << std::endl;
-        } else {
-           std::cout << "d_py was not unicode\n";
+        if (function_py) {
+           PyObject *arg_list = PyTuple_New(0);
+           PyObject *result_py = PyEval_CallObject(function_py, arg_list);
+           if (result_py == NULL) {
+              std::cout << "result_py was null" << std::endl;
+              if (PyErr_Occurred())
+                 PyErr_PrintEx(0);
+           } else {
+              const char *mess = "object: %s\n";
+              PyObject *dest = PyUnicode_FromString(mess);
+              PyObject *d_py = PyUnicode_Format(dest, result_py);
+              if (PyUnicode_Check(d_py)) {
+                 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(d_py));
+                 std::cout << s << std::endl;
+              } else {
+                 std::cout << "d_py was not unicode\n";
+              }
+           }
         }
      }
 
