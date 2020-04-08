@@ -40,18 +40,10 @@ PyObject * _wrap_main_hbox(PyObject *self);
 // static/const?
 PyMethodDef coot_python_functions[] = {
 
-   { "main_menubar", (PyCFunction)_wrap_main_menubar, METH_NOARGS,
-     NULL },
-   
-   { "main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS,
-     NULL },
-
-   { "main_toolbar", (PyCFunction)_wrap_main_toolbar, METH_NOARGS,
-     NULL },
-
-   { "main_hbox", (PyCFunction)_wrap_main_hbox, METH_NOARGS,
-     NULL },
-
+   { "main_menubar",   (PyCFunction)_wrap_main_menubar,   METH_NOARGS, NULL },
+   { "main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL },
+   { "main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL },
+   { "main_hbox",      (PyCFunction)_wrap_main_hbox,      METH_NOARGS, NULL },
    { NULL, NULL, 0, NULL }
 };
 
@@ -84,10 +76,7 @@ PyTypeObject *_PyGObject_Type;
 PyObject *
 _wrap_main_menubar(PyObject *self)
 {
-   GtkWidget *ret;
-
-   ret = main_menubar();
-   
+   GtkWidget *ret = main_menubar();
    /* pygobject_new handles NULL checking */
    return pygobject_new((GObject *)ret);
 }
@@ -95,10 +84,7 @@ _wrap_main_menubar(PyObject *self)
 PyObject *
 _wrap_main_statusbar(PyObject *self)
 {
-   GtkWidget *ret;
-   
-   ret = main_statusbar();
-   
+   GtkWidget *ret = main_statusbar();
    /* pygobject_new handles NULL checking */
    return pygobject_new((GObject *)ret);
 }
@@ -106,22 +92,20 @@ _wrap_main_statusbar(PyObject *self)
 PyObject *
 _wrap_main_toolbar(PyObject *self)
 {
-   GtkWidget *ret;
-   
-   
-   ret = main_toolbar();
-   
+   GtkWidget *ret = main_toolbar();
    /* pygobject_new handles NULL checking */
-   return pygobject_new((GObject *)ret);
+   return pygobject_new(G_OBJECT(ret));
 }
 
 PyObject *
-_wrap_main_hbox(PyObject *self)
-{
-   GtkWidget *ret;
-   ret = main_hbox();
+_wrap_main_hbox(PyObject *self) {
+   GtkWidget *ret = main_hbox();
+   std::cout << "debug:: in _wrap_main_hbox() ret is " << ret << std::endl;
    /* pygobject_new handles NULL checking */
-   return pygobject_new((GObject *)ret);
+
+   // return pygobject_new(static_cast<GObject *>(ret));
+
+   return pygobject_new(G_OBJECT(ret));
 }
 
 
@@ -173,10 +157,13 @@ error_out(PyObject *m) {
 }
 
 static PyMethodDef myextension_methods[] = {
-    {"error_out", (PyCFunction)error_out, METH_NOARGS, NULL},
-    {NULL, NULL}
+    {"main_menubar",   (PyCFunction)_wrap_main_menubar,   METH_NOARGS, NULL},
+    {"main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL},
+    {"main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL},
+    {"main_hbox",      (PyCFunction)_wrap_main_hbox,      METH_NOARGS, NULL},
+    {"error_out",      (PyCFunction)error_out,            METH_NOARGS, NULL},
+    {NULL, NULL, 0, NULL}
 };
-
 
 static int myextension_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
@@ -187,7 +174,6 @@ static int myextension_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
-
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
@@ -203,27 +189,26 @@ static struct PyModuleDef moduledef = {
 
 
 PyObject *
-PyInit_myextension(void)
-{
+PyInit_myextension(void) {
 
    std::cout << "starting PyInit_myextension() " << std::endl;
 
-    PyObject *module = PyModule_Create(&moduledef);
+   PyObject *module = PyModule_Create(&moduledef);
 
-    if (module == NULL)
-        return NULL;
-    struct module_state *st = GETSTATE(module);
+   if (module == NULL)
+      return NULL;
+   struct module_state *st = GETSTATE(module);
 
-    st->error = PyErr_NewException("myextension.Error", NULL, NULL);
-    if (st->error == NULL) {
-        Py_DECREF(module);
-        return NULL;
-    }
-    if (PyErr_Occurred())
-       PyErr_PrintEx(0);
+   st->error = PyErr_NewException("myextension.Error", NULL, NULL);
+   if (st->error == NULL) {
+      Py_DECREF(module);
+      return NULL;
+   }
+   if (PyErr_Occurred())
+      PyErr_PrintEx(0);
 
-    std::cout << "done PyInit_myextension() " << module << std::endl;
-    return module;
+   std::cout << "done PyInit_myextension() " << module << std::endl;
+   return module;
 }
 
 
@@ -232,11 +217,14 @@ initcoot_python_gobject() {
 
    if (true) {
       PyObject *o = PyInit_myextension();
-      PyObject *me = PyImport_ImportModule("myextension");
-      if (PyErr_Occurred())
-         PyErr_PrintEx(0);
-      
-      std::cout << "me: " << me << std::endl;
+
+      // Insert this into sys.modules directly
+      PyObject *sys = PyImport_ImportModule("sys");
+      PyObject *modules = PyObject_GetAttrString(sys, "modules");
+      PyDict_SetItemString(modules, "myextension", o);
+      Py_DECREF(modules);
+      Py_DECREF(sys);
+
    }
 }
 

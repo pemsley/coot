@@ -152,6 +152,8 @@ void renumber_waters(int imol) {
    positive blobs.  Useful function if bound to a key. */
 int blob_under_pointer_to_screen_centre() {
 
+   // a quick slide would be better than a jump
+
    int r = 0;
    if (graphics_info_t::use_graphics_interface_flag) {
       int imol_map = imol_refinement_map();
@@ -172,8 +174,9 @@ int blob_under_pointer_to_screen_centre() {
 
          float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
          float mouseY_2 = g.mouse_current_y  / (h * 0.5f) - 1.0f;
-         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
-         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
+         // I revered the sign here - it does the right thing now.
+         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
+         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
          glm::vec4 worldPos_1 = vp_inv * screenPos_1;
          glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 

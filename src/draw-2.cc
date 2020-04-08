@@ -1206,9 +1206,9 @@ setup_key_bindings() {
 
    auto l13 = []() { move_backwards(); };
 
-   auto l14 = []() { safe_python_command("skip_to_next_ncs_chain('forward')"); };
+   auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); };
 
-   auto l15 = []() { safe_python_command("skip_to_next_ncs_chain('backward')"); };
+   auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); };
 
    auto l16 = []() { undo_last_move(); };
 
@@ -1235,8 +1235,8 @@ setup_key_bindings() {
    // control keys
 
    auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); };
-   key_bindings_t go_to_blob_key_binding(lc1, "Show Go To Residue Keyboarding Window");
-   std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_blob_key_binding);
+   key_bindings_t go_to_residue_key_binding(lc1, "Show Go To Residue Keyboarding Window");
+   std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_residue_key_binding);
    kb_vec.push_back(p1);
 
    auto lc2 = []() { apply_undo(); };

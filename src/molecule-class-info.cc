@@ -3801,6 +3801,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    for (int i=0; i<bonds_box.num_colours; i++) {
       index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
       if (i == 0) index_to_colour[i] = glm::vec4(0.7, 0.7, 0.5, 1.0);
+      // if (i == 0) index_to_colour[i] = glm::vec4(0.2, 0.2, 0.2, 1.0); // replace, meh. too dark
       if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
       if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
       if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
