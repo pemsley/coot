@@ -16,6 +16,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import coot
+from redefine_functions import *
 
 def find_first_model_molecule():
 
@@ -80,11 +82,11 @@ def skip_to_next_ncs_chain(direction):
           return chain_ids(imol)
 
   # First, what is imol? imol is the go to atom molecule
-  imol = go_to_atom_molecule_number()
-  this_chain_id = go_to_atom_chain_id()
+  imol = coot.go_to_atom_molecule_number()
+  this_chain_id = coot.go_to_atom_chain_id()
   chains = get_chain_id_list(imol, this_chain_id)
   # try to get ghosts to be able to apply orientations
-  make_ncs_ghosts_maybe(imol)
+  coot.make_ncs_ghosts_maybe(imol)
   found_atom_state = 0
   if (not chains):
       print("BL WARNING:: empty set of chains!!! This should never happen.")
@@ -109,10 +111,10 @@ def skip_to_next_ncs_chain(direction):
           break
       else:
           if (not (try_next_chain == this_chain_id)):
-              found_atom_state = set_go_to_atom_chain_residue_atom_name_no_redraw(
+              found_atom_state = coot.set_go_to_atom_chain_residue_atom_name_no_redraw(
                   try_next_chain,
-                  go_to_atom_residue_number(),
-                  go_to_atom_atom_name(),
+                  coot.go_to_atom_residue_number(),
+                  coot.go_to_atom_atom_name(),
                   0)
               
               # now, did that set-go-to-atom function work (was there a
@@ -132,7 +134,7 @@ def skip_to_next_ncs_chain(direction):
               forward_flag = 0
               if (direction == "forward"):
                   forward_flag = 1
-              apply_ncs_to_view_orientation_and_screen_centre(imol, this_chain_id, next_chain, forward_flag)
+              coot.apply_ncs_to_view_orientation_and_screen_centre(imol, this_chain_id, next_chain, forward_flag)
               break
   
             
