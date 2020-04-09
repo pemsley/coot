@@ -11726,6 +11726,8 @@ on_map_opacity_hscale_value_changed    (GtkRange        *range,
 
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
+  if (fvalue > 0.99)
+    fvalue = 1.0;
   set_solid_density_surface_opacity(imol, fvalue);
 
 }

@@ -8,7 +8,8 @@
 
 Shader::Shader() {
    program_id = 0; // unset
-   zoom_uniform_location = -999999; // for debugging
+   zoom_uniform_location = -999; // for debugging
+   map_opacity_uniform_location = -999;
 }
 
 Shader::Shader(const std::string &file_name, Shader::Entity_t e) {
@@ -139,23 +140,27 @@ void Shader::set_uniform_locations() {
       std::cout << "debug:: set_uniform_locations() " << mvp_uniform_location << " " << view_rotation_uniform_location
                 << " " << background_colour_uniform_location << std::endl;
    }
+   if (entity_type == Entity_t::MAP) {
+      map_opacity_uniform_location = glGetUniformLocation_internal("map_opacity");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1b: " << err << std::endl;
+   }
    if (entity_type == Entity_t::INFRASTRUCTURE) {
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1c: " << err << std::endl;
       view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 2c: " << err << std::endl;
       line_colour_uniform_location = glGetUniformLocation_internal("line_colour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3c: " << err << std::endl;
       background_colour_uniform_location = glGetUniformLocation_internal("background_colour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4c: " << err << std::endl;
    }
    if (entity_type == Entity_t::HUD_TEXT) {
       hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5d: " << err << std::endl;
    }
    if (entity_type == Entity_t::SCREEN) {
       zoom_uniform_location = glGetUniformLocation_internal("zoom");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6e: " << err << std::endl;
    }
 }
 

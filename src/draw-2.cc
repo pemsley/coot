@@ -354,7 +354,8 @@ void draw_map_molecules(bool draw_transparent_maps) {
 
    GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
    glUseProgram(pid);
-   err = glGetError(); if (err) std::cout << "   gtk3_draw_map_molecules() glUseProgram with GL err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "gtk3_draw_map_molecules() glUseProgram with GL err "
+                                          << err << std::endl;
 
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
@@ -372,6 +373,7 @@ void draw_map_molecules(bool draw_transparent_maps) {
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+         if (! m.draw_it_for_map) continue;
          if (! m.is_an_opaque_map())
             n_transparent_maps++;
       }
@@ -385,14 +387,13 @@ void draw_map_molecules(bool draw_transparent_maps) {
    if (!draw_transparent_maps || n_transparent_maps > 0) {
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-         if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          const molecule_class_info_t &m = graphics_info_t::molecules[ii];
-#if 0
-         if (draw_transparent_maps)
-            if (! m.is_a_transparent_map)
-               continue;
-#endif
+         if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          if (! m.draw_it_for_map) continue;
+         if (draw_transparent_maps)
+            if (m.is_an_opaque_map())
+               continue; // not this round
+
          if (m.n_vertices_for_map_VertexArray > 0) {
 
             bool draw_with_lines = true;
@@ -420,13 +421,13 @@ void draw_map_molecules(bool draw_transparent_maps) {
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
-#if 0
-               // opacity:
-               GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.opacity_uniform_location;
-               float opacity = m.map_opacity;
-               glUniformf(opacity_uniform_location, opacity)
-               err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity " << err << std::endl;
-#endif
+               // opacity: (I can't get this to work for lines)
+               GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
+               float opacity = m.density_surface_opacity;
+               glUniform1f(opacity_uniform_location, opacity);
+               err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
+                                                      << err << std::endl;
+
                GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
                glm::vec4 ep = new_unproject(0,0,-1);
                glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
@@ -467,6 +468,13 @@ void draw_map_molecules(bool draw_transparent_maps) {
                glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+
+               // opacity:
+               GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
+               float opacity = m.density_surface_opacity;
+               glUniform1f(opacity_uniform_location, opacity);
+               err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
+                                                      << err << std::endl;
 
                GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
                glm::vec4 ep = new_unproject(0,0,-1);
