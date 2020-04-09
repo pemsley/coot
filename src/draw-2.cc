@@ -346,15 +346,15 @@ glm::mat4 get_view_rotation() {
    return view_matrix;
 }
 
-void draw_map_molecules() {
-   glLineWidth(0.2f);
+void draw_map_molecules(bool draw_transparent_maps) {
+
+   glLineWidth(1.20f);
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
    GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
    glUseProgram(pid);
    err = glGetError(); if (err) std::cout << "   gtk3_draw_map_molecules() glUseProgram with GL err " << err << std::endl;
-
 
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
@@ -363,101 +363,128 @@ void draw_map_molecules() {
    glDepthFunc(GL_LESS);
 
    // run throgh this molecule loop twice - for opaque then transparent maps
+   // first, a block that decides if we need to do anything.
 
-   bool transparent_maps_loop = false;
-   if (transparent_maps_loop) { // needed for transparent maps
-      glEnable(GL_BLEND); // already set? Test.
-      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   bool needs_blend_reset = false;
+
+   unsigned int n_transparent_maps = 0;
+   if (draw_transparent_maps) {
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+         if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
+         const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+         if (! m.is_an_opaque_map())
+            n_transparent_maps++;
+      }
+      if (n_transparent_maps > 0) {
+         needs_blend_reset = true;
+         glEnable(GL_BLEND);
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      }
    }
 
-   for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-      if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
-      const molecule_class_info_t &m = graphics_info_t::molecules[ii];
-      if (! m.draw_it_for_map) continue;
-      if (m.n_vertices_for_map_VertexArray > 0) {
+   if (!draw_transparent_maps || n_transparent_maps > 0) {
 
-         bool draw_with_lines = true;
-         if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+         if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
+         const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+#if 0
+         if (draw_transparent_maps)
+            if (! m.is_a_transparent_map)
+               continue;
+#endif
+         if (! m.draw_it_for_map) continue;
+         if (m.n_vertices_for_map_VertexArray > 0) {
 
-         if (draw_with_lines) {
-            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
-                               << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
-                               << " with GL err " << err << std::endl;
+            bool draw_with_lines = true;
+            if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_map_lines_ID);
+            if (draw_with_lines) {
+               glBindVertexArray(m.m_VertexArrayID_for_map);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
+                                  << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
+                                  << " with GL err " << err << std::endl;
 
-            glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
-            glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
+               glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
-            GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
-            glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
-            glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+               glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
+               glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
 
-            GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-            glm::vec4 ep = new_unproject(0,0,-1);
-            glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+               GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
+               glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+               glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
-            glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
-                           GL_UNSIGNED_INT, nullptr);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glDrawElements() n_vertices: "
-                               << m.n_vertices_for_map_VertexArray
-                               << " with GL err " << err << std::endl;
-         }
+#if 0
+               // opacity:
+               GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.opacity_uniform_location;
+               float opacity = m.map_opacity;
+               glUniformf(opacity_uniform_location, opacity)
+               err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity " << err << std::endl;
+#endif
+               GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
+               glm::vec4 ep = new_unproject(0,0,-1);
+               glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
-         if (!draw_with_lines) { // draw as a solid object
-            if (false)
-               std::cout << "   draw_map_molecules(): imol " << ii
-                         << " array_id and n_vertices_for_VertexArray: "
-                         << graphics_info_t::molecules[ii].m_VertexArrayID_for_map << " "
-                         << graphics_info_t::molecules[ii].n_indices_for_triangles
-                         << std::endl;
+               glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
+                              GL_UNSIGNED_INT, nullptr);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glDrawElements() n_vertices: "
+                                  << m.n_vertices_for_map_VertexArray
+                                  << " with GL err " << err << std::endl;
+            }
 
-            glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID_for_map);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
-                               << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
-                               << " with GL err " << err << std::endl;
-            glEnable(GL_BLEND);
-            glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBufferID);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_map_triangles_ID);
+            if (!draw_with_lines) { // draw as a solid object
+               if (false)
+                  std::cout << "   draw_map_molecules(): imol " << ii
+                            << " array_id and n_vertices_for_VertexArray: "
+                            << m.m_VertexArrayID_for_map << " "
+                            << m.n_indices_for_triangles
+                            << std::endl;
 
-            glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-            glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
+               glBindVertexArray(m.m_VertexArrayID_for_map);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
+                                  << m.m_VertexArrayID_for_map << " with GL err " << err << std::endl;
+               glEnable(GL_BLEND);
+               glBindBuffer(GL_ARRAY_BUFFER,         m.m_VertexBufferID);
+               glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_triangles_ID);
 
-            GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
-            glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
-            glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+               glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
+               glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
 
-            GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-            glm::vec4 ep = new_unproject(0,0,-1);
-            glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+               GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
+               glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+               glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
-            // glDrawElements() uses a vertex count, not n indices, needs checking
-            glDrawElements(GL_TRIANGLES, graphics_info_t::molecules[ii].n_indices_for_triangles,
-                           GL_UNSIGNED_INT, nullptr);
+               GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
+               glm::vec4 ep = new_unproject(0,0,-1);
+               glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
-            err = glGetError();
-            if (err) std::cout << "   draw_map_molecules() glDrawElements() n_indices_for_triangles "
-                               << graphics_info_t::molecules[ii].n_indices_for_triangles
-                               << " with GL err " << err << std::endl;
+               glDrawElements(GL_TRIANGLES, m.n_indices_for_triangles, GL_UNSIGNED_INT, nullptr);
+
+               err = glGetError();
+               if (err) std::cout << "   draw_map_molecules() glDrawElements() n_indices_for_triangles "
+                                  << graphics_info_t::molecules[ii].n_indices_for_triangles
+                                  << " with GL err " << err << std::endl;
+            }
          }
       }
    }
+
+   if (needs_blend_reset)
+      glDisable(GL_BLEND);
 }
 
 void
@@ -603,7 +630,8 @@ draw_molecules() {
 
    // transparent things... (maybe this function (draw_molecules()) should not be split out).
 
-   draw_map_molecules();
+   draw_map_molecules(false); // transparency
+   draw_map_molecules(true);
 }
 
 void
@@ -710,7 +738,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    GLenum err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
 
-   //glEnable(GL_MULTISAMPLE);   // seems not to work at the moment - needs more setup?
+   // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface 
    err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A1 err " << err << std::endl;
 
@@ -1276,7 +1304,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
                << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
    } else {
-      std::cout << "not found " << event->keyval << std::endl;
+      std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
    }
 
 

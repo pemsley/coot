@@ -871,7 +871,7 @@ public:        //                      public
       // solid surface density representation
       //
       // draw_it_for_solid_density_surface = 0;
-      density_surface_opacity = 0.5;
+      density_surface_opacity = 1.0;
 
       // other map
       colour_map_using_other_map_flag = false;
@@ -3094,10 +3094,13 @@ public:        //                      public
 
 
    coot::density_contour_triangles_container_t tri_con_diff_map_neg; // negative contour
-   void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con,
-					bool do_flat_shading) const;
+
+   // these functions are old and need some thought to see if they need to exist.
+   void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con, bool do_flat_shading) const;
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
+
+   // new
    void setup_glsl_map_rendering();
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
 
@@ -3123,6 +3126,9 @@ public:        //                      public
    GLuint m_ModelMatrix_for_model_ID;
 
    float density_surface_opacity;
+   bool is_an_opaque_map() const { return density_surface_opacity == 1.0; } // needs explicit assignment to 1.0
+                                                                            // elsewhere in the code, e.g. in
+                                                                            // the adjustment handler.
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.
    bool transparent_molecular_surface_flag; // 0 by default.
