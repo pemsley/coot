@@ -1253,6 +1253,25 @@ setup_key_bindings() {
 
    auto l16 = []() { undo_last_move(); };
 
+   auto l17 = []() {
+                 bool reorienting = graphics_info_t::reorienting_next_residue_mode;
+                 graphics_info_t g;
+                 if (reorienting) {
+                    if (graphics_info_t::shift_is_pressed) {
+                       g.reorienting_next_residue(false); // backwards
+                    } else {
+                       g.reorienting_next_residue(true); // forwards
+                    }
+                 } else {
+                    // old/standard simple translation
+                    if (graphics_info_t::shift_is_pressed) {
+                       g.intelligent_previous_atom_centring(g.go_to_atom_window);
+                    } else {
+                       g.intelligent_next_atom_centring(g.go_to_atom_window);
+                    }
+                 }
+              };
+
    // do front and back clipping planes forward and backward
    // what keys to attach that to though?
 
@@ -1272,6 +1291,7 @@ setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l17, "Next Residue")));
 
    // control keys
 
