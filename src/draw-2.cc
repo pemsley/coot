@@ -101,46 +101,45 @@ void init_buffers() {
 
 void init_central_cube() {
 
-   {
-      float positions[24] = {
-         -0.5,  -0.5, -0.5,
-         -0.5,  -0.5,  0.5,
-         -0.5,   0.5, -0.5,
-         -0.5,   0.5,  0.5,
-          0.5,  -0.5, -0.5,
-          0.5,  -0.5,  0.5,
-          0.5,   0.5, -0.5,
-          0.5,   0.5,  0.5
-      };
+   float positions[24] = {
+                          -0.5,  -0.5, -0.5,
+                          -0.5,  -0.5,  0.5,
+                          -0.5,   0.5, -0.5,
+                          -0.5,   0.5,  0.5,
+                           0.5,  -0.5, -0.5,
+                           0.5,  -0.5,  0.5,
+                           0.5,   0.5, -0.5,
+                           0.5,   0.5,  0.5
+   };
 
-      glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
-      GLenum err = glGetError();
-      if (err) std::cout << "init_central_cube() glUseProgram() err is " << err << std::endl;
+   glUseProgram(graphics_info_t::shader_for_central_cube.get_program_id());
+   GLenum err = glGetError();
+   if (err) std::cout << "init_central_cube() glUseProgram() err is " << err << std::endl;
 
-      // number of lines * 2:
-      unsigned int indices[24] { 0,1, 1,5, 5,4, 4,0, 2,3, 3,7, 7,6, 6,2, 0,2, 1,3, 5,7, 4,6 };
+   // number of lines * 2:
+   unsigned int indices[24] { 0,1, 1,5, 5,4, 4,0, 2,3, 3,7, 7,6, 6,2, 0,2, 1,3, 5,7, 4,6 };
 
-      // GLuint VertexArrayID;
-      glGenVertexArrays(1, &graphics_info_t::central_cube_vertexarray_id);
-      glBindVertexArray(graphics_info_t::central_cube_vertexarray_id);
+   // GLuint VertexArrayID;
+   glGenVertexArrays(1, &graphics_info_t::central_cube_vertexarray_id);
+   glBindVertexArray(graphics_info_t::central_cube_vertexarray_id);
 
-      // GLuint vertexbuffer;
-      glGenBuffers(1, &graphics_info_t::central_cube_array_buffer_id);
-      glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::central_cube_array_buffer_id);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, &positions[0], GL_STATIC_DRAW);
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+   // GLuint vertexbuffer;
+   glGenBuffers(1, &graphics_info_t::central_cube_array_buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, graphics_info_t::central_cube_array_buffer_id);
+   glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 24, &positions[0], GL_STATIC_DRAW);
+   glEnableVertexAttribArray(0);
+   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-      // unsigned int ibo;
-      glGenBuffers(1, &graphics_info_t::central_cube_index_buffer_id);
-      err = glGetError();
-      if (err) std::cout << "init_central_cube() index glGenBuffers() err is " << err << std::endl;
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::central_cube_index_buffer_id);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 24, &indices[0], GL_STATIC_DRAW);
-      err = glGetError();
-      if (err) std::cout << "init_central_cube() glBufferData() err is " << err << std::endl;
+   // unsigned int ibo;
+   glGenBuffers(1, &graphics_info_t::central_cube_index_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "init_central_cube() index glGenBuffers() err is " << err << std::endl;
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::central_cube_index_buffer_id);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 24, &indices[0], GL_STATIC_DRAW);
+   err = glGetError();
+   if (err) std::cout << "init_central_cube() glBufferData() err is " << err << std::endl;
+   glBindVertexArray(0);
 
-   }
 }
 
 void init_hud_text() {
@@ -491,6 +490,12 @@ void draw_map_molecules(bool draw_transparent_maps) {
       }
    }
 
+   // to be clean we should use
+   // glDisableVertexAttribArray(0);
+   // here.
+   // that would mean adding glEnableVertexAttribArray() for the attributes (position, normal, colour).
+   // in the above block.
+
    if (needs_blend_reset)
       glDisable(GL_BLEND);
 }
@@ -499,37 +504,37 @@ void
 draw_model_molecules() {
 
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
+   glm::mat4 view_rotation = get_view_rotation();
 
-   Shader &shader = graphics_info_t::shader_for_models; // uses uniform map
+   Shader &shader = graphics_info_t::shader_for_models;
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
       const molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
-      if (! graphics_info_t::molecules[ii].draw_it) continue;
+      if (! m.draw_it) continue;
 
       if (false)
          std::cout << "imol " << ii << " n_vertices_for_model_VertexArray "
-                   << graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray << std::endl;
-      if (graphics_info_t::molecules[ii].n_vertices_for_model_VertexArray > 0) {
+                   << m.n_vertices_for_model_VertexArray << std::endl;
+      if (m.n_vertices_for_model_VertexArray > 0) {
 
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-         GLuint pid = shader.get_program_id(); // surely not needed?
+
          shader.Use();
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
 
-         glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArray_for_model_ID);
+         glBindVertexArray(m.m_VertexArray_for_model_ID);
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glBindVertexArray() "
-                            << graphics_info_t::molecules[ii].m_VertexArray_for_model_ID
+                            << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
          // should not be needed?
-         glBindBuffer(GL_ARRAY_BUFFER,         graphics_info_t::molecules[ii].m_VertexBuffer_for_model_ID);
+         glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
          err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, graphics_info_t::molecules[ii].m_IndexBuffer_for_model_ID);
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
          err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() i " << err << std::endl;
 
          GLuint mvp_location           = shader.mvp_uniform_location;
