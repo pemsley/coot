@@ -25,6 +25,13 @@
 import os
 import re, string
 import numbers
+import coot
+from redefine_functions import *
+
+# hack this in for now
+global use_gui_qm
+use_gui_qm = False
+
 
 # 3D annotations - a bit of a hack currently
 global annotations
@@ -43,7 +50,6 @@ if os.getenv("MSYSTEM"):
 # this is set by the main application: False or 1 (use this python gui)
 # or 2 (guile-gtk is being used so use this if gui-gtk function is
 # not available)
-global use_gui_qm
 
 global user_defined_alert_smarts
 # example: user_defined_alert_smarts = [['C', 'my-user-defined alert for carbon']]
@@ -688,7 +694,7 @@ def shelx_molecule_qm(imol):
 
 # return an int. 0 means no, 1 means yes, -1 on error
 #
-is_protein_chain_qm = is_protein_chain_p
+is_protein_chain_qm = coot.is_protein_chain_p
 
 # Is a nucleotide chain?
 # Now return a boolean
@@ -3389,77 +3395,6 @@ def load_default_sequence():
         align_to_closest_chain(s, 0.95)
 
 
-# not sure if this works, especally with python and Win
-# is for command line update
-# FIXME
-
-# update self
-#
-# keep a copy of the old directories around in a directory named
-# after expiration time.
-#
-def update_self(use_curl=False):
-    import operator
-    import time
-    global file_name_for_progress_bar
-    file_name_for_progress_bar = False
-
-    url = make_latest_version_url()
-    if use_curl:
-        #x=get_url_as_string(url)  # dummy to fool the firewall FIXME
-        coot_url = coot_get_url_as_string(url)
-    else:
-        coot_url = get_url_as_string(url)
-    if not coot_url:
-        print("BL INFO:: could not get string from URL %s, so no update" %url)
-    else:
-        version_string = coot_split_version_string(coot_url)
-        revision = get_revision_from_string(version_string)
-        global pending_install_in_place
-        pending_install_in_place = False
-
-        def set_file_name_func(file_name):
-            global file_name_for_progress_bar
-            file_name_for_progress_bar = file_name
-
-        def pending_install_in_place_func(val):
-            global pending_install_in_place
-            pending_install_in_place = val
-
-        global continue_status
-        continue_status = True
-        def threaded_func():
-            ret = run_download_binary_curl(revision, version_string,
-                                           pending_install_in_place_func,
-                                           set_file_name_func,
-                                           use_curl=use_curl)
-            global continue_status
-            continue_status = False
-
-        run_python_thread(threaded_func, [])
-        # how about a time out?
-        count = 0
-        while continue_status:
-            if file_name_for_progress_bar:
-                curl_info = curl_progress_info(file_name_for_progress_bar)
-                if curl_info:
-                    v1 = curl_info['content-length-download']
-                    v2 = curl_info['size-download']
-                    if isinstance(v1, numbers.Number):
-                        if isinstance(v2, numbers.Number):
-                            f = v2 / v1
-                            #sys.stdout.write("\rProgress %3.2f%%" %(f*100))
-                            #sys.stdout.flush()
-                            print("%3.2f%%" %(f*100))
-                            if f > 0.999:
-                                continue_status = False
-            elif count >= 1500:  # about 50 min
-                continue_status = False
-            else:
-                count += 1
-                time.sleep(2)
-        coot_real_exit(0)
-
 
 def use_curl_status():
     global use_curl
@@ -3979,7 +3914,7 @@ def reload_module(name):
 # to make print a function:
 def printf(*args):
     for arg in args:
-        print(arg, end=' ')
+        print(arg, end=' ') # use the right python dumass
 
 # to print elements of a list:
 def printl(ls):
@@ -4339,7 +4274,7 @@ if not use_gui_qm:
 
                     MyThread().start()
 
-enhanced_ligand_coot_qm = enhanced_ligand_coot_p
+enhanced_ligand_coot_qm = coot.enhanced_ligand_coot_p
 
 # Function to hide hydrogens in all molecules
 #

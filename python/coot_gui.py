@@ -1971,15 +1971,15 @@ def cootaneer_gui(imol):
               window.destroy()
 
 
-   def add_text_to_text_box(text_box, description):
-		start = text_box.get_start_iter()
-		text_box.create_tag("tag", foreground="black", 
-			background = "#c0e6c0")
-		text_box.insert_with_tags_by_name(start, description, "tag")
+    def add_text_to_text_box(text_box, description):
+                start = text_box.get_start_iter()
+                text_box.create_tag("tag", foreground="black",
+                                    background = "#c0e6c0")
+                text_box.insert_with_tags_by_name(start, description, "tag")
 
-	# return the (entry . textbuffer/box)
-	#
-   def entry_text_pair_frame(seq_info):
+                # return the (entry . textbuffer/box)
+                #
+    def entry_text_pair_frame(seq_info):
 
                 frame = gtk.Frame()
                 vbox = gtk.VBox(False, 3)
@@ -1989,7 +1989,7 @@ def cootaneer_gui(imol):
                 text_box = textview.get_buffer()
                 chain_id_label = gtk.Label("Chain ID")
                 sequence_label = gtk.Label("Sequence")
-        
+
                 frame.add(vbox)
                 vbox.pack_start(chain_id_label, False, False, 2)
                 vbox.pack_start(entry, False, False, 2)
@@ -2000,27 +2000,27 @@ def cootaneer_gui(imol):
                 return [frame, entry, text_box]
 
         # main body
-        imol_map = imol_refinement_map()
-        if (imol_map == -1):
+    imol_map = imol_refinement_map()
+    if (imol_map == -1):
            show_select_map_dialog()
            print("BL DEBUG:: probably should wait here for input!?")
-        
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        outside_vbox = gtk.VBox(False, 2)
-        inside_vbox = gtk.VBox(False, 2)
-        h_sep = gtk.HSeparator()
-        buttons_hbox = gtk.HBox(True, 2)
-        go_button = gtk.Button("  Cootaneer!  ")
-        cancel_button = gtk.Button("  Cancel  ")
 
-        seq_info_ls = sequence_info(imol)
-        # print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
+    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    outside_vbox = gtk.VBox(False, 2)
+    inside_vbox = gtk.VBox(False, 2)
+    h_sep = gtk.HSeparator()
+    buttons_hbox = gtk.HBox(True, 2)
+    go_button = gtk.Button("  Cootaneer!  ")
+    cancel_button = gtk.Button("  Cancel  ")
 
-        if not seq_info_ls:
+    seq_info_ls = sequence_info(imol)
+    # print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
+
+    if not seq_info_ls:
            s = "No sequence assigned for molecule number " + str(imol)
            print(s)
            info_dialog(s)
-        else:
+    else:
 
            for seq_info in seq_info_ls:
               seq_widgets = entry_text_pair_frame(seq_info)
@@ -4355,9 +4355,9 @@ def residue_range_gui(func, function_text, go_button_label):
    # pressed)
    def remove_from_residue_range_widget(widget):
       for ls in residue_range_widgets:
-	 if (widget == ls[0]):
-		 rem = ls
-		 break
+         if (widget == ls[0]):
+                 rem = ls
+                 break
       residue_range_widgets.remove(rem)
 
    #
@@ -4441,7 +4441,7 @@ def residue_range_gui(func, function_text, go_button_label):
       residue_ranges = []
       for residue_range_widget in residue_range_widgets:
          ls = make_residue_range(residue_range_widget)
-	 residue_ranges.append(ls)
+         residue_ranges.append(ls)
       saved_residue_ranges = residue_ranges
 
    # range_info is list [chain_id, res_no_1, res_no_2]
