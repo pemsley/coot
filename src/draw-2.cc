@@ -407,29 +407,63 @@ void draw_map_molecules(bool draw_transparent_maps) {
 
                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
-               glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
-               glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
+               {  // elide as set_map_uniforms()
 
-               GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
-               glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
-               glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+                  glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
+                  err = glGetError();
+                  if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
+                  glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+                  err = glGetError();
+                  if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
 
-               // opacity: (I can't get this to work for lines)
-               GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
-               float opacity = m.density_surface_opacity;
-               glUniform1f(opacity_uniform_location, opacity);
-               err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
-                                                      << err << std::endl;
+                  GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
+                  glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+                  glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+                  err = glGetError();
+                  if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
-               GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-               glm::vec4 ep = new_unproject(0,0,-1);
-               glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+                  // opacity: (I can't get this to work for lines)
+                  GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
+                  float opacity = m.density_surface_opacity;
+                  glUniform1f(opacity_uniform_location, opacity);
+                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
+                                                         << err << std::endl;
+
+                  GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
+                  glm::vec4 ep = new_unproject(0,0,-1);
+                  glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform4fv() for eye position "
+                                                         << err << std::endl;
+
+                  // lights
+                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() pre-is-enabled test " << err << std::endl;
+                  GLboolean enabled = true;
+                  // Is light0 on? set enabled by checking with glGet(GL_LIGHT0) - or some such
+                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() is-enabled test " << err << std::endl;
+                  GLuint light_0_is_on_uniform_location = graphics_info_t::shader_for_maps.light_0_is_on_uniform_location;
+                  glUniform1i(light_0_is_on_uniform_location, enabled);
+                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform1i() for lights on "
+                                                         << err << " wth uniform locations "
+                                                         << light_0_is_on_uniform_location << " " << std::endl;
+                  GLuint light_1_is_on_uniform_location = graphics_info_t::shader_for_maps.light_1_is_on_uniform_location;
+                  enabled = true;
+                  glUniform1i(light_1_is_on_uniform_location, enabled);
+
+                  GLfloat light0pos[4];
+                  GLfloat light1pos[4];
+                  GLuint light_0_position_uniform_location = graphics_info_t::shader_for_maps.light_0_position_uniform_location;
+                  GLuint light_1_position_uniform_location = graphics_info_t::shader_for_maps.light_1_position_uniform_location;
+                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position A " << err << std::endl;
+                  glGetLightfv(GL_LIGHT0, GL_POSITION, light0pos);
+                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position B " << err << std::endl;
+                  glGetLightfv(GL_LIGHT1, GL_POSITION, light1pos);
+                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position C " << err << std::endl;
+                  glUniform4fv(light_0_position_uniform_location, 1, light0pos);
+                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position D " << err << std::endl;
+                  glUniform4fv(light_1_position_uniform_location, 1, light1pos);
+                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position E " << err << std::endl;
+
+               }
 
                glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
                               GL_UNSIGNED_INT, nullptr);
@@ -739,7 +773,6 @@ GtkWidget *my_gtkglarea(GtkWidget *vbox) {
 
 void
 on_glarea_realize(GtkGLArea *glarea) {
-   std::cout << "realize!" << std::endl;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
@@ -750,6 +783,12 @@ on_glarea_realize(GtkGLArea *glarea) {
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
    GLenum err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A err " << err << std::endl;
+
+   // GLX_SAMPLE_BUFFERS_ARB
+   // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_multisample.txt
+   // gdk/x11/gdkglcontext-x11.c
+   // glXGetConfig(dpy, &visual_list[0], GLX_SAMPLE_BUFFERS_ARB, &gl_info[i].num_multisample);
+
 
    // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface 
    err = glGetError();
@@ -1271,9 +1310,6 @@ setup_key_bindings() {
                     }
                  }
               };
-
-   // do front and back clipping planes forward and backward
-   // what keys to attach that to though?
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));

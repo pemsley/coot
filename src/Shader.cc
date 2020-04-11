@@ -51,7 +51,7 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    if (! VertexSource.empty()) {
       if (! FragmentSource.empty()) {
          program_id = create();
-         std::cout << "debug() Shader::init() " << file_name << " program_id " << program_id << std::endl;
+         std::cout << "debug:: Shader::init() " << file_name << " program_id " << program_id << std::endl;
          if (true) {
             Use();
             set_uniform_locations();
@@ -63,6 +63,11 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    } else {
       std::cout << "Empty Vertex Shader source\n";
    }
+}
+
+void
+Shader::close() {
+   glDeleteProgram (program_id);
 }
 
 void
@@ -78,11 +83,11 @@ Shader::set_int_for_uniform(const std::string &uniform_name, int value) const {
 
 void
 Shader::Use() {
-  GLuint err = glGetError();
-  if (err) std::cout << "Shader::Use() pre glUseProgram() err " << err << std::endl;
-  glUseProgram(program_id);
-  err = glGetError();
-  if (err) std::cout << "Shader::Use() err " << err << " for program_id " << program_id << std::endl;
+   GLuint err = glGetError();
+   if (err) std::cout << "Shader::Use() pre glUseProgram() err " << err << std::endl;
+   glUseProgram(program_id);
+   err = glGetError();
+   if (err) std::cout << "Shader::Use() err " << err << " for program_id " << program_id << std::endl;
 }
 
 void
@@ -128,7 +133,11 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
 void Shader::set_uniform_locations() {
    GLuint err;
 
-   if (entity_type == Entity_t::MODEL || entity_type == Entity_t::MAP) {
+   if (entity_type == Entity_t::MODEL ||
+       entity_type == Entity_t::MAP ||
+       entity_type == Entity_t::MOLECULAR_TRIANGLES ||
+       entity_type == Entity_t::GENERIC_GRAPHICS_OBJECT) {
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 0: " << err << std::endl;
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
       view_rotation_uniform_location = glGetUniformLocation_internal("view_rotation");
@@ -137,8 +146,25 @@ void Shader::set_uniform_locations() {
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 3: " << err << std::endl;
       eye_position_uniform_location = glGetUniformLocation_internal("eye_position");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
-      std::cout << "debug:: set_uniform_locations() " << mvp_uniform_location << " " << view_rotation_uniform_location
-                << " " << background_colour_uniform_location << std::endl;
+
+      light_0_is_on_uniform_location = glGetUniformLocation_internal("light_0_is_on");
+      light_1_is_on_uniform_location = glGetUniformLocation_internal("light_1_is_on");
+      light_0_position_uniform_location = glGetUniformLocation_internal("light_0_position");
+      light_1_position_uniform_location = glGetUniformLocation_internal("light_1_position");
+      light_0_diffuse_colour_uniform_location = glGetUniformLocation_internal("light_0_diffuse_colour");
+      light_1_diffuse_colour_uniform_location = glGetUniformLocation_internal("light_1_diffuse_colour");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5: " << err << std::endl;
+
+      // the compiler can "throw these away" 4294967295 if they are not used in the fragment shader (it optimizes)
+      if (false)
+         std::cout << "debug:: set_uniform_locations() mvp: "
+                   << mvp_uniform_location << " view-rot: "
+                   << view_rotation_uniform_location << " bg: "
+                   << background_colour_uniform_location << " eye_pos: "
+                   << eye_position_uniform_location << std::endl;
+   }
+   if (entity_type == Entity_t::MOLECULAR_TRIANGLES) {
+      set_more_uniforms_for_molecular_triangles();
    }
    if (entity_type == Entity_t::MAP) {
       map_opacity_uniform_location = glGetUniformLocation_internal("map_opacity");
@@ -162,6 +188,11 @@ void Shader::set_uniform_locations() {
       zoom_uniform_location = glGetUniformLocation_internal("zoom");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6e: " << err << std::endl;
    }
+}
+
+void Shader::set_more_uniforms_for_molecular_triangles() {
+
+   // put more uniforms here
 }
 
 void Shader::parse(const std::string &file_name) {
@@ -216,12 +247,13 @@ unsigned int Shader::compile_shader(const std::string &source, ShaderType type) 
       glGetShaderInfoLog(id, length, &length, message);
       std::cout << "error:: Failed to compile " << type_s << " shader: " << message << std::endl;
    } else {
-      std::cout << "glCompileShader() result was good for " << type_s << " shader " << std::endl;
+      std::cout << "   glCompileShader() result was good for " << type_s << " shader " << std::endl;
    }
    return id;
 }
 
 unsigned int Shader::create() const {
+
    unsigned int program = glCreateProgram();
    unsigned int vs = compile_shader(  VertexSource, ShaderType::VERTEX);
    unsigned int fs = compile_shader(FragmentSource, ShaderType::FRAGMENT);
@@ -230,6 +262,11 @@ unsigned int Shader::create() const {
    glAttachShader(program, fs);
    glLinkProgram(program);
    glValidateProgram(program);
+   GLuint err = glGetError();
+   if (err)
+      std::cout << "Shader::create() err " << err << std::endl;
+   else
+      std::cout << "   Shader::create() link was good " << std::endl;
 
    glDeleteShader(vs);
    glDeleteShader(fs);

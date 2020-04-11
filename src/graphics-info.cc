@@ -947,6 +947,7 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
                                      short int do_zoom_and_move_flag,
                                     float target_zoom) {
 
+   std::cout << "here in smooth_scroll_maybe() " << std::endl;
    if ( (x - rotation_centre_x) != 0.0 ||
         (y - rotation_centre_y) != 0.0 ||
         (z - rotation_centre_z) != 0.0) {
@@ -962,21 +963,22 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
                                               GdkFrameClock *frame_clock,
                                               gpointer data) {
    float frac = 1.0;
+   graphics_info_t::smooth_scroll_steps = 20;
    if (graphics_info_t::smooth_scroll_steps > 0)
       frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_steps);
    smooth_scroll_current_step += 1;
-   // std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step << std::endl;
+   std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step << std::endl;
    if (smooth_scroll_current_step >= smooth_scroll_steps) {
-      // std::cout << " smooth_scroll_animation_func - path A - finish\n";
+      std::cout << " smooth_scroll_animation_func - path A - finish\n";
       return G_SOURCE_REMOVE;
    } else {
       double theta = 2.0 * M_PI * frac * smooth_scroll_current_step;
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
-      // add_vector_to_rotation_centre(this_step_delta);
-      // std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
+      add_vector_to_rotation_centre(this_step_delta);
+      std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
       // std::cout << "smooth_scroll_animation_func - path B\n";
-      // gtk_widget_queue_draw(glarea);
       graphics_draw(); // adds to the queue
+      glFlush();
       return G_SOURCE_CONTINUE;
    }
 }
@@ -986,7 +988,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
                                                              short int do_zoom_and_move_flag,
                                                              float target_zoom) {
 
-   // std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
+   std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
    // This is more like how PyMOL does it (and is better than stepped
    // acceleration).

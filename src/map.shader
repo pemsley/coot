@@ -11,12 +11,26 @@ uniform mat4 mvp;
 uniform mat4 view_rotation;
 uniform vec4 background_colour;
 uniform vec4 eye_position;
+uniform float map_opacity;
+uniform int light_0_is_on;
+uniform int light_1_is_on;
+uniform vec4 light_0_position;
+uniform vec4 light_1_position;
+uniform vec4 light_0_diffuse_colour;
+uniform vec4 light_1_diffuse_colour;
 
 out vec3 frag_pos;
 out vec3 Normal;
 out vec4 line_colour;
 out vec4 bg_colour;
 out vec4 eye_pos_transfer;
+out float map_opacity_transfer;
+out int light_0_is_on_transfer; // can this be bool?
+out int light_1_is_on_transfer;
+out vec4 light_0_position_transfer;
+out vec4 light_1_position_transfer;
+out vec4 light_0_diffuse_colour_transfer;
+out vec4 light_1_diffuse_colour_transfer;
 
 void main() {
 
@@ -29,6 +43,11 @@ void main() {
    frag_pos = gl_Position.xyz;
    line_colour = colour;
    eye_pos_transfer = eye_position;
+   map_opacity_transfer = map_opacity;
+   light_0_is_on_transfer = light_0_is_on;
+   light_1_is_on_transfer = light_1_is_on;
+   light_0_position_transfer = light_0_position;
+   light_1_position_transfer = light_1_position;
 }
 
 #shader fragment
@@ -40,6 +59,11 @@ in vec3 Normal;
 in vec4 line_colour;
 in vec4 bg_colour;
 in vec4 eye_pos_transfer;
+in float map_opacity_transfer;
+in int light_0_is_on_transfer;
+in int light_1_is_on_transfer;
+in vec4 light_0_position_transfer;
+in vec4 light_1_position_transfer;
 
 layout(location = 0) out vec4 out_col;
 
@@ -50,6 +74,7 @@ void main() {
 
   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
   vec3 lightdir = normalize(vec3(-2,-1, 5));
+  lightdir = normalize(light_0_position_transfer.xyz);
   float dp = dot(Normal, -lightdir);
   dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
@@ -93,6 +118,8 @@ void main() {
   if (false)
      col_4.a = 2.0 * spec;
 
+  float op = map_opacity_transfer;
   out_col = col_4;
+  out_col.a = op;
 
 }
