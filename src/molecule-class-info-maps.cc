@@ -587,6 +587,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       threads.clear();
       if (xmap_is_diff_map) {
+         clear_diff_map_draw_vecs();
          for (int ii=0; ii<n_reams; ii++) {
             threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
                                           &xmap, -contour_level, dy_radius, centre,
@@ -768,7 +769,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          sum_tri_con_normals   += tri_con.normals.size();
          sum_tri_con_triangles += tri_con.point_indices.size();
       }
-      if (false) {
+      if (xmap_is_diff_map) {
          for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); it++) {
             const coot::density_contour_triangles_container_t &tri_con(*it);
             sum_tri_con_points    += tri_con.points.size();
@@ -781,6 +782,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          std::vector<int> idx_base_for_points_vec(   draw_vector_sets.size()); // and normals
          std::vector<int> idx_base_for_triangles_vec(draw_vector_sets.size());
+         if (xmap_is_diff_map) {
+            idx_base_for_points_vec.resize(draw_vector_sets.size() + draw_diff_map_vector_sets.size());
+            idx_base_for_triangles_vec.resize(draw_vector_sets.size() + draw_diff_map_vector_sets.size());
+         }
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             if (i==0) {
                idx_base_for_points_vec[i] = 0;
@@ -790,8 +795,27 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                idx_base_for_triangles_vec[i] = idx_base_for_triangles_vec[i-1] + draw_vector_sets[i-1].points.size();
             }
          }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               try {
+                  if (i0==0) {
+                     idx_base_for_points_vec.at(i)    = idx_base_for_points_vec.at(i-1)    + draw_vector_sets.at(i-1).points.size();
+                     idx_base_for_triangles_vec.at(i) = idx_base_for_triangles_vec.at(i-1) + draw_vector_sets.at(i-1).points.size();
+                  } else {
+                     idx_base_for_points_vec.at(i)    = idx_base_for_points_vec.at(i-1)    + draw_diff_map_vector_sets.at(i0-1).points.size();
+                     idx_base_for_triangles_vec.at(i) = idx_base_for_triangles_vec.at(i-1) + draw_diff_map_vector_sets.at(i0-1).points.size();
+                  }
+               }
+               catch (std::out_of_range &oor) {
+                  std::cout << "ERROR:: caught out of range " << oor.what() << " at i " << i << std::endl;
+               }
+            }
+         }
 
-         // put the triangle mid-points into a single vector
+         // put the triangle mid-points into a single vector. Not sure that this is needed now.
+         // There's a different mechanism (in the works) for triangle sorting.
          int idx_for_mid_points = 0;
          // std::vector<std::pair<int, TRIANGLE> > map_triangle_centres(sum_tri_con_triangles);
          map_triangle_centres.resize(sum_tri_con_triangles); // class member
@@ -806,28 +830,33 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // transfer the points
          float *points = new float[3 * sum_tri_con_points];
-         // std::cout << "debug:: sum_tri_con_points: " << sum_tri_con_points << std::endl;
 
          int idx_points = 0;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
             for (std::size_t j=0; j<tri_con.points.size(); j++) {
-               // std::cout << "using idx_points " << idx_points << std::endl;
                points[3*idx_points  ] = tri_con.points[j].x();
                points[3*idx_points+1] = tri_con.points[j].y();
                points[3*idx_points+2] = tri_con.points[j].z();
                idx_points++;
             }
          }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               for (std::size_t j=0; j<tri_con.points.size(); j++) {
+                  points[3*idx_points  ] = tri_con.points[j].x();
+                  points[3*idx_points+1] = tri_con.points[j].y();
+                  points[3*idx_points+2] = tri_con.points[j].z();
+                  idx_points++;
+               }
+            }
+         }
 
-         // transfer the indices - one of these variables has the wrong name - one is for lines and the other is for triangles
-         n_vertices_for_map_VertexArray = 6 * sum_tri_con_triangles; // is this right!? FIXME
-         // That's wrong I think, let me try again
-         // n_vertices_for_VertexArray = 3 * tri_con.points.size();  // Crash. Hmm.
+         n_vertices_for_map_VertexArray = 6 * sum_tri_con_triangles;
          n_indices_for_triangles    = 3 * sum_tri_con_triangles;
          n_indices_for_lines        = 6 * sum_tri_con_triangles;
-
-         // std::cout << "Here with n_vertices_for_VertexArray " << n_vertices_for_map_VertexArray << std::endl;
 
          int *indices_for_lines = new int[n_indices_for_lines];
          int idx_for_indices = 0;
@@ -842,6 +871,22 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                indices_for_lines[6*idx_for_indices+4] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
                indices_for_lines[6*idx_for_indices+5] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
                idx_for_indices++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               int idx_base_for_points = idx_base_for_points_vec[i];
+               for (std::size_t j=0; j<tri_con.point_indices.size(); j++) {
+                  indices_for_lines[6*idx_for_indices  ] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+                  indices_for_lines[6*idx_for_indices+1] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+                  indices_for_lines[6*idx_for_indices+2] = idx_base_for_points + tri_con.point_indices[j].pointID[1];
+                  indices_for_lines[6*idx_for_indices+3] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+                  indices_for_lines[6*idx_for_indices+4] = idx_base_for_points + tri_con.point_indices[j].pointID[2];
+                  indices_for_lines[6*idx_for_indices+5] = idx_base_for_points + tri_con.point_indices[j].pointID[0];
+                  idx_for_indices++;
+               }
             }
          }
 
@@ -860,6 +905,19 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                // so that we can use the centres for sorting.
             }
          }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               int idx_base_for_triangles = idx_base_for_triangles_vec[i];
+               for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
+                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                  indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
+                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                  idx_for_triangles++;
+               }
+            }
+         }
 
          // each index has a normal
 
@@ -873,6 +931,18 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                normals[3*idx_for_normals+1] = tri_con.normals[i].y();
                normals[3*idx_for_normals+2] = tri_con.normals[i].z();
                idx_for_normals++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               for (std::size_t i=0; i<tri_con.normals.size(); i++) {
+                  normals[3*idx_for_normals  ] = tri_con.normals[i].x();
+                  normals[3*idx_for_normals+1] = tri_con.normals[i].y();
+                  normals[3*idx_for_normals+2] = tri_con.normals[i].z();
+                  idx_for_normals++;
+               }
             }
          }
 
@@ -913,7 +983,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                         colours[4*idx_for_colours  ] = map_colour.red;
                         colours[4*idx_for_colours+1] = map_colour.green;
                         colours[4*idx_for_colours+2] = map_colour.blue;
-                        colours[4*idx_for_colours+3] = 0.3f;
+                        colours[4*idx_for_colours+3] = 1.0;
                      } else {
                         std::cout << "oops indexing error for colours"
                                   << idx_for_colours << " " << n_colours << std::endl;
@@ -921,6 +991,24 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                   }
                }
                idx_for_colours++;
+            }
+         }
+         if (xmap_is_diff_map) {
+            for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
+               unsigned int i = i0 + draw_vector_sets.size();
+               const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
+               for (std::size_t j=0; j<tri_con.points.size(); j++) {
+                  if ((4*idx_for_colours) < (4 * n_colours)) {
+                     colours[4*idx_for_colours  ] = map_colour_negative_level.red;
+                     colours[4*idx_for_colours+1] = map_colour_negative_level.green;
+                     colours[4*idx_for_colours+2] = map_colour_negative_level.blue;
+                     colours[4*idx_for_colours+3] = 1.0;;
+                     idx_for_colours++;
+                  } else {
+                     std::cout << "oops indexing error for colours"
+                               << idx_for_colours << " " << n_colours << std::endl;
+                  }
+               }
             }
          }
 
