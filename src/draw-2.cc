@@ -243,7 +243,7 @@ glm::mat4 get_molecule_mvp() {
       glm::vec4 rp_2 = vr * test_pt_2;
       glm::vec4 up4 = rp_2 - rp_1;
       glm::vec3 up = glm::normalize(glm::vec3(up4));
-      glm::vec3 ep = get_eye_position();
+      glm::vec3 ep = graphics_info_t::eye_position;
 
       std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc)
                 << " up " << glm::to_string(up) << std::endl;
@@ -984,7 +984,8 @@ on_glarea_render(GtkGLArea *glarea) {
                    << graphics_info_t::frame_draw_queue.size() << std::endl;
    }
 
-  return FALSE;
+   glFlush();
+   return FALSE;
 }
 
 
@@ -1248,6 +1249,8 @@ void
 setup_key_bindings() {
 
    graphics_info_t g;
+
+   // if we are serious about user-defined key-bindings all of these functions should be thunks in the user API
 
    auto l1 = []() { adjust_clipping(0.3); };
    auto l2 = []() { adjust_clipping(-0.3); };
