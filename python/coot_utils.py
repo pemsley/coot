@@ -417,8 +417,8 @@ def undisplay_all_maps_except(imol_map):
     map_list = map_molecule_list()
     for imol in map_list:
         if (imol != imol_map):
-            set_map_displayed(imol, 0)
-    set_map_displayed(imol_map, 1)
+            coot.set_map_displayed(imol, 0)
+    coot.set_map_displayed(imol_map, 1)
 
 #
 def just_one_or_next_map():
@@ -669,8 +669,8 @@ def residue_spec_to_string(spec):
 def map_molecule_list():
 
     map_list = []
-    for i in range(graphics_n_molecules()):
-       if is_valid_map_molecule(i):
+    for i in range(coot.graphics_n_molecules()):
+       if coot.is_valid_map_molecule(i):
           map_list.append(i)
     return map_list
 
@@ -3083,248 +3083,6 @@ def make_latest_version_url():
 
 
 
-# Get the binary (i.e. the action that happens when the download
-# button is pressed). This is run in a thread, so it cant do
-# any graphics stuff (except for updating the progress bar when
-# passed).
-#
-# return True if tar file was successfully downloaded and untared
-# and False if not.
-#
-# This is using python/urllib by default, set use_curl to True to use curl
-#
-def run_download_binary_curl(revision, version_string,
-                             pending_install_in_place_func,
-                             set_file_name_func=False, # combine with progress_bar?!
-                             progress_bar=False,
-                             use_curl=False):
-
-    global pending_install_in_place
-
-    def match_md5sums(tar_file_name, target_md5sum_file_name):
-        # necessary to check for files? done already above?
-        if not os.path.isfile(tar_file_name):
-            return False
-        else:
-            if not os.path.isfile(target_md5sum_file_name):
-                #print "OOps! %s does not exist" %target_md5sum_file_name
-                print("OOps! %s does not exist" %target_md5sum_file_name)
-                return False
-            else:
-                target_md5_string = get_target_md5_string(target_md5sum_file_name)
-                # remove the md5sum file (not needed any more)
-                os.remove(target_md5sum_file_name)
-                md5_string = get_md5sum_string(tar_file_name)
-                if not target_md5_string:    # need to test if string?
-                    #print "OOps %s is not a string" %target_md5_string
-                    print("OOps %s is not a string" %target_md5_string)
-                    return False
-                else:
-                    if not md5_string:       # as above
-                        #print "OOps %s is not a string" %md5_string
-                        print("OOps %s is not a string" %md5_string)
-                        return False
-                    else:
-                        if not (target_md5_string == md5_string):
-                            #print "Oops: md5sums do not match %s %s.  Doing nothing" \
-                            #      %(target_md5_string, md5_string)
-                            print("Oops: md5sums do not match %s %s.  Doing nothing" \
-                                  %(target_md5_string, md5_string))
-                            return False
-                        else:
-                            return True
-
-    # return success status as a boolean
-    # use_tar, use 'tar' function or pythonic tarfile function
-    #
-    def install_coot_tar_file(tar_file_name, use_tar = False):
-        prefix_dir = os.getenv("COOT_PREFIX")
-        prefix_dir = os.path.normpath(prefix_dir)  # FIXME do we need this?
-        if not prefix_dir:
-            #print "OOps could not get COOT_PREFIX"
-            return False
-        if not directory_is_modifiable_qm(prefix_dir):
-            #print "OOps directory %s is not modifiable" %prefix_dir
-            return False
-        else:
-            pending_dir = os.path.join(prefix_dir, "pending-install")
-            if not os.path.isdir(pending_dir):
-                os.mkdir(pending_dir)
-            if not os.path.isdir(pending_dir):
-                #print "OOps could not create", pending_dir
-                return False
-            else:
-                a_tar_file_name = os.path.abspath(tar_file_name)
-                # with working dir !?
-                current_dir = os.getcwd()
-                os.chdir(pending_dir)
-                print("now current dir is", os.getcwd())
-                if use_tar:
-                    # non-pythonic
-                    popen_command("tar", ["xzf", a_tar_file_name], [],
-                                  "untar.log", False)
-                else:
-                    # pythonic
-                    if not is_windows():
-                        import tarfile
-                        tar = tarfile.open(a_tar_file_name)
-                        tar.extractall()
-                        tar.close()
-                    else:
-                        if os.path.isfile(tar_file_name):
-                            # needs to be removed on WIN32 first
-                            os.remove(tar_file_name)
-                        os.rename(a_tar_file_name, tar_file_name)
-
-                os.chdir(current_dir)
-                return True # ?
-
-
-    # return as a string, or False
-    def get_target_md5_string(file_name):
-        if not os.path.isfile(file_name):
-            return False
-        else:
-            fin = open(file_name, 'r')
-            lines = fin.readlines()
-            fin.close()
-            first_line = lines[0]
-            return first_line[0:first_line.find(" ")]
-
-    # return a string
-    def get_md5sum_string(file_name):
-        if not os.path.isfile(file_name):
-            return False
-        else:
-            import hashlib
-            fin = open(file_name, 'rb')
-            md5sum = hashlib.md5(fin.read()).hexdigest()
-            fin.close()
-            return md5sum
-
-
-    # main line
-    #
-    #print "::::: run_download_binary_curl.... with revision %s with version_string %s" \
-    #      %(revision, version_string)
-    prefix = os.getenv("COOT_PREFIX")
-    prefix = os.path.normpath(prefix)  # FIXME do we need this?
-    if not prefix:  # do we need to check if prefix is string?
-        print("OOps! Can't find COOT_PREFIX")
-        return False
-    else:
-        pre_release_flag = "-pre" in coot_version()
-        ys = "www.ysbl.york.ac.uk/~emsley/software/binaries/"
-        binary_type = coot_sys_build_type()
-        if (binary_type == "Linux-i386-fedora-3") or                  \
-               (binary_type == "Linux-i386-fedora-3-python") or       \
-               (binary_type == "Linux-i386-fedora-8-python-gtk2") or  \
-               (binary_type == "Linux-i386-fedora-8-gtk2") or         \
-               (binary_type == "Linux-i386-fedora-10-python-gtk2") or \
-               (binary_type == "Linux-i386-fedora-10-gtk2") or        \
-               (binary_type == "Linux-i686-ubuntu-8.04.3") or         \
-               (binary_type == "Linux-i686-ubuntu-8.04.3-python"):
-            host_dir = ys
-        else:
-            host_dir = "www.biop.ox.ac.uk/coot/software/binaries/"
-
-        if is_windows():
-            host_dir = "www.ysbl.york.ac.uk/~lohkamp/software/binaries/"
-
-        tar_file_name = version_string
-        if is_windows():
-            tar_file_name += ".exe"
-        else:
-            tar_file_name += "-binary-" + binary_type + ".tar.gz"
-
-        release_dir = "releases/"
-        if ("ysbl.york.ac.uk" in host_dir):  # includes windows
-            if pre_release_flag:
-                release_dir = "nightlies/pre-release/"
-            else:
-                release_dir = "stable/"
-        else:
-            if pre_release_flag:
-                release_dir = "pre-releases/"
-            else:
-                release_dir = "releases/"
-
-        url = "http://" + host_dir + release_dir + tar_file_name
-        md5_url = url + ".md5sum"
-        md5_tar_file_name = tar_file_name +".md5sum"
-
-        #print "md5sum url for curl:", md5_url
-        #print "url for curl:", url
-
-        if set_file_name_func:
-            set_file_name_func(tar_file_name)
-
-        print("INFO:: getting URL:", url)
-
-        if (use_curl):
-            # this is for curl
-            coot_get_url_and_activate_curl_hook(md5_url, md5_tar_file_name, 1)
-            coot_get_url_and_activate_curl_hook(url, tar_file_name, 1)
-
-            if pending_install_in_place:
-                return False
-            else:
-                pending_install_in_place = "full"
-
-        else:
-            # this is for pythonic urllib
-            # we have graphics here, grrrr, shouldnt
-            import urllib.request, urllib.parse, urllib.error
-            def progress_function(count, blockSize, totalSize):
-                global pending_install_in_place
-                percent = int(count*blockSize*100/totalSize)
-                dots = int(percent / 2.5) * "="
-                if percent < 100:
-                    dots += ">"
-                sys.stdout.write("\rProgress %d%%" %percent + "  |%-40s|" %dots)
-                sys.stdout.flush()
-                if progress_bar:
-                    progress_bar.set_text("Downloading %s %%" %percent)
-                    progress_bar.set_fraction(percent/100.)
-                if (pending_install_in_place == "cancelled"):
-                    # Brute force exit of thread!
-                    sys.stdout.write("\nBL INFO:: stopping download\n")
-                    sys.stdout.flush()
-                    sys.exit()
-
-            try:
-                md5_url_local_file_name, md5_url_info =  urllib.request.urlretrieve(md5_url, md5_tar_file_name)
-            except:
-                print("BL ERROR:: could not download", md5_url)
-                return False
-            try:
-                print("\n")
-                print("Downloading: %s" %tar_file_name)
-                url_local_file_name, url_info =  urllib.request.urlretrieve(url, tar_file_name, progress_function)
-                pending_install_in_place = "full"
-                print("\nDone")
-            except:
-                if not (pending_install_in_place == "cancelled"):
-                    print("BL ERROR:: could not download", url)
-                return False
-
-        if not os.path.isfile(tar_file_name):
-            #print "Ooops: %s does not exist after attempted download" %tar_file_name
-            return False
-        else:
-            if not os.path.isfile(md5_tar_file_name):
-                #print "Ooops: %s does not exist after attempted download" %md5_tar_file_name
-                return False
-            else:
-                if not match_md5sums(tar_file_name, md5_tar_file_name):
-                    return False
-                else:
-                    success = install_coot_tar_file(tar_file_name)
-                    if success:
-                        pending_install_in_place_func = True
-                        return True
-                    return False
-
 # get revision number from string
 #
 # (used in downloading new version)
@@ -4245,11 +4003,11 @@ def clean_pdb(imol):
 merge_water_chains = merge_solvent_chains
 
 # the python run_thread function if no graphics
-if not use_gui_qm:
-    import threading
-    # this has locked, so that no one else can use it
-    global python_thread_return
-    python_thread_return = False
+# if not use_gui_qm:
+#     import threading
+#     # this has locked, so that no one else can use it
+#     global python_thread_return
+#     python_thread_return = False
 
     # function to run a python thread with function using
     # args which is a tuple
@@ -4257,22 +4015,22 @@ if not use_gui_qm:
     # for computationally expensive threads which may have run longer
     # N.B. requires gobject hence in coot_gui.py
     #
-    def run_python_thread(function, args):
+    # def run_python_thread(function, args):
 
-        class MyThread(threading.Thread):
-            def __init__(self):
-                threading.Thread.__init__(self)
-            def run(self):
-                global python_thread_return
-                python_return_lock = threading.Lock()
-                python_return_lock.acquire()
-                try:
-                    python_thread_return = function(*args)
-                finally:
-                    python_return_lock.release()
+    #     class MyThread(threading.Thread):
+    #         def __init__(self):
+    #             threading.Thread.__init__(self)
+    #         def run(self):
+    #             global python_thread_return
+    #             python_return_lock = threading.Lock()
+    #             python_return_lock.acquire()
+    #             try:
+    #                 python_thread_return = function(*args)
+    #             finally:
+    #                 python_return_lock.release()
 
 
-                    MyThread().start()
+    #                 MyThread().start()
 
 enhanced_ligand_coot_qm = coot.enhanced_ligand_coot_p
 
@@ -4497,6 +4255,10 @@ def rename_alt_confs_active_residue():
 
 # if you don't have mogul, set this to False
 global use_mogul
-use_mogul = True
-if (not command_in_path_qm("mogul")):
-    use_mogul = False
+
+# use_mogul = True
+use_mogul = False
+
+# this kill's Ctrl-C. So kill this instead.
+# if not command_in_path_qm("mogul"):
+#    use_mogul = False
