@@ -274,9 +274,6 @@ molecule_class_info_t::clear_draw_vecs() {
       unlocked = false;
    }
    for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
-      // draw_vector_sets[i].size = 0;
-      // delete [] draw_vector_sets[i].data;
-      // draw_vector_sets[i].data = 0;
       draw_vector_sets[i].clear();
    }
    draw_vector_sets_lock = false; // unlock
@@ -291,9 +288,7 @@ molecule_class_info_t::clear_diff_map_draw_vecs() {
       unlocked = false;
    }
    for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
-      draw_diff_map_vector_sets[i].size = 0;
-      delete [] draw_diff_map_vector_sets[i].data;
-      draw_diff_map_vector_sets[i].data = 0;
+      draw_diff_map_vector_sets[i].clear();
    }
    draw_vector_sets_lock = false; // unlock
 
@@ -575,32 +570,31 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    }
 
    if (!xmap.is_null()) {
-      if (true) {
-         clear_draw_vecs();
-         std::vector<std::thread> threads;
-         int n_reams = coot::get_max_number_of_threads() - 1;
-         if (n_reams < 1) n_reams = 1;
 
+      clear_draw_vecs();
+      std::vector<std::thread> threads;
+      int n_reams = coot::get_max_number_of_threads() - 1;
+      if (n_reams < 1) n_reams = 1;
+
+      for (int ii=0; ii<n_reams; ii++) {
+         threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
+                                       &xmap, contour_level, dy_radius, centre,
+                                       isample_step, ii, n_reams, is_em_map,
+                                       &draw_vector_sets));
+      }
+      for (int ii=0; ii<n_reams; ii++)
+         threads[ii].join();
+
+      threads.clear();
+      if (xmap_is_diff_map) {
          for (int ii=0; ii<n_reams; ii++) {
             threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
-                                          &xmap, contour_level, dy_radius, centre,
+                                          &xmap, -contour_level, dy_radius, centre,
                                           isample_step, ii, n_reams, is_em_map,
-                                          &draw_vector_sets));
+                                          &draw_diff_map_vector_sets));
          }
          for (int ii=0; ii<n_reams; ii++)
             threads[ii].join();
-      }
-
-      if (xmap_is_diff_map) {
-         v = my_isosurface.GenerateSurface_from_Xmap(xmap,
-                                                     -contour_level,
-                                                     dy_radius, centre,
-                                                     isample_step,
-                                                     0,1,
-                                                     is_em_map);
-         if (is_dynamically_transformed_map_flag)
-            dynamically_transform(v);
-         set_diff_map_draw_vecs(v.data, v.size);
       }
 
       setup_glsl_map_rendering(); // turn tri_con into buffers.
@@ -774,6 +768,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          sum_tri_con_normals   += tri_con.normals.size();
          sum_tri_con_triangles += tri_con.point_indices.size();
       }
+      if (false) {
+         for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); it++) {
+            const coot::density_contour_triangles_container_t &tri_con(*it);
+            sum_tri_con_points    += tri_con.points.size();
+            sum_tri_con_normals   += tri_con.normals.size();
+            sum_tri_con_triangles += tri_con.point_indices.size();
+         }
+      }
 
       if (sum_tri_con_triangles > 0) {
 
@@ -809,7 +811,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          int idx_points = 0;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
-            int idx_base_for_points = idx_base_for_points_vec[i];
             for (std::size_t j=0; j<tri_con.points.size(); j++) {
                // std::cout << "using idx_points " << idx_points << std::endl;
                points[3*idx_points  ] = tri_con.points[j].x();
@@ -867,7 +868,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          int idx_for_normals = 0;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
-            int idx_base_for_points = idx_base_for_points_vec[i];
             for (std::size_t i=0; i<tri_con.normals.size(); i++) {
                normals[3*idx_for_normals  ] = tri_con.normals[i].x();
                normals[3*idx_for_normals+1] = tri_con.normals[i].y();

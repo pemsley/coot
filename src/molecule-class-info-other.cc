@@ -4450,7 +4450,7 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                   std::pair<coot::Cartesian, coot::Cartesian> p2;
                   p2.first  = coot::Cartesian(pt_1);
                   p2.second = coot::Cartesian(pt_2);
-			         rtmi.density_lines.push_back(p2);
+                  rtmi.density_lines.push_back(p2);
                   p2.first  = coot::Cartesian(pt_1);
                   p2.second = coot::Cartesian(pt_3);
                   rtmi.density_lines.push_back(p2);
@@ -4460,39 +4460,49 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                }
             }
          }
-	   } else {
-	      if (! draw_diff_map_vector_sets.empty()) {
+           } else {
+              if (! draw_diff_map_vector_sets.empty()) {
 
-            rtmi.density_colour.col.resize(3);
-            rtmi.density_colour.col[0] = map_colour_negative_level.red;
-            rtmi.density_colour.col[1] = map_colour_negative_level.green;
-            rtmi.density_colour.col[2] = map_colour_negative_level.blue;
+                 rtmi.density_colour.col.resize(3);
+                 rtmi.density_colour.col[0] = map_colour_negative_level.red;
+                 rtmi.density_colour.col[1] = map_colour_negative_level.green;
+                 rtmi.density_colour.col[2] = map_colour_negative_level.blue;
 
-
-            for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
-               for (int j=0; j<draw_diff_map_vector_sets[i].size; j++) {
-                  std::pair<coot::Cartesian, coot::Cartesian> p(draw_diff_map_vector_sets[i].data[j].getStart(),
-                                                                draw_diff_map_vector_sets[i].data[j].getStart());
-               }
-            }
-	      }
-	   }
-	}
+                 for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
+                    for (unsigned int j=0; j<draw_vector_sets[i].point_indices.size(); j++) {
+                       const clipper::Coord_orth &pt_1(draw_diff_map_vector_sets[i].points[draw_diff_map_vector_sets[i].point_indices[j].pointID[0]]);
+                       const clipper::Coord_orth &pt_2(draw_diff_map_vector_sets[i].points[draw_diff_map_vector_sets[i].point_indices[j].pointID[1]]);
+                       const clipper::Coord_orth &pt_3(draw_diff_map_vector_sets[i].points[draw_diff_map_vector_sets[i].point_indices[j].pointID[2]]);
+                       std::pair<coot::Cartesian, coot::Cartesian> p2;
+                       p2.first  = coot::Cartesian(pt_1);
+                       p2.second = coot::Cartesian(pt_2);
+                       rtmi.density_lines.push_back(p2);
+                       p2.first  = coot::Cartesian(pt_1);
+                       p2.second = coot::Cartesian(pt_3);
+                       rtmi.density_lines.push_back(p2);
+                       p2.first  = coot::Cartesian(pt_2);
+                       p2.second = coot::Cartesian(pt_3);
+                       rtmi.density_lines.push_back(p2);
+                    }
+                 }
+              }
+           }
+        }
       }
 
       if (fc_skeleton_draw_on == 1) {
 
-	 rtmi.bones_colour.col.resize(3);
-	 for (int i=0; i<3; i++)
-	    rtmi.bones_colour.col[i] = graphics_info_t::skeleton_colour[i];
-	 for (int l=0; l<fc_skel_box.num_colours; l++) {
-	    for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
-	       std::pair<coot::Cartesian, coot::Cartesian>
-		  p(fc_skel_box.bonds_[l].pair_list[j].positions.getStart(),
-		    fc_skel_box.bonds_[l].pair_list[j].positions.getFinish());
-	       rtmi.bone_lines.push_back(p);
-	    }
-	 }
+         rtmi.bones_colour.col.resize(3);
+         for (int i=0; i<3; i++)
+            rtmi.bones_colour.col[i] = graphics_info_t::skeleton_colour[i];
+         for (int l=0; l<fc_skel_box.num_colours; l++) {
+            for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
+               std::pair<coot::Cartesian, coot::Cartesian>
+                  p(fc_skel_box.bonds_[l].pair_list[j].positions.getStart(),
+                    fc_skel_box.bonds_[l].pair_list[j].positions.getFinish());
+               rtmi.bone_lines.push_back(p);
+            }
+         }
       }
       rtmi.molecule_name = name_;
       rtmi.molecule_number = imol_no;

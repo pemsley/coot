@@ -1281,7 +1281,7 @@ public:        //                      public
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
    // const coot::CartesianPair* diff_map_draw_vectors;
    // int n_diff_map_draw_vectors;
-   std::vector<coot::CartesianPairInfo> draw_diff_map_vector_sets;
+   std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
 
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
