@@ -286,7 +286,7 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 //
 int
 graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
-						                              const std::string &direction) {
+                                                const std::string &direction) {
 
 
    std::cout << "------------ intelligent_near_atom_centring " << direction
@@ -342,7 +342,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
       if (atom_index != -1) {
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
-         std::cout << "in intelligent_near_atom_centring here with next atom " << coot::atom_spec_t(next_atom) << std::endl;
+         std::cout << "in intelligent_near_atom_centring here with next atom "
+                   << coot::atom_spec_t(next_atom) << std::endl;
          go_to_atom_chain_       = next_atom->GetChainID();
          go_to_atom_atom_name_   = next_atom->name;
          go_to_atom_residue_     = next_atom->GetSeqNum();
