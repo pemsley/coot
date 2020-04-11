@@ -94,17 +94,14 @@ _wrap_main_toolbar(PyObject *self)
 {
    GtkWidget *ret = main_toolbar();
    /* pygobject_new handles NULL checking */
-   return pygobject_new(G_OBJECT(ret));
+   GObject *o = G_OBJECT(ret);
+   return pygobject_new(o);
 }
 
 PyObject *
 _wrap_main_hbox(PyObject *self) {
    GtkWidget *ret = main_hbox();
-   std::cout << "debug:: in _wrap_main_hbox() ret is " << ret << std::endl;
    /* pygobject_new handles NULL checking */
-
-   // return pygobject_new(static_cast<GObject *>(ret));
-
    return pygobject_new(G_OBJECT(ret));
 }
 
@@ -130,19 +127,6 @@ coot_python_register_classes(PyObject *d) {
 }
 
 
-/* not sure what this is...
-DL_EXPORT(void)
-#ifdef WIN32
-__declspec(dllexport)
-#endif
-*/
-
-PyObject *some_test_function_py(PyObject *a, PyObject *b) {
-   PyObject *o = Py_None;
-   return o;
-}
-
-
 struct module_state {
     PyObject *error;
 };
@@ -156,7 +140,7 @@ error_out(PyObject *m) {
     return NULL;
 }
 
-static PyMethodDef myextension_methods[] = {
+static PyMethodDef coot_gui_methods[] = {
     {"main_menubar",   (PyCFunction)_wrap_main_menubar,   METH_NOARGS, NULL},
     {"main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL},
     {"main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL},
@@ -165,33 +149,33 @@ static PyMethodDef myextension_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static int myextension_traverse(PyObject *m, visitproc visit, void *arg) {
+static int coot_gui_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
     return 0;
 }
 
-static int myextension_clear(PyObject *m) {
+static int coot_gui_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "myextension",
+        "coot_gui",
         NULL,
         sizeof(struct module_state),
-        myextension_methods,
+        coot_gui_methods,
         NULL,
-        myextension_traverse,
-        myextension_clear,
+        coot_gui_traverse,
+        coot_gui_clear,
         NULL
 };
 
 
 PyObject *
-PyInit_myextension(void) {
+PyInit_coot_gui(void) {
 
-   std::cout << "starting PyInit_myextension() " << std::endl;
+   // std::cout << "starting PyInit_coot_gui() " << std::endl;
 
    PyObject *module = PyModule_Create(&moduledef);
 
@@ -199,7 +183,7 @@ PyInit_myextension(void) {
       return NULL;
    struct module_state *st = GETSTATE(module);
 
-   st->error = PyErr_NewException("myextension.Error", NULL, NULL);
+   st->error = PyErr_NewException("coot_gui.Error", NULL, NULL);
    if (st->error == NULL) {
       Py_DECREF(module);
       return NULL;
@@ -207,7 +191,6 @@ PyInit_myextension(void) {
    if (PyErr_Occurred())
       PyErr_PrintEx(0);
 
-   std::cout << "done PyInit_myextension() " << module << std::endl;
    return module;
 }
 
@@ -215,13 +198,16 @@ PyInit_myextension(void) {
 void
 initcoot_python_gobject() {
 
-   if (true) {
-      PyObject *o = PyInit_myextension();
+   int req_major = -1, req_minor = -1, req_micro = -1;
+   pygobject_init(req_major, req_minor, req_micro);
 
-      // Insert this into sys.modules directly
+   if (true) {
+      PyObject *o = PyInit_coot_gui();
+
+      // Insert this into sys.modules directly - thanks Nick!
       PyObject *sys = PyImport_ImportModule("sys");
       PyObject *modules = PyObject_GetAttrString(sys, "modules");
-      PyDict_SetItemString(modules, "myextension", o);
+      PyDict_SetItemString(modules, "coot_gui", o);
       Py_DECREF(modules);
       Py_DECREF(sys);
 
