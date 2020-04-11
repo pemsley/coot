@@ -345,9 +345,59 @@ glm::mat4 get_view_rotation() {
    return view_matrix;
 }
 
+
+void
+setup_map_uniforms(const Shader &shader,
+                   const glm::mat4 &mvp,
+                   const glm::mat4 &view_rotation,
+                   float density_surface_opacity) {
+
+   glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   GLenum err = glGetError();
+   if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
+   glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+   err = glGetError();
+   if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
+
+   GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
+   glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+   glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+   err = glGetError();
+   if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+
+   // opacity: (I can't get this to work for lines)
+   GLuint opacity_uniform_location = shader.map_opacity_uniform_location;
+   float opacity = density_surface_opacity;
+   glUniform1f(opacity_uniform_location, opacity);
+   err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
+                                          << err << std::endl;
+
+   GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
+   glm::vec4 ep = new_unproject(0,0,-1);
+   glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+   err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform4fv() for eye position "
+                                          << err << std::endl;
+
+   // lights
+   std::map<unsigned int, gl_lights_info_t>::const_iterator it;
+   it = graphics_info_t::lights.find(0);
+   if (it != graphics_info_t::lights.end()) {
+      const gl_lights_info_t &light = it->second;
+      glUniform1i(shader.light_0_is_on_uniform_location, light.is_on);
+      glUniform4fv(shader.light_0_position_uniform_location, 1, glm::value_ptr(light.position));
+   }
+   it = graphics_info_t::lights.find(1);
+   if (it != graphics_info_t::lights.end()) {
+      const gl_lights_info_t &light = it->second;
+      glUniform1i(shader.light_1_is_on_uniform_location, light.is_on);
+      glUniform4fv(shader.light_1_position_uniform_location, 1, glm::value_ptr(light.position));
+   }
+}
+
+
 void draw_map_molecules(bool draw_transparent_maps) {
 
-   glLineWidth(1.20f);
+   glLineWidth(1.0f);
    GLenum err = glGetError();
    if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
@@ -385,6 +435,8 @@ void draw_map_molecules(bool draw_transparent_maps) {
 
    if (!draw_transparent_maps || n_transparent_maps > 0) {
 
+      Shader &shader = graphics_info_t::shader_for_maps;
+
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
          const molecule_class_info_t &m = graphics_info_t::molecules[ii];
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
@@ -407,64 +459,7 @@ void draw_map_molecules(bool draw_transparent_maps) {
 
                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
-               {  // elide as set_map_uniforms()
-
-                  glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location,           1, GL_FALSE, &mvp[0][0]);
-                  err = glGetError();
-                  if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
-                  glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
-                  err = glGetError();
-                  if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
-
-                  GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
-                  glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
-                  glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-                  err = glGetError();
-                  if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
-
-                  // opacity: (I can't get this to work for lines)
-                  GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
-                  float opacity = m.density_surface_opacity;
-                  glUniform1f(opacity_uniform_location, opacity);
-                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
-                                                         << err << std::endl;
-
-                  GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-                  glm::vec4 ep = new_unproject(0,0,-1);
-                  glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform4fv() for eye position "
-                                                         << err << std::endl;
-
-                  // lights
-                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() pre-is-enabled test " << err << std::endl;
-                  GLboolean enabled = true;
-                  // Is light0 on? set enabled by checking with glGet(GL_LIGHT0) - or some such
-                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() is-enabled test " << err << std::endl;
-                  GLuint light_0_is_on_uniform_location = graphics_info_t::shader_for_maps.light_0_is_on_uniform_location;
-                  glUniform1i(light_0_is_on_uniform_location, enabled);
-                  err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform1i() for lights on "
-                                                         << err << " wth uniform locations "
-                                                         << light_0_is_on_uniform_location << " " << std::endl;
-                  GLuint light_1_is_on_uniform_location = graphics_info_t::shader_for_maps.light_1_is_on_uniform_location;
-                  enabled = true;
-                  glUniform1i(light_1_is_on_uniform_location, enabled);
-
-                  GLfloat light0pos[4];
-                  GLfloat light1pos[4];
-                  GLuint light_0_position_uniform_location = graphics_info_t::shader_for_maps.light_0_position_uniform_location;
-                  GLuint light_1_position_uniform_location = graphics_info_t::shader_for_maps.light_1_position_uniform_location;
-                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position A " << err << std::endl;
-                  glGetLightfv(GL_LIGHT0, GL_POSITION, light0pos);
-                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position B " << err << std::endl;
-                  glGetLightfv(GL_LIGHT1, GL_POSITION, light1pos);
-                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position C " << err << std::endl;
-                  glUniform4fv(light_0_position_uniform_location, 1, light0pos);
-                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position D " << err << std::endl;
-                  glUniform4fv(light_1_position_uniform_location, 1, light1pos);
-                  err = glGetError(); if (err) std::cout << "draw_map_molecules() for lights position E " << err << std::endl;
-
-               }
-
+               setup_map_uniforms(shader, mvp, view_rotation, m.density_surface_opacity);
                glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
                               GL_UNSIGNED_INT, nullptr);
                err = glGetError();
@@ -771,6 +766,17 @@ GtkWidget *my_gtkglarea(GtkWidget *vbox) {
    return w;
 }
 
+void setup_lights() {
+
+   // not your old style lights
+
+   gl_lights_info_t light;
+   light.position = glm::vec4(-2.0f, -1.0f, 5.0f, 1.0f);
+   graphics_info_t::lights[0] = light;
+   light.position = glm::vec4( 3.0f, -2.0f, 4.0f, 1.0f);
+   graphics_info_t::lights[1] = light;
+}
+
 void
 on_glarea_realize(GtkGLArea *glarea) {
 
@@ -834,8 +840,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    glEnable(GL_DEPTH_TEST);
    // glEnable(GL_CULL_FACE); // if I enable this, then I get to see th back side
                               // of the bonds (and atoms, possibly) It's a weird look
-   glEnable(GL_BLEND);
 
+   // glEnable(GL_BLEND);
    // glEnable(GL_LINE_SMOOTH);
 
    // Make antialised lines
@@ -844,6 +850,13 @@ on_glarea_realize(GtkGLArea *glarea) {
       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glEnable(GL_LINE_SMOOTH);
    }
+
+   setup_lights();
+
+   GLfloat light0pos[4];
+   glGetLightfv(GL_LIGHT0, GL_POSITION, light0pos);
+   err = glGetError(); if (err) std::cout << "realsize() " << err << std::endl;
+   std::cout << "... light 0: " << light0pos[0] << " " << light0pos[1] << " " << light0pos[2] << " " << std::endl;
 
    // Martin's Molecular triangles
    setup_for_mol_triangles();
@@ -978,7 +991,6 @@ on_glarea_render(GtkGLArea *glarea) {
 void
 on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
-   std::cout << "resize!" << std::endl;
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;

@@ -47,3 +47,13 @@ void reload_shaders() {
 
 }
 
+#ifdef USE_PYTHON
+void set_light_position_py(int light_id, float x, float y, float z) {
+
+   glm::vec4 pos(x,y,z,1.0);
+   graphics_info_t::lights[light_id].position = pos;
+   graphics_info_t g;
+   g.graphics_draw();
+   glFlush();
+}
+#endif

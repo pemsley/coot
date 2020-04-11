@@ -131,6 +131,8 @@ struct FT_character {
 
 #include "framebuffer.hh"
 
+#include "gl-lights-info.hh"
+
 // #include "Transform.hh"
 // #include "Camera.hh"
 
@@ -4107,10 +4109,14 @@ string   static std::string sessionid;
    static std::map<GLchar, FT_character> ft_characters;
    void load_freetype_font_textures();
 
+   // key-bindings
    static std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
    static void add_key_binding(keyboard_key_t k, key_bindings_t kb) {
       key_bindings_map[k] = kb;
    }
+
+   // lights
+   static std::map<unsigned int, gl_lights_info_t> lights;
 };
 
 

@@ -1902,6 +1902,9 @@ setup_for_mol_triangles() {
 void
 setup_lighting(short int do_lighting_flag) {
 
+   std::cout << "------------------------------------------------------------------------------------------------------------------"
+             << " setup_lighting() -------------------------------------------------------------------" << std::endl;
+
    // I'm not sure that this does anything other than enable the lights.
    // The light positions are properly set in draw_mono().
    // Needs rationalization.
@@ -1968,7 +1971,10 @@ setup_lighting(short int do_lighting_flag) {
 
 void show_lighting() {
 
-  // Is this a useful function?
+   // Is this a useful function?
+
+   std::cout << "------------------------------------------------------------------------------------------------------------------"
+             << " show_lighting() -------------------------------------------------------------------" << std::endl;
 
    if (true) {
 

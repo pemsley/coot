@@ -35,6 +35,7 @@ SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
 void add_key_binding_gtk3_py(int key, int ctrl_key,
                                  PyObject *func,
                                  const std::string &description);
+void set_light_position_py(int light_id, float x, float y, float z);
 #endif
 
 #ifdef USE_GUILE
