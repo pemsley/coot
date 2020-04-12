@@ -1836,17 +1836,17 @@ molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
    std::string dmn = name_for_display_manager();
    if (g.display_control_window()) {
       display_control_molecule_combo_box(g.display_control_window(),
-    dmn.c_str(),
-    imol_no, show_add_reps_flag);
+                                         dmn.c_str(),
+                                         imol_no, show_add_reps_flag);
       if (add_reps.size() > 0) {
-    GtkWidget *vbox = display_control_add_reps_container(g.display_control_window(), imol_no);
-    for (unsigned int iar=0; iar<add_reps.size(); iar++) {
-       std::string name = coot::util::int_to_string(iar);
-       name += " ";
-       name += add_reps[iar].info_string();
-       display_control_add_reps(vbox, imol_no, iar, add_reps[iar].show_it,
-        add_reps[iar].bonds_box_type, name);
-    }
+         GtkWidget *vbox = display_control_add_reps_container(g.display_control_window(), imol_no);
+         for (unsigned int iar=0; iar<add_reps.size(); iar++) {
+            std::string name = coot::util::int_to_string(iar);
+            name += " ";
+            name += add_reps[iar].info_string();
+            display_control_add_reps(vbox, imol_no, iar, add_reps[iar].show_it,
+                                     add_reps[iar].bonds_box_type, name);
+         }
       }
    }
 

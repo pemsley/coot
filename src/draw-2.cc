@@ -988,6 +988,14 @@ on_glarea_render(GtkGLArea *glarea) {
    return FALSE;
 }
 
+void
+reset_frame_buffers(int width, int height) {
+   graphics_info_t g;
+   unsigned int index_offset = 0;
+   g.screen_framebuffer.init(width, height, index_offset, "screen");
+   index_offset = 1;
+   g.blur_framebuffer.init(width, height, index_offset, "blur");
+}
 
 void
 on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
@@ -995,11 +1003,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   unsigned int index_offset = 0;
-   g.screen_framebuffer.init(width, height, index_offset, "screen");
-   index_offset = 1;
-   g.blur_framebuffer.init(width, height, index_offset, "blur");
-
+   reset_frame_buffers(width, height);
 }
 
 gboolean

@@ -15,3 +15,5 @@ void setup_key_bindings();
 
 // map the function already in the key map with name description to the given key
 void remap_key(const std::string &description, int);
+
+void reset_frame_buffers();

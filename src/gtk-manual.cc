@@ -379,9 +379,12 @@ void
 on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *combo_box,
                                                            gpointer         user_data) {
 
+   std::cout << "DEBUG:: :::::: on_display_manager_selections_and_colours_combobox_changed() "
+             << std::endl;
+
    int imol = GPOINTER_TO_INT(user_data);
    gchar *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
-   std::cout << "text: " << txt << " user data " << imol << std::endl;
+   std::cout << "DEBUG:: text: \"" << txt << "\" user data " << imol << std::endl;
 
    if (txt) {
       std::string at(txt);
@@ -451,9 +454,39 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), _("Colour by Occupancy"));
 
    gpointer user_data = GINT_TO_POINTER(imol);
-   g_signal_connect(G_OBJECT(combobox), "changed", G_CALLBACK(on_display_manager_selections_and_colours_combobox_changed), user_data);
+   g_signal_connect(G_OBJECT(combobox), "changed",
+                    G_CALLBACK(on_display_manager_selections_and_colours_combobox_changed), user_data);
 
-   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0); // needs to be dynamic (at some stage)
+   int index = 0; // needs to be dynamic (at some stage)
+
+   int bbt = graphics_molecule_bond_type(imol);
+
+   // std::cout << "Here with bbt " << bbt << std::endl;
+   // This is ugly.
+   // bonds colour by atom: 1
+   // bonds colour by molecule: 8
+   // bonds colour by chain: 3
+   // bonds colour by goodsell: 21
+   // bonds colour by Sec Str 6
+   // CA: 2
+   // CA ligands: 4
+   // CA S S: 7
+   // Rainbow: 9
+   // No waters: 5
+   // B-factor backbone: 1... wrong
+   // occ: 11
+   // 
+   if (bbt ==  8) index =  1;
+   if (bbt ==  3) index =  2;
+   if (bbt == 21) index =  3;
+   if (bbt ==  6) index =  4;
+   if (bbt ==  2) index =  5;
+   if (bbt ==  4) index =  6;
+   if (bbt ==  7) index =  7;
+   if (bbt ==  9) index =  8;
+   if (bbt == 11) index = 12;
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), index);
    gtk_widget_show(combobox);
    return combobox;
 
@@ -473,47 +506,45 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    molecule display VBox) */
 void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 					const gchar *name,
-					int n, bool show_add_reps_frame_flag) {
+					int imol, bool show_add_reps_frame_flag) {
 
-  GtkWidget *display_molecule_vbox;
-/*   GtkWidget *display_control_window_glade; passed parameter */
+   std::cout << "start display_control_molecule_combo_box() " << std::endl;
+   GtkWidget *display_molecule_vbox;
+   /*   GtkWidget *display_control_window_glade; passed parameter */
 
-  GtkWidget *display_mol_frame_1;
-  GtkWidget *hbox31;
-  GtkWidget *hbox32;
-  GtkWidget *entry2;
-  GtkWidget *displayed_button_1;
-  GtkWidget *active_button_1;
-  GtkWidget *render_optionmenu_1;
-  GtkWidget *render_optionmenu_1_menu;
-  GtkWidget *glade_menuitem;
-  // GtkWidget *menu;
-  int bond_type;
-  GtkWidget *active_item;
-  GtkWidget *mol_label;
+   GtkWidget *display_mol_frame_1;
+   GtkWidget *hbox31;
+   GtkWidget *hbox32;
+   GtkWidget *entry2;
+   GtkWidget *displayed_button_1;
+   GtkWidget *active_button_1;
+   GtkWidget *render_optionmenu_1;
+   GtkWidget *render_optionmenu_1_menu;
+   GtkWidget *glade_menuitem;
+   // GtkWidget *menu;
+   int bond_type;
+   GtkWidget *active_item;
+   GtkWidget *mol_label;
 
-/* messing about with string variables for unique lookup values/name of the widgets */
-  gchar *widget_name;
-  gchar *tmp_name;
-
-  /* we need to find references to objects that contain this widget */
+   /* messing about with string variables for unique lookup values/name of the widgets */
+   std::string widget_name;
 
   display_molecule_vbox = lookup_widget(display_control_window_glade,
 					"display_molecule_vbox");
 
-
   display_mol_frame_1 = gtk_frame_new (NULL);
   // gtk_widget_ref (display_mol_frame_1);
 
-  widget_name = (gchar *) malloc(100); /* should be enough */
-
-  strcpy(widget_name, "display_mol_frame_");
-  tmp_name = widget_name + strlen(widget_name);
-
-  snprintf(tmp_name, 4, "%-d", n);
+  widget_name = "display_mol_frame_";
+  int nn = 3;
+  if (imol > 9) nn = 2;
+  if (imol > 99) nn = 1;
+  std::string four_char_imol(nn, '0');
+  widget_name += four_char_imol + coot::util::int_to_string(imol);
+  std::cout << "debug:: widget_name " << widget_name << std::endl;
 
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			  widget_name,
+			  widget_name.c_str(),
 			  display_mol_frame_1,
                           NULL);
   gtk_widget_show (display_mol_frame_1);
@@ -533,29 +564,23 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
 /* -- molecule number label */
 
-  strcpy(widget_name, "display_mol_number_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
+  widget_name = "display_mol_number_";
+  widget_name += four_char_imol + coot::util::int_to_string(imol);
 
-  mol_label = gtk_label_new (_(tmp_name));
-  // gtk_widget_ref (mol_label);
+  mol_label = gtk_label_new (widget_name.c_str());;
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			  widget_name,
-			  mol_label,
-			  NULL);
-
+			  widget_name.c_str(), mol_label, NULL);
   gtk_widget_show (mol_label);
   gtk_box_pack_start (GTK_BOX (hbox31), mol_label, FALSE, FALSE, 3);
 
 /* -- done molecule number label */
 
-  strcpy(widget_name, "display_mol_entry_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
+  widget_name = "display_mol_entry_";
+  widget_name += four_char_imol + coot::util::int_to_string(imol);
 
   entry2 = gtk_entry_new ();
   // gtk_widget_ref (entry2);
-  g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name, entry2,
+  g_object_set_data_full (G_OBJECT (display_control_window_glade), widget_name.c_str(), entry2,
 			  NULL);
   if (name) {
     gtk_entry_set_text(GTK_ENTRY(entry2), name);
@@ -563,8 +588,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
     // gtk_entry_set_position(GTK_ENTRY(entry2), strlen(name)-1);
     // gtk_entry_append_text(GTK_ENTRY(entry2), "");
   }
-  std::cout << "set entry not editable" << std::endl;
-  //gtk_entry_set_editable(GTK_ENTRY (entry2), FALSE);
+  gtk_editable_set_editable(GTK_EDITABLE (entry2), FALSE);
 
 
   gtk_widget_show (entry2);
@@ -577,61 +601,46 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   gtk_widget_show (hbox32);
   gtk_box_pack_start (GTK_BOX (hbox31), hbox32, TRUE, TRUE, 0);
 
-  strcpy(widget_name, "displayed_button_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
+  widget_name = "display_mol_entry_";
+  widget_name += four_char_imol + coot::util::int_to_string(imol);
 
   displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
   // gtk_widget_ref (displayed_button_1);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1),
-			       mol_is_displayed(n));
+			       mol_is_displayed(imol));
 
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			    widget_name,
-			  displayed_button_1, NULL);
+                          widget_name.c_str(), displayed_button_1, NULL);
 
   gtk_widget_show (displayed_button_1);
   gtk_box_pack_start (GTK_BOX (hbox32), displayed_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (displayed_button_1), 2);
 
-  strcpy(widget_name, "active_button_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
+  widget_name = "active_button_";
+  widget_name += four_char_imol + coot::util::int_to_string(imol);
 
   active_button_1 = gtk_check_button_new_with_label (_("Active"));
   // gtk_widget_ref (active_button_1);
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_button_1), mol_is_active(n));
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(active_button_1), mol_is_active(imol));
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			    widget_name,
-			  active_button_1, NULL);
+                          widget_name.c_str(), active_button_1, NULL);
   gtk_widget_show (active_button_1);
   gtk_box_pack_start (GTK_BOX (hbox32), active_button_1, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (active_button_1), 2);
 
+  widget_name = "active_button_";
+  widget_name += four_char_imol + coot::util::int_to_string(imol);
 
-
-  strcpy(widget_name, "render_optionmenu_");
-  tmp_name = widget_name + strlen(widget_name);
-  snprintf(tmp_name, 4, "%-d", n);
-
-
-  render_optionmenu_1 = NULL; // gtk_option_menu_new ();
-  // gtk_widget_ref (render_optionmenu_1);
-  // g_object_set_data_full (G_OBJECT (display_control_window_glade),
-  // "render_optionmenu_1", render_optionmenu_1,
-  // NULL);
-
-
-  GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(n); // imol
+  GtkWidget *sel_and_col_combobox = selections_and_colours_combobox(imol);
   gtk_box_pack_start(GTK_BOX(hbox32), sel_and_col_combobox, FALSE, FALSE, 0);
-  gtk_container_set_border_width(GTK_CONTAINER(sel_and_col_combobox), 1);
+  gtk_container_set_border_width(GTK_CONTAINER(sel_and_col_combobox), 4);
 
 
 /* Set User Data, the molecule which this button(s) is attached to
    (casting (int *) to (char *)).
 */
-  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(n));
-  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(n));
+  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(imol));
+  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(imol));
 
 /* Add signals for the Active and Display toggle buttons */
 
@@ -648,8 +657,8 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 /* Set User Data, the molecule which this button(s) is attached to
    (casting (int *) to (char *)).
 */
-  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(n));
-  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(n));
+  g_object_set_data(G_OBJECT(displayed_button_1), "imol", GINT_TO_POINTER(imol));
+  g_object_set_data(G_OBJECT(   active_button_1), "imol", GINT_TO_POINTER(imol));
 
 
 
@@ -658,19 +667,18 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
      control window.  when it comes back, we want it to be C-alpha
      too, not the default (1) - "Bonds"  */
 
-  bond_type = graphics_molecule_bond_type(n);
+  bond_type = graphics_molecule_bond_type(imol);
 
 /* And finally connect the menu to the optionmenu */
   // gtk_option_menu_set_menu (GTK_OPTION_MENU (render_optionmenu_1),
   // render_optionmenu_1_menu);
 
   // A delete molecule button
-  display_control_add_delete_molecule_button(n, hbox32, false);
+  display_control_add_delete_molecule_button(imol, hbox32, false);
 
-  free(widget_name);
   // Now add the additional representations frame and vbox
   add_add_reps_frame_and_vbox(display_control_window_glade,
-			      vbox_single_molecule_all_attribs, n, show_add_reps_frame_flag);
+			      vbox_single_molecule_all_attribs, imol, show_add_reps_frame_flag);
 
 }
 

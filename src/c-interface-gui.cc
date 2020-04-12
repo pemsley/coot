@@ -4597,7 +4597,7 @@ GtkWidget *wrapped_create_goto_atom_window() {
       else
       gdk_window_raise(widget->window);
       */
-      std::cout << "GTK-FIXME no raise" << std::endl;
+      std::cout << "GTK-FIXME no raise wrapped_create_goto_atom_window()" << std::endl;
    } else {
       widget = create_goto_atom_window();
       graphics_info_t::go_to_atom_window = widget;
@@ -4886,20 +4886,21 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
 
 GtkWidget *wrapped_create_display_control_window() {
 
+   std::cout << "Here in wrapped_create_display_control_window() " << std::endl;
+
    graphics_info_t g;
    GtkWidget *widget = g.display_control_window();
 
    if (widget) {
-      // raise/uniconify (or whatever) what we have:
-      //
-      std::cout << "GTK-FIXME no raise wrapped_create_display_control_window" << std::endl;
-//       if (!GTK_WIDGET_MAPPED(widget))
-// 	 gtk_widget_show(widget);
-//       else
-// 	 gdk_window_raise(widget->window);
+
+      if (!gtk_widget_get_mapped(widget))
+ 	 gtk_widget_show(widget);
+       else
+          gdk_window_raise(GDK_WINDOW(widget));
+
    } else {
 
-      // create (then store) a new one.
+      // OK, so create (then store) a new one.
 
       widget = create_display_control_window_glade();
       save_display_control_widget_in_graphics(widget);
@@ -4908,20 +4909,17 @@ GtkWidget *wrapped_create_display_control_window() {
       // set the size and shape of the window and paned components:
       if (graphics_info_t::display_manager_x_size != -1) {
 	 gtk_window_set_default_size(GTK_WINDOW(widget),
-			      graphics_info_t::display_manager_x_size,
+                                     graphics_info_t::display_manager_x_size,
 				     graphics_info_t::display_manager_y_size);
 	 if (graphics_info_t::display_manager_paned_position != -1) {
-	    GtkPaned *paned = GTK_PANED(lookup_widget(widget,
-						      "display_control_vpaned"));
-	    gtk_paned_set_position(paned,
-				   graphics_info_t::display_manager_paned_position);
+	    GtkPaned *paned = GTK_PANED(lookup_widget(widget, "display_control_vpaned"));
+	    gtk_paned_set_position(paned, graphics_info_t::display_manager_paned_position);
 	 }
       }
       if (graphics_info_t::display_manager_x_position != -1) {
 	 std::cout << "GTK-FIXME no gtk_widget_set_uposition H" << std::endl;
-// 	 gtk_widget_set_uposition(widget,
-// 				  graphics_info_t::display_manager_x_position,
-// 				  graphics_info_t::display_manager_y_position);
+         // GtkWindowPosition position = GTK_WIN_POS_NONE; // what's the point of that?
+         // gtk_window_set_position(GTK_WINDOW(widget), position);
       }
    }
    return widget;

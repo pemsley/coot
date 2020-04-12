@@ -42,7 +42,9 @@ void reload_shaders() {
 
    std::cout << "Here in reload_shaders() " << std::endl;
    graphics_info_t g;
-   g.init_shaders();
+   g.screen_framebuffer.tear_down();
+   g.blur_framebuffer.tear_down();
+   g.init_shaders(); // regenerates screen and blur framebuffers also
    g.graphics_draw();
 
 }

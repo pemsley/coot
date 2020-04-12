@@ -365,12 +365,13 @@ molecule_class_info_t::debug_selection() const {
    } else {
       std::cout << "debug_selection: selected atoms" << std::endl;
       for(int i=0; i<n_atoms; i++) {
-	 std::cout << atom[i] << std::endl;
+         std::cout << atom[i] << std::endl;
       }
       std::cout << "----------- " << std::endl;
    }
 }
 
+// make this a bool
 short int
 molecule_class_info_t::molecule_is_all_c_alphas() const {
 
@@ -381,11 +382,11 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
       is_ca = 0;
    } else {
       for (int i=0; i<n_atoms; i++) {
-	 std::string name_string(atom_sel.atom_selection[i]->name);
-	 if ( ! (name_string== " CA " )) {
-	    is_ca = 0;
-	    break;
-	 }
+         std::string name_string(atom_sel.atom_selection[i]->name);
+         if (name_string != " CA " ) {
+            is_ca = 0;
+            break;
+         }
       }
    }
    return is_ca;

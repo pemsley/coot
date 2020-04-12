@@ -14,7 +14,6 @@ class framebuffer {
    unsigned int texture_depth;
    std::vector<GLenum> drawbuffer; // texture attachments
    bool filled;
-   void tear_down();
 
 public:
    framebuffer();
@@ -24,6 +23,7 @@ public:
    std::string name;
 
    void init(int width, int height, unsigned int attachment_index_color_texture, const std::string &name_in="");
+   void tear_down();
 
    void generate_colourtexture(unsigned int width, unsigned int height);
    void generate_depthtexture( unsigned int width, unsigned int height);
