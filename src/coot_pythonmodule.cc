@@ -140,7 +140,7 @@ error_out(PyObject *m) {
     return NULL;
 }
 
-static PyMethodDef coot_gui_methods[] = {
+static PyMethodDef coot_gui_api_methods[] = {
     {"main_menubar",   (PyCFunction)_wrap_main_menubar,   METH_NOARGS, NULL},
     {"main_statusbar", (PyCFunction)_wrap_main_statusbar, METH_NOARGS, NULL},
     {"main_toolbar",   (PyCFunction)_wrap_main_toolbar,   METH_NOARGS, NULL},
@@ -149,33 +149,33 @@ static PyMethodDef coot_gui_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static int coot_gui_traverse(PyObject *m, visitproc visit, void *arg) {
+static int coot_gui_api_traverse(PyObject *m, visitproc visit, void *arg) {
     Py_VISIT(GETSTATE(m)->error);
     return 0;
 }
 
-static int coot_gui_clear(PyObject *m) {
+static int coot_gui_api_clear(PyObject *m) {
     Py_CLEAR(GETSTATE(m)->error);
     return 0;
 }
 
 static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
-        "coot_gui",
+        "coot_gui_api",
         NULL,
         sizeof(struct module_state),
-        coot_gui_methods,
+        coot_gui_api_methods,
         NULL,
-        coot_gui_traverse,
-        coot_gui_clear,
+        coot_gui_api_traverse,
+        coot_gui_api_clear,
         NULL
 };
 
 
 PyObject *
-PyInit_coot_gui(void) {
+PyInit_coot_gui_api(void) {
 
-   // std::cout << "starting PyInit_coot_gui() " << std::endl;
+   // std::cout << "starting PyInit_coot_gui_api() " << std::endl;
 
    PyObject *module = PyModule_Create(&moduledef);
 
@@ -183,7 +183,7 @@ PyInit_coot_gui(void) {
       return NULL;
    struct module_state *st = GETSTATE(module);
 
-   st->error = PyErr_NewException("coot_gui.Error", NULL, NULL);
+   st->error = PyErr_NewException("coot_gui_api.Error", NULL, NULL);
    if (st->error == NULL) {
       Py_DECREF(module);
       return NULL;
@@ -202,12 +202,12 @@ initcoot_python_gobject() {
    pygobject_init(req_major, req_minor, req_micro);
 
    if (true) {
-      PyObject *o = PyInit_coot_gui();
+      PyObject *o = PyInit_coot_gui_api();
 
       // Insert this into sys.modules directly - thanks Nick!
       PyObject *sys = PyImport_ImportModule("sys");
       PyObject *modules = PyObject_GetAttrString(sys, "modules");
-      PyDict_SetItemString(modules, "coot_gui", o);
+      PyDict_SetItemString(modules, "coot_gui_api", o);
       Py_DECREF(modules);
       Py_DECREF(sys);
 
