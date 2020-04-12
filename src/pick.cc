@@ -142,7 +142,7 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 }
 
 // use the correct include file in the correct place
-glm::mat4 get_molecule_mvp();
+// glm::mat4 get_molecule_mvp();
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 pick_info
@@ -161,7 +161,7 @@ atom_pick_gtk3(GdkEventButton *event){
    int h = allocation.height;
    float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
    float mouseY = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = g.get_molecule_mvp();
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, -1.0f, 1.0f);

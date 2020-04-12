@@ -1541,7 +1541,8 @@ graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
    run_post_manipulation_hook_scm(imol, mode);
 #endif // GUILE
 #ifdef USE_PYTHON
-   run_post_manipulation_hook_py(imol, mode);
+   // turn this off for the moment.
+   // run_post_manipulation_hook_py(imol, mode);
 #endif
 
 }
@@ -1736,41 +1737,47 @@ graphics_info_t::clear_up_moving_atoms() {
 
    continue_update_refinement_atoms_flag = false;
    continue_threaded_refinement_loop = false;
+   if (moving_atoms_asc) {
 
-   if (moving_atoms_asc->atom_selection != NULL) {
-      if (moving_atoms_asc->n_selected_atoms > 0) {
-    moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
-    moving_atoms_asc->atom_selection = NULL;
+      if (moving_atoms_asc->atom_selection != NULL) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
+            moving_atoms_asc->atom_selection = NULL;
+         } else {
+            std::cout << "WARNING:: attempting to delete non-NULL ";
+            std::cout << "moving_atoms_asc.atom_selection" << std::endl;
+            std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
+            std::cout << "ignoring " << std::endl;
+         }
       } else {
-    std::cout << "WARNING:: attempting to delete non-NULL ";
-    std::cout << "moving_atoms_asc.atom_selection" << std::endl;
-    std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
-    std::cout << "ignoring " << std::endl;
+         // std::cout << "WARNING:: Ignoring attempt to delete NULL moving_atoms_asc.atom_selection"
+         // << std::endl;
       }
-   } else {
-      // std::cout << "WARNING:: Ignoring attempt to delete NULL moving_atoms_asc.atom_selection"
-      // << std::endl;
-   }
-   if (moving_atoms_asc->mol != NULL) {
-      if (moving_atoms_asc->n_selected_atoms > 0) {
-    moving_atoms_asc->mol = NULL;
+      if (moving_atoms_asc->mol != NULL) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            moving_atoms_asc->mol = NULL;
+         } else {
+            std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
+            std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
+            std::cout << "ignoring " << std::endl;
+         }
       } else {
-    std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
-    std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
-    std::cout << "ignoring " << std::endl;
+         if (false) {
+            std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
+            std::cout << "ignoring " << std::endl;
+         }
       }
-   } else {
-      if (false) {
-    std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
-    std::cout << "ignoring " << std::endl;
-      }
+      moving_atoms_asc->n_selected_atoms = 0;
    }
 
    dynamic_distances.clear();
 
    // and now the signal that moving_atoms_asc has been cleared:
    //
-   moving_atoms_asc->n_selected_atoms = 0;
+   moving_atoms_asc = NULL; // 20200412-PE. Why was this not done years ago?
+                            // Suspicious.
+                            // OK, so let the test be on moving_atoms_asc->mol
+                            // moving_atoms_asc is set in init()
 
 #ifdef HAVE_GSL
 
@@ -1933,6 +1940,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
             regularize_object_bonds_box.clear_up();
             regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+
             moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
@@ -2006,6 +2015,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
           do_rama_markup, do_rama_markup);
       moving_atoms_bonds_lock = 0; // unlocked
    }
+
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
+   moving_atoms_molecule.make_glsl_bonds_type_checked();
+
 }
 
 

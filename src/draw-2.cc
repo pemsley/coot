@@ -22,6 +22,7 @@
 #include "framebuffer.hh"
 
 #include "text-rendering-utils.hh"
+#include "cc-interface-scripting.hh"
 
 // header
 glm::mat4 get_view_rotation();
@@ -53,7 +54,8 @@ void init_shaders() {
 
 }
 
-void init_screen_quads() {
+void
+graphics_info_t::init_screen_quads() {
 
    graphics_info_t::shader_for_screen.Use();
    // screen quad VAO
@@ -72,7 +74,8 @@ void init_screen_quads() {
 
 }
 
-void init_blur_quads() {
+void
+graphics_info_t::init_blur_quads() {
 
    graphics_info_t::shader_for_blur.Use();
    // screen quad VAO
@@ -91,15 +94,17 @@ void init_blur_quads() {
 
 }
 
-void init_central_cube();
+// void graphics_info_t::init_central_cube();
 
-void init_buffers() {
+void
+graphics_info_t::init_buffers() {
    init_central_cube();
    init_screen_quads();
    init_blur_quads();
 }
 
-void init_central_cube() {
+void
+graphics_info_t::init_central_cube() {
 
    float positions[24] = {
                           -0.5,  -0.5, -0.5,
@@ -142,7 +147,8 @@ void init_central_cube() {
 
 }
 
-void init_hud_text() {
+void
+graphics_info_t::init_hud_text() {
 
    std::cout << "------------------ init_hud_text() ---------------------\n";
    graphics_info_t g;
@@ -168,7 +174,9 @@ void init_hud_text() {
    std::cout << "------------------ done init_hud_text() ---------------------\n";
 }
 
-glm::mat4 get_molecule_mvp() {
+// static
+glm::mat4
+graphics_info_t::get_molecule_mvp() {
 
    // presumes that we are in the correct programID
 
@@ -266,7 +274,8 @@ glm::mat4 get_molecule_mvp() {
 // can we work out the eye position without needing to unproject? (because that depends
 // on get_molecule_mvp()...
 //
-glm::vec3 get_eye_position() {
+glm::vec3
+graphics_info_t::get_eye_position() {
 
    if (! graphics_info_t::perspective_projection_flag) {
 
@@ -295,7 +304,8 @@ glm::vec3 get_eye_position() {
 
 }
 
-glm::vec4 new_unproject(float z) {
+glm::vec4
+graphics_info_t::new_unproject(float z) {
    // z is 1 and -1 for front and back (or vice verse).
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
@@ -318,7 +328,8 @@ glm::vec4 new_unproject(float z) {
 }
 
 
-glm::vec4 new_unproject(float x, float y, float z) {
+glm::vec4
+graphics_info_t::new_unproject(float x, float y, float z) {
    // z is 1 and -1 for front and back (or vice verse).
    // GtkAllocation allocation;
    // gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
@@ -337,7 +348,8 @@ glm::vec4 new_unproject(float x, float y, float z) {
    return worldPos_f;
 }
 
-glm::mat4 get_view_rotation() {
+glm::mat4
+graphics_info_t::get_view_rotation() {
 
    // need to be in the correct program
 
@@ -347,7 +359,7 @@ glm::mat4 get_view_rotation() {
 
 
 void
-setup_map_uniforms(const Shader &shader,
+graphics_info_t::setup_map_uniforms(const Shader &shader,
                    const glm::mat4 &mvp,
                    const glm::mat4 &view_rotation,
                    float density_surface_opacity) {
@@ -395,7 +407,8 @@ setup_map_uniforms(const Shader &shader,
 }
 
 
-void draw_map_molecules(bool draw_transparent_maps) {
+void
+graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    glLineWidth(1.0f);
    GLenum err = glGetError();
@@ -459,7 +472,7 @@ void draw_map_molecules(bool draw_transparent_maps) {
 
                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
-               setup_map_uniforms(shader, mvp, view_rotation, m.density_surface_opacity);
+               graphics_info_t::setup_map_uniforms(shader, mvp, view_rotation, m.density_surface_opacity);
                glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
                               GL_UNSIGNED_INT, nullptr);
                err = glGetError();
@@ -530,7 +543,7 @@ void draw_map_molecules(bool draw_transparent_maps) {
 }
 
 void
-draw_model_molecules() {
+graphics_info_t::draw_model_molecules() {
 
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation();
@@ -605,7 +618,86 @@ draw_model_molecules() {
 }
 
 void
-draw_molecular_triangles() {
+graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
+
+   // all these draw functions should be moved int graphics_info_t.
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 view_rotation = get_view_rotation();
+
+   Shader &shader = graphics_info_t::shader_for_models;
+   if (true) {
+      const molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
+
+      if (false)
+         std::cout << " moving atoms molecule: n_vertices_for_model_VertexArray "
+                   << m.n_vertices_for_model_VertexArray << std::endl;
+
+      if (m.n_vertices_for_model_VertexArray > 0) {
+
+         glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
+         gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+
+         shader.Use();
+         GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
+                                                       << err << std::endl;
+
+         glBindVertexArray(m.m_VertexArray_for_model_ID);
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glBindVertexArray() "
+                            << m.m_VertexArray_for_model_ID
+                            << " with GL err " << err << std::endl;
+
+         // should not be needed?
+         glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
+         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
+         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
+         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() i " << err << std::endl;
+
+         GLuint mvp_location           = shader.mvp_uniform_location;
+         GLuint view_rotation_location = shader.view_rotation_uniform_location;
+
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() pre mvp " << err << std::endl;
+         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
+         glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation " << err << std::endl;
+         // std::cout << glm::to_string(mvp) << std::endl;
+         // std::cout << glm::to_string(view_rotation) << std::endl;
+
+         GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
+         glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+         glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
+
+         GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
+         glm::vec4 ep = new_unproject(0,0,-1);
+         glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+
+         // draw with the vertex count, not the index count.
+         GLuint n_verts = m.n_indices_for_model_triangles;
+         // std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
+         glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
+                            << n_verts << " with GL err " << err << std::endl;
+
+      }
+   }
+}
+
+void
+graphics_info_t::draw_molecular_triangles() {
 #ifdef USE_MOLECULES_TO_TRIANGLES
    // Martin's triangular molecules
    //
@@ -663,11 +755,12 @@ draw_molecular_triangles() {
 }
 
 void
-draw_molecules() {
+graphics_info_t::draw_molecules() {
 
    // opaque things
 
    draw_model_molecules();
+   draw_intermediate_atoms();
    draw_molecular_triangles(); // Martin's renderings
 
    // transparent things... (maybe this function (draw_molecules()) should not be split out).
@@ -677,7 +770,7 @@ draw_molecules() {
 }
 
 void
-draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
+graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
    gtk_gl_area_make_current(glarea);
    glLineWidth(2.0);  // GLv4 antialiasing - OpenGL implementations are not required to support this
@@ -750,11 +843,12 @@ draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
 
 void
-draw_central_cube(GtkGLArea *glarea) {
+graphics_info_t::draw_central_cube(GtkGLArea *glarea) {
    draw_cube(glarea, VIEW_CENTRAL_CUBE);
 }
 
-void draw_origin_cube(GtkGLArea *glarea) {
+void
+graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
    draw_cube(glarea, ORIGIN_CUBE);
 }
 
@@ -766,7 +860,8 @@ GtkWidget *my_gtkglarea(GtkWidget *vbox) {
    return w;
 }
 
-void setup_lights() {
+void
+graphics_info_t::setup_lights() {
 
    // not your old style lights
 
@@ -800,8 +895,9 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() A1 err " << err << std::endl;
 
-   init_shaders();
-   init_buffers();
+   graphics_info_t g;
+   g.init_shaders();
+   g.init_buffers();
    err = glGetError();
    std::cout << "on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
@@ -851,7 +947,7 @@ on_glarea_realize(GtkGLArea *glarea) {
       glEnable(GL_LINE_SMOOTH);
    }
 
-   setup_lights();
+   g.setup_lights();
 
    GLfloat light0pos[4];
    glGetLightfv(GL_LIGHT0, GL_POSITION, light0pos);
@@ -867,11 +963,18 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    err = glGetError(); if (true) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
 
-   setup_key_bindings();
+   g.setup_key_bindings();
 }
 
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
+
+   return graphics_info_t::render(glarea);
+
+}
+
+gboolean
+graphics_info_t::render(GtkGLArea *glarea) {
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
@@ -989,7 +1092,7 @@ on_glarea_render(GtkGLArea *glarea) {
 }
 
 void
-reset_frame_buffers(int width, int height) {
+graphics_info_t::reset_frame_buffers(int width, int height) {
    graphics_info_t g;
    unsigned int index_offset = 0;
    g.screen_framebuffer.init(width, height, index_offset, "screen");
@@ -1003,7 +1106,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   reset_frame_buffers(width, height);
+   g.reset_frame_buffers(width, height);
 }
 
 gboolean
@@ -1094,9 +1197,9 @@ do_drag_pan_gtk3(GtkWidget *widget) {
    int w = allocation.width;
    int h = allocation.height;
 
-   glm::mat4 mvp = get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
-
    graphics_info_t g;
+   glm::mat4 mvp = g.get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+
    float mouseX_1 = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;
    float mouseY_1 = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
    float mouseX_2 = g.mouse_current_x  / (w * 0.5f) - 1.0f;
@@ -1231,7 +1334,8 @@ view_spin_func(gpointer data) {
 
 #include "c-interface.h" // for update_go_to_atom_from_current_position()
 
-void translate_in_screen_z(float step_size) {
+void
+graphics_info_t::translate_in_screen_z(float step_size) {
 
    // this looks a bit weird without perspective view
 
@@ -1250,17 +1354,18 @@ void translate_in_screen_z(float step_size) {
 
 }
 
-void move_forwards() {
+void
+graphics_info_t::move_forwards() {
    translate_in_screen_z(-1.0);
 }
 
-void move_backwards() {
+void
+graphics_info_t::move_backwards() {
    translate_in_screen_z(1.0);
 }
 
-#include "cc-interface-scripting.hh"
 void
-setup_key_bindings() {
+graphics_info_t::setup_key_bindings() {
 
    graphics_info_t g;
 
@@ -1268,9 +1373,7 @@ setup_key_bindings() {
 
    auto l1 = []() { adjust_clipping(0.3); };
    auto l2 = []() { adjust_clipping(-0.3); };
-   auto l3 = []() { move_forwards(); };
-   auto l4 = []() { move_backwards(); };
-   auto l5 = []() { blob_under_pointer_to_screen_centre(); };
+   auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); };
 
    auto l6 = []() {
                 if (graphics_info_t::idle_function_spin_rock_token != -1) {
@@ -1311,19 +1414,19 @@ setup_key_bindings() {
 
    auto l11 = []() { graphics_info_t::zoom *= 1.1; };
 
-   auto l12 = []() { move_forwards(); };
+   auto l12 = []() { graphics_info_t g; g.move_forwards(); };
 
-   auto l13 = []() { move_backwards(); };
+   auto l13 = []() { graphics_info_t g; g.move_backwards(); };
 
    auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); };
 
    auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); };
 
-   auto l16 = []() { undo_last_move(); };
+   auto l16 = []() { graphics_info_t g; g.undo_last_move(); };
 
    auto l17 = []() {
-                 bool reorienting = graphics_info_t::reorienting_next_residue_mode;
                  graphics_info_t g;
+                 bool reorienting = g.reorienting_next_residue_mode;
                  if (reorienting) {
                     if (graphics_info_t::shift_is_pressed) {
                        g.reorienting_next_residue(false); // backwards
@@ -1340,9 +1443,9 @@ setup_key_bindings() {
                  }
               };
 
-   auto l18 = []() {
-                 accept_moving_atoms();
-              };
+   auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); };
+
+   auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); };
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
@@ -1362,6 +1465,7 @@ setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l17, "Next Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
 
    // control keys
 
@@ -1370,12 +1474,12 @@ setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_residue_key_binding);
    kb_vec.push_back(p1);
 
-   auto lc2 = []() { apply_undo(); };
+   auto lc2 = []() { graphics_info_t g; g.apply_undo(); };
    key_bindings_t undo_key_binding(lc2, "Undo");
    std::pair<keyboard_key_t, key_bindings_t> p2(keyboard_key_t(GDK_KEY_z, true), undo_key_binding);
    kb_vec.push_back(p2);
 
-   auto lc3 = []() { apply_redo(); };
+   auto lc3 = []() { graphics_info_t g; g.apply_redo(); };
    key_bindings_t redo_key_binding(lc3, "Redo");
    std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
    kb_vec.push_back(p3);
@@ -1451,7 +1555,8 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
    return TRUE;
 }
 
-void my_glarea_add_signals_and_events(GtkWidget *glarea) {
+void
+my_glarea_add_signals_and_events(GtkWidget *glarea) {
 
    gtk_widget_add_events(glarea, GDK_SCROLL_MASK);
    gtk_widget_add_events(glarea, GDK_BUTTON_PRESS_MASK);

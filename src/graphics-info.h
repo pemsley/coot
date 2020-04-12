@@ -583,6 +583,7 @@ class graphics_info_t {
    static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being updated
 
    static atom_selection_container_t *moving_atoms_asc;
+   // static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
    static int imol_refinement_map;
@@ -1050,6 +1051,8 @@ public:
    // accept/reject window, now controlled by keyboarding in main window.
    static GtkWidget *accept_reject_dialog;
    static GtkWidget *refine_params_dialog;
+   
+   void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog);
 
    // flag to display the accept/reject dialog in the toolbar
    static int accept_reject_dialog_docked_flag;
@@ -1508,6 +1511,9 @@ public:
    void set_phs_filename( std::string filename);
    // static int phs_cell_from_molecule;
 
+   void clear_up_moving_atoms_wrapper(); // wraps the below functions - and is the Esc key function
+
+   void clear_up_glsl_buffers_for_moving_atoms();
    // get rid of the actual molecule (as opposed to
    // clear_moving_atoms_object which removed the bonds).
    void clear_up_moving_atoms();
@@ -4036,6 +4042,42 @@ string   static std::string sessionid;
    static bool perspective_projection_flag;
    // ---------------------------------------------
    void init_shaders();
+
+   // draw-2 functions
+   void init_screen_quads();
+   void init_blur_quads();
+   void init_central_cube();
+   void init_buffers();
+   void init_hud_text();
+   static glm::mat4 get_molecule_mvp();
+   static glm::vec3 get_eye_position();
+   static glm::vec4 new_unproject(float z);
+   static glm::vec4 new_unproject(float x, float y, float z);
+   static glm::mat4 get_view_rotation();
+   static void setup_map_uniforms(const Shader &shader, // in the draw loop
+                                  const glm::mat4 &mvp,
+                                  const glm::mat4 &view_rotation,
+                                  float density_surface_opacity);
+   static gboolean render(GtkGLArea *glarea);
+   static void draw_map_molecules(bool draw_transparent_maps);
+   static void draw_model_molecules();
+   static void draw_intermediate_atoms();
+   static void draw_molecular_triangles();
+   static void draw_molecules();
+   static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
+   static void draw_central_cube(GtkGLArea *glarea);
+   static void draw_origin_cube(GtkGLArea *glarea);
+   void reset_frame_buffers(int width, int height);
+   void setup_lights();
+   void translate_in_screen_z(float step_size);
+   void move_forwards();
+   void move_backwards();
+
+   int blob_under_pointer_to_screen_centre();
+
+   // make this private when the glarea render function is moved into graphics_info_t
+   //
+   static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
 
    static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
    void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);

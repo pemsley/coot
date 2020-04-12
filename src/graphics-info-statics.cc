@@ -40,6 +40,8 @@ std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t:
 glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,0);
 std::map<unsigned int, gl_lights_info_t> graphics_info_t::lights;
 
+molecule_class_info_t graphics_info_t::moving_atoms_molecule;
+
 // static
 void
 graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) {

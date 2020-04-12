@@ -388,6 +388,72 @@ graphics_info_t::copy_model_molecule(int imol) {
    return iret;
 }
 
+
+void
+graphics_info_t::save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
+
+   // 20070801 crash reported by "Gajiwala, Ketan"
+
+   // OK, we can reproduce a problem
+   // Refine something
+   // Close the window using WM delete window
+   // Press return in Graphics window (globjects:key_press_event() GDK_Return case)
+   // 
+   // So, we need to set graphics_info_t::accept_reject_dialog to NULL
+   // when we get a WM delete event on the Accept/Reject box
+   
+   if (acc_rej_dialog) { 
+      gint upositionx, upositiony;
+      // if (acc_rej_dialog->window) {
+      if (true) { // no access to window
+	    std::cout << "GTK-FIXME no root origin B" << std::endl;
+	 // gdk_window_get_root_origin (acc_rej_dialog->window, &upositionx, &upositiony);
+	 // graphics_info_t::accept_reject_dialog_x_position = upositionx;
+	 //	 graphics_info_t::accept_reject_dialog_y_position = upositiony;
+      } else {
+	 std::cout << "ERROR:: Trapped an error in save_accept_reject_dialog_window_position\n"
+		   << "        Report to Central Control!\n"
+		   << "        (What did you do to make this happen?)\n";
+      }
+   }
+}
+
+void
+graphics_info_t::clear_up_glsl_buffers_for_moving_atoms() {
+
+}
+
+void
+graphics_info_t::clear_up_moving_atoms_wrapper() {
+
+   rebond_molecule_corresponding_to_moving_atoms();
+
+   // poke a value into the threaded refinement loop, to stop
+   if (continue_threaded_refinement_loop) {
+      // and tell it to clear up the moving atoms
+      threaded_refinement_needs_to_clear_up = true;
+      std::cout << ".... Esc key tells refinement to clean up" << std::endl;
+      continue_threaded_refinement_loop = false;
+   } else {
+
+      // refinement was not running. we can clear up the atoms ourselves
+      clear_up_moving_atoms();
+      clear_up_glsl_buffers_for_moving_atoms();
+      clear_moving_atoms_object();
+
+      if (accept_reject_dialog) {
+         if (accept_reject_dialog_docked_flag == coot::DIALOG) {
+            save_accept_reject_dialog_window_position(accept_reject_dialog);
+            // this calls clear_up_moving_atoms() and clears atom pull restraint.
+            gtk_widget_destroy(accept_reject_dialog);
+            accept_reject_dialog = 0;
+         } else {
+            gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+         }
+      }
+   }
+}
+
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::restraints_lock(false);
 std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked

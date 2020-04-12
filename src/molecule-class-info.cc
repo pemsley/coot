@@ -3784,6 +3784,7 @@ molecule_class_info_t::make_bonds_type_checked() {
       std::cout << "--- make_bonds_type_checked() done " << std::endl;
 }
 
+
 void
 molecule_class_info_t::make_glsl_bonds_type_checked() {
 
@@ -3820,7 +3821,8 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    // This needs fixing? Or more thought?
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits = make_generic_vertices_for_atoms(index_to_colour);
+   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > atom_bits =
+      make_generic_vertices_for_atoms(index_to_colour);
 
    unsigned int sum_n_vertices_start_atoms  = sum_n_vertices;
    unsigned int sum_n_triangles_start_atoms = sum_n_triangles;
