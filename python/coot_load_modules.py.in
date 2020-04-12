@@ -152,7 +152,7 @@ def load_from_search_load_path(file):
         print("Error finding", file)
 
 
-python_list = ["redefine_functions.py", "ncs.py", "coot_utils.py"]
+python_list = ["redefine_functions.py", "ncs.py", "coot_utils.py", "fitting.py"]
 print("Here in coot_load_modules with python_list", python_list)
 
 

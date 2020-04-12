@@ -680,7 +680,7 @@ def model_molecule_list():
 
     model_list = []
     for i in range(graphics_n_molecules()):
-       if is_valid_model_molecule(i):
+       if coot.is_valid_model_molecule(i):
           model_list.append(i)
     return model_list
 
@@ -1591,14 +1591,14 @@ def is_nucleotide_chain_qm(imol, chain_id):
 # return True or False
 #
 def valid_model_molecule_qm(imol):
-    if (is_valid_model_molecule(imol)==1): return True
+    if (coot.is_valid_model_molecule(imol)==1): return True
     else: return False
 
 # python (schemeyish) interface to eponymous scripting interface function.
 # return True or False
 #
 def valid_map_molecule_qm(imol):
-    if (is_valid_map_molecule(imol)==1): return True
+    if (coot.is_valid_map_molecule(imol)==1): return True
     else: return False
 
 # convenience function (slightly less typing).
