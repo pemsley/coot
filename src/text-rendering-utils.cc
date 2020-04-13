@@ -182,7 +182,7 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 
         GLfloat w = ch.Size.x * scale;
         GLfloat h = ch.Size.y * scale;
-        // Update VBO for each character
+        // Update VBO for each character, 2 triangles
         GLfloat vertices[6][4] = {
             { xpos,     ypos + h,   0.0, 0.0 },
             { xpos,     ypos,       0.0, 1.0 },
@@ -220,5 +220,6 @@ void draw_hud_text(int widget_width, int widget_height, Shader &shader) {
    float x = widget_width  - float(widget_width)/180.0 * 130.0;
    float y = widget_height -  30.0;
    // std::cout << "x " << x << " y " << y << std::endl;
-   RenderText(shader, "Welcome to Coot",  x, y, 0.5f, glm::vec3(0.6, 0.7, 0.7f));
+   float scale = 0.4f;
+   RenderText(shader, "Welcome to Coot",  x, y, scale, glm::vec3(0.6, 0.7, 0.7f));
 }

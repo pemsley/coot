@@ -550,6 +550,7 @@ graphics_info_t::draw_model_molecules() {
 
    Shader &shader = graphics_info_t::shader_for_models;
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+
       const molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
       if (! m.draw_it) continue;
@@ -613,8 +614,17 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
                             << n_verts << " with GL err " << err << std::endl;
 
+         draw_molecule_atom_labels(m, mvp, view_rotation);
+
       }
    }
+}
+
+void
+graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
+                                           const glm::mat4 &mvp,
+                                           const glm::mat4 &view_rotation) {
+
 }
 
 void
@@ -983,36 +993,38 @@ graphics_info_t::render(GtkGLArea *glarea) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    GLenum err = glGetError();
-   if (err) std::cout << "on_glarea_render() start " << err << std::endl;
+   if (err) std::cout << "render() start " << err << std::endl;
 
    // is this needed?
    gtk_gl_area_make_current(glarea);
-   err = glGetError(); if (err) std::cout << "on_glarea_render() post gtk_gl_area_make_current() " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "render() post gtk_gl_area_make_current() " << err << std::endl;
 
    graphics_info_t::screen_framebuffer.bind();
-   err = glGetError(); if (err) std::cout << "on_glarea_render() post screen_buffer bind() " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "render() post screen_buffer bind() " << err << std::endl;
 
    glEnable(GL_DEPTH_TEST);
 
    {
       const glm::vec3 &bg = graphics_info_t::background_colour;
       glClearColor (bg[0], bg[1], bg[2], 1.0);
-      err = glGetError(); if (err) std::cout << "on_glarea_render B err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "render() B err " << err << std::endl;
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      err = glGetError(); if (err) std::cout << "on_glarea_render C err " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "render() C err " << err << std::endl;
 
       draw_central_cube(glarea);
       draw_origin_cube(glarea);
-      err = glGetError(); if (err) std::cout << "on_glarea_render  pre-draw-text err " << err << std::endl;
-
-      if (false) {
-         draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
-         err = glGetError(); if (err) std::cout << "on_glarea_render post-draw-text err " << err << std::endl;
-      }
-
-      err = glGetError(); if (err) std::cout << "on_glarea_render gtk3_draw_molecules() " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
 
       draw_molecules();
+
+      // True HUD text (not atom labels) should be added *after* blurring - not here.
+      if (true) {
+         draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+         err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
+      }
+       err = glGetError(); if (err) std::cout << "render() draw_molecules() " << err << std::endl;
+
+
       glBindVertexArray(0);
    }
 
