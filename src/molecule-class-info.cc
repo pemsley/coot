@@ -3795,20 +3795,30 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
 
    // setup a few colours
    std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
+   std::cout << "DEBUG:: bonds_box.num_colours " << bonds_box.num_colours << std::endl;
    float brass_r = static_cast<float>(229)/static_cast<float>(255);
    float brass_g = static_cast<float>(177)/static_cast<float>(255);
    float brass_b = static_cast<float>(119)/static_cast<float>(255);
    glm::vec4 brass(brass_r, brass_g, brass_b, 1.0f);
-   for (int i=0; i<bonds_box.num_colours; i++) {
-      index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-      if (i == 0) index_to_colour[i] = glm::vec4(0.7, 0.6, 0.5, 1.0);
-      // if (i == 0) index_to_colour[i] = glm::vec4(0.2, 0.2, 0.2, 1.0); // replace, meh. too dark
-      if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
-      if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
-      if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
-      if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
-      ;;
-      // if (i == 0) index_to_colour[i] = brass;
+   if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
+      for (int i=0; i<bonds_box.num_colours; i++) {
+         index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
+         if (i == 0) index_to_colour[i] = glm::vec4(0.7, 0.6, 0.5, 1.0);
+         // if (i == 0) index_to_colour[i] = glm::vec4(0.2, 0.2, 0.2, 1.0); // replace, meh. too dark
+         if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
+         if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
+         if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
+         if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
+         ;;
+         // if (i == 0) index_to_colour[i] = brass;
+      }
+   } else {
+      // rainbow
+      for (int i=0; i<bonds_box.num_colours; i++) {
+         set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW_BONDS);
+         glm::vec4 glm_col(bond_colour_internal[0], bond_colour_internal[1], bond_colour_internal[2], 1.0);
+         index_to_colour[i] = glm_col;
+      }
    }
 
    for (int i=0; i<bonds_box.num_colours; i++) {
