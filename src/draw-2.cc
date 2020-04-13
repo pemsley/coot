@@ -625,6 +625,42 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
 
+   // put a triangle or square where the atom label should be, facing the camera
+   // "billboarding"
+
+   int n_atoms_to_label = m.labelled_atom_index_list.size();
+   if (n_atoms_to_label == 0) return;
+
+   glm::vec3 eye_pos = get_eye_position();
+   glm::vec4 global_up(0,1,0,1);
+   glm::vec4 view_up = view_rotation * global_up;
+   glm::vec3 view_up_3 = glm::vec3(view_up_3);
+   for (int ii=0; ii<n_atoms_to_label ; ii++) {
+      std::pair<std::string, clipper::Coord_orth> lab_pos =
+         m.make_atom_label_string(ii, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+      const clipper::Coord_orth &co = lab_pos.second;
+      if (false)
+         std::cout << "Atom label at " << co.format() << " "
+                   << coot::util::single_quote(lab_pos.first) << std::endl;
+      glm::vec3 point(co.x(), co.y(), co.z());
+      glm::vec3 eye_to_point_uv = glm::normalize(point-eye_pos);
+      glm::vec3 view_x = glm::cross(view_up_3, eye_to_point_uv);
+      glm::vec3 coords[6];
+
+      // might be the transpose of this:
+      glm::mat3 billboard_rotation(view_x.x, view_up_3.x, eye_to_point_uv.x,
+                                   view_x.y, view_up_3.y, eye_to_point_uv.y,
+                                   view_x.z, view_up_3.z, eye_to_point_uv.z);
+      coords[0] = glm::vec3(0,0,0); coords[1] = glm::vec3(1,0,0); coords[2] = glm::vec3(1,1,0);
+      coords[3] = glm::vec3(0,0,0); coords[4] = glm::vec3(1,1,0); coords[5] = glm::vec3(0,1,0);
+      // now rotate those coordinates by the above rotation matrix and translate them
+      // to/by point
+      for (unsigned int ii=0; ii<6; ii++)
+         coords[ii] = billboard_rotation * coords[ii];
+      for (unsigned int ii=0; ii<6; ii++)
+         coords[ii] += point;
+   }
+
 }
 
 void

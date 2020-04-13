@@ -586,7 +586,7 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 void
 molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
-      short int seg_ids_in_atom_labels_flag) {
+                                   short int seg_ids_in_atom_labels_flag) {
 
    if (draw_it) {
 
@@ -2114,8 +2114,8 @@ int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom
       add_to_labelled_atom_list(i);
    else
       std::cout << atom_id << "/" << iresno << "/" << chain_id
-   << " is not found in this molecule: (" <<  imol_no << ") "
-   << name_ << std::endl;
+                << " is not found in this molecule: (" <<  imol_no << ") "
+                << name_ << std::endl;
 
    return i;
 }
@@ -3448,8 +3448,8 @@ molecule_class_info_t::label_symmetry_atom(int i) {
 
 std::pair<std::string, clipper::Coord_orth>
 molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
-         int brief_atom_labels_flag,
-         short int seg_ids_in_atom_labels_flag) const {
+                                              int brief_atom_labels_flag,
+                                              short int seg_ids_in_atom_labels_flag) const {
 
    mmdb::Atom *at = atom_sel.atom_selection[labelled_atom_index_list[ith_labelled_atom]];
    std::string label = make_atom_label_string(at, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
@@ -3468,30 +3468,30 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int s
 
       if (i < atom_sel.n_selected_atoms) {
 
-    mmdb::PAtom atom = (atom_sel.atom_selection)[i];
+         mmdb::PAtom atom = (atom_sel.atom_selection)[i];
 
-    if (atom) {
+         if (atom) {
 
-       std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+            std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
 
-       // GLfloat white[3] = { 1.0, 1.0, 1.0 };
-       GLfloat pink[3] =  { graphics_info_t::font_colour.red,
-    graphics_info_t::font_colour.green,
-    graphics_info_t::font_colour.blue };
+            // GLfloat white[3] = { 1.0, 1.0, 1.0 };
+            GLfloat pink[3] =  { graphics_info_t::font_colour.red,
+                                 graphics_info_t::font_colour.green,
+                                 graphics_info_t::font_colour.blue };
 
-       // glClear(GL_COLOR_BUFFER_BIT);
-       glColor3fv(pink);
-       // glShadeModel (GL_FLAT);
+            // glClear(GL_COLOR_BUFFER_BIT);
+            glColor3fv(pink);
+            // glShadeModel (GL_FLAT);
 
-       // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-       graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
+            // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
+            graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
 
-    }
+         }
       } else {
-    std::cout << "INFO:: trying to label atom out of range: "
-      << i << " " << atom_sel.n_selected_atoms
-      << " Removing label\n";
-    unlabel_atom(i);
+         std::cout << "INFO:: trying to label atom out of range: "
+                   << i << " " << atom_sel.n_selected_atoms
+                   << " Removing label\n";
+         unlabel_atom(i);
       }
    }
 }
