@@ -289,16 +289,13 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
                                                 const std::string &direction) {
 
 
-   std::cout << "------------ intelligent_near_atom_centring " << direction
-             << std::endl;
-
    std::string chain =     go_to_atom_chain_;
    std::string atom_name = go_to_atom_atom_name_;
    std::string ins_code =  go_to_atom_inscode_;
    int resno = go_to_atom_residue();
    int imol = go_to_atom_molecule();
 
-   if (true) {
+   if (false) {
       std::cout << "intelligent_near_atom_centring() " << direction << std::endl;
       std::cout << "intelligent_near_atom_centring() " << imol << std::endl;
       std::cout << "intelligent_near_atom_centring() :" << chain << ":" << std::endl;
@@ -337,13 +334,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
          atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code, rc);
       }
 
-      std::cout << "in intelligent_near_atom_centring here with atom_index " << atom_index
-                << std::endl;
-
       if (atom_index != -1) {
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
-         std::cout << "in intelligent_near_atom_centring here with next atom "
-                   << coot::atom_spec_t(next_atom) << std::endl;
          go_to_atom_chain_       = next_atom->GetChainID();
          go_to_atom_atom_name_   = next_atom->name;
          go_to_atom_residue_     = next_atom->GetSeqNum();
@@ -714,9 +706,10 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
      int resno = atoi(resno_inscode.first.c_str());
      std::string inscode = resno_inscode.second;
 
-//      std::cout << "DEBUG:: in apply_go_to_atom_from_widget: chain_str " << chain_str
-// 	       << " resno " << resno << " inscode " << inscode << " atom_name_str "
-// 	       << atom_name_str << " split thing " << p.second << "\n";
+     if (true)
+        std::cout << "DEBUG:: in apply_go_to_atom_from_widget(): chain_str " << chain_str
+                  << " resno " << resno << " inscode " << inscode << " atom_name_str \""
+                  << atom_name_str << "\" split thing \"" << p.second << "\"\n";
 
      set_go_to_atom_chain_residue_atom_name(chain_str,
 					    resno,

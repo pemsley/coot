@@ -1547,8 +1547,14 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    graphics_info_t g;
    gboolean handled = false;
 
+   // "space" and "shift space" have the same keyval. So ctrl and shift handling are different.
    bool control_is_pressed_flag = false;
+   g.shift_is_pressed = false;
    if (event->state & GDK_CONTROL_MASK) control_is_pressed_flag = true;
+   if (event->state & GDK_SHIFT_MASK) g.shift_is_pressed = true;
+   if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
+
+
    keyboard_key_t kbk(event->keyval, control_is_pressed_flag);
 
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
@@ -1580,6 +1586,12 @@ gboolean
 on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
 
    graphics_info_t g;
+
+   // We need to check the GDK_KEY_Shift_R also, I guess. Not clear
+   // to me how to do that now. Fix later.
+   g.shift_is_pressed = false;
+   if (event->state & GDK_SHIFT_MASK) g.shift_is_pressed = true;
+   if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
 
    if (event->keyval == GDK_KEY_space) {
       g.reorienting_next_residue_mode = false; // hack

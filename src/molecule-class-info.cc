@@ -2147,18 +2147,18 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 #endif
           deuterium_spots();
           if (do_zero_occ_spots)
-     zero_occupancy_spots();
+             zero_occupancy_spots();
           display_bonds(against_a_dark_background);
           draw_fixed_atom_positions();
           if (show_ghosts_flag) {
-     if (ncs_ghosts.size() > 0) {
-        for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-   display_ghost_bonds(ighost);
-        }
-     }
+             if (ncs_ghosts.size() > 0) {
+                for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+                   display_ghost_bonds(ighost);
+                }
+             }
           }
           if (show_cis_peptide_markups)
-     draw_cis_peptide_markups();
+             draw_cis_peptide_markups();
 
           draw_bad_CA_CA_dist_spots();
 
@@ -2241,7 +2241,7 @@ molecule_class_info_t::draw_cis_peptide_markups() const {
        coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
 
        if ((! use_radius_limit.first)
-    || graphics_info_t::is_within_display_radius(fan_centre)) {
+           || graphics_info_t::is_within_display_radius(fan_centre)) {
 
           coot::Cartesian v1 = fan_centre - m.pt_ca_1;
           coot::Cartesian v2 = fan_centre - m.pt_c_1;
@@ -2352,8 +2352,8 @@ molecule_class_info_t::display_bonds(bool against_a_dark_background) {
 //
 void
 molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
-        float p_bond_width,
-        bool against_a_dark_background) {
+                                     float p_bond_width,
+                                     bool against_a_dark_background) {
 
    // pass this?
    const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
@@ -3809,6 +3809,10 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
          if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
          if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
          if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
+         if (i == 5) index_to_colour[i] = glm::vec4(0.8, 0.8, 0.8, 1.0);
+         if (i == 6) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.65, 1.0);
+         if (i == 7) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.65, 1.0);
+         if (i == 8) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.65, 1.0);
          ;;
          // if (i == 0) index_to_colour[i] = brass;
       }
@@ -3877,6 +3881,10 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
          for (int i=0; i<bonds_box.num_colours; i++) {
             graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
+            bool do_thinning = false;
+            if (ll.thin_lines_flag)
+               do_thinning = true;
+
             unsigned int n_triangles = n_slices * n_stacks * ll.num_lines * 2;
             for (int j=0; j< ll.num_lines; j++) {
 
@@ -3887,7 +3895,9 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
                coot::Cartesian b = finish - start;
                float bl = b.length();
                // fill vertices and indices
-               cylinder c(pospair, radius, radius, bl, n_slices, n_stacks);
+               float radius_scale = 1.0;
+               if (do_thinning) radius_scale = 0.5;
+               cylinder c(pospair, radius * radius_scale, radius * radius_scale, bl, n_slices, n_stacks);
                // indices are a bit hard - they need to be offset
                for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {
                   if (false) {
@@ -6221,19 +6231,16 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
          coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
          mmdb::Residue *this_residue = get_residue(this_residue_spec);
 
-         std::cout << "molecule intelligent_next_atom here A " << this_residue << std::endl;
          if (this_residue) {
-            std::cout << "molecule intelligent_next_atom here B " << this_residue << std::endl;
 
             if (close_to_residue(this_residue, rc)) {
-               std::cout << "molecule intelligent_next_atom here C " << this_residue << std::endl;
 
                // === move on to next one ===
 
                // Can we do that by residue index?
                //
                int ser_num = this_residue->index;
-               std::cout << "molecule intelligent_next_atom ser_num " << ser_num << std::endl;
+
                if (ser_num != -1) {
                   // yes...
                   int ser_num_next = ser_num + 1;
