@@ -46,6 +46,89 @@ enum {
    RESIDUE_COL
 };
 
+void graphics_info_t::fill_go_to_atom_window_gtk3(GtkWidget *widget) {
+
+   // make this a wrapper function for a graphics_info_t function
+   // After the GTK3 build is working - FIXME
+
+   graphics_info_t g;
+   int gimol = g.go_to_atom_molecule();
+
+   // GtkWidget *option_menu;
+   GtkWidget *chain_entry;
+   GtkWidget *residue_entry;
+   GtkWidget *atom_name_entry;
+   gchar *text;
+
+   GCallback callback_func = G_CALLBACK(go_to_atom_mol_combobox_changed);
+
+   GtkWidget *combobox = lookup_widget(widget, "go_to_atom_molecule_combobox");
+   g.fill_combobox_with_coordinates_options(combobox, callback_func, gimol);
+
+   /* These are in a special order: The residue is done first
+      because it is set to a magic number (-9999 (or so)) initially.
+      In that case, we do magic in
+      get_text_for_go_to_atom_residue_entry(), i.e. look up a real
+      atom of a molecule and set also the go to chain and the go to
+      atom name  */
+
+   /* The residue entry */
+
+   residue_entry = lookup_widget(GTK_WIDGET(widget), "go_to_atom_residue_entry");
+
+   // text = get_text_for_go_to_atom_residue_entry();  // old
+
+   // on startup, tinkers with
+   // go to atom params, yuck,
+   // I think.
+   std::string rt = coot::util::int_to_string(g.go_to_atom_residue());
+
+   gtk_entry_set_text(GTK_ENTRY(residue_entry), rt.c_str());
+
+   /* Now that the go to atom molecule has been set, we can use it
+      to fill the molecule option menu */
+
+   // Needs new
+   // fill_option_menu_with_coordinates_options(option_menu,
+   // callback_func,
+   // gimol);
+
+   /* The chain entry */
+
+   chain_entry = lookup_widget(GTK_WIDGET(widget), "go_to_atom_chain_entry");
+
+   gtk_entry_set_text(GTK_ENTRY(chain_entry), g.go_to_atom_chain());
+
+
+   /* The Atom Name entry */
+
+   atom_name_entry = lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_name_entry");
+
+   gtk_entry_set_text(GTK_ENTRY(atom_name_entry), g.go_to_atom_atom_name());
+
+   /* The Residue List */
+
+   /* The residue list cant be added to a scrolled window in glade,
+      so we create only a scrolled window in glade
+      (go_to_atom_residue_scrolledwindow) and add the list to it
+      like is done in examples/list/list.c */
+
+   GtkWidget *residue_scrolled_window =
+      lookup_widget(GTK_WIDGET(widget), "go_to_atom_residue_scrolledwindow");
+
+   GtkWidget *atom_list_scrolled_window =
+      lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_scrolledwindow");
+
+   g.fill_go_to_atom_window_gtk2(widget, // the go to atom window
+                                 residue_scrolled_window,
+                                 atom_list_scrolled_window);
+
+   /* store the widget */
+   go_to_atom_window = widget;
+
+}
+
+
 // static
 void
 graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,

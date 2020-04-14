@@ -523,12 +523,13 @@ class graphics_info_t {
    static short int active_map_drag_flag;
 
 
-   void smooth_scroll_maybe(float x, float y, float z,
-			    short int do_zoom_and_move_flag,
+   // return the value "did the scroll happen/was it set up" - or not?
+   bool smooth_scroll_maybe(float x, float y, float z,
+			    bool do_zoom_and_move_flag,
 			    float target_zoom);
-   void smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
-			    short int do_zoom_and_move_flag,
-			    float target_zoom);
+   bool smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
+                                                    short int do_zoom_and_move_flag,
+                                                    float target_zoom);
    void smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
 			    short int do_zoom_and_move_flag,
 			    float target_zoom);
@@ -1574,6 +1575,9 @@ public:
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    //int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); // DELETE-ME
+
+   static void fill_go_to_atom_window_gtk3(GtkWidget *widget);
+
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);

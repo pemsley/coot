@@ -704,7 +704,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
-   mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
+   mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
 
    float x = atom->x;
    float y = atom->y;
@@ -712,12 +712,16 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 
    set_old_rotation_centre(RotationCentre());
 
-   short int do_zoom_flag = 0;
+   bool do_zoom_flag = false;
 
+   bool needs_a_centre_jump = true;
    if (smooth_scroll == 1) {
-      // this launches a timeout/tick function
-      smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0);
-   } else {
+      // this (usually) launches a timeout/tick function
+      if (smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0))
+         needs_a_centre_jump = false;
+   }
+
+   if (needs_a_centre_jump) {
       // set it now.
       rotation_centre_x = x;
       rotation_centre_y = y;
@@ -945,16 +949,19 @@ graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
 }
 
 
-void
+bool
 graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
-                                     short int do_zoom_and_move_flag,
+                                     bool do_zoom_and_move_flag,
                                      float target_zoom) {
 
+   bool done = false;
    if ( (x - rotation_centre_x) != 0.0 ||
         (y - rotation_centre_y) != 0.0 ||
         (z - rotation_centre_z) != 0.0) {
-      smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+      done = smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
    }
+
+   return done;
 }
 
 #include <glm/gtx/string_cast.hpp>
@@ -993,10 +1000,12 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
    }
 }
 
-void
+bool
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
                                                              short int do_zoom_and_move_flag,
                                                              float target_zoom) {
+
+   bool done_the_move = false; // well, "set it up to go" to be more accurate
 
    // std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
@@ -1052,10 +1061,12 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       }
 
       gtk_widget_add_tick_callback(glareas[0], smooth_scroll_animation_func, user_data, NULL);
+      done_the_move = true;
 
       // restore state
       smooth_scroll_on = 0;
    }
+   return done_the_move;
 }
 
 void

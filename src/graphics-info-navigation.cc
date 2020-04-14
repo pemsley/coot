@@ -176,6 +176,7 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
    //
    int imol = go_to_atom_molecule();
    pick_info pi = find_atom_index_from_goto_info(imol);
+
    if (pi.success) {
 
       setRotationCentre(pi.atom_index, go_to_atom_molecule());
@@ -706,7 +707,7 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
      int resno = atoi(resno_inscode.first.c_str());
      std::string inscode = resno_inscode.second;
 
-     if (true)
+     if (false)
         std::cout << "DEBUG:: in apply_go_to_atom_from_widget(): chain_str " << chain_str
                   << " resno " << resno << " inscode " << inscode << " atom_name_str \""
                   << atom_name_str << "\" split thing \"" << p.second << "\"\n";
@@ -716,7 +717,11 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
 					    inscode.c_str(),
 					    atom_name_str,
 					    p.second.c_str());
+
      int success = try_centre_from_new_go_to_atom();
+     if (false)
+        std::cout << "debug() try_centre_from_new_go_to_atom() returns "
+                  << success << std::endl;
      if (success)
 	update_things_on_move_and_redraw();
   }

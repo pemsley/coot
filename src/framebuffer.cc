@@ -35,7 +35,7 @@ void
 framebuffer::tear_down() {
 
    if (filled) {
-      std::cout << "framebuffer::tear_down()" << std::endl;
+      // std::cout << "framebuffer::tear_down()" << std::endl;
       glDeleteFramebuffers(1, &fbo);
       glDeleteTextures(1, &texture_colour);
       glDeleteTextures(1, &texture_depth);
