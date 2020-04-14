@@ -724,8 +724,8 @@ graphics_info_t::setRotationCentre(int index, int imol) {
       rotation_centre_z = z;
    }
 
-   if (0) {  // Felix test/play code to orient the residue up the
-        // screen on moving to next residue.
+   if (false) {  // Felix test/play code to orient the residue up the
+                 // screen on moving to next residue.
 
       GL_matrix m;
       clipper::Mat33<double> mat_in = m.to_clipper_mat();
@@ -965,27 +965,31 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
                                               GdkFrameClock *frame_clock,
                                               gpointer data) {
 
+   // this is not sinusoidal. The first step is 1.
+
    float frac = 1.0;
-   graphics_info_t::smooth_scroll_steps = 20;
+   graphics_info_t::smooth_scroll_steps = 20; // should be user choice?
    if (graphics_info_t::smooth_scroll_steps > 0)
       frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_steps);
    smooth_scroll_current_step += 1;
-   // std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step << std::endl;
-   if (smooth_scroll_current_step >= smooth_scroll_steps) {
-      // std::cout << " smooth_scroll_animation_func - path A - finish\n";
-      return G_SOURCE_REMOVE;
-   } else {
-      double theta = 2.0 * M_PI * frac * smooth_scroll_current_step;
+
+   if (smooth_scroll_current_step <= smooth_scroll_steps) {
+
+      double theta = 2.0 * M_PI * frac * smooth_scroll_current_step; // not used!
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
       add_vector_to_rotation_centre(this_step_delta);
       if (false)
-         std::cout << "animation this_step_delta: " << this_step_delta
+         std::cout << "animation this_step " << smooth_scroll_current_step
+                   << " this_step_delta: " << this_step_delta
                    << " for frac " << frac
                    << " Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
-      // std::cout << "smooth_scroll_animation_func - path B\n";
+
       graphics_draw(); // adds to the queue
       glFlush();
+
       return G_SOURCE_CONTINUE;
+   } else {
+      return G_SOURCE_REMOVE;
    }
 }
 
