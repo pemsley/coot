@@ -3803,16 +3803,19 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
       for (int i=0; i<bonds_box.num_colours; i++) {
          index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-         if (i == 0) index_to_colour[i] = glm::vec4(0.7, 0.6, 0.5, 1.0);
-         // if (i == 0) index_to_colour[i] = glm::vec4(0.2, 0.2, 0.2, 1.0); // replace, meh. too dark
+         if (i == 0) index_to_colour[i] = glm::vec4(0.65, 0.6, 0.55, 1.0);
          if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
          if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
          if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
          if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
-         if (i == 5) index_to_colour[i] = glm::vec4(0.8, 0.8, 0.8, 1.0);
-         if (i == 6) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.65, 1.0);
-         if (i == 7) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.65, 1.0);
-         if (i == 8) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.65, 1.0);
+         if (i == 5) index_to_colour[i] = glm::vec4(0.8, 0.2, 0.8, 1.0);
+         if (i == 6) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.6, 1.0);
+         if (i == 7) index_to_colour[i] = glm::vec4(0.8, 0.6, 0.25, 1.0);
+         if (i == 8) index_to_colour[i] = glm::vec4(0.1, 0.6, 0.65, 1.0);
+         if (i == 9) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.9, 1.0);
+         if (i == 10) index_to_colour[i] = glm::vec4(0.4, 0.2, 0.1, 1.0); // dark brown
+         if (i == 11) index_to_colour[i] = glm::vec4(0.1, 0.4, 0.1, 1.0); // dark green
+         if (i == 12) index_to_colour[i] = glm::vec4(0.5, 0.4, 0.1, 1.0); // dark orange
          ;;
          // if (i == 0) index_to_colour[i] = brass;
       }
