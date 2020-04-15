@@ -1170,14 +1170,29 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
 
    set_old_rotation_centre(RotationCentre());
 
-   if (graphics_info_t::smooth_scroll == 1)
-      smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
-     0, 100.0); // don't zoom and dummy value
+   // smooth_scroll_maybe
 
-   rotation_centre_x = centre.get_x();
-   rotation_centre_y = centre.get_y();
-   rotation_centre_z = centre.get_z();
-   run_post_set_rotation_centre_hook();
+   // smooth_scroll_maybe now sets up a timeout to move
+   // to the given location, so we can't just jump
+   // to it here as we used to at the end of this function,
+   // because the timeout function  will use "centre"
+   // as the place from which to start moving :-)
+
+   bool needs_centre_jump = true;
+   if (graphics_info_t::smooth_scroll == 1) {
+      // don't zoom and dummy value
+      bool status = smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 0, 100.0);
+      if (status) needs_centre_jump = false; // all in hand
+   }
+
+   if (needs_centre_jump)  {
+
+      rotation_centre_x = centre.get_x();
+      rotation_centre_y = centre.get_y();
+      rotation_centre_z = centre.get_z();
+      run_post_set_rotation_centre_hook();
+   }
+
 }
 
 void
