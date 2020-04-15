@@ -205,19 +205,19 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_t &ref_results) {
 
    std::vector<std::pair<std::string, std::string> > boxes;
-   boxes.push_back(std::pair<std::string, std::string>("Bonds",                    "bonds_"));
-   boxes.push_back(std::pair<std::string, std::string>("Angles",                  "angles_"));
-   boxes.push_back(std::pair<std::string, std::string>("Torsions",              "torsions_"));
-   boxes.push_back(std::pair<std::string, std::string>("Planes",                  "planes_"));
-   boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals_"));
-   boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts_"));
-   boxes.push_back(std::pair<std::string, std::string>("Rama",                      "rama_"));
+   boxes.push_back(std::pair<std::string, std::string>("Bonds",                    "bonds"));
+   boxes.push_back(std::pair<std::string, std::string>("Angles",                  "angles"));
+   boxes.push_back(std::pair<std::string, std::string>("Torsions",              "torsions"));
+   boxes.push_back(std::pair<std::string, std::string>("Planes",                  "planes"));
+   boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals"));
+   boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts"));
+   boxes.push_back(std::pair<std::string, std::string>("Rama",                      "rama"));
 
    GtkWidget *frame;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-     frame = lookup_widget(window, "accept_reject_lights_frame_docked");
+      frame = lookup_widget(window, "accept_reject_lights_frame_docked");
    } else {
-     frame = lookup_widget(window, "accept_reject_lights_frame");
+      frame = lookup_widget(window, "accept_reject_lights_frame");
    }
    gtk_widget_show(frame);
 
@@ -227,54 +227,48 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    // I hope this is ok. Otherwise I have to doublicate code
    // this solution here may be slightly slower
    for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
-     std::string stub = boxes[ibox].second.c_str();
-     std::string event_box_name;
-     if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-       event_box_name = stub + "eventbox_docked";
-     } else {
-       event_box_name = stub + "eventbox";
-     }
-     GtkWidget *w = lookup_widget(frame, event_box_name.c_str());
-     // here comes the hiding
-     if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
-       std::cout << "GTK-FIXME" << std::endl;
-       // GtkWidget *p = w->parent;
-       // gtk_widget_hide(p);
-     }
-     for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
-       if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
-         if (w) {
-           GtkWidget *p = 0; // w->parent;
-           if (boxes[ibox].first != "Rama") {
-             GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
-             set_colour_accept_reject_event_box(w, &color);
-           } else {
-	      GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value,
-							      ref_results.lights[i_rest_type].rama_type);
-             set_colour_accept_reject_event_box(w, &color);
-           }
-           if (p)  // GTK-FIXME
-              gtk_widget_show(p); // event boxes don't get coloured
-				   // in GTK1 version - no need to
-				   // show them then.
-         } else {
-           std::cout << "ERROR:: lookup of event_box_name: " << event_box_name
-                     << " failed" << std::endl;
-         }
+
+      std::string widget_name = "accept_reject_label_for_box_";
+      widget_name += boxes[ibox].second;
+      // if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) ...
+      GtkWidget *w = lookup_widget(frame, widget_name.c_str());
+
+      // here comes the hiding
+      // if (w && graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED)
+      //    gtk_widget_hide(w);
+
+      for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
+         if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
+            if (w) {
+	       gtk_widget_show(w);
+               gtk_widget_set_size_request(w, 20, -1);
+               if (boxes[ibox].first != "Rama") {
+                  GdkColor color = colour_by_distortion(ref_results.lights[i_rest_type].value);
+                  set_colour_accept_reject_event_box(w, &color);
+               } else {
+                  GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value,
+                                                                  ref_results.lights[i_rest_type].rama_type);
+                  set_colour_accept_reject_event_box(w, &color);
+               }
+
+            } else {
+               std::cout << "ERROR:: lookup of label widget: " << widget_name
+                         << " failed" << std::endl;
+            }
 
 	    // we do not add labels for the docked box
 	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
 
-	       std::string label_name = stub + "label";
+	       std::string label_name = boxes[ibox].second + "_label"; // needs fixing
 	       GtkWidget *label = lookup_widget(frame, label_name.c_str());
 	       gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
 	       gtk_widget_show(label);
 	    } else {
                /*
-	       GtkTooltips *tooltips;
-	       tooltips = GTK_TOOLTIPS(lookup_widget(window, "tooltips"));
-	       std::string tips_info = ref_results.lights[i_rest_type].label;
-	       gtk_tooltips_set_tip(tooltips, w, tips_info.c_str(), NULL);
+                  GtkTooltips *tooltips;
+                  tooltips = GTK_TOOLTIPS(lookup_widget(window, "tooltips"));
+                  std::string tips_info = ref_results.lights[i_rest_type].label;
+                  gtk_tooltips_set_tip(tooltips, w, tips_info.c_str(), NULL);
                */
 	    }
 	 }
@@ -285,8 +279,8 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 // Actually, it seems that this does not do anything for GTK == 1. So
 // the function that calls it is not compiled (for Gtk1).
 //
-void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
-   gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, col);
+void set_colour_accept_reject_event_box(GtkWidget *label, GdkColor *col) {
+   gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
 }
 
 // text_type can be coot::CHIRAL_CENTRES or coot::CHI_SQUAREDS
@@ -434,7 +428,7 @@ wrapped_create_accept_reject_refinement_dialog() {
   }
   graphics_info_t::accept_reject_dialog = w;
   return w;
- }
+}
 
 // static
 GtkWidget *
