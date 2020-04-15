@@ -873,7 +873,9 @@ bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float grey_level = 0.24;
 float norm_255 = 1.0/255.0;
-glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
+// this background is too "light" when we zoom in - the depth-cueing looks bad.
+// glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
+glm::vec3 graphics_info_t::background_colour = glm::vec3(41.0 * norm_255, 47.0 * norm_255, 49.0 * norm_255);
 
 //
 short int graphics_info_t::delete_item_atom = 0;
@@ -2626,21 +2628,13 @@ do_ztrans_and_clip(gdouble x, gdouble y) {
 
 }
 
+
+// move this to graphics_info_t and its call from key-bindings.
 void
 adjust_clipping(double d) {
 
-   if (d>0) {
-      // I am not sure that this limit does any good these days
-      if (graphics_info_t::clipping_back < 165.0) {
-         set_clipping_front(graphics_info_t::clipping_front + d);
-         set_clipping_back (graphics_info_t::clipping_front + d);
-      }
-   } else {
-      if (graphics_info_t::clipping_back > -165.2) {
-         set_clipping_front(graphics_info_t::clipping_front + d);
-         set_clipping_back (graphics_info_t::clipping_front + d);
-      }
-   }
+   graphics_info_t g;
+   g.adjust_clipping(d);
 }
 
 

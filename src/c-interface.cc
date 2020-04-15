@@ -2594,32 +2594,22 @@ short int get_show_symmetry() {
 
 void
 set_clipping_front(float v) {
-
-   std::cout << "start set_clipping_front" << std::endl;
-   float clipping_max = 15.0; // was 10
-   graphics_info_t::clipping_front = v;
-   if (graphics_info_t::clipping_front > clipping_max)
-      graphics_info_t::clipping_front = clipping_max;
-   graphics_draw();
-   std::cout << "mid-1 set_clipping_front" << std::endl;
+   graphics_info_t g;
+   g.set_clipping_front(v);
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
    args.push_back(v);
    std::cout << "mid-1 adding to historyin in set_clipping_front" << std::endl;
    add_to_history_typed(cmd, args);
    std::cout << "done set_clipping_front" << std::endl;
-
 }
 
 
 void
 set_clipping_back(float v) {
+   graphics_info_t g;
+   g.set_clipping_back(v);
 
-   float clipping_max = 15.0;
-   graphics_info_t::clipping_back = v;
-   if (graphics_info_t::clipping_back > clipping_max)
-      graphics_info_t::clipping_back = clipping_max;
-   graphics_draw();
    std::string cmd = "set-clipping-back";
    std::vector<coot::command_arg_t> args;
    args.push_back(v);

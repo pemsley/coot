@@ -7128,12 +7128,9 @@ void wii_status();
 
 void full_screen(int mode);
 
-/*
-temporarily remove this - linking problems?
+
+// temporarily remove this - linking problems?
 void set_use_perspective_projection(int state);
-
-
-*/
 
 void add_molecular_representation_test();
 

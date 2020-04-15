@@ -1257,6 +1257,9 @@ public:
    // Clipping Planes:
    static float clipping_front;
    static float clipping_back;
+   void adjust_clipping(float d);
+   void set_clipping_front(float v);
+   void set_clipping_back(float v);
 
    // This is for the display object
    static short int display_lists_for_maps_flag;
@@ -4009,6 +4012,7 @@ string   static std::string sessionid;
      rotation_centre_y += offset.y;
      rotation_centre_z += offset.z;
    }
+   static void update_view_quaternion(int area_width, int area_height);
 
    // static benny::Camera camera;
    // static Transform transform;
@@ -4044,6 +4048,8 @@ string   static std::string sessionid;
    static framebuffer screen_framebuffer;
    static framebuffer blur_framebuffer;
    static bool perspective_projection_flag;
+   static float screen_z_near_perspective;
+   static float screen_z_far_perspective;
    // ---------------------------------------------
    void init_shaders();
 

@@ -20,6 +20,9 @@ std::string graphics_info_t::mtz_file_for_refmac;
 
 bool graphics_info_t::convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
+float graphics_info_t::screen_z_near_perspective =  15.0;
+float graphics_info_t::screen_z_far_perspective  = 400.0;
+
 GtkWidget *graphics_info_t::main_window = NULL;
 
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as

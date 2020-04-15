@@ -96,3 +96,111 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
    }
    return r;
 }
+
+
+void
+graphics_info_t::set_clipping_front(float v) {
+
+   float clipping_max = 15.0; // was 10
+   graphics_info_t::clipping_front = v;
+   if (graphics_info_t::clipping_front > clipping_max)
+      graphics_info_t::clipping_front = clipping_max;
+   graphics_draw();
+}
+
+
+void
+graphics_info_t::set_clipping_back(float v) {
+
+   float clipping_max = 15.0;
+   graphics_info_t::clipping_back = v;
+   if (graphics_info_t::clipping_back > clipping_max)
+      graphics_info_t::clipping_back = clipping_max;
+   graphics_draw();
+}
+
+
+void
+graphics_info_t::adjust_clipping(float d) {
+
+   if (! graphics_info_t::perspective_projection_flag) {
+      if (d>0) {
+         set_clipping_front(graphics_info_t::clipping_front + d);
+         set_clipping_back (graphics_info_t::clipping_front + d);
+      } else {
+         set_clipping_front(graphics_info_t::clipping_front + d);
+         set_clipping_back (graphics_info_t::clipping_front + d);
+      }
+   } else {
+      // perspective
+
+      glm::vec3 rc = get_rotation_centre();
+
+      double l = glm::distance(eye_position, rc);
+      double zf = screen_z_far_perspective;
+      double zn = screen_z_near_perspective;
+
+      if (d > 0) {
+
+         // close down (narrow)
+         screen_z_far_perspective  = l + (zf-l) * 0.95;
+         screen_z_near_perspective = l - (l-zn) * 0.9905;
+
+      } else {
+
+         // std::cout << "not this one " << std::endl;
+         // expand
+         screen_z_far_perspective  = l + (zf-l) * 1.05;
+         screen_z_near_perspective = l - (l-zn) * 1.005;
+
+      }
+      if (screen_z_near_perspective < 0.5) screen_z_near_perspective = 0.5;
+      std::cout << "debug l " << l << " near and far: pre: " << zn << " " << zf
+                << "    post " << screen_z_near_perspective << " "
+                << screen_z_far_perspective << std::endl;
+   }
+}
+
+//static
+void
+graphics_info_t::update_view_quaternion(int area_width, int area_height) {
+
+   graphics_info_t g;
+   float tbs = g.get_trackball_size();
+
+   if (perspective_projection_flag)
+      tbs = 11.0;
+
+   glm::quat tb_quat =
+      g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - area_width)/area_width,
+                                (area_height - 2.0*g.GetMouseBeginY())/area_height,
+                                (2.0*g.mouse_current_x - area_width)/area_width,
+                                (area_height - 2.0*g.mouse_current_y)/area_height,
+                                tbs);
+
+   if (! graphics_info_t::perspective_projection_flag) {
+      glm::quat product = tb_quat * glm_quat;
+      glm_quat = glm::normalize(product);
+
+   } else {
+      // move the eye according to tb_quat
+
+      // glm::quat product = tb_quat * glm_quat;
+      // glm_quat = glm::normalize(product);
+
+      if (true)
+         std::cout << "debug:: quaternion " << glm::to_string(glm_quat) << std::endl;
+
+      float delta_x = mouse_current_x - g.GetMouseBeginX();
+      float delta_y = mouse_current_y - g.GetMouseBeginY();
+
+      glm::quat quat_new_1 = glm::rotate(glm_quat, delta_x, glm::vec3(1,0,0));
+
+      glm::vec3 rc = get_rotation_centre();
+      glm::vec3 eye_from_rotation_centre = eye_position - rc;
+      glm::vec4 ep4(eye_from_rotation_centre, 1.0);
+      glm::mat4 matrix = glm::inverse(glm::toMat4(tb_quat));
+      glm::vec4 new_rel_eye_pos = matrix * ep4;
+      eye_position = glm::vec3(new_rel_eye_pos) + rc;
+   }
+}

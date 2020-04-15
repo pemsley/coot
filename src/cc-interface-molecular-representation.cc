@@ -11,6 +11,7 @@
 // #include "globjects.h" //includes gtk/gtk.h
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "cc-interface.hh"
 #include "cc-interface-molecular-representation.hh"
 
 #ifdef USE_PYTHON
@@ -63,8 +64,6 @@ void remove_molecular_representation(int imol, int rep_no) {
    }
 }
 
-#include "cc-interface.hh"
-
 extern "C" void add_molecular_representation_test() {
    int status = -1;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
@@ -80,17 +79,17 @@ extern "C" void add_molecular_representation_test() {
    }
 }
 
+void set_use_perspective_projection(int state) {
+
+   graphics_info_t::perspective_projection_flag = state;
+   graphics_draw();
+
+}
 
 #else
 
 // needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
-void add_molecular_representation_test() {}
+// void add_molecular_representation_test() {}
+
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-void set_use_perspective_projection(int state) {
-
-// temporaily remove this for merge resolution. I don't know where this function should be
-
- //    graphics_info_t::perspective_projection_flag = state;
-
-}

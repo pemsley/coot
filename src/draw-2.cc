@@ -14,7 +14,6 @@
 #include <epoxy/gl.h>
 
 #include "globjects.h"
-#include "trackball.h"
 #include "graphics-info.h"
 
 #include "draw.hh"
@@ -201,16 +200,18 @@ graphics_info_t::get_molecule_mvp() {
 
    // near is positive and far is bigger and negative
    // - not sure that that's right - but it looks OK.
-   GLfloat near = -0.3*near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_front*0.1 - 1.0);
-   GLfloat far  =      near_scale*graphics_info_t::zoom * (graphics_info_t::clipping_back* 0.1 - 1.0);
+   GLfloat near  = -0.3*near_scale*zoom * (clipping_front*0.1 - 1.0);
+   GLfloat far  =       near_scale*zoom * (clipping_back* 0.1 - 1.0);
 
    if (false)
       std::cout << "near " << near << " far " << far << " clipping front "
-                        << graphics_info_t::clipping_front << " back " << graphics_info_t::clipping_back << std::endl;
+                << clipping_front << " back " << clipping_back << std::endl;
 
-   glm::mat4 projection_matrix = glm::ortho(-0.3f*graphics_info_t::zoom*screen_ratio, 0.3f*graphics_info_t::zoom*screen_ratio,
-                                            -0.3f*graphics_info_t::zoom,              0.3f*graphics_info_t::zoom,
+   float sr = screen_ratio;
+   glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
+                                            -0.3f*zoom,    0.3f*zoom,
                                             near, far);
+   
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
@@ -253,8 +254,9 @@ graphics_info_t::get_molecule_mvp() {
       glm::vec3 up = glm::normalize(glm::vec3(up4));
       glm::vec3 ep = graphics_info_t::eye_position;
 
-      std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc)
-                << " up " << glm::to_string(up) << std::endl;
+      if (false)
+         std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc)
+                   << " up " << glm::to_string(up) << std::endl;
 
       view_matrix = glm::lookAt(ep, rc, up);
       float z_front =  2.0;
@@ -263,7 +265,10 @@ graphics_info_t::get_molecule_mvp() {
       z_back  -= 0.2 * graphics_info_t::clipping_back;
       fov = 40.0; // degrees
 
-      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
+      glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
+                                                           screen_ratio,
+                                                           screen_z_near_perspective,
+                                                           screen_z_far_perspective);
       mvp = projection_matrix_persp * view_matrix * model_matrix;
    }
 
@@ -306,6 +311,10 @@ graphics_info_t::get_eye_position() {
 
 glm::vec4
 graphics_info_t::new_unproject(float z) {
+
+   std::cout << "This is not used (is it?) A " << std::endl;
+   return glm::vec4(0,1,0,1);
+#if 0
    // z is 1 and -1 for front and back (or vice verse).
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
@@ -325,11 +334,17 @@ graphics_info_t::new_unproject(float z) {
    // std::cout << "screen_pos " << glm::to_string(screenPos_f) << std::endl;
    // std::cout << "world_pos " << glm::to_string(worldPos_f) << std::endl;
    return worldPos_f;
+#endif
 }
 
 
 glm::vec4
 graphics_info_t::new_unproject(float x, float y, float z) {
+
+   std::cout << "This is not used (is it?) B" << std::endl;
+   return glm::vec4(0,1,0,1);
+
+#if 0
    // z is 1 and -1 for front and back (or vice verse).
    // GtkAllocation allocation;
    // gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
@@ -346,12 +361,13 @@ graphics_info_t::new_unproject(float x, float y, float z) {
       std::cout << "   " << glm::to_string(worldPos_f) << std::endl;
    }
    return worldPos_f;
+#endif
 }
 
 glm::mat4
 graphics_info_t::get_view_rotation() {
 
-   // need to be in the correct program
+   // need to be in the correct program (well, the model-drawing part)
 
    glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
    return view_matrix;
@@ -385,7 +401,7 @@ graphics_info_t::setup_map_uniforms(const Shader &shader,
                                           << err << std::endl;
 
    GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-   glm::vec4 ep = new_unproject(0,0,-1);
+   glm::vec4 ep = glm::vec4(get_eye_position(), 1.0);
    glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
    err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform4fv() for eye position "
                                           << err << std::endl;
@@ -420,7 +436,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                                           << err << std::endl;
 
    glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation(); // hhmm... naming
+   glm::mat4 view_rotation = get_view_rotation();
 
    glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
    glDepthFunc(GL_LESS);
@@ -500,12 +516,12 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                glUniformMatrix4fv(graphics_info_t::shader_for_maps.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-               glUniformMatrix4fv(graphics_info_t::shader_for_maps.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+               glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
 
-               GLuint background_colour_uniform_location = graphics_info_t::shader_for_maps.background_colour_uniform_location;
-               glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+               GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
+               glm::vec4 bgc(background_colour, 1.0);
                glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
@@ -518,7 +534,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                                                       << err << std::endl;
 
                GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-               glm::vec4 ep = new_unproject(0,0,-1);
+               glm::vec4 ep(get_eye_position(), 1.0); // this can be moved outside this loop
                glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
                glDrawElements(GL_TRIANGLES, m.n_indices_for_triangles, GL_UNSIGNED_INT, nullptr);
@@ -563,7 +579,6 @@ graphics_info_t::draw_model_molecules() {
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-
          shader.Use();
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
@@ -574,7 +589,6 @@ graphics_info_t::draw_model_molecules() {
                             << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
-         // should not be needed?
          glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
          err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
@@ -601,7 +615,7 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep = new_unproject(0,0,-1);
+         glm::vec4 ep(get_eye_position(), 1.0);
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
@@ -725,7 +739,7 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep = new_unproject(0,0,-1);
+         glm::vec4 ep = glm::vec4(get_eye_position(), 1.0);
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
@@ -1289,54 +1303,67 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.mouse_current_y = event->y;
 
    if (event->state & GDK_BUTTON1_MASK) {
-
       if (control_is_pressed) {
-
          do_drag_pan_gtk3(widget);
-
       } else {
-
          GtkAllocation allocation;
          gtk_widget_get_allocation(widget, &allocation);
          int w = allocation.width;
          int h = allocation.height;
-
-         float tbs = g.get_trackball_size();
-
-         if (graphics_info_t::perspective_projection_flag)
-            tbs = 1.0;
-
-         glm::quat tb_quat =
-            g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - w)/w, (h - 2.0*g.GetMouseBeginY())/h,
-                                      (2.0*g.mouse_current_x - w)/w,  (h - 2.0*g.mouse_current_y)/h,
-                                      tbs);
-
-         glm::quat product = tb_quat * graphics_info_t::glm_quat;
-         // glm::quat product = graphics_info_t::glm_quat * tb_quat;
-
-         graphics_info_t::glm_quat = glm::normalize(product);
+         graphics_info_t::update_view_quaternion(w, h);
       }
    }
 
-
    if (event->state & GDK_BUTTON2_MASK) {
-
       // View Panning
       do_drag_pan_gtk3(widget);
-
    }
 
    if (event->state & GDK_BUTTON3_MASK) {
-
       // Zooming
-
       double delta_x = event->x - g.GetMouseBeginX();
       double delta_y = event->y - g.GetMouseBeginY();
-      double fx = 1.0f +  delta_x/300.0;
-      double fy = 1.0f +  delta_y/300.0;
+      double fx = 1.0 + delta_x/300.0;
+      double fy = 1.0 + delta_y/300.0;
       if (fx > 0.0) g.zoom /= fx;
       if (fy > 0.0) g.zoom /= fy;
-      // std::cout << "now zoom: " << g.zoom << std::endl;
+      if (! graphics_info_t::perspective_projection_flag) {
+         // std::cout << "now zoom: " << g.zoom << std::endl;
+      } else {
+         // Move the eye towards the rotation centre (don't move the rotation centre)
+
+         // this is the same as translate_in_screen_z. Excpet for moving the rotation centre
+         glm::vec3 ep = graphics_info_t::get_eye_position();
+         glm::vec3 rc = graphics_info_t::get_rotation_centre();
+         glm::vec3 delta = rc - ep;
+         glm::vec3 delta_uv = normalize(delta);
+
+         // more zoomed needs to have smaller step than when zoomed out.
+         // Zoomed out, zoom is ~100. Zoomed in is ~25
+         float step_size = 0.005;
+         glm::vec3 step = step_size * graphics_info_t::zoom * delta_x * delta_uv;
+
+         if (false) // debug
+            std::cout << "motion: ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
+                      << " zoom " << graphics_info_t::zoom << " step "
+                      << glm::to_string(step) << std::endl;
+
+         // if the distance to the centre of rotation changes, but the clipping planes do not, then
+         // as we zoom in, then the object get clipped. Bleugh. The perspective near and far
+         // need to be dependent on zoom
+
+         // now this is not in translate_in_screen_z:
+         {
+            float length_current_eye_to_rc = glm::distance(ep, rc);
+            glm::vec3 ep_new = ep + step;
+            float z_near_current = graphics_info_t::screen_z_near_perspective;
+            float length_new_eye_to_rc = glm::distance(ep_new, rc);
+            float eye_to_rc_ratio = length_new_eye_to_rc/length_current_eye_to_rc;
+            graphics_info_t::screen_z_near_perspective *= eye_to_rc_ratio;
+         }
+
+         graphics_info_t::eye_position += step;
+      }
    }
 
    // for next motion
@@ -1393,23 +1420,26 @@ graphics_info_t::translate_in_screen_z(float step_size) {
    glm::vec3 delta_uv = normalize(delta);
 
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
-   glm::vec3 step = 0.01 * step_size * graphics_info_t::zoom * delta_uv;
+   glm::vec3 step = 0.01 * step_size * zoom * delta_uv;
 
-   if (false) // debug
+   if (true) // debug
       std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
-                << " zoom " << graphics_info_t::zoom << " step " << glm::to_string(step) << std::endl;
+                << " zoom " << zoom << " step " << glm::to_string(step) << std::endl;
    graphics_info_t::add_to_rotation_centre(step);
+
+   eye_position += step;
 
 }
 
 void
 graphics_info_t::move_forwards() {
-   translate_in_screen_z(-1.0);
+   // these are the other way round in perspective - that's interesting.
+   translate_in_screen_z(1.0);
 }
 
 void
 graphics_info_t::move_backwards() {
-   translate_in_screen_z(1.0);
+   translate_in_screen_z(-1.0);
 }
 
 void
@@ -1419,8 +1449,8 @@ graphics_info_t::setup_key_bindings() {
 
    // if we are serious about user-defined key-bindings all of these functions should be thunks in the user API
 
-   auto l1 = []() { adjust_clipping(0.3); };
-   auto l2 = []() { adjust_clipping(-0.3); };
+   auto l1 = []() { graphics_info_t g; g.adjust_clipping(0.3); };
+   auto l2 = []() { graphics_info_t g; g.adjust_clipping(-0.3); };
    auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); };
 
    auto l6 = []() {
@@ -1561,8 +1591,9 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     std::cout << "key-binding for key " << it->first.gdk_key << " "
-               << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+     if (false)
+        std::cout << "key-binding for key " << it->first.gdk_key << " "
+                  << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
    } else {
       std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
