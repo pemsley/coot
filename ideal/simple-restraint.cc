@@ -6930,9 +6930,9 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 					 int i_no_res_atoms,
 					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
-
-   std::cout << "debug:: in add_planes(): with convert_plane_restraints_to_improper_dihedral_restraints_flag "
-	     << convert_plane_restraints_to_improper_dihedral_restraints_flag << std::endl;
+   if (false)
+      std::cout << "debug:: in add_planes(): with convert_plane_restraints_to_improper_dihedral_restraints_flag "
+	        << convert_plane_restraints_to_improper_dihedral_restraints_flag << std::endl;
    if (! convert_plane_restraints_to_improper_dihedral_restraints_flag) {
       int n_added = add_planes_multiatom_eigen(idr, res_selection, i_no_res_atoms, SelRes, geom);
       // std::cout << "debug:: n_added (multiatom-eigen) " << n_added << std::endl;
