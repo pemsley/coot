@@ -75,7 +75,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 	    coot::Cartesian cc(blob.x(), blob.y(), blob.z());
             // coot::Cartesian cc = front.mid_point(back);
             coot::Cartesian delta = rc - cc;
-            std::cout << "Delta: " << delta << std::endl;
+            // std::cout << "Delta: " << delta << std::endl;
 	    g.setRotationCentre(cc);
 	    for(int ii=0; ii<n_molecules(); ii++) {
 	       molecules[ii].update_map();

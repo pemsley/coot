@@ -264,7 +264,7 @@ coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_steps =  10;
-float  graphics_info_t::smooth_scroll_limit =  10.0; // A
+float  graphics_info_t::smooth_scroll_limit =  20.0; // A
 float  graphics_info_t::smooth_scroll_zoom_limit = 30.0; // A
 int    graphics_info_t::smooth_scroll_do_zoom = 0;  // initially no, too ugly ATM.
 short int graphics_info_t::smooth_scroll_on = 0;
@@ -875,7 +875,7 @@ float grey_level = 0.24;
 float norm_255 = 1.0/255.0;
 // this background is too "light" when we zoom in - the depth-cueing looks bad.
 // glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
-glm::vec3 graphics_info_t::background_colour = glm::vec3(41.0 * norm_255, 47.0 * norm_255, 49.0 * norm_255);
+glm::vec3 graphics_info_t::background_colour = glm::vec3(41.0 * norm_255, 47.0 * norm_255, 47.0 * norm_255);
 
 //
 short int graphics_info_t::delete_item_atom = 0;

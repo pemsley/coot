@@ -3764,7 +3764,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
    // make glsl triangles
    glUseProgram(graphics_info_t::shader_for_models.get_program_id());
-   std::cout << "make_bonds_type_checked() using model shader program_id is "  << graphics_info_t::shader_for_models.get_program_id() << std::endl;
+   // std::cout << "make_bonds_type_checked() using model shader program_id is "  << graphics_info_t::shader_for_models.get_program_id() << std::endl;
    GLenum err = glGetError();
    if (err) std::cout << "Error in glUseProgram() in make_bonds_type_checked() " << err << "\n";
 
@@ -3944,7 +3944,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
       err = glGetError(); if (err) std::cout << "GL error bonds 4\n";
       GLuint n_bytes = sizeof(generic_vertex) * n_vertices_for_model_VertexArray;
-      std::cout << "n_bytes: " << n_bytes << std::endl;
+      // std::cout << "n_bytes: " << n_bytes << std::endl;
       glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
       err = glGetError(); if (err) std::cout << "GL error bonds 5\n";
 

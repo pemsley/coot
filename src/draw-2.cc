@@ -1067,14 +1067,6 @@ graphics_info_t::render(GtkGLArea *glarea) {
 
       draw_molecules();
 
-      // True HUD text (not atom labels) should be added *after* blurring - not here.
-      if (true) {
-         draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
-         err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
-      }
-       err = glGetError(); if (err) std::cout << "render() draw_molecules() " << err << std::endl;
-
-
       glBindVertexArray(0);
    }
 
@@ -1137,6 +1129,17 @@ graphics_info_t::render(GtkGLArea *glarea) {
       glDrawArrays(GL_TRIANGLES, 0, 6);
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
    }
+
+   // True HUD text (not atom labels) should be added *after* blurring 
+   //
+   // So, I've moved the code block here - but it doesn't work now - presumably because
+   // its framebuffer needs updating (or something related)
+   //
+   if (false) {
+      draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+      err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
+   }
+   err = glGetError(); if (err) std::cout << "render() draw_molecules() " << err << std::endl;
 
    graphics_info_t::frame_counter++;
    if (graphics_info_t::frame_draw_queue.size() > 0) {

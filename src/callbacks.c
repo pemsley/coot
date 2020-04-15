@@ -6389,7 +6389,7 @@ on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *w;
   GdkColor bg_colour;
   float fval1;
@@ -6403,7 +6403,6 @@ on_preferences_bg_colour_own_radiobutton_toggled
 
   preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
   set_background_colour(fval1, fval2, fval3);
-#endif
 
 }
 
