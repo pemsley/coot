@@ -688,7 +688,11 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
             // std::cout << "   replacing set at " << i << " data" << v.data << " size " << v.size
             // << std::endl;
             // perhaps I can std::move this? I don't need tri_con after this.
-            draw_vector_sets_p->at(i) = tri_con;
+
+            // draw_vector_sets_p->at(i) = tri_con;
+            std::move(tri_con.points.begin(), tri_con.points.end(), std::back_inserter(draw_vector_sets_p->at(i).points));
+            std::move(tri_con.normals.begin(), tri_con.normals.end(), std::back_inserter(draw_vector_sets_p->at(i).normals));
+            std::move(tri_con.point_indices.begin(), tri_con.point_indices.end(), std::back_inserter(draw_vector_sets_p->at(i).point_indices));
             done = true;
             break;
          }
