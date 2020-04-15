@@ -550,8 +550,10 @@ double graphics_info_t::idle_function_rock_amplitude_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_freq_scale_factor = 1.0;
 double graphics_info_t::idle_function_rock_angle_previous = 0;
 
+#ifdef USE_PYTHON
 // Hamish python
 std::string graphics_info_t::python_draw_function_string;
+#endif
 
 // new style (20110505 ligand interactions)
 //
