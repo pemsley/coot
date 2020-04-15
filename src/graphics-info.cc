@@ -1830,6 +1830,8 @@ graphics_info_t::clear_up_moving_atoms() {
 
 
    moving_atoms_lock  = false;
+
+   // std::cout << "calling rebond_molecule_corresponding_to_moving_atoms() " << std::endl;
    graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
 
 }

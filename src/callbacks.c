@@ -2175,6 +2175,7 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
   /*   clear_up_moving_atoms(); done in destroy of the window */
 
   stop_refinement_internal();
+  clear_up_moving_atoms();
   gtk_widget_destroy(window);
 }
 
