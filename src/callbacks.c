@@ -3714,6 +3714,7 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
    struct map_colour_data_type *map_colour_data;
    GtkWidget *col_chooser = NULL;
    GdkRGBA map_colour;
+   GdkRGBA *map_colour_p;
    GdkColor map_gdk_color;      /* old style used by the Color Selection  */
    GtkWidget *parent = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
    GtkWindow *parent_w = GTK_WINDOW(parent);
@@ -3750,12 +3751,18 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
                        "color_changed",
                        G_CALLBACK(on_map_color_changed), map_colour_data);
 
+      map_colour_p = (GdkRGBA *) malloc(sizeof(GdkRGBA));
+      *map_colour_p = map_colour;
       map_gdk_color.red   = map_colour.red;
       map_gdk_color.green = map_colour.green;
       map_gdk_color.blue  = map_colour.blue;
       printf("setting map_gdk_color %d %d %d\n", map_gdk_color.red, map_gdk_color.green, map_gdk_color.blue);
       gtk_color_selection_set_current_color(color_selection, &map_gdk_color);
       gtk_widget_show(color_selection_dialog);
+      g_signal_connect(color_selection_dialog, "response",
+                       G_CALLBACK(on_map_color_selection_dialog_response),
+                       map_colour_p);
+      g_object_set_data(G_OBJECT(color_selection_dialog), "imol", GINT_TO_POINTER(imol));
 
    }
 }

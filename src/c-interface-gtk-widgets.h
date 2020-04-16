@@ -257,6 +257,10 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
 
 void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
                                                           gpointer           user_data);
+void
+on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
+                                       gint response_id,
+                                       gpointer user_data);
 
 /* the callback set on the submenu items in the above function */
 void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,

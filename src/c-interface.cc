@@ -2344,12 +2344,15 @@ void
 on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
                                                      gpointer           user_data) {
 
+   // this is not used now, I think
    std::cout << "colour changed" << std::endl;
 }
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data) {
+   // this is not used now, I think
+
    if (response_id == GTK_RESPONSE_OK) {
       GdkRGBA color;
       gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER (dialog), &color);
@@ -2364,6 +2367,31 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
       }
    }
    gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+void
+on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
+                                       gint response_id,
+                                       gpointer user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      // nothing - because it's already been done on the color_changed handler.
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      // reset the colour to what it was.
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(color_selection_dialog), "imol"));
+      if (is_valid_map_molecule(imol)) {
+         GdkRGBA *original_map_colour_data = static_cast<GdkRGBA *>(user_data);
+         float m = 1.0/65535.0;
+         original_map_colour_data->red   *= m;
+         original_map_colour_data->green *= m;
+         original_map_colour_data->blue  *= m;
+         graphics_info_t::molecules[imol].set_map_colour(*original_map_colour_data);
+         graphics_draw();
+      }
+   }
+   gtk_widget_destroy (GTK_WIDGET (color_selection_dialog));
 }
 
 //! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
