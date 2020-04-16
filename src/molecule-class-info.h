@@ -736,6 +736,8 @@ public:        //                      public
 
       pickable_atom_selection = 1;
 
+      is_intermediate_atoms_molecule = false;
+
       // refmac stuff
       //
       refmac_count = 0;
@@ -2520,6 +2522,8 @@ public:        //                      public
    // merge change/fragments of this molecule
    // return 1 if a merge was done;
    int merge_fragments();
+
+   bool is_intermediate_atoms_molecule;
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);

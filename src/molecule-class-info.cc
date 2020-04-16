@@ -3803,8 +3803,8 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
       for (int i=0; i<bonds_box.num_colours; i++) {
          index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-         if (i == 0) index_to_colour[i] = glm::vec4(0.65, 0.6, 0.55, 1.0);
-         if (i == 1) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.2, 1.0);
+         if (i == 0) index_to_colour[i] = glm::vec4(0.75, 0.6, 0.4, 1.0);
+         if (i == 1) index_to_colour[i] = glm::vec4(0.7, 0.7, 0.2, 1.0);
          if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
          if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
          if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
@@ -3817,7 +3817,12 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
          if (i == 11) index_to_colour[i] = glm::vec4(0.1, 0.4, 0.1, 1.0); // dark green
          if (i == 12) index_to_colour[i] = glm::vec4(0.5, 0.4, 0.1, 1.0); // dark orange
          ;;
-         // if (i == 0) index_to_colour[i] = brass;
+
+         if (is_intermediate_atoms_molecule)
+            if (i==0)
+               if (i == 0) index_to_colour[i] = glm::vec4(0.75, 0.75, 0.75, 1.0);
+
+            // if (i == 0) index_to_colour[i] = brass;
       }
    } else {
       // rainbow
