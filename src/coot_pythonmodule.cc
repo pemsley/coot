@@ -121,6 +121,7 @@ _wrap_main_hbox(PyObject *self)
 {
    GtkWidget *ret;
    ret = main_hbox();
+   // is ret NULL?
    /* pygobject_new handles NULL checking */
    return pygobject_new((GObject *)ret);
 }

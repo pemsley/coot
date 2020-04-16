@@ -4008,7 +4008,7 @@ string   static std::string sessionid;
 #ifdef USE_PYTHON
    // Python function, called per frame draw - for Hamish
    static std::string python_draw_function_string;
-  void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+   void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
 #endif // USE_PYTHON
 
    static ctpl::thread_pool static_thread_pool;
