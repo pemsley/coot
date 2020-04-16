@@ -4199,6 +4199,7 @@ handle_map_colour_change(int imol, GdkRGBA map_col) {
 							    graphics_info_t::swap_difference_map_colours,
 							    graphics_info_t::GL_CONTEXT_MAIN);
 
+   if (false) { // for the moment
    if (graphics_info_t::display_mode_use_secondary_p()) {
       graphics_info_t g;
       g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
@@ -4206,6 +4207,7 @@ handle_map_colour_change(int imol, GdkRGBA map_col) {
 						 g.swap_difference_map_colours,
 						 graphics_info_t::GL_CONTEXT_SECONDARY);
       g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+   }
    }
 
    //cout << "using map colours:   "

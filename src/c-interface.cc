@@ -2337,6 +2337,12 @@ get_map_colour(int imol) {
    return colour;
 }
 
+void
+on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
+                                                     gpointer           user_data) {
+
+   std::cout << "colour changed" << std::endl;
+}
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,

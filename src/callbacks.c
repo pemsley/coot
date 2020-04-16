@@ -3718,20 +3718,34 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
    GtkWindow *parent_w = GTK_WINDOW(parent);
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
 
+   GtkWidget *color_selection_dialog;
+
    printf("in on_single_map_properties_colour_button_clicked() imol %d\n", imol);
    printf("in on_single_map_properties_colour_button_clicked() parent 0%p\n", parent);
 
    if (is_valid_map_molecule(imol)) {
 
+#if 0
       col_chooser = gtk_color_chooser_dialog_new("Select Map Colour", parent_w);
-      map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
-      map_colour_data->imol = imol;
       map_colour_data->color_chooser = col_chooser;
-      g_signal_connect(col_chooser, "response", G_CALLBACK(on_single_map_properties_colour_dialog_response),
+      g_signal_connect(col_chooser, "response",
+                       G_CALLBACK(on_single_map_properties_colour_dialog_response),
                        map_colour_data);
-      map_colour = get_map_colour(imol);
       gtk_color_chooser_set_rgba(col_chooser, &map_colour);
       gtk_widget_show(col_chooser);
+#endif
+
+      color_selection_dialog = gtk_color_selection_dialog_new ("Map Colour Selection");
+
+      map_colour = get_map_colour(imol);
+      map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
+      map_colour_data->imol = imol;
+      map_colour_data->color_selection = gtk_color_selection_dialog_get_color_selection(color_selection_dialog);
+
+      g_signal_connect (G_OBJECT (gtk_color_selection_dialog_get_color_selection(color_selection_dialog)),
+                        "color_changed", G_CALLBACK(on_map_color_changed), map_colour_data);
+      gtk_widget_show(color_selection_dialog);
+
 
    }
 }

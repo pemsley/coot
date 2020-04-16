@@ -51,8 +51,8 @@ molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 
 void
 molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
-						                              bool swap_difference_map_colours_flag,
-						                              bool main_or_secondary) {
+                                                bool swap_difference_map_colours_flag,
+                                                bool main_or_secondary) {
 
 
 
@@ -71,13 +71,13 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
       if (swap_difference_map_colours_flag)
  	      rotation_size = (360.0 - rotate_colour_map_for_difference_map)/360.0;
       std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-      map_colour.red= rgb_new[0];
+      map_colour.red   = rgb_new[0];
       map_colour.green = rgb_new[1];
-      map_colour.blue = rgb_new[2];
+      map_colour.blue  = rgb_new[2];
    }
 
    // main 0: secondary: 1
-   compile_density_map_display_list(main_or_secondary);
+   // compile_density_map_display_list(main_or_secondary);
 }
 
 // symmetry control
