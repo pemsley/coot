@@ -394,26 +394,39 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
 
 void
 molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p) {
-   std::set<int> dummy;
-   makebonds(geom_p, dummy);
+
+   bool do_rebond = true;
+   if (draw_hydrogens_flag && bonds_box_type == coot::NORMAL_BONDS)
+      do_rebond = false;
+   if (!draw_hydrogens_flag && bonds_box_type == coot::BONDS_NO_HYDROGENS)
+      do_rebond = false;
+
+   if (do_rebond) {
+      std::set<int> dummy;
+      makebonds(geom_p, dummy);
+   }
 }
 
 void
 molecule_class_info_t::ca_representation() {
 
-   bonds_box.clear_up();
+   if (bonds_box_type != coot::CA_BONDS) {
+      bonds_box.clear_up();
 
-   std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
-   make_ca_bonds(2.4, 4.7);
-   bonds_box_type = coot::CA_BONDS;
+      std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
+      make_ca_bonds(2.4, 4.7);
+      bonds_box_type = coot::CA_BONDS;
+   }
 }
 
 void
 molecule_class_info_t::ca_plus_ligands_representation(coot::protein_geometry *geom) {
 
-   bonds_box.clear_up();
-   make_ca_plus_ligands_bonds(geom);
-   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   if (bonds_box_type != coot::CA_BONDS_PLUS_LIGANDS) {
+      bonds_box.clear_up();
+      make_ca_plus_ligands_bonds(geom);
+      bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   }
 }
 
 void
@@ -427,49 +440,54 @@ molecule_class_info_t::ca_plus_ligands_and_sidechains_representation(coot::prote
 void
 molecule_class_info_t::bonds_no_waters_representation() {
 
-   bonds_box.clear_up();
-   Bond_lines_container bonds;
-   bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds();
-   bonds_box_type = coot::BONDS_NO_WATERS;
-   make_glsl_bonds_type_checked();
+   if (bonds_box_type != coot::BONDS_NO_WATERS) {
+      bonds_box.clear_up();
+      Bond_lines_container bonds;
+      bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
+      bonds_box = bonds.make_graphical_bonds();
+      bonds_box_type = coot::BONDS_NO_WATERS;
+      make_glsl_bonds_type_checked();
+   }
 }
 
 void
 molecule_class_info_t::bonds_sec_struct_representation() {
 
-   //
-   Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
-   bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
-   bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
-   make_glsl_bonds_type_checked();
+   if (bonds_box_type != coot::BONDS_SEC_STRUCT_COLOUR) {
+      Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
+      bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
+      make_glsl_bonds_type_checked();
+   }
 }
 
 
 void
 molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_geometry *pg) {
 
-   //
-   Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
-   bonds_box = bonds.make_graphical_bonds();
-   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
-   make_glsl_bonds_type_checked();
+   if (bonds_box_type != coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
+      Bond_lines_container bonds;
+      bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
+      bonds_box = bonds.make_graphical_bonds();
+      bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
+      make_glsl_bonds_type_checked();
+   }
 }
 
 void
 molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg) {
 
-   //
-   Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
-				  2.4, 4.7,
-				  coot::COLOUR_BY_RAINBOW,
-				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
-   bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
-   make_glsl_bonds_type_checked();
+   if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
+      Bond_lines_container bonds;
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
+                                     2.4, 4.7,
+                                     coot::COLOUR_BY_RAINBOW,
+                                     draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
+      make_glsl_bonds_type_checked();
+   }
 }
 
 void

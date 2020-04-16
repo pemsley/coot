@@ -821,7 +821,7 @@ graphics_info_t::draw_molecules() {
 
    draw_model_molecules();
    draw_intermediate_atoms();
-   draw_molecular_triangles(); // Martin's renderings
+   // draw_molecular_triangles(); // Martin's renderings
 
    // transparent things... (maybe this function (draw_molecules()) should not be split out).
 
@@ -1015,7 +1015,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    std::cout << "... light 0: " << light0pos[0] << " " << light0pos[1] << " " << light0pos[2] << " " << std::endl;
 
    // Martin's Molecular triangles
-   setup_for_mol_triangles();
+   setup_molecular_triangles();
 
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    // handle_command_line_data(cld);

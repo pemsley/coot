@@ -3556,9 +3556,9 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
 //
 void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
-    const std::set<int> &no_bonds_to_these_atoms) {
+                                 const std::set<int> &no_bonds_to_these_atoms) {
 
-// come back to this
+   // come back to this
 
    std::set<int>::const_iterator it;
    if (false) { // debug no_bonds_to_these_atoms

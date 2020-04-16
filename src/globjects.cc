@@ -1851,7 +1851,7 @@ init_gl_widget(GtkWidget *widget) {
 
    // should be in graphics_info_t?
    //
-   setup_for_mol_triangles();
+   setup_molecular_triangles();
 
    // setup_for_single_triangle();
 
@@ -1859,7 +1859,7 @@ init_gl_widget(GtkWidget *widget) {
 }
 
 void
-setup_for_mol_triangles() {
+setup_molecular_triangles() {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 
@@ -1895,7 +1895,8 @@ setup_for_mol_triangles() {
    simpleLight2->setDrawLight(false);
    simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
 
-   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is " << graphics_info_t::mol_tri_scene_setup << std::endl;
+   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is "
+             << graphics_info_t::mol_tri_scene_setup << std::endl;
 
 #endif // USE_MOLECULES_TO_TRIANGLES
 

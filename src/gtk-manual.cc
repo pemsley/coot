@@ -521,7 +521,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
    // GtkWidget *menu;
    int bond_type;
    GtkWidget *active_item;
-   GtkWidget *mol_label;
+   GtkWidget *mol_number_label;
 
    /* messing about with string variables for unique lookup values/name of the widgets */
    std::string widget_name;
@@ -537,7 +537,8 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   if (imol > 9) nn = 2;
   if (imol > 99) nn = 1;
   std::string four_char_imol(nn, '0');
-  widget_name += four_char_imol + coot::util::int_to_string(imol);
+  // widget_name += four_char_imol + coot::util::int_to_string(imol);
+  widget_name += coot::util::int_to_string(imol);
   std::cout << "debug:: widget_name " << widget_name << std::endl;
 
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
@@ -564,11 +565,11 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   widget_name = "display_mol_number_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
 
-  mol_label = gtk_label_new (widget_name.c_str());;
+  mol_number_label = gtk_label_new (widget_name.c_str());;
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
-			  widget_name.c_str(), mol_label, NULL);
-  gtk_widget_show (mol_label);
-  gtk_box_pack_start (GTK_BOX (hbox31), mol_label, FALSE, FALSE, 3);
+			  widget_name.c_str(), mol_number_label, NULL);
+  gtk_widget_show (mol_number_label);
+  gtk_box_pack_start (GTK_BOX (hbox31), mol_number_label, FALSE, FALSE, 3);
 
 /* -- done molecule number label */
 
