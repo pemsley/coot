@@ -1500,8 +1500,9 @@ public:        //                      public
    //
    void update_map_colour_menu_maybe(int imol);
    void handle_map_colour_change(GdkRGBA map_col,
-				                     bool swap_difference_map_colours_flag,
-				                     bool main_or_secondary);
+                                 bool swap_difference_map_colours_flag,
+                                 bool main_or_secondary);
+   void handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag);
 
    int next_free_map();
 

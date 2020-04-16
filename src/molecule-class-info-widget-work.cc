@@ -50,31 +50,45 @@ molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 }
 
 void
+molecule_class_info_t::handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag) {
+
+   std::vector<float> orig_colours(3);
+   orig_colours[0] = map_colour.red;
+   orig_colours[1] = map_colour.green;
+   orig_colours[2] = map_colour.blue;
+   // Usually (by default) the colours for the difference map are
+   // green and red.  Some people like red and
+   // green. set_last_map_colour() calls this function and it is
+   // here that we decide on the second (negative level) colour.
+   float rotation_size = rotate_colour_map_for_difference_map/360.0;
+   if (swap_difference_map_colours_flag)
+      rotation_size = (360.0 - rotate_colour_map_for_difference_map)/360.0;
+   std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
+   map_colour.red   = rgb_new[0];
+   map_colour.green = rgb_new[1];
+   map_colour.blue  = rgb_new[2];
+}
+
+void
 molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                                                 bool swap_difference_map_colours_flag,
                                                 bool main_or_secondary) {
 
 
+   std::cout << "handle change to colour "
+             << map_col_in.red << " "
+             << map_col_in.green << " "
+             << map_col_in.blue << std::endl;
 
    map_colour = map_col_in;
+   map_colour.red   = map_col_in.red/65535.0;
+   map_colour.green = map_col_in.green/65535.0;
+   map_colour.blue  = map_col_in.blue/65535.0;
 
-   if (xmap_is_diff_map) {
-      std::vector<float> orig_colours(3);
-      orig_colours[0] = map_colour.red;
-      orig_colours[1] = map_colour.green;
-      orig_colours[2] = map_colour.blue;
-      // Usually (by default) the colours for the difference map are
-      // green and red.  Some people like red and
-      // green. set_last_map_colour() calls this function and it is
-      // here that we decide on the second (negative level) colour.
-      float rotation_size = rotate_colour_map_for_difference_map/360.0;
-      if (swap_difference_map_colours_flag)
- 	      rotation_size = (360.0 - rotate_colour_map_for_difference_map)/360.0;
-      std::vector<float> rgb_new = rotate_rgb(orig_colours, rotation_size);
-      map_colour.red   = rgb_new[0];
-      map_colour.green = rgb_new[1];
-      map_colour.blue  = rgb_new[2];
-   }
+   if (xmap_is_diff_map)
+      handle_map_colour_change_rotate_difference_map(swap_difference_map_colours_flag);
+
+   update_map();
 
    // main 0: secondary: 1
    // compile_density_map_display_list(main_or_secondary);
