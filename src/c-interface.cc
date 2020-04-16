@@ -2328,6 +2328,9 @@ get_map_colour(int imol) {
    if (imol < graphics_info_t::n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
          colour = graphics_info_t::molecules[imol].map_colour;
+         colour.red   *= 65535;
+         colour.green *= 65535;
+         colour.blue  *= 65535;
       }
    }
    std::string cmd = "get-map-colour";

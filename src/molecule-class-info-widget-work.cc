@@ -74,21 +74,22 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                                                 bool swap_difference_map_colours_flag,
                                                 bool main_or_secondary) {
 
-
-   std::cout << "handle change to colour "
-             << map_col_in.red << " "
-             << map_col_in.green << " "
-             << map_col_in.blue << std::endl;
+   if (false)
+      std::cout << "handle change to colour "
+                << map_col_in.red << " "
+                << map_col_in.green << " "
+                << map_col_in.blue << std::endl;
 
    map_colour = map_col_in;
-   map_colour.red   = map_col_in.red/65535.0;
+   map_colour.red   = map_col_in.red  /65535.0;
    map_colour.green = map_col_in.green/65535.0;
-   map_colour.blue  = map_col_in.blue/65535.0;
+   map_colour.blue  = map_col_in.blue /65535.0;
 
    if (xmap_is_diff_map)
       handle_map_colour_change_rotate_difference_map(swap_difference_map_colours_flag);
 
-   update_map();
+   // ideally, just change the colour buffer, but this will do for now.
+   setup_glsl_map_rendering();
 
    // main 0: secondary: 1
    // compile_density_map_display_list(main_or_secondary);

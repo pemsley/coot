@@ -3714,11 +3714,13 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
    struct map_colour_data_type *map_colour_data;
    GtkWidget *col_chooser = NULL;
    GdkRGBA map_colour;
+   GdkColor map_gdk_color;      /* old style used by the Color Selection  */
    GtkWidget *parent = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
    GtkWindow *parent_w = GTK_WINDOW(parent);
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
 
    GtkWidget *color_selection_dialog;
+   GtkWidget *color_selection;
 
    printf("in on_single_map_properties_colour_button_clicked() imol %d\n", imol);
    printf("in on_single_map_properties_colour_button_clicked() parent 0%p\n", parent);
@@ -3740,12 +3742,20 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
       map_colour = get_map_colour(imol);
       map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
       map_colour_data->imol = imol;
-      map_colour_data->color_selection = gtk_color_selection_dialog_get_color_selection(color_selection_dialog);
+      map_colour_data->color_selection =
+        gtk_color_selection_dialog_get_color_selection(color_selection_dialog);
+      color_selection = gtk_color_selection_dialog_get_color_selection(color_selection_dialog);
 
-      g_signal_connect (G_OBJECT (gtk_color_selection_dialog_get_color_selection(color_selection_dialog)),
-                        "color_changed", G_CALLBACK(on_map_color_changed), map_colour_data);
+      g_signal_connect(G_OBJECT(gtk_color_selection_dialog_get_color_selection(color_selection_dialog)),
+                       "color_changed",
+                       G_CALLBACK(on_map_color_changed), map_colour_data);
+
+      map_gdk_color.red   = map_colour.red;
+      map_gdk_color.green = map_colour.green;
+      map_gdk_color.blue  = map_colour.blue;
+      printf("setting map_gdk_color %d %d %d\n", map_gdk_color.red, map_gdk_color.green, map_gdk_color.blue);
+      gtk_color_selection_set_current_color(color_selection, &map_gdk_color);
       gtk_widget_show(color_selection_dialog);
-
 
    }
 }
