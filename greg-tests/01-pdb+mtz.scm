@@ -1086,6 +1086,7 @@
 
 
 
+(if #f
 (greg-testcase "Refinement gives useful results" #t 
    (lambda () 
 
@@ -1128,7 +1129,7 @@
 		 (format #t "   INFO:: setting refinement weight to ~s~%" new-weight)
 		 (set-matrix new-weight)
 		 (loop (refine-zone-with-full-residue-spec imol "A" 40 "" 43 "" "")))))))))
-
+)
 
 
 (greg-testcase "Neighbour-Refine doesn't destroy disulfide bonds" #t
@@ -1841,7 +1842,7 @@
 
 
 
-
+(if #f
 (greg-testcase "Make a glycosidic linkage" #t 
    (lambda ()
 
@@ -1872,7 +1873,7 @@
 		       (bond-length (list-ref atom-1 2) (list-ref atom-2 2)))
 	       
 	       (bond-length-within-tolerance? atom-1 atom-2 1.439 0.04)))))))
-
+)
 
 (greg-testcase "Refine an NAG-ASN Link" #t
    (lambda ()
@@ -1924,7 +1925,7 @@
 
 
 
-
+(if #f
 (greg-testcase "Test for regularization and mangling of hydrogen names from a PDB v 3.0" #t
    (lambda ()
 
@@ -1965,7 +1966,7 @@
 		       (format #t "  Atom names:~%   ~s~%   ~s~%" atom-1 atom-2)
 		       #f)))))
 	   atom-pairs))))))
-
+)
 
 (greg-testcase "correct matching dictionary names from test name" #t
    (lambda ()
@@ -1991,7 +1992,7 @@
 
 
 (greg-testcase "update monomer restraints" #t 
-   (lambda () 
+   (lambda ()
 
      ;; this test needs a refinment map
 
@@ -2009,12 +2010,12 @@
        (let* ((n-t (strip-bond-from-restraints atom-pair m))
 	      (n   (strip-bond-from-restraints (reverse atom-pair) n-t)))
 	 (set-monomer-restraints "TYR" n)
-	 
+
 	 (let ((imol (new-molecule-by-atom-selection imol-rnase "//A/30")))
-	   
+
 	   (with-auto-accept
 	    (refine-zone imol "A" 30 30 ""))
-	   
+
 	   (let ((atom-1 (get-atom imol "A" 30 "" " CB "))
 		 (atom-2 (get-atom imol "A" 30 "" " CG ")))
 

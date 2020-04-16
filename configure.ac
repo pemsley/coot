@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(coot, 0.9-pre)
+AC_INIT(coot, 0.9)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -69,6 +69,9 @@ AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [C
 
 dnl AC_OPENMP
 AX_OPENMP
+dnl thanks John Bollinger
+AC_SUBST([OPENMP_CFLAGS])
+AC_SUBST([OPENMP_CXXFLAGS])
 
 AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional experimental features ],
  coot_modern_language_tools="true",
