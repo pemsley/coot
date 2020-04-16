@@ -1146,10 +1146,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       // rr.found_restraints_flag = true;
 
       if (refinement_immediate_replacement_flag) {
-	 // wait until refinement finishes
-	 while (restraints_lock) {
-	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            std::cout << "restrainst locked by " << restraints_locking_function_name << std::endl;
+         // wait until refinement finishes
+         while (restraints_lock) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
+                      << restraints_locking_function_name << std::endl;
          }
       }
 
