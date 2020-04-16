@@ -1538,10 +1538,10 @@ if test "$build_coot_prerelease" = 1 ; then
 
       # 20200415-PE - man this is fragile code. Don't need to sort now.
       
-      awk '/.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html
+      awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html
 
-      coot_version=$(awk '/.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html | tail -1)
-       echo NNX:: coot_version $coot_version
+      coot_version=$(awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
+      echo NNX:: coot_version $coot_version
 
    else
       build_coot_prerelease=1  # belt and braces
@@ -1576,7 +1576,7 @@ else
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
-       coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+       coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
     fi
     echo coot_version $coot_version
