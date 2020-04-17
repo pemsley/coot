@@ -1015,7 +1015,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    std::cout << "... light 0: " << light0pos[0] << " " << light0pos[1] << " " << light0pos[2] << " " << std::endl;
 
    // Martin's Molecular triangles
-   setup_molecular_triangles();
+   // setup_molecular_triangles();
 
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    // handle_command_line_data(cld);
@@ -1041,7 +1041,6 @@ graphics_info_t::render(GtkGLArea *glarea) {
    int w = allocation.width;
    int h = allocation.height;
 
-   auto tp_0 = std::chrono::high_resolution_clock::now();
    GLenum err = glGetError();
    if (err) std::cout << "render() start " << err << std::endl;
 
