@@ -59,10 +59,12 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader) {
     // glEnable(GL_CULL_FACE);
     // glEnable(GL_BLEND);
 
-    shader.init("shaders/hud-text.shader", Shader::Entity_t::HUD_TEXT);
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(widget_width), 0.0f, static_cast<GLfloat>(widget_height));
+    shader.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(widget_width),
+                                      0.0f, static_cast<GLfloat>(widget_height));
     shader.Use();
-    glUniformMatrix4fv(glGetUniformLocation(shader.get_program_id(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(shader.get_program_id(), "projection"), 1, GL_FALSE,
+                       glm::value_ptr(projection));
     err = glGetError(); if (err) std::cout << "RenderText Aa " << err << std::endl;
     // FreeType
     FT_Library ft;
@@ -79,7 +81,7 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader) {
     } else {
        font_loaded = true;
        // Set size to load glyphs as
-       FT_Set_Pixel_Sizes(face, 0, 48);
+       FT_Set_Pixel_Sizes(face, 0, 12);
 
        // Disable byte-alignment restriction
        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -220,6 +222,8 @@ void draw_hud_text(int widget_width, int widget_height, Shader &shader) {
    float x = widget_width  - float(widget_width)/180.0 * 130.0;
    float y = widget_height -  30.0;
    // std::cout << "x " << x << " y " << y << std::endl;
-   float scale = 0.4f;
+   x = 3;
+   y = 3;
+   float scale = 1.0f;
    RenderText(shader, "Welcome to Coot",  x, y, scale, glm::vec3(0.6, 0.7, 0.7f));
 }

@@ -1048,7 +1048,7 @@ graphics_info_t::render(GtkGLArea *glarea) {
    gtk_gl_area_make_current(glarea);
    err = glGetError(); if (err) std::cout << "render() post gtk_gl_area_make_current() " << err << std::endl;
 
-   graphics_info_t::screen_framebuffer.bind();
+   screen_framebuffer.bind();
    err = glGetError(); if (err) std::cout << "render() post screen_buffer bind() " << err << std::endl;
 
    glEnable(GL_DEPTH_TEST);
@@ -1065,6 +1065,10 @@ graphics_info_t::render(GtkGLArea *glarea) {
       err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
 
       draw_molecules();
+
+      // Put atom label test at 42, 9, 13
+      draw_hud_text(w, h, shader_for_hud_text);
+      err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
 
       glBindVertexArray(0);
    }
@@ -1103,7 +1107,6 @@ graphics_info_t::render(GtkGLArea *glarea) {
    glEnable(GL_DEPTH_TEST);
 
    // z-blur shader
-
    {
       graphics_info_t::shader_for_blur.Use();
       glBindVertexArray(graphics_info_t::blur_quad_vertex_array_id);
@@ -1129,16 +1132,14 @@ graphics_info_t::render(GtkGLArea *glarea) {
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
    }
 
-   // True HUD text (not atom labels) should be added *after* blurring 
-   //
-   // So, I've moved the code block here - but it doesn't work now - presumably because
-   // its framebuffer needs updating (or something related)
-   //
-   if (false) {
-      draw_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+   {
+      // True HUD text (not atom labels) should be added *after* blurring (and here we are)
+      glEnable(GL_DEPTH_TEST); // needed
+      draw_hud_text(w, h, shader_for_hud_text);
       err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
    }
-   err = glGetError(); if (err) std::cout << "render() draw_molecules() " << err << std::endl;
+
+
 
    graphics_info_t::frame_counter++;
    if (graphics_info_t::frame_draw_queue.size() > 0) {
