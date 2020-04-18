@@ -904,24 +904,35 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
       mmdb::Atom *at_n_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_confs[i].c_str());
       mmdb::Atom *at_n_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_confs[i].c_str());
       if (at_n_1 && at_n_2 && at_n_3) {
-	 clipper::Coord_orth Hp1 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
+         bool add_them = true;
+         std::string res_name(residue_p->GetResName());
+         if (res_name == "ASN") {
+            if (is_linked(at_name_1, residue_p)) {
+               // Don't add hydrogens on ND2 linked to NAG               
+               add_them = false;
+               // Should add one sp2 Hydrogen atom here
+            }
+         }
+         if (add_them) {
+            clipper::Coord_orth Hp1 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
 									 bl_amino,
 									 clipper::Util::d2rad(120),
 									 clipper::Util::d2rad(180));
-	 clipper::Coord_orth Hp2 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
+            clipper::Coord_orth Hp2 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
 									 bl_amino,
 									 clipper::Util::d2rad(120),
 									 clipper::Util::d2rad(0));
-	 mmdb::realtype bf = at_n_1->tempFactor;
-	 add_hydrogen_atom(H_at_name_1, Hp1, bf, alt_confs[i], residue_p);
-	 add_hydrogen_atom(H_at_name_2, Hp2, bf, alt_confs[i], residue_p);
+	    mmdb::realtype bf = at_n_1->tempFactor;
+	    add_hydrogen_atom(H_at_name_1, Hp1, bf, alt_confs[i], residue_p);
+	    add_hydrogen_atom(H_at_name_2, Hp2, bf, alt_confs[i], residue_p);
+         }
       } else {
-	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
-		   << " alt-conf \"" << alt_confs[i] << "\""
-		   << " failed in add_amino_hydrogens" << std::endl;
-	 std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
-	 std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
-	 std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
+         std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
+                   << " alt-conf \"" << alt_confs[i] << "\""
+                   << " failed in add_amino_hydrogens" << std::endl;
+         std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
+         std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
+         std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
       }
    }
 }
@@ -1478,7 +1489,7 @@ coot::reduce::hydrogen_placement_by_dictionary(mmdb::Residue *residue_p) {
 
 void
 coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
-					       mmdb::Residue *residue_p) {
+                                               mmdb::Residue *residue_p) {
 
    std::vector<std::string> done_atom_name_list; // so that we don't add some atoms twice
    for (unsigned int iat=0; iat<rest.atom_info.size(); iat++) {
@@ -1489,7 +1500,7 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
 	    // skip the HO3' on RNA and DNA. I could instead test for presence/position of next
 	    // residue, but this easier and will be correct for most cases.
 	    if ((rest.residue_info.group == "DNA" || rest.residue_info.group == "RNA") &&
-		H_at_name == "HO3'") {
+	        H_at_name == "HO3'") {
 	       continue;
 	    } else {
 	       // to which atom is this hydrogen connected?
@@ -1501,11 +1512,11 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
 		  const std::string &first_neigh = rest.atom_info[iat_neighb].atom_id_4c;
 		  if (! is_linked(first_neigh, residue_p)) {
 		     if (! energy_type.empty()) {
-			std::vector<std::string> v =
-			   place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
-			done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
+		        std::vector<std::string> v =
+		           place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
+		        done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
 		     } else {
-			place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+		        place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
 		     }
 		  }
 	       }
