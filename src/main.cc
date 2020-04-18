@@ -266,7 +266,7 @@ main (int argc, char *argv[]) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-      window1 = create_window1 ();
+      window1 = create_window1();
 
       std::string version_string = VERSION;
       std::string main_title = "Coot " + version_string;

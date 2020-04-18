@@ -1512,17 +1512,16 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
                   const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
                      moving_atoms_extra_restraints_representation.bonds[ib];
 
-                  // red if actual distance is greater than target
+                  // purple if actual distance is greater than target
                   //
                   double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+                  double d = sqrt(d_sqd);
                   double esd = 0.05;
-
-                  double b = 0.005 * (res.target_dist*res.target_dist - d_sqd)/esd;
+                  double z = (res.target_dist - d)/esd;
+                  double b = 0.02 * z;
                   if (b >  0.4999) b =  0.4999;
                   if (b < -0.4999) b = -0.4999;
                   double b_green = b;
-                  if (b > 0) b_green *= 0.2;
-		  // std::cout << "b " << b << " b_green " << b_green << std::endl;
                   glColor3d(0.5-b, 0.5+b_green*0.9, 0.5-b);
 
                   glVertex3f(res.first.x(), res.first.y(), res.first.z());
