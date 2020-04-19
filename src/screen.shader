@@ -30,9 +30,7 @@ layout(location = 0) out vec4 out_color;
 vec3 occlude() {
 
        vec3 r = vec3(0.0, 0.0, 0.2); // return r;
-       int n_pixels_max = 38;
-       n_pixels_max = 45;
-       n_pixels_max = 48;
+       int n_pixels_max = 36;
        // most of the image:
        int n_sampled = 0;
        int n_closer_neighbours = 0; // ambient occlusion (testing)
@@ -87,11 +85,9 @@ vec3 occlude() {
           r = texture(screenTexture, TexCoords).rgb;
           if ((2 * n_closer_neighbours) >= n_sampled) {
              float aos = float(n_closer_neighbours)/float(n_sampled);
-             aos = 0.5 + - closer_sum * 1.1;
-             aos = 0.5 + - closer_sum * 0.0009;
              aos = float(n_closer_neighbours)/float(n_sampled); // 0.5 to 1
              float f = 2.0 * aos - 1.0;  // 0.0 to 1.0 (very occluded to no occluded)
-             float ff = 1.0 - f * 0.995;
+             float ff = 1.0 - f * 0.5;
              r *=  ff;
           }
        } else{
