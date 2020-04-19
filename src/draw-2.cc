@@ -1513,35 +1513,15 @@ graphics_info_t::setup_key_bindings() {
 
    auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
 
-   auto l17 = []() {
-                 graphics_info_t g;
-                 bool reorienting = g.reorienting_next_residue_mode;
-                 if (reorienting) {
-                    if (graphics_info_t::shift_is_pressed) {
-                       g.reorienting_next_residue(false); // backwards
-                    } else {
-                       g.reorienting_next_residue(true); // forwards
-                    }
-                 } else {
-                    // old/standard simple translation
-                    if (graphics_info_t::shift_is_pressed) {
-                       g.intelligent_previous_atom_centring(g.go_to_atom_window);
-                    } else {
-                       g.intelligent_next_atom_centring(g.go_to_atom_window);
-                    }
-                 }
-                 return gboolean(TRUE);
-              };
-
    auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); return gboolean(TRUE); };
 
    auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); return gboolean(TRUE); };
 
    auto l20 = []() { graphics_info_t g; g.eigen_flip_active_residue(); return gboolean(TRUE); };
 
+   // Note to self, Space and Shift Space are key *Releease* functions
+
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
-   // auto testing_1 = []() { graphics_info_t g; g.adjust_clipping(0.3); gboolean r = TRUE; return r; };
-   // key_bindings_t kb(testing_1);
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
@@ -1557,7 +1537,6 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_O,      key_bindings_t(l15, "NCS Skip backward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l17, "Next Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));

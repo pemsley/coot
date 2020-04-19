@@ -294,7 +294,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    std::string atom_name = go_to_atom_atom_name_;
    std::string ins_code =  go_to_atom_inscode_;
    int resno = go_to_atom_residue();
-   int imol = go_to_atom_molecule();
+   int imol  = go_to_atom_molecule();
 
    if (false) {
       std::cout << "intelligent_near_atom_centring() " << direction << std::endl;
@@ -352,6 +352,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
             // 						 "go_to_atom_residue_tree");
             // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
          }
+
          try_centre_from_new_go_to_atom();
 
          // Update the graphics (glarea widget):
