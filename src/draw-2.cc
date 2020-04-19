@@ -1067,8 +1067,8 @@ graphics_info_t::render(GtkGLArea *glarea) {
       draw_molecules();
 
       // Put atom label test at 42, 9, 13
-      draw_hud_text(w, h, shader_for_hud_text);
-      err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
+      // draw_hud_text(w, h, shader_for_hud_text);
+      // err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
 
       glBindVertexArray(0);
    }
@@ -1132,14 +1132,14 @@ graphics_info_t::render(GtkGLArea *glarea) {
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
    }
 
+
    {
-      // True HUD text (not atom labels) should be added *after* blurring (and here we are)
-      glEnable(GL_DEPTH_TEST); // needed
+      // True HUD text (not atom labels) should be added *after* blurring (and here we are).
+      // Currently, we don't see it.
+      glDisable(GL_DEPTH_TEST); // needed because HUD text gets put at z=1.0 (it seems).
       draw_hud_text(w, h, shader_for_hud_text);
       err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
    }
-
-
 
    graphics_info_t::frame_counter++;
    if (graphics_info_t::frame_draw_queue.size() > 0) {
