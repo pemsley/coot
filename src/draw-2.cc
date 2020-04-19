@@ -1171,6 +1171,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;
+   setup_hud_text(width, height, g.shader_for_hud_text);
    g.reset_frame_buffers(width, height);
 }
 

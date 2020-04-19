@@ -47,8 +47,6 @@ void debug_ft_characters() {
 
 }
 
-void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
-
 // The MAIN function, from here we start our application and run the Game loop
 int setup_hud_text(int widget_width, int widget_height, Shader &shader) {
 
