@@ -1,6 +1,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>
+#include "c-interface-python.hh"
 #endif
 
 #include <iostream>
@@ -22,11 +23,35 @@
 
 #ifdef USE_PYTHON
 // Prefered:
-void add_key_binding_gtk3_py(int key, int ctrl_key, PyObject *func, const std::string &description) {
+void add_key_binding_gtk3_py(PyObject *key_py, int ctrl_key, PyObject *func, const std::string &description) {
 
-   keyboard_key_t k(key, ctrl_key);
-   key_bindings_t kb(func, description);
-   graphics_info_t::add_key_binding(k, kb);
+   int key = 0;
+
+   if (PyLong_Check(key_py)) {
+      key = PyLong_AsLong(key_py);
+   } else {
+      if (PyUnicode_Check(key_py)) {
+         std::string key_str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(key_py));
+         // now convert the string to a key code.
+         if (!key_str.empty()) {
+            guint kk = gdk_unicode_to_keyval(key_str[0]);
+            std::cout << "debug here with kk " << kk << std::endl;
+            key = kk;
+         } else {
+            std::cout << "WARNING:: empty key " << std::endl;
+         }
+      }
+   }
+   if (key != 0) {
+      keyboard_key_t k(key, ctrl_key);
+      key_bindings_t kb(func, description);
+      graphics_info_t::add_key_binding(k, kb);
+   } else {
+      // use display on this
+      std::cout << "WARNGING:: add_key_binding_gtk3_py() failed to interpet "
+                << PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(key_py)))
+                << std::endl;
+   }
 }
 #endif
 

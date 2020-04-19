@@ -3994,6 +3994,7 @@ string   static std::string sessionid;
 			   const std::string &version);
    std::string get_version_for_extension(const std::string &extension_name) const;
 
+   void eigen_flip_active_residue();
    static int jed_flip_intermediate_atoms();
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
 

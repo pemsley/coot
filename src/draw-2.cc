@@ -1532,6 +1532,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); return gboolean(TRUE); };
 
+   auto l20 = []() { graphics_info_t g; g.eigen_flip_active_residue(); return gboolean(TRUE); };
+
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
    // auto testing_1 = []() { graphics_info_t g; g.adjust_clipping(0.3); gboolean r = TRUE; return r; };
    // key_bindings_t kb(testing_1);
@@ -1553,6 +1555,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_space,  key_bindings_t(l17, "Next Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
 
    // control keys
 
