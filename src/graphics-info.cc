@@ -3506,9 +3506,9 @@ graphics_info_t::Imol_Refinement_Map() const {
 
    if (imol_refinement_map != -1) { // has been set already (or was reset)
       if (imol_refinement_map < n_molecules())
-    if (imol_refinement_map >= 0)
-       if (molecules[imol_refinement_map].has_xmap())
-          return imol_refinement_map;
+         if (imol_refinement_map >= 0)
+            if (molecules[imol_refinement_map].has_xmap())
+               return imol_refinement_map;
    }
 
    // check the molecules for maps - we can assign if there is only
@@ -3522,12 +3522,14 @@ graphics_info_t::Imol_Refinement_Map() const {
          }
       }
    }
+
    if (direct_maps.size() == 1) {
       // let's set it then
       imol_refinement_map = direct_maps[0];
    } else {
       imol_refinement_map = -1;
    }
+
    return imol_refinement_map;
 }
 

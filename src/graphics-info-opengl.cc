@@ -34,7 +34,8 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
    graphics_info_t g; // needed?
    int r = 0;
    if (use_graphics_interface_flag) {
-      if (imol_refinement_map != -1) {
+      int imol_map = Imol_Refinement_Map();
+      if (imol_map != -1) {
 	 // OK we have a map to search.
 	 // coot::Cartesian front = unproject(0.0);
 	 // coot::Cartesian back  = unproject(1.0);
