@@ -480,6 +480,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
 
             if (draw_with_lines) {
+               // I don't see why this is needed - but it is.
+               if (! m.is_an_opaque_map())
+                  glEnable(GL_BLEND);
                glBindVertexArray(m.m_VertexArrayID_for_map);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
@@ -554,8 +557,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
    // that would mean adding glEnableVertexAttribArray() for the attributes (position, normal, colour).
    // in the above block.
 
-   if (needs_blend_reset)
+   if (needs_blend_reset) {
       glDisable(GL_BLEND);
+   }
 }
 
 void
