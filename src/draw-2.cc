@@ -1452,9 +1452,9 @@ graphics_info_t::setup_key_bindings() {
 
    // if we are serious about user-defined key-bindings all of these functions should be thunks in the user API
 
-   auto l1 = []() { graphics_info_t g; g.adjust_clipping(0.3); };
-   auto l2 = []() { graphics_info_t g; g.adjust_clipping(-0.3); };
-   auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); };
+   auto l1 = []() { graphics_info_t g; g.adjust_clipping(0.3); return gboolean(TRUE); };
+   auto l2 = []() { graphics_info_t g; g.adjust_clipping(-0.3); return gboolean(TRUE); };
+   auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); return gboolean(TRUE); };
 
    auto l6 = []() {
                 if (graphics_info_t::idle_function_spin_rock_token != -1) {
@@ -1465,6 +1465,7 @@ graphics_info_t::setup_key_bindings() {
                    int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
                    graphics_info_t::idle_function_spin_rock_token = toi;
                 }
+                return gboolean(TRUE);
              };
 
    auto l7 = []() {
@@ -1476,6 +1477,7 @@ graphics_info_t::setup_key_bindings() {
                 graphics_info_t g;
                 g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
                 graphics_info_t::display_density_level_this_image = 1;
+                return gboolean(TRUE);
              };
 
    auto l8 = []() {
@@ -1487,23 +1489,24 @@ graphics_info_t::setup_key_bindings() {
                 graphics_info_t g;
                 g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
                 graphics_info_t::display_density_level_this_image = 1;
+                return gboolean(TRUE);
              };
 
-   auto l9 = []() { update_go_to_atom_from_current_position(); };
+   auto l9 = []() { update_go_to_atom_from_current_position(); return gboolean(TRUE); };
 
-   auto l10 = []() { graphics_info_t::zoom *= 0.9; };
+   auto l10 = []() { graphics_info_t::zoom *= 0.9; return gboolean(TRUE); };
 
-   auto l11 = []() { graphics_info_t::zoom *= 1.1; };
+   auto l11 = []() { graphics_info_t::zoom *= 1.1; return gboolean(TRUE); };
 
-   auto l12 = []() { graphics_info_t g; g.move_forwards(); };
+   auto l12 = []() { graphics_info_t g; g.move_forwards(); return gboolean(TRUE); };
 
-   auto l13 = []() { graphics_info_t g; g.move_backwards(); };
+   auto l13 = []() { graphics_info_t g; g.move_backwards(); return gboolean(TRUE); };
 
-   auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); };
+   auto l14 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('forward')"); return gboolean(TRUE); };
 
-   auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); };
+   auto l15 = []() { safe_python_command("import ncs; ncs.skip_to_next_ncs_chain('backward')"); return gboolean(TRUE); };
 
-   auto l16 = []() { graphics_info_t g; g.undo_last_move(); };
+   auto l16 = []() { graphics_info_t g; g.undo_last_move(); return gboolean(TRUE); };
 
    auto l17 = []() {
                  graphics_info_t g;
@@ -1522,13 +1525,16 @@ graphics_info_t::setup_key_bindings() {
                        g.intelligent_next_atom_centring(g.go_to_atom_window);
                     }
                  }
+                 return gboolean(TRUE);
               };
 
-   auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); };
+   auto l18 = []() { graphics_info_t g; g.accept_moving_atoms(); return gboolean(TRUE); };
 
-   auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); };
+   auto l19 = []() { graphics_info_t g; g.clear_up_moving_atoms_wrapper(); return gboolean(TRUE); };
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
+   // auto testing_1 = []() { graphics_info_t g; g.adjust_clipping(0.3); gboolean r = TRUE; return r; };
+   // key_bindings_t kb(testing_1);
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_f,      key_bindings_t(l2, "decrease clipping")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_g,      key_bindings_t(l5, "go to blob")));
@@ -1550,24 +1556,89 @@ graphics_info_t::setup_key_bindings() {
 
    // control keys
 
-   auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); };
+   auto lc1 = []() { show_go_to_residue_keyboarding_mode_window(); return gboolean(TRUE); };
    key_bindings_t go_to_residue_key_binding(lc1, "Show Go To Residue Keyboarding Window");
    std::pair<keyboard_key_t, key_bindings_t> p1(keyboard_key_t(GDK_KEY_g, true), go_to_residue_key_binding);
    kb_vec.push_back(p1);
 
-   auto lc2 = []() { graphics_info_t g; g.apply_undo(); };
+   auto lc2 = []() { graphics_info_t g; g.apply_undo(); return gboolean(TRUE); };
    key_bindings_t undo_key_binding(lc2, "Undo");
    std::pair<keyboard_key_t, key_bindings_t> p2(keyboard_key_t(GDK_KEY_z, true), undo_key_binding);
    kb_vec.push_back(p2);
 
-   auto lc3 = []() { graphics_info_t g; g.apply_redo(); };
+   auto lc3 = []() { graphics_info_t g; g.apply_redo(); return gboolean(TRUE);};
    key_bindings_t redo_key_binding(lc3, "Redo");
    std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
    kb_vec.push_back(p3);
 
+   // left
+   auto lc4 = []() {
+                 if (graphics_info_t::control_is_pressed) {
+                    if (graphics_info_t::shift_is_pressed)
+                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Left);
+                    else
+                       graphics_info_t::nudge_active_residue(GDK_KEY_Left);
+                 } else {
+                    keypad_translate_xyz(1, 1);
+                 }
+                 return gboolean(TRUE);
+              };
+
+   // right
+   auto lc5 = []() {
+                 if (graphics_info_t::control_is_pressed) {
+                    if (graphics_info_t::shift_is_pressed)
+                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Right);
+                    else
+                       graphics_info_t::nudge_active_residue(GDK_KEY_Right);
+                 } else {
+                    keypad_translate_xyz(1, -1);
+                 }
+                 return gboolean(TRUE);
+              };
+
+   // up
+   auto lc6 = []() {
+                 if (graphics_info_t::control_is_pressed) {
+                    if (graphics_info_t::shift_is_pressed)
+                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Up);
+                    else
+                       graphics_info_t::nudge_active_residue(GDK_KEY_Up);
+                 } else {
+                    keypad_translate_xyz(2, 1);
+                 }
+                 return gboolean(TRUE);
+              };
+   // down
+   auto lc7 = []() {
+                 if (graphics_info_t::control_is_pressed) {
+                    if (graphics_info_t::shift_is_pressed)
+                       graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Down);
+                    else
+                       graphics_info_t::nudge_active_residue(GDK_KEY_Down);
+                 } else {
+                    keypad_translate_xyz(2, -1);
+                 }
+                 return gboolean(TRUE);
+              };
+
+   key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
+   key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
+   key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
+   key_bindings_t ctrl_arrow_down_key_binding(lc7, "R/T Down");
+   std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
+   kb_vec.push_back(p4);
+   kb_vec.push_back(p5);
+   kb_vec.push_back(p6);
+   kb_vec.push_back(p7);
+
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); it++)
      g.key_bindings_map[it->first] = it->second;
+
 }
 
 
@@ -1594,7 +1665,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     if (false)
+     if (true)
         std::cout << "key-binding for key " << it->first.gdk_key << " "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();

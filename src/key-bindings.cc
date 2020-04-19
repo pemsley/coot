@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 
+#include <gtk/gtk.h>
+
 #include "key-bindings.hh"
 
 void
