@@ -45,6 +45,8 @@ std::map<unsigned int, gl_lights_info_t> graphics_info_t::lights;
 
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;
 
+bool graphics_info_t::vera_font_loaded = false;
+
 // static
 void
 graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) {

@@ -1,4 +1,8 @@
 
+#ifdef USE_PYTHON
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -22,26 +26,19 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include "graphics-info.h"
 #include "Shader.hh"
 
 // Properties
 // const GLuint WIDTH = 800, HEIGHT = 600;
 
-/// Holds all state information relevant to a character as loaded using FreeType
-struct FT_character {
-    GLuint TextureID;   // ID handle of the glyph texture
-    glm::ivec2 Size;    // Size of glyph
-    glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
-    GLuint Advance;    // Horizontal offset to advance to next glyph
-};
 
-std::map<GLchar, FT_character> ft_characters;
 GLuint VAO, VBO;
 
 void debug_ft_characters() {
 
    std::map<GLchar, FT_character>::const_iterator it;
-   for (it=ft_characters.begin(); it!=ft_characters.end(); it++) {
+   for (it=graphics_info_t::ft_characters.begin(); it!=graphics_info_t::ft_characters.end(); it++) {
       std::cout << "debug ft_characters " << it->first << " " << it->second.TextureID << std::endl;
    }
 
@@ -61,76 +58,14 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader) {
     glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(widget_width),
                                       0.0f, static_cast<GLfloat>(widget_height));
     shader.Use();
-    glUniformMatrix4fv(glGetUniformLocation(shader.get_program_id(), "projection"), 1, GL_FALSE,
-                       glm::value_ptr(projection));
+    GLuint projection_uniform_location = shader.hud_projection_uniform_location;
+    glUniformMatrix4fv(projection_uniform_location, 1, GL_FALSE, glm::value_ptr(projection));
     err = glGetError(); if (err) std::cout << "RenderText Aa " << err << std::endl;
-    // FreeType
-    FT_Library ft;
-    // All functions return a value different than 0 whenever an error occurred
-    if (FT_Init_FreeType(&ft))
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
-    // Load font as face
-    std::string vera_font_file_name = "fonts/Vera.ttf";
-    bool font_loaded = false;
-    FT_Face face;
-    if (FT_New_Face(ft, vera_font_file_name.c_str(), 0, &face)) {
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-    } else {
-       font_loaded = true;
-       // Set size to load glyphs as
-       FT_Set_Pixel_Sizes(face, 0, 12);
+    graphics_info_t g;
+    g.load_freetype_font_textures();
 
-       // Disable byte-alignment restriction
-       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-       // Load first 128 characters of ASCII set
-       for (GLubyte c = 0; c < 128; c++)
-       {
-           // Load character glyph
-           if (FT_Load_Char(face, c, FT_LOAD_RENDER))
-           {
-               std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-               continue;
-           }
-           // Generate texture
-           GLuint texture;
-           glGenTextures(1, &texture);
-           glBindTexture(GL_TEXTURE_2D, texture);
-           glTexImage2D(
-               GL_TEXTURE_2D,
-               0,
-               GL_RED,
-               face->glyph->bitmap.width,
-               face->glyph->bitmap.rows,
-               0,
-               GL_RED,
-               GL_UNSIGNED_BYTE,
-               face->glyph->bitmap.buffer
-           );
-           // Set texture options
-           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-           glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-           // Now store character for later use
-           GLuint face_glyph_advance_x = face->glyph->advance.x;
-           // std::cout << "ID handle of the glyph texture " << texture << std::endl;
-           FT_character character = {
-               texture,
-               glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-               glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-               face_glyph_advance_x
-           };
-           ft_characters.insert(std::pair<GLchar, FT_character>(c, character));
-       }
-       glBindTexture(GL_TEXTURE_2D, 0);
-       // Destroy FreeType once we're finished
-       FT_Done_Face(face);
-       FT_Done_FreeType(ft);
-    }
-
-    if (font_loaded) {
+    if (g.vera_font_loaded) {
        // Configure VAO/VBO for texture quads
        glGenVertexArrays(1, &VAO);
        glGenBuffers(1, &VBO);
@@ -170,8 +105,8 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
     for (c = text.begin(); c != text.end(); c++) {
         err = glGetError(); if (err) std::cout << "RenderText loop start for " << *c << " " << err << std::endl;
         // const FT_character &ch = ft_characters[*c];
-        std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*c);
-        if (it == ft_characters.end()) {
+        std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
+        if (it == graphics_info_t::ft_characters.end()) {
            std::cout << "Failed to lookup for " << *c << std::endl;
            continue;
         };

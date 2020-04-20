@@ -4164,6 +4164,7 @@ string   static std::string sessionid;
    // text
    static std::map<GLchar, FT_character> ft_characters;
    void load_freetype_font_textures();
+   static bool vera_font_loaded;
 
    // key-bindings
    static std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
