@@ -191,23 +191,10 @@ graphics_info_t::get_molecule_mvp() {
    float z = graphics_info_t::zoom * 0.04;
    glm::vec3 sc(z,z,z);
 
-   // start: clipping front and back are 0
-   // with large depth of field: clipping_front is -10, clipping_back is -9
-   // with narrow depth of field: 5 and 6.
+   GLfloat near = -0.1 * zoom * clipping_front;
+   GLfloat far  =  0.3 * zoom * clipping_back;
 
-   GLfloat near_scale = 0.3;
-
-   // Is this (below) still true?
-   // Yes it is (9 -30) with planes at 0,0.
-   // Clipping planes need some thought.
-   //
-   // near is positive and far is bigger and negative
-   // - not sure that that's right - but it looks OK.
-   //
-   GLfloat near = -0.1 * zoom;
-   GLfloat far  =  0.3 * zoom;
-
-   if (true)
+   if (false)
       std::cout << "near " << near << " far " << far << " clipping front "
                 << clipping_front << " back " << clipping_back << std::endl;
 
@@ -636,7 +623,7 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
                             << n_verts << " with GL err " << err << std::endl;
 
-         draw_molecule_atom_labels(m, mvp, view_rotation);
+         // draw_molecule_atom_labels(m, mvp, view_rotation);
 
       }
    }
@@ -657,8 +644,9 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
 
    glm::vec4 projected_point_1 = glm::vec4(point, 1.0) * inv_mvp;
    glm::vec4 projected_point_2 = inv_mvp * glm::vec4(point, 1.0);
-   std::cout << "projected point " << glm::to_string(projected_point_1 ) << " " << glm::to_string(projected_point_2)
-             << std::endl;
+   if (false)
+      std::cout << "projected point " << glm::to_string(projected_point_1 ) << " " << glm::to_string(projected_point_2)
+                << std::endl;
 
    int n_atoms_to_label = m.labelled_atom_index_list.size();
    if (n_atoms_to_label == 0) return;
@@ -1470,9 +1458,10 @@ graphics_info_t::setup_key_bindings() {
    graphics_info_t g;
 
    // if we are serious about user-defined key-bindings all of these functions should be thunks in the user API
+   // (and returning gboolean).
 
-   auto l1 = []() { graphics_info_t g; g.adjust_clipping(0.3); return gboolean(TRUE); };
-   auto l2 = []() { graphics_info_t g; g.adjust_clipping(-0.3); return gboolean(TRUE); };
+   auto l1 = []() { graphics_info_t g; g.adjust_clipping(-0.1); return gboolean(TRUE); };
+   auto l2 = []() { graphics_info_t g; g.adjust_clipping( 0.1); return gboolean(TRUE); };
    auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); return gboolean(TRUE); };
 
    auto l6 = []() {

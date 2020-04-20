@@ -125,13 +125,10 @@ void
 graphics_info_t::adjust_clipping(float d) {
 
    if (! graphics_info_t::perspective_projection_flag) {
-      if (d>0) {
-         set_clipping_front(graphics_info_t::clipping_front + d);
-         set_clipping_back (graphics_info_t::clipping_front + d);
-      } else {
-         set_clipping_front(graphics_info_t::clipping_front + d);
-         set_clipping_back (graphics_info_t::clipping_front + d);
-      }
+
+      clipping_front = clipping_front * (1.0 + d);
+      clipping_back  = clipping_back  * (1.0 + d);
+
    } else {
       // perspective
 
@@ -178,13 +175,15 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
                                 (2.0*g.mouse_current_x - area_width)/area_width,
                                 (area_height - 2.0*g.mouse_current_y)/area_height,
                                 tbs);
-   tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
 
    if (! graphics_info_t::perspective_projection_flag) {
+
+      tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
       glm::quat product = tb_quat * glm_quat;
       glm_quat = glm::normalize(product);
 
    } else {
+
       // move the eye according to tb_quat
 
       // glm::quat product = tb_quat * glm_quat;

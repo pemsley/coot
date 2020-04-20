@@ -517,11 +517,6 @@ GtkWidget *graphics_info_t::statusbar = NULL;
 guint      graphics_info_t::statusbar_context_id = 0;
 std::string graphics_info_t::main_window_title;
 
-// float graphics_info_t::clipping_front = -7.0;
-// float graphics_info_t::clipping_back  = -6.0;
-float graphics_info_t::clipping_front = 0.0;
-float graphics_info_t::clipping_back  = 0.0;
-
 //
 int       graphics_info_t::atom_label_font_size = 2; // medium
 void     *graphics_info_t::atom_label_font = 0; //GLUT_BITMAP_HELVETICA_12;

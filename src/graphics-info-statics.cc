@@ -25,6 +25,10 @@ float graphics_info_t::screen_z_far_perspective  = 400.0;
 
 GtkWidget *graphics_info_t::main_window = NULL;
 
+// now the clipping planes are scale, not offsets
+float graphics_info_t::clipping_front = 1.0;
+float graphics_info_t::clipping_back  = 1.0;
+
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
