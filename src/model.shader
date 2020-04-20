@@ -67,7 +67,7 @@ void main() {
   if (true)
      f_2 = f_2 * f_2 * f_2; // adjustment for perspective (which, if left unadjusted would have
                             // 90% of the image "deep")
-  // f_2 = f_1; // just testing
+  f_2 = f_1; // just testing
 
   vec4 ambient_col = light_colour * tri_color;
   vec4 col_1 = vec4(vec3(f_2), 1.0) * tri_color;

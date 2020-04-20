@@ -57,11 +57,11 @@ layout(location = 0) out vec4 out_col;
 
 void main() {
 
-  float specular_strength = 0.6; // 1.5 is very shiny
+  float specular_strength = 0.3; // 1.5 is very shiny
   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
 
   // a light direction of 0,0,1 is good for fresnelly outlining
-  vec3 lightdir = normalize(vec3(-2,-1, 5));
+  vec3 lightdir = normalize(vec3(-2,-1, -1));
 
   // using the light_0_position give to the shader in a uniform
   // gives us rotating lights
@@ -72,7 +72,7 @@ void main() {
   float m  = clamp(gl_FragCoord.z, 0.0f, 1.0f);
 
   float f_1 = 1.0 - m; // because glm::ortho() near and far are reversed?
-  // f_1 = 0.2;
+  // f_1 = m;
 
   vec4 bg_col = bg_colour;
 
@@ -95,7 +95,7 @@ void main() {
   vec4 line_colour_local = line_colour;
 
   vec4 col_1 = line_colour_local;  // ambient
-  float ambient_strength = 0.5;
+  float ambient_strength = 0.6;
   vec4 col_2 = line_colour_local * dp;
   // vec4 col_3 = 0.6 * col_2 + col_1 * ambient_strength;
   vec4 col_3 = col_2 + col_1 * ambient_strength + specular;

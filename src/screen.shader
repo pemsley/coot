@@ -87,7 +87,7 @@ vec3 occlude() {
              float aos = float(n_closer_neighbours)/float(n_sampled);
              aos = float(n_closer_neighbours)/float(n_sampled); // 0.5 to 1
              float f = 2.0 * aos - 1.0;  // 0.0 to 1.0 (very occluded to no occluded)
-             float ff = 1.0 - f * 0.5;
+             float ff = 1.0 - f * 0.7;
              r *=  ff;
           }
        } else{

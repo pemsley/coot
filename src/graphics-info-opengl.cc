@@ -170,7 +170,7 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
    float tbs = g.get_trackball_size();
 
    if (perspective_projection_flag)
-      tbs = 11.0;
+      tbs = 1.0;
 
    glm::quat tb_quat =
       g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - area_width)/area_width,
@@ -178,6 +178,7 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
                                 (2.0*g.mouse_current_x - area_width)/area_width,
                                 (area_height - 2.0*g.mouse_current_y)/area_height,
                                 tbs);
+   tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
 
    if (! graphics_info_t::perspective_projection_flag) {
       glm::quat product = tb_quat * glm_quat;

@@ -102,7 +102,7 @@ vec3 sampling_blur(int n_pixels_max) {
                      float gauss = 1.0/dbrs * exp(-0.5 * k * r_sqrd/(blur_radius*blur_radius));
                      // gauss = 1.0;
                      float depth_factor = 2.0 * (1.0 - depth_centre); // 0 -> 1
-                     // depth_factor = 1.0;
+                     depth_factor = 1.0;
                      sum_outer += colour_ij * gauss * (1.0 - depth_ij) * depth_factor;
                      sum_for_alpha += gauss * (1.0 - depth_ij) * depth_factor;
                      n_outer_neighbs++;
@@ -115,8 +115,8 @@ vec3 sampling_blur(int n_pixels_max) {
       if (n_inner_neighbs == 0) average_col_from_inner_neighbs = vec3(0,0,0);
       float alpha_inner = float(n_inner_neighbs)/float(5*5-1); // -3 < i,j < 3
       alpha_inner = clamp(alpha_inner, 0.0f, 1.0f);
-      float alpha = clamp(0.03 * sum_for_alpha, 0.0f, 1.0f);
-      float Sc = 0.03f/float(n_pixels_max*n_pixels_max);
+      float alpha = clamp(11.5 * sum_for_alpha, 0.0f, 1.0f);
+      float Sc = 0.6f/float(n_pixels_max*n_pixels_max);
       // result = 0.5 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
       // result = 0.1 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
       // result = 0.2 * orig_colour + 0.6 * centre_points_scale * sum_inner + Sc * sum_outer;
@@ -155,11 +155,11 @@ void main() {
 
    vec3 result = vec3(0,0,0);
 
-   bool do_depth_blur = true;
+   bool do_depth_blur = false;
    bool do_outline    = false;
 
    if (do_depth_blur) {
-      result = sampling_blur(8); // 14 is good
+      result = sampling_blur(16); // 14 is good
    } else {
       if (do_outline) {
          result = make_outline();

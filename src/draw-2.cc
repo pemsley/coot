@@ -190,7 +190,6 @@ graphics_info_t::get_molecule_mvp() {
 
    float z = graphics_info_t::zoom * 0.04;
    glm::vec3 sc(z,z,z);
-   float ortho_size = 90.0;
 
    // start: clipping front and back are 0
    // with large depth of field: clipping_front is -10, clipping_back is -9
@@ -198,12 +197,17 @@ graphics_info_t::get_molecule_mvp() {
 
    GLfloat near_scale = 0.3;
 
+   // Is this (below) still true?
+   // Yes it is (9 -30) with planes at 0,0.
+   // Clipping planes need some thought.
+   //
    // near is positive and far is bigger and negative
    // - not sure that that's right - but it looks OK.
-   GLfloat near  = -0.3*near_scale*zoom * (clipping_front*0.1 - 1.0);
-   GLfloat far  =       near_scale*zoom * (clipping_back* 0.1 - 1.0);
+   //
+   GLfloat near = -0.1 * zoom;
+   GLfloat far  =  0.3 * zoom;
 
-   if (false)
+   if (true)
       std::cout << "near " << near << " far " << far << " clipping front "
                 << clipping_front << " back " << clipping_back << std::endl;
 
@@ -645,6 +649,16 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
 
    // put a triangle or square where the atom label should be, facing the camera
    // "billboarding"
+
+   // Put atom label test at 42, 9, 13
+   glm::vec3 point(42, 9, 13);
+   point = glm::vec3(0,0,0);
+   glm::mat4 inv_mvp = glm::inverse(get_molecule_mvp());
+
+   glm::vec4 projected_point_1 = glm::vec4(point, 1.0) * inv_mvp;
+   glm::vec4 projected_point_2 = inv_mvp * glm::vec4(point, 1.0);
+   std::cout << "projected point " << glm::to_string(projected_point_1 ) << " " << glm::to_string(projected_point_2)
+             << std::endl;
 
    int n_atoms_to_label = m.labelled_atom_index_list.size();
    if (n_atoms_to_label == 0) return;
@@ -1384,7 +1398,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 gint
 view_spin_func(gpointer data) {
 
-   float delta = -0.002;
+   float delta = 0.002;
    glm::vec3 EulerAngles(0, delta, 0);
    glm::quat quat_delta(EulerAngles);
    glm::quat normalized_quat_delta(glm::normalize(quat_delta));
@@ -1404,7 +1418,7 @@ view_spin_func(gpointer data) {
 
    // now the stutter checker:
    std::chrono::duration<double> elapsed_seconds_fast = tp_now - graphics_info_t::previous_frame_time;
-   if (elapsed_seconds_fast.count() > 0.02)
+   if (elapsed_seconds_fast.count() > 0.03)
       std::cout << "INFO:: " << 1000 * elapsed_seconds_fast.count() << " milliseconds for that frame\n";
    graphics_info_t::previous_frame_time = tp_now;
 
