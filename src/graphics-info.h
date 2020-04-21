@@ -4042,6 +4042,7 @@ string   static std::string sessionid;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
+   static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
    static long frame_counter;

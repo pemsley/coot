@@ -110,6 +110,9 @@ Shader::set_attribute_locations() {
    if (entity_type == Entity_t::HUD_TEXT) {
       glBindAttribLocation(program_id, 0, "vertex"); // 2 x 2 pos, texture
    }
+   if (entity_type == Entity_t::TEXT_3D) { // atom label
+      glBindAttribLocation(program_id, 0, "vertex"); // 2 x 2 pos, texture
+   }
 }
 
 unsigned int
@@ -184,9 +187,15 @@ void Shader::set_uniform_locations() {
       hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5d: " << err << std::endl;
    }
+   if (entity_type == Entity_t::TEXT_3D) {
+      atom_label_projection_uniform_location           = glGetUniformLocation_internal("projection"); // may change
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6a: " << err << std::endl;
+      atom_label_textColour_uniform_location           = glGetUniformLocation_internal("textColour");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6b: " << err << std::endl;
+   }
    if (entity_type == Entity_t::SCREEN) {
       zoom_uniform_location = glGetUniformLocation_internal("zoom");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6e: " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 7a: " << err << std::endl;
    }
 }
 

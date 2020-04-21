@@ -17,6 +17,8 @@ graphics_info_t::init_shaders() {
    graphics_info_t::shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    graphics_info_t::shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    graphics_info_t::shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
+   graphics_info_t::shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::TEXT_3D);
+
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
    graphics_info_t::shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
@@ -130,7 +132,8 @@ graphics_info_t::adjust_clipping(float d) {
       clipping_back  = clipping_back  * (1.0 + d);
 
    } else {
-      // perspective
+
+      // --- perspective ---
 
       glm::vec3 rc = get_rotation_centre();
 
@@ -138,21 +141,34 @@ graphics_info_t::adjust_clipping(float d) {
       double zf = screen_z_far_perspective;
       double zn = screen_z_near_perspective;
 
+      // we should (and now do) concern ourselves with the distance to
+      // the rotation centre so that the clipping planes are not
+      // changed so that rotation centre is clipped.
+
       if (d > 0) {
 
          // close down (narrow)
-         screen_z_far_perspective  = l + (zf-l) * 0.95;
+
          screen_z_near_perspective = l - (l-zn) * 0.9905;
+         screen_z_far_perspective  = l + (zf-l) * 0.95;
 
       } else {
 
-         // std::cout << "not this one " << std::endl;
          // expand
+
          screen_z_far_perspective  = l + (zf-l) * 1.05;
          screen_z_near_perspective = l - (l-zn) * 1.005;
 
       }
-      if (screen_z_near_perspective < 0.5) screen_z_near_perspective = 0.5;
+
+
+      float screen_z_near_perspective_limit = l * 0.99;
+      float screen_z_far_perspective_limit  = l * 1.01;
+      if (screen_z_near_perspective > screen_z_near_perspective_limit)
+         screen_z_near_perspective = screen_z_near_perspective_limit;
+      if (screen_z_far_perspective < screen_z_far_perspective_limit)
+         screen_z_far_perspective = screen_z_far_perspective_limit;
+
       std::cout << "debug l " << l << " near and far: pre: " << zn << " " << zf
                 << "    post " << screen_z_near_perspective << " "
                 << screen_z_far_perspective << std::endl;
@@ -189,8 +205,8 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
       // glm::quat product = tb_quat * glm_quat;
       // glm_quat = glm::normalize(product);
 
-      if (true)
-         std::cout << "debug:: quaternion " << glm::to_string(glm_quat) << std::endl;
+      if (false)
+         std::cout << "debug:: glm_quat quaternion " << glm::to_string(glm_quat) << std::endl;
 
       float delta_x = mouse_current_x - g.GetMouseBeginX();
       float delta_y = mouse_current_y - g.GetMouseBeginY();

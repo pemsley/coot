@@ -112,9 +112,6 @@ void main() {
       result = texture(screenTexture, TexCoords).rgb;
    }
 
-   // result = vec3(depth, depth, depth);
-   // result = vec3(0.3, 0.0, 0.3); // dark purple
-
    out_color = vec4(result, 1.0);
 
 }

@@ -36,6 +36,7 @@ Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
+Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();

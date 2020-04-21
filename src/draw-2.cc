@@ -173,6 +173,12 @@ graphics_info_t::init_hud_text() {
    std::cout << "------------------ done init_hud_text() ---------------------\n";
 }
 
+glm::mat4 get_model_view_matrix() {
+
+  glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
+  return view_matrix;
+}
+
 // static
 glm::mat4
 graphics_info_t::get_molecule_mvp() {
@@ -417,21 +423,6 @@ graphics_info_t::setup_map_uniforms(const Shader &shader,
 void
 graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
-   glLineWidth(1.0f);
-   GLenum err = glGetError();
-   if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
-
-   GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
-   glUseProgram(pid);
-   err = glGetError(); if (err) std::cout << "gtk3_draw_map_molecules() glUseProgram with GL err "
-                                          << err << std::endl;
-
-   glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation();
-
-   glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
-   glDepthFunc(GL_LESS);
-
    // run throgh this molecule loop twice - for opaque then transparent maps
    // first, a block that decides if we need to do anything.
 
@@ -454,6 +445,21 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
    }
 
    if (!draw_transparent_maps || n_transparent_maps > 0) {
+
+      glLineWidth(1.0f);
+      GLenum err = glGetError();
+      if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
+
+      GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
+      glUseProgram(pid);
+      err = glGetError(); if (err) std::cout << "gtk3_draw_map_molecules() glUseProgram with GL err "
+                                             << err << std::endl;
+
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation = get_view_rotation();
+
+      glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
+      glDepthFunc(GL_LESS);
 
       Shader &shader = graphics_info_t::shader_for_maps;
 
@@ -623,7 +629,7 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
                             << n_verts << " with GL err " << err << std::endl;
 
-         // draw_molecule_atom_labels(m, mvp, view_rotation);
+         draw_molecule_atom_labels(m, mvp, view_rotation);
 
       }
    }
@@ -639,15 +645,30 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
 
    // Put atom label test at 42, 9, 13
    glm::vec3 point(42, 9, 13);
-   point = glm::vec3(0,0,0);
-   glm::mat4 inv_mvp = glm::inverse(get_molecule_mvp());
+   // point = glm::vec3(0,0,0);
 
-   glm::vec4 projected_point_1 = glm::vec4(point, 1.0) * inv_mvp;
-   glm::vec4 projected_point_2 = inv_mvp * glm::vec4(point, 1.0);
-   if (false)
-      std::cout << "projected point " << glm::to_string(projected_point_1 ) << " " << glm::to_string(projected_point_2)
-                << std::endl;
+   glm::vec4 projected_point_2 = mvp * glm::vec4(point, 1.0);
+   if (true)
+      std::cout << "projected point " << glm::to_string(projected_point_2) << std::endl;
 
+   float xm = 0.5 * (projected_point_2.x + 1.0f);
+   float ym = 0.5 * (projected_point_2.y + 1.0f);
+
+   xm *= 900.0;
+   ym *= 900.0;
+
+   glEnable(GL_DEPTH_TEST); // or we don't see the label. Either a blurred label or nothing.
+   render_atom_label(shader_for_atom_labels, ". Test Label", xm, ym, 1.0, glm::vec3(0.8,0.8,0.2));
+
+
+
+
+
+
+
+
+
+   
    int n_atoms_to_label = m.labelled_atom_index_list.size();
    if (n_atoms_to_label == 0) return;
 
@@ -981,6 +1002,7 @@ on_glarea_realize(GtkGLArea *glarea) {
                                           << err << std::endl;
 
    setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
+   setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels);
 
    graphics_info_t::shader_for_screen.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;

@@ -54,6 +54,19 @@ uniform vec4 light_1_position;
 
 layout(location = 0) out vec4 out_col;
 
+float get_fog_amount(float depth_in) {
+
+   // make this a uniform
+   bool perspective_projection = false;
+   if (! perspective_projection) {
+      return depth_in;
+   } else {
+      // needs tweaking
+      return depth_in * depth_in;
+   }
+
+}
+
 
 void main() {
 
@@ -72,7 +85,7 @@ void main() {
   float m  = clamp(gl_FragCoord.z, 0.0f, 1.0f);
 
   float f_1 = 1.0 - m; // because glm::ortho() near and far are reversed?
-  // f_1 = m;
+  float fog_amount = get_fog_amount(gl_FragCoord.z);
 
   vec4 bg_col = bg_colour;
 
@@ -99,7 +112,7 @@ void main() {
   vec4 col_2 = line_colour_local * dp;
   // vec4 col_3 = 0.6 * col_2 + col_1 * ambient_strength;
   vec4 col_3 = col_2 + col_1 * ambient_strength + specular;
-  vec4 col_4 = mix(bg_col, col_3, f_1);
+  vec4 col_4 = mix(col_3, bg_col, fog_amount);
 
   float op = map_opacity;
   out_col = col_4;

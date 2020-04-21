@@ -8,12 +8,10 @@ layout (location = 1) in vec2 aTexCoords;
 uniform float zoom;
 
 out vec2 TexCoords;
-out float zoom_transfer;
 
 void main() {
 
    TexCoords = aTexCoords;
-   zoom_transfer = zoom;
    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
 
 }
@@ -24,10 +22,10 @@ void main() {
 #version 330 core
 
 in vec2 TexCoords;
-in float zoom_transfer;
 
 uniform sampler2D screenTexture;
 uniform sampler2D screenDepth;
+uniform float zoom;
 
 layout(location = 0) out vec4 out_color;
 
@@ -101,7 +99,7 @@ vec3 sampling_blur(int n_pixels_max) {
                      dbrs = 1.0;
                      float gauss = 1.0/dbrs * exp(-0.5 * k * r_sqrd/(blur_radius*blur_radius));
                      // gauss = 1.0;
-                     float depth_factor = 2.0 * (1.0 - depth_centre); // 0 -> 1
+                     float depth_factor = 2.0 * (1.0 - depth_centre); // 0 -> 1 for lim = 0.5
                      depth_factor = 1.0;
                      sum_outer += colour_ij * gauss * (1.0 - depth_ij) * depth_factor;
                      sum_for_alpha += gauss * (1.0 - depth_ij) * depth_factor;
@@ -113,16 +111,16 @@ vec3 sampling_blur(int n_pixels_max) {
       }
       vec3 average_col_from_inner_neighbs = 1.0/float(n_inner_neighbs) * sum_inner;
       if (n_inner_neighbs == 0) average_col_from_inner_neighbs = vec3(0,0,0);
-      float alpha_inner = float(n_inner_neighbs)/float(5*5-1); // -3 < i,j < 3
+      float alpha_inner = 3 * float(n_inner_neighbs)/float(5*5-1); // -3 < i,j < 3
       alpha_inner = clamp(alpha_inner, 0.0f, 1.0f);
-      float alpha = clamp(11.5 * sum_for_alpha, 0.0f, 1.0f);
+      float alpha = clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
+      alpha = 0.0f; // the scaling/normalization is wrong. Needs a clear head - or a re-write.
       float Sc = 0.6f/float(n_pixels_max*n_pixels_max);
-      // result = 0.5 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
-      // result = 0.1 * orig_colour + 0.1 * centre_points_scale * sum_inner + Sc * sum_outer;
-      // result = 0.2 * orig_colour + 0.6 * centre_points_scale * sum_inner + Sc * sum_outer;
-      result = (1.0 - alpha_inner) * (1.0 - alpha) * orig_colour + 
-               alpha_inner * average_col_from_inner_neighbs +
-               Sc * alpha * sum_outer;
+      vec3 result_intermediate = 
+           (1.0 - alpha_inner) * orig_colour + 
+           alpha_inner * average_col_from_inner_neighbs;
+      result = (1.0f - alpha) * result_intermediate +
+               alpha * Sc * sum_outer;
       if (n_inner_neighbs == 0 && n_outer_neighbs == 0)
          result = orig_colour;
    }
@@ -159,16 +157,16 @@ void main() {
    bool do_outline    = false;
 
    if (do_depth_blur) {
-      result = sampling_blur(16); // 14 is good
+      result = sampling_blur(8); // 14 is good
    } else {
       if (do_outline) {
          result = make_outline();
       } else {
          float depth_centre = texture(screenDepth, TexCoords).x;
          result = texture(screenTexture, TexCoords).rgb; // don't blur
-         if (zoom_transfer < 10.0)
+         if (zoom < 2.0)
             if (depth_centre > 0.99)
-               result = vec3(0.2, 0.3, 0.1);
+               result = vec3(0.1, 0.3, 0.1);
       }
    }
 

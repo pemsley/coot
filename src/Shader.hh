@@ -37,6 +37,8 @@ public:
    unsigned int line_colour_uniform_location;
    unsigned int eye_position_uniform_location;
    unsigned int hud_projection_uniform_location;
+   unsigned int atom_label_projection_uniform_location;
+   unsigned int atom_label_textColour_uniform_location;
    unsigned int zoom_uniform_location;
    unsigned int map_opacity_uniform_location;
    unsigned int light_0_is_on_uniform_location;
