@@ -592,24 +592,24 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
 
       if (has_model()) {
 
-    // keep a list of atoms that have labels (either in graphics_info
-    // or mol_class_info) and loop over them calling label_atom(i)
-    // which labels the i'th atom of the atom selection in
-    // mol_class_info.
-    //
-    //
-    //
-    int n_atoms_to_label = labelled_atom_index_list.size();
+         // keep a list of atoms that have labels (either in graphics_info
+         // or mol_class_info) and loop over them calling label_atom(i)
+         // which labels the i'th atom of the atom selection in
+         // mol_class_info.
+         //
+         //
+         //
+         int n_atoms_to_label = labelled_atom_index_list.size();
 
-	 // also remove labels from atom indexes list of over the end.
-	 for (int ii=0; ii<n_atoms_to_label ; ii++)
-	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+         // also remove labels from atom indexes list of over the end.
+         for (int ii=0; ii<n_atoms_to_label ; ii++)
+            label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
 
-	 n_atoms_to_label = labelled_symm_atom_index_list.size();
+         n_atoms_to_label = labelled_symm_atom_index_list.size();
 
-    for (int ii=0; ii<n_atoms_to_label ; ii++) {
-       label_symmetry_atom(ii);
-    }
+         for (int ii=0; ii<n_atoms_to_label ; ii++) {
+            label_symmetry_atom(ii);
+         }
       }
    }
 }

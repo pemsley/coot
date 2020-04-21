@@ -31,7 +31,8 @@
       std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
    } else {
       vera_font_loaded = true;
-      FT_Set_Pixel_Sizes(face, 0, 24);
+      // FT_Set_Pixel_Sizes(face, 0, 24); too big for labels
+      FT_Set_Pixel_Sizes(face, 0, 16);
 
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
       // only using one byte.

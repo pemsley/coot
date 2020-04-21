@@ -29,7 +29,7 @@ uniform float zoom;
 
 layout(location = 0) out vec4 out_color;
 
-float depth_scale(float depth_in_centre, float depth_in_ij) {
+float depth_scale(float depth_in_centre, float depth_in_ij, float lim) {
 
    // -1 means there is no blurring to be done.
 
@@ -39,7 +39,6 @@ float depth_scale(float depth_in_centre, float depth_in_ij) {
    // the deeper into the image we go, (depth_in_centre approaches 1.0)
    // then the more we want to the colour to be influenced by the surroundings.
 
-   float lim = 0.5;
    if (depth_in_centre < lim) {
       return -1.0;
    } else {
@@ -59,7 +58,7 @@ vec3 sampling_blur(int n_pixels_max) {
    // centre is the point being blurred *into*
 
    vec3 orig_colour = texture(screenTexture, TexCoords).rgb; // don't blur
-   float lim = 0.5;
+   float lim = 0.501;
    if (depth_centre < lim) {
       return orig_colour;
    } else {
@@ -82,7 +81,7 @@ vec3 sampling_blur(int n_pixels_max) {
             if (depth_ij < lim) continue; // don't blur from the lines in focus
             vec3 colour_ij = texture(screenTexture, offset_coords).rgb;
             // depth_scale() return -1 for no blurring.
-            float dbrs = depth_scale(depth_centre, depth_ij);
+            float dbrs = depth_scale(depth_centre, depth_ij, lim);
             if (ix == 0 && iy == 0) {
                // sum_inner += colour_ij; // use orig_colour
             } else {
@@ -153,7 +152,7 @@ void main() {
 
    vec3 result = vec3(0,0,0);
 
-   bool do_depth_blur = false;
+   bool do_depth_blur = true;
    bool do_outline    = false;
 
    if (do_depth_blur) {

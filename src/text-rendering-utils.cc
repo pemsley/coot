@@ -150,8 +150,10 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
     err = glGetError(); if (err) std::cout << "RenderText end D " << err << std::endl;
 }
 
-void render_atom_label(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
-{
+void render_atom_label(Shader &shader, std::string text, glm::vec3 projected_point,
+                       GLfloat scale, glm::vec3 color) {
+
+   // need to pass widget width and height, I think.
 
    // Activate corresponding render state
    GLenum err = glGetError(); if (err) std::cout << "render_atom_label start err " << err << std::endl;
@@ -171,7 +173,6 @@ void render_atom_label(Shader &shader, std::string text, GLfloat x, GLfloat y, G
    err = glGetError(); if (err) std::cout << "render_atom_label B " << err << std::endl;
 
    glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f,  1.0f);
-   projection = glm::mat4(1.0);
    projection = glm::ortho(0.0f, static_cast<GLfloat>(900),
                            0.0f, static_cast<GLfloat>(900));
 
@@ -179,10 +180,14 @@ void render_atom_label(Shader &shader, std::string text, GLfloat x, GLfloat y, G
    glUniformMatrix4fv(projection_uniform_location, 1, GL_FALSE, glm::value_ptr(projection));
    err = glGetError(); if (err) std::cout << "RenderText Aa " << err << std::endl;
 
+   float x = projected_point.x;
+   float y = projected_point.y;
+
    // Iterate through all characters
    std::string::const_iterator c;
    for (c = text.begin(); c != text.end(); c++) {
-      err = glGetError(); if (err) std::cout << "render_atom_label loop start for " << *c << " " << err << std::endl;
+      err = glGetError(); if (err) std::cout << "render_atom_label loop start for "
+                                             << *c << " " << err << std::endl;
       // const FT_character &ch = ft_characters[*c];
       std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
       if (it == graphics_info_t::ft_characters.end()) {

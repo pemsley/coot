@@ -234,33 +234,16 @@ graphics_info_t::get_molecule_mvp() {
       // along screen-Z.
 
       float fov = 40.0;
-      // glm::vec3 up(0.0, 1.0, 0.0);
-      // to use perspective properly, we need to know the eye position. We should
-      // be able to get that (somehow) the (inverse of?) mouse quaternion and zoom.
 
-      // the difference between these after rotation by the mouse quaternion will give us "up"
-      glm::vec4 test_pt_1(1.0, 0.0, 0.0, 1.0);
-      glm::vec4 test_pt_2(1.0, 1.0, 0.0, 1.0);
-      glm::vec4 test_pt_z(0.0, 0.0, 1.0, 1.0);
-
-      glm::mat4 vr = get_view_rotation();
-      glm::vec4 rp_z = vr * test_pt_z;
-      glm::vec4 rp_1 = vr * test_pt_1;
-      glm::vec4 rp_2 = vr * test_pt_2;
-      glm::vec4 up4 = rp_2 - rp_1;
-      glm::vec3 up = glm::normalize(glm::vec3(up4));
-      glm::vec3 ep = graphics_info_t::eye_position;
+      glm::vec3 up = glm::vec3(0,0,1);
+      glm::vec3 ep = eye_position;
 
       if (false)
          std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc)
                    << " up " << glm::to_string(up) << std::endl;
 
       view_matrix = glm::lookAt(ep, rc, up);
-      float z_front =  2.0;
-      float z_back = 400.0;
-      z_front += 0.2 * graphics_info_t::clipping_front;
-      z_back  -= 0.2 * graphics_info_t::clipping_back;
-      fov = 40.0; // degrees
+      fov = 30.0; // degrees
 
       glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
                                                            screen_ratio,
@@ -640,66 +623,54 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
 
+   // pass the glarea widget width and height.
+
    // put a triangle or square where the atom label should be, facing the camera
    // "billboarding"
 
-   // Put atom label test at 42, 9, 13
-   glm::vec3 point(42, 9, 13);
-   // point = glm::vec3(0,0,0);
+   glm::vec3 label_colour(font_colour.red, font_colour.green, font_colour.blue);
 
-   glm::vec4 projected_point_2 = mvp * glm::vec4(point, 1.0);
-   if (true)
-      std::cout << "projected point " << glm::to_string(projected_point_2) << std::endl;
+   if (false) { // test label
+      // Put atom label test at 42, 9, 13
+      glm::vec3 point(42, 9, 13);
+      // point = glm::vec3(0,0,0);
 
-   float xm = 0.5 * (projected_point_2.x + 1.0f);
-   float ym = 0.5 * (projected_point_2.y + 1.0f);
+      glm::vec4 projected_point_2 = mvp * glm::vec4(point, 1.0);
+      if (true)
+         std::cout << "projected point " << glm::to_string(projected_point_2) << std::endl;
 
-   xm *= 900.0;
-   ym *= 900.0;
+      projected_point_2.x = 0.5 * (projected_point_2.x + 1.0f);
+      projected_point_2.y = 0.5 * (projected_point_2.y + 1.0f);
 
-   glEnable(GL_DEPTH_TEST); // or we don't see the label. Either a blurred label or nothing.
-   render_atom_label(shader_for_atom_labels, ". Test Label", xm, ym, 1.0, glm::vec3(0.8,0.8,0.2));
+      projected_point_2.x *= 900.0;
+      projected_point_2.y *= 900.0;
 
+      glm::vec3 pp(projected_point_2);
 
+      glEnable(GL_DEPTH_TEST); // or we don't see the label. Either a blurred label or nothing.
+      render_atom_label(shader_for_atom_labels, ". Test Label", pp, 1.0, label_colour);
+   }
 
-
-
-
-
-
-
-   
    int n_atoms_to_label = m.labelled_atom_index_list.size();
    if (n_atoms_to_label == 0) return;
 
-   glm::vec3 eye_pos = get_eye_position();
-   glm::vec4 global_up(0,1,0,1);
-   glm::vec4 view_up = view_rotation * global_up;
-   glm::vec3 view_up_3 = glm::vec3(view_up_3);
    for (int ii=0; ii<n_atoms_to_label ; ii++) {
       std::pair<std::string, clipper::Coord_orth> lab_pos =
          m.make_atom_label_string(ii, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
       const clipper::Coord_orth &co = lab_pos.second;
+      const std::string &label = lab_pos.first;
       if (false)
          std::cout << "Atom label at " << co.format() << " "
                    << coot::util::single_quote(lab_pos.first) << std::endl;
-      glm::vec3 point(co.x(), co.y(), co.z());
-      glm::vec3 eye_to_point_uv = glm::normalize(point-eye_pos);
-      glm::vec3 view_x = glm::cross(view_up_3, eye_to_point_uv);
-      glm::vec3 coords[6];
 
-      // might be the transpose of this:
-      glm::mat3 billboard_rotation(view_x.x, view_up_3.x, eye_to_point_uv.x,
-                                   view_x.y, view_up_3.y, eye_to_point_uv.y,
-                                   view_x.z, view_up_3.z, eye_to_point_uv.z);
-      coords[0] = glm::vec3(0,0,0); coords[1] = glm::vec3(1,0,0); coords[2] = glm::vec3(1,1,0);
-      coords[3] = glm::vec3(0,0,0); coords[4] = glm::vec3(1,1,0); coords[5] = glm::vec3(0,1,0);
-      // now rotate those coordinates by the above rotation matrix and translate them
-      // to/by point
-      for (unsigned int ii=0; ii<6; ii++)
-         coords[ii] = billboard_rotation * coords[ii];
-      for (unsigned int ii=0; ii<6; ii++)
-         coords[ii] += point;
+      glm::vec3 point(co.x(), co.y(), co.z());
+      glm::vec4 projected_point = mvp * glm::vec4(point, 1.0);
+      projected_point.x = 0.5 * (projected_point.x + 1.0f);
+      projected_point.y = 0.5 * (projected_point.y + 1.0f);
+      projected_point.x *= 900.0;
+      projected_point.y *= 900.0;
+      glm::vec3 pp(projected_point);
+      render_atom_label(shader_for_atom_labels, label, pp, 1.0, label_colour);
    }
 
 }
@@ -1249,13 +1220,31 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    // std::cout << "button press!" << std::endl;
    graphics_info_t g;
    g.SetMouseBegin(event->x,event->y);
-   g.SetMouseClicked(event->x, event->y); // Hmm
+   g.SetMouseClicked(event->x, event->y);
    int x_as_int, y_as_int;
    GdkModifierType mask;
    // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state); Old-style - keep for grepping
    GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
    GdkDevice *mouse = gdk_seat_get_pointer(seat);
    gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
+
+   bool was_a_double_click = false;
+   if (event->type==GDK_2BUTTON_PRESS)
+      was_a_double_click = true;
+
+   GdkModifierType state;
+
+   if (true) { // check here for left-mouse click
+      if (was_a_double_click) {
+         pick_info nearest_atom_index_info = atom_pick(event);
+         if (nearest_atom_index_info.success == GL_TRUE) {
+            int im = nearest_atom_index_info.imol;
+            g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+            g.graphics_draw();
+         }
+      }
+   }
+
 
    g.check_if_in_range_defines(event, mask);
    return TRUE;
@@ -1359,6 +1348,10 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       double fy = 1.0 + delta_y/300.0;
       if (fx > 0.0) g.zoom /= fx;
       if (fy > 0.0) g.zoom /= fy;
+      if (false)
+         std::cout << "zooming with perspective_projection_flag "
+                   << graphics_info_t::perspective_projection_flag
+                   << " " << g.zoom << std::endl;
       if (! graphics_info_t::perspective_projection_flag) {
          // std::cout << "now zoom: " << g.zoom << std::endl;
       } else {
