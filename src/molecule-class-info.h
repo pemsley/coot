@@ -326,10 +326,6 @@ class molecule_class_info_t {
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
-   void draw_density_map_internal(short int display_lists_for_maps_flag_local,
-				  bool draw_map_local_flag,
-				  short int main_or_secondary);
-
    // display flags:
    //
    int bonds_box_type; // public accessable via Bonds_box_type();
@@ -1416,8 +1412,7 @@ public:        //                      public
    void update_map_internal();
    void update_map();
    void compile_density_map_display_list(short int first_or_second);
-   void draw_density_map(short int display_list_for_maps_flag,
-			 short int main_or_secondary);
+
    void draw_surface();
    void draw_dipoles() const;
    bool has_display_list_objects();

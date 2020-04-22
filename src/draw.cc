@@ -364,14 +364,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // used we use the correct part of theMapContours.
 	 //
 
-         // BL says:: bad hack FIXME
-         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-            graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-                                                            0);
-         } else {
-            graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-                                                            in_stereo_flag);
-         }
+         // Goodbye map drawing
 
          // Turn the light(s) on and after off, if needed.
          //

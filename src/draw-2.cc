@@ -435,8 +435,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
       GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
       glUseProgram(pid);
-      err = glGetError(); if (err) std::cout << "gtk3_draw_map_molecules() glUseProgram with GL err "
-                                             << err << std::endl;
+      err = glGetError();
+      if (err) std::cout << "gtk3_draw_map_molecules() glUseProgram with GL err "
+                         << err << std::endl;
 
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation = get_view_rotation();

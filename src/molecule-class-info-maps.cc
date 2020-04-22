@@ -435,74 +435,10 @@ molecule_class_info_t::fill_fobs_sigfobs() {
    }
 }
 
-void
-molecule_class_info_t::compile_density_map_display_list(short int first_or_second) {
-
-   // std::cout << "Deleting theMapContours " << theMapContours.first << std::endl;
-   if (first_or_second == SIDE_BY_SIDE_MAIN) {
-      glDeleteLists(theMapContours.first, 1);
-      theMapContours.first = glGenLists(1);
-      if (theMapContours.first > 0) {
-	 glNewList(theMapContours.first, GL_COMPILE);
-
-// 	 std::cout << "in compile_density_map_display_list calling draw_density_map_internal(0,1)"
-// 		   << " theMapContours.first " << theMapContours.first << std::endl;
-	 draw_density_map_internal(0, 1, first_or_second); // don't use theMapContours (make them!)
-
-	 glEndList();
-      } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_MAIN! " << std::endl;
-      }
-   }
-   if (first_or_second == SIDE_BY_SIDE_SECONDARY) {
-      glDeleteLists(theMapContours.second, 1);
-      theMapContours.second = glGenLists(1);
-      if (theMapContours.second > 0) {
-	 glNewList(theMapContours.second, GL_COMPILE);
-
-// 	 std::cout << "in compile_density_map_display_list calling draw_density_map_internal(0,1)"
-// 		   << " theMapContours.second " << theMapContours.second << std::endl;
-	 draw_density_map_internal(0, 1, first_or_second); // don't use theMapContours (make them!)
-	 glEndList();
-      } else {
-	 std::cout << "Error:: Oops! bad display list index for SIDE_BY_SIDE_SECONDARY! " << std::endl;
-      }
-   }
-}
 
 
-// old and apparently faster (both at rotating (surprisingly) and
-// generation of the lines) immediate mode
-//
-// This is for electron density of course, not a surface as molecular
-// modellers would think of it.
-//
-void
-molecule_class_info_t::draw_density_map(short int display_lists_for_maps_flag,
-					short int main_or_secondary) {
-
-   if (draw_it_for_map) {
-      // std::cout << "here in draw_density_map " << imol_no
-      // << " draw_it_for_map_standard_lines " << draw_it_for_map_standard_lines
-      // << std::endl;
-      if (draw_it_for_map_standard_lines)
-	 draw_density_map_internal(display_lists_for_maps_flag, draw_it_for_map,
-				   main_or_secondary);
-   }
-}
-
-// standard lines, tested for draw_it_for_map_standard_lines before
-// calling this.
-//
-void
-molecule_class_info_t::draw_density_map_internal(short int display_lists_for_maps_flag_local,
-						 bool draw_map_local_flag,
-						 short int main_or_secondary) {
-   // we don't draw maps like this now.
-}
-
-// not a member of the class because of the burden it puts on the header: CIsoSurface is not needed to compile
-// main.cc (or should not be)
+// not a member of the class because of the burden it puts on the header: CIsoSurface is not
+// needed to compile main.cc (or should not be)
 
 #include "gensurf.hh"
 
