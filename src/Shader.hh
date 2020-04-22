@@ -47,6 +47,7 @@ public:
    unsigned int light_1_position_uniform_location;
    unsigned int light_0_diffuse_colour_uniform_location;
    unsigned int light_1_diffuse_colour_uniform_location;
+   unsigned int is_perspective_projection_uniform_location;
    // general purpose, not class member uniform locations
    void set_int_for_uniform(const std::string &uniform_name, int value) const;
    void close();

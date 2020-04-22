@@ -150,6 +150,7 @@ void Shader::set_uniform_locations() {
       eye_position_uniform_location = glGetUniformLocation_internal("eye_position");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
 
+      is_perspective_projection_uniform_location = glGetUniformLocation_internal("is_perspective_projection");
       light_0_is_on_uniform_location = glGetUniformLocation_internal("light_0_is_on");
       light_1_is_on_uniform_location = glGetUniformLocation_internal("light_1_is_on");
       light_0_position_uniform_location = glGetUniformLocation_internal("light_0_position");
@@ -196,6 +197,8 @@ void Shader::set_uniform_locations() {
    if (entity_type == Entity_t::SCREEN) {
       zoom_uniform_location = glGetUniformLocation_internal("zoom");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 7a: " << err << std::endl;
+      is_perspective_projection_uniform_location = glGetUniformLocation_internal("is_perspective_projection");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 7b: " << err << std::endl;
    }
 }
 

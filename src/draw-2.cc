@@ -459,6 +459,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             bool draw_with_lines = true;
             if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
 
+            glUniform1i(shader.is_perspective_projection_uniform_location,
+                        graphics_info_t::perspective_projection_flag);
+
             if (draw_with_lines) {
                // I don't see why this is needed - but it is.
                if (! m.is_an_opaque_map())
@@ -566,6 +569,9 @@ graphics_info_t::draw_model_molecules() {
          shader.Use();
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
+
+         glUniform1i(shader.is_perspective_projection_uniform_location,
+                     graphics_info_t::perspective_projection_flag);
 
          glBindVertexArray(m.m_VertexArray_for_model_ID);
          err = glGetError();
@@ -1132,7 +1138,9 @@ graphics_info_t::render(GtkGLArea *glarea) {
    }
 
 
-   {
+   if (true) { //test to check if there is HUD text to draw, don't enter here if
+               // it is not needed.
+
       // True HUD text (not atom labels) should be added *after* blurring (and here we are).
       // Currently, we don't see it.
       glDisable(GL_DEPTH_TEST); // needed because HUD text gets put at z=1.0 (it seems).
@@ -1367,6 +1375,12 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
          // Zoomed out, zoom is ~100. Zoomed in is ~25
          float step_size = 0.005;
          glm::vec3 step = step_size * graphics_info_t::zoom * delta_x * delta_uv;
+         // try again
+         step_size = 0.05;
+         step = step_size * delta_x * delta_uv;
+
+         graphics_info_t::eye_position += step;
+         double l = glm::distance(graphics_info_t::eye_position, rc);
 
          if (false) // debug
             std::cout << "motion: ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
@@ -1377,17 +1391,13 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
          // as we zoom in, then the object get clipped. Bleugh. The perspective near and far
          // need to be dependent on zoom
 
-         // now this is not in translate_in_screen_z:
-         {
-            float length_current_eye_to_rc = glm::distance(ep, rc);
-            glm::vec3 ep_new = ep + step;
-            float z_near_current = graphics_info_t::screen_z_near_perspective;
-            float length_new_eye_to_rc = glm::distance(ep_new, rc);
-            float eye_to_rc_ratio = length_new_eye_to_rc/length_current_eye_to_rc;
-            graphics_info_t::screen_z_near_perspective *= eye_to_rc_ratio;
-         }
+         float screen_z_near_perspective_limit = l * 0.99;
+         float screen_z_far_perspective_limit  = l * 1.01;
+         if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
+            graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
+         if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
+            graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
 
-         graphics_info_t::eye_position += step;
       }
    }
 
