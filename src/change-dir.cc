@@ -55,12 +55,16 @@ void change_directory_maybe() {
 	    const char *s = getenv("HOME");
 	    if (s) {
 	       std::cout << "INFO:: changing working directory to " << s << std::endl;
-	       chdir(s);
+	       int state = chdir(s);
+               if (state != 0)
+                  std::cout << "Faked to change dir to " << s << std::endl;
 	    } else {
 	       s = getenv("COOT_HOME");
 	       if (s) { 
 		  std::cout << "INFO:: changing working directory to " << s << std::endl;
-		  chdir(s);
+		  int state = chdir(s);
+                  if (state != 0)
+                     std::cout << "Faked to change dir to " << s << std::endl;
 	       }
 	    }
 	 } 

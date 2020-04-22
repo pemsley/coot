@@ -153,6 +153,7 @@ int blob_under_pointer_to_screen_centre() {
 
    graphics_info_t g;
    g.blob_under_pointer_to_screen_centre();
+   return 0;
 }
 
 #ifdef USE_GUILE

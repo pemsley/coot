@@ -7034,7 +7034,9 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
-      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+      std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()"
+                << std::endl;
+      // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);
    }

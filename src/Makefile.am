@@ -544,6 +544,7 @@ coot_bin_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
+	screen-utils.cc		 \
         sound.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \

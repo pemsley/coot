@@ -181,10 +181,14 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
    gtk_window_set_default_size(GTK_WINDOW(d), 600, 500);
    // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
    GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d));
-   GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+   GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					 GTK_WIDGET(vbox_inner));
+   // this is deprecated
+   // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+   // GTK_WIDGET(vbox_inner));
+   // replace with:
+   gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
+
    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
    gtk_widget_show(scrolled_window);
    gtk_widget_show(vbox_inner);

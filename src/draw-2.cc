@@ -214,7 +214,6 @@ graphics_info_t::get_molecule_mvp() {
    // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
    glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
 
-   glm::vec3 reverse_z(1,1,-1);
    view_matrix = glm::translate(view_matrix, -rc);
    // view_matrix = glm::scale(view_matrix, reverse_z); causes weirdness - not sure about handedness
    glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
@@ -235,7 +234,11 @@ graphics_info_t::get_molecule_mvp() {
 
       float fov = 40.0;
 
-      glm::vec3 up = glm::vec3(0,0,1);
+      glm::vec4 up_1(0,1,0,1);
+      glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
+      glm::vec4 up_2 = trackball_matrix * up_1;
+      glm::vec3 up = glm::vec3(up_2);
+      
       glm::vec3 ep = eye_position;
 
       if (false)
@@ -979,8 +982,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError(); if (err) std::cout << "start on_glarea_realize() post blur_framebuffer init() err is "
                                           << err << std::endl;
 
-   setup_hud_text(w, h, graphics_info_t::shader_for_hud_text);
-   setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels);
+   setup_hud_text(w, h, graphics_info_t::shader_for_hud_text, false);
+   setup_hud_text(w, h, graphics_info_t::shader_for_atom_labels, true);
 
    graphics_info_t::shader_for_screen.Use();
    err = glGetError(); if (err) std::cout << "on_glarea_realize() B screen framebuffer err " << err << std::endl;
@@ -1179,7 +1182,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    graphics_info_t g;
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   setup_hud_text(width, height, g.shader_for_hud_text);
+   setup_hud_text(width, height, g.shader_for_hud_text, false);
+   setup_hud_text(width, height, g.shader_for_atom_labels, true); // change the function name
    g.reset_frame_buffers(width, height);
 }
 

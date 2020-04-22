@@ -133,8 +133,9 @@ void remarks_dialog(int imol) {
 	    GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
 	    GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-						  GTK_WIDGET(vbox_inner));
+	    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+	    //     				  GTK_WIDGET(vbox_inner));
+	    gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
 	    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
 	    gtk_widget_show(scrolled_window);
 	    gtk_widget_show(vbox_inner);
@@ -181,7 +182,9 @@ void remarks_dialog(int imol) {
 		  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
 		  GdkColor colour = remark_number_to_colour(it->first);
-		  gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+                  std::cout << "fix the colour of the remarks view " << std::endl;
+		  // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
 		  GtkTextIter end_iter;
 		  for (unsigned int itext=0; itext<it->second.size(); itext++) {
@@ -194,8 +197,9 @@ void remarks_dialog(int imol) {
 
 
 	       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
-	       GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(d));
-	       gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
+	       // GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(d));
+	       // gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
+               gtk_dialog_add_button(GTK_DIALOG(d), "Close", 6);
 
 	       g_signal_connect(G_OBJECT(close_button), "clicked",
 				G_CALLBACK(on_remarks_dialog_close_button_clicked), NULL);
@@ -244,12 +248,14 @@ void remarks_browser_fill_compound_info(mmdb::Manager *mol, GtkWidget *vbox) {
       gtk_text_view_set_buffer(GTK_TEXT_VIEW(text_view), text_buffer);
       gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text_view), GTK_WRAP_WORD);
 
-      GdkColor colour;
+      GdkRGBA colour;
       colour.red   = 65535;
       colour.green = 63535;
       colour.blue  = 63535;
-      colour.pixel = 65535;
-      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+      // colour.pixel = 65535;
+      // Using CSS is the way to change widget background colours, not like this
+      // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+      // gtk_widget_override_background_color(GTK_WIDGET(text_view), GTK_STATE_FLAG_NORMAL, &colour);
 
       GtkTextIter end_iter;
       for (unsigned int itext=0; itext<compound_lines.size(); itext++) {
@@ -300,7 +306,9 @@ void remarks_browser_fill_author_info(mmdb::Manager *mol, GtkWidget *vbox) {
       colour.green = 59535;
       colour.blue  = 53535;
       colour.pixel = 65535;
-      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+
+      // see CSS comment above
+      // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
       for (unsigned int ij=0; ij<author_lines.size(); ij++) {
 	 GtkTextIter end_iter;
@@ -352,7 +360,8 @@ void remarks_browser_fill_journal_info(mmdb::Manager *mol, GtkWidget *vbox) {
       colour.green = 49535;
       colour.blue  = 53535;
       colour.pixel = 65535;
-      gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+      // see CSS comment above
+      // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
       for (unsigned int ij=0; ij<journal_lines.size(); ij++) {
 	 GtkTextIter end_iter;
@@ -397,7 +406,8 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	 colour.green = 53535;
 	 colour.blue  = 63535;
 	 colour.pixel = 65535;
-	 gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
+         // see CSS comment above
+	 // gtk_widget_modify_base(GTK_WIDGET(text_view), GTK_STATE_NORMAL, &colour);
 
 	 for (int ilink=0; ilink<n_links; ilink++) {
 	    mmdb::Link *link_p = model_p->GetLink(ilink);
@@ -515,8 +525,9 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
       GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
       GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					    GTK_WIDGET(vbox_inner));
+      //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+      // GTK_WIDGET(vbox_inner));
+      gtk_container_add(GTK_CONTAINER(scrolled_window), vbox_inner);
       gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
       gtk_widget_show(scrolled_window);
       gtk_widget_show(vbox_inner);

@@ -1,7 +1,8 @@
 
 #ifdef USE_PYTHON
-#include "Python.h"
+#include <Python.h>
 #endif // USE_PYTHON // for std::ptrdiff_t
+
 #include <string>
 #include <cstddef>
 
@@ -209,7 +210,8 @@ void curlew() {
                                  GtkWidget *w = gtk_label_new(NULL);
                                  gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
                                  gtk_label_set_markup(GTK_LABEL(w), "   <b>Installed</b>");
-                                 gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 // gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 std::cout << "set the alignment (deprecated)"  << std::endl;
                                  gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
                                  gtk_widget_show(w);
                               }
@@ -219,7 +221,8 @@ void curlew() {
                                  gtk_label_set_justify(GTK_LABEL(w), GTK_JUSTIFY_LEFT);
                                  gtk_box_pack_start(GTK_BOX(vbox), w, FALSE, FALSE, 0);
                                  gtk_label_set_markup(GTK_LABEL(w), "   <b>Available</b>");
-                                 gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 // gtk_misc_set_alignment(GTK_MISC(w), 0, 0.5);
+                                 std::cout << "set the alignment (deprecated)"  << std::endl;
                                  gtk_widget_show(w);
                               }
                            }
@@ -378,7 +381,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
                                                 const std::string &url_curlew_prefix,
                                                 bool have_this_or_more_recent) {
 
-   GtkWidget *item_hbox = gtk_hbox_new(FALSE, 0);
+   GtkWidget *item_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
 
    std::string item_hbox_name = "curlew_extension_hbox_";
    item_hbox_name += coot::util::int_to_string(idx);
@@ -406,7 +409,8 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
          }
       } else {
          icon_widget = gtk_label_new("  Icon");
-         gtk_misc_set_alignment (GTK_MISC(icon_widget), 0, 0.5);
+         std::cout << "set the alignment (deprecated)" << std::endl;
+         // gtk_misc_set_alignment (GTK_MISC(icon_widget), 0, 0.5);
       }
    } else {
       std::cout << "No icon in item " << std::endl;
@@ -422,7 +426,8 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    rr += description;
    GtkWidget *description_label = gtk_label_new(rr.c_str());
    gtk_label_set_use_markup(GTK_LABEL(description_label), TRUE);
-   gtk_misc_set_alignment (GTK_MISC(description_label), 0, 0.5);
+   // gtk_misc_set_alignment (GTK_MISC(description_label), 0, 0.5);
+   std::cout << "set the alignment" << std::endl;
    gtk_widget_set_size_request(description_label, 340, -1);
    // --------------- Version -----------------
    GtkWidget *version_label = gtk_label_new(version.c_str());
@@ -458,15 +463,17 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    strcpy(checksum_copy, checksum.c_str());
    g_object_set_data(G_OBJECT(  install_button), "checksum",  (gpointer) checksum_copy);
 
-   GdkColor color_green;
-   GdkColor color_blue;
-   gdk_color_parse ("#aabbaa", &color_green);
-   gdk_color_parse ("#99aabb", &color_blue);
+   GdkRGBA color_green;
+   GdkRGBA color_blue;
+   // gdk_color_parse ("#aabbaa", &color_green);
+   // gdk_color_parse ("#99aabb", &color_blue);
+   gdk_rgba_parse(&color_green, "#aabbaa");
+   gdk_rgba_parse(&color_blue, "#99aabb");
 
    // Gtk2:
    // gtk_widget_modify_bg(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, &color_green);
    // gtk_widget_modify_bg(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, &color_blue);
-   // Gtk3 but deprecated?
+   // Gtk3 but deprecated? Modern is to use CSS - another time.
    // gtk_widget_override_background_color(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, color_green);
    // gtk_widget_override_background_color(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, color_blue);
 

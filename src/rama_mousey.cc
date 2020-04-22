@@ -536,7 +536,11 @@ gint rama_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    GdkModifierType state;
 
    if (event->is_hint) {
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType mask;
+      GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+      GdkDevice *mouse = gdk_seat_get_pointer(seat);
+      gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
       x = x_as_int;
       y = y_as_int;
    } else {

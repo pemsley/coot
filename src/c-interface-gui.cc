@@ -151,10 +151,12 @@ open_cif_dictionary_file_selector_dialog() {
 
 	 // GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
 
-	 std::cout << "GTK-FIXME no action area" << std::endl;
+	 std::cout << "GTK-FIXME open_cif_dictionary_file_selector_dialog() no action area"
+                   << std::endl;
 
 	 GtkWidget *aa_hbutton_box = gtk_dialog_get_header_bar(GTK_DIALOG(filechooser));
-	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
+	 // if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
+         if (true) { // check the button type
 	    add_cif_dictionary_selector_molecule_selector(filechooser, aa_hbutton_box);
 	    add_cif_dictionary_selector_create_molecule_checkbutton(filechooser, aa_hbutton_box);
 	 }
@@ -4125,11 +4127,13 @@ GtkWidget *wrapped_create_show_symmetry_window() {
 
     GtkWidget *colour_button = lookup_widget(show_symm_window, "symmetry_colorbutton");
     if (colour_button) {
-       GdkColor bg_colour;
+       GdkRGBA bg_colour;
        bg_colour.red   = (guint)(graphics_info_t::symmetry_colour[0] * 65535);
        bg_colour.green = (guint)(graphics_info_t::symmetry_colour[1] * 65535);
        bg_colour.blue  = (guint)(graphics_info_t::symmetry_colour[2] * 65535);
-       gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
+       // gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &bg_colour);
+       // gtk_color_button_set_rgba(GTK_COLOR_BUTTON(colour_button), &bg_colour);
+       gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(colour_button), &bg_colour);
     } else {
        std::cout << "failed to lookup colourbutton" << std::endl;
     }
@@ -5826,7 +5830,9 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
       std::string label_str = gdo.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
-      gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
+
+      std::cout << "generic_objects_dialog_table_add_object_internal() set alignment" << std::endl;
+      // gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
 
       std::string stub = "generic_object_" + coot::util::int_to_string(io);
       std::string toggle_button_name = stub + "_toggle_button";
@@ -5838,15 +5844,15 @@ generic_objects_dialog_table_add_object_internal(const coot::generic_display_obj
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      gtk_table_attach (GTK_TABLE (table), label,
-			0, 1, io, io+1,
-			(GtkAttachOptions) (GTK_FILL),
-			(GtkAttachOptions) (0), 8, 0); // pad-x pad-y
+      gtk_grid_attach (GTK_GRID (table), label,
+                       0, 1, 1, 1);
+      // (GtkAttachOptions) (GTK_FILL),
+      // (GtkAttachOptions) (0), 8, 0); // pad-x pad-y
 
-      gtk_table_attach (GTK_TABLE (table), checkbutton,
-			1, 2, io, io+1,
-			(GtkAttachOptions) (GTK_FILL),
-			(GtkAttachOptions) (0), 0, 0);
+      gtk_grid_attach (GTK_GRID (table), checkbutton,
+                       1, 2, 1, 1);
+                       // 		(GtkAttachOptions) (GTK_FILL),
+                       // (GtkAttachOptions) (0), 0, 0);
 
       if (gdo.is_displayed_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
@@ -5874,7 +5880,9 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
    if (generic_objects_dialog_table) {
 
       unsigned int n_objs = g.generic_objects_p->size();
-      gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
+
+      // auto now.
+      // gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
 
       for (unsigned int io=0; io<n_objs; io++) {
 	 const coot::generic_display_object_t &gdo = g.generic_objects_p->at(io);
@@ -5895,7 +5903,8 @@ int add_generic_display_object(const coot::generic_display_object_t &gdo) {
       GtkWidget *table = lookup_widget(g.generic_objects_dialog,
 				       "generic_objects_dialog_table");
       if (table) {
-	 gtk_table_resize(GTK_TABLE(table), n_objs+1, 2);
+         // auto resize now
+	 // gtk_table_resize(GTK_TABLE(table), n_objs+1, 2);
 	 generic_objects_dialog_table_add_object_internal(gdo,
 							  g.generic_objects_dialog,
 							  table,

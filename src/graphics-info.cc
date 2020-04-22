@@ -279,9 +279,9 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
 
       // for gtk2
-      gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
+      // gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
       // for gtk3
-      // gtk_label_set_xalign (label1, 0.0);
+      gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
 
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
       gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glareas[0], "window1")));
@@ -4573,7 +4573,8 @@ graphics_info_t::pick_cursor_real() {
       //    GdkCursorType c = GDK_CROSSHAIR;
       GdkCursorType c = pick_cursor_index;
       GdkCursor *cursor;
-      cursor = gdk_cursor_new (c);
+      // cursor = gdk_cursor_new (c);
+      cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
@@ -4588,7 +4589,8 @@ graphics_info_t::normal_cursor() {
       if (control_key_for_rotate_flag) {
     GdkCursorType c = GDK_LEFT_PTR;
     GdkCursor *cursor;
-    cursor = gdk_cursor_new (c);
+    //cursor = gdk_cursor_new (c);
+    cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
     GdkWindow *window = gtk_widget_get_window(glareas[0]);
     gdk_window_set_cursor(window, cursor);
     // gdk_cursor_destroy (cursor);
@@ -4603,7 +4605,8 @@ graphics_info_t::watch_cursor() {
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
-      cursor = gdk_cursor_new (c);
+      // cursor = gdk_cursor_new (c);
+      cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
@@ -4620,7 +4623,8 @@ graphics_info_t::fleur_cursor() {
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
-      cursor = gdk_cursor_new (c);
+      // cursor = gdk_cursor_new (c);
+      cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
       GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy (cursor);

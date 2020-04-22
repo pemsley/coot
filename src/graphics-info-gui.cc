@@ -276,11 +276,11 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    }
 }
 
-// Actually, it seems that this does not do anything for GTK == 1. So
-// the function that calls it is not compiled (for Gtk1).
-//
+
 void set_colour_accept_reject_event_box(GtkWidget *label, GdkColor *col) {
-   gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
+   // sigh - use css.
+   std::cout << "set_colour_accept_reject_event_box() set the label colour here " << std::endl;
+   // gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
 }
 
 // text_type can be coot::CHIRAL_CENTRES or coot::CHI_SQUAREDS
@@ -1340,9 +1340,11 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    label_str += "  ";
 
    GtkWidget *residue_info_atom_info_label = gtk_label_new (label_str.c_str());
-   gtk_table_attach(GTK_TABLE(table), residue_info_atom_info_label,
-		    left_attach, right_attach, top_attach, bottom_attach,
-		    xopt, yopt, xpad, ypad);
+   // gtk_table_attach(GTK_TABLE(table), residue_info_atom_info_label,
+   //      	    left_attach, right_attach, top_attach, bottom_attach,
+   //      	    xopt, yopt, xpad, ypad);
+   gtk_grid_attach(GTK_GRID(table), residue_info_atom_info_label,
+                   left_attach, right_attach, 1, 1);
    // gtk_widget_ref (residue_info_atom_info_label);
    g_object_set_data_full(G_OBJECT (residue_info_dialog_local),
 			  "residue_info_atom_info_label", residue_info_atom_info_label,
@@ -1374,9 +1376,11 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    g_object_set_data(G_OBJECT(residue_info_occ_entry), "select_atom_info", ai);
    gtk_entry_set_text(GTK_ENTRY(residue_info_occ_entry),
 		      graphics_info_t::float_to_string(atom->occupancy).c_str());
-   gtk_table_attach(GTK_TABLE(table), residue_info_occ_entry,
-		    left_attach, right_attach, top_attach, bottom_attach,
-		    xopt, yopt, xpad, ypad);
+   // gtk_table_attach(GTK_TABLE(table), residue_info_occ_entry,
+   //      	    left_attach, right_attach, top_attach, bottom_attach,
+   //      	    xopt, yopt, xpad, ypad);
+   gtk_grid_attach(GTK_GRID(table), residue_info_occ_entry,
+                   left_attach, right_attach, 1, 1);
 
 
       // Note that we have to use key_release_event because if we use
@@ -1407,9 +1411,11 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_widget_set_events(residue_info_b_factor_entry,
 			 GDK_KEY_PRESS_MASK     |
 			 GDK_KEY_RELEASE_MASK);
-   gtk_table_attach(GTK_TABLE(table), residue_info_b_factor_entry,
-		    left_attach, right_attach, top_attach, bottom_attach,
-		    xopt, yopt, xpad, ypad);
+   // gtk_table_attach(GTK_TABLE(table), residue_info_b_factor_entry,
+   //      	    left_attach, right_attach, top_attach, bottom_attach,
+   //      	    xopt, yopt, xpad, ypad);
+   gtk_grid_attach(GTK_GRID(table), residue_info_b_factor_entry,
+                   left_attach, right_attach, 1, 1);
 
 
    // Alt Conf label:
@@ -1417,9 +1423,11 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_widget_show(alt_conf_label);
    left_attach = 3;
    right_attach = left_attach + 1;
-   gtk_table_attach(GTK_TABLE(table), alt_conf_label,
-		    left_attach, right_attach, top_attach, bottom_attach,
-		    xopt, yopt, xpad, ypad);
+   // gtk_table_attach(GTK_TABLE(table), alt_conf_label,
+   //      	    left_attach, right_attach, top_attach, bottom_attach,
+   //      	    xopt, yopt, xpad, ypad);
+   gtk_grid_attach(GTK_GRID(table), alt_conf_label,
+                   left_attach, right_attach, 1, 1);
 
 
    // The Alt Conf entry:
@@ -1445,10 +1453,11 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    gtk_widget_show (residue_info_altloc_entry);
    g_object_set_data(G_OBJECT(residue_info_altloc_entry), "select_atom_info", ai);
    gtk_entry_set_text(GTK_ENTRY(residue_info_altloc_entry), atom->altLoc);
-   gtk_table_attach(GTK_TABLE(table), residue_info_altloc_entry,
-		    left_attach, right_attach, top_attach, bottom_attach,
-		    xopt, yopt, xpad, ypad);
-
+   // gtk_table_attach(GTK_TABLE(table), residue_info_altloc_entry,
+   //      	    left_attach, right_attach, top_attach, bottom_attach,
+   //      	    xopt, yopt, xpad, ypad);
+   gtk_grid_attach(GTK_GRID(table), residue_info_altloc_entry,
+                   left_attach, right_attach, 1, 1);
 
 
 }
@@ -3793,7 +3802,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 gtk_widget_set_size_request(frame_molecule_N, 171, -2);
 	 gtk_container_set_border_width (GTK_CONTAINER (frame_molecule_N), 6);
 
-	 hbox136 = gtk_hbox_new (FALSE, 0);
+	 hbox136 = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
 	 // gtk_widget_ref (hbox136);
 	 g_object_set_data_full (G_OBJECT (coords_colour_control_dialog), "hbox136", hbox136,
 				 NULL);
@@ -3810,7 +3819,7 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 	 GtkAdjustment *adjustment_mol = GTK_ADJUSTMENT
 	    (gtk_adjustment_new(molecules[imol].bonds_colour_map_rotation,
 				0.0, 370.0, 1.0, 20.0, 10.1));
-	 coords_colour_hscale_mol_N = gtk_hscale_new (adjustment_mol);
+	 coords_colour_hscale_mol_N = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL, adjustment_mol);
 	 gtk_range_set_adjustment(GTK_RANGE(coords_colour_hscale_mol_N), adjustment_mol);
 	 g_signal_connect(G_OBJECT(adjustment_mol), "value_changed",
 			  G_CALLBACK(bonds_colour_rotation_adjustment_changed), NULL);
@@ -3830,7 +3839,9 @@ graphics_info_t::fill_bond_colours_dialog_internal(GtkWidget *w) {
 				 NULL);
 	 gtk_widget_show (label270);
 	 gtk_box_pack_start (GTK_BOX (hbox136), label270, FALSE, FALSE, 0);
-	 gtk_misc_set_alignment (GTK_MISC (label270), 0.5, 0.56);
+	 // gtk_misc_set_alignment (GTK_MISC (label270), 0.5, 0.56);
+         gtk_label_set_xalign(GTK_LABEL(label270), 0.5);
+         gtk_label_set_yalign(GTK_LABEL(label270), 0.56);
 
 	 gtk_widget_show(frame_molecule_N);
       }
