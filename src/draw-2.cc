@@ -429,7 +429,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    if (!draw_transparent_maps || n_transparent_maps > 0) {
 
-      glLineWidth(1.0f);
+      glLineWidth(map_line_width);
       GLenum err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 

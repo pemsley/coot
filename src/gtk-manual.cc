@@ -539,7 +539,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   std::string four_char_imol(nn, '0');
   // widget_name += four_char_imol + coot::util::int_to_string(imol);
   widget_name += coot::util::int_to_string(imol);
-  std::cout << "debug:: widget_name " << widget_name << std::endl;
+  std::cout << "debug:: frame widget_name " << widget_name << std::endl;
 
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			  widget_name.c_str(),
@@ -565,7 +565,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   widget_name = "display_mol_number_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
 
-  mol_number_label = gtk_label_new (widget_name.c_str());;
+  mol_number_label = gtk_label_new (coot::util::int_to_string(imol).c_str());;
   g_object_set_data_full (G_OBJECT (display_control_window_glade),
 			  widget_name.c_str(), mol_number_label, NULL);
   gtk_widget_show (mol_number_label);

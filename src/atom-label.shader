@@ -11,9 +11,7 @@ uniform mat4 projection;
 
 void main()
 {
-
    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
-   gl_Position.z = 0.0;
    TexCoords = vertex.zw;
 }
 
@@ -30,7 +28,6 @@ uniform vec3 textColour;
 void main()
 {
    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
+   gl_FragDepth = 0.0; // does this do anything?
    colour = vec4(textColour, 1.0) * sampled;
 }
-
-

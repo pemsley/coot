@@ -26,6 +26,7 @@ in vec2 TexCoords;
 uniform sampler2D screenTexture;
 uniform sampler2D screenDepth;
 uniform float zoom;
+uniform bool is_perspective_projection;
 
 layout(location = 0) out vec4 out_color;
 
@@ -59,6 +60,7 @@ vec3 sampling_blur(int n_pixels_max) {
 
    vec3 orig_colour = texture(screenTexture, TexCoords).rgb; // don't blur
    float lim = 0.501;
+   if (is_perspective_projection) lim = 0.9801;
    if (depth_centre < lim) {
       return orig_colour;
    } else {
