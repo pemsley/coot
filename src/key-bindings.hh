@@ -2,6 +2,10 @@
 #ifndef KEY_BINDINGS_HH
 #define KEY_BINDINGS_HH
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 // Python header has already been loaded by now.
 
 #ifdef USE_GUILE
@@ -60,7 +64,12 @@ public:
 #endif
    std::string description;
    gboolean (*func)();
-   key_bindings_t() { type = NONE; function_py = 0; func = 0; }
+   key_bindings_t() {
+           type = NONE;
+#ifdef USE_PYTHON
+           function_py = 0;
+#endif
+           func = 0; }
    // external
 #ifdef USE_GUILE
    key_bindings_t(SCM thunk_in, const std::string &descr) {
