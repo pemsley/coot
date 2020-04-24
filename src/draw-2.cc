@@ -1195,19 +1195,26 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       direction = -1;
 
    graphics_info_t g;
-   int imol_scroll = graphics_info_t::scroll_wheel_map;
+   int imol_scroll = g.scroll_wheel_map;
 
-   if (g.is_valid_map_molecule(imol_scroll)) {
+   if (! g.is_valid_map_molecule(imol_scroll)) {
 
-      // don't scroll the map if the map is not displayed. Scroll the
-      // map that *is* displayed
       std::vector<int> dm = g.displayed_map_imols();
       if (std::find(dm.begin(), dm.end(), imol_scroll) == dm.end()) {
-         // imol_map_for_scroll is not visible, choose another one
          if (dm.size() > 0)
             imol_scroll = dm[0];
       }
+   }
+
+   if (! g.molecules[imol_scroll].is_displayed_p()) {
+      // don't scroll the map if the map is not displayed. Scroll the
+      // map that *is* displayed
+      std::vector<int> dm = g.displayed_map_imols();
+      if (dm.size() > 0)
+         imol_scroll = dm[0];
+   }
  
+   if (g.is_valid_map_molecule(imol_scroll)) {
       // use direction
       if (direction == 1)
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
