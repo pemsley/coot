@@ -359,7 +359,7 @@ graphics_info_t::get_view_rotation() {
 
    // need to be in the correct program (well, the model-drawing part)
 
-   if (perspective_projection_flag)
+   if (! perspective_projection_flag)
       return glm::toMat4(graphics_info_t::glm_quat);
    else
       return glm::mat4(1.0);
