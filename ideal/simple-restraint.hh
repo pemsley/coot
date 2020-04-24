@@ -1140,6 +1140,8 @@ namespace coot {
 	 from_residue_vector = 0;
 	 rama_type = RAMA_TYPE_LOGRAMA;
 	 rama_plot_weight = 40.0;
+         do_hydrogen_atom_refinement = false;
+         do_neutron_refinement = false;
 
 #ifndef __NVCC__
 	 restraints_lock = false; // not locked
@@ -1972,6 +1974,14 @@ namespace coot {
       // short int is_nucleotide(mmdb::Residue *res_p);
       bool do_numerical_gradients_flag;
 
+      bool do_hydrogen_atom_refinement;
+      bool do_neutron_refinement;
+      void set_do_hydrogen_atom_refinement(bool state) { do_hydrogen_atom_refinement = state; }
+      void set_do_neutron_refinement(bool state) {
+         do_neutron_refinement = state;
+         if (state) set_z_occ_weights(); // needs neutron weights now
+      }
+
       // validation:
       geometry_distortion_info_container_t
       distortion_vector(const gsl_vector *v) const;
@@ -2444,6 +2454,10 @@ namespace coot {
       //
       std::vector<bool> use_map_gradient_for_atom;
       std::vector<double> atom_z_occ_weight;  // weight e.d. fit by atomic number and occ
+      std::map<std::string, double> neutron_occupancy_map;
+      void set_z_occ_weights();
+      void init_neutron_occupancies();
+      double neutron_occupancy(const std::string &element, int formal_charge) const;
 
       // Make a MMDBManager from the selection and return this new
       // mmdb::PManager.  It is the users responsibility to delete it.

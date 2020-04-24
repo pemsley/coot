@@ -538,6 +538,8 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
    log_cosh_target_distance_scale_factor = 3000.0;
    convert_plane_restraints_to_improper_dihedral_restraints_flag = false; // as it was in 2019.
+
+   init_neutron_occupancies();
 }
 
 void
@@ -555,6 +557,67 @@ coot::restraints_container_t::set_has_hydrogen_atoms_state() {
    }
    if (! found)
       model_has_hydrogen_atoms = false;
+
+}
+
+// pass the formal charge also?
+double
+coot::restraints_container_t::neutron_occupancy(const std::string &element, int formal_charge) const {
+
+   std::string mod_ele = coot::util::remove_whitespace(element);
+   if (mod_ele.length() > 1)
+      mod_ele = coot::util::capitalise(mod_ele);
+   if (formal_charge != 0)
+      mod_ele += coot::util::int_to_string(formal_charge);
+
+   std::map<std::string, double>::const_iterator it = neutron_occupancy_map.find(mod_ele);
+   if (it != neutron_occupancy_map.end())
+      return it->second;
+   else
+      return 0.0;
+
+}
+
+void
+coot::restraints_container_t::set_z_occ_weights() {
+
+   // z weights:
+   //
+   atom_z_occ_weight.resize(n_atoms);
+   std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
+   for (int i=0; i<n_atoms; i++) {
+      mmdb::Atom *at = atom[i];
+      if (! at->isTer()) {
+         std::string element = at->element;
+	 double z = coot::util::atomic_number(at->element, atom_list);
+	 double weight = 1.0;
+	 double occupancy = atom[i]->occupancy;
+	 if (occupancy > 1.0) occupancy = 1.0;
+         if (do_neutron_refinement) {
+            int formal_charge = 0;
+            occupancy = neutron_occupancy(element, formal_charge);
+         }
+	 if (cryo_em_mode) {
+	    // is-side-chain? would be a better test
+	    if (! is_main_chain_or_cb_p(at)) {
+               // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
+               weight = 0.2;
+	    }
+	    std::string at_name = atom[i]->name;
+	    if (at_name == " O  ") {
+	       weight = 0.4;
+	    }
+	 }
+
+	 if (z < 0.0) {
+	    std::cout << "WARNING:: init_shared_post() atom " << i << " " << atom_spec_t(atom[i])
+		      << " Unknown element \"" << atom[i]->element << "\"" << std::endl;
+	    z = 6.0; // as for carbon
+	 }
+	 atom_z_occ_weight[i] = weight * z * occupancy;
+      }
+   }
+
 
 }
 
@@ -627,7 +690,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       for (int i=0; i<n_atoms; i++) {
 	 mmdb::Residue *res_p = atom[i]->residue;
 	 if (is_a_moving_residue_p(res_p)) {
-	    if (! is_hydrogen(atom[i]))
+	    if (! is_hydrogen(atom[i]) || do_hydrogen_atom_refinement)
 	       use_map_gradient_for_atom[i] = true;
 	 } else {
 	    // std::cout << "blanking out density for atom " << i << std::endl;
@@ -636,37 +699,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       }
    }
 
-   // z weights:
-   //
-   atom_z_occ_weight.resize(n_atoms);
-   std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
-   for (int i=0; i<n_atoms; i++) {
-      mmdb::Atom *at = atom[i];
-      if (! at->isTer()) {
-	 double z = coot::util::atomic_number(at->element, atom_list);
-	 double weight = 1.0;
-	 double occupancy = atom[i]->occupancy;
-	 if (occupancy > 1.0) occupancy = 1.0;
-	 if (cryo_em_mode) {
-	    // is-side-chain? would be a better test
-	    if (! is_main_chain_or_cb_p(at)) {
-		  // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
-		  weight = 0.2;
-	    }
-	    std::string at_name = atom[i]->name;
-	    if (at_name == " O  ") {
-	       weight = 0.4;
-	    }
-	 }
-
-	 if (z < 0.0) {
-	    std::cout << "WARNING:: init_shared_post() atom " << i << " " << atom_spec_t(atom[i])
-		      << " Unknown element \"" << atom[i]->element << "\"" << std::endl;
-	    z = 6.0; // as for carbon
-	 }
-	 atom_z_occ_weight[i] = weight * z * occupancy;
-      }
-   }
+   set_z_occ_weights();
 
    // the fixed atoms:   
    // 
