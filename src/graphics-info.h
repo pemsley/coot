@@ -4062,6 +4062,7 @@ string   static std::string sessionid;
    void init_buffers();
    void init_hud_text();
    static glm::mat4 get_molecule_mvp();
+   static glm::mat4 get_model_view_matrix();
    static glm::vec3 get_eye_position();
    static glm::vec4 new_unproject(float z);
    static glm::vec4 new_unproject(float x, float y, float z);

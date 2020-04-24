@@ -173,10 +173,17 @@ graphics_info_t::init_hud_text() {
    std::cout << "------------------ done init_hud_text() ---------------------\n";
 }
 
-glm::mat4 get_model_view_matrix() {
+// static
+glm::mat4
+graphics_info_t::get_model_view_matrix() {
 
-  glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
-  return view_matrix;
+   // where is this used?
+
+   if (! perspective_projection_flag) {
+      return glm::toMat4(glm_quat);
+   } else {
+      return glm::mat4(1.0);
+   }
 }
 
 // static
@@ -352,41 +359,43 @@ graphics_info_t::get_view_rotation() {
 
    // need to be in the correct program (well, the model-drawing part)
 
-   glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
-   return view_matrix;
+   if (perspective_projection_flag)
+      return glm::toMat4(graphics_info_t::glm_quat);
+   else
+      return glm::mat4(1.0);
 }
 
 
 void
 graphics_info_t::setup_map_uniforms(const Shader &shader,
-                   const glm::mat4 &mvp,
-                   const glm::mat4 &view_rotation,
-                   float density_surface_opacity) {
+                                    const glm::mat4 &mvp,
+                                    const glm::mat4 &view_rotation,
+                                    float density_surface_opacity) {
 
    glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    GLenum err = glGetError();
-   if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() mvp " << err << std::endl;
+   if (err) std::cout << "   setup_map_uniforms() glUniformMatrix4fv() mvp " << err << std::endl;
    glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
    err = glGetError();
-   if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() vr  " << err << std::endl;
+   if (err) std::cout << "   setup_map_uniforms() glUniformMatrix4fv() vr  " << err << std::endl;
 
    GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
    glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
    glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
    err = glGetError();
-   if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+   if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for bg  " << err << std::endl;
 
    // opacity: (I can't get this to work for lines)
    GLuint opacity_uniform_location = shader.map_opacity_uniform_location;
    float opacity = density_surface_opacity;
    glUniform1f(opacity_uniform_location, opacity);
-   err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
+   err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniformf() for opacity "
                                           << err << std::endl;
 
    GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
    glm::vec4 ep = glm::vec4(get_eye_position(), 1.0);
    glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
-   err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniform4fv() for eye position "
+   err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for eye position "
                                           << err << std::endl;
 
    // lights
@@ -444,11 +453,15 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation = get_view_rotation();
+      if (perspective_projection_flag)
+         view_rotation = glm::mat4(1.0);
 
       glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
       glDepthFunc(GL_LESS);
 
       Shader &shader = graphics_info_t::shader_for_maps;
+
+      glm::vec4 ep(get_eye_position(), 1.0);
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
          const molecule_class_info_t &m = graphics_info_t::molecules[ii];
@@ -465,11 +478,13 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
             glUniform1i(shader.is_perspective_projection_uniform_location,
                         graphics_info_t::perspective_projection_flag);
+            err = glGetError(); if (err) std::cout << "   draw_map_molecules() error B " << std::endl;
 
             if (draw_with_lines) {
                // I don't see why this is needed - but it is.
                if (! m.is_an_opaque_map())
                   glEnable(GL_BLEND);
+
                glBindVertexArray(m.m_VertexArrayID_for_map);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
@@ -494,6 +509,12 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                             << m.m_VertexArrayID_for_map << " "
                             << m.n_indices_for_triangles
                             << std::endl;
+
+               if (! m.is_an_opaque_map()) {
+                  // sort the triangles
+                  clipper::Coord_orth eye_pos_co(ep.x, ep.y, ep.z);
+                  graphics_info_t::molecules[ii].sort_map_triangles(eye_pos_co);
+               }
 
                glBindVertexArray(m.m_VertexArrayID_for_map);
                err = glGetError();
@@ -524,7 +545,6 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                                                       << err << std::endl;
 
                GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
-               glm::vec4 ep(get_eye_position(), 1.0); // this can be moved outside this loop
                glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
 
                glDrawElements(GL_TRIANGLES, m.n_indices_for_triangles, GL_UNSIGNED_INT, nullptr);
@@ -1227,8 +1247,6 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       g.display_density_level_this_image = 1;
       // g.update_maps();
       g.graphics_draw(); // queue
-   } else {
-      std::cout << "No map" << std::endl;
    }
    return TRUE;
 }

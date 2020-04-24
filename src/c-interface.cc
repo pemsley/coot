@@ -2467,6 +2467,8 @@ void restore_previous_map_colour(int imol) {
    add_to_history_typed(cmd, args);
 }
 
+
+// Noddy version
 void
 colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
 
@@ -2484,6 +2486,50 @@ colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
 }
 
 
+//! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
+//! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
+void
+colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
+                           PyObject *colour_table_py) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_map_used_for_colouring)) {
+         if (PyList_Check(colour_table_py)) {
+            graphics_info_t g;
+            clipper::Xmap<float> &xmap_for_colouring = g.molecules[imol_map_used_for_colouring].xmap;
+            std::vector<coot::colour_t> colour_list;
+            unsigned int n = PyObject_Length(colour_table_py);
+            for (unsigned int i=0; i<n; i++) {
+               PyObject *i_py = PyList_GetItem(colour_table_py, i);
+               if (PyList_Check(i_py)) {
+                  unsigned int i_l = PyObject_Length(i_py);
+                  if (i_l == 3) {
+                     double r = PyFloat_AsDouble(PyList_GetItem(i_py, 0));
+                     double g = PyFloat_AsDouble(PyList_GetItem(i_py, 1));
+                     double b = PyFloat_AsDouble(PyList_GetItem(i_py, 2));
+                     coot::colour_t col(r,g,b);
+                     colour_list.push_back(col);
+                  }
+               } else {
+                  std::cout << "Not a list " << std::endl;
+                  break;
+               }
+            }
+
+            if (colour_list.size() == n) {
+               // we read the table OK.
+               g.molecules[imol_map].colour_map_using_map(xmap_for_colouring,
+                                                          table_bin_start, table_bin_size,
+                                                          colour_list);
+            }
+         } else {
+            std::cout << "colour table was not a list " << std::endl;
+         }
+      }
+   }
+}
+
+
 void
 colour_map_by_other_map_turn_off(int imol_map) {
 
@@ -2494,6 +2540,53 @@ colour_map_by_other_map_turn_off(int imol_map) {
 
 }
 
+
+// -------------------------------------------------------------------
+
+PyObject *export_molecule_as_x3d(int imol) {
+
+   PyObject *r = PyList_New(3);
+   PyList_SetItem(r, 0, PyList_New(0));
+   PyList_SetItem(r, 1, PyList_New(0));
+   PyList_SetItem(r, 2, PyList_New(0));
+   // or model, eventually.
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      coot::density_contour_triangles_container_t tc = g.molecules[imol].export_molecule_as_x3d();
+      if (false)
+         std::cout << "debug:: tc.points " << tc.points.size() << " tc.normals " << tc.normals.size()
+                   << " tc-point_indices " << tc.point_indices.size() << std::endl;
+      if (tc.points.size() > 0) {
+         if (tc.point_indices.size() > 0) {
+            PyObject *indices_list = PyList_New(3 * tc.point_indices.size());
+            PyObject *vertex_list  = PyList_New(3 * tc.points.size());
+            PyObject *normals_list = PyList_New(3 * tc.normals.size());
+
+            for (unsigned int i=0; i<tc.points.size(); i++) {
+               PyList_SetItem(vertex_list, i*3,   PyFloat_FromDouble(tc.points[i].x()));
+               PyList_SetItem(vertex_list, i*3+1, PyFloat_FromDouble(tc.points[i].y()));
+               PyList_SetItem(vertex_list, i*3+2, PyFloat_FromDouble(tc.points[i].z()));
+            }
+            for (unsigned int i=0; i<tc.normals.size(); i++) {
+               PyList_SetItem(normals_list, i*3,   PyFloat_FromDouble(tc.normals[i].x()));
+               PyList_SetItem(normals_list, i*3+1, PyFloat_FromDouble(tc.normals[i].y()));
+               PyList_SetItem(normals_list, i*3+2, PyFloat_FromDouble(tc.normals[i].z()));
+            }
+            for (unsigned int i=0; i<tc.point_indices.size(); i++) {
+               PyList_SetItem(indices_list, i*3,   PyLong_FromLong(tc.point_indices[i].pointID[0]));
+               PyList_SetItem(indices_list, i*3+1, PyLong_FromLong(tc.point_indices[i].pointID[1]));
+               PyList_SetItem(indices_list, i*3+2, PyLong_FromLong(tc.point_indices[i].pointID[2]));
+            }
+
+            PyList_SetItem(r, 0, indices_list);
+            PyList_SetItem(r, 1, vertex_list);
+            PyList_SetItem(r, 2, normals_list);
+         }
+      }
+   }
+   return r;
+
+}
 
 
 // -------------------------------------------------------------------

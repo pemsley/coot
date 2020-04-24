@@ -884,6 +884,8 @@ public:        //                      public
       // mtz updating
       continue_watching_mtz = false;
 
+      previous_eye_position = clipper::Coord_orth(-999, -999, -999);
+
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -1273,8 +1275,11 @@ public:        //                      public
    // just lines: std::vector<coot::CartesianPairInfo> draw_vector_sets;
    std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
    std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
-   void sort_map_triangles();
+   void sort_map_triangles(const clipper::Coord_orth &eye_position);
    static void depth_sort();
+   // we only need to sort the triangles if the eye position has moved. So store the eye position
+   // of the previous time the triangles were sorted
+   clipper::Coord_orth previous_eye_position;
 
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
    // const coot::CartesianPair* diff_map_draw_vectors;
@@ -1407,6 +1412,12 @@ public:        //                      public
    void restore_previous_map_colour();
    GdkRGBA radius_to_colour(float radius, float min_radius, float max_radius);
    GdkRGBA fraction_to_colour(float fraction);
+
+   float other_map_for_colouring_min_value;
+   float other_map_for_colouring_max_value;
+   std::vector<coot::colour_t> other_map_for_colouring_colour_table;
+   // use the above values to generate a colour given a value (typically, a correlation)
+   GdkRGBA value_to_colour_using_colour_table(float value);
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
@@ -2064,6 +2075,8 @@ public:        //                      public
    std::vector<std::string> set_map_colour_strings() const;
    std::pair<GdkRGBA, GdkRGBA> map_colours() const;
    void colour_map_using_map(const clipper::Xmap<float> &xmap);
+   void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
+                             const std::vector<coot::colour_t> &colours);
    const clipper::Xmap<float> *other_map_for_colouring_p;
 
    // save yourself and update have_unsaved_changes_flag status
@@ -3528,6 +3541,9 @@ public:        //                      public
       colour_map_using_other_map_flag = state;
    }
    GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
+
+   coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
+
 
 };
 

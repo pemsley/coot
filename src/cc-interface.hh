@@ -303,6 +303,19 @@ PyObject *map_colour_components_py(int imol);
 void
 colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
 
+#ifdef USE_PYTHON
+//! \brief  the colour_table should be a list of colours
+//!
+//! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
+//! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
+//!
+void
+colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
+                           PyObject *colour_table_list);
+#endif
+
+PyObject *export_molecule_as_x3d(int imol);
+
 void
 colour_map_by_other_map_turn_off(int imol_map);
 
