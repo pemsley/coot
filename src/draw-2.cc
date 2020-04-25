@@ -684,6 +684,12 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
    int n_atoms_to_label = m.labelled_atom_index_list.size();
    if (n_atoms_to_label == 0) return;
 
+   // maybe pass these?
+   GtkAllocation allocation;
+   GtkWidget *widget = graphics_info_t::glareas[0];
+   if (! widget) return;
+   gtk_widget_get_allocation(widget, &allocation);
+
    for (int ii=0; ii<n_atoms_to_label ; ii++) {
       std::pair<std::string, clipper::Coord_orth> lab_pos =
          m.make_atom_label_string(ii, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
@@ -695,10 +701,11 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
 
       glm::vec3 point(co.x(), co.y(), co.z());
       glm::vec4 projected_point = mvp * glm::vec4(point, 1.0);
+      // convert axes from -1 -> 1 to 0 -> 1
       projected_point.x = 0.5 * (projected_point.x + 1.0f);
       projected_point.y = 0.5 * (projected_point.y + 1.0f);
-      projected_point.x *= 900.0;
-      projected_point.y *= 900.0;
+      projected_point.x *= allocation.width;
+      projected_point.y *= allocation.height;
       glm::vec3 pp(projected_point);
       render_atom_label(shader_for_atom_labels, label, pp, 1.0, label_colour);
    }
@@ -1251,6 +1258,27 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    return TRUE;
 }
 
+void
+graphics_info_t::try_label_unlabel_active_atom() {
+
+   std::pair<int, mmdb::Atom *> aa = get_active_atom();
+   int im = aa.first;
+   if (im >= 0) {
+      mmdb::Atom *at = aa.second;
+      if (at) {
+         int atom_index;
+         // this is a bit convoluteed :-)
+         int ierr = at->GetUDData(molecules[im].atom_sel.UDDAtomIndexHandle, atom_index);
+	 if (ierr == mmdb::UDDATA_Ok) {
+            molecules[im].add_to_labelled_atom_list(atom_index);
+            graphics_draw();
+         } else {
+            std::cout << "WARNING:: Bad UDData for atom_index for atom " << std::endl;
+         }
+      }
+   }
+}
+
 
 gboolean
 on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
@@ -1293,7 +1321,7 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
    if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
-      pick_info nearest_atom_index_info = atom_pick_gtk3(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3();
       double delta_x = g.GetMouseClickedX() - event->x;
       double delta_y = g.GetMouseClickedY() - event->y;
       if (std::abs(delta_x) < 10.0) {
@@ -1577,6 +1605,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto l20 = []() { graphics_info_t g; g.eigen_flip_active_residue(); return gboolean(TRUE); };
 
+   auto l21 = []() { graphics_info_t g; g.try_label_unlabel_active_atom(); return gboolean(TRUE); };
+
    // Note to self, Space and Shift Space are key *Releease* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -1598,6 +1628,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
 
    // control keys
 

@@ -146,7 +146,7 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
 pick_info
-atom_pick_gtk3(GdkEventButton *event){
+atom_pick_gtk3(){
    pick_info p_i;
    graphics_info_t g; // perhaps this function should be *in* graphics_info_t
 
@@ -213,7 +213,7 @@ atom_pick_gtk3(GdkEventButton *event){
 pick_info
 atom_pick(GdkEventButton *event) {
 
-   return atom_pick_gtk3(event);
+   return atom_pick_gtk3();
 }
 
 

@@ -145,9 +145,9 @@ graphics_info_t::adjust_clipping(float d) {
       // the rotation centre so that the clipping planes are not
       // changed so that rotation centre is clipped.
 
-      if (d > 0) {
+      if (d < 0) {
 
-         // close down (narrow)
+         // close down (narrow) - is this correct? :-)
 
          screen_z_near_perspective = l - (l-zn) * 0.9905;
          screen_z_far_perspective  = l + (zf-l) * 0.95;
