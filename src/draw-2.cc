@@ -1026,7 +1026,6 @@ on_glarea_realize(GtkGLArea *glarea) {
    graphics_info_t::shader_for_blur.set_int_for_uniform("screenDepth", 1);
    err = glGetError(); if (err) std::cout << "on_glarea_realize() blur D shader-framebuffer err " << err << std::endl;
 
-
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
    glEnable(GL_DEPTH_TEST);
@@ -1149,11 +1148,13 @@ graphics_info_t::render(GtkGLArea *glarea) {
 
       glClearColor(0.5, 0.2, 0.2, 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      Shader &shader = graphics_info_t::shader_for_blur;
 
-      // std::cout << "debug uniform: " << graphics_info_t::shader_for_blur.zoom_uniform_location
-      //                                << " " << graphics_info_t::zoom << std::endl;
-      glUniform1f(graphics_info_t::shader_for_blur.zoom_uniform_location, graphics_info_t::zoom);
+      glUniform1f(shader.zoom_uniform_location, graphics_info_t::zoom);
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-A err " << err << std::endl;
+      glUniform1i(shader.is_perspective_projection_uniform_location,
+                  perspective_projection_flag);
+      err = glGetError(); if (err) std::cout << "   on_glarea_render() blur-A2 error " << std::endl;
 
       GLuint pid = graphics_info_t::shader_for_blur.get_program_id();
       glActiveTexture(GL_TEXTURE0 + 1);
@@ -1607,7 +1608,7 @@ graphics_info_t::setup_key_bindings() {
 
    auto l21 = []() { graphics_info_t g; g.try_label_unlabel_active_atom(); return gboolean(TRUE); };
 
-   // Note to self, Space and Shift Space are key *Releease* functions
+   // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_d,      key_bindings_t(l1, "increase clipping")));

@@ -1859,9 +1859,11 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
    // clear up moving atoms for this molecule if they exist for this given molecule
 
    if (imol_moving_atoms == imol) {
-      if (moving_atoms_asc->n_selected_atoms > 0){
-    clear_up_moving_atoms();
-    clear_moving_atoms_object();
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            clear_up_moving_atoms();
+            clear_moving_atoms_object();
+         }
       }
    }
 }

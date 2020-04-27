@@ -4062,12 +4062,15 @@ int reset_view() {
 	 }
       }
 
-      float size = g.molecules[new_centred_molecule].size_of_molecule();
-      if (size<1)
-	 size = 1;
-      float new_zoom = 7.0*size;
 
-      g.setRotationCentreAndZoom(new_centre, new_zoom);
+      if (! graphics_info_t::perspective_projection_flag) {
+         float size = g.molecules[new_centred_molecule].size_of_molecule();
+         if (size < 1.0) size = 1.0;
+         float new_zoom = 7.0*size;
+         g.setRotationCentreAndZoom(new_centre, new_zoom);
+      } else {
+         g.setRotationCentre(new_centre);
+      }
       for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
 	 graphics_info_t::molecules[ii].update_map();
 	 graphics_info_t::molecules[ii].update_symmetry();

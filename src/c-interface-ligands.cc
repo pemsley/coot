@@ -3715,7 +3715,13 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
             g.molecules[imol_new_map].set_contour_level(contour_level);
          }
          graphics_draw();
+      } else {
+         std::cout << "WARNING:: molecule " << imol_map << " is not a valid map molecule"
+                   << std::endl;
       }
+   } else {
+      std::cout << "WARNING:: molecule " << imol_map << " is not a valid model molecule"
+                << std::endl;
    }
    return 0;
 }
