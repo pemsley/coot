@@ -143,7 +143,8 @@ graphics_info_t::povray(std::string filename) {
    // So where is the "eye"? We have to do an unproject:
    int x0 = allocation.width/2;
    int y0 = allocation.height/2;
-   coot::Cartesian eye = unproject_xyz(x0, y0, 0);
+   glm::vec3 glm_eye = get_eye_position();
+   coot::Cartesian eye(glm_eye.x, glm_eye.y, glm_eye.z);
 
    // It seems that for raster3d, this eye position is good, but for
    // povray, we are very close in.  So, let's try moving the eye back
@@ -791,15 +792,18 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
       int x0 = allocation.width/2;
       int y0 = allocation.height/2;
-      coot::Cartesian screen_edge1 = unproject_xyz(0, 0, 0);
-      coot::Cartesian screen_edge2 = unproject_xyz(x0*2, 0, 0);
+      graphics_info_t g;
+      glm::vec4 glm_screen_edge1 = g.unproject(0, 0, 0);
+      glm::vec4 glm_screen_edge2 = g.unproject(x0*2, 0, 0);
+      coot::Cartesian screen_edge1(glm_screen_edge1.x, glm_screen_edge1.y, glm_screen_edge1.z);
+      coot::Cartesian screen_edge2(glm_screen_edge2.x, glm_screen_edge2.y, glm_screen_edge2.z);
 
       coot::Cartesian v1_2 = screen_edge2 - screen_edge1;
 
       clipper::Vec3<double> camera_location_cl(camera_location.x(),
 					       camera_location.y(),
 					       camera_location.z());
-      
+
       clipper::Vec3<double> view_centre_cl(view_centre.x(),
 					   view_centre.y(),
 					   view_centre.z());

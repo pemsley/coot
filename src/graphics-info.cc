@@ -2084,6 +2084,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 void
 graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) {
 
+#if 0
+
+   // old - delete this
+   
    // very much most of the time, this will be zero
    //
    if (regularize_object_bonds_box.num_colours > 0) {
@@ -2163,61 +2167,8 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       moving_atoms_bonds_lock = false; // unlock.
    }
 
-}
+#endif
 
-void
-graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
-
-   if (false)
-      std::cout << "draw_moving_atoms_atoms() " << regularize_object_bonds_box.atom_centres_
-           << std::endl;
-
-   // This is a pointer. Is that what I want to be testing?
-   if (regularize_object_bonds_box.atom_centres_) {
-
-      coot::Cartesian front = unproject(0.0);
-      coot::Cartesian back  = unproject(1.0);
-      coot::Cartesian z_delta = (front - back) * 0.003;
-
-      glBegin(GL_POINTS);
-      // glPointSize(700.0/zoom);
-      // glPointSize(2);
-
-      float zsc = graphics_info_t::zoom;
-      glPointSize(960.0/zsc);
-
-      // GLdouble point_size_data[2];
-      // glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
-      // std::cout << "Point size range " << point_size_data[0] << " " << point_size_data[1] << std::endl;
-
-      for (int icol=0; icol<regularize_object_bonds_box.n_consolidated_atom_centres; icol++) {
-
-    switch(icol) {
-    case BLUE_BOND:
-       glColor3f (0.40, 0.4, 0.79);
-       break;
-    case RED_BOND:
-       glColor3f (0.79, 0.40, 0.640);
-       break;
-    default:
-       if (against_a_dark_background)
-          glColor3f (0.8, 0.8, 0.8);
-       else
-          glColor3f (0.5, 0.5, 0.5);
-    }
-
-    for (unsigned int i=0; i<regularize_object_bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-       // no points for hydrogens
-       if (! regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
-
-          coot::Cartesian fake_pt = regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].position;
-          fake_pt += z_delta;
-          glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
-       }
-    }
-      }
-      glEnd();
-   }
 }
 
 
@@ -2389,22 +2340,22 @@ graphics_info_t::get_rotamer_dodecs() {
    std::vector<coot::generic_display_object_t::dodec_t> dodecs;
    if (regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_rotamer_markups > 0) {
-    dodec d;
-    coot::Cartesian top    = unproject_xyz(100, 100, 0.5);
-    coot::Cartesian bottom = unproject_xyz(100,   0, 0.5);
-    clipper::Coord_orth screen_y(top.x()-bottom.x(),
-         top.y()-bottom.y(),
-         top.z()-bottom.z());
+         dodec d;
+         glm::vec4 top    = unproject(100, 100, 0.5);
+         glm::vec4 bottom = unproject(100,   0, 0.5);
+         clipper::Coord_orth screen_y(top.x-bottom.x,
+                                      top.y-bottom.y,
+                                      top.z-bottom.z);
 
-    for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
+         for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
-       clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
-       double size = 0.52;
-       pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
-       coot::generic_display_object_t::dodec_t dodec(d, size, pos);
-       dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
-       dodecs.push_back(dodec);
-    }
+            clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
+            double size = 0.52;
+            pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
+            coot::generic_display_object_t::dodec_t dodec(d, size, pos);
+            dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
+            dodecs.push_back(dodec);
+         }
       }
    }
    return dodecs;
@@ -2639,93 +2590,13 @@ graphics_info_t::printString_internal(const std::string &s,
          const double &x, const double &y, const double &z,
          bool do_unproject, bool mono_font, double sf) {
 
-   if (graphics_info_t::stroke_characters) {
-
-      // better text with these 3 lines?
-
-      // Not for me, there are missing fragments of the text when I
-      // enable them (looks like stippling).  Consider another
-      // user-settable parameter/function:
-      // set_use_smooth_stroke_characters()
-      //
-      if (0) {
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glEnable(GL_LINE_SMOOTH);
-      }
-
-      glDisable(GL_LINE_STIPPLE);
-
-      glLineWidth(1.0);
-      glPointSize(1.0);
-
-      glPushMatrix();
-      glTranslated(x,y,z);
-
-      float aspect = static_cast<float>(graphics_x_size)/static_cast<float>(graphics_y_size);
-      glScaled(sf/aspect, sf, sf);
-
-      if (do_unproject) {
-    coot::Cartesian b = unproject(1);
-    coot::Cartesian f = unproject(0);
-    coot::Cartesian b_to_f_cart = f - b;
-
-    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-    coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-    coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
-
-    coot::Cartesian screen_x = (right - centre);
-    // coot::Cartesian screen_y = (top   - centre);
-    coot::Cartesian screen_y = (centre - top);
-    coot::Cartesian screen_z = (front - centre);
-
-    screen_x.unit_vector_yourself();
-    screen_y.unit_vector_yourself();
-    screen_z.unit_vector_yourself();
-
-    float mat[16];
-    mat[ 0] = screen_x.x(); mat[ 1] = screen_x.y(); mat[ 2] = screen_x.z();
-    mat[ 4] = screen_y.x(); mat[ 5] = screen_y.y(); mat[ 6] = screen_y.z();
-    mat[ 8] = screen_z.x(); mat[ 9] = screen_z.y(); mat[10] = screen_z.z();
-
-    mat[ 3] = 0; mat[ 7] = 0; mat[11] = 0;
-    mat[12] = 0; mat[13] = 0; mat[14] = 0; mat[15] = 1;
-
-    glMultMatrixf(mat);
-
-      }
-
-#if 0
-      void *font = GLUT_STROKE_ROMAN;
-      if (mono_font)
-          font = GLUT_STROKE_MONO_ROMAN;
-#endif
-      for (unsigned int i=0; i<s.length(); i++) {
-          // glutStrokeCharacter(font, s[i]);
-          // space characters are full-width (105) - I don't like that, so slim them down
-          if (s[i] == ' ')
-             glTranslatef(-40, 0, 0);
-    }
-
-    glPopMatrix();
-
-   } else {
-
-#if 0
-      glRasterPos3f(x,y,z);
-      glPushAttrib (GL_LIST_BIT);
-      for (unsigned int i = 0; i < s.length(); i++)
-          glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
-      glPopAttrib();
-#endif
-   }
+   // Don't do this. Delete this function.
 }
 
 
 void
 graphics_info_t::environment_graphics_object_internal_tube(const coot::CartesianPair &pair,
-      int ipart, int n_parts) const {
+                                                           int ipart, int n_parts) const {
 
    coot::Cartesian bond_vec = pair.getFinish() - pair.getStart();
    coot::Cartesian bond_frag = bond_vec * (1.0/double(n_parts));
@@ -3853,9 +3724,12 @@ graphics_info_t::draw_baton_object() {
 
    if (graphics_info_t::draw_baton_flag) {
 
-      if (false)
-    std::cout << "baton from " << baton_root << " to " << baton_tip
-      << " draw_baton_flag: " << draw_baton_flag << std::endl;
+      if (true)
+         std::cout << "baton from " << baton_root << " to " << baton_tip
+                   << " draw_baton_flag: " << draw_baton_flag << std::endl;
+
+#if 0
+      // needs replacing
 
       coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
       coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
@@ -3883,6 +3757,8 @@ graphics_info_t::draw_baton_object() {
       glVertex3f(baton_tip.x(), baton_tip.y(), baton_tip.z());
       glVertex3f(rp_2.x(), rp_2.y(), rp_2.z());
       glEnd();
+#endif      
+
    }
 
 }
@@ -4110,6 +3986,10 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
    diff  = mouse_current_x - GetMouseBeginX();
    diff += mouse_current_y - GetMouseBeginY();
 
+#if 0
+
+   // needs replacing
+
    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
    coot::Cartesian screen_z = (front - centre);
@@ -4121,6 +4001,8 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
 
    baton_tip = to_cartesian(new_pos);
    graphics_draw();
+#endif   
+
 }
 
 void

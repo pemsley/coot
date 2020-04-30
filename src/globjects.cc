@@ -2310,7 +2310,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	    } else {
 	       // info.in_moving_atoms_drag_atom_mode_flag test
 
-	       short int handled_non_atom_drag_event = 0;
+	       bool handled_non_atom_drag_event = false;
 	       x_diff = x - info.GetMouseBeginX();
 	       y_diff = y - info.GetMouseBeginY();
 	       handled_non_atom_drag_event =

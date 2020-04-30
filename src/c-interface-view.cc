@@ -50,15 +50,24 @@ void orient_view(int imol,
 	 try { 
 	    clipper::Coord_orth vec = g.molecules[imol].get_vector(central_residue_spec,
 								   neighbour_residue_spec);
-	    coot::Cartesian b = unproject(1);
-	    coot::Cartesian f = unproject(0);
+
+            // Use coot::ScreenVectors here (remove duplication)
+
+            glm::vec4 glm_back  = g.unproject(1.0);
+            glm::vec4 glm_front = g.unproject(0.0);
+	    coot::Cartesian b(glm_back.x, glm_back.y, glm_back.z);
+	    coot::Cartesian f(glm_front.x, glm_front.y, glm_front.z);
 	    coot::Cartesian vec_cart(vec);
 	    coot::Cartesian b_to_f_cart = f - b;
 
-	    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-	    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-	    coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-	    coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+	    glm::vec4 glm_centre = g.unproject(0, 0, 0.5);
+	    glm::vec4 glm_right  = g.unproject(1, 0, 0.5);
+	    glm::vec4 glm_top    = g.unproject(0, 1, 0.5);
+
+	    coot::Cartesian centre(glm_centre.x, glm_centre.y, glm_centre.z);
+	    coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+	    coot::Cartesian right(glm_right.x, glm_right.y, glm_right.z);
+	    coot::Cartesian top(glm_top.x, glm_top.y, glm_top.z);
 
 	    coot::Cartesian screen_x = (right - centre);
 	    coot::Cartesian screen_y = (top   - centre);

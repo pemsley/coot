@@ -12,9 +12,9 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
-
-coot::Cartesian unproject(float screen_z);
-coot::Cartesian unproject_xyz(int x, int y, float screen_z);
+// These unproject functions now return a glm::vec4 and are in graphics_info_t
+// coot::Cartesian unproject(float screen_z);
+// coot::Cartesian unproject_xyz(int x, int y, float screen_z);
 
 class pick_info {
    public:
@@ -86,7 +86,11 @@ enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND, PICK_ATOM_
 pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
 
 
-pick_info atom_pick_gtk3();
+pick_info atom_pick_gtk3(); // and that wraps the below function:
+
+// Now in graphics_info_t
+// pick_info atom_pick_gtk3(bool intermediate_atoms_only_flag);
+
 
 // pick_info moving_atoms_atom_pick(); not here, it's in graphics.
 

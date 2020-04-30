@@ -17,3 +17,7 @@ void my_glarea_add_signals_and_events(GtkWidget *glarea);
 void remap_key(const std::string &description, int);
 
 // void reset_frame_buffers();
+
+// moved into graphics_info_t
+// glm::vec4 new_unproject(float z);
+

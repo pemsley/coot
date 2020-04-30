@@ -31,9 +31,6 @@ enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
 gint idle_contour_function(gpointer data);
 
-// maybe this can go in the draw-2.hh header
-glm::vec4 new_unproject(float z);
-
 
 float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
       // positions   // texCoords
@@ -244,16 +241,22 @@ graphics_info_t::get_molecule_mvp() {
       glm::vec4 up_1(0,1,0,1);
       glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
       glm::vec4 up_2 = trackball_matrix * up_1;
-      glm::vec3 up = glm::vec3(up_2);
+      glm::vec3 up = glm::normalize(glm::vec3(up_2));
       
       glm::vec3 ep = eye_position;
+      glm::vec4 ep_trial = trackball_matrix * glm::vec4(0,0,10,1);
+      ep = glm::vec4(ep_trial);
 
-      if (false)
-         std::cout << "eye position " << glm::to_string(ep) << " rc " << glm::to_string(rc)
-                   << " up " << glm::to_string(up) << std::endl;
+      if (true) {
+         glm::vec3 rc_from_eye(rc - ep);
+         double dp = glm::dot(rc_from_eye, up);
+         double cos_theta = dp/(glm::distance(rc, ep));
+         std::cout << "cos_theta " << cos_theta << " eye_pos " << glm::to_string(ep)
+                   << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
+      }
 
       view_matrix = glm::lookAt(ep, rc, up);
-      fov = 30.0; // degrees
+      fov = 25.0; // degrees
 
       glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
                                                            screen_ratio,
@@ -300,12 +303,10 @@ graphics_info_t::get_eye_position() {
 }
 
 glm::vec4
-graphics_info_t::new_unproject(float z) {
+graphics_info_t::unproject(float z) {
 
-   std::cout << "This is not used (is it?) A " << std::endl;
-   return glm::vec4(0,1,0,1);
-#if 0
    // z is 1 and -1 for front and back (or vice verse).
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    float w = allocation.width;
@@ -314,45 +315,21 @@ graphics_info_t::new_unproject(float z) {
    float mouseX = 2.0 *    g.GetMouseBeginX()/w  - 1.0f;
    float mouseY = 2.0 * (h-g.GetMouseBeginY())/h - 1.0f;
    std::cout << "debug in new_unproject widget w and h " << w << " " << h << std::endl;
-   std::cout << "debug in new_unproject mouse x and y widget  " << g.GetMouseBeginX() << " " << g.GetMouseBeginY() << std::endl;
+   std::cout << "debug in new_unproject mouse x and y widget  "
+             << g.GetMouseBeginX() << " "
+             << g.GetMouseBeginY() << std::endl;
    std::cout << "debug in new_unproject mouse x and y GL      " << mouseX << " " << mouseY << std::endl;
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, z, 1.0f);
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
-   // std::cout << "screen_pos " << glm::to_string(screenPos_f) << std::endl;
-   // std::cout << "world_pos " << glm::to_string(worldPos_f) << std::endl;
+   std::cout << "debug in new_unproject() screen_pos " << glm::to_string(screenPos_f) << std::endl;
+   std::cout << "debug in new_unproject() world_pos " << glm::to_string(worldPos_f) << std::endl;
    return worldPos_f;
-#endif
+
 }
 
-
-glm::vec4
-graphics_info_t::new_unproject(float x, float y, float z) {
-
-   std::cout << "This is not used (is it?) B" << std::endl;
-   return glm::vec4(0,1,0,1);
-
-#if 0
-   // z is 1 and -1 for front and back (or vice verse).
-   // GtkAllocation allocation;
-   // gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   // int w = allocation.width;
-   // int h = allocation.height;
-   glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 vp_inv = glm::inverse(mvp);
-   glm::vec4 screenPos_f = glm::vec4(x, y, z, 1.0f); // maybe +1
-   glm::vec4 worldPos_f = vp_inv * screenPos_f;
-   if (false) {
-      std::cout << "   " << glm::to_string(mvp) << std::endl;
-      std::cout << "   " << glm::to_string(vp_inv) << std::endl;
-      std::cout << "   " << glm::to_string(screenPos_f) << std::endl;
-      std::cout << "   " << glm::to_string(worldPos_f) << std::endl;
-   }
-   return worldPos_f;
-#endif
-}
 
 glm::mat4
 graphics_info_t::get_view_rotation() {
@@ -798,31 +775,20 @@ graphics_info_t::draw_molecular_triangles() {
    //
    // centre of the screen
    FCXXCoord pos(graphics_info_t::RotationCentre_x(),
-   graphics_info_t::RotationCentre_y(),
-   graphics_info_t::RotationCentre_z());
-   // where is the eye?  That's what we want.
-   // front plane is at z=0;
-   GtkAllocation allocation;
-   GtkWidget *widget = graphics_info_t::glareas[0];
-   if (! widget) return;
-   gtk_widget_get_allocation(widget, &allocation);
-   coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
-                                             allocation.height/2, 1);
-   FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
-   FCXXCoord diff = tp_1 - pos;
-   FCXXCoord eye_pos = pos + diff * 5.0;
+                 graphics_info_t::RotationCentre_y(),
+                 graphics_info_t::RotationCentre_z());
+
+   glm::vec3 eye_position = get_eye_position();
+   FCXXCoord eye_pos(eye_position.x, eye_position.y, eye_position.z);
+
    // std::cout << "eye_pos: " << eye_pos << "\n";
    // coot::Cartesian eye_cart = pos + 20 * diff;
    // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
    if (graphics_info_t::mol_tri_scene_setup) {
       if (graphics_info_t::mol_tri_renderer) {
          //Can retrieve reference to the light if so preferred
-         // This doesn't move the lights
-         // FCXXCoord random_trans(50.0 * coot::util::random()/float(RAND_MAX),
-         // 		           50.0 * coot::util::random()/float(RAND_MAX),
-         //                        50.0 * coot::util::random()/float(RAND_MAX));
-         FCXXCoord light_pos = pos + diff * 10; //  + random_trans;
-         FCXXCoord neg_light_pos = pos + diff * 10; // - random_trans;
+         FCXXCoord light_pos = pos;
+         FCXXCoord neg_light_pos = pos;
 
          graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
          graphics_info_t::mol_tri_scene_setup->getLight(1)->setTranslation(neg_light_pos);
@@ -1302,12 +1268,18 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    GdkModifierType state;
 
    if (true) { // check here for left-mouse click
-      if (was_a_double_click) {
-         pick_info nearest_atom_index_info = atom_pick(event);
-         if (nearest_atom_index_info.success == GL_TRUE) {
-            int im = nearest_atom_index_info.imol;
-            g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-            g.graphics_draw();
+
+      // implicit type cast
+      gboolean handled = g.check_if_moving_atom_pull(was_a_double_click);
+
+      if (! handled) {
+         if (was_a_double_click) {
+            pick_info nearest_atom_index_info = atom_pick_gtk3();
+            if (nearest_atom_index_info.success == GL_TRUE) {
+               int im = nearest_atom_index_info.imol;
+               g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+               g.graphics_draw();
+            }
          }
       }
    }
@@ -1382,6 +1354,12 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    // split this function up before it gets too big.
 
+   int x_as_int, y_as_int;
+   GdkModifierType mask;
+   GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+   GdkDevice *mouse = gdk_seat_get_pointer(seat);
+   gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
+
    bool control_is_pressed = false;
    bool   shift_is_pressed = false;
    if (event->state & GDK_CONTROL_MASK) control_is_pressed = true;
@@ -1394,11 +1372,30 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       if (control_is_pressed) {
          do_drag_pan_gtk3(widget);
       } else {
-         GtkAllocation allocation;
-         gtk_widget_get_allocation(widget, &allocation);
-         int w = allocation.width;
-         int h = allocation.height;
-         graphics_info_t::update_view_quaternion(w, h);
+
+         bool handled = false;
+         if (g.in_moving_atoms_drag_atom_mode_flag) {
+            if (g.last_restraints_size() > 0) {
+               // move an already picked atom
+               g.move_atom_pull_target_position(x_as_int, y_as_int);
+               handled = true;
+            } else {
+               // don't allow translation drag of the
+               // intermediate atoms when they are a rotamer:
+               //
+               if (! g.rotamer_dialog) {
+                  // e.g. translate an added peptide fragment.
+                  g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
+               }
+            }
+         }
+         if (! handled) {
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(widget, &allocation);
+            int w = allocation.width;
+            int h = allocation.height;
+            graphics_info_t::update_view_quaternion(w, h);
+         }
       }
    }
 

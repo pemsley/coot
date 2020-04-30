@@ -4532,7 +4532,7 @@ molecule_class_info_t::export_molecule_as_x3d() const {
          for (unsigned int i0=0; i0<draw_vector_sets.size(); i0++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i0]);
             for (std::size_t i=0; i<tri_con.normals.size(); i++) {
-               std::cout << "storing normal " << idx_for_normals << " " << tri_con.normals[i].format() << std::endl;
+               // std::cout << "storing normal " << idx_for_normals << " " << tri_con.normals[i].format() << std::endl;
                tc.normals[idx_for_normals] = tri_con.normals[i];
                idx_for_normals++;
             }

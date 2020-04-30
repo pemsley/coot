@@ -24,9 +24,39 @@ graphics_info_t::init_shaders() {
    graphics_info_t::shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
    graphics_info_t::shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
 
+}
 
+
+
+glm::vec4
+graphics_info_t::unproject(float x, float y, float z) {
+
+   // z is 1 and -1 for front and back (or vice verse).
+
+   if (! glareas[0]) return glm::vec4(0,0,0,0);
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(glareas[0], &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+
+   float mouseX = x / (w * 0.5f) - 1.0f;
+   float mouseY = (h - y) / (h * 0.5f) - 1.0f;
+
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   glm::vec4 screenPos_f = glm::vec4(mouseX, mouseY, z, 1.0f); // maybe +1
+   glm::vec4 worldPos_f = vp_inv * screenPos_f;
+   if (false) {
+      std::cout << "unproject(" << x << "," << y << "," << z << ")   " << glm::to_string(mvp) << std::endl;
+      std::cout << "unproject(" << x << "," << y << "," << z << ")   " << glm::to_string(vp_inv) << std::endl;
+      std::cout << "unproject(" << x << "," << y << "," << z << ")   " << glm::to_string(screenPos_f) << std::endl;
+      std::cout << "unproject(" << x << "," << y << "," << z << ")   " << glm::to_string(worldPos_f) << std::endl;
+   }
+   return worldPos_f;
 
 }
+
 
 int
 graphics_info_t::blob_under_pointer_to_screen_centre() {
@@ -161,7 +191,6 @@ graphics_info_t::adjust_clipping(float d) {
 
       }
 
-
       float screen_z_near_perspective_limit = l * 0.99;
       float screen_z_far_perspective_limit  = l * 1.01;
       if (screen_z_near_perspective > screen_z_near_perspective_limit)
@@ -182,9 +211,6 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
    graphics_info_t g;
    float tbs = g.get_trackball_size();
 
-   if (perspective_projection_flag)
-      tbs = 1.0;
-
    glm::quat tb_quat =
       g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - area_width)/area_width,
                                 (area_height - 2.0*g.GetMouseBeginY())/area_height,
@@ -192,7 +218,8 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
                                 (area_height - 2.0*g.mouse_current_y)/area_height,
                                 tbs);
 
-   if (! graphics_info_t::perspective_projection_flag) {
+   // if (! graphics_info_t::perspective_projection_flag) {
+   if (true) { // do both cases
 
       tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
       glm::quat product = tb_quat * glm_quat;

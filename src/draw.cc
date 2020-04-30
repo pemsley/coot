@@ -261,8 +261,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) {
-         coot::Cartesian front = unproject(0.0);
-         coot::Cartesian back  = unproject(1.0);
+         coot::Cartesian front; // = unproject(0.0);
+         coot::Cartesian back; //  = unproject(1.0);
          coot::Cartesian front_to_back = back - front;
          coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
          // glTranslatef(fbs.x(), fbs.y(), fbs.z());
@@ -395,7 +395,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       graphics_info_t::draw_atom_pull_restraint();
 
       // regularize object
-      graphics_info_t::draw_moving_atoms_graphics_object(is_bb);
+      // graphics_info_t::draw_moving_atoms_graphics_object(is_bb); gone
 
       // restraints for regularize/moving atoms object
       graphics_info_t::draw_moving_atoms_restraints_graphics_object();
@@ -526,8 +526,8 @@ void draw_molecular_triangles(GtkWidget *widget) {
    // front plane is at z=0;
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
-   coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
-                                             allocation.height/2, 1);
+   coot::Cartesian tp_1_cart; //  = unproject_xyz(allocation.width/2,
+                              //                  allocation.height/2, 1);
    FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
    FCXXCoord diff = tp_1 - pos;
    FCXXCoord eye_pos = pos + diff * 5.0;

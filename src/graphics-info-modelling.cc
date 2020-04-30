@@ -3749,10 +3749,16 @@ graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) {
 
 coot::ScreenVectors::ScreenVectors() {
 
-   coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-   coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-   coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-   coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+   graphics_info_t g;
+   glm::vec4 glm_centre = g.unproject(0, 0, 0.5);
+   glm::vec4 glm_front  = g.unproject(0, 0, 0.0);
+   glm::vec4 glm_right  = g.unproject(1, 0, 0.5);
+   glm::vec4 glm_top    = g.unproject(0, 1, 0.5);
+
+   coot::Cartesian centre(glm_centre.x, glm_centre.y, glm_centre.z);
+   coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+   coot::Cartesian right(glm_right.x, glm_right.y, glm_right.z);
+   coot::Cartesian top(glm_top.x, glm_top.y, glm_top.z);
 
    screen_x = (right - centre);
    screen_y = (top   - centre);
@@ -3974,11 +3980,11 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
 	 angle *= -5;
       coot::Cartesian rc = g.RotationCentre();
       clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
-      coot::Cartesian front_centre = unproject(0.0);
-      coot::Cartesian  back_centre = unproject(1.0);
-      coot::Cartesian ftb = back_centre - front_centre;
-      clipper::Coord_orth around_vec(ftb.x(), ftb.y(), ftb.z());
-     g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
+      glm::vec4 front_centre = unproject(0.0);
+      glm::vec4  back_centre = unproject(1.0);
+      glm::vec4 ftb = back_centre - front_centre;
+      clipper::Coord_orth around_vec(ftb.x, ftb.y, ftb.z);
+      g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
       graphics_draw();
    }
 }

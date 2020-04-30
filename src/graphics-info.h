@@ -1684,6 +1684,8 @@ public:
    int intelligent_previous_atom_centring(GtkWidget *widget);
    int intelligent_near_atom_centring(GtkWidget *widget, const std::string &direction);
 
+   pick_info atom_pick_gtk3(bool intermediate_atoms_only_flag) const;
+
    pick_info find_atom_index_from_goto_info(int imol);
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
    mmdb::Atom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
@@ -2774,7 +2776,7 @@ public:
    //
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
-   void check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
+   bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
@@ -4065,8 +4067,8 @@ string   static std::string sessionid;
    static glm::mat4 get_molecule_mvp();
    static glm::mat4 get_model_view_matrix();
    static glm::vec3 get_eye_position();
-   static glm::vec4 new_unproject(float z);
-   static glm::vec4 new_unproject(float x, float y, float z);
+   static glm::vec4 unproject(float z);
+   static glm::vec4 unproject(float x, float y, float z);
    static glm::mat4 get_view_rotation();
    static void setup_map_uniforms(const Shader &shader, // in the draw loop
                                   const glm::mat4 &mvp,
