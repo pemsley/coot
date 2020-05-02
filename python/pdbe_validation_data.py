@@ -588,6 +588,7 @@ class validation_entry_to_canvas:
     def on_drawing_area_expose(self, da, event):
 	style = da.get_style()
 	gc = style.fg_gc[gtk.STATE_NORMAL]
+	black_color = gtk.gdk.Color(red=0, green=0, blue=0)
 
 	n_sliders = self.draw_sliders(da, gc)
 	self.draw_top_labels(da, gc)

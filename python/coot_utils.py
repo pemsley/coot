@@ -345,7 +345,7 @@ def add_hydrogens_to_chain_using_refmac(imol, chain_id):
     make_directory_maybe('coot-refmac')
     write_chain_to_pdb_file(imol, chain_id, out_file_name)
     return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
-    
+
 
 def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
 
@@ -354,13 +354,14 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
 			   ['MAKE HOUT YES', 'NCYCLE 0', 'END'],
 			   'refmac-H-addition.log', 0)
     try:
-	if (status == 0):
-	    # all good
-	    return add_hydrogens_from_file(imol, in_file_name)
+        if status == 0:
+            # all good
+            return add_hydrogens_from_file(imol, in_file_name)
+        else:
+            return False
     except:
-	return False
-	
-	      
+        return False
+
 
 # set this to a function accepting two argument (the molecule number
 # and the manipulation mode) and it will be run after a model
@@ -529,7 +530,7 @@ def residue_atom_to_atom_name(ra):
     else:
         return ra[0][0]
 
-def residue_atom_to_postion(ra):
+def residue_atom_to_position(ra):
     if not isinstance(ra, list):
         return False
     else:
@@ -1518,9 +1519,9 @@ def transform_map(*args):
     return ret
 
 
-# return then NCS master of the first molecule that has ncs.
+# return the NCS master of the first molecule that has NCS.
 # 
-# return "" on fail to find an ncs chain
+# return "" on fail to find an NCS chain
 #
 def get_first_ncs_master_chain():
 
@@ -2448,7 +2449,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         else:
             print "we have dict and model for tlc already"
             return have_tlc_molecule
-    
+
     #
     def mutate_it():
         imol_ligand = get_monomer_and_dictionary(tlc)
@@ -3137,6 +3138,10 @@ def remove_annotation_here(rad=1.5):
     handle = text_index_near_position(*args)
     if handle > -1:
         remove_text(handle)
+    else:
+        txt = "BL WARNING:: no annotation found near here (%s A radius)\n" %rad
+        txt += "Not removing anything!"
+        info_dialog(txt)
 
 def remove_annotation_at_click(rad=1.5):
     def remove_here(*args):
@@ -4539,31 +4544,31 @@ def setup_ccp4():
             CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
             # not all required I guess!? They should be set anyway
             ccp4_env_vars = {
-                "CCP4_SCR": ["C:\ccp4temp"],
-                "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84\bin"],
-                "CBIN": [CCP4, "\bin"],
-                "CLIB": [CCP4, "\lib"],
-                "CLIBD": [CCP4, "\lib\data"],
-                "CEXAM": [CCP4, "\examples"],
-                "CHTML": [CCP4, "\html"],
-                "CINCL": [CCP4, "\include"],
-                "CCP4I_TOP": [CCP4, "\share\ccp4i"],
-                "CLIBD_MON": [CCP4, "\lib\data\monomers\\"],
-                "MMCIFDIC": [CCP4, "\lib\ccp4\cif_mmdic.lib"],
-                "CRANK": [CCP4, "\share\ccp4i\crank"],
+                "CCP4_SCR": ["C:\\ccp4temp"],
+                "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84", "bin"],
+                "CBIN": [CCP4, "bin"],
+                "CLIB": [CCP4, "lib"],
+                "CLIBD": [CCP4, "lib", "data"],
+                "CEXAM": [CCP4, "examples"],
+                "CHTML": [CCP4, "html"],
+                "CINCL": [CCP4, "include"],
+                "CCP4I_TOP": [CCP4, "share", "ccp4i"],
+                "CLIBD_MON": [CCP4, "lib", "data", "monomers"],
+                "MMCIFDIC": [CCP4, "lib", "ccp4", "cif_mmdic.lib"],
+                "CRANK": [CCP4, "share", "ccp4i", "crank"],
                 "CCP4_OPEN": ["unknown"],
                 "GFORTRAN_UNBUFFERED_PRECONNECTED": ["Y"]
                 }
             for env_var in ccp4_env_vars:
                 env_dir = os.getenv(env_var)
                 if not env_dir:
-                    # variable not set, so let do so if exists
+                    # variable not set or empty, so let do so if exists
+                    key = ccp4_env_vars[env_var]
                     if len(key) > 1:
-                        if os.path.isdir(env_dir):
-                            # have dir so set variable
-                            key = ccp4_env_vars[env_var]
-                            value = os.path.join(key)
+                        # dir should be:
+                        value = os.path.join(*key)
                             #print "BL DEBUG:: set env variable to", env_var, value
+                        if os.path.isdir(value):
                             os.environ[env_var] = value
                     else:
                         value = key[0]
@@ -4671,30 +4676,54 @@ def rename_alt_confs_active_residue():
 
         rename_alt_confs(imol, chain_id, resno, inscode)
 
-def write_current_sequence_as_pir(imol, ch_id, file_name):
-    print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+# Util function to pipe Coot C stdout to a file (Note: python stdout doesnt
+# touch C stdout, therefore this is needed. Of course could just tee out
+# all output, but that may not always be required).
+#
+# based on https://stackoverflow.com/questions/4675728/redirect-stdout-to-a-file-in-python
+#
+# use either e.g. with open file fn (fn= open(...)):
+#
+# with stdout_redirected(fn):
+#   do some coot things
+#
+# or:
+# with open('output.txt', 'w') as f, stdout_redirected(f):
+#  some coot commands
+#
 
-def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
+import os
+import sys
+from contextlib import contextmanager
 
-    current_sequence_pir_file = "current-sequence.pir"
-    aligned_sequence_pir_file = "aligned-sequence.pir"
-    clustalw2_output_file_name = "clustalw2-output-file.log"
+def fileno(file_or_fd):
+    fd = getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
+    if not isinstance(fd, int):
+        raise ValueError("Expected a file (`.fileno()`) or a file descriptor")
+    return fd
 
-    if os.path.exists("aligned-sequence.pir"):
-        os.remove("aligned-sequence.pir")
-    if os.path.exists("aligned-sequence.dnd"):
-        os.remove("aligned-sequence.dnd")
-    if os.path.exists("current-sequence.dnd"):
-        os.remove("current-sequence.dnd")
+@contextmanager
+def stdout_redirected(to=os.devnull, stdout=None):
+    if stdout is None:
+       stdout = sys.stdout
 
-    write_current_sequence_as_pir(imol, ch_id, current_sequence_pir_file)
-
-    data_lines = ["3", "1", target_sequence_pir_file, "2", current_sequence_pir_file,
-                  "9", "2", "", "4", "", aligned_sequence_pir_file, "", "x", "", "x"]
-    popen_command("clustalw2", [], data_lines, clustalw2_output_file_name, 0)
-    associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
-    apply_pir_alignment(imol, ch_id)
-    simple_fill_partial_residues(imol)
+    stdout_fd = fileno(stdout)
+    # copy stdout_fd before it is overwritten
+    #NOTE: `copied` is inheritable on Windows when duplicating a standard stream
+    with os.fdopen(os.dup(stdout_fd), 'wb') as copied: 
+        stdout.flush()  # flush library buffers that dup2 knows nothing about
+        try:
+            os.dup2(fileno(to), stdout_fd)  # $ exec >&to
+        except ValueError:  # filename
+            with open(to, 'wb') as to_file:
+                os.dup2(to_file.fileno(), stdout_fd)  # $ exec > to
+        try:
+            yield stdout # allow code to be run with the redirected stdout
+        finally:
+            # restore stdout to its previous value
+            #NOTE: dup2 makes stdout_fd inheritable unconditionally
+            stdout.flush()
+            os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
 
 ####### Back to Paul's scripting.

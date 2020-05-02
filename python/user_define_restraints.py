@@ -1,3 +1,19 @@
+# Copyright 2013 by Bernhard Lohkamp
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
 def res_name_from_atom_spec(atom_spec):
   imol = atom_spec[1]
   res_name = residue_name(imol,
@@ -7,7 +23,7 @@ def res_name_from_atom_spec(atom_spec):
   return res_name
 
 def user_defined_add_single_bond_restraint():
-  
+
   add_status_bar_text("Click on 2 atoms to define the additional bond restraint")
   def make_restr(*args):
     atom_spec_1 = args[0]
@@ -26,10 +42,10 @@ def user_defined_add_single_bond_restraint():
                              atom_spec_2[5],
                              atom_spec_2[6],
                              1.54, 0.02)  # generic distance?!
-    
+
   user_defined_click(2, make_restr)
 
-  
+
 def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
 
   # maybe make a generic one....
@@ -64,7 +80,7 @@ def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
       user_defined_click(2, make_restr_dist)
       if continue_qm:
         user_defined_add_arbitrary_length_bond_restraint(bl)
-      
+
   def stay_open(*args):
     pass
   #generic_single_entry("Add a User-defined extra distance restraint",
@@ -87,7 +103,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
   """
 
   print "add_base_restraint", imol, spec_1, spec_2, atom_name_1, atom_name_2, dist
-  
+
   add_extra_bond_restraint(imol,
                            spec_1[2],
                            spec_1[3],
@@ -139,7 +155,7 @@ def dna_g_c_restraints(spec_1, spec_2):
   add_base_restraint(imol, spec_1, spec_2, " N2 ", " O2 ", 2.83)
   add_base_restraint(imol, spec_1, spec_2, " N9 ", " N1 ", 8.83)
 
-  
+
 def user_defined_RNA_A_form():
   def make_restr(*args):
     spec_1 = args[0]
@@ -191,7 +207,7 @@ def user_defined_DNA_B_form():
 
   user_defined_click(2, make_restr)
 
-    
+
 def user_defined_add_helix_restraints():
   def make_restr(*args):
     spec_1 = args[0]
@@ -218,7 +234,7 @@ def user_defined_add_helix_restraints():
                                    chain_id_1, rn    , "", " O  ", "",
                                    chain_id_1, rn + 4, "", " N  ", "",
                                    2.91, 0.035)
-        
+
   user_defined_click(2, make_restr)
 
 def user_defined_delete_restraint():
@@ -227,15 +243,15 @@ def user_defined_delete_restraint():
     spec_2 = args[1]
     imol   = spec_1[1]
     delete_extra_restraint(imol, ["bond", spec_1[2:], spec_2[2:]])
-  
+
   user_defined_click(2, del_restr)
 
 
-# exte dist first chain A resi 19 ins . atom  N   second chain A resi 19 ins . atom  OG  value 2.70618 sigma 0.4
+# Example of a stack restraint: "exte dist first chain A resi 19 ins . atom  N   second chain A resi 19 ins . atom  OG  value 2.70618 sigma 0.4"
 #
 def extra_restraints2refmac_restraints_file(imol, file_name):
   restraints = list_extra_restraints(imol)
-  
+
   if restraints:
     fin = open(file_name, 'w')
     for restraint in restraints:
@@ -380,7 +396,7 @@ def add_parallel_planes_restraint(imol, rs_0, rs_1):
 def user_defined_add_planes_restraint():
 
   add_status_bar_text("Click on 2 atoms to define the additional parallel planes restraint")
-  
+
   def make_restr(*args):
     atom_0 = args[0]
     atom_1 = args[1]
@@ -407,12 +423,12 @@ def user_defined_add_planes_restraint():
                                           rs_0, rs_1,
                                           atom_ls_0, atom_ls_1)
     add_refmac_extra_restraints(imol, "tmp.rst")
-    
+
   user_defined_click(2, make_restr)
-    
+
 if (have_coot_python):
   if coot_python.main_menubar():
-    
+
     menu = coot_menubar_menu("Restraints")
 
     add_simple_coot_menu_menuitem(
@@ -501,12 +517,12 @@ if (have_coot_python):
                            delete_all_extra_restraints(imol)))
       
 
-    
+
     def set_prosmart_sigma_limit_func(low, high):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         set_extra_restraints_prosmart_sigma_limits(aa_imol, low, high)
-    
+
     add_simple_coot_menu_menuitem(
       menu,
       "ProSMART restraints interesting limit to 0.5...",
@@ -561,7 +577,7 @@ if (have_coot_python):
     def delete_restraints_func():
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
         delete_extra_restraints_for_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
-        
+
     add_simple_coot_menu_menuitem(
       menu,
       "Delete Restraints for this residue",
@@ -575,7 +591,7 @@ if (have_coot_python):
           delete_extra_restraints_worse_than(aa_imol, n)
       except:
         print "BL WARNING:: no float given"
-      
+
     add_simple_coot_menu_menuitem(
       menu,
       "Delete Deviant Extra Restraints...",
@@ -583,18 +599,18 @@ if (have_coot_python):
                                         "4.0", " Delete Outlying Restraints ",
                                         lambda text: del_deviant_restr_func(text))
       )
-    
+
     add_simple_coot_menu_menuitem(
       menu,
       "Save as REFMAC restraints...",
       lambda func:
       generic_chooser_and_file_selector("Save REFMAC restraints for molecule",
                                         valid_model_molecule_qm,
-                                        " Restraints file name:  ", 
+                                        " Restraints file name:  ",
                                         "refmac-restraints.txt",
                                         lambda imol, file_name:
                                           extra_restraints2refmac_restraints_file(imol, file_name)))
-    
+
 
     add_simple_coot_menu_menuitem(
       menu,
@@ -602,8 +618,4 @@ if (have_coot_python):
       lambda func:
       user_defined_add_planes_restraint()
       )
-  
-  
 
-
-                           

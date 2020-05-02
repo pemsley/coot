@@ -16,6 +16,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+def add_module_carbohydrate():
+
+    # add_linked_residue_tree_correlation_cut_off = 0.45
+
+    set_refinement_geman_mcclure_alpha(4.2)
+    read_acedrg_pyranose_dictionaries()
+
+    if (have_coot_python):
+        if coot_python.main_menubar():
+            add_module_carbohydrate_gui()
+    
 
 # For each residue in the protein (molecule number @var{imol}), do a
 # rotamer fit and real-space refinement.  Update the graphics and
@@ -186,7 +197,9 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     chain_id = res_spec[1]
     res_no   = res_spec[2]
     ins_code = res_spec[3]
+    current_steps_per_frame = dragged_refinement_steps_per_frame()
     current_rama_state = refine_ramachandran_angles_state()
+    set_dragged_refinement_steps_per_frame(400)
     
     for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
         if use_rama:
@@ -204,6 +217,7 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
             rotate_y_scene(10, 0.3)    
 
     set_refine_ramachandran_angles(current_rama_state)
+    set_dragged_refinement_steps_per_frame(current_steps_per_frame)
 
     
 def fit_protein_rama_fit_function(res_spec, imol_map):
@@ -503,15 +517,18 @@ def stepped_refine_protein_for_rama(imol):
     if (not valid_map_molecule_qm(imol_map)):
         info_dialog("Oops, must set map to refine to")
     else:
+        current_steps_frame = dragged_refinement_steps_per_frame()
         current_rama_state  = refine_ramachandran_angles_state()
         def refine_func(chain_id, res_no):
             set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
             refine_auto_range(imol, chain_id, res_no, "")
             accept_regularizement()
 
+        set_dragged_refinement_steps_per_frame(400)
         set_refine_ramachandran_angles(1)
         stepped_refine_protein_with_refine_func(imol, refine_func, 1)
         set_refine_ramachandran_angles(current_rama_state)
+        set_dragged_refinement_steps_per_frame(current_steps_frame)
 
 #
 def stepped_refine_protein_with_refine_func(imol, refine_func, res_step):

@@ -265,11 +265,13 @@ def poly_ala(imol, res_type = False):
 # 
 def delete_sidechain_range(imol, chain_id, resno_start, resno_end):
 
-   make_backup(imol)
-   backup_mode = backup_state(imol)
-   turn_off_backup(imol)
-   for resno in number_list(resno_start,resno_end):
-      delete_residue_sidechain(imol, chain_id, resno, "", 0)
-   if (backup_mode == 1):
-      turn_on_backup(imol)
+   if valid_model_molecule_qm(imol):
+      make_backup(imol)
+      backup_mode = backup_state(imol)
+      imol_map = imol_refinement_map()
+      turn_off_backup(imol)
+      for resno in number_list(resno_start, resno_end):
+         delete_residue_sidechain(imol, chain_id, resno, "", 0)
+      if (backup_mode == 1):
+         turn_on_backup(imol)
                 

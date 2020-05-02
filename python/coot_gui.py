@@ -1463,6 +1463,7 @@ def interesting_residues_gui(imol, title, interesting_residues):
              [residue_cpmd[0] + " " +
               str(residue_cpmd[1]) + " " +
               residue_cpmd[2] + " " +
+              residue_name(imol, *residue_cpmd[0:3]) + " " +
               centre_atom[0] + " " + centre_atom[1],
               imol, residue_cpmd[0], residue_cpmd[1], residue_cpmd[2],
               centre_atom[0], centre_atom[1]] if centre_atom else
@@ -4626,10 +4627,10 @@ def solvent_ligands_gui():
 
          else:
             print "======== not jiggling - no map ======== "
-            if valid_model_molecule_qm(imol):
-               merge_molecules([imol_ligand], imol)
-               set_mol_active(imol_ligand, 0)
-               set_mol_displayed(imol_ligand, 0)
+         if valid_model_molecule_qm(imol):
+            merge_molecules([imol_ligand], imol)
+            set_mol_active(imol_ligand, 0)
+            set_mol_displayed(imol_ligand, 0)
    
    # add a button for a 3-letter-code to the scrolled vbox that runs
    # add-ligand-func when clicked.
@@ -5293,9 +5294,9 @@ def click_protein_db_loop_gui():
                                          ] + buttons,
                                         " Close ",
                                         lambda: map(lambda im: (set_mol_displayed(im, 0), set_mol_active(im,0)), loop_mols))
-                 
+
       user_defined_click(n, pick_func)
-      
+
    generic_number_chooser(range(2,10), 4,
                           "Number of residues for basis",
                           "Pick Atoms...",
@@ -5336,7 +5337,7 @@ def refmac_multi_sharpen_gui():
             return
          print "active_item_imol", active_item_imol
          step_size = max_b/n_levels
-         numbers_string = ' '.join(str(i+1) for i in range(n_levels))
+         numbers_string = ' '.join(str((i+1) * step_size) for i in range(n_levels))
          blur_string = "SFCALC BLUR  " + numbers_string
          sharp_string = "SFCALC SHARP " + numbers_string
 
@@ -5375,7 +5376,6 @@ def refmac_multi_sharpen_gui():
                pass
          delete_event(widget)
 
-   print "BL DEBUG:: now make a windwo"
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    # boxes
    vbox = gtk.VBox(False, 4)
@@ -5409,6 +5409,7 @@ def refmac_multi_sharpen_gui():
    hbox_2.pack_start(sb_label, False, False, 2)
    hbox_2.pack_start(option_menu_n_levels, False, False, 2)
    hbox_2.pack_start(levels_label, False, False, 2)
+   hbox_2.pack_start(option_menu_b_factor, False, False, 2)
    hbox_3.pack_end(cancel_button, False, False, 12)
    hbox_3.pack_end(ok_button, False, False, 12)
 
@@ -5895,6 +5896,68 @@ def yes_no_dialog(label_text, title_text=None):
    
    return ret
 
+# A gui to list Ramachandran outliers etc.
+# May become more sophisticated at some point
+#
+def rama_outlier_gui():
+   """
+   A gui to list Ramachandran outliers etc.
+   A first draft, may become more sophisticated at some point
+   """
+
+   def list_rama_outliers(imol):
+
+      r = all_molecule_ramachandran_region(imol)
+      outliers = []
+      allowed = []
+      for res in r:
+         if res[1] == 0:
+            outliers.append(res[0])
+         if res[1] == 1:
+            allowed.append(res[0])
+
+      def make_buttons(res_list, label_string):
+         ret = []
+         for res_spec in res_list:
+            chain_id = res_spec[1]
+            res_no = res_spec[2]
+            label = label_string + ": " + \
+                    chain_id + " " + str(res_no)
+            func = [cmd2str(set_go_to_atom_molecule, imol),
+                    cmd2str(set_go_to_atom_from_res_spec, res_spec)]
+            ret.append([label, func])
+
+         return ret
+
+      outlier_buttons = make_buttons(outliers, "Outlier")
+      allowed_buttons = make_buttons(allowed, "Allowed")
+      all_buttons = outlier_buttons + allowed_buttons
+
+      def clear_and_add_back(vbox, outliers_list, allowed_list, filter_flag):
+         # clear
+         children = vbox.get_children()
+         map(lambda c: c.destroy(), children)
+         # add back
+         if not filter_flag:
+            buttons = outliers_list + allowed_list
+         else:
+            # filter
+            buttons = outliers_list
+         map(lambda button_info: add_button_info_to_box_of_buttons_vbox(button_info, vbox),
+             buttons)
+
+      dialog_box_of_buttons_with_check_button(
+          " Ramachandran issues ", [300, 300], [], "  Close  ",
+          "Outliers only",
+          lambda check_button, vbox: clear_and_add_back(vbox, outlier_buttons, allowed_buttons, True)
+          if check_button.get_active() else
+          clear_and_add_back(vbox, outlier_buttons, allowed_buttons, False),
+          False)
+
+   molecule_chooser_gui(
+     "List Rama outliers for which molecule?",
+          lambda imol: list_rama_outliers(imol))
+   
    
 # let the c++ part of mapview know that this file was loaded:
 

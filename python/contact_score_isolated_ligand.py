@@ -15,7 +15,7 @@ def contact_score_ligand(imol, res_spec):
     global probe_command
 
     if not command_in_path_qm(probe_command):
-        print "BL INFO:: no probe command find, so no contact score"
+        print("INFO:: no probe command find, so no contact score")
         return False
 
     deactivate_molecules_except(imol)

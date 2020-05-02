@@ -1,8 +1,7 @@
 
+def add_module_prosmart():
 
-def add_module_restraints():
-
-    if have_coot_python:
+    if (have_coot_python):
         if coot_python.main_menubar():
             menu = coot_menubar_menu("Restraints")
 
@@ -11,11 +10,18 @@ def add_module_restraints():
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     generate_self_restraints(aa_imol, val)
 
-            def generate_self_restraint_func(sig):
+            # Generate self resraints for chains (or all molecule)
+            def generate_self_restraint_func(sig, all_mol=False):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    generate_local_self_restraints(aa_imol, aa_chain_id, sig)
+                    if not all_mol:
+                        # chains
+                        generate_local_self_restraints(aa_imol, aa_chain_id, sig)
+                    else:
+                        # all molecule
+                        generate_local_self_restraints(aa_imol, sig)
 
+            # Generate self restraints for residues around sphere
             def generate_self_restraint_in_sphere_func():
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -43,7 +49,11 @@ def add_module_restraints():
                 lambda func: generate_self_restraint_func(6))
 
             add_simple_coot_menu_menuitem(
-                menu, "Generate Local Self Restraints 5",
+                menu, "Generate All-Molecule Self Restraints 4.3",
+                lambda func: generate_self_restraint_func(4.3, True))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Generate Local Self Restraints 6",
                 lambda func: generate_self_restraint_in_sphere_func())
 
             add_simple_coot_menu_menuitem(
@@ -68,17 +78,6 @@ def add_module_restraints():
                 lambda func: display_extra_restraints_func(1))
 
 
-def add_module_prosmart():
-    
-    if (have_coot_python):
-        if coot_python.main_menubar():
-            menu = coot_menubar_menu("ProSMART")
-
-            def generate_self_restraint_func(sig):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    generate_local_self_restraints(aa_imol, aa_chain_id, sig)
-                        
             def prosmart_cut_to_func(sig_low, sig_high):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -99,11 +98,11 @@ def add_module_prosmart():
             add_simple_coot_menu_menuitem(
                 menu, "Show Only Deviant Distances Beyond 1.0",
                 lambda func: prosmart_cut_to_func(-1, 1))
-            
+
             add_simple_coot_menu_menuitem(
                 menu, "Undisplay All Extra Distance Restraints",
                 lambda func: prosmart_cut_to_func(0, 0))
-            
+
             def restraint_to_ca_func(state):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -116,9 +115,9 @@ def add_module_prosmart():
             add_simple_coot_menu_menuitem(
                 menu, "Restraint Representation To Home Atom",
                 lambda func: restraint_to_ca_func(0))
-            
+
             ## extra
-            
+
             # def delete_all_extra_restraints_func():
             #     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
             #                                aa_ins_code, aa_atom_name, aa_alt_conf]:

@@ -181,22 +181,10 @@ if (have_coot_python):
      menuitem_7 = coot_menu_add_submenu("Edit", "Settings...",
                                         submenu_settings)
 
-
-     # submenu_refine = gtk.Menu()
-     # menuitem_5 = gtk.MenuItem("Refine...")
-     # menuitem_5.set_submenu(submenu_refine)
-     # menu.append(menuitem_5)
-     # menuitem_5.show()
-
-     # submenu_pdbe = gtk.Menu()
-     # menuitem_pdbe = gtk.MenuItem("PDBe...")
      #menuitem_pdbe.set_submenu(submenu_pdbe)
      #menu.append(menuitem_pdbe)
      #menuitem_pdbe.show()
-
-     # not yet - not working - see above
-     # if not show_extensions:
-     #   extensions_menu.hide_all()
+     
      
 
      #---------------------------------------------------------------------
@@ -277,13 +265,12 @@ if (have_coot_python):
          global continue_multi_refine
          continue_multi_refine = True
          interruptible_fit_protein(imol, fit_protein_rama_fit_function)
-         
-     add_simple_coot_menu_menuitem(
+
+         add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "Refine/Improve Ramachandran Plot...",
        lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
                 lambda imol: fit_protein_func3(imol)))
-                                         
 
      #---------------------------------------------------------------------
      #     Map functions
@@ -291,22 +278,22 @@ if (have_coot_python):
      #---------------------------------------------------------------------
 
      def mask_map_func():
-	f = ""
-	molecule_list = molecule_number_list()
-	if not molecule_list == []:
+       f = ""
+       molecule_list = molecule_number_list()
+       if not molecule_list == []:
           for i in molecule_list:
             if is_valid_map_molecule(molecule_list[i]):
-              print "%s is a valid map molecule" %molecule_list[i]
+              print( "%s is a valid map molecule" %molecule_list[i])
               f = str(molecule_list[i])
               break
-	else:
-		print "BL WARNING:: dunno what to do!? No map found"
-                f = False
-	return f
-      
+       else:
+         print( "BL WARNING:: dunno what to do!? No map found")
+         f = False
+       return f
+
      def mask_map_func1(active_state):
-	print "changed active_state to ", active_state
-        
+       print("changed active_state to ", active_state)
+
      def mask_map_func2(imol, texts_list, invert_mask_qm):
        # map imol
        text_1 = texts_list[0]
@@ -358,24 +345,24 @@ if (have_coot_python):
      add_simple_coot_menu_menuitem(
        submenu_maps,
        "Copy Map...",
-       lambda func: map_molecule_chooser_gui("Map to Copy...", 
+       lambda func: map_molecule_chooser_gui("Map to Copy...",
 		lambda imol: copy_molecule(imol)))
 
-     
+
      add_simple_coot_menu_menuitem(
        submenu_maps,
-       "Make a Smoother Copy...", 
-       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+       "Make a Smoother Copy...",
+       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...",
 		lambda imol: smooth_map(imol, 1.25)))
 
-     
+
      add_simple_coot_menu_menuitem(
        submenu_maps,
-       "Make a Very Smooth Copy...", 
-       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+       "Make a Very Smooth Copy...",
+       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...",
 		lambda imol: smooth_map(imol, 2.0)))
 
-     
+
      add_simple_coot_menu_menuitem(
        submenu_maps,
        "Make a Difference Map...",
@@ -1424,6 +1411,23 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui(
          "Choose a molecule from which to clear Ball&Stick objects",
          lambda imol: clear_ball_and_stick(imol)))
+
+     def make_grey_atoms_func(state):
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                                  aa_atom_name, aa_alt_conf]:
+         set_use_grey_carbons_for_molecule(aa_imol, state)       
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Grey Carbons for Molecule",
+       lambda func: make_grey_atoms_func(1)
+)
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Coloured Carbons for Molecule",
+       lambda func: make_grey_atoms_func(0))
 
 
      add_simple_coot_menu_menuitem(
