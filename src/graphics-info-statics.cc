@@ -45,12 +45,19 @@ long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
 std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
-glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,0);
+glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,30);
 std::map<unsigned int, gl_lights_info_t> graphics_info_t::lights;
 
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;
 
 bool graphics_info_t::vera_font_loaded = false;
+
+GLuint graphics_info_t::m_VertexArray_for_pull_restraints_ID = 0;
+GLuint graphics_info_t::m_VertexBuffer_for_pull_restraints_ID = 0;
+GLuint graphics_info_t::m_IndexBuffer_for_atom_pull_restraints_ID = 0;
+unsigned int graphics_info_t::n_triangles_for_atom_pull_restraints = 0;
+unsigned int graphics_info_t::n_vertices_for_atom_pull_restraints = 0;
+
 
 // static
 void

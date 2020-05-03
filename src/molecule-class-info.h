@@ -263,14 +263,7 @@ public:
    }
 };
 
-class generic_vertex {
-public:
-   glm::mat3 model_rotation_matrix; // orientation
-   glm::vec3 model_translation; // the coordinates of the first atom of the bond
-   glm::vec3 pos;
-   glm::vec3 normal; // normalized when set
-   glm::vec4 colour;
-};
+#include "generic-vertex.hh"
 
 class cylinder {
 public:
@@ -3126,8 +3119,8 @@ public:        //                      public
    GLuint m_VertexBufferID;
    GLuint m_IndexBuffer_for_map_lines_ID;
    GLuint m_IndexBuffer_for_map_triangles_ID; // solid and transparent surfaces
-   GLuint m_NormalBufferID;
-   GLuint m_ColourBufferID;
+   GLuint m_NormalBufferID; // is this map or model - or something else? Be clear!
+   GLuint m_ColourBufferID; // Likewise.
 
    GLuint m_VertexArray_for_model_ID;
    GLuint n_vertices_for_model_VertexArray;

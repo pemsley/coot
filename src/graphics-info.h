@@ -3924,7 +3924,7 @@ string   static std::string sessionid;
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
-   static void draw_atom_pull_restraint();
+   static void draw_atom_pull_restraints();
    // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
    // (not least because now the refined atoms have gone out of scope)
    void clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag);
@@ -4177,7 +4177,24 @@ string   static std::string sessionid;
       key_bindings_map[k] = kb;
    }
 
-   // lights
+   // GL IDs go here
+
+   // intermediate atom pull restraints (note to self: intermediate atoms have
+   // their own molecule_class_info_t now).
+   // Generic Display objects should have their own class (that contains these IDs)
+   // How about Rama balls and rota dodecs?
+   // Where do contact dots fit in?
+   // Overlap volumes?
+
+   void setup_atom_pull_restraints_glsl();
+   static GLuint m_VertexArray_for_pull_restraints_ID;
+   static GLuint m_VertexBuffer_for_pull_restraints_ID;
+   static GLuint m_IndexBuffer_for_atom_pull_restraints_ID;
+   static unsigned int n_triangles_for_atom_pull_restraints; // index triangles, obviously
+   static unsigned int n_vertices_for_atom_pull_restraints;
+
+   // Lights
+   //
    static std::map<unsigned int, gl_lights_info_t> lights;
 };
 

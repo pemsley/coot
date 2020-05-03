@@ -236,27 +236,21 @@ graphics_info_t::get_molecule_mvp() {
       // there should not be a concept of "zoom" with perspective view, just translation
       // along screen-Z.
 
-      float fov = 40.0;
-
-      glm::vec4 up_1(0,1,0,1);
       glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
-      glm::vec4 up_2 = trackball_matrix * up_1;
-      glm::vec3 up = glm::normalize(glm::vec3(up_2));
       
       glm::vec3 ep = eye_position;
-      glm::vec4 ep_trial = trackball_matrix * glm::vec4(0,0,10,1);
-      ep = glm::vec4(ep_trial);
+      glm::vec3 up(0,1,0);
+      glm::vec3 origin(0,0,0);
 
-      if (true) {
-         glm::vec3 rc_from_eye(rc - ep);
-         double dp = glm::dot(rc_from_eye, up);
-         double cos_theta = dp/(glm::distance(rc, ep));
-         std::cout << "cos_theta " << cos_theta << " eye_pos " << glm::to_string(ep)
-                   << " rc " << glm::to_string(rc) << " up " << glm::to_string(up) << std::endl;
-      }
+      model_matrix = glm::mat4(1.0);
+      model_matrix = glm::translate(model_matrix, -rc);
+      model_matrix = trackball_matrix * model_matrix;
 
-      view_matrix = glm::lookAt(ep, rc, up);
-      fov = 25.0; // degrees
+      view_matrix = glm::lookAt(ep, origin, up);
+
+      float fov = 50.0/zoom; // degrees
+      if (fov > 50.0) fov = 50.0;
+      fov = 35.0;
 
       glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
                                                            screen_ratio,
@@ -713,7 +707,6 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-
          shader.Use();
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
@@ -764,6 +757,197 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
                             << n_verts << " with GL err " << err << std::endl;
 
+      }
+   }
+}
+
+void
+graphics_info_t::setup_atom_pull_restraints_glsl() {
+
+   // build the triangles for the cylinder and
+   // set m_VertexArray_for_pull_restraints_ID
+   //     m_VertexBuffer_for_pull_restraints_ID
+   //     n_indices_for_atom_pull_triangles
+
+   unsigned int n_atom_pulls = 0;
+   for (std::size_t i=0; i<atom_pulls.size(); i++) {
+      const atom_pull_info_t &atom_pull = atom_pulls[i];
+      if (atom_pull.get_status()) {
+         std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
+                                                         moving_atoms_asc->n_selected_atoms);
+         if (spec.first)
+            n_atom_pulls++;
+      }
+   }
+
+   if (n_atom_pulls > 0) {
+      unsigned int n_slices = 10;
+      unsigned int n_stacks = 2;
+      n_vertices_for_atom_pull_restraints = n_slices * (n_stacks +1) * n_atom_pulls;
+      n_triangles_for_atom_pull_restraints = n_stacks * n_stacks * 2 * n_atom_pulls;
+      // the indices of the vertices in the triangles (3 indices per triangle)
+      unsigned int     *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
+      unsigned int     *flat_indices_start = flat_indices;
+      unsigned int ifi = 0; // index into flat indices - running
+      generic_vertex *vertices = new generic_vertex[n_vertices_for_atom_pull_restraints];
+      generic_vertex *vertices_start = vertices;
+      unsigned int iv = 0; // index into vertices - running
+
+      for (std::size_t i=0; i<atom_pulls.size(); i++) {
+         const atom_pull_info_t &atom_pull = atom_pulls[i];
+         if (atom_pull.get_status()) {
+            std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
+                                                            moving_atoms_asc->n_selected_atoms);
+            if (spec.first) {
+               mmdb::Atom *at = moving_atoms_asc->atom_selection[spec.second];
+               coot::Cartesian pt_start_c(at->x, at->y, at->z);
+               coot::Cartesian pt_end_c(atom_pull.pos.x(), atom_pull.pos.y(), atom_pull.pos.z());
+               coot::CartesianPair pos_pair(pt_start_c, pt_end_c);
+               float radius = 0.3;
+               coot::Cartesian b = pt_end_c - pt_start_c;
+               float bl = b.length();
+               cylinder c(pos_pair, radius, radius, bl, n_slices, n_stacks);
+               for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {
+                  flat_indices[ifi  ] = c.triangle_indices_vec[j].idx[0]+iv;
+                  flat_indices[ifi+1] = c.triangle_indices_vec[j].idx[1]+iv;
+                  flat_indices[ifi+2] = c.triangle_indices_vec[j].idx[2]+iv;
+                  ifi += 3;
+               }
+               for (std::size_t j=0; j<c.vertices.size(); j++) {
+                  vertices[iv] = c.vertices[j];
+                  vertices[iv].colour = glm::vec4(1,1,0,1);
+                  iv++;
+               }
+            }
+         }
+      }
+
+      // does this need to be done every time? I doubt it.
+      //
+      glGenVertexArrays(1, &m_VertexArray_for_pull_restraints_ID);
+      GLenum err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() A"
+                          << " with GL err " << err << std::endl;
+      glBindVertexArray(m_VertexArray_for_pull_restraints_ID);
+      err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() B"
+                          << " with GL err " << err << std::endl;
+      glGenBuffers(1, &m_VertexBuffer_for_pull_restraints_ID);
+      err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() C"
+                          << " with GL err " << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_pull_restraints_ID);
+      err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() D"
+                          << " with GL err " << err << std::endl;
+      GLuint n_bytes = sizeof(generic_vertex) * n_vertices_for_atom_pull_restraints;
+      // maybe STATIC_DRAW, maybe not
+      glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
+      err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() E"
+                          << " with GL err " << err << std::endl;
+
+
+      glEnableVertexAttribArray(0);
+      glEnableVertexAttribArray(1);
+      glEnableVertexAttribArray(2);
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+
+      // translate position, 3, size 3 floats
+      glEnableVertexAttribArray(3);
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
+
+      // positions, 4, size 3 floats
+      glEnableVertexAttribArray(4);
+      err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
+
+      //  normals, 5, size 3 floats
+      glEnableVertexAttribArray(5);
+      err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
+      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
+
+      //  colours, 6, size 4 floats
+      glEnableVertexAttribArray(6);
+      err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+                            reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
+      err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
+
+      glGenBuffers(1, &m_IndexBuffer_for_atom_pull_restraints_ID);
+      err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() G"
+                         << " with GL err " << err << std::endl;
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_atom_pull_restraints_ID);
+      err = glGetError();
+      if (err) std::cout << "   error setup_atom_pull_restraints_glsl() H"
+                         << " with GL err " << err << std::endl;
+      n_bytes = n_triangles_for_atom_pull_restraints * 3 * sizeof(unsigned int);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, flat_indices, GL_STATIC_DRAW);
+      err = glGetError();
+      std::cout << "info:: setup_atom_pull_restraints_glsl() err " << err << std::endl;
+   }
+}
+
+
+// static
+void
+graphics_info_t::draw_atom_pull_restraints() {
+
+   // Note to self: do this first with standard (modern) OpenGL.
+   //
+   // Then do it again with instances. It will be faster to draw bonds and atoms that way.
+   // Maybe density lines too.
+
+   // don't draw this if intermediate atoms are not shown
+   //
+   if (! regularize_object_bonds_box.empty()) {
+      if (moving_atoms_asc->n_selected_atoms) {
+         if (! atom_pulls.empty()) {
+
+            Shader &shader = shader_for_models;
+            shader.Use();
+            GLuint err = glGetError();
+            if (err) std::cout << "   error draw_atom_pull_restraints() glUseProgram() "
+                               << err << std::endl;
+
+            glBindVertexArray(m_VertexArray_for_pull_restraints_ID);
+            err = glGetError();
+            if (err) std::cout << "   error draw_atom_pull_restraints() glBindVertexArray()"
+                               << " with GL err " << err << std::endl;
+            glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_pull_restraints_ID);
+            err = glGetError();
+            if (err) std::cout << "   error draw_atom_pull_restraints() glBindBuffer()"
+                               << " with GL err " << err << std::endl;
+
+            // Uniforms
+            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 view_rotation = get_view_rotation();
+            GLuint mvp_location = shader.mvp_uniform_location;
+
+            GLuint n_verts = n_triangles_for_atom_pull_restraints;
+            if (err) std::cout << "   error draw_atom_pull_restraints() pre-glDrawElements() "
+                               << n_verts << " with GL err " << err << std::endl;
+            glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
+            err = glGetError();
+            if (err) std::cout << "   error draw_atom_pull_restraints() glDrawElements() "
+                               << n_verts << " with GL err " << err << std::endl;
+         }
       }
    }
 }
@@ -822,11 +1006,14 @@ graphics_info_t::draw_molecules() {
 
    draw_model_molecules();
    draw_intermediate_atoms();
+   draw_atom_pull_restraints();
+
    // draw_molecular_triangles(); // Martin's renderings
 
-   // transparent things... (maybe this function (draw_molecules()) should not be split out).
-
    draw_map_molecules(false); // transparency
+
+   // transparent things...
+
    draw_map_molecules(true);
 }
 
@@ -1420,39 +1607,27 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
          // std::cout << "now zoom: " << g.zoom << std::endl;
       } else {
          // Move the eye towards the rotation centre (don't move the rotation centre)
+         float sf = 1.0 - delta_x * 0.003;
+         graphics_info_t::eye_position.z *= sf;
 
-         // this is the same as translate_in_screen_z. Excpet for moving the rotation centre
-         glm::vec3 ep = graphics_info_t::get_eye_position();
-         glm::vec3 rc = graphics_info_t::get_rotation_centre();
-         glm::vec3 delta = rc - ep;
-         glm::vec3 delta_uv = normalize(delta);
-
-         // more zoomed needs to have smaller step than when zoomed out.
-         // Zoomed out, zoom is ~100. Zoomed in is ~25
-         float step_size = 0.005;
-         glm::vec3 step = step_size * graphics_info_t::zoom * delta_x * delta_uv;
-         // try again
-         step_size = 0.05;
-         step = step_size * delta_x * delta_uv;
-
-         graphics_info_t::eye_position += step;
-         double l = glm::distance(graphics_info_t::eye_position, rc);
-
-         if (false) // debug
-            std::cout << "motion: ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
-                      << " zoom " << graphics_info_t::zoom << " step "
-                      << glm::to_string(step) << std::endl;
-
-         // if the distance to the centre of rotation changes, but the clipping planes do not, then
-         // as we zoom in, then the object get clipped. Bleugh. The perspective near and far
-         // need to be dependent on zoom
-
-         float screen_z_near_perspective_limit = l * 0.99;
-         float screen_z_far_perspective_limit  = l * 1.01;
-         if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
-            graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
-         if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
-            graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+         { // own graphics_info_t function - c.f. adjust clipping
+            double  l = graphics_info_t::eye_position.z;
+            double zf = graphics_info_t::screen_z_far_perspective;
+            double zn = graphics_info_t::screen_z_near_perspective;
+            if (delta_x < 0.0) {
+               graphics_info_t::screen_z_near_perspective = l - (l-zn) * 0.9905;
+               graphics_info_t::screen_z_far_perspective  = l + (zf-l) * 0.95;
+            } else {
+               graphics_info_t::screen_z_far_perspective  = l + (zf-l) * 1.05;
+               graphics_info_t::screen_z_near_perspective = l - (l-zn) * 1.005;
+            }
+            float screen_z_near_perspective_limit = l * 0.99;
+            float screen_z_far_perspective_limit  = l * 1.01;
+            if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
+               graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
+            if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
+               graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+         }
 
       }
    }

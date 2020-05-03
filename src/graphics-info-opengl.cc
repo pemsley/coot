@@ -165,9 +165,7 @@ graphics_info_t::adjust_clipping(float d) {
 
       // --- perspective ---
 
-      glm::vec3 rc = get_rotation_centre();
-
-      double l = glm::distance(eye_position, rc);
+      double l = eye_position.z;
       double zf = screen_z_far_perspective;
       double zn = screen_z_near_perspective;
 
@@ -177,7 +175,7 @@ graphics_info_t::adjust_clipping(float d) {
 
       if (d < 0) {
 
-         // close down (narrow) - is this correct? :-)
+         // close down (narrow)
 
          screen_z_near_perspective = l - (l-zn) * 0.9905;
          screen_z_far_perspective  = l + (zf-l) * 0.95;
@@ -198,8 +196,8 @@ graphics_info_t::adjust_clipping(float d) {
       if (screen_z_far_perspective < screen_z_far_perspective_limit)
          screen_z_far_perspective = screen_z_far_perspective_limit;
 
-      std::cout << "debug l " << l << " near and far: pre: " << zn << " " << zf
-                << "    post " << screen_z_near_perspective << " "
+      std::cout << "debug l " << l << " l " << l
+                << "    post-manip: " << screen_z_near_perspective << " "
                 << screen_z_far_perspective << std::endl;
    }
 }
@@ -218,33 +216,10 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
                                 (area_height - 2.0*g.mouse_current_y)/area_height,
                                 tbs);
 
-   // if (! graphics_info_t::perspective_projection_flag) {
-   if (true) { // do both cases
+   tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
+   glm::quat product = tb_quat * glm_quat;
+   float delta_x = mouse_current_x - g.GetMouseBeginX(); // use static mouse_begin.first
+   float delta_y = mouse_current_y - g.GetMouseBeginY();
+   glm_quat = glm::normalize(product);
 
-      tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
-      glm::quat product = tb_quat * glm_quat;
-      glm_quat = glm::normalize(product);
-
-   } else {
-
-      // move the eye according to tb_quat
-
-      // glm::quat product = tb_quat * glm_quat;
-      // glm_quat = glm::normalize(product);
-
-      if (false)
-         std::cout << "debug:: glm_quat quaternion " << glm::to_string(glm_quat) << std::endl;
-
-      float delta_x = mouse_current_x - g.GetMouseBeginX();
-      float delta_y = mouse_current_y - g.GetMouseBeginY();
-
-      glm::quat quat_new_1 = glm::rotate(glm_quat, delta_x, glm::vec3(1,0,0));
-
-      glm::vec3 rc = get_rotation_centre();
-      glm::vec3 eye_from_rotation_centre = eye_position - rc;
-      glm::vec4 ep4(eye_from_rotation_centre, 1.0);
-      glm::mat4 matrix = glm::inverse(glm::toMat4(tb_quat));
-      glm::vec4 new_rel_eye_pos = matrix * ep4;
-      eye_position = glm::vec3(new_rel_eye_pos) + rc;
-   }
 }

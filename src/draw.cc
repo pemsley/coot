@@ -392,7 +392,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
       // atom pull restraint
-      graphics_info_t::draw_atom_pull_restraint();
+      // graphics_info_t::draw_atom_pull_restraint();
 
       // regularize object
       // graphics_info_t::draw_moving_atoms_graphics_object(is_bb); gone
