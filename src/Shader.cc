@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sys/stat.h>
 #include <epoxy/gl.h>
 
 #include "Shader.hh"
@@ -38,13 +39,33 @@ Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name)
    }
 }
 
-void Shader::init(const std::string &file_name, Shader::Entity_t e) {
+void Shader::init(const std::string &file_name_in, Shader::Entity_t e) {
 
    // clear then go
    VertexSource.clear();
    FragmentSource.clear();
 
+   // is the shader in the current directory? If not, try to find
+   // it in default_directory
+
+   // I don't want this file to depend on utils, so include this in-line
+   std::string file_name(file_name_in);
+   bool file_exists = false;
+   struct stat s;
+   int fstat = stat(file_name.c_str(), &s);
+   if ( fstat != -1 )
+      file_exists = true;
+   if (! file_exists)
+      file_name = default_directory + "/" + file_name;
+   fstat = stat(file_name.c_str(), &s);
+   if ( fstat != -1 )
+      file_exists = true;
+
    std::cout << "::: Shader compile " << file_name << std::endl;
+   if (! file_exists) {
+      std::cout << "WARNING:: Missing file " << file_name << std::endl;
+      return;
+   }
 
    entity_type = e;
    parse(file_name);
@@ -63,6 +84,13 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    } else {
       std::cout << "Empty Vertex Shader source\n";
    }
+}
+
+void
+Shader::set_default_directory(const std::string &s) {
+
+   if (!s.empty())
+      default_directory = s;
 }
 
 void

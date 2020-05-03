@@ -11,18 +11,32 @@
 void
 graphics_info_t::init_shaders() {
 
-   std::cout << "--------------------- init_shaders() --------" << std::endl;
-   graphics_info_t::shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
-   graphics_info_t::shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
-   graphics_info_t::shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
-   graphics_info_t::shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
-   graphics_info_t::shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
-   graphics_info_t::shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::TEXT_3D);
+   std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
+                                                           shader_for_models,
+                                                           shader_for_central_cube,
+                                                           shader_for_origin_cube,
+                                                           shader_for_hud_text,
+                                                           shader_for_atom_labels,
+                                                           shader_for_screen,
+                                                           shader_for_blur};
+   std::string p = coot::package_data_dir();
+   std::string d = coot::util::append_dir_dir(p, "shaders");
+   std::cout << "INFO:: shader default dir: " << d << std::endl;
+   std::vector<std::reference_wrapper<Shader> >::iterator it;
+   for (it=shaders.begin(); it!=shaders.end(); it++)
+      it->get().set_default_directory(d);
+
+   shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
+   shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
+   shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
+   shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
+   shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::TEXT_3D);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
-   graphics_info_t::shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
-   graphics_info_t::shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
+   shader_for_screen.init("screen.shader", Shader::Entity_t::SCREEN);
+   shader_for_blur.init("blur.shader", Shader::Entity_t::SCREEN);
 
 }
 

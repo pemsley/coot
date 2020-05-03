@@ -10,6 +10,7 @@ public:
                          MOLECULAR_TRIANGLES, GENERIC_GRAPHICS_OBJECT};
 private:
    enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2 };
+   std::string default_directory; // if not in current directory try to find the shader here
    void parse(const std::string &file_name);
    unsigned int compile_shader(const std::string &source, ShaderType type) const;
    void set_uniform_locations();
@@ -25,6 +26,7 @@ public:
    Shader(const std::string &file_name, Entity_t e);
    Shader(const std::string &vs_file_name,  const std::string &fs_file_name);
    void init(const std::string &file_name, Entity_t e);
+   void set_default_directory(const std::string &dir);
    unsigned int program_id;
    void Use();
    unsigned int get_program_id() const { return program_id; } // or use above function
