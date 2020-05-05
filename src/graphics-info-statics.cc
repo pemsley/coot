@@ -20,9 +20,6 @@ std::string graphics_info_t::mtz_file_for_refmac;
 
 bool graphics_info_t::convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
-float graphics_info_t::screen_z_near_perspective =  15.0;
-float graphics_info_t::screen_z_far_perspective  = 400.0;
-
 GtkWidget *graphics_info_t::main_window = NULL;
 
 // now the clipping planes are scale, not offsets
@@ -45,7 +42,10 @@ long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
 std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
-glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,30);
+glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,40);
+float graphics_info_t::screen_z_near_perspective =  32.0;
+float graphics_info_t::screen_z_far_perspective  = 150.0;
+
 std::map<unsigned int, gl_lights_info_t> graphics_info_t::lights;
 
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;

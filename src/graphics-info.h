@@ -4066,7 +4066,7 @@ string   static std::string sessionid;
    void init_hud_text();
    static glm::mat4 get_molecule_mvp();
    static glm::mat4 get_model_view_matrix();
-   static glm::vec3 get_eye_position();
+   static glm::vec3 get_world_space_eye_position();
    static glm::vec4 unproject(float z);
    static glm::vec4 unproject(float x, float y, float z);
    static glm::mat4 get_view_rotation();

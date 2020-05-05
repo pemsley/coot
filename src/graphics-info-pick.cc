@@ -538,7 +538,6 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
       //           << std::endl;
       in_moving_atoms_drag_atom_mode_flag = 0;
    }
-   std::cout << "debug:: check_if_moving_atom_pull() returns status " << status << std::endl;
    return status;
 }
 

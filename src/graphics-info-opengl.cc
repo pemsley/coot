@@ -191,7 +191,7 @@ graphics_info_t::adjust_clipping(float d) {
 
          // close down (narrow)
 
-         screen_z_near_perspective = l - (l-zn) * 0.9905;
+         screen_z_near_perspective = l - (l-zn) * 0.97;
          screen_z_far_perspective  = l + (zf-l) * 0.95;
 
       } else {
@@ -199,7 +199,7 @@ graphics_info_t::adjust_clipping(float d) {
          // expand
 
          screen_z_far_perspective  = l + (zf-l) * 1.05;
-         screen_z_near_perspective = l - (l-zn) * 1.005;
+         screen_z_near_perspective = l - (l-zn) * 1.03;
 
       }
 
@@ -210,7 +210,10 @@ graphics_info_t::adjust_clipping(float d) {
       if (screen_z_far_perspective < screen_z_far_perspective_limit)
          screen_z_far_perspective = screen_z_far_perspective_limit;
 
-      std::cout << "debug l " << l << " l " << l
+      if (screen_z_near_perspective <    2.0) screen_z_near_perspective =    2.0;
+      if (screen_z_far_perspective  > 1000.0) screen_z_far_perspective  = 1000.0;
+
+      std::cout << "adjust_clipping(): debug l " << l
                 << "    post-manip: " << screen_z_near_perspective << " "
                 << screen_z_far_perspective << std::endl;
    }

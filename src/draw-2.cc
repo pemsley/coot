@@ -13,6 +13,7 @@
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
+#include "c-interface.h" // for update_go_to_atom_from_current_position()
 #include "globjects.h"
 #include "graphics-info.h"
 
@@ -24,8 +25,8 @@
 #include "cc-interface-scripting.hh"
 
 // header
-glm::mat4 get_view_rotation();
-glm::vec3 get_eye_position();
+// glm::mat4 get_view_rotation();
+// glm::vec3 get_eye_position();
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
@@ -267,12 +268,14 @@ graphics_info_t::get_molecule_mvp() {
 // on get_molecule_mvp()...
 //
 glm::vec3
-graphics_info_t::get_eye_position() {
+graphics_info_t::get_world_space_eye_position() {
 
    if (! graphics_info_t::perspective_projection_flag) {
 
-      // orthograph eye position is inferred from centre psotion
+      // orthograph eye position is inferred from centre position
       // and zoom and view rotation.
+
+      // does this work? How can I tell?
 
       glm::vec3 test_vector_1(0.0, 0.0, 1.0);
       glm::vec3 test_vector_2(1.0, 1.0, 0.0);
@@ -286,12 +289,40 @@ graphics_info_t::get_eye_position() {
       ep += rc;
 
       return ep;
+
    } else {
 
-      // Perspective projection we manipulate the eye position directly
+      // the eye_position is in view-coordinates is stored directly and is
+      // by default and often (always?) (0,0,40).
 
-      return graphics_info_t::eye_position;
+      // I need to convert that to world coordinates and then rotate
+      // and translate the world according to rotation centre and mouse-based
+      // quaternion (ther order of operations is not yet clear to me).
 
+      glm::vec3 ep = eye_position;
+      glm::vec4 ep_4(ep, 1.0);
+      glm::vec3 up(0,1,0);
+      glm::vec3 origin(0,0,0);
+
+      glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
+      glm::vec3 rc = graphics_info_t::get_rotation_centre();
+      glm::mat4 model_matrix = glm::mat4(1.0);
+      model_matrix = glm::translate(model_matrix, -rc);
+      model_matrix = trackball_matrix * model_matrix;
+      glm::mat4 model_inv = glm::inverse(model_matrix);
+
+      glm::mat4 view_matrix = glm::lookAt(ep, origin, up);
+      glm::mat4 view_inv = glm::inverse(view_matrix);
+      glm::vec4 ep_world_4 = model_inv * ep_4; // * view_inv;
+
+      if (false) {
+         std::cout << "model_inv " << glm::to_string(model_inv) << std::endl;
+         std::cout << "view_inv  " << glm::to_string( view_inv) << std::endl;
+      }
+
+      glm::vec3 ep_world(ep_world_4);
+
+      return ep_world;
    }
 
 }
@@ -330,10 +361,8 @@ graphics_info_t::get_view_rotation() {
 
    // need to be in the correct program (well, the model-drawing part)
 
-   if (! perspective_projection_flag)
-      return glm::toMat4(graphics_info_t::glm_quat);
-   else
-      return glm::mat4(1.0);
+   return glm::toMat4(graphics_info_t::glm_quat);
+
 }
 
 
@@ -364,7 +393,7 @@ graphics_info_t::setup_map_uniforms(const Shader &shader,
                                           << err << std::endl;
 
    GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-   glm::vec4 ep = glm::vec4(get_eye_position(), 1.0);
+   glm::vec4 ep = glm::vec4(get_world_space_eye_position(), 1.0);
    glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
    err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for eye position "
                                           << err << std::endl;
@@ -424,15 +453,13 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation = get_view_rotation();
-      if (perspective_projection_flag)
-         view_rotation = glm::mat4(1.0);
 
       glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
       glDepthFunc(GL_LESS);
 
       Shader &shader = graphics_info_t::shader_for_maps;
 
-      glm::vec4 ep(get_eye_position(), 1.0);
+      glm::vec4 ep(get_world_space_eye_position(), 1.0);
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
          const molecule_class_info_t &m = graphics_info_t::molecules[ii];
@@ -459,12 +486,12 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                glBindVertexArray(m.m_VertexArrayID_for_map);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
-                                  << graphics_info_t::molecules[ii].m_VertexArrayID_for_map
+                                  << m.m_VertexArrayID_for_map
                                   << " with GL err " << err << std::endl;
 
                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
-               graphics_info_t::setup_map_uniforms(shader, mvp, view_rotation, m.density_surface_opacity);
+               setup_map_uniforms(shader, mvp, view_rotation, m.density_surface_opacity);
                glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
                               GL_UNSIGNED_INT, nullptr);
                err = glGetError();
@@ -600,10 +627,25 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep(get_eye_position(), 1.0);
+         glm::vec4 ep(get_world_space_eye_position(), 1.0);
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+
+         // lights
+         std::map<unsigned int, gl_lights_info_t>::const_iterator it;
+         it = graphics_info_t::lights.find(0);
+         if (it != graphics_info_t::lights.end()) {
+            const gl_lights_info_t &light = it->second;
+            glUniform1i(shader.light_0_is_on_uniform_location, light.is_on);
+            glUniform4fv(shader.light_0_position_uniform_location, 1, glm::value_ptr(light.position));
+         }
+         it = graphics_info_t::lights.find(1);
+         if (it != graphics_info_t::lights.end()) {
+            const gl_lights_info_t &light = it->second;
+            glUniform1i(shader.light_1_is_on_uniform_location, light.is_on);
+            glUniform4fv(shader.light_1_position_uniform_location, 1, glm::value_ptr(light.position));
+         }
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
@@ -744,7 +786,7 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep = glm::vec4(get_eye_position(), 1.0);
+         glm::vec4 ep = glm::vec4(get_world_space_eye_position(), 1.0);
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
@@ -962,7 +1004,7 @@ graphics_info_t::draw_molecular_triangles() {
                  graphics_info_t::RotationCentre_y(),
                  graphics_info_t::RotationCentre_z());
 
-   glm::vec3 eye_position = get_eye_position();
+   glm::vec3 eye_position = get_world_space_eye_position();
    FCXXCoord eye_pos(eye_position.x, eye_position.y, eye_position.z);
 
    // std::cout << "eye_pos: " << eye_pos << "\n";
@@ -1614,19 +1656,24 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
             double  l = graphics_info_t::eye_position.z;
             double zf = graphics_info_t::screen_z_far_perspective;
             double zn = graphics_info_t::screen_z_near_perspective;
-            if (delta_x < 0.0) {
-               graphics_info_t::screen_z_near_perspective = l - (l-zn) * 0.9905;
-               graphics_info_t::screen_z_far_perspective  = l + (zf-l) * 0.95;
-            } else {
-               graphics_info_t::screen_z_far_perspective  = l + (zf-l) * 1.05;
-               graphics_info_t::screen_z_near_perspective = l - (l-zn) * 1.005;
-            }
-            float screen_z_near_perspective_limit = l * 0.99;
-            float screen_z_far_perspective_limit  = l * 1.01;
+
+            graphics_info_t::screen_z_near_perspective *= sf;
+            graphics_info_t::screen_z_far_perspective  *= sf;
+
+            float screen_z_near_perspective_limit = l * 0.95;
+            float screen_z_far_perspective_limit  = l * 1.05;
+            if (graphics_info_t::screen_z_near_perspective < 2.0)
+               graphics_info_t::screen_z_near_perspective = 2.0;
+            if (graphics_info_t::screen_z_far_perspective > 1000.0)
+               graphics_info_t::screen_z_far_perspective = 1000.0;
+
             if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
                graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
             if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
                graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+            std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+                      << graphics_info_t::screen_z_near_perspective << " "
+                      << graphics_info_t::screen_z_far_perspective << std::endl;
          }
 
       }
@@ -1673,27 +1720,24 @@ view_spin_func(gpointer data) {
       return TRUE;
 }
 
-#include "c-interface.h" // for update_go_to_atom_from_current_position()
-
 void
 graphics_info_t::translate_in_screen_z(float step_size) {
 
    // this looks a bit weird without perspective view
 
-   glm::vec3 ep = get_eye_position();
-   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   glm::vec3 ep = get_world_space_eye_position();
+   glm::vec3 rc = get_rotation_centre();
    glm::vec3 delta = rc - ep;
    glm::vec3 delta_uv = normalize(delta);
 
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
-   glm::vec3 step = 0.01 * step_size * zoom * delta_uv;
+   glm::vec3 step = 0.0003 * step_size * zoom * delta_uv;
 
    if (true) // debug
       std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
                 << " zoom " << zoom << " step " << glm::to_string(step) << std::endl;
-   graphics_info_t::add_to_rotation_centre(step);
 
-   eye_position += step;
+   add_to_rotation_centre(step);
 
 }
 

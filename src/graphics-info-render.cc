@@ -143,7 +143,7 @@ graphics_info_t::povray(std::string filename) {
    // So where is the "eye"? We have to do an unproject:
    int x0 = allocation.width/2;
    int y0 = allocation.height/2;
-   glm::vec3 glm_eye = get_eye_position();
+   glm::vec3 glm_eye = get_world_space_eye_position();
    coot::Cartesian eye(glm_eye.x, glm_eye.y, glm_eye.z);
 
    // It seems that for raster3d, this eye position is good, but for
