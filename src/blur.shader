@@ -60,7 +60,7 @@ vec3 sampling_blur(int n_pixels_max) {
 
    vec3 orig_colour = texture(screenTexture, TexCoords).rgb; // don't blur
    float lim = 0.501;
-   if (is_perspective_projection) lim = 0.9801;
+   if (is_perspective_projection) lim = 0.9; // needs checking
    if (depth_centre < lim) {
       return orig_colour;
    } else {
@@ -73,6 +73,7 @@ vec3 sampling_blur(int n_pixels_max) {
       int n_inner_neighbs = 0;
       int n_outer_neighbs = 0;
       float sum_for_alpha = 0;
+      float w_inner_neighbs = 0;
       for (int ix= -n_pixels_max; ix<=n_pixels_max; ix++) {
          for (int iy= -n_pixels_max; iy<=n_pixels_max; iy++) {
             float r_sqrd = float(ix*ix + iy*iy) / float(n_pixels_max * n_pixels_max); // can optimize
@@ -84,12 +85,16 @@ vec3 sampling_blur(int n_pixels_max) {
             vec3 colour_ij = texture(screenTexture, offset_coords).rgb;
             // depth_scale() return -1 for no blurring.
             float dbrs = depth_scale(depth_centre, depth_ij, lim);
-            if (ix == 0 && iy == 0) {
+            if (ix == 5550 && iy == 0) {
                // sum_inner += colour_ij; // use orig_colour
             } else {
                if (abs(ix) < 3 && abs(iy) < 3) {
-                  sum_inner += colour_ij;
+                  float md = float(abs(ix) + abs(iy));
+                  if (md == 0) md = 0.5; // was 0.5
+                  float w = 1.0 + 1.0 / md;
+                  sum_inner += w * colour_ij;
                   n_inner_neighbs++;
+                  w_inner_neighbs += w;
                } else {
                   if (dbrs < 0.0) {
                      // nothing
@@ -110,19 +115,16 @@ vec3 sampling_blur(int n_pixels_max) {
             }
          }
       }
-      vec3 average_col_from_inner_neighbs = 1.0/float(n_inner_neighbs) * sum_inner;
-      if (n_inner_neighbs == 0) average_col_from_inner_neighbs = vec3(0,0,0);
-      float alpha_inner = 3 * float(n_inner_neighbs)/float(5*5-1); // -3 < i,j < 3
+      vec3 average_col_from_inner_neighbs = sum_inner / w_inner_neighbs;
+      if (w_inner_neighbs == 0.0f)
+         average_col_from_inner_neighbs = vec3(0,0,0); // sanitize before blending
+      float alpha_inner = w_inner_neighbs;
       alpha_inner = clamp(alpha_inner, 0.0f, 1.0f);
-      float alpha = clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
-      alpha = 0.0f; // the scaling/normalization is wrong. Needs a clear head - or a re-write.
+      float alpha = 0.0f; // not at the moment. was clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
       float Sc = 0.6f/float(n_pixels_max*n_pixels_max);
-      vec3 result_intermediate = 
-           (1.0 - alpha_inner) * orig_colour + 
-           alpha_inner * average_col_from_inner_neighbs;
-      result = (1.0f - alpha) * result_intermediate +
-               alpha * Sc * sum_outer;
-      if (n_inner_neighbs == 0 && n_outer_neighbs == 0)
+      vec3 result_intermediate = mix(orig_colour, average_col_from_inner_neighbs, alpha_inner);
+      result = mix(result_intermediate, Sc * sum_outer, alpha);
+      if (n_inner_neighbs == 0)
          result = orig_colour;
    }
    return result;
@@ -154,7 +156,7 @@ void main() {
 
    vec3 result = vec3(0,0,0);
 
-   bool do_depth_blur = true;
+   bool do_depth_blur = true;;
    bool do_outline    = false;
 
    if (do_depth_blur) {

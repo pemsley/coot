@@ -45,8 +45,10 @@ in vec4 tri_color;
 layout(location = 0) out vec4 out_col;
 
 uniform vec4 eye_position;
-uniform bool is_perspective_projection;
 uniform vec4 background_colour;
+uniform bool is_perspective_projection;
+uniform vec4 light_0_position;
+
 
 float get_fog_amount(float depth_in) {
 
@@ -55,22 +57,25 @@ float get_fog_amount(float depth_in) {
       return depth_in;
    } else {
       // needs tweaking
-      return depth_in * depth_in;
+      float d = depth_in;
+      float d4 = d * d * d * d;
+      return d * d;;
    }
 
 }
 
+
 void main() {
 
-  float specular_strength = 0.3; // 1.5 is very shiny
+  float specular_strength = 0.1; // 1.5 is very shiny
   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
 
-  // a light direction of 0,0,1 is good for fresnelly outlining
+  // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
   vec3 lightdir = normalize(vec3(-2, 1, -2));
 
   // using the light_0_position give to the shader in a uniform
   // gives us rotating lights
-  // lightdir = normalize(light_0_position.xyz);
+  lightdir = normalize(-light_0_position.xyz);
   float dp = dot(Normal, -lightdir);
   dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
@@ -79,9 +84,8 @@ void main() {
   float f_1 = 1.0 - m; // because glm::ortho() near and far are reversed?
   float fog_amount = get_fog_amount(gl_FragCoord.z);
 
-  vec4 bg_col = background_colour;
+  vec4 bg_col = background_colour; // needed?
 
-  // vec3 eye_pos =  vec3(0.0, 0.0, 1.0);
   vec3 eye_pos_3 =  eye_position.xyz;
 
   vec3 view_dir = eye_pos_3 - frag_pos; // view_dir.z positive is a good idea.
@@ -100,10 +104,9 @@ void main() {
   vec4 colour_local = tri_color;
 
   vec4 col_1 = colour_local;  // ambient
-  float ambient_strength = 0.6;
+  float ambient_strength = 0.3;
   vec4 col_2 = colour_local * dp;
-  // vec4 col_3 = 0.6 * col_2 + col_1 * ambient_strength;
-  vec4 col_3 = col_2 + col_1 * ambient_strength + specular;
+  vec4 col_3 = col_1 * ambient_strength + col_2 + specular;
   vec4 col_4 = mix(col_3, bg_col, fog_amount);
 
   out_col = col_4;
