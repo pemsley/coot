@@ -940,7 +940,6 @@ def interesting_things_with_fix_maybe(title, baddie_list):
 def fill_option_menu_with_mol_options(menu, filter_function):
 
     mol_ls = []
-    n_molecules = graphics_n_molecules()
    
     for mol_no in molecule_number_list():
         if filter_function(mol_no):

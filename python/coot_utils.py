@@ -400,7 +400,7 @@ def pre_release_qm():
 #
 def molecule_number_list():
     ret = []
-    for mol_no in range(graphics_n_molecules()):
+    for mol_no in range(coot.graphics_n_molecules()):
         if (valid_map_molecule_qm(mol_no) or
             valid_model_molecule_qm(mol_no)):
             ret.append(mol_no)
@@ -670,7 +670,7 @@ def map_molecule_list():
 
     map_list = []
     for i in range(coot.graphics_n_molecules()):
-       if coot.is_valid_map_molecule(i):
+       if coot.is_valid_map_molecule(i) == 1:
           map_list.append(i)
     return map_list
 
@@ -680,7 +680,7 @@ def model_molecule_list():
 
     model_list = []
     for i in range(graphics_n_molecules()):
-       if coot.is_valid_model_molecule(i):
+       if coot.is_valid_model_molecule(i) == 1:
           model_list.append(i)
     return model_list
 
