@@ -379,10 +379,10 @@ coot_bin_SOURCES = \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
 	callbacks.c callbacks.h	 \
-   canvas-fixes.hh          \
-   cfc.cc cfc.hh            \
-   cfc-widgets.hh           \
-   cfc-widgets-c-interface.h \
+        canvas-fixes.hh          \
+        cfc.cc cfc.hh            \
+        cfc-widgets.hh           \
+        cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
@@ -416,6 +416,8 @@ coot_bin_SOURCES = \
 	coot_wrap_guile.cc       \
         curlew.h                 \
         curlew.hh                \
+	cylinder.hh		 \
+	cylinder.cc		 \
 	data-pair-remover.hh     \
         density-results-container-t.hh \
         dots-representation.hh   \

@@ -52,6 +52,7 @@ molecule_class_info_t graphics_info_t::moving_atoms_molecule;
 
 bool graphics_info_t::vera_font_loaded = false;
 
+unsigned int graphics_info_t::n_atom_pulls = 0;
 GLuint graphics_info_t::m_VertexArray_for_pull_restraints_ID = 0;
 GLuint graphics_info_t::m_VertexBuffer_for_pull_restraints_ID = 0;
 GLuint graphics_info_t::m_IndexBuffer_for_atom_pull_restraints_ID = 0;

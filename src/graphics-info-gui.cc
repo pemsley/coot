@@ -278,9 +278,11 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 
 
 void set_colour_accept_reject_event_box(GtkWidget *label, GdkColor *col) {
+
    // sigh - use css.
-   std::cout << "set_colour_accept_reject_event_box() set the label colour here " << std::endl;
-   // gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
+   // std::cout << "set_colour_accept_reject_event_box() set the label colour here " << std::endl;
+
+   gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
 }
 
 // text_type can be coot::CHIRAL_CENTRES or coot::CHI_SQUAREDS

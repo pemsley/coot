@@ -811,7 +811,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
    //     m_VertexBuffer_for_pull_restraints_ID
    //     n_indices_for_atom_pull_triangles
 
-   unsigned int n_atom_pulls = 0;
+   n_atom_pulls = 0; // now a class variable.
    for (std::size_t i=0; i<atom_pulls.size(); i++) {
       const atom_pull_info_t &atom_pull = atom_pulls[i];
       if (atom_pull.get_status()) {
@@ -825,8 +825,12 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
    if (n_atom_pulls > 0) {
       unsigned int n_slices = 10;
       unsigned int n_stacks = 2;
-      n_vertices_for_atom_pull_restraints = n_slices * (n_stacks +1) * n_atom_pulls;
-      n_triangles_for_atom_pull_restraints = n_stacks * n_stacks * 2 * n_atom_pulls;
+      n_vertices_for_atom_pull_restraints  = n_slices * (n_stacks +1) * n_atom_pulls;
+      n_triangles_for_atom_pull_restraints = n_slices * n_stacks * 2  * n_atom_pulls;
+      // add in the triangles for the arrow-head (lots of vertices at the arrow tip because from cylinder)
+      unsigned int n_stacks_for_arrow_tip = 6;
+      n_vertices_for_atom_pull_restraints  += n_stacks_for_arrow_tip * n_slices * 2 * n_atom_pulls;
+      n_triangles_for_atom_pull_restraints += n_stacks_for_arrow_tip * n_slices * 2 * n_atom_pulls;
       // the indices of the vertices in the triangles (3 indices per triangle)
       unsigned int     *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
       unsigned int     *flat_indices_start = flat_indices;
@@ -841,13 +845,24 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
             std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
                                                             moving_atoms_asc->n_selected_atoms);
             if (spec.first) {
+               float arrow_head_length = 0.2;
+
                mmdb::Atom *at = moving_atoms_asc->atom_selection[spec.second];
                coot::Cartesian pt_start_c(at->x, at->y, at->z);
                coot::Cartesian pt_end_c(atom_pull.pos.x(), atom_pull.pos.y(), atom_pull.pos.z());
-               coot::CartesianPair pos_pair(pt_start_c, pt_end_c);
-               float radius = 0.3;
                coot::Cartesian b = pt_end_c - pt_start_c;
-               float bl = b.length();
+               float bl_pull = b.length();
+               float bl = bl_pull - arrow_head_length;
+               if (arrow_head_length > bl_pull)
+                  arrow_head_length = bl_pull;
+               coot::Cartesian b_uv = b.unit();
+               float bl_stick = bl_pull - arrow_head_length;
+               if (bl_stick < 0.0) bl_stick = 0.0;
+
+               coot::Cartesian meeting_point = pt_start_c + b_uv * bl_stick;
+               coot::CartesianPair pos_pair(pt_start_c, meeting_point);
+               float radius = 0.1;
+
                cylinder c(pos_pair, radius, radius, bl, n_slices, n_stacks);
                for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {
                   flat_indices[ifi  ] = c.triangle_indices_vec[j].idx[0]+iv;
@@ -857,14 +872,37 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
                }
                for (std::size_t j=0; j<c.vertices.size(); j++) {
                   vertices[iv] = c.vertices[j];
-                  vertices[iv].colour = glm::vec4(1,1,0,1);
+                  vertices[iv].colour = glm::vec4(0.7, 0.5, 0.3, 1.0);
+                  iv++;
+               }
+
+               coot::CartesianPair pp(pt_end_c, meeting_point);
+               std::cout << "arrow-head: " << radius << " " << arrow_head_length << std::endl;
+               cylinder c_arrow_head(pp, 2.0 * radius, 0.0, arrow_head_length, n_slices, n_stacks_for_arrow_tip);
+               for (std::size_t j=0; j<c_arrow_head.triangle_indices_vec.size(); j++) {
+                  if (ifi < n_triangles_for_atom_pull_restraints * 3) {
+                     flat_indices[ifi  ] = c_arrow_head.triangle_indices_vec[j].idx[0]+iv;
+                     flat_indices[ifi+1] = c_arrow_head.triangle_indices_vec[j].idx[1]+iv;
+                     flat_indices[ifi+2] = c_arrow_head.triangle_indices_vec[j].idx[2]+iv;
+                  } else {
+                     std::cout << "ERROR:: indexing for c_arrow_head "
+                               << ifi << " " << n_triangles_for_atom_pull_restraints << std::endl;
+                  }
+                  ifi += 3;
+               }
+               for (std::size_t j=0; j<c_arrow_head.vertices.size(); j++) {
+
+                  std::cout << "transfering vertex " << iv << " "
+                            << glm::to_string(c_arrow_head.vertices[j].pos) << std::endl;
+                  vertices[iv] = c_arrow_head.vertices[j];
+                  vertices[iv].colour = glm::vec4(0.7,0.5,0.3,1.0);
                   iv++;
                }
             }
          }
       }
 
-      // does this need to be done every time? I doubt it.
+      // does this need to be done every time? I doubt it. Needs check.
       //
       glGenVertexArrays(1, &m_VertexArray_for_pull_restraints_ID);
       GLenum err = glGetError();
@@ -906,6 +944,8 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
 
       // translate position, 3, size 3 floats
       glEnableVertexAttribArray(3);
+
+      // surely this (annd below) has been set-up already? -- CheckMe.
       glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
                             reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
@@ -943,6 +983,10 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, flat_indices, GL_STATIC_DRAW);
       err = glGetError();
       std::cout << "info:: setup_atom_pull_restraints_glsl() err " << err << std::endl;
+
+      delete [] flat_indices;
+      delete [] vertices;
+
    }
 }
 
@@ -959,8 +1003,10 @@ graphics_info_t::draw_atom_pull_restraints() {
    // don't draw this if intermediate atoms are not shown
    //
    if (! regularize_object_bonds_box.empty()) {
-      if (moving_atoms_asc->n_selected_atoms) {
-         if (! atom_pulls.empty()) {
+      if (!moving_atoms_asc) return;
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+
+         if (n_atom_pulls > 0) { // class variable now.
 
             Shader &shader = shader_for_models;
             shader.Use();
@@ -977,17 +1023,31 @@ graphics_info_t::draw_atom_pull_restraints() {
             if (err) std::cout << "   error draw_atom_pull_restraints() glBindBuffer()"
                                << " with GL err " << err << std::endl;
 
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_atom_pull_restraints_ID);
+            err = glGetError();
+            if (err) std::cout << "   error draw_atom_pull_restraints() glBindBuffer() for index"
+                               << " with GL err " << err << std::endl;
+
             // Uniforms
             glm::mat4 mvp = get_molecule_mvp();
             glm::mat4 view_rotation = get_view_rotation();
             GLuint mvp_location = shader.mvp_uniform_location;
 
-            GLuint n_verts = n_triangles_for_atom_pull_restraints;
-            if (err) std::cout << "   error draw_atom_pull_restraints() pre-glDrawElements() "
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
+            glEnableVertexAttribArray(2);
+            glEnableVertexAttribArray(3);
+            glEnableVertexAttribArray(4);
+            glEnableVertexAttribArray(5);
+            glEnableVertexAttribArray(6);
+
+            GLuint n_verts = 3 * n_triangles_for_atom_pull_restraints;
+            err = glGetError();
+            if (err) std::cout << "      error draw_atom_pull_restraints() pre-glDrawElements() "
                                << n_verts << " with GL err " << err << std::endl;
             glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
             err = glGetError();
-            if (err) std::cout << "   error draw_atom_pull_restraints() glDrawElements() "
+            if (err) std::cout << "   error in draw_atom_pull_restraints() glDrawElements() n_verts: "
                                << n_verts << " with GL err " << err << std::endl;
          }
       }

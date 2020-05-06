@@ -4538,6 +4538,10 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 	    mol->FinishStructEdit();
 
 	    imol_moving_atoms = imol;
+
+            if (! moving_atoms_asc)
+               moving_atoms_asc = new atom_selection_container_t;
+
 	    *moving_atoms_asc = make_asc(mol);
 	    //    std::cout << "there are " << moving_atoms_asc->n_selected_atoms
 	    // 	     << " selected atoms in the moving_atoms_asc" << std::endl;

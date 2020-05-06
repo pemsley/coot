@@ -2074,6 +2074,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
    moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
    moving_atoms_molecule.make_glsl_bonds_type_checked();
+   setup_atom_pull_restraints_glsl();
 
 }
 

@@ -1,4 +1,10 @@
 
+#ifndef GENERIC_VERTEX
+#define GENERIC_VERTEX
+
+#define GLM_ENABLE_EXPERIMENTAL // needed?
+#include <glm/glm.hpp>
+
 class generic_vertex {
 public:
    glm::mat3 model_rotation_matrix; // orientation
@@ -8,3 +14,5 @@ public:
    glm::vec4 colour;
 };
 
+
+#endif

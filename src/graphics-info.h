@@ -3920,6 +3920,7 @@ string   static std::string sessionid;
    // atom pull restraint
    // static atom_pull_info_t atom_pull; 20180218 just one
    static std::vector<atom_pull_info_t> atom_pulls;
+   static unsigned int n_atom_pulls; // look inside atom_pulls and count the number of pulls with atoms
    static void all_atom_pulls_off();
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
