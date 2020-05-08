@@ -1831,6 +1831,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    int n_angle_restraints = 0; 
    int n_torsion_restraints = 0; 
    int n_plane_restraints = 0;
+   int n_parallel_plane_restraints = 0;
    int n_improper_dihedral_restraints = 0;
    int n_non_bonded_restraints = 0;
    int n_chiral_volumes = 0;
@@ -1845,6 +1846,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    double angle_distortion = 0; 
    double torsion_distortion = 0; 
    double plane_distortion = 0; 
+   double parallel_planes_distortion = 0; 
    double non_bonded_distortion = 0;
    double chiral_vol_distortion = 0;
    double rama_distortion = 0;
@@ -1972,6 +1974,18 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       }
 	    }
 	 }
+
+         if (restraints_usage_flag & PARALLEL_PLANES_MASK) {
+            if (restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+               n_parallel_plane_restraints++;
+               double dist = coot::distortion_score_parallel_planes(restraint, v);
+               parallel_planes_distortion += dist;
+               baddies["Parallel Planes"].update_if_worse(dist, i);
+               if (true) {
+                  std::cout << "parallel plane " << i << " " << restraint << " " << dist << std::endl;
+               }
+            }
+         }
 
 	 if (restraints_usage_flag & coot::NON_BONDED_MASK) { 
 	    if ( restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
@@ -2154,12 +2168,12 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (print_summary)
 	 std::cout << "planes:     N/A " << std::endl;
    } else {
-      double pd = plane_distortion/double(n_plane_restraints);
+      double pd = plane_distortion/static_cast<double>(n_plane_restraints);
       double spd = 0.0;
       if (pd > 0.0)
 	 spd = sqrt(pd);
       if (print_summary)
-	 std::cout << "planes:     " << spd << " from " << n_plane_restraints << std::endl;
+	 std::cout << "planes:     " << spd << " from " << n_plane_restraints << " restraints " << std::endl;
       r += "   planes: ";
       r += coot::util::float_to_string_using_dec_pl(spd, 3);
       r += "\n";
@@ -2167,6 +2181,28 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       s += coot::util::float_to_string_using_dec_pl(spd, 3);
       coot::refinement_lights_info_t rl("Planes", s, spd);
       baddies_iterator = baddies.find("Planes");
+      if (baddies_iterator != baddies.end())
+	 rl.worst_baddie = baddies_iterator->second;
+      lights_vec.push_back(rl);
+   }
+   if (n_parallel_plane_restraints == 0) {
+      if (print_summary)
+	 std::cout << "parallel planes:     N/A " << std::endl;
+   } else {
+      double ppd = parallel_planes_distortion/static_cast<double>(n_parallel_plane_restraints);
+      double sppd = 0.0;
+      if (ppd > 0.0)
+	 sppd = sqrt(ppd);
+      if (print_summary)
+	 std::cout << "parallel planes: " << sppd << " from " << n_parallel_plane_restraints
+                   << " restraints " << std::endl;
+      r += "   parallel planes: ";
+      r += coot::util::float_to_string_using_dec_pl(sppd, 3);
+      r += "\n";
+      std::string s = "Parallel Planes: ";
+      s += coot::util::float_to_string_using_dec_pl(sppd, 3);
+      coot::refinement_lights_info_t rl("Parallel Planes", s, sppd);
+      baddies_iterator = baddies.find("Parallel Planes");
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
