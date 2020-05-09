@@ -664,16 +664,12 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 
    glm::vec4 glm_front_now = unproject(screen_x, screen_y, -1.0); // correct?
    glm::vec4 glm_back_now  = unproject(screen_x, screen_y,  1.0);
-   glm::vec4 glm_mid_now = glm::mix(glm_front_now, glm_back_now, 0.5);
 
-   glm::vec4 glm_front_prev = unproject(mouse_begin.first, mouse_begin.second, -1.0); // correct?
-   glm::vec4 glm_back_prev  = unproject(mouse_begin.first, mouse_begin.second,  1.0);
-   glm::vec4 glm_mid_prev = glm::mix(glm_front_prev, glm_back_prev, 0.5);
+   double oow_f_now = 1.0/glm_front_now.w;
+   double oow_b_now = 1.0/glm_back_now.w;
 
-   glm::vec4 glm_delta = glm_mid_now - glm_mid_prev;
-
-   coot::Cartesian front(glm_front_now.x, glm_front_now.y, glm_front_now.z);
-   coot::Cartesian back(glm_back_now.x, glm_back_now.y, glm_back_now.z);
+   coot::Cartesian front(glm_front_now.x * oow_f_now, glm_front_now.y * oow_f_now, glm_front_now.z * oow_f_now);
+   coot::Cartesian back(glm_back_now.x * oow_b_now, glm_back_now.y * oow_b_now, glm_back_now.z * oow_b_now);
 
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
    coot::Cartesian c_at(at->x, at->y, at->z);
@@ -704,9 +700,10 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 
    glm::vec4 current_mouse_real_world = unproject(screen_x, screen_y, z_depth);
    glm::vec4 glm_current_atom_pos(at->x, at->y, at->z, 1.0);
-   clipper::Coord_orth c_pos(current_mouse_real_world.x,
-			     current_mouse_real_world.y,
-			     current_mouse_real_world.z);
+   float oo_cmwc_w = 1.0/current_mouse_real_world.w;
+   clipper::Coord_orth c_pos(current_mouse_real_world.x * oo_cmwc_w,
+			     current_mouse_real_world.y * oo_cmwc_w,
+			     current_mouse_real_world.z * oo_cmwc_w);
 
    atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), c_pos);
 

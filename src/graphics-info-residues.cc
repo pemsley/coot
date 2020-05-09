@@ -420,6 +420,7 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
             //
             float vqf[4];
             vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+            glm::quat target_quat(vq.q0, vq.q1, vq.q2, vq.q3);
 
             // test: initally along screen Y?
             if (eigens[1] > eigens[0]) {
@@ -468,8 +469,8 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
             const clipper::Coord_orth &rc = residue_centre.second;
             coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
             coot::Cartesian rot_centre = RotationCentre();
-            coot::view_info_t view1(g.quat, rot_centre,      zoom, "current");
-            coot::view_info_t view2(vqf,    res_centre, nice_zoom, "ligand-perp");
+            coot::view_info_t view1(g.glm_quat,  rot_centre,      zoom, "current");
+            coot::view_info_t view2(target_quat, res_centre, nice_zoom, "ligand-perp");
             int nsteps = 60;
             coot::view_info_t::interpolate(view1, view2, nsteps);
 

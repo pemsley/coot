@@ -67,6 +67,8 @@ graphics_info_t::unproject(float x, float y, float z) {
       std::cout << "unproject(" << x << "," << y << "," << z << ")   " << glm::to_string(screenPos_f) << std::endl;
       std::cout << "unproject(" << x << "," << y << "," << z << ")   " << glm::to_string(worldPos_f) << std::endl;
    }
+
+   // to turn these into points in the world space, don't forget to divide by w.
    return worldPos_f;
 
 }
@@ -149,10 +151,15 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 void
 graphics_info_t::set_clipping_front(float v) {
 
-   if (perspective_projection_flag)
-      screen_z_near_perspective = v;
-   else
+   if (perspective_projection_flag) {
+      double l = eye_position.z;
+      float screen_z_near_perspective_limit = l * 0.99;
+      if (v < screen_z_near_perspective_limit)
+         if (v > 2.0)
+            screen_z_near_perspective = v;
+   } else {
       clipping_front = v;
+   }
    graphics_draw();
 }
 
@@ -160,10 +167,15 @@ graphics_info_t::set_clipping_front(float v) {
 void
 graphics_info_t::set_clipping_back(float v) {
 
-   if (perspective_projection_flag)
-      screen_z_far_perspective = v;
-   else
+   if (perspective_projection_flag) {
+      double l = eye_position.z;
+      float screen_z_far_perspective_limit = l * 1.01;
+      if (v > screen_z_far_perspective_limit)
+         if (v < 1000.0)
+            screen_z_far_perspective = v;
+   } else {
       clipping_back = v;
+   }
    graphics_draw();
 }
 

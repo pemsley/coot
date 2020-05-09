@@ -23,6 +23,7 @@
 #ifndef VIEW_HH
 #define VIEW_HH
 
+#include <glm/gtc/quaternion.hpp>
 #include "coords/Cartesian.h"
 
 namespace coot {
@@ -39,17 +40,17 @@ namespace coot {
       bool is_action_view_flag;
       int n_spin_steps;
       float degrees_per_step;
-      float quat[4];
+      //float quat[4];
+      glm::quat quaternion;
       std::string action;
-      view_info_t(float *quat_in, const coot::Cartesian &rot_centre_in,
+      view_info_t(const glm::quat &q, const coot::Cartesian &rot_centre_in,
 		  float zoom_in, const std::string &view_name_in) {
 	is_simple_spin_view_flag = 0;
 	is_action_view_flag = 0;
 	 zoom = zoom_in;
 	 rotation_centre = rot_centre_in;
 	 view_name = view_name_in;
-	 for (int i=0; i<4; i++) 
-	    quat[i] = quat_in[i];
+         quaternion = q;
       }
       view_info_t(const view_info_t &v_in) {
 	 zoom = v_in.zoom;
@@ -61,8 +62,7 @@ namespace coot {
 	 degrees_per_step = v_in.degrees_per_step;
 	 action = v_in.action;
          view_name = v_in.view_name;
-	 for (std::size_t i=0; i<4; i++)
-	    quat[i] = v_in.quat[i];
+         quaternion = v_in.quaternion;
       }
       view_info_t() {
       	is_simple_spin_view_flag = 0;
@@ -94,8 +94,7 @@ namespace coot {
       // when moving from quat_1 to quat_2, if the dot_product is negative,
       // we need to negate_quaternion().
       void negate_quaternion() {
-	 for (unsigned int i=0; i<4; i++)
-	    quat[i] = -quat[i];
+         quaternion = - quaternion;
       }
       static view_info_t interpolate(const view_info_t &view1,
 				     const view_info_t &view2,

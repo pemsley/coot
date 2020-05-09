@@ -8479,13 +8479,10 @@ int add_view_here(const char *view_name) {
    std::cout << "------------------ debug: in add_view_here() with view name " << view_name << std::endl;
 
    std::string name(view_name);
-   float quat[4];
-   for (int i=0; i<4; i++)
-      quat[i] = graphics_info_t::quat[i];
    graphics_info_t g;
    coot::Cartesian rc = g.RotationCentre();
    float zoom = graphics_info_t::zoom;
-   coot::view_info_t view(quat, rc, zoom, name);
+   coot::view_info_t view(graphics_info_t::glm_quat, rc, zoom, name);
 
    std::cout << "------------ in add_view_here() made a view with name: " << view.view_name << std::endl;
    std::cout << "------------ in add_view_here() made a view: " << view << std::endl;
@@ -8500,13 +8497,9 @@ int add_view_here(const char *view_name) {
 int add_view_raw(float rcx, float rcy, float rcz, float quat0, float quat1,
 		  float quat2, float quat3, float zoom, const char *view_name) {
 
-   float quat[4];
-   quat[0] = quat0;
-   quat[1] = quat1;
-   quat[2] = quat2;
-   quat[3] = quat3;
+   glm::quat q(quat0, quat1, quat2, quat3);
    coot::Cartesian rc(rcx, rcy, rcz);
-   coot::view_info_t v(quat, rc, zoom, view_name);
+   coot::view_info_t v(q, rc, zoom, view_name);
    graphics_info_t::views.push_back(v);
    return (graphics_info_t::views.size() -1);
 }
@@ -8602,7 +8595,7 @@ void play_views() {
 	       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 				  graphics_info_t::RotationCentre_y(),
 				  graphics_info_t::RotationCentre_z());
-	       coot::view_info_t current_view(graphics_info_t::quat,
+	       coot::view_info_t current_view(graphics_info_t::glm_quat,
 					      rc, graphics_info_t::zoom, "dummy");
 	       coot::view_info_t::interpolate(current_view, view2, nsteps);
 	       update_things_on_move_and_redraw();
@@ -8617,14 +8610,11 @@ void remove_this_view() {
 
    graphics_info_t g;
    coot::Cartesian rc = g.RotationCentre();
-   float quat[4];
-   for (int i=0; i<4; i++)
-      quat[i] = graphics_info_t::quat[i];
    float zoom =  g.zoom;
 
    int r=0;
    bool found = false;
-   coot::view_info_t v(quat, rc, zoom, "");
+   coot::view_info_t v(graphics_info_t::glm_quat, rc, zoom, "");
 
    std::vector<coot::view_info_t>::iterator it; // needs to be const_iterator? depending on c++ version?
    for (it=graphics_info_t::views.begin(); it!=graphics_info_t::views.end(); it++) {
@@ -8676,10 +8666,9 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	    if (snap_to_view_flag) {
 	       g.setRotationCentre(view.rotation_centre);
 	       g.zoom = view.zoom;
-	       for (int iq=0; iq<4; iq++)
-		  g.quat[iq] = view.quat[iq];
+               g.glm_quat = view.quaternion;
 	    } else {
-	       coot::view_info_t this_view(g.quat, g.RotationCentre(), g.zoom, "");
+	       coot::view_info_t this_view(g.glm_quat, g.RotationCentre(), g.zoom, "");
 	       int nsteps = 2000;
 	       if (graphics_info_t::views_play_speed > 0.000000001)
 		  nsteps = int(2000.0/graphics_info_t::views_play_speed);
@@ -8982,15 +8971,11 @@ void go_to_view_py(PyObject *view) {
       // What is the current view:
       //
       std::string name("Current Position");
-      float quat[4];
-      for (int i=0; i<4; i++)
-         quat[i] = graphics_info_t::quat[i];
       coot::Cartesian rc = g.RotationCentre();
       float zoom = graphics_info_t::zoom;
-      coot::view_info_t view_c(quat, rc, zoom, name);
+      coot::view_info_t view_c(graphics_info_t::glm_quat, rc, zoom, name);
 
       // view_target is where we want to go
-      float quat_target[4];
       quat_python = PyList_GetItem(view, 0);
       int len_quat = PyObject_Length(quat_python);
       if (len_quat == 4) {
@@ -8998,10 +8983,10 @@ void go_to_view_py(PyObject *view) {
          PyObject *q1_python = PyList_GetItem(quat_python, 1);
          PyObject *q2_python = PyList_GetItem(quat_python, 2);
          PyObject *q3_python = PyList_GetItem(quat_python, 3);
-         quat_target[0] = PyFloat_AsDouble(q0_python);
-         quat_target[1] = PyFloat_AsDouble(q1_python);
-         quat_target[2] = PyFloat_AsDouble(q2_python);
-         quat_target[3] = PyFloat_AsDouble(q3_python);
+         glm::quat quat_target(PyFloat_AsDouble(q0_python),
+                               PyFloat_AsDouble(q1_python),
+                               PyFloat_AsDouble(q2_python),
+                               PyFloat_AsDouble(q3_python));
 
          PyObject *rc_target_python = PyList_GetItem(view, 1);
          int len_rc_target = PyObject_Length(rc_target_python);

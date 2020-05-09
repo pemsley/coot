@@ -611,45 +611,36 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
             // Happy case
 
-            // make a view for current pos and one for where you want to go
+            // ----------- target rotation -------------
 
-            // I want to convert from quat (which should be a quaternion) to
-            // a clipper::Mat33<double>
-            //
-            //
-            GL_matrix m(quat);
-            clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
+            clipper::Mat33<double> cr = ro.second.rot();
+            glm::mat3 m(cr(0,0), cr(0,1), cr(0,2),
+                        cr(1,0), cr(1,1), cr(1,2),
+                        cr(2,0), cr(2,1), cr(2,2));
+            glm::quat qq(m);
+            glm::quat target_quat = glm_quat * qq;
 
-            clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
-            coot::util::quaternion vq(mc);
-            // Note to self: Views should use util::quaternion, not this
-            // old style
-            //
-            float vqf[4];
-            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+            //  --------- target position - try the residue and change it if we started on a CA
 
             const clipper::Coord_orth &rc = residue_centre.second;
             coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
             coot::Cartesian rot_centre = RotationCentre();
             coot::Cartesian target_pos = res_centre;
 
-            // however, if we were "close" to the CA of the current
-            // residue, then we should centre on the CA of the next
-            // residue (rather than the mean position) - experimental.
+            // however, if the next residue has a CA atom
+            // then we should centre on the CA of the next
+            // residue (rather than the mean position)
 
             mmdb::Atom *at = atom_pair.second;
             std::string atom_name(at->GetAtomName());
             if (atom_name == " CA ") { // PDBv3 FIXME
                coot::Cartesian ca_pos(at->x, at->y, at->z);
-               coot::Cartesian delta = ca_pos - rot_centre;
-               if (delta.amplitude() < 0.1) {
-                  std::pair<bool, clipper::Coord_orth> ca_next_pos =
-                    coot::util::get_CA_position_in_residue(residue_next);
-                  if (ca_next_pos.first) {
-                     target_pos = coot::Cartesian(ca_next_pos.second.x(),
-                                                  ca_next_pos.second.y(),
-                                                  ca_next_pos.second.z());
-                  }
+               std::pair<bool, clipper::Coord_orth> ca_next_pos =
+                  coot::util::get_CA_position_in_residue(residue_next);
+               if (ca_next_pos.first) {
+                  target_pos = coot::Cartesian(ca_next_pos.second.x(),
+                                               ca_next_pos.second.y(),
+                                               ca_next_pos.second.z());
                }
             }
 
@@ -659,12 +650,9 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
             if (smooth_scroll == 1) {
 
-               coot::view_info_t view1(quat, rot_centre, zoom, "current");
-               coot::view_info_t view2(vqf,  target_pos, zoom, "next");
+               coot::view_info_t view1(glm_quat,    rot_centre, zoom, "current");
+               coot::view_info_t view2(target_quat, target_pos, zoom, "next");
                int nsteps = smooth_scroll_steps * 2;
-
-               std::cout << "############ calling interpolate with view1 " << view1 << std::endl;
-               std::cout << "############ calling interpolate with view2 " << view2 << std::endl;
 
                coot::view_info_t::interpolate(view1, view2, nsteps); // sets up a gtk_widget_add_tick_callback with
                                                                      // a (no-capture) lambda function, so we don't
