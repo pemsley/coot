@@ -171,6 +171,7 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
    GtkAllocation allocation = get_glarea_allocation();
    int w = allocation.width;
    int h = allocation.height;
+   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
    float mouseX = GetMouseBeginX() / (w * 0.5f) - 1.0f;
    float mouseY = GetMouseBeginY() / (h * 0.5f) - 1.0f;
    glm::mat4 mvp = get_molecule_mvp();
@@ -180,17 +181,10 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
    glm::vec4 screenPos_b = glm::vec4(mouseX, real_y,  1.0f, 1.0f); // or other way round?
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
    glm::vec4 worldPos_b = vp_inv * screenPos_b;
-   coot::Cartesian front(worldPos_f.x, worldPos_f.y, worldPos_f.z);
-   coot::Cartesian  back(worldPos_b.x, worldPos_b.y, worldPos_b.z);
-   if (true) {
-      std::cout << "atom_pick() "
-                << " screenPos_f " << glm::to_string(screenPos_f)
-                << " screenPos_b " << glm::to_string(screenPos_b) << std::endl;
-      // std::cout << "atom_pick() mvp:    " << glm::to_string(mvp) << std::endl;
-      // std::cout << "atom_pick() vp_inv: " << glm::to_string(vp_inv) << std::endl;
-      // std::cout << "atom_pick() mouseX,Y " << mouseX << " " << mouseY << std::endl;
-      std::cout << "atom_pick() front: " << front << " back " << back << std::endl;
-   }
+   float w_scale_f = 1.0/worldPos_f.w;
+   float w_scale_b = 1.0/worldPos_b.w;
+   coot::Cartesian front(worldPos_f.x * w_scale_f, worldPos_f.y * w_scale_f, worldPos_f.z * w_scale_f);
+   coot::Cartesian  back(worldPos_b.x * w_scale_b, worldPos_b.y * w_scale_b, worldPos_b.z * w_scale_b);
 
    // atom_pick() allows event to be null, in that case we don't check pick.
    // I don't follow what that is about at the moment.
@@ -199,10 +193,10 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
 
    auto l = [front, back](const molecule_class_info_t &m, int imol) {
                short int pick_mode = PICK_ATOM_ALL_ATOM;
-               if (m.Bonds_box_type() == coot::CA_BONDS)	                          pick_mode = PICK_ATOM_CA_ONLY;
-               if (m.Bonds_box_type() == coot::BONDS_NO_HYDROGENS)		          pick_mode = PICK_ATOM_NON_HYDROGEN;
+               if (m.Bonds_box_type() == coot::CA_BONDS)	                     pick_mode = PICK_ATOM_CA_ONLY;
+               if (m.Bonds_box_type() == coot::BONDS_NO_HYDROGENS)		     pick_mode = PICK_ATOM_NON_HYDROGEN;
                if (m.Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)                pick_mode = PICK_ATOM_CA_OR_LIGAND;
-               if (m.Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)		  pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
+               if (m.Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)		     pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
                if (m.Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) pick_mode = PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND;
                bool verbose_mode = graphics_info_t::debug_atom_picking;
                pick_info mpi = pick_atom_from_atom_selection(m.atom_sel, imol, front, back, pick_mode, verbose_mode);

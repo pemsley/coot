@@ -2747,6 +2747,21 @@ set_clipping_back(float v) {
 }
 
 
+/*! \brief get clipping plane front */
+float get_clipping_plane_front() {
+   graphics_info_t g;
+   return g.get_clipping_plane_front();
+}
+
+/*! \brief get clipping plane back */
+float get_clipping_plane_back() {
+   graphics_info_t g;
+   return g.get_clipping_plane_back();
+}
+
+
+
+
 /*  ----------------------------------------------------------------------- */
 /*                         Colour                                           */
 /*  ----------------------------------------------------------------------- */

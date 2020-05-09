@@ -54,9 +54,10 @@ cylinder::cylinder(const coot::CartesianPair &pospair,
             int int_stack = n_stacks - 1 - i_stack;
             float interpolated_radius = base_radius + delta_radius * one_over_n_stacks * static_cast<float>(int_stack);
 
-            if (base_radius != top_radius)
-               std::cout << "debug radii: " << i_stack << " " << base_radius << " "
-                         << top_radius << " " << interpolated_radius << std::endl;
+            if (false)
+               if (base_radius != top_radius)
+                  std::cout << "debug radii: " << i_stack << " " << base_radius << " "
+                            << top_radius << " " << interpolated_radius << std::endl;
             glm::vec3 sp(x*interpolated_radius, y*interpolated_radius, z_this);
             glm::vec3 t(start.x(), start.y(), start.z());
 

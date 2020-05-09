@@ -1260,6 +1260,18 @@ public:
    void adjust_clipping(float d);
    void set_clipping_front(float v);
    void set_clipping_back(float v);
+   float get_clipping_plane_front() const {
+      if (perspective_projection_flag)
+         return screen_z_near_perspective;
+      else
+         return clipping_front;
+   }
+   float get_clipping_plane_back() const {
+      if (perspective_projection_flag)
+         return screen_z_far_perspective;
+      else
+         return clipping_back;
+   }
 
    // This is for the display object
    static short int display_lists_for_maps_flag;
@@ -1283,6 +1295,10 @@ public:
    static int smooth_scroll_current_step;
    // and the position delta (position at the end of the animation - the postion at the start of the animation)
    static coot::Cartesian smooth_scroll_delta;
+
+   // for reorienting-next-residue, we need to store the start and end view
+   static coot::view_info_t reorienting_residue_start_view;
+   static coot::view_info_t reorienting_residue_end_view;
 
    // atom label font size
    static int atom_label_font_size; // range of 1->3. small, medium, large.
@@ -4065,7 +4081,7 @@ string   static std::string sessionid;
    void init_central_cube();
    void init_buffers();
    void init_hud_text();
-   static glm::mat4 get_molecule_mvp();
+   static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
    static glm::mat4 get_model_view_matrix();
    static glm::vec3 get_world_space_eye_position();
    static glm::vec4 unproject(float z);

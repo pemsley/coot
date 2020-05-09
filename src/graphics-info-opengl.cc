@@ -132,6 +132,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 	    graphics_draw();
 	 }
 	 catch (const std::runtime_error &mess) {
+            std::cout << "debug:: given front " << front << " and back " << back << std::endl;
 	    std::cout << mess.what() << std::endl;
 	 }
       } else {
@@ -148,10 +149,10 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 void
 graphics_info_t::set_clipping_front(float v) {
 
-   float clipping_max = 15.0; // was 10
-   graphics_info_t::clipping_front = v;
-   if (graphics_info_t::clipping_front > clipping_max)
-      graphics_info_t::clipping_front = clipping_max;
+   if (perspective_projection_flag)
+      screen_z_near_perspective = v;
+   else
+      clipping_front = v;
    graphics_draw();
 }
 
@@ -159,10 +160,10 @@ graphics_info_t::set_clipping_front(float v) {
 void
 graphics_info_t::set_clipping_back(float v) {
 
-   float clipping_max = 15.0;
-   graphics_info_t::clipping_back = v;
-   if (graphics_info_t::clipping_back > clipping_max)
-      graphics_info_t::clipping_back = clipping_max;
+   if (perspective_projection_flag)
+      screen_z_far_perspective = v;
+   else
+      clipping_back = v;
    graphics_draw();
 }
 

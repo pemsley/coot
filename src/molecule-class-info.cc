@@ -3723,7 +3723,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       // intermediate atoms have a default bond width of 3, whereas normal molecules
       // have a default bond width of 5. Not sure why, but "correct" for that here
       if (imol_no == -1) pbw = 3.0;
-      float radius = 0.1f * bond_width/pbw;
+      float radius = 0.12f * bond_width/pbw;
 
       bool do_real = true;
       unsigned int idx_running = 0;

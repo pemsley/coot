@@ -2130,6 +2130,13 @@ int  vt_surface_status();
 void set_clipping_back( float v);
 /*! \brief set clipping plane front */
 void set_clipping_front(float v);
+
+/*! \brief get clipping plane front */
+float get_clipping_plane_front();
+
+/*! \brief get clipping plane back */
+float get_clipping_plane_back();
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

@@ -186,13 +186,13 @@ graphics_info_t::get_model_view_matrix() {
 
 // static
 glm::mat4
-graphics_info_t::get_molecule_mvp() {
+graphics_info_t::get_molecule_mvp(bool debug_matrices) {
 
    // presumes that we are in the correct programID
 
    float w = static_cast<float>(graphics_info_t::graphics_x_size);
    float h = static_cast<float>(graphics_info_t::graphics_y_size);
-   float screen_ratio = w/h;
+   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
 
    // I don't think that the quaternion belongs to the model matrix, it should be
    // part of the view matrix I think.
@@ -223,13 +223,6 @@ graphics_info_t::get_molecule_mvp() {
    // view_matrix = glm::scale(view_matrix, reverse_z); causes weirdness - not sure about handedness
    glm::mat4 mvp = projection_matrix * view_matrix * model_matrix;
 
-   if (false) {
-      std::cout << "get_molecule_mvp: " << glm::to_string(projection_matrix) << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(view_matrix) << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(model_matrix) << std::endl;
-      std::cout << "get_molecule_mvp: " << glm::to_string(mvp) << std::endl;
-   }
-
    if (graphics_info_t::perspective_projection_flag) {
 
       // for fun/testing
@@ -239,7 +232,7 @@ graphics_info_t::get_molecule_mvp() {
 
       glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
       
-      glm::vec3 ep = eye_position;
+      glm::vec3 ep = eye_position; // in view space i.e. (0,0,z) (z = 40, say)
       glm::vec3 up(0,1,0);
       glm::vec3 origin(0,0,0);
 
@@ -257,7 +250,17 @@ graphics_info_t::get_molecule_mvp() {
                                                            screen_ratio,
                                                            screen_z_near_perspective,
                                                            screen_z_far_perspective);
+      projection_matrix = projection_matrix_persp; // for debugging below
       mvp = projection_matrix_persp * view_matrix * model_matrix;
+   }
+
+   // bool debug_matrices = false;
+   if (debug_matrices) {
+      std::cout << "model, view, projection, mvp" << std::endl;
+      std::cout << "get_molecule_mvp: " << glm::to_string(model_matrix) << std::endl;
+      std::cout << "get_molecule_mvp: " << glm::to_string(view_matrix) << std::endl;
+      std::cout << "get_molecule_mvp: " << glm::to_string(projection_matrix) << std::endl;
+      std::cout << "get_molecule_mvp: " << glm::to_string(mvp) << std::endl;
    }
 
 
@@ -872,7 +875,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
                }
                for (std::size_t j=0; j<c.vertices.size(); j++) {
                   vertices[iv] = c.vertices[j];
-                  vertices[iv].colour = glm::vec4(0.7, 0.5, 0.3, 1.0);
+                  vertices[iv].colour = glm::vec4(0.8, 0.5, 0.3, 1.0);
                   iv++;
                }
 
@@ -891,11 +894,8 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
                   ifi += 3;
                }
                for (std::size_t j=0; j<c_arrow_head.vertices.size(); j++) {
-
-                  std::cout << "transfering vertex " << iv << " "
-                            << glm::to_string(c_arrow_head.vertices[j].pos) << std::endl;
                   vertices[iv] = c_arrow_head.vertices[j];
-                  vertices[iv].colour = glm::vec4(0.7,0.5,0.3,1.0);
+                  vertices[iv].colour = glm::vec4(0.8,0.5,0.3,1.0);
                   iv++;
                }
             }
@@ -2052,13 +2052,12 @@ on_glarea_key_release_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
 
    if (event->keyval == GDK_KEY_space) {
-      g.reorienting_next_residue_mode = false; // hack
+      // g.reorienting_next_residue_mode = false; // hack
       bool reorienting = graphics_info_t::reorienting_next_residue_mode;
       if (reorienting) {
          if (graphics_info_t::shift_is_pressed) {
             g.reorienting_next_residue(false); // backwards
          } else {
-            std::cout << "Do forward reorienting" << std::endl;
             g.reorienting_next_residue(true); // forwards
          }
       } else {

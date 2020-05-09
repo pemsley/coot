@@ -153,12 +153,12 @@ def load_from_search_load_path(file):
 
 
 python_list = ["redefine_functions.py", "ncs.py", "coot_utils.py", "fitting.py"]
-print("Here in coot_load_modules with python_list", python_list)
+# print("Here in coot_load_modules with python_list", python_list)
 
 
 for coot_python_file in python_list:
     filename = os.path.join(search_load_path, coot_python_file)
-    print("Here in coot_load_modules with filename", filename)
+    # print("Here in coot_load_modules with filename", filename)
     # if filename and os.path.isfile(filename):
     if True:
             # we need user configuration of this verbosity

@@ -158,7 +158,8 @@ void setup_application_icon(GtkWindow *window) {
    char **p;
    for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) {
       char *filename(*p);
-      std::cout << "setup_application_icon() filename " << filename << std::endl;
+      if (false) // remove the noise while I think about other things.
+         std::cout << "setup_application_icon() filename " << filename << std::endl;
       pixbuf = gdk_pixbuf_new_from_file(filename, &error);
       if (error) {
 	 g_print ("Error loading icon: %s\n", error->message);
@@ -174,8 +175,6 @@ void setup_application_icon(GtkWindow *window) {
 	    std::string tmp = coot::util::file_name_non_directory(filename);
             stock_id = tmp.c_str();
             if (! tmp.empty()) {
-               std::cout << "Replace these deprecated icon factory functions"
-                         << filename << "\n";
 	       gtk_icon_factory_add(iconfactory, stock_id, iconset);
 	       gtk_icon_factory_add_default(iconfactory);
 	    }

@@ -1015,7 +1015,7 @@ int probe_available_p() {
 #ifdef USE_PYTHON
 
       PyObject *result;
-      result = safe_python_command_with_return("command_in_path_qm(probe_command)");
+      result = safe_python_command_with_return("coot.command_in_path_qm(probe_command)");
 
       int was_boolean_flag = PyLong_AsLong(result);
       if (was_boolean_flag) {

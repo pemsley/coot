@@ -594,7 +594,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       int imol = atom_pair.first;
       mmdb::Residue *residue_current = atom_pair.second->residue;
 
-      // check dir here
+      // check direction dir here
       mmdb::Residue *residue_next = 0;
       if (dir)
          residue_next = coot::util::next_residue(residue_current);
@@ -642,7 +642,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
             if (atom_name == " CA ") { // PDBv3 FIXME
                coot::Cartesian ca_pos(at->x, at->y, at->z);
                coot::Cartesian delta = ca_pos - rot_centre;
-               if (delta.amplitude() < 0.01) {
+               if (delta.amplitude() < 0.1) {
                   std::pair<bool, clipper::Coord_orth> ca_next_pos =
                     coot::util::get_CA_position_in_residue(residue_next);
                   if (ca_next_pos.first) {
@@ -653,6 +653,8 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                }
             }
 
+            smooth_scroll_delta = target_pos - rot_centre;
+            std::cout << "Here in reorienting_next_residue() " << smooth_scroll << std::endl;
             set_old_rotation_centre(RotationCentre());
 
             if (smooth_scroll == 1) {
@@ -660,10 +662,13 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                coot::view_info_t view1(quat, rot_centre, zoom, "current");
                coot::view_info_t view2(vqf,  target_pos, zoom, "next");
                int nsteps = smooth_scroll_steps * 2;
-               coot::view_info_t::interpolate(view1, view2, nsteps);
 
-               // bleugh :-)
-               for(int i=0; i<4; i++) quat[i] = vqf[i];
+               std::cout << "############ calling interpolate with view1 " << view1 << std::endl;
+               std::cout << "############ calling interpolate with view2 " << view2 << std::endl;
+
+               coot::view_info_t::interpolate(view1, view2, nsteps); // sets up a gtk_widget_add_tick_callback with
+                                                                     // a (no-capture) lambda function, so we don't
+                                                                     // want to change thew view here.
 
             } else {
 
@@ -671,8 +676,14 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                rotation_centre_x = target_pos.x();
                rotation_centre_y = target_pos.y();
                rotation_centre_z = target_pos.z();
+
+               // Replace this with updating the glm_quat, then redraw
+
                // bleugh again
-               for(int i=0; i<4; i++) quat[i] = vqf[i];
+               // for(int i=0; i<4; i++) quat[i] = vqf[i];
+
+               try_centre_from_new_go_to_atom();
+               update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
             }
 
@@ -681,8 +692,6 @@ graphics_info_t::reorienting_next_residue(bool dir) {
             go_to_atom_residue_     = residue_next->GetSeqNum();
             go_to_atom_inscode_     = residue_next->GetInsCode();
 
-            try_centre_from_new_go_to_atom();
-            update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
             if (go_to_atom_window) {
                // what is next_atom here? Hmm
@@ -985,7 +994,7 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
       double theta = 2.0 * M_PI * frac * smooth_scroll_current_step; // not used!
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
       add_vector_to_rotation_centre(this_step_delta);
-      if (false)
+      if (true)
          std::cout << "animation this_step " << smooth_scroll_current_step
                    << " this_step_delta: " << this_step_delta
                    << " for frac " << frac
@@ -1050,7 +1059,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       gpointer user_data = 0;
       smooth_scroll_current_step = 0;
       smooth_scroll_delta = coot::Cartesian(xd, yd, zd);
-      if (false) {
+      if (true) {
          std::cout << "in smooth_scroll_maybe_sinusoidal_acceleration() with set smooth_scroll_delta "
                    << smooth_scroll_delta << " length " << smooth_scroll_delta.amplitude()
                    << std::endl;
