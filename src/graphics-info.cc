@@ -982,7 +982,7 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
       double theta = 2.0 * M_PI * frac * smooth_scroll_current_step; // not used!
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
       add_vector_to_rotation_centre(this_step_delta);
-      if (true)
+      if (false)
          std::cout << "animation this_step " << smooth_scroll_current_step
                    << " this_step_delta: " << this_step_delta
                    << " for frac " << frac

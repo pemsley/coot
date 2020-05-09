@@ -105,8 +105,11 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
          glm::vec4 worldPos_1 = vp_inv * screenPos_1;
          glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
-         coot::Cartesian front(worldPos_1.x, worldPos_1.y, worldPos_1.z);
-	 coot::Cartesian  back(worldPos_2.x, worldPos_2.y, worldPos_2.z);
+         double oowp_1 = 1.0/worldPos_1.w;
+         double oowp_2 = 1.0/worldPos_2.w;
+         coot::Cartesian front(worldPos_1.x * oowp_1, worldPos_1.y * oowp_1, worldPos_1.z * oowp_1);
+	 coot::Cartesian  back(worldPos_2.x * oowp_2, worldPos_2.y * oowp_2, worldPos_2.z * oowp_2);
+
 	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
 	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
          if (false) {
