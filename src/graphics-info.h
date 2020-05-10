@@ -4086,6 +4086,7 @@ string   static std::string sessionid;
    static glm::vec3 get_world_space_eye_position();
    static glm::vec4 unproject(float z);
    static glm::vec4 unproject(float x, float y, float z);
+   static glm::vec3 unproject_to_world_coordinates(glm::vec3 &projected_coords);
    static glm::mat4 get_view_rotation();
    static void setup_map_uniforms(const Shader &shader, // in the draw loop
                                   const glm::mat4 &mvp,

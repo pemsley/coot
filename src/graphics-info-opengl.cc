@@ -73,6 +73,16 @@ graphics_info_t::unproject(float x, float y, float z) {
 
 }
 
+// static
+glm::vec3
+graphics_info_t::unproject_to_world_coordinates(glm::vec3 &projected_coords) {
+
+   glm::vec4 c = unproject(projected_coords.x, projected_coords.y, projected_coords.z);
+   double oow = 1.0/c.w;
+   return glm::vec3(c.x * oow, c.y * oow, c.z * oow);
+
+}
+
 
 int
 graphics_info_t::blob_under_pointer_to_screen_centre() {
