@@ -228,25 +228,36 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
 //    std::cout << "INFO:: there are " << dc.geometry_distortion.size() 
 // 	     << " distortions in container " << chain_number << std::endl;
 
-   if (chain_number < int(chain_index.size()))
+   if (chain_number < static_cast<int>(chain_index.size()))
       chain_index[chain_number] = dc.chain_id;
 
+   // dc can contain "unset" values for max_resno and min_resno, so check them here
+   //
    int max_resno = dc.max_resno;
    int min_resno = dc.min_resno;
-   int nres = max_resno - min_resno +1;
-   offsets[chain_number] = min_resno -1;
-   if (0)
-       std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
-       << offsets[chain_number] << std::endl;
+   if (max_resno >= 0) {
+      int nres = max_resno - min_resno + 1;
+      offsets[chain_number] = min_resno - 1;
+      if (false) // debug
+         std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
+                   << offsets[chain_number] << std::endl;
 
-   draw_chain_axis(nres, chain_number);
-   draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
+      draw_chain_axis(nres, chain_number);
+      draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
 
-   // std::cout << "DEBUG:: blocks.size(): " << blocks.size() << std::endl;
-   // std::cout << "DEBUG:: resizing blocks[" << chain_number << "] to " << nres << std::endl;
-   blocks[chain_number].resize(nres + 1); // needs to index max_resno
-   render_geometry_distortion_blocks_internal_linear(dc, min_resno, max_resno);
-   label_chain(dc.chain_id, chain_number); // labels last so they are on top.
+      if (false) {
+         std::cout << "DEBUG:: blocks.size(): " << blocks.size() << std::endl;
+         std::cout << "DEBUG:: resizing blocks[" << chain_number << "] to " << nres << std::endl;
+      }
+      if (chain_number < static_cast<int>(blocks.size())) {
+         if (nres > 0) {
+            blocks[chain_number].resize(nres + 1); // needs to index max_resno
+            render_geometry_distortion_blocks_internal_linear(dc, min_resno, max_resno);
+            label_chain(dc.chain_id, chain_number); // labels last so they are on top.
+         }
+      }
+   }
+
 
 }
 
