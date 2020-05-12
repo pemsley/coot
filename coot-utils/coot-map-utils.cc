@@ -982,7 +982,7 @@ coot::util::difference_map(const clipper::Xmap<float> &xmap_in_1,
 // make a copy of map_in, but in the cell and gridding of reference_map
 clipper::Xmap<float>
 coot::util::reinterp_map(const clipper::Xmap<float> &xmap_in,
-			 const clipper::Xmap<float> &reference_xmap) {
+                         const clipper::Xmap<float> &reference_xmap) {
 
    clipper::Xmap<float> rmap;
    rmap.init(reference_xmap.spacegroup(), reference_xmap.cell(), reference_xmap.grid_sampling());
@@ -1010,16 +1010,15 @@ coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float>
    if (maps_and_scales_vec.size() > 0) {
 
       for (unsigned int imap=0; imap<maps_and_scales_vec.size(); imap++)
-	 std::cout << "INFO:: multiplying map (function index) " << imap << " "
-		   << maps_and_scales_vec[imap].first.grid_sampling().format()
-		   << " by " << maps_and_scales_vec[imap].second << std::endl;
-
+         std::cout << "INFO:: multiplying map (function index) " << imap << " "
+                   << maps_and_scales_vec[imap].first.grid_sampling().format()
+                   << " by " << maps_and_scales_vec[imap].second << std::endl;
 
       // set the first map and scale it.
       rmap = maps_and_scales_vec[0].first;
       clipper::Xmap_base::Map_reference_index ix;
       for (ix = rmap.first(); !ix.last(); ix.next())
-	 rmap[ix] *= maps_and_scales_vec[0].second;
+         rmap[ix] *= maps_and_scales_vec[0].second;
 
       for (unsigned int iothers=1; iothers<maps_and_scales_vec.size(); iothers++) {
 	 for (ix = rmap.first(); !ix.last(); ix.next())  {
@@ -1035,13 +1034,13 @@ coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float>
       }
       float scale_sum = 0.0;
       for (unsigned int i=0; i<maps_and_scales_vec.size(); i++) {
-	 scale_sum += maps_and_scales_vec[i].second;
+         scale_sum += maps_and_scales_vec[i].second;
       }
       if (scale_sum != 0.0) {
-	 float sf = 1.0/scale_sum;
-	 for (ix = rmap.first(); !ix.last(); ix.next())  {
-	    rmap[ix] *= sf;
-	 }
+         float sf = 1.0/scale_sum;
+         for (ix = rmap.first(); !ix.last(); ix.next())  {
+            rmap[ix] *= sf;
+         }
       }
    }
    return rmap;
