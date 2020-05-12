@@ -3391,7 +3391,8 @@ public:
    static float difference_map_peaks_sigma_level;
 
    // ---------------- backup filenames ----------------------
-   static short int unpathed_backup_file_names_flag;
+   static bool unpathed_backup_file_names_flag;
+   static bool decoloned_backup_file_names_flag;
    static int backup_compress_files_flag;
 
    // --------- Miguel's axis orientation matrix ---------------

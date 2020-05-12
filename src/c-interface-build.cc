@@ -622,6 +622,19 @@ int backup_compress_files_state() {
   return state;
 } 
 
+void set_decoloned_backup_file_names(int state) {
+   graphics_info_t::decoloned_backup_file_names_flag = state;
+   std::vector<std::string> command_strings;
+   command_strings.push_back("set-decoloned-backup-file-names");
+   command_strings.push_back(graphics_info_t::int_to_string(state));
+   add_to_history(command_strings);
+}
+
+int decoloned_backup_file_names_state() {
+   add_to_history_simple("decoloned-backup-file-names-state");
+   return graphics_info_t::decoloned_backup_file_names_flag;
+}
+
 
 
 
