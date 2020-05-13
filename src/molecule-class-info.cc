@@ -2526,7 +2526,7 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
          for (unsigned int ii=0; ii<2; ii++) {
             float base_point_size =  280.0/zsc;
             if (ii==1)
-               base_point_size = 2.0 * base_point_size;
+               base_point_size = 1.5 * base_point_size;
             float current_point_size = base_point_size;
             glPointSize(current_point_size);
 
