@@ -4724,6 +4724,12 @@ turn off with state = 0
 turn on with state = 1 */
 void set_draw_stick_mode_atoms(int imol, short int state);
 
+/*! \brief set the state for drawing missing resiude loops
+
+For taking screenshots, we often don't want to see them.
+*/
+void set_draw_missing_residues_loops(short int state);
+
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);
 /*! \brief draw molecule number imol as CA + ligands */

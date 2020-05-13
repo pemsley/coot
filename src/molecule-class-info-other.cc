@@ -447,7 +447,8 @@ molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_g
 
    //
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
+   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7,
+                                                    draw_hydrogens_flag, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
 }
@@ -459,6 +460,7 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
 				  2.4, 4.7,
+                                  graphics_info_t::draw_missing_loops_flag,
 				  coot::COLOUR_BY_RAINBOW,
 				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
    bonds_box = bonds.make_graphical_bonds_no_thinning();

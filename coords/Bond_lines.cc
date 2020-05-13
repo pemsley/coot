@@ -108,6 +108,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   const coot::protein_geometry *geom_in,
 					   int do_disulphide_bonds_in,
 					   int do_bonds_to_hydrogens_in,
+                                           bool draw_missing_loops_flag,
 					   int model_number,
 					   std::string dummy,
 					   bool do_rama_markup,
@@ -136,7 +137,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
 
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0,
+                      draw_missing_loops_flag,
+                      model_number,
 		      do_rama_markup, do_rota_markup);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
@@ -1575,6 +1578,8 @@ void
 Bond_lines_container::atom_selection_missing_loops(const atom_selection_container_t &asc,
                                                    int udd_atom_index_handle, int udd_fixed_during_refinement_handle) {
 
+   // this is not called if draw_missing_loops_flag is false
+
    mmdb::Manager *mol = asc.mol;
    int imodel= 1;
    mmdb::Model *model_p = mol->GetModel(imodel);
@@ -1600,8 +1605,8 @@ Bond_lines_container::atom_selection_missing_loops(const atom_selection_containe
                int res_no_2 = residue_this->GetSeqNum();
                int res_no_delta = res_no_2 - res_no_1;
                if (res_no_delta > 1) {
-                  do_Ca_loop(imodel, ires, nres, chain_p, residue_prev, residue_this,
-                             udd_atom_index_handle, udd_fixed_during_refinement_handle);
+                     do_Ca_loop(imodel, ires, nres, chain_p, residue_prev, residue_this,
+                                udd_atom_index_handle, udd_fixed_during_refinement_handle);
                }
             }
          }
@@ -1617,6 +1622,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 					 float min_dist, float max_dist,
 					 int atom_colour_type,
 					 short int is_from_symmetry_flag,
+                                         bool draw_missing_loops_flag,
 					 int model_number,
 					 bool do_rama_markup,
 					 bool do_rota_markup) {
@@ -1744,7 +1750,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
       if (imodel == 1) {
          int udd_fixed_during_refinement_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
-         atom_selection_missing_loops(SelAtom, udd_atom_index_handle, udd_fixed_during_refinement_handle);
+         if (draw_missing_loops_flag)
+            atom_selection_missing_loops(SelAtom, udd_atom_index_handle, udd_fixed_during_refinement_handle);
       }
 
       mmdb::PPAtom     Hydrogen_atoms = atom_stuff_vec[imodel].Hydrogen_atoms();
@@ -3891,7 +3898,7 @@ Bond_lines::size() const {
 // Oh well, a brief flash is better than permanently on during refinement.
 void
 Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
-				  float min_dist, float max_dist) {
+				  float min_dist, float max_dist, bool draw_missing_loops_flag) {
 
    if (udd_has_ca_handle == -1)
       udd_has_ca_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_RESIDUE, "has CA");
@@ -3904,9 +3911,9 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
    coot::my_atom_colour_map_t atom_colour_map_in;
    coot::my_atom_colour_map_t atom_colour_map =
       do_Ca_or_P_bonds_internal(SelAtom, " CA ", atom_colour_map_in,  // PDBv3 FIXME
-				min_dist, max_dist, coot::COLOUR_BY_CHAIN);
+				min_dist, max_dist, draw_missing_loops_flag, coot::COLOUR_BY_CHAIN);
    do_Ca_or_P_bonds_internal(SelAtom, " P  ",  atom_colour_map,
-			     0.1,      7.5, coot::COLOUR_BY_CHAIN);
+			     0.1,      7.5, draw_missing_loops_flag, coot::COLOUR_BY_CHAIN);
 }
 
 void
@@ -4136,7 +4143,9 @@ coot::my_atom_colour_map_t
 Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAtom,
 						const char *backbone_atom_id,
 						coot::my_atom_colour_map_t atom_colour_map,
-						float min_dist, float max_dist, int bond_colour_type) {
+						float min_dist, float max_dist,
+                                                bool draw_missing_loops_flag,
+                                                int bond_colour_type) {
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 
    int atom_colours_udd = -1; // unset/bad
@@ -4192,8 +4201,9 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
                   int res_no_delta = res_no_2 - res_no_1;
 		  if (res_no_delta > 1) {
 
-		     do_Ca_loop(imod, ires, nres, chain_p, residue_prev, residue_this,
-				udd_atom_index_handle, udd_fixed_during_refinement_handle);
+                     if (draw_missing_loops_flag)
+                        do_Ca_loop(imod, ires, nres, chain_p, residue_prev, residue_this,
+                                   udd_atom_index_handle, udd_fixed_during_refinement_handle);
 
                   } else {
 
@@ -4686,6 +4696,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 					       coot::protein_geometry *pg,
 					       float min_dist,
 					       float max_dist,
+                                               bool draw_missing_loops_flag,
 					       bool do_bonds_to_hydrogens_in) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -4694,16 +4705,18 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       have_dictionary = true;
    }
    //do_Ca_plus_ligands_bonds(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE);
-   do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist, max_dist, coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
+   do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist, max_dist, draw_missing_loops_flag,
+                            coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
 }
 
 void
 Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
 							      int imol,
-					       coot::protein_geometry *pg,
-					       float min_dist_ca, float max_dist_ca,
-					       float min_dist, float max_dist,
-					       bool do_bonds_to_hydrogens_in) {
+                                                              coot::protein_geometry *pg,
+                                                              float min_dist_ca, float max_dist_ca,
+                                                              float min_dist, float max_dist,
+                                                              bool draw_missing_loops_flag,
+                                                              bool do_bonds_to_hydrogens_in) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    if (pg) {
@@ -4722,6 +4735,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 					       coot::protein_geometry *pg,
 					       float min_dist,
 					       float max_dist,
+                                               bool draw_missing_loops_flag,
 					       int atom_colour_type,
 					       bool do_bonds_to_hydrogens_in) {
 
@@ -4767,7 +4781,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       }
 
       coot::my_atom_colour_map_t acm;
-      do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, atom_colour_type);
+      do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, draw_missing_loops_flag, atom_colour_type);
 
       // do_Ca_plus_ligands_bonds has set udd_has_ca_handle on
       // residues that have CAs.  Now let's run through the residues
@@ -4847,6 +4861,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 							      coot::protein_geometry *pg,
 							      float min_dist_ca, float max_dist_ca,
 							      float min_dist, float max_dist,
+                                                              bool draw_missing_loops_flag,
 							      int atom_colour_type,
 							      bool do_bonds_to_hydrogens_in) {
 
@@ -4859,7 +4874,8 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    }
 
    // first do Ca plus ligand
-   do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist_ca, max_dist_ca, atom_colour_type, do_bonds_to_hydrogens_in);
+   do_Ca_plus_ligands_bonds(SelAtom, imol, pg, min_dist_ca, max_dist_ca, draw_missing_loops_flag,
+                            atom_colour_type, do_bonds_to_hydrogens_in);
 
    // now do normal bonds for CA+sidechain
    // mmmh are the distances correct!?
@@ -4895,7 +4911,8 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    // BL says:: may need to min max, but just go for fixed one now. FIXME
    //   do_normal_bonds_no_water(asc, min_dist, max_dist);
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, 0, model_number, do_rama_markup);
+   construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, 0, draw_missing_loops_flag,
+                      model_number, do_rama_markup);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
 }
@@ -4977,6 +4994,7 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
 								 int imol,
 								 coot::protein_geometry *pg,
 								 float min_dist, float max_dist,
+                                                                 bool draw_missing_loops_flag,
 								 bool do_bonds_to_hydrogens_in) {
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    if (asc.n_selected_atoms > 0) {
@@ -4986,7 +5004,8 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
 	 if (model_p) {
 	    int aminoSelHnd = -1;
 	    model_p->CalcSecStructure(1, aminoSelHnd);
-	    do_Ca_plus_ligands_bonds(asc, imol, pg, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT, do_bonds_to_hydrogens_in);
+	    do_Ca_plus_ligands_bonds(asc, imol, pg, min_dist, max_dist, draw_missing_loops_flag,
+                                     coot::COLOUR_BY_SEC_STRUCT, do_bonds_to_hydrogens_in);
 	 }
       }
    }
@@ -5077,6 +5096,7 @@ void
 Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t &asc,
 					       int imol,
 					       int draw_hydrogens_flag,
+                                               bool draw_missing_loops_flag,
 					       short int change_c_only_flag,
 					       bool do_goodsell_colour_mode) {
 
@@ -5085,15 +5105,15 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
       if (do_goodsell_colour_mode) {
 	 atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-	 do_colour_by_chain_bonds_carbons_only(asc, imol, atom_colour_type, draw_hydrogens_flag);
+	 do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
       } else {
-	 do_colour_by_chain_bonds_carbons_only(asc, imol, atom_colour_type, draw_hydrogens_flag);
+	 do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
       }
       return;
    } else {
       if (do_goodsell_colour_mode) {
 	 int atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-	 do_colour_by_chain_bonds_carbons_only(asc, imol, atom_colour_type, draw_hydrogens_flag);
+	 do_colour_by_chain_bonds_carbons_only(asc, imol, draw_missing_loops_flag, atom_colour_type, draw_hydrogens_flag);
 	 return;
       }
    }
@@ -5331,6 +5351,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 void
 Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
 							    int imol,
+                                                            bool draw_missing_loops_flag,
 							    int atom_colour_type,
 							    int draw_hydrogens_flag) {
 
@@ -5596,7 +5617,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    add_atom_centres(asc, atom_colour_type);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
-   atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
+   if (draw_missing_loops_flag)
+      atom_selection_missing_loops(asc, udd_atom_index_handle, udd_fixed_during_refinement_handle);
 
 
 }

@@ -3457,8 +3457,7 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_sym
 // ------------------------------------------------------------------------------
 
 void
-molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
-				 bool add_residue_indices) {
+molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
    // std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
    //
@@ -3474,10 +3473,9 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 }
 
 void
-molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p,
-				 bool add_residue_indices) {
+molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
 
-   Bond_lines_container bonds(atom_sel, max_dist);
+   Bond_lines_container bonds(atom_sel, max_dist, graphics_info_t::draw_missing_loops_flag);
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3490,7 +3488,7 @@ void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 				 const std::set<int> &no_bonds_to_these_atoms) {
 
-// come back to this
+   // come back to this
 
    std::set<int>::const_iterator it;
    if (false) { // debug no_bonds_to_these_atoms
@@ -3510,6 +3508,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
 			      geom_p, do_disulphide_flag, draw_hydrogens_flag,
+                              graphics_info_t::draw_missing_loops_flag,
 			      model_number, "dummy", false, false, false);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3523,7 +3522,7 @@ void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
-   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
@@ -3536,7 +3535,7 @@ void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices);
-   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
 
@@ -3553,7 +3552,8 @@ void
 molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) {
 
    Bond_lines_container bonds(geom_p);
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag,
+                                  graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
 
@@ -3565,7 +3565,8 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
-                                                 0.01, 1.9, draw_hydrogens_flag);
+                                                 0.01, 1.9, draw_hydrogens_flag,
+                                                 graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
 
@@ -3579,7 +3580,9 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag, goodsell_mode);
+   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag,
+                                  graphics_info_t::draw_missing_loops_flag,
+                                  change_c_only_flag, goodsell_mode);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
 
@@ -3668,7 +3671,8 @@ molecule_class_info_t::make_bonds_type_checked() {
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
       b_factor_representation_as_cas();
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS)
-      user_defined_colours_representation(g.Geom_p(), true); // hack, because we need to remeber somehow
+      user_defined_colours_representation(g.Geom_p(), true, g.draw_missing_loops_flag); // hack,
+                                                             // because we need to remeber somehow
                                                              // if this was called with all-atom or CA-only.
                                                              // See c-interface.cc
                                                              // graphics_to_user_defined_atom_colours_representation()

@@ -76,7 +76,8 @@ molecule_class_info_t::set_user_defined_colour_indices(const std::vector<std::pa
 
 void
 molecule_class_info_t::user_defined_colours_representation(coot::protein_geometry *geom_p,
-							   bool all_atoms_mode) { 
+							   bool all_atoms_mode,
+                                                           bool draw_missing_loops_flag) { 
 
    bonds_box.clear_up();
    if (all_atoms_mode) {
@@ -89,7 +90,8 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
    } else {
 
       Bond_lines_container bonds(geom_p);
-      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
+                                     coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
       bool add_residue_indices = true;
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;

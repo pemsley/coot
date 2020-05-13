@@ -16,4 +16,4 @@ std::string graphics_info_t::mtz_file_for_refmac;
 
 bool graphics_info_t::convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
-
+bool graphics_info_t::draw_missing_loops_flag = true;
