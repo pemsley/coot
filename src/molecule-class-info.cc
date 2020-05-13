@@ -2519,77 +2519,74 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	 // pass this?
 	 const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
-	 // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
-	 // << std::endl;
+         float zsc = graphics_info_t::zoom;
+         coot::Cartesian z_delta = (front - back) * 0.003;
 
-	 float zsc = graphics_info_t::zoom;
-         float base_point_size =  280.0/zsc;
-         float current_point_size = base_point_size;
-	 glPointSize(current_point_size);
+         // in general, we need to run this loop for every different atom radius
+         for (unsigned int ii=0; ii<2; ii++) {
+            float base_point_size =  280.0/zsc;
+            if (ii==1)
+               base_point_size = 2.0 * base_point_size;
+            float current_point_size = base_point_size;
+            glPointSize(current_point_size);
 
-         /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
-             unapply and reapply the mvp matrix. Hmm.
+            /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
+                unapply and reapply the mvp matrix. Hmm.
 
-             glPushMatrix();
-             glScalef(1.0, 1.0, -1.0);
-             gluDisk(quad, 0, base, slices, 2);
-             glPopMatrix();
-         */
+                glPushMatrix();
+                glScalef(1.0, 1.0, -1.0);
+                gluDisk(quad, 0, base, slices, 2);
+                glPopMatrix();
+            */
 
-         glBegin(GL_POINTS);
+            glBegin(GL_POINTS);
 
-	 // for a big molecule, it's a factor of 10 or more slower
-	 // to put glColor3f in the middle of the loop.
-	 //
-	 // Hence we use sets of atoms consolidated by their colour index
+            // for a big molecule, it's a factor of 10 or more slower
+            // to put glColor3f in the middle of the loop.
+            //
+            // Hence we use sets of atoms consolidated by their colour index
 
-	 // colour by chain atom have atoms of a single colour currently
+            // colour by chain atom have atoms of a single colour currently
 
-	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
-	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
-	 // Note that this delta for atom interacts with the highlight.
-	 //
-	 coot::Cartesian z_delta = (front - back) * 0.003;
-	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-	    if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-	       set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
-	    } else {
-	       set_bond_colour_by_mol_no(icol, against_a_dark_background);
-	    }
-	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-	       // no points for hydrogens
-               const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
-	       if (! gbai.is_hydrogen_atom || gbai.is_water) {
+            // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
+            // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+            // Note that this delta for atom interacts with the highlight.
+            //
+            for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+               if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+                  set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
+               } else {
+                  set_bond_colour_by_mol_no(icol, against_a_dark_background);
+               }
+               for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+                  // no points for hydrogens
+                  const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+                  if (! gbai.is_hydrogen_atom || gbai.is_water) {
 
-		  if (! display_stick_mode_atoms_flag && !gbai.is_water) {
-		     continue;
-		  }
+                     if (! display_stick_mode_atoms_flag && !gbai.is_water) {
+                        continue;
+                     }
 
-		  if ((single_model_view_current_model_number == 0) ||
-		      (single_model_view_current_model_number == gbai.model_number)) {
+                     if ((single_model_view_current_model_number == 0) ||
+                         (single_model_view_current_model_number == gbai.model_number)) {
 
-		     if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
+                        if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
 
-                        float this_point_size = base_point_size;
-                        if (gbai.radius_scale != 1.0)
-                           this_point_size = base_point_size * 4.0 * gbai.radius_scale;
+                           bool do_it = false;
+                           if (ii==0 && gbai.radius_scale == 1.0) do_it = true;
+                           if (ii==1 && gbai.radius_scale >  1.0) do_it = true;
 
-                        // This code seems to be doing the right thing - I just don't see that the points
-                        // change size - perhaps I need to put big points into their own loop.
-                        if (current_point_size != this_point_size) {
-                           current_point_size = this_point_size;
-                           // std::cout << "rescale point size " << current_point_size << std::endl;
-                           glPointSize(current_point_size);
+                           if (do_it) {
+                              const coot::Cartesian &pt = gbai.position;
+                              glVertex3f(pt.x()+z_delta.x(), pt.y()+z_delta.y(), pt.z()+z_delta.z());
+                           }
                         }
-
-			const coot::Cartesian &fake_pt = gbai.position;
-			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
-		     }
-		  }
-	       }
-	    }
-	 }
-	 glEnd();
+                     }
+                  }
+               }
+            }
+            glEnd();
+         }
 
 
 	 // highlights?
