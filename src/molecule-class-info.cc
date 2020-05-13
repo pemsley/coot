@@ -6929,7 +6929,7 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       std::string clean_name = name_;
       if (g.unpathed_backup_file_names_flag) {
-	 clean_name = name_for_display_manager();
+         clean_name = name_for_display_manager();
       }
       // convert "/" to "_"
       int slen = clean_name.length();
@@ -6940,8 +6940,8 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
                              || clean_name[i] == ':')
             clean_name[i] = '_';
 #else
-	 if (clean_name[i] == '/')
-	    clean_name[i] = '_';
+      if (clean_name[i] == '/')
+         clean_name[i] = '_';
 #endif // win32 things
 
       time_string += clean_name;
@@ -6949,31 +6949,32 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       // add in the time component:
 
-#if defined(__CYGWIN__) || defined(_MSC_VER)
-
-      // but not if we are in windows:
-
-#else
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
+      int l = strlen(chars_time);
+
+      bool decolonify = g.decoloned_backup_file_names_flag;
+
 #ifdef WINDOWS_MINGW
-// BL says: why not? We can fix this. I show you how it's done in MINGW:
-// dunno if it works in other win32 systems. Havent checked
-// we just convert the : to _
-      for (int i=0; i<24; i++) {
-         if (chars_time[i] == ':') {
-             chars_time[i] = '_';
+      decolonify = true;
+#endif
+
+      if (decolonify) {
+         // we just convert the : to _
+         for (int i=0; i<l; i++) {
+            if (chars_time[i] == ':') {
+                chars_time[i] = '_';
+            }
          }
       }
-#endif // MINGW
+
       time_string += chars_time;
-#endif // other WIN32
 
       // strip off the trailing newline:
       slen = time_string.length();
       if (slen > 2)
-	 time_string = time_string.substr(0,slen-1);
+         time_string = time_string.substr(0,slen-1);
 
       // convert spaces to underscores
       //

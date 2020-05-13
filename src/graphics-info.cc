@@ -3112,14 +3112,14 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 
       for (unsigned int i=0; i<12; i++) {
 
-	 std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
+         std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
 
-	 glBegin(GL_TRIANGLE_FAN);
+         glBegin(GL_TRIANGLE_FAN);
 
-	 // first the base point (tip of the triangles/pyrimid)
-	 clipper::Coord_orth pvu(pv[i].unit());
-	 glNormal3d(pvu.x(), pvu.y(), pvu.z());
-	 glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
+         // first the base point (tip of the triangles/pyrimid)
+         clipper::Coord_orth pvu(pv[i].unit());
+         glNormal3d(pvu.x(), pvu.y(), pvu.z());
+         glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
 
 	 for (unsigned int j=0; j<=4; j++) {
 	    const clipper::Coord_orth &pt = v[face[j]];
