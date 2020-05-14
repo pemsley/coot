@@ -1623,13 +1623,10 @@ do_drag_pan_gtk3(GtkWidget *widget) {
    glm::vec4 worldPos_1 = vp_inv * screenPos_1;
    glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
-   glm::vec4 delta(worldPos_1 - worldPos_2);
+   glm::vec4 delta(worldPos_1 / worldPos_1.w - worldPos_2 / worldPos_2.w);
    glm::vec3 delta_v3(delta);
 
-   float delta_scale_factor = 1.0;
-   if (graphics_info_t::perspective_projection_flag)
-      delta_scale_factor = 20.0; // move the front a lot more
-   g.add_to_rotation_centre(delta_scale_factor * delta_v3);
+   g.add_to_rotation_centre(delta_v3);
    g.update_maps();
    if (graphics_info_t::glareas.size() > 0)
       int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
