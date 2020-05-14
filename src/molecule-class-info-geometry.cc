@@ -20,13 +20,14 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
       // set_bond_colour_by_mol_no(icol, against_a_dark_background); // this function is const ATM.
       for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 
-         float sphere_scale = 1.0;
-         // points for hydrogens need smaller radius. Exclude them for now
-         if (bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom)
+         const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
+         float sphere_scale = ai.radius_scale * 1.18;
+
+         if (ai.is_hydrogen_atom) // this should be set already (in the generator). Is it?
             sphere_scale = 0.5;
 
          if (true) {
-            const coot::Cartesian &at_pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+            const coot::Cartesian &at_pos = ai.position;
 
             for (unsigned int i=0; i<20; i++) { // dodec vertices
                const clipper::Coord_orth &pt = d.d.get_point(i);
