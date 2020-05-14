@@ -4317,6 +4317,10 @@ def alignment_mismatches_gui(imol):
          buttons  = delete_buttons()
          buttons += mutate_buttons()
          buttons += insert_buttons()
+         alignments_as_text_list = am[3]
+
+         for alignment_text in alignments_as_text_list:
+            info_dialog_with_markup(alignment_text)
 
          dialog_box_of_buttons("Residue mismatches", [300, 300],
                                buttons, "  Close  ")
@@ -4679,7 +4683,7 @@ def solvent_ligands_gui():
    h_sep = gtk.HSeparator()
    close_button = gtk.Button("  Close  ")
 
-   window.set_default_size(250, 500)
+   window.set_default_size(450, 500)
    window.set_title("Solvent Ligands")
    window.set_border_width(8)
    window.add(outside_vbox)
@@ -5250,7 +5254,7 @@ def click_protein_db_loop_gui():
          min_max_and_chain_id = min_max_residues_from_atom_specs(atom_specs)
 
          if not isinstance(min_max_and_chain_id, list):
-            info_dialog("Picked atoms not in same molecule and chain")
+            info_dialog("WARNING:: Picked atoms not in same molecule and chain")
          else:
             loop_mols = protein_db_loops(imol, residue_specs,
                                          imol_refinement_map(),
@@ -5359,9 +5363,12 @@ def refmac_multi_sharpen_gui():
                   # Happy path
                   print "BL DEBUG:: s", s
                   if os.path.isfile("starting_map.mtz"):
+                     print "INFO renaming starting_map.mtz to", refmac_output_mtz_file_name
                      os.rename("starting_map.mtz", refmac_output_mtz_file_name)
                      # offer a read-mtz dialog
                      manage_column_selector(refmac_output_mtz_file_name)
+                  else:
+                     print "WARNING:: starting_map.mtz does not exist"
 
             except:
                print "BL DEBUG:: tried to rename starting-map.mtz but failed."
@@ -5371,10 +5378,10 @@ def refmac_multi_sharpen_gui():
    print "BL DEBUG:: now make a windwo"
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    # boxes
-   vbox = gtk.VBox(False, 0)
-   hbox_1 = gtk.HBox(False, 0)
-   hbox_2 = gtk.HBox(False, 0)
-   hbox_3 = gtk.HBox(False, 0)
+   vbox = gtk.VBox(False, 4)
+   hbox_1 = gtk.HBox(False, 4)
+   hbox_2 = gtk.HBox(False, 4)
+   hbox_3 = gtk.HBox(False, 4)
    # menus
    option_menu_map = gtk.combo_box_new_text()
    option_menu_b_factor = gtk.combo_box_new_text()
@@ -5389,7 +5396,7 @@ def refmac_multi_sharpen_gui():
    # buttons
    ok_button = gtk.Button("   OK   ")
    cancel_button = gtk.Button(" Cancel ")
-   n_levels_list = [1, 2, 3, 4, 5, 6]
+   n_levels_list = [1, 2, 3, 4, 5, 6, 8, 10, 12, 15]
    b_factor_list = [50, 100, 200, 400, 800, 2000]
 
    map_molecule_list = fill_option_menu_with_map_mol_options(option_menu_map)
@@ -5404,12 +5411,12 @@ def refmac_multi_sharpen_gui():
    hbox_2.pack_start(levels_label, False, False, 2)
    hbox_3.pack_end(cancel_button, False, False, 12)
    hbox_3.pack_end(ok_button, False, False, 12)
-   
-   vbox.pack_start(hbox_1)
-   vbox.pack_start(hbox_2)
-   vbox.pack_start(h_sep)
-   vbox.pack_start(hbox_3)
-   
+
+   vbox.pack_start(hbox_1, False, False, 6)
+   vbox.pack_start(hbox_2, False, False, 6)
+   vbox.pack_start(h_sep, False, False, 2)
+   vbox.pack_start(hbox_3, False, False, 6)
+
    cancel_button.connect("clicked", delete_event)
 
    ok_button.connect("clicked", sharpen_cb, option_menu_b_factor, b_factor_list,
@@ -5448,9 +5455,25 @@ def add_module_ccp4():
    if coot_python.main_menubar():
       add_module_ccp4_gui()
 
+def add_module_pdbe():
+   if coot_python.main_menubar():
+      add_module_pdbe_gui()
+
 def add_module_cryo_em_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("Cryo-EM")
+
+      add_simple_coot_menu_menuitem(menu, "Go To Map Molecule Middle",
+                                    lambda func: go_to_map_molecule_centre())
+
+      add_simple_coot_menu_menuitem(menu, "Go To Box Middle",
+                                    lambda func: go_to_box_middle())
+
+      add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
+                                    lambda func: sharpen_blur_map_gui())
+
+      add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
+                                    lambda func: refmac_multi_sharpen_gui())
 
       def interactive_nudge_func():
          with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
@@ -5534,7 +5557,7 @@ def add_module_ccp4_gui():
       add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",
                                     lambda func: acedrg_link_generation_control_window())
 
-def add_module_pdbe_gui():
+def add_pdbe_gui():
    if coot_python.main_menubar():
       menu = coot_menubar_menu("PDBe")
 
@@ -5543,7 +5566,7 @@ def add_module_pdbe_gui():
       # ---------------------------------------------------------------------
       #
       add_simple_coot_menu_menuitem(
-         menu, "PDBe recent structures...",
+         submenu_pdbe, "PDBe recent structures...",
          lambda func: pdbe_latest_releases_gui())
 
       # we do test for refmac at startup not runtime (for simplicity)
@@ -5553,12 +5576,12 @@ def add_module_pdbe_gui():
          mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
 
       add_simple_coot_menu_menuitem(
-         menu, "Get from PDBe...",
+         submenu_pdbe, "Get from PDBe...",
          lambda func: generic_single_entry("Get PDBe accession code",
                                            "", " Get it ",
                                            lambda text:
-                                           pdbe_get_pdb_and_sfs_cif(
-                                              "include-sfs", text.rstrip().lstrip())))
+                                           pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+
 
 
 #### BL stuff

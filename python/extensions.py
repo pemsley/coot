@@ -87,113 +87,117 @@ if (have_coot_python):
 
        add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
                                      lambda func: rama_outlier_gui())
+       add_simple_coot_menu_menuitem(
+         menu,
+         "Read REFMAC logfile...",
+         lambda func: generic_chooser_and_file_selector("Read Refmac log file",
+                                     valid_model_molecule_qm, "Logfile name: ", "",
+                                     lambda imol, text: read_refmac_log(imol, text)))
 
 
      # --------------------------------------------------
      #           user_define_restraints plugin
      # --------------------------------------------------
 
-     def add_module_user_defined_restraints():
-       menu = coot_menubar_menu("Restraints")
-       load_from_search_load_path("user_define_restraints.py")
+     # def add_module_user_defined_restraints():
+     #   menu = coot_menubar_menu("Restraints")
+     #   load_from_search_load_path("user_define_restraints.py")
      
 
      
      # ---------------------------------------------
      #           extensions
+     #
+     # NOT ANY MORE, they are within everything else now...
      # ---------------------------------------------
 
-     # menu = coot_menubar_menu("E_xtensions")
-     menu = False
+     # show_extensions = False
+     # extensions_menu = coot_menubar_menu("E_xtensions")
 
-     # make submenus:
-     # submenu_all_molecule = gtk.Menu()
-     # menuitem_2 = gtk.MenuItem("All Molecule...")
-     # submenu_maps = gtk.Menu()
-     # menuitem_3 = gtk.MenuItem("Maps...")
-     # submenu_models = gtk.Menu()
-     # menuitem_4 = gtk.MenuItem("Modelling...")
-     # submenu_refine = gtk.Menu()
-     # menuitem_5 = gtk.MenuItem("Refine...")
-     # submenu_representation = gtk.Menu()
-     # menuitem_6 = gtk.MenuItem("Representations")
-     # submenu_settings = gtk.Menu()
-     # menuitem_7 = gtk.MenuItem("Settings...")
-     # submenu_pisa = gtk.Menu()
-     # menuitem_pisa = gtk.MenuItem("PISA...")
-     # submenu_pdbe = gtk.Menu()
-     # menuitem_pdbe = gtk.MenuItem("PDBe...")
-     # submenu_modules = gtk.Menu()
-     # menuitem_modules = gtk.MenuItem("Modules...")
-     # submenu_ncs = gtk.Menu()
-     # menuitem_ncs = gtk.MenuItem("NCS...")
-
-     def get_coot_menu_from_item(top_label, sub_menu_label):
-
-       coot_main_menubar = coot_python.main_menubar()
-       for menu_child in coot_main_menubar.get_children():
-         if menu_child.get_children()[0].get_text() == top_label:
-           # we have a matching top menu
-           for sub_child in menu_child.get_submenu().get_children():
-             sub_child_ls = sub_child.get_children()
-             if sub_child_ls:
-               if sub_child_ls[0].get_text() == sub_menu_label:
-                 return sub_child
+     # return the menuitem with menuitem_label in menubar_menu_label
+     # if not there return False
+     #
+     def get_coot_menu_from_item(menubar_menu_label, menuitem_label):
+       menu = coot_menubar_menu(menubar_menu_label)
+       for menu_child in menu.get_children():
+         if not isinstance(menu_child, gtk.SeparatorMenuItem):
+           label = menu_child.get_label()
+           if label == menuitem_label:
+             # found it, return it
+             return menu_child
        return False
 
-     coot_build_in_menu = get_coot_menu_from_item("Calculate", "Modelling...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_models = menu
+     # Add submenu to the existing menuitem, if not found make a new one
+     # under extensions
+     # return True on success or the newly created menuitem
+     #
+     def coot_menu_add_submenu(menubar_menu_label, menuitem_label, submenu):
+       menuitem = get_coot_menu_from_item(menubar_menu_label, menuitem_label)
+       if menuitem:
+         menuitem.set_submenu(submenu)
+         return True
+       else:
+         return False
+         # add to extensions - not really working since I somehow cant
+         # remove/hide the Extensions Menu once it's created
+         # menuitem = gtk.MenuItem(menuitem_label)
+         # menuitem.set_submenu(submenu)
+         # extensions_menu.append(menuitem)
+         # menuitem.show()
+         # return menuitem
 
-     coot_build_in_menu = get_coot_menu_from_item("Calculate", "Map Tools...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_maps = menu
+     # make submenus:
+     submenu_all_molecule = gtk.Menu()
+     menuitem_2 = coot_menu_add_submenu("Calculate", "All Molecule...",
+                                        submenu_all_molecule)
+     # if isinstance(menuitem_2, gtk.MenuItem):
+     #   show_extensions = True
 
-     coot_build_in_menu = get_coot_menu_from_item("Calculate", "All Molecule...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_all_molecule = menu
+     submenu_maps = gtk.Menu()
+     menuitem_3 = coot_menu_add_submenu("Calculate", "Map Tools...",
+                                        submenu_maps)
 
-     coot_build_in_menu = get_coot_menu_from_item("Calculate", "PISA...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_pisa = menu
+     submenu_models = gtk.Menu()
+     menuitem_4 = coot_menu_add_submenu("Calculate", "Modelling...",
+                                        submenu_models)
 
-     coot_build_in_menu = get_coot_menu_from_item("Calculate", "Modules...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_modules = menu
+     submenu_pisa = gtk.Menu()
+     menuitem_pisa = coot_menu_add_submenu("Calculate", "PISA...",
+                                           submenu_pisa)
 
-     coot_build_in_menu = get_coot_menu_from_item("Calculate", "NCS Tools...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_ncs = menu
+     submenu_modules = gtk.Menu()
+     menuitem_modules = coot_menu_add_submenu("Calculate", "Modules...",
+                                              submenu_modules)
 
-     coot_build_in_menu = get_coot_menu_from_item("Draw", "Representation Tools...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_representation = menu
+     submenu_ncs = gtk.Menu()
+     menuitem_ncs = coot_menu_add_submenu("Calculate", "NCS Tools...",
+                                          submenu_ncs)
 
-     coot_build_in_menu = get_coot_menu_from_item("Edit", "Settings...")
-     if coot_build_in_menu:
-       menu = gtk.Menu()
-       coot_build_in_menu.set_submenu(menu)
-       submenu_settings = menu
+     submenu_representation = gtk.Menu()
+     menuitem_6 = coot_menu_add_submenu("Draw", "Representation Tools...",
+                                        submenu_representation)
 
-     # menuitem_pdbe.set_submenu(submenu_pdbe)
-     # menu.append(menuitem_pdbe)
-     # menuitem_pdbe.show()
+     submenu_settings = gtk.Menu()
+     menuitem_7 = coot_menu_add_submenu("Edit", "Settings...",
+                                        submenu_settings)
 
 
+     # submenu_refine = gtk.Menu()
+     # menuitem_5 = gtk.MenuItem("Refine...")
+     # menuitem_5.set_submenu(submenu_refine)
+     # menu.append(menuitem_5)
+     # menuitem_5.show()
+
+     # submenu_pdbe = gtk.Menu()
+     # menuitem_pdbe = gtk.MenuItem("PDBe...")
+     #menuitem_pdbe.set_submenu(submenu_pdbe)
+     #menu.append(menuitem_pdbe)
+     #menuitem_pdbe.show()
+
+     # not yet - not working - see above
+     # if not show_extensions:
+     #   extensions_menu.hide_all()
+     
 
      #---------------------------------------------------------------------
      #     Post MR
@@ -1166,7 +1170,7 @@ if (have_coot_python):
      #
 
      add_simple_coot_menu_menuitem(
-       submenu_refine,
+       submenu_settings,
        "Set Refinement Options...",
        lambda func: refinement_options_gui())
  
@@ -1174,7 +1178,7 @@ if (have_coot_python):
      menuitem2 = gtk.MenuItem("Peptide Restraints...")
 
      menuitem2.set_submenu(submenu)
-     submenu_refine.append(menuitem2)
+     submenu_settings.append(menuitem2)
      menuitem2.show()
 
      def add_restr_func1():
@@ -1195,61 +1199,54 @@ if (have_coot_python):
        submenu, "Remove Planar Peptide Restraints",
        lambda func: add_restr_func2())
 
+     # Shelx has its own module, so should be there!?!?
+     # def shelx_ref_func():
+     #   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+     #   vbox = gtk.VBox(False, 0)
+     #   hbox = gtk.HBox(False, 0)
+     #   go_button = gtk.Button("  Refine  ")
+     #   cancel_button = gtk.Button("  Cancel  ")
+     #   entry_hint_text = "HKL data filename \n(leave blank for default)"
+     #   chooser_hint_text = " Choose molecule for SHELX refinement  "
+     #   h_sep = gtk.HSeparator()
 
-     def shelx_ref_func():
-       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-       vbox = gtk.VBox(False, 0)
-       hbox = gtk.HBox(False, 0)
-       go_button = gtk.Button("  Refine  ")
-       cancel_button = gtk.Button("  Cancel  ")
-       entry_hint_text = "HKL data filename \n(leave blank for default)"
-       chooser_hint_text = " Choose molecule for SHELX refinement  "
-       h_sep = gtk.HSeparator()
+     #   window.add(vbox)
+     #   option_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
+     #   entry = file_selector_entry(vbox, entry_hint_text)
 
-       window.add(vbox)
-       option_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
-       entry = file_selector_entry(vbox, entry_hint_text)
+     #   def shelx_delete_event(*args):
+     #     window.destroy()
+     #     return False
 
-       def shelx_delete_event(*args):
-         window.destroy()
-         return False
+     #   def shelx_go_funcn_event(*args):
+     #     import operator
+     #     txt = entry.get_text()
+     #     imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
+     #     if (operator.isNumberType(imol)):
+     #       if (len(txt) == 0):
+     #         shelxl_refine(imol)
+     #       else:
+     #         shelxl_refine(imol, txt)
+     #     window.destroy()
+     #     return False
 
-       def shelx_go_funcn_event(*args):
-         import operator
-         txt = entry.get_text()
-         imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
-         if (operator.isNumberType(imol)):
-           if (len(txt) == 0):
-             shelxl_refine(imol)
-           else:
-             shelxl_refine(imol, txt)
-         window.destroy()
-         return False
+     #   go_button.connect("clicked", shelx_go_funcn_event)
+     #   cancel_button.connect("clicked", shelx_delete_event)
 
-       go_button.connect("clicked", shelx_go_funcn_event)
-       cancel_button.connect("clicked", shelx_delete_event)
-
-       vbox.pack_start(h_sep, False, False, 2)
-       vbox.pack_start(hbox, False, False, 2)
-       hbox.pack_start(go_button, True, False, 0)
-       hbox.pack_start(cancel_button, True, False, 0)
-       window.show_all()
+     #   vbox.pack_start(h_sep, False, False, 2)
+     #   vbox.pack_start(hbox, False, False, 2)
+     #   hbox.pack_start(go_button, True, False, 0)
+     #   hbox.pack_start(cancel_button, True, False, 0)
+     #   window.show_all()
        
-     add_simple_coot_menu_menuitem(
-       submenu_refine,
-       "SHELXL Refine...", 
-       lambda func: shelx_ref_func())
+     # add_simple_coot_menu_menuitem(
+     #   submenu_refine,
+     #   "SHELXL Refine...",
+     #   lambda func: shelx_ref_func())
 
 
      add_simple_coot_menu_menuitem(
-       submenu_refine,
-       "Read REFMAC logfile...",
-       lambda func: generic_chooser_and_file_selector("Read Refmac log file",
-                       valid_model_molecule_qm, "Logfile name: ", "",
-                       lambda imol, text: read_refmac_log(imol, text)))
-                       
-     add_simple_coot_menu_menuitem(
-       submenu_refine,
+       submenu_settings,
        "Occupancy refinement input for REFMAC...",
        lambda func: generic_chooser_and_file_selector("Extra restraints file",
                        valid_model_molecule_qm, "Restraints file name: ",
@@ -1262,7 +1259,7 @@ if (have_coot_python):
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Refinement Speed...")
      menuitem2.set_submenu(submenu)
-     submenu_refine.append(menuitem2)
+     submenu_settings.append(menuitem2)
      menuitem2.show()
 
      add_simple_coot_menu_menuitem(
@@ -1293,13 +1290,13 @@ if (have_coot_python):
 
 
      add_simple_coot_menu_menuitem(
-       submenu_refine,
+       submenu_settings,
        "Auto-weight refinement",
        lambda func: auto_weight_for_refinement())
      
 
      add_simple_coot_menu_menuitem(
-       submenu_refine,
+       submenu_settings,
        "Set Undo Molecule...",
        lambda func: molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
                     lambda imol: set_undo_molecule(imol)))
@@ -1307,41 +1304,30 @@ if (have_coot_python):
 
      # BL says: has no checking for text = number yet
      add_simple_coot_menu_menuitem(
-       submenu_refine,
+       submenu_settings,
        "B factor bonds scale factor...",
        lambda func: generic_chooser_and_entry("Choose a molecule to which the B-factor colour scale is applied:",
 		"B-factor scale:", "1.0", 
 		lambda imol, text: set_b_factor_bonds_scale_factor(imol,float(text))))
 
 
-     def set_mat_func(text):
-	import operator
-	t = float(text)
-	if operator.isNumberType(t):
-		s = "Matrix set to " + text
-		set_matrix(t)
-		add_status_bar_text(s)
-	else:
-		add_status_bar_text("Failed to read a number")
+     # actually in refinement settings...
+     # def set_mat_func(text):
+     #    import operator
+     #    t = float(text)
+     #    if operator.isNumberType(t):
+     #    	s = "Matrix set to " + text
+     #    	set_matrix(t)
+     #    	add_status_bar_text(s)
+     #    else:
+     #    	add_status_bar_text("Failed to read a number")
 
-     add_simple_coot_menu_menuitem(
-       submenu_refine,
-       "Set Matrix (Refinement Weight)...",
-       lambda func: generic_single_entry("set matrix: (smaller means better geometry)", 
-		str(matrix_state()), "Set it", 
-		lambda text: set_mat_func(text)))
-
-
-     def set_den_gra_func(text):
-	import operator
-	t = float(text)
-	if operator.isNumberType(t):
-		s = "Density Fit scale factor set to " + text
-		set_residue_density_fit_scale_factor(t)
-		add_status_bar_text(s)
-	else:
-		add_status_bar_text("Failed to read a number")
-
+     # add_simple_coot_menu_menuitem(
+     #   submenu_refine,
+     #   "Set Matrix (Refinement Weight)...",
+     #   lambda func: generic_single_entry("set matrix: (smaller means better geometry)",
+     #    	str(matrix_state()), "Set it",
+     #    	lambda text: set_mat_func(text)))
 
 
 #      # ---------------------------------------------------------------------
@@ -1776,6 +1762,16 @@ if (have_coot_python):
        lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
 
 
+     def set_den_gra_func(text):
+	import operator
+	t = float(text)
+	if operator.isNumberType(t):
+		s = "Density Fit scale factor set to " + text
+		set_residue_density_fit_scale_factor(t)
+		add_status_bar_text(s)
+	else:
+		add_status_bar_text("Failed to read a number")
+
      add_simple_coot_menu_menuitem(
        submenu_settings,
        "Set Density Fit Graph Weight...",
@@ -1810,7 +1806,7 @@ if (have_coot_python):
 
 
      add_simple_coot_menu_menuitem(
-       submenu_refine, "Question Accept Refinement", 
+       submenu_settings, "Question Accept Refinement",
        lambda func: set_refinement_immediate_replacement(0))
 
 
