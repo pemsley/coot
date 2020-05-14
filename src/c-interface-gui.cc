@@ -112,19 +112,24 @@ void open_coords_dialog() {
 	 in GTk+2.  So the button-press callback code needs to be adjusted. */
       GtkWidget *file_filter_button;
       GtkWidget *sort_button;
-      GtkWidget *coords_fileselection1 = coot_file_chooser(); // a chooser or selector, depends.
-      add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
-      file_filter_button = add_filename_filter_button(coords_fileselection1,
+      GtkWidget *coords_filechooser1 = coot_file_chooser();
+      // add_ccp4i_project_optionmenu(coords_filechooser1, COOT_COORDS_FILE_SELECTION);
+
+      file_filter_button = add_filename_filter_button(coords_filechooser1,
 						      COOT_COORDS_FILE_SELECTION);
-      sort_button = add_sort_button_fileselection(coords_fileselection1);
-      add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
-      set_directory_for_coot_file_chooser(coords_fileselection1);
-      set_file_selection_dialog_size(coords_fileselection1);
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, coords_fileselection1);
-      gtk_widget_show (coords_fileselection1);
+
+      // sort_button = add_sort_button_filechooser(coords_filechooser1); // FIXME
+      add_recentre_on_read_pdb_combobox(coords_filechooser1);
+      set_directory_for_coot_file_chooser(coords_filechooser1);
+      set_file_selection_dialog_size(coords_filechooser1);
+      set_transient_and_position(COOT_UNDEFINED_WINDOW, coords_filechooser1);
+      gtk_widget_show (coords_filechooser1);
+
+
       /* in gtk2 we have to push the buttons after we show the selection */
-      push_the_buttons_on_fileselection(file_filter_button, sort_button,
-					coords_fileselection1);
+      // push_the_buttons_on_filechooser(file_filter_button, sort_button, coords_filechooser1);
+      // FIXME
+
    }
 }
 
@@ -1756,100 +1761,18 @@ void add_is_difference_map_checkbutton(GtkWidget *fileselection) {
 
 }
 
-void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
+void add_recentre_on_read_pdb_combobox(GtkWidget *fileselection) {
 
-   /*
-   bool doit = 1;
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(fileselection),
+                                       "coords_filechooserdialog1_recentre_combobox");
 
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      doit = 0;
-      GtkWidget *combobox =
-	 lookup_widget(GTK_WIDGET(fileselection),
-		       "coords_filechooserdialog1_recentre_combobox");
-      gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre on Molecule");
-      gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Don't Recentre");
-      gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre Molecule Here");
-      if (graphics_info_t::recentre_on_read_pdb)
-     	  gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
-      if (!graphics_info_t::recentre_on_read_pdb)
-     	  gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
-   }
-
-
-   if (doit) {
-
-      if (0) {
-
-	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-	 GtkWidget *button = gtk_check_button_new_with_label("Recentre");
-	 GtkWidget *frame = gtk_frame_new("Recentre?");
-	 GtkTooltips *tooltips = gtk_tooltips_new();
-
-	 gtk_widget_ref(button);
-	 gtk_object_set_data_full(GTK_OBJECT(fileselection),
-				  "coords_fileselection1_recentre_checkbutton",
-				  button,
-				  (GtkDestroyNotify) gtk_widget_unref);
-	 gtk_tooltips_set_tip(tooltips, button,
-			      _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
-
-	 // shall we activate the button?
-	 if (graphics_info_t::recentre_on_read_pdb)
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	 gtk_widget_show(button);
-	 gtk_container_add(GTK_CONTAINER(aa),frame);
-	 gtk_container_add(GTK_CONTAINER(frame), button);
-	 g_signal_connect (G_OBJECT (button), "toggled",
-			   GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
-			   NULL);
-	 gtk_widget_show(frame);
-      } else {
-
-	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-	 GtkWidget *om = gtk_option_menu_new();
-	 GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(om));
-	 if (menu)
-	    gtk_widget_destroy(menu);
-	 menu = GTK_WIDGET(gtk_menu_new());
-	 GtkWidget *frame = gtk_frame_new("Recentre?");
-	 GtkTooltips *tooltips = gtk_tooltips_new();
-
-	 gtk_widget_ref(om);
-	 gtk_object_set_data_full(GTK_OBJECT(fileselection),
-				  "coords_fileselection1_recentre_optionmenu",
-				  om,
-				  (GtkDestroyNotify) gtk_widget_unref);
-// 	 gtk_tooltips_set_tip(tooltips, om,
-// 			      _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
-
-	 GtkWidget *menuitem;
-
-	 menuitem = gtk_menu_item_new_with_label("Recentre on Molecule");
-	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	 gtk_widget_show(menuitem);
-	 // shall we activate the button?
-	 if (graphics_info_t::recentre_on_read_pdb)
-	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
-	 //
-	 menuitem = gtk_menu_item_new_with_label("Don't Recentre");
-	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	 if (!graphics_info_t::recentre_on_read_pdb)
-	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
-	 gtk_widget_show(menuitem);
-	 //
-	 menuitem = gtk_menu_item_new_with_label("Recentre Molecule Here");
-	 gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
-	 gtk_widget_show(menuitem);
-
-
-	 gtk_widget_show(om);
-	 gtk_container_add(GTK_CONTAINER(aa),frame);
-	 gtk_container_add(GTK_CONTAINER(frame), om);
-	 gtk_option_menu_set_menu(GTK_OPTION_MENU(om), menu);
-	 gtk_widget_show(frame);
-      }
-   }
-   */
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Recentre on Molecule");
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Don't Recentre");
+   gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), "Recentre Molecule Here");
+   if (graphics_info_t::recentre_on_read_pdb)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   if (!graphics_info_t::recentre_on_read_pdb)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
 }
 
 
