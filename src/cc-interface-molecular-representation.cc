@@ -81,8 +81,5 @@ extern "C" void add_molecular_representation_test() {
 
 #else
 
-// needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
-// void add_molecular_representation_test() {}
-
 #endif // USE_MOLECULES_TO_TRIANGLES
 
