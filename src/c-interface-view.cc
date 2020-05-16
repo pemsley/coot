@@ -98,6 +98,21 @@ void orient_view(int imol,
 }
 
 /*  ----------------------------------------------------------------------- */
+/*                         perspective on/off */
+/*  ----------------------------------------------------------------------- */
+void set_use_perspective_projection(short int state) {
+
+   graphics_info_t::perspective_projection_flag = state;
+   graphics_draw();
+}
+
+int use_perspective_projection_state() {
+   return graphics_info_t::perspective_projection_flag;
+}
+
+
+
+/*  ----------------------------------------------------------------------- */
 /*                         single-model view */
 /*  ----------------------------------------------------------------------- */
 /*! \name single-model view */

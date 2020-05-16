@@ -79,13 +79,6 @@ extern "C" void add_molecular_representation_test() {
    }
 }
 
-void set_use_perspective_projection(int state) {
-
-   graphics_info_t::perspective_projection_flag = state;
-   graphics_draw();
-
-}
-
 #else
 
 // needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
