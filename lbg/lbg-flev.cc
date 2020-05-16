@@ -2626,6 +2626,8 @@ lbg_info_t::bottom_of_flev_items() {
 } 
 
 
+// This is for reading SMILES, to use elsewhere, the lines
+// need to have newlines added.
 std::string
 lbg_info_t::file_to_string(const std::string &file_name) const {
 

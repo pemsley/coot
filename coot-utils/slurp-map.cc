@@ -45,6 +45,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
    } else {
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
+
+   std::cout << "debug:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
    return status;
 }
 
@@ -154,7 +156,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
       std::cout << "   " << s << std::endl;
    }
 
-   char *map_data = data + 1024;
+   char *map_data = data + 1024; // points to the start of the grid (of 4 byte floats)
 
    int index_axis_order[3];
    index_axis_order[axis_order_xyz[0]] = mx;
@@ -169,7 +171,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    clipper::Grid grid(mx, my, mz);
    xmap_p->init(space_group, cell, grid_sampling);
    clipper::Coord_grid coord_grid_min(nx_start,ny_start,nz_start);
-   clipper::Coord_grid coord_grid_max(index_axis_order[0]-1, index_axis_order[1]-1, index_axis_order[2]-2);
+   clipper::Coord_grid coord_grid_max(index_axis_order[0]-1, index_axis_order[1]-1, index_axis_order[2]-1);
 
    clipper::Grid_range gr(coord_grid_min, coord_grid_max);
 
@@ -177,34 +179,35 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p, bool
    clipper::Coord_grid gr_max = gr.max();
    clipper::Xmap<float> &xmap = *xmap_p;
 
-   if (true) {
+   if (debug) {
       std::cout << "debug:: slurp_map() grid " << grid.format() << std::endl;
-      std::cout << "debug:: slurp_map() gr " << gr.format() << std::endl;
-      std::cout << "debug:: slurp_map() i0 " << i0.coord().format() << " gr_max " << gr_max.format() << std::endl;
+      std::cout << "debug:: slurp_map() gr "   << gr.format() << std::endl;
+      std::cout << "debug:: slurp_map() i0 "   << i0.coord().format() << " gr_max " << gr_max.format() << std::endl;
    }
 
-   bool is_xyz_ordering = false;
+   // mrc.set_coord() is slow - it can be multi-threaded.
+   // much faster than using conventional map loading though.
 
-   if (false)
-      if (axis_order_xyz[0] == 0 && axis_order_xyz[1] == 1 && axis_order_xyz[2] == 2)
-         is_xyz_ordering = true;
-   
-   if (is_xyz_ordering) {
-      int offset = 0;
-      clipper::Xmap<float>::Map_reference_coord iu, iv, iw;
-      for (iu=i0; iu.coord().u() <= gr_max.u(); iu.next_u()) {
-         for (iv=iu; iv.coord().v() <= gr_max.v(); iv.next_v()) {
-            for (iw=iv; iw.coord().w() <= gr_max.w(); iw.next_w()) {
-               float dv = *reinterpret_cast<float *>(map_data + 4 * offset);
-               xmap[iw] = dv;
-               offset++;
-            }
+   int offset = 0;
+   int crs[3];  // col,row,sec coordinate
+   clipper::Xmap<float>::Map_reference_coord mrc(xmap);
+   for ( int isec = 0; isec < n_secs; isec++ ) {
+      crs[2] = isec + nz_start;
+      for ( int irow = 0; irow < n_rows; irow++ ) {
+         crs[1] = irow + ny_start;
+         for ( int icol = 0; icol < n_cols; icol++ ) {
+            crs[0] = icol + nx_start;
+            mrc.set_coord( clipper::Coord_grid( crs[axis_order_xyz[0]],
+                                                crs[axis_order_xyz[1]],
+                                                crs[axis_order_xyz[2]] ) );
+            xmap[mrc] = *reinterpret_cast<float *>(map_data + 4 * offset);
+            offset++;
          }
       }
-      if (offset == mx * my * mz)
-         status = true;
    }
+   status = true;
 
+   std::cout << "returning done xmap slurp " << status << std::endl;
    return status;
 }
 

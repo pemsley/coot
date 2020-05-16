@@ -2378,77 +2378,74 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 // pass this?
 	 const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
-	 // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
-	 // << std::endl;
+         float zsc = graphics_info_t::zoom;
+         coot::Cartesian z_delta = (front - back) * 0.003;
 
-	 float zsc = graphics_info_t::zoom;
-         float base_point_size =  280.0/zsc;
-         float current_point_size = base_point_size;
-	 glPointSize(current_point_size);
+         // in general, we need to run this loop for every different atom radius
+         for (unsigned int ii=0; ii<2; ii++) {
+            float base_point_size =  280.0/zsc;
+            if (ii==1)
+               base_point_size = 1.5 * base_point_size;
+            float current_point_size = base_point_size;
+            glPointSize(current_point_size);
 
-         /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
-             unapply and reapply the mvp matrix. Hmm.
+            /*  Instead of GL_POINTS, consider using gluDisk (at least for now). You will need to
+                unapply and reapply the mvp matrix. Hmm.
 
-             glPushMatrix();
-             glScalef(1.0, 1.0, -1.0);
-             gluDisk(quad, 0, base, slices, 2);
-             glPopMatrix();
-         */
+                glPushMatrix();
+                glScalef(1.0, 1.0, -1.0);
+                gluDisk(quad, 0, base, slices, 2);
+                glPopMatrix();
+            */
 
-         glBegin(GL_POINTS);
+            glBegin(GL_POINTS);
 
-	 // for a big molecule, it's a factor of 10 or more slower
-	 // to put glColor3f in the middle of the loop.
-	 //
-	 // Hence we use sets of atoms consolidated by their colour index
+            // for a big molecule, it's a factor of 10 or more slower
+            // to put glColor3f in the middle of the loop.
+            //
+            // Hence we use sets of atoms consolidated by their colour index
 
-	 // colour by chain atom have atoms of a single colour currently
+            // colour by chain atom have atoms of a single colour currently
 
-	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
-	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
-	 // Note that this delta for atom interacts with the highlight.
-	 //
-	 coot::Cartesian z_delta = (front - back) * 0.003;
-	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-	    if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-	       set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
-	    } else {
-	       set_bond_colour_by_mol_no(icol, against_a_dark_background);
-	    }
-	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-	       // no points for hydrogens
-               const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
-	       if (! gbai.is_hydrogen_atom || gbai.is_water) {
+            // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
+            // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+            // Note that this delta for atom interacts with the highlight.
+            //
+            for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+               if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+                  set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
+               } else {
+                  set_bond_colour_by_mol_no(icol, against_a_dark_background);
+               }
+               for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+                  // no points for hydrogens
+                  const graphical_bonds_atom_info_t &gbai = bonds_box.consolidated_atom_centres[icol].points[i];
+                  if (! gbai.is_hydrogen_atom || gbai.is_water) {
 
-		  if (! display_stick_mode_atoms_flag && !gbai.is_water) {
-		     continue;
-		  }
+                     if (! display_stick_mode_atoms_flag && !gbai.is_water) {
+                        continue;
+                     }
 
-		  if ((single_model_view_current_model_number == 0) ||
-		      (single_model_view_current_model_number == gbai.model_number)) {
+                     if ((single_model_view_current_model_number == 0) ||
+                         (single_model_view_current_model_number == gbai.model_number)) {
 
-		     if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
+                        if ((use_radius_limit.first == false) || (graphics_info_t::is_within_display_radius(gbai.position))) {
 
-                        float this_point_size = base_point_size;
-                        if (gbai.radius_scale != 1.0)
-                           this_point_size = base_point_size * 4.0 * gbai.radius_scale;
+                           bool do_it = false;
+                           if (ii==0 && gbai.radius_scale == 1.0) do_it = true;
+                           if (ii==1 && gbai.radius_scale >  1.0) do_it = true;
 
-                        // This code seems to be doing the right thing - I just don't see that the points
-                        // change size - perhaps I need to put big points into their own loop.
-                        if (current_point_size != this_point_size) {
-                           current_point_size = this_point_size;
-                           // std::cout << "rescale point size " << current_point_size << std::endl;
-                           glPointSize(current_point_size);
+                           if (do_it) {
+                              const coot::Cartesian &pt = gbai.position;
+                              glVertex3f(pt.x()+z_delta.x(), pt.y()+z_delta.y(), pt.z()+z_delta.z());
+                           }
                         }
-
-			const coot::Cartesian &fake_pt = gbai.position;
-			glVertex3f(fake_pt.x()+z_delta.x(), fake_pt.y()+z_delta.y(), fake_pt.z()+z_delta.z());
-		     }
-		  }
-	       }
-	    }
-	 }
-	 glEnd();
+                     }
+                  }
+               }
+            }
+            glEnd();
+         }
 
     // highlights?
     //
@@ -3361,10 +3358,8 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_sym
 // ------------------------------------------------------------------------------
 
 void
-molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
-    bool add_residue_indices) {
 
-   std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
+molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
    // debug_atom_selection_container(atom_sel);
 
@@ -3380,10 +3375,9 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 }
 
 void
-molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p,
-    bool add_residue_indices) {
+molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
 
-   Bond_lines_container bonds(atom_sel, max_dist);
+   Bond_lines_container bonds(atom_sel, max_dist, graphics_info_t::draw_missing_loops_flag);
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3417,6 +3411,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
 
    Bond_lines_container bonds(atom_sel, imol_no, no_bonds_to_these_atoms,
 			      geom_p, do_disulphide_flag, draw_hydrogens_flag,
+                              graphics_info_t::draw_missing_loops_flag,
 			      model_number, "dummy", false, false, false);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -3431,7 +3426,7 @@ void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
-   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    // std::cout << "DEBUG()::"  << __FUNCTION__ << "() ca: bonds_box_type is now "
@@ -3446,7 +3441,7 @@ void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atom_indices);
-   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
+   bonds.do_Ca_bonds(atom_sel, min_dist, max_dist, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
    make_glsl_bonds_type_checked();
@@ -3464,7 +3459,8 @@ void
 molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) {
 
    Bond_lines_container bonds(geom_p);
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag,
+                                  graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    make_glsl_bonds_type_checked();
@@ -3477,7 +3473,8 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
-                                                 0.01, 1.9, draw_hydrogens_flag);
+                                                 0.01, 1.9, draw_hydrogens_flag,
+                                                 graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
    make_glsl_bonds_type_checked();
@@ -3492,7 +3489,9 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag, goodsell_mode);
+   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag,
+                                  graphics_info_t::draw_missing_loops_flag,
+                                  change_c_only_flag, goodsell_mode);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
                                                          // stupid when it comes to thining.
 
@@ -3587,7 +3586,8 @@ molecule_class_info_t::make_bonds_type_checked() {
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
       b_factor_representation_as_cas();
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS)
-      user_defined_colours_representation(g.Geom_p(), true); // hack, because we need to remeber somehow
+      user_defined_colours_representation(g.Geom_p(), true, g.draw_missing_loops_flag); // hack,
+                                                             // because we need to remeber somehow
                                                              // if this was called with all-atom or CA-only.
                                                              // See c-interface.cc
                                                              // graphics_to_user_defined_atom_colours_representation()
@@ -7145,7 +7145,7 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       std::string clean_name = name_;
       if (g.unpathed_backup_file_names_flag) {
-    clean_name = name_for_display_manager();
+         clean_name = name_for_display_manager();
       }
       // convert "/" to "_"
       int slen = clean_name.length();
@@ -7165,31 +7165,32 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       // add in the time component:
 
-#if defined(__CYGWIN__) || defined(_MSC_VER)
-
-      // but not if we are in windows:
-
-#else
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
+      int l = strlen(chars_time);
+
+      bool decolonify = g.decoloned_backup_file_names_flag;
+
 #ifdef WINDOWS_MINGW
-// BL says: why not? We can fix this. I show you how it's done in MINGW:
-// dunno if it works in other win32 systems. Havent checked
-// we just convert the : to _
-      for (int i=0; i<24; i++) {
-         if (chars_time[i] == ':') {
-             chars_time[i] = '_';
+      decolonify = true;
+#endif
+
+      if (decolonify) {
+         // we just convert the : to _
+         for (int i=0; i<l; i++) {
+            if (chars_time[i] == ':') {
+                chars_time[i] = '_';
+            }
          }
       }
-#endif // MINGW
+
       time_string += chars_time;
-#endif // other WIN32
 
       // strip off the trailing newline:
       slen = time_string.length();
       if (slen > 2)
-    time_string = time_string.substr(0,slen-1);
+         time_string = time_string.substr(0,slen-1);
 
       // convert spaces to underscores
       //

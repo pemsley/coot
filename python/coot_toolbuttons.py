@@ -644,6 +644,7 @@ def list_of_toolbar_functions():
           "probe-clash.svg"]
          ],
         ["Building",
+         ["Choose Undo Molecule", "show_set_undo_molecule_chooser()", "Choose Undo Molecule", "undo-1.svg"],
          ["Ligand Builder", "start_ligand_builder_gui()", "Ligand Builder", "go-to-ligand.svg"],
          ["Split Water", "split_active_water()", "Split water in two and refine", "add-water.svg"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],

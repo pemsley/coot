@@ -9362,7 +9362,7 @@ Fri 15 May 13:24:21 BST 2020
    python setup.py install
 
    cd ~/autobuild/Linux-penelope-gtk3-python/include/
-   ln -s ../lib/python3.6/site-packages/PyGObject-3.36.0-py3.6-linux-x86_64.egg/include/pygobject-3.0 
+   ln -s ../lib/python3.6/site-packages/PyGObject-3.36.0-py3.6-linux-x86_64.egg/include/pygobject-3.0
 
    now import gi works from python
 
@@ -9375,6 +9375,7 @@ Fri 15 May 13:24:21 BST 2020
    ninja install
 
 
-   
 
+Fri 10 Apr 10:49:21 BST 2020
 
+   o 3tib is a good structure for adding carbohydrates (tutorial)

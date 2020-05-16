@@ -466,31 +466,33 @@ molecule_class_info_t::bonds_sec_struct_representation() {
 void
 molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_geometry *pg) {
 
-   if (bonds_box_type != coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR) {
-      Bond_lines_container bonds;
-      bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
-      bonds_box = bonds.make_graphical_bonds();
-      bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
-      make_glsl_bonds_type_checked();
-   }
+   //
+   Bond_lines_container bonds;
+   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7,
+                                                    draw_hydrogens_flag, graphics_info_t::draw_missing_loops_flag);
+   bonds_box = bonds.make_graphical_bonds();
+   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
+   make_glsl_bonds_type_checked();
+
 }
 
 void
 molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg) {
 
-   if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
-      Bond_lines_container bonds;
-      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
-                                     2.4, 4.7,
-                                     coot::COLOUR_BY_RAINBOW,
-                                     draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
-      bonds_box = bonds.make_graphical_bonds_no_thinning();
-      bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
-      make_glsl_bonds_type_checked();
-   }
-}
+    //
+    Bond_lines_container bonds;
+    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
+        2.4, 4.7,
+        graphics_info_t::draw_missing_loops_flag,
+        coot::COLOUR_BY_RAINBOW,
+        draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
+        bonds_box = bonds.make_graphical_bonds_no_thinning();
+        bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
+        make_glsl_bonds_type_checked();
 
-void
+    }
+
+    void
 molecule_class_info_t::b_factor_representation() {
 
    Bond_lines_container::bond_representation_type bond_type =

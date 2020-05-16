@@ -91,3 +91,5 @@ graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) 
       }
    }
 }
+
+bool graphics_info_t::draw_missing_loops_flag = true;

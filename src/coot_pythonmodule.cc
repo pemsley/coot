@@ -1,18 +1,18 @@
 /* src/coot_pythonmodule.cc
- * 
+ *
  * Copyright 2007 by The University of York
  * Author: Bernhard Lohkamp
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -111,7 +111,7 @@ void
 coot_python_register_classes(PyObject *d) {
 
     PyObject *module;
-       
+
     if ((module = PyImport_ImportModule("gobject")) != NULL) {
         _PyGObject_Type = (PyTypeObject *)PyObject_GetAttrString(module, "GObject");
         if (_PyGObject_Type == NULL) {

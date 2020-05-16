@@ -218,7 +218,7 @@ void do_main_window(const command_line_data &cld) {
       graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
       std::cout << "debug:: in main glarea.size() is " << graphics_info_t::glareas.size()
                 << std::endl;
-      
+
       if (true) {
 	 // application icon:
 	 setup_application_icon(GTK_WINDOW(window1));
@@ -481,7 +481,7 @@ void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
 
 void load_gtk_resources() {
 
-#if 0   
+#if 0
    std::string gtkrcfile = PKGDATADIR;
    gtkrcfile += "/cootrc";
 
