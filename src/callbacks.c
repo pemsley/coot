@@ -12688,15 +12688,7 @@ on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
 #endif
 }
 
-void
-on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
-                                        gpointer         user_data)
-{
 
-   /* set_use_perspective_projection(1); */
-
-   printf("This caused linking problems - so was removed - must fix\n");
-}
 
 void
 on_simple_refmac_dialog_response       (GtkDialog       *dialog,
@@ -12727,6 +12719,7 @@ on_simple_refmac_dialog_close          (GtkDialog       *dialog,
    /* Do I need to do anything here? */
 }
 
+ 
 void
 on_simple_refmac_mtz_file_button_clicked
                                         (GtkButton       *button,

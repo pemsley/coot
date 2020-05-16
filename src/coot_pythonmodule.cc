@@ -179,6 +179,10 @@ PyInit_coot_gui_api(void) {
 
    PyObject *module = PyModule_Create(&moduledef);
 
+   if (! module) {
+         std::cout << "in PyInit_coot_gui_api() module null" << std::endl;
+   }
+
    if (module == NULL)
       return NULL;
    struct module_state *st = GETSTATE(module);
@@ -186,11 +190,14 @@ PyInit_coot_gui_api(void) {
    st->error = PyErr_NewException("coot_gui_api.Error", NULL, NULL);
    if (st->error == NULL) {
       Py_DECREF(module);
+      std::cout << "in PyInit_coot_gui_api() st->error null" << std::endl;
       return NULL;
    }
+
    if (PyErr_Occurred())
       PyErr_PrintEx(0);
 
+   std::cout << "in PyInit_coot_gui_api() returing module " << module << std::endl;
    return module;
 }
 
@@ -203,10 +210,22 @@ initcoot_python_gobject() {
 
    if (true) {
       PyObject *o = PyInit_coot_gui_api();
+      if (! o) {
+         std::cout << "Null o" << std::endl;
+         return;
+      }
 
       // Insert this into sys.modules directly - thanks Nick!
       PyObject *sys = PyImport_ImportModule("sys");
+      if (! sys) {
+         std::cout << "Null sys" << std::endl;
+         return;
+      }
       PyObject *modules = PyObject_GetAttrString(sys, "modules");
+      if (! modules) {
+         std::cout << "Null modules" << std::endl;
+         return;
+      }
       PyDict_SetItemString(modules, "coot_gui_api", o);
       Py_DECREF(modules);
       Py_DECREF(sys);

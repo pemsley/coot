@@ -6873,7 +6873,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  *
  * Use a map that is blurred by the give factor for fitting.
  * @return < -100 if not possible, else return the new best fit for this chain.  */
-float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+// float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);  temporary comment                                   
 
 /* \} */
 
@@ -7134,8 +7134,6 @@ void wii_status();
 #endif
 
 void full_screen(int mode);
-
-// void add_molecular_representation_test();
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS
