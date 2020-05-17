@@ -1687,12 +1687,12 @@ int average_map_scm(SCM map_number_and_scales) {
 	    if (scm_is_true(scm_number_p(map_scale_scm))) {
 	       int map_number = scm_to_int(map_number_scm);
 	       if (is_valid_map_molecule(map_number)) {
-		  float scale = scm_to_double(map_scale_scm);
-		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
-		  maps_and_scales_vec.push_back(p);
-		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
+	          float scale = scm_to_double(map_scale_scm);
+	          std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
+	          maps_and_scales_vec.push_back(p);
+	          is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
 	       } else {
-		  std::cout << "Invalid map number " << map_number << std::endl;
+	          std::cout << "Invalid map number " << map_number << std::endl;
 	       }
 	    } else {
 	       std::cout << "Bad scale "
@@ -1703,7 +1703,7 @@ int average_map_scm(SCM map_number_and_scales) {
 	    }
 	 } else {
 	    std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
-		      << std::endl;
+	              << std::endl;
 	 }
 
       }

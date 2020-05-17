@@ -380,8 +380,9 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
    if (model_p) {
       int n_links = model_p->GetNumberOfLinks();
       mmdb::LinkContainer *links = model_p->GetLinks();
-      std::cout << "   Model "  << imod << " had " << n_links
-		<< " links\n";
+      std::cout << "   Model "  << imod << " had " << n_links << " links\n";
+
+      float link_dist = -1;
 
       if (n_links > 0) {
 	 GtkWidget *frame = gtk_frame_new("Links");
@@ -414,6 +415,9 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	    if (link_p) {
 	       std::string s = "LINK ";
 
+#ifdef MMDB_HAS_LINK_DISTANCE
+               link_dist = link_p->dist;
+#endif
 	       std::string rn1 = link_p->resName1;
 	       std::string rn2 = link_p->resName2;
 
@@ -444,7 +448,7 @@ void remarks_browser_fill_link_info(mmdb::Manager *mol, GtkWidget *vbox) {
 	       s += link_p->insCode2;
 	       // symm code
 	       s += " ";
-	       s += coot::util::float_to_string_using_dec_pl(link_p->dist, 3);
+	       s += coot::util::float_to_string_using_dec_pl(link_dist, 3);
 	       s += "\n";
 
 	       GtkTextIter end_iter;

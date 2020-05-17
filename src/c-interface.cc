@@ -2275,6 +2275,22 @@ void set_draw_stick_mode_atoms(int imol, short int state) {
    graphics_draw();
 }
 
+void set_draw_missing_residues_loops(short int state) {
+
+   bool prev_state = graphics_info_t::draw_missing_loops_flag;
+   bool new_state = state;
+   if (new_state != prev_state) {
+      graphics_info_t::draw_missing_loops_flag = new_state;
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+         if (is_valid_model_molecule(imol)) {
+            graphics_info_t::molecules[imol].make_bonds_type_checked();
+         }
+      }
+      graphics_draw();
+   }
+}
+
+
 
 /*! \brief the state of draw hydrogens for molecule number imol.
 
@@ -5225,7 +5241,8 @@ void graphics_to_user_defined_atom_colours_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), false);
+      bool all_atoms_flag = false;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), all_atoms_flag, g.draw_missing_loops_flag);
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-user-defined-colours-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -5243,7 +5260,8 @@ void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), true);
+      bool all_atoms_flag = false;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), all_atoms_flag, g.draw_missing_loops_flag);
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-user-defined-colours-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -6330,90 +6348,6 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
    PyObject *ret = NULL;
 
-   if (python_cmd != "") {
-
-      PyObject *pName, *pModule;
-      PyObject *globals;
-      PyObject *pValue = NULL;
-      // include $COOT_PYTHON_DIR in module search path
-      // but is alread (except for windows - shall fix BL)
-      //PyRun_SimpleString("import sys, os");
-      //PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
-
-      // Build the name object
-      const char *modulename = "__main__";
-      pName = myPyString_FromString(modulename);
-      pModule = PyImport_Import(pName);
-      pModule = PyImport_AddModule("__main__");
-      globals = PyModule_GetDict(pModule);
-      Py_XINCREF(globals);
-
-      if (globals == NULL) {
-	std::cout<<"ERROR:: globals are NULL when running "<< python_cmd <<std::endl;
-      } else {
-	if (! PyDict_Check(globals)) {
-	  std::cout<<"ERROR:: could not get globals when running " << python_cmd <<std::endl;
-	} else {
-	   char *py_command_str = new char[python_cmd.length() + 2];
-	   strncpy(py_command_str, python_cmd.c_str(), python_cmd.length()+1);
-	   // std::cout << "running PyRun_String() on :" << py_command_str << ":" << std::endl;
-	   pValue = PyRun_String(py_command_str, Py_eval_input, globals, globals);
-
-	   if (0) // debugging
-	      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-			<< pValue << std::endl;
-
-	   if (pValue != NULL) {
-	      if (pValue != Py_None) {
-
-		 // ret = py_clean_internal(pValue); // old style 'sometimes-copy'
-		 ret = pValue;
-		 if (! ret)
-		    ret = Py_None;
-	      } else {
-		 ret = Py_None;
-	      }
-	   } else {
-
-	      // deal with pValue = NULL
-
-	      // there is an Error. Could be a syntax error whilst trying to evaluate a statement
-	      // so let's try to run it as a statement
-	      if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
-		 std::cout << "error (syntax error)" << std::endl;
-
-		 PyErr_Clear();
-		 pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, globals, globals);
-		 if (pValue != NULL) {
-		    ret = pValue;
-		 }
-	      } else {
-		 std::cout << "error (not syntax error)" << std::endl;
-		 PyErr_Print();
-	      }
-	   }
-	   delete[] py_command_str;
-	   // Py_XDECREF(pValue); // No. We want objects from here to have a refcount of 1.
-	}
-      }
-      // Clean up
-      Py_XDECREF(pModule);
-      Py_XDECREF(pName);
-      Py_XDECREF(globals);
-   }
-
-   // Running PyBool_Check(NULL) crashes.
-   if (ret == NULL) {
-      Py_INCREF(Py_None);
-      return Py_None; // don't try to convert this to a SCM thing.
-   }
-
-   if (PyBool_Check(ret)) {
-      Py_INCREF(ret);
-   }
-   if (ret == Py_None) {
-      Py_INCREF(ret);
-   }
    return ret;
 }
 #endif //PYTHON

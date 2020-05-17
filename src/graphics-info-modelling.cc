@@ -1212,10 +1212,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       // rr.found_restraints_flag = true;
 
       if (refinement_immediate_replacement_flag) {
-	 // wait until refinement finishes
-	 while (restraints_lock) {
-	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            std::cout << "restrainst locked by " << restraints_locking_function_name << std::endl;
+         // wait until refinement finishes
+         while (restraints_lock) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
+                      << restraints_locking_function_name << std::endl;
          }
       }
 
@@ -1577,17 +1578,16 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
                   const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
                      moving_atoms_extra_restraints_representation.bonds[ib];
 
-                  // red if actual distance is greater than target
+                  // purple if actual distance is greater than target
                   //
                   double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+                  double d = sqrt(d_sqd);
                   double esd = 0.05;
-
-                  double b = 0.005 * (res.target_dist*res.target_dist - d_sqd)/esd;
+                  double z = (res.target_dist - d)/esd;
+                  double b = 0.02 * z;
                   if (b >  0.4999) b =  0.4999;
                   if (b < -0.4999) b = -0.4999;
                   double b_green = b;
-                  if (b > 0) b_green *= 0.2;
-		  // std::cout << "b " << b << " b_green " << b_green << std::endl;
                   glColor3d(0.5-b, 0.5+b_green*0.9, 0.5-b);
 
                   glVertex3f(res.first.x(), res.first.y(), res.first.z());
@@ -3892,7 +3892,8 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = true;
 
-      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
+                                     draw_missing_loops_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    } else {

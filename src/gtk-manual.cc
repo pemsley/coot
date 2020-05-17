@@ -56,19 +56,14 @@
 
 void
 on_map_color_changed(GtkWidget *w,
-		     gpointer mcd) {
+		     gpointer tmd) {
 
-   struct map_colour_data_type* t = static_cast<struct map_colour_data_type*> (mcd);
-   GdkColor color;
-   gtk_color_selection_get_current_color(t->color_selection, &color);
-   GdkRGBA map_color;
-   map_color.red   = color.red;
-   map_color.green = color.green;
-   map_color.blue  = color.blue;
-   handle_map_colour_change(t->imol, map_color);
+   std::cout << "map colour changed - merge difficulties" << std::endl;
 
 }
 
+
+/* 		 GtkColorSelection *cs); */
 /*  The colour selection dialog has had its OK button pressed */
 void
 on_map_col_sel_ok_button_clicked        (GtkButton       *button,
@@ -472,7 +467,7 @@ GtkWidget *selections_and_colours_combobox(int imol) {
    // No waters: 5
    // B-factor backbone: 1... wrong
    // occ: 11
-   // 
+   //
    if (bbt ==  8) index =  1;
    if (bbt ==  3) index =  2;
    if (bbt == 21) index =  3;

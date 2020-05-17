@@ -1144,8 +1144,8 @@ public:        //                      public
    }
 
    void makebonds(const coot::protein_geometry *geom_p, const std::set<int> &no_bonds_to_these_atom_indices);
-   void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p);
    void make_ca_bonds(float min_dist, float max_dist);
    void make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices);
    void make_ca_bonds();
@@ -1163,7 +1163,9 @@ public:        //                      public
    void b_factor_representation();
    void b_factor_representation_as_cas();
    void occupancy_representation();
-   void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
+   void user_defined_colours_representation(coot::protein_geometry *geom_p,
+                                            bool all_atoms_mode,
+                                            bool draw_missing_loops_flag);
 
    void make_bonds_type_checked();
 

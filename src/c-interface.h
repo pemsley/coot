@@ -1111,6 +1111,16 @@ void set_unpathed_backup_file_names(int state);
 /*! \brief return the state for adding paths to backup file names*/
 int  unpathed_backup_file_names_state();
 
+/*! \brief set the state for adding paths to backup file names
+
+  by default directories names are added into the filename for backup
+  (with / to _ mapping).  call this with state=1 to turn off directory
+  names  */
+void set_decoloned_backup_file_names(int state);
+/*! \brief return the state for adding paths to backup file names*/
+int  decoloned_backup_file_names_state();
+
+
 /*! \brief return the state for compression of backup files*/
 int  backup_compress_files_state();
 
@@ -4722,6 +4732,12 @@ turn off with state = 0
 
 turn on with state = 1 */
 void set_draw_stick_mode_atoms(int imol, short int state);
+
+/*! \brief set the state for drawing missing resiude loops
+
+For taking screenshots, we often don't want to see them.
+*/
+void set_draw_missing_residues_loops(short int state);
 
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);

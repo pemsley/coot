@@ -333,7 +333,8 @@
 					   (score (cadr baddie)))
 
 				       ;; I am not sure that I like a score of 0.0 meaning "Missing sidechain"
-				       ;; we have lost some information on the way
+				       ;; we have lost some information on the way.
+                                       ;; 20200511-PE Yeah, like the fact that the residue was RNA!
 				       ;;
 				       (let ((score-string (format #f "~5f %" (* score 100)))
 					     (ms-string (if (= score 0.0) "Missing Sidechain" "Rotamer Outlier"))

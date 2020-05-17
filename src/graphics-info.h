@@ -2372,6 +2372,7 @@ public:
    void make_moving_atoms_restraints_graphics_object();
    static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;
    static bool draw_it_for_moving_atoms_restraints_graphics_object;
+   static bool draw_missing_loops_flag;
 
    //
    static float environment_min_distance;
@@ -3457,7 +3458,8 @@ public:
    static float difference_map_peaks_sigma_level;
 
    // ---------------- backup filenames ----------------------
-   static short int unpathed_backup_file_names_flag;
+   static bool unpathed_backup_file_names_flag;
+   static bool decoloned_backup_file_names_flag;
    static int backup_compress_files_flag;
 
    // --------- Miguel's axis orientation matrix ---------------
@@ -4175,7 +4177,7 @@ string   static std::string sessionid;
 #ifdef USE_PYTHON
    // Python function, called per frame draw - for Hamish
    static std::string python_draw_function_string;
-  void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+   void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
 #endif // USE_PYTHON
 
    static ctpl::thread_pool static_thread_pool;

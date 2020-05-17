@@ -1966,7 +1966,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          bool draw_hydrogens_flag = false;
          if (molecules[imol_moving_atoms].draw_hydrogens())
          draw_hydrogens_flag = true;
-         bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+         bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7,
+                                        draw_missing_loops_flag, draw_hydrogens_flag);
 
          unsigned int unlocked = 0;
          // Neither of these seems to make a difference re: the intermediate atoms python representation
@@ -2000,7 +2001,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       } else {
 
          Bond_lines_container bonds;
-         bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+         bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7, draw_missing_loops_flag);
          unsigned int unlocked = false;
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -2054,7 +2055,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       std::set<int> dummy;
       bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
-				 do_disulphide_flag, draw_hydrogens_flag, 0, "dummy",
+				 do_disulphide_flag, draw_hydrogens_flag,
+                                 draw_missing_loops_flag, 0, "dummy",
 				 do_rama_markup, do_rota_markup, do_sticks_for_waters, tables_pointer);
       unsigned int unlocked = false;
       while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
@@ -2084,7 +2086,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 #if 0
 
    // old - delete this
-   
+
    // very much most of the time, this will be zero
    //
    if (regularize_object_bonds_box.num_colours > 0) {
@@ -2999,27 +3001,27 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 
       for (unsigned int i=0; i<12; i++) {
 
-    std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
+        std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
 
-    glBegin(GL_TRIANGLE_FAN);
+        glBegin(GL_TRIANGLE_FAN);
 
-    // first the base point (tip of the triangles/pyrimid)
-    clipper::Coord_orth pvu(pv[i].unit());
-    glNormal3d(pvu.x(), pvu.y(), pvu.z());
-    glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
+        // first the base point (tip of the triangles/pyrimid)
+        clipper::Coord_orth pvu(pv[i].unit());
+        glNormal3d(pvu.x(), pvu.y(), pvu.z());
+        glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
 
-    for (unsigned int j=0; j<=4; j++) {
-       const clipper::Coord_orth &pt = v[face[j]];
-       clipper::Coord_orth ptu(pt.unit());
-       glNormal3d(ptu.x(), ptu.y(), ptu.z());
-       glVertex3d(pt.x(),  pt.y(),  pt.z());
-    }
-    const clipper::Coord_orth &pt = v[face[0]];
-    clipper::Coord_orth ptu(pt.unit());
-    glNormal3d(ptu.x(), ptu.y(), ptu.z());
-    glVertex3d(pt.x(),  pt.y(),  pt.z());
-    glEnd();
-      }
+        for (unsigned int j=0; j<=4; j++) {
+           const clipper::Coord_orth &pt = v[face[j]];
+           clipper::Coord_orth ptu(pt.unit());
+           glNormal3d(ptu.x(), ptu.y(), ptu.z());
+           glVertex3d(pt.x(),  pt.y(),  pt.z());
+        }
+        const clipper::Coord_orth &pt = v[face[0]];
+        clipper::Coord_orth ptu(pt.unit());
+        glNormal3d(ptu.x(), ptu.y(), ptu.z());
+        glVertex3d(pt.x(),  pt.y(),  pt.z());
+        glEnd();
+          }
 
    } else {
 
@@ -3754,7 +3756,7 @@ graphics_info_t::draw_baton_object() {
       glVertex3f(baton_tip.x(), baton_tip.y(), baton_tip.z());
       glVertex3f(rp_2.x(), rp_2.y(), rp_2.z());
       glEnd();
-#endif      
+#endif
 
    }
 
@@ -3998,7 +4000,7 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
 
    baton_tip = to_cartesian(new_pos);
    graphics_draw();
-#endif   
+#endif
 
 }
 
