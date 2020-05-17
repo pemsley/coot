@@ -645,7 +645,6 @@ graphics_info_t::reorienting_next_residue(bool dir) {
             }
 
             smooth_scroll_delta = target_pos - rot_centre;
-            std::cout << "Here in reorienting_next_residue() " << smooth_scroll << std::endl;
             set_old_rotation_centre(RotationCentre());
 
             if (smooth_scroll == 1) {

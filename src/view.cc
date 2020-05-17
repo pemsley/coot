@@ -115,20 +115,11 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                      graphics_info_t::add_vector_to_rotation_centre(this_step_delta);
 
                                      // now the orientation
-                                     double f = static_cast<double>(i_current_step) / static_cast<double>(n_steps);
-                                     double one_over_sin_omega = 1.0/sin(omega);
-                                     double frac1 = sin((1.0-f)*omega) * one_over_sin_omega;
-                                     double frac2 = sin(f*omega) * one_over_sin_omega;
-
-                                     // for (int iq=0; iq<4; iq++)
-                                     // g.quat[iq] = frac1*view1.quat[iq] + frac2*view2.quat[iq];
-
+                                     float f = static_cast<float>(i_current_step) / static_cast<float>(n_steps);
                                      glm::quat quat_start (view1.quaternion);
                                      glm::quat quat_target(view2.quaternion);
-
+                                     glm::quat mixed = glm::mix(quat_start, quat_target, f);
                                      // now update glm_quat
-                                     float ff = static_cast<float>(f);
-                                     glm::quat mixed = glm::mix(quat_start, quat_target, ff);
                                      graphics_info_t::glm_quat = glm::normalize(mixed);
 
                                      if (false) {
@@ -140,15 +131,11 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                                   << g.RotationCentre() << std::endl;
                                      }
 
-                                     if (false) {
-                                        std::cout << " start  " << glm::to_string(quat_start)
-                                                  << " target " << glm::to_string(quat_target)
-                                                  << " mixed  " << glm::to_string(mixed)
-                                                  << std::endl;
-                                     }
+                                     graphics_info_t::smooth_scroll_on_going = true;
                                      graphics_info_t::graphics_draw(); // adds to the queue
                                      do_continue = G_SOURCE_CONTINUE;
                                   } else {
+                                     graphics_info_t::smooth_scroll_on_going = false;
                                      do_continue = G_SOURCE_REMOVE;
                                   }
                                   return do_continue;
@@ -156,7 +143,12 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
          gpointer user_data = 0;
 
          graphics_info_t::smooth_scroll_current_step = 0; // reset
-         gtk_widget_add_tick_callback(graphics_info_t::glareas[0], animation_func, user_data, NULL);
+         if (graphics_info_t::smooth_scroll_on_going) {
+            // std::cout << "smooth scroll on-going " << std::endl;
+            // Don't start a new one, just reset to the start the one that's running.
+         } else {
+            gtk_widget_add_tick_callback(graphics_info_t::glareas[0], animation_func, user_data, NULL);
+         }
 
       } else {
 	 // non slerping

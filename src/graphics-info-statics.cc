@@ -62,6 +62,7 @@ unsigned int graphics_info_t::n_vertices_for_atom_pull_restraints = 0;
 coot::view_info_t graphics_info_t::reorienting_residue_start_view;
 coot::view_info_t graphics_info_t::reorienting_residue_end_view;
 
+bool graphics_info_t::smooth_scroll_on_going = false;
 
 // static
 void
