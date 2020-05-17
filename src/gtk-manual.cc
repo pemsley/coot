@@ -58,7 +58,14 @@ void
 on_map_color_changed(GtkWidget *w,
 		     gpointer tmd) {
 
-   std::cout << "map colour changed - merge difficulties" << std::endl;
+   struct map_colour_data_type* t = static_cast<struct map_colour_data_type*> (tmd);
+   GdkColor color;
+   gtk_color_selection_get_current_color(t->color_selection, &color);
+   GdkRGBA map_color;
+   map_color.red   = color.red;
+   map_color.green = color.green;
+   map_color.blue  = color.blue;
+   handle_map_colour_change(t->imol, map_color);
 
 }
 
