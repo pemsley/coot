@@ -4077,6 +4077,7 @@ string   static std::string sessionid;
    static float screen_z_far_perspective;
    static bool do_ambient_occlusion_flag;
    static bool do_depth_blur_flag;
+   static bool do_depth_fog_flag;
    // ---------------------------------------------
    void init_shaders();
 

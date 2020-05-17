@@ -1325,6 +1325,12 @@ void set_use_depth_blur(short int state);
 //! \brief query use depth blur
 int use_depth_blur_state();
 
+//! \brief set use fog
+void set_use_fog(short int state);
+
+//! \brief query use fog
+int use_fog_state();
+
 
 
 /*  ----------------------------------------------------------------------- */

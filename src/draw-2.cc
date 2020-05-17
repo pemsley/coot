@@ -481,6 +481,9 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                         graphics_info_t::perspective_projection_flag);
             err = glGetError(); if (err) std::cout << "   draw_map_molecules() error B " << std::endl;
 
+            shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::do_depth_fog_flag);
+            shader.set_bool_for_uniform("do_diffuse_lighting", true);
+
             if (draw_with_lines) {
                // I don't see why this is needed - but it is.
                if (! m.is_an_opaque_map())
@@ -634,6 +637,9 @@ graphics_info_t::draw_model_molecules() {
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+
+         shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::do_depth_fog_flag);
+         shader.set_bool_for_uniform("do_diffuse_lighting", true); // false for demo c.f. old styple graphics
 
          // lights
          std::map<unsigned int, gl_lights_info_t>::const_iterator it;
@@ -793,6 +799,8 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+
+         shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::do_depth_fog_flag);
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = m.n_indices_for_model_triangles;

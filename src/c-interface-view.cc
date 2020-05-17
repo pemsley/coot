@@ -137,6 +137,17 @@ int use_depth_blur_state() {
 
 
 
+//! \brief set use fog
+void set_use_fog(short int state) {
+   graphics_info_t::do_depth_fog_flag = state;
+   graphics_draw();
+}
+
+//! \brief query use fog
+int use_fog_state() {
+   return graphics_info_t::do_depth_fog_flag;
+}
+
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */
 /*  ----------------------------------------------------------------------- */

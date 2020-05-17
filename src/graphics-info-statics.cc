@@ -66,6 +66,7 @@ bool graphics_info_t::smooth_scroll_on_going = false;
 
 bool graphics_info_t::do_ambient_occlusion_flag = true;
 bool graphics_info_t::do_depth_blur_flag = true;
+bool graphics_info_t::do_depth_fog_flag = true;
 
 
 // static
