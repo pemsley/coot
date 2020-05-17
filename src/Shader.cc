@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <epoxy/gl.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.hh"
 
@@ -39,29 +40,15 @@ Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name)
    }
 }
 
-void Shader::init(const std::string &file_name_in, Shader::Entity_t e) {
+void Shader::init(const std::string &file_name, Shader::Entity_t e) {
 
    // clear then go
    VertexSource.clear();
    FragmentSource.clear();
-
-   // is the shader in the current directory? If not, try to find
-   // it in default_directory
-
-   // I don't want this file to depend on utils, so include this in-line
-   std::string file_name(file_name_in);
-   bool file_exists = false;
-   struct stat s;
-   int fstat = stat(file_name.c_str(), &s);
-   if ( fstat != -1 )
-      file_exists = true;
-   if (! file_exists)
-      file_name = default_directory + "/" + file_name;
-   fstat = stat(file_name.c_str(), &s);
-   if ( fstat != -1 )
-      file_exists = true;
-
+   std::string::size_type pos = file_name.find_first_of(".shader");
+   name = file_name;
    std::cout << "::: Shader compile " << file_name << std::endl;
+   bool file_exists = true; // fixme
    if (! file_exists) {
       std::cout << "WARNING:: Missing file " << file_name << std::endl;
       return;
@@ -72,12 +59,9 @@ void Shader::init(const std::string &file_name_in, Shader::Entity_t e) {
    if (! VertexSource.empty()) {
       if (! FragmentSource.empty()) {
          program_id = create();
-         std::cout << "debug:: Shader::init() " << file_name << " program_id " << program_id << std::endl;
-         if (true) {
-            Use();
-            set_uniform_locations();
-            set_attribute_locations();
-         }
+         Use();
+         set_uniform_locations();
+         set_attribute_locations();
       } else {
          std::cout << "Empty Fragment Shader source\n";
       }
@@ -99,14 +83,31 @@ Shader::close() {
 }
 
 void
-Shader::set_int_for_uniform(const std::string &uniform_name, int value) const {
+Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
    GLuint err = glGetError();
    if (err) std::cout << "set_int_for_uniform() start err " << err << std::endl;
-   GLuint loc = glGetUniformLocation(program_id, uniform_name.c_str());
+   GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
    err = glGetError(); if (err) std::cout << "set_int_for_uniform() A err " << err << std::endl;
    glUniform1i(loc,value);
    err = glGetError(); if (err) std::cout << "set_int_for_uniform() B err " << err << std::endl;
 }
+
+void
+Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
+
+   GLuint err = glGetError();
+   if (err) std::cout << "set_bool_for_uniform() " << uniform_name << " start err " << err << std::endl;
+   GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
+   // std::cout << "set_bool_for_uniform() got loc " << loc << std::endl;
+   err = glGetError();
+   if (err) std::cout << "ERROR:: " << name << " set_bool_for_uniform() " << uniform_name << " A err "
+                      << err << std::endl;
+   glUniform1i(loc, value);
+   err = glGetError();
+   if (err) std::cout << "ERROR:: " << name << " set_bool_for_uniform() " << uniform_name << " B err "
+                      << err << std::endl;
+}
+
 
 
 void
@@ -143,7 +144,7 @@ Shader::set_attribute_locations() {
    }
 }
 
-unsigned int
+GLint
 Shader::glGetUniformLocation_internal(const std::string &key) {
 
    // don't ask the hardware about the location of the uniform if we
@@ -155,7 +156,9 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
    if (it != uniform_location_map.end()) {
       return it->second;
    } else {
-      GLuint l = glGetUniformLocation(program_id, key.c_str());
+      GLint l = glGetUniformLocation(program_id, key.c_str());
+      if (l == -1)
+         std::cout << "INFO/WARNING:: " << name << " can't get a uniform location for " << key << std::endl;
       uniform_location_map[key] = l;
       return l;
    }
@@ -167,7 +170,7 @@ void Shader::set_uniform_locations() {
    if (entity_type == Entity_t::MODEL ||
        entity_type == Entity_t::MAP ||
        entity_type == Entity_t::MOLECULAR_TRIANGLES ||
-       entity_type == Entity_t::GENERIC_GRAPHICS_OBJECT) {
+       entity_type == Entity_t::GENERIC_DISPLAY_OBJECT) {
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 0: " << err << std::endl;
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1: " << err << std::endl;
@@ -228,6 +231,34 @@ void Shader::set_uniform_locations() {
       is_perspective_projection_uniform_location = glGetUniformLocation_internal("is_perspective_projection");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 7b: " << err << std::endl;
    }
+}
+
+
+void
+Shader::set_float_for_uniform(const std::string &u_name, float f) {
+
+   GLuint idx = glGetUniformLocation_internal(u_name);
+   GLenum err = glGetError(); if (err) std::cout << "error:: set_float_for_uniform() error 1a: "
+                                                 << err << std::endl;
+   glUniform1f(idx, f);
+   err = glGetError(); if (err) std::cout << "error:: set_float_for_uniform() error 1b: "
+                                          << err << std::endl;
+}
+
+void
+Shader::set_vec4_for_uniform(const std::string &u_name, float f0, float f1, float f2, float f3) {
+
+   GLuint idx = glGetUniformLocation_internal(u_name);
+   float v[4];
+   v[0] = f0; v[1] = f1; v[2] = f2; v[3] = f3;
+   glUniform4fv(idx, 1, v);
+}
+
+void
+Shader::set_vec4_for_uniform(const std::string &u_name, const glm::vec4 &v) {
+
+   GLuint idx = glGetUniformLocation_internal(u_name);
+   glUniform4fv(idx, 1, glm::value_ptr(v));
 }
 
 void Shader::set_more_uniforms_for_molecular_triangles() {
@@ -312,4 +343,23 @@ unsigned int Shader::create() const {
    glDeleteShader(fs);
 
    return program;
+}
+
+void
+Shader::setup_light(unsigned int light_index, const gl_lights_info_t &light) {
+
+   std::string s = "light_sources[" + std::to_string(light_index) + std::string("]");
+   std::string a;
+
+   a = s + ".is_on";
+   set_bool_for_uniform(a, light.is_on);
+   a = s + ".ambient";
+   set_vec4_for_uniform(a, light.ambient);
+   a = s + ".diffuse";
+   set_vec4_for_uniform(a, light.diffuse);
+   a = s + ".specular";
+   set_vec4_for_uniform(a, light.specular);
+   a = s + ".position";
+   set_vec4_for_uniform(a, light.position);
+
 }

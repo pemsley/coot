@@ -62,8 +62,8 @@ float get_fog_amount(float depth_in) {
       return sqrt(depth_in);
    } else {
       // needs tweaking
-      float d = depth_in * depth_in;
-      return d * d;
+      float d = depth_in;
+      return d;
    }
 
 }
@@ -71,40 +71,53 @@ float get_fog_amount(float depth_in) {
 
 void main() {
 
-  float specular_strength = 0.00004; // 1.5 is very shiny
-  vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
+   // The inside surface of the map density lines is shiny. How to fix that?
+   // Is the eye position correct?
+   //
+   float specular_strength = 0.1; // 1.5 is very shiny
+   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
 
-  // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
-  // negative y means light from above
-  vec3 lightdir = normalize(vec3(-2, -3, -2));
+   // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
+   vec3 lightdir = normalize(vec3(-2, 1, -2));
 
-  // using the light_0_position given to the shader in a uniform
-  // gives us rotating lights in perspective projection
-  // but not in orthographic!
-  lightdir = normalize(-light_0_position.xyz);
-  float dp = dot(Normal, -lightdir);
-  dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
-  float m = clamp(gl_FragCoord.z, 0.0f, 1.0f);
-  float fog_amount = get_fog_amount(m);
+   lightdir = normalize(-light_0_position.xyz);
+   float dp = dot(Normal, -lightdir);
+   dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
-  vec4 bg_col = background_colour; // needed?
+   float m = clamp(gl_FragCoord.z, 0.0f, 1.0f);
+   float fog_amount = get_fog_amount(m);
 
-  vec3 norm_2 = Normal;
-  norm_2 = normalize(norm_2);
-  vec3 reflect_dir = reflect(lightdir, norm_2);
+   vec4 bg_col = background_colour; // needed?
 
-  vec4 colour_local = line_colour;
+   vec3 eye_pos_3 =  eye_position.xyz;
 
-  vec4 col_1 = colour_local;  // ambient
-  float ambient_strength = 0.8;
-  float diffuse_strength = 1.2;
-  vec4 col_2 = diffuse_strength * colour_local * dp;
-  vec4 col_3 = col_2 + col_1 * ambient_strength;
-  vec4 col_4 = mix(col_3, bg_col, fog_amount);
+   vec3 view_dir = eye_pos_3 - frag_pos;
+   view_dir = normalize(view_dir);
 
-  out_col = col_4;
-  out_col.a = map_opacity;
+   vec3 norm_2 = Normal;
+   norm_2 = normalize(norm_2);
+   vec3 reflect_dir = reflect(lightdir, norm_2);
+   float dp_view_reflect = dot(view_dir, reflect_dir);
+   dp_view_reflect = max(dp_view_reflect, 0.0);
+   // when the exponent is low, the specular_strength needs to be reduced
+   // a low exponent means lots of the map is specular (around the edges)
+   float spec = pow(dp_view_reflect, 6.62);
+   vec4 specular = specular_strength * spec * specular_light_colour;
+
+   vec4 colour_local = line_colour;
+
+   vec4 col_1 = colour_local;  // ambient
+   float ambient_strength = 0.9;
+   float diffuse_strength = 1.1;
+   vec4 col_2 = diffuse_strength * colour_local * dp;
+   vec4 col_3 = col_2 + col_1 * ambient_strength + specular;
+   if (is_perspective_projection)
+      col_3 *= 0.8;
+   vec4 col_4 = mix(col_3, bg_col, fog_amount);
+
+   out_col = col_4;
+   out_col.a = map_opacity;
 
 
 }

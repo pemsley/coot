@@ -21,6 +21,7 @@ void main() {
 
 in vec2 TexCoords;
 
+uniform bool do_ambient_occlusion;
 uniform sampler2D screenTexture;
 uniform sampler2D screenDepth;
 
@@ -134,8 +135,8 @@ void main() {
    float depth = texture(screenDepth,   TexCoords).x;
    gl_FragDepth = depth; // needed for depth for next shader
 
-   bool do_occlude = true;
-   if (do_occlude) {
+   // bool do_occlude = true;
+   if (do_ambient_occlusion) {
       result = occlude();
    } else {
       result = texture(screenTexture, TexCoords).rgb;

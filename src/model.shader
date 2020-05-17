@@ -67,7 +67,7 @@ float get_fog_amount(float depth_in) {
 
 void main() {
 
-  float specular_strength = 0.1; // 1.5 is very shiny
+  float specular_strength = 0.6; // 1.5 is very shiny
   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
 
   // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
@@ -79,16 +79,16 @@ void main() {
   float dp = dot(Normal, -lightdir);
   dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
-  float m  = clamp(gl_FragCoord.z, 0.0f, 1.0f);
+  float m = clamp(gl_FragCoord.z, 0.0f, 1.0f);
 
-  float f_1 = 1.0 - m; // because glm::ortho() near and far are reversed?
+
   float fog_amount = get_fog_amount(gl_FragCoord.z);
 
   vec4 bg_col = background_colour; // needed?
 
   vec3 eye_pos_3 =  eye_position.xyz;
 
-  vec3 view_dir = eye_pos_3 - frag_pos; // view_dir.z positive is a good idea.
+  vec3 view_dir = eye_pos_3 - frag_pos;
   view_dir = normalize(view_dir);
 
   vec3 norm_2 = Normal;

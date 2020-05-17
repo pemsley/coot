@@ -1299,19 +1299,31 @@ void orient_view(int imol,
 		 const coot::residue_spec_t &central_residue_spec, // ligand typically
 		 const coot::residue_spec_t &neighbour_residue_spec);
 
-//! \brief set use perspective mode
-void set_use_perspective_projection(short int state);
-
-
-//! \brief query if perspective mode is being used
-int use_perspective_projection_state();
-
-
 /*  \brief return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names). */
 std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  Mew Graphics Control                                    */
+/*  ----------------------------------------------------------------------- */
+
+//! \brief set use perspective mode
+void set_use_perspective_projection(short int state);
+
+//! \brief query if perspective mode is being used
+int use_perspective_projection_state();
+
+//! \brief set use ambient occlusion
+void set_use_ambient_occlusion(short int state);
+//! \brief query use ambient occlusion
+int use_ambient_occlusion_state();
+
+//! \brief set use depth blur
+void set_use_depth_blur(short int state);
+//! \brief query use depth blur
+int use_depth_blur_state();
 
 
 

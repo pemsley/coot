@@ -98,8 +98,11 @@ void orient_view(int imol,
 }
 
 /*  ----------------------------------------------------------------------- */
-/*                         perspective on/off */
+/*                         perspective,blur,AO on/off */
 /*  ----------------------------------------------------------------------- */
+
+               // maybe these functions need their own file?
+
 void set_use_perspective_projection(short int state) {
 
    graphics_info_t::perspective_projection_flag = state;
@@ -108,6 +111,28 @@ void set_use_perspective_projection(short int state) {
 
 int use_perspective_projection_state() {
    return graphics_info_t::perspective_projection_flag;
+}
+
+//! \brief set use ambient occlusion
+void set_use_ambient_occlusion(short int state) {
+   // user interface is set_use_xxx
+   graphics_info_t::do_ambient_occlusion_flag = state;
+   graphics_draw();
+}
+
+//! \brief query use ambient occlusion
+int use_ambient_occlusion_state() {
+   return graphics_info_t::do_ambient_occlusion_flag;
+}
+
+//! \brief set use depth blur
+void set_use_depth_blur(short int state) {
+   graphics_info_t::do_depth_blur_flag = state;
+   graphics_draw();
+}
+//! \brief query use depth blur
+int use_depth_blur_state() {
+   return graphics_info_t::do_depth_blur_flag;
 }
 
 

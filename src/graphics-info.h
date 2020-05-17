@@ -4075,6 +4075,8 @@ string   static std::string sessionid;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;
    static float screen_z_far_perspective;
+   static bool do_ambient_occlusion_flag;
+   static bool do_depth_blur_flag;
    // ---------------------------------------------
    void init_shaders();
 
@@ -4107,6 +4109,8 @@ string   static std::string sessionid;
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
+   void set_do_ambient_occlusion(bool s) { do_ambient_occlusion_flag = true; } // caller redraws
+
    void reset_frame_buffers(int width, int height);
    void setup_lights();
    void translate_in_screen_z(float step_size);

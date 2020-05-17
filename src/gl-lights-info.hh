@@ -1,4 +1,7 @@
 
+#ifndef GL_LIGHTS_INFO_T
+#define GL_LIGHTS_INFO_T
+
 class gl_lights_info_t {
 public:
    gl_lights_info_t() {
@@ -27,3 +30,5 @@ public:
    // later.
 
 };
+
+#endif // GL_LIGHTS_INFO_T

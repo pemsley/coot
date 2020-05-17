@@ -1326,6 +1326,8 @@ on_glarea_render(GtkGLArea *glarea) {
 gboolean
 graphics_info_t::render(GtkGLArea *glarea) {
 
+   // most of this should be a graphics_info_t function.
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;
@@ -1356,11 +1358,7 @@ graphics_info_t::render(GtkGLArea *glarea) {
 
       draw_molecules();
 
-      // Put atom label test at 42, 9, 13
-      // draw_hud_text(w, h, shader_for_hud_text);
-      // err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
-
-      glBindVertexArray(0);
+      glBindVertexArray(0); // here is not the place to call this.
    }
 
 
@@ -1371,6 +1369,8 @@ graphics_info_t::render(GtkGLArea *glarea) {
    // Screen shader (ambient occlusion)
 
    {
+
+      bool do_ambient_occlusion = graphics_info_t::do_ambient_occlusion_flag;
       graphics_info_t::shader_for_screen.Use();
       glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
 
@@ -1387,6 +1387,7 @@ graphics_info_t::render(GtkGLArea *glarea) {
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_depth());
       glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2);
       err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
+      graphics_info_t::shader_for_screen.set_bool_for_uniform("do_ambient_occlusion", do_ambient_occlusion);
 
       glDrawArrays(GL_TRIANGLES, 0, 6);
       err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
@@ -1419,6 +1420,7 @@ graphics_info_t::render(GtkGLArea *glarea) {
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
       glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-B err " << err << std::endl;
+      graphics_info_t::shader_for_blur.set_bool_for_uniform("do_depth_blur", graphics_info_t::do_depth_blur_flag);
 
       glDrawArrays(GL_TRIANGLES, 0, 6);
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
@@ -1728,9 +1730,10 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
             if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
                graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
-            std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
-                      << graphics_info_t::screen_z_near_perspective << " "
-                      << graphics_info_t::screen_z_far_perspective << std::endl;
+            if (false)
+               std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+                         << graphics_info_t::screen_z_near_perspective << " "
+                         << graphics_info_t::screen_z_far_perspective << std::endl;
          }
 
       }

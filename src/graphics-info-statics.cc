@@ -64,6 +64,10 @@ coot::view_info_t graphics_info_t::reorienting_residue_end_view;
 
 bool graphics_info_t::smooth_scroll_on_going = false;
 
+bool graphics_info_t::do_ambient_occlusion_flag = true;
+bool graphics_info_t::do_depth_blur_flag = true;
+
+
 // static
 void
 graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) {
