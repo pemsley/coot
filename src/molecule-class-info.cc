@@ -3580,7 +3580,7 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag,
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogens_flag,
                                   graphics_info_t::draw_missing_loops_flag,
                                   change_c_only_flag, goodsell_mode);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty

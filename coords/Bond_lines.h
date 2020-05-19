@@ -1073,6 +1073,7 @@ public:
 						int atom_colour_type,
 						bool do_bonds_to_hydrogens_in);
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
+                                 bool use_asc_atom_selection_flag,
 				 int imol,
 				 int draw_hydrogens_flag,
                                  bool draw_missing_loops_flag,
