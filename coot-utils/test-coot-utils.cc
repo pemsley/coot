@@ -1327,6 +1327,31 @@ int test_flip(int argc, char **argv) {
    return status;
 }
 
+int test_interface_residues(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1]; // 6lzg
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+      if (asc.read_success) {
+         float min_dist = 3.8;
+         std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> > ir = coot::interface_residues(asc.mol, "A", "B", min_dist);
+
+         std::set<mmdb::Residue *>::const_iterator it;
+         for (it=ir.first.begin(); it!=ir.first.end(); it++) {
+            mmdb::Residue *r = *it;
+            std::cout << "   B " << coot::residue_spec_t(r) << std::endl;
+         }
+         for (it=ir.second.begin(); it!=ir.second.end(); it++) {
+            mmdb::Residue *r = *it;
+            std::cout << "   B " << coot::residue_spec_t(r) << std::endl;
+         }
+      }
+   }
+   return 0;
+
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1413,8 +1438,11 @@ int main(int argc, char **argv) {
    if (false)
       test_fsc(argc, argv);
 
-   if (true)
+   if (false)
       test_flip(argc, argv);
+
+   if (true)
+      test_interface_residues(argc, argv);
 
    return 0;
 }
