@@ -3702,10 +3702,12 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       generic_vertex *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
 
-      std::cout << "---------------------- n atom vertices:  " << atom_vertices.size()
-                << " " << atom_vertices.size()/(1024*1024) << " M" << std::endl;
-      std::cout << "---------------------- n atom triangles: " << atom_triangles.size()
-                << " " << atom_triangles.size()/(1024*1024) << " M" << std::endl;
+      if (false) {
+         std::cout << "---------------------- n atom vertices:  " << atom_vertices.size()
+                   << " " << atom_vertices.size()/(1024*1024) << " M" << std::endl;
+         std::cout << "---------------------- n atom triangles: " << atom_triangles.size()
+                   << " " << atom_triangles.size()/(1024*1024) << " M" << std::endl;
+      }
 
       for(unsigned int i=0; i<atom_vertices.size(); i++){
          const generic_vertex &v = atom_vertices[i];
