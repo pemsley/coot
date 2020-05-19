@@ -709,6 +709,36 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 }
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+SCM molecule_to_pdb_string_scm(int imol) {
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      std::string s = graphics_info_t::molecules[imol].pdb_string();
+      r = scm_makfrom0str(s.c_str());
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *molecule_to_pdb_string_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::string s = graphics_info_t::molecules[imol].pdb_string();
+      // std::cout << "s: " << s << std::endl;
+      r = PyString_FromString(s.c_str());
+   }
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+
+}
+#endif
+
+
 
 // BL says:: we return a string in python list compatible format.
 // to use it in python you need to eval the string!
