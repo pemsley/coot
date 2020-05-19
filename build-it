@@ -390,8 +390,9 @@
 # 5.33 20181214 bump the mmdb2 version (pdbx_ins_code)
 # 5.34 20181215 clipper patch fixes
 # 5.35 20190401 clipper configure fftw patch
-# 5.36 20200415 Updates for Release 0.9 - a bit delayed.
-script_version=5.36
+# 5.36 20200415 Updates for Release 0.9 - a bit delayed
+# 5.37 20200514 redirect numpy output
+script_version=5.37
 
 
 
@@ -3184,7 +3185,7 @@ if [ "$build_boost" = true ] ; then
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
       cd - 
    fi
-   ) > $HOSTLOGDIR/16-boost.log
+   ) > $HOSTLOGDIR/16-boost.log 2>&1
 fi
 
 
@@ -3208,6 +3209,7 @@ if [ true = true ] ; then
          skip_this=true
    fi
    if [ $skip_this = false ] ;  then
+      (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
 
@@ -3230,6 +3232,7 @@ if [ true = true ] ; then
          exit 2
       fi
       cd - 
+      ) > $HOSTLOGDIR/16-b-numpy.log 2>&1
    fi
 fi
 
@@ -3406,7 +3409,7 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
-      ) > $HOSTLOGDIR/17-rdkit.log
+      ) > $HOSTLOGDIR/17-rdkit.log 2>&1
    fi
 fi
 
@@ -3814,7 +3817,7 @@ if test -n "$build_libidn" ; then
    if $MAKE ; then
       $MAKE install
    fi
-) > $HOSTLOGDIR/15-a-libidn2.txt
+) > $HOSTLOGDIR/15-a-libidn2.txt 2>&1
 else
     echo not building libidn2:
 fi
@@ -3871,7 +3874,7 @@ if test -n "$build_curl" ; then
       fi
    fi
 
-) > $HOSTLOGDIR/15-b-curl.txt
+) > $HOSTLOGDIR/15-b-curl.txt 2>&1
 else
     echo not building curl:
 fi
@@ -3913,7 +3916,7 @@ else
    echo 1 ----------------------------------------------------------------
    $MAKE install
 fi    
-) > $HOSTLOGDIR/15-gsl.txt
+) > $HOSTLOGDIR/15-gsl.txt 2>&1
 else
     echo not building gsl:
 fi
@@ -3973,7 +3976,7 @@ else
           echo /usr/include/gd.h exists - skip libgd build
        fi
 
-      ) > $HOSTLOGDIR/15-libgd.txt
+      ) > $HOSTLOGDIR/15-libgd.txt 2>&1
     
       echo build render...............
       ( 
@@ -4038,7 +4041,7 @@ else
        else 
           echo $install_top_dir/bin/render already exists, no build
        fi
-       ) > $HOSTLOGDIR/15-raster3d.txt
+       ) > $HOSTLOGDIR/15-raster3d.txt 2>&1
    fi
 fi
 
