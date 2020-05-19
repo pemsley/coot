@@ -1549,33 +1549,8 @@ add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
 GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
 				      short int data_type) {
 
-   bool no_chooser_filter = 1;
    GtkWidget *button = 0;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      	no_chooser_filter = 0;
-	add_filechooser_filter_button(fileselection, data_type);
-   }
-
-   if (no_chooser_filter) {
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-      GtkWidget *frame = gtk_frame_new("File-name filter:");
-
-      int d = data_type;
-      button = gtk_toggle_button_new_with_label("Filter");
-
-      gtk_widget_ref(button);
-      gtk_widget_show(button);
-      gtk_container_add(GTK_CONTAINER(aa),frame);
-
-      gtk_container_add(GTK_CONTAINER(frame), button);
-      // callback in c-interface-gtk2.cc
-      gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			  GTK_SIGNAL_FUNC (on_filename_filter_toggle_button_toggled),
-			  GINT_TO_POINTER(d));
-      gtk_widget_show(frame);
-   }
-
+   add_filechooser_filter_button(fileselection, data_type);
    return button;
 }
 
@@ -1618,7 +1593,7 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 // only available in gtk2
 // here we go
 
-#if (GTK_MAJOR_VERSION > 1)
+
 // where data type:
 // 0 coords
 // 1 mtz etc
@@ -1637,8 +1612,8 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
   GtkFileFilter *filterall    = gtk_file_filter_new();
   GtkFileFilter *filterselect = gtk_file_filter_new();
 
-  gtk_file_filter_set_name (filterall, "all-files");
-  gtk_file_filter_add_pattern (filterall, "*");
+  gtk_file_filter_set_name(filterall, "all-files");
+  gtk_file_filter_add_pattern(filterall, "*");
 
   if (d == COOT_COORDS_FILE_SELECTION || d == COOT_SAVE_COORDS_FILE_SELECTION) {
 
@@ -1680,7 +1655,7 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
     script_glob_extension.push_back("*.scm");
 #endif // USE_GUILE
 
-    gtk_file_filter_set_name (filterselect, "scripting-files");
+    gtk_file_filter_set_name(filterselect, "scripting-files");
 
     globs = script_glob_extension;
 
@@ -1693,10 +1668,10 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
     gtk_file_filter_add_pattern (filterselect, s.c_str());
   };
 
-  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-			       GTK_FILE_FILTER (filterall));
-  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-			       GTK_FILE_FILTER (filterselect));
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
+                              GTK_FILE_FILTER (filterall));
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
+                              GTK_FILE_FILTER (filterselect));
 
   if (filter_fileselection_filenames_state() == 1) {
     // filter automatically
@@ -1725,8 +1700,6 @@ void add_filechooser_extra_filter_button(GtkWidget *fileselection,
 
 }
 
-
-#endif // GTK_MAJOR_VERSION
 
 void
 on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
@@ -1911,99 +1884,18 @@ void add_is_difference_map_checkbutton(GtkWidget *fileselection) {
 
 }
 
-void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection) {
+void add_recentre_on_read_pdb_checkbutton(GtkWidget *filechooser) {
 
-   bool doit = 1;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      doit = 0;
-      GtkWidget *combobox =
-	 lookup_widget(GTK_WIDGET(fileselection),
-		       "coords_filechooserdialog1_recentre_combobox");
-      gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre on Molecule");
-      gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Don't Recentre");
-      gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre Molecule Here");
-      if (graphics_info_t::recentre_on_read_pdb)
-     	  gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
-      if (!graphics_info_t::recentre_on_read_pdb)
-     	  gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
-   }
-
-
-   if (doit) {
-
-      if (0) {
-
-	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-	 GtkWidget *button = gtk_check_button_new_with_label("Recentre");
-	 GtkWidget *frame = gtk_frame_new("Recentre?");
-	 GtkTooltips *tooltips = gtk_tooltips_new();
-
-	 gtk_widget_ref(button);
-	 gtk_object_set_data_full(GTK_OBJECT(fileselection),
-				  "coords_fileselection1_recentre_checkbutton",
-				  button,
-				  (GtkDestroyNotify) gtk_widget_unref);
-	 gtk_tooltips_set_tip(tooltips, button,
-			      _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
-
-	 // shall we activate the button?
-	 if (graphics_info_t::recentre_on_read_pdb)
-	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	 gtk_widget_show(button);
-	 gtk_container_add(GTK_CONTAINER(aa),frame);
-	 gtk_container_add(GTK_CONTAINER(frame), button);
-	 gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			     GTK_SIGNAL_FUNC (on_recentre_on_read_pdb_toggle_button_toggled),
-			     NULL);
-	 gtk_widget_show(frame);
-      } else {
-
-	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
-	 GtkWidget *om = gtk_option_menu_new();
-	 GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(om));
-	 if (menu)
-	    gtk_widget_destroy(menu);
-	 menu = GTK_WIDGET(gtk_menu_new());
-	 GtkWidget *frame = gtk_frame_new("Recentre?");
-	 GtkTooltips *tooltips = gtk_tooltips_new();
-
-	 gtk_widget_ref(om);
-	 gtk_object_set_data_full(GTK_OBJECT(fileselection),
-				  "coords_fileselection1_recentre_optionmenu",
-				  om,
-				  (GtkDestroyNotify) gtk_widget_unref);
-// 	 gtk_tooltips_set_tip(tooltips, om,
-// 			      _("Deactivate this checkbutton if you don't want to change the view centre when these new coordinates are read"), NULL);
-
-	 GtkWidget *menuitem;
-
-	 menuitem = gtk_menu_item_new_with_label("Recentre on Molecule");
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
-	 gtk_widget_show(menuitem);
-	 // shall we activate the button?
-	 if (graphics_info_t::recentre_on_read_pdb)
-	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
-	 //
-	 menuitem = gtk_menu_item_new_with_label("Don't Recentre");
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
-	 if (!graphics_info_t::recentre_on_read_pdb)
-	    gtk_menu_item_activate(GTK_MENU_ITEM(menuitem));
-	 gtk_widget_show(menuitem);
-	 //
-	 menuitem = gtk_menu_item_new_with_label("Recentre Molecule Here");
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
-	 gtk_widget_show(menuitem);
-
-
-
-	 gtk_widget_show(om);
-	 gtk_container_add(GTK_CONTAINER(aa),frame);
-	 gtk_container_add(GTK_CONTAINER(frame), om);
-	 gtk_option_menu_set_menu(GTK_OPTION_MENU(om), menu);
-	 gtk_widget_show(frame);
-      }
-   }
+   GtkWidget *combobox = lookup_widget(GTK_WIDGET(filechooser),
+                                       "coords_filechooserdialog1_recentre_combobox");
+   std::cout << "debug:: in add_recentre_on_read_pdb_checkbutton() found combobox " << combobox << std::endl;
+   gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre on Molecule");
+   gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Don't Recentre");
+   gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "Recentre Molecule Here");
+   if (graphics_info_t::recentre_on_read_pdb)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   if (!graphics_info_t::recentre_on_read_pdb)
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
 }
 
 
