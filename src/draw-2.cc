@@ -1611,7 +1611,7 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 void
 do_drag_pan_gtk3(GtkWidget *widget) {
 
-   // This should be a graphics_info_t function?
+   // This should be a graphics_info_t function
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);

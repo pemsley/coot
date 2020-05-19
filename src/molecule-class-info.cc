@@ -3798,7 +3798,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
       err = glGetError(); if (err) std::cout << "GL error bonds 5\n";
 
-      // model matrix (orientation) 4 x 4, starting at 0
+      // "from-origin" model matrix (orientation)
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
@@ -3810,7 +3810,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
 
-      // translate position, 3, size 3 floats
+      // "from origin" translate position, 3, size 3 floats
       glEnableVertexAttribArray(3);
       glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
