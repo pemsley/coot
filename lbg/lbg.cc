@@ -3258,6 +3258,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 #ifdef USE_PYTHON
    // all, with QED
 
+
+   std::cout << "--------------------- debug here with silicos_it_qed_default_func " << silicos_it_qed_default_func << std::endl;
+
    if (! silicos_it_qed_default_func) { // set in init
       gtk_widget_hide(lbg_qed_hbox);
       gtk_widget_hide(lbg_qed_properties_vbox);
