@@ -270,6 +270,12 @@ PyObject *amplitude_vs_resolution_py(int mol_map);
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
+//! \brief Flip the hand of the map
+//!
+//! in case it was accidentally generated on the wrong one.
+//! @return the molecule number of the flipped map.
+int flip_hand(int imol_map);
+
 //! \brief Go to the centre of the molecule - for Cryo-EM Molecules
 //!
 //!        and recontour at a sensible value.

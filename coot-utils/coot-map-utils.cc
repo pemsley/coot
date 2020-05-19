@@ -3580,3 +3580,24 @@ coot::util::fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &
    return v;
 
 }
+
+
+void
+coot::util::flip_hand(clipper::Xmap<float> *xmap_p) {
+
+   std::vector<std::pair<clipper::Resolution, double> > v;
+   clipper::Xmap<float> &xmap(*xmap_p);
+
+   float mg = coot::util::max_gridding(xmap); // A/grid
+   clipper::Resolution reso(2.0 * mg); // Angstroms
+   clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(hkl_info);
+   xmap.fft_to(fphis);
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis.first(); !hri.last(); hri.next()) {
+      fphis[hri].phi() = -fphis[hri].phi();
+   }
+  xmap.fft_from(fphis);
+
+}
+
