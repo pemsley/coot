@@ -4481,13 +4481,13 @@ if [ "$run_tests" = true ] ; then
                   echo ========================
                   echo pass-2nd-test > $LOGS/test-status
 
-	          mv $holding_tar_file $bin_tar_file
-	          mv $holding_tar_file.md5sum $bin_tar_file.md5sum
+                  mv $holding_tar_file $bin_tar_file
+                  mv $holding_tar_file.md5sum $bin_tar_file.md5sum
 
                   # update the description of the latest binary tar file for
                   # this build-type.
                   binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
-	          echo $coot_version > $binary_type_latest
+                  echo $coot_version > $binary_type_latest
 
                   # update the ChangeLog, README and RELEASE-NOTES
                   cd "$build_dir"
@@ -4499,12 +4499,12 @@ if [ "$run_tests" = true ] ; then
                   cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
                   cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
 
-	          echo about to publish files:
-	          echo about to publish files: >&2
+                  echo about to publish files:
+                  echo about to publish files: >&2
 
-	          # only copy over the binary files if they are not there
-	          # already (checked by publish executable).
-	          #
+                  # only copy over the binary files if they are not there
+                  # already (checked by publish executable).
+                  #
                   # reading the git logs adding $BINARY_TAR_DEST_DIR seems to have fixed something. 
                   # Now, the transfer-to-web-server.sh scripts take the second arg 
                   # and munge it to be the correct directory for the binary (and .txt) files.
@@ -4519,8 +4519,8 @@ if [ "$run_tests" = true ] ; then
 	          echo $publish --no-server-check coot-README
 	          $publish --no-server-check coot-README
                   if [ -z "$build_coot_prerelease" ] ; then
-   	             echo $publish  --no-server-check RELEASE-NOTES
-	             $publish --no-server-check RELEASE-NOTES
+                  echo $publish  --no-server-check RELEASE-NOTES
+                  $publish --no-server-check RELEASE-NOTES
                   else 
    	             echo $publish  --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
 	             $publish --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
