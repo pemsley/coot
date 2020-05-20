@@ -507,7 +507,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				       if (! done_h_bond) {
 					  if (atom_colour_type != coot::COLOUR_BY_USER_DEFINED_COLOURS) {
 					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-					     addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
+					     addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos, cc, imodel,
+                                                     atom_index_1, atom_index_2);
 					  } else {
 					     add_half_bonds(atom_1_pos, atom_2_pos,
 							    atom_selection_1[contact[i].id1],
@@ -530,7 +531,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
 				 if (is_hydrogen(element_1)) { // both are hydrogen
 				    float len2 = (atom_1_pos - atom_2_pos).amplitude_squared();
-				    if (len2 < 1) { // protection for weirdness
+				    if (len2 < 1.3) { // protection for weirdness, // was 1.0
 				       col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
 				       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 				       addBond(col, atom_1_pos, atom_2_pos, cc, imodel, atom_index_1, atom_index_2);
@@ -4458,6 +4459,8 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 if (false)
 	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
 		      << "\") returns " << col << std::endl;
+      } else {
+         // std::cout << "no atom colour map" << std::endl;
       }
    } else {
 
@@ -4726,6 +4729,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    //do_Ca_plus_ligands_bonds(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE);
    do_Ca_plus_ligands_and_sidechains_bonds(SelAtom, imol,
 					   pg, min_dist_ca, max_dist_ca, min_dist, max_dist,
+                                           draw_missing_loops_flag,
                                            coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
 }
 
@@ -4907,12 +4911,15 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
                    mmdb::SKEY_XOR);
 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
-   // std::cout << "after water selection: n_selected_atoms: " << asc.n_selected_atoms << std::endl;
-   // BL says:: may need to min max, but just go for fixed one now. FIXME
-   //   do_normal_bonds_no_water(asc, min_dist, max_dist);
+
    int model_number = 0; // all models
-   construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, 0, draw_missing_loops_flag,
-                      model_number, do_rama_markup);
+
+   std::cout << "debug:: --------------- calling construct_from_asc with atom_colour_type "
+             << atom_colour_type << std::endl;
+   short int symm_flag = 0;
+   // construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, symm_flag,
+   // draw_missing_loops_flag, model_number, do_rama_markup);
+   do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
 }
@@ -5094,6 +5101,7 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 //
 void
 Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t &asc,
+                                               bool use_asc_atom_selection_flag,
 					       int imol,
 					       int draw_hydrogens_flag,
                                                bool draw_missing_loops_flag,
@@ -5150,20 +5158,29 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       int n_selected_atoms = 0;
       contact = NULL;
 
-      // make a new atom selection, based on the model.
       int SelectionHandle = asc.mol->NewSelection();
-      asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
-			    mmdb::ANY_RES, // starting resno, an int
-			    "*", // any insertion code
-			    mmdb::ANY_RES, // ending resno
-			    "*", // ending insertion code
-			    "*", // any residue name
-			    "*", // atom name
-			    "*", // elements
-			    "*"  // alt loc.
-			    );
 
-      asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+      if (use_asc_atom_selection_flag) {
+
+         atom_selection = asc.atom_selection;
+         n_selected_atoms = asc.n_selected_atoms;
+
+      } else {
+
+         // make a new atom selection, based on the model.
+         asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
+                               mmdb::ANY_RES, // starting resno, an int
+                               "*", // any insertion code
+                               mmdb::ANY_RES, // ending resno
+                               "*", // ending insertion code
+                               "*", // any residue name
+                               "*", // atom name
+                               "*", // elements
+                               "*"  // alt loc.
+                               );
+
+         asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+      }
 
       asc.mol->SeekContacts(atom_selection, n_selected_atoms,
 			    atom_selection, n_selected_atoms,

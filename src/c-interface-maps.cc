@@ -2578,3 +2578,22 @@ void set_radial_map_colouring_saturation(int imol, float saturation) {
    if (is_valid_map_molecule(imol))
       graphics_info_t::molecules[imol].set_radial_map_colouring_saturation(saturation);
 }
+
+int flip_hand(int imol) {
+
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol)) {
+      clipper::Xmap<float> xmap = graphics_info_t::molecules[imol].xmap;
+      coot::util::flip_hand(&xmap);
+      imol_new = graphics_info_t::create_molecule();
+      std::string name = "Map ";
+      name += coot::util::int_to_string(imol);
+      name += " Flipped Hand";
+      float contour_level = graphics_info_t::molecules[imol].get_contour_level();
+      bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
+      graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
+      graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+   }
+   return imol_new;
+
+}

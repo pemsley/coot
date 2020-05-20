@@ -523,6 +523,8 @@ namespace coot {
 
       std::vector<std::pair<clipper::Resolution, double> >
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
+      void flip_hand(clipper::Xmap<float> *xmap_p);
+
    }
 }
 

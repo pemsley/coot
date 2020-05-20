@@ -516,6 +516,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-refine.cc   \
         molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
+	molecule-class-info-string.cc 	\
 	molecule-class-info-patterson.cc \
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-mol-tris.cc 	\
