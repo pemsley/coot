@@ -28,35 +28,37 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    if (pModule == NULL) {
       // This happens when biscu-it is not installed (which is often(?) the case)
       // 
-      // std::cout << "Null pModule in get_qed() " << std::endl;
+      std::cout << "Null pModule in get_qed() - biscu-it not installed? " << std::endl;
    } else { 
-      // pDict is a borrowed reference 
+      // pDict is a borrowed reference
       PyObject *pDict = PyModule_GetDict(pModule);
       if (! PyDict_Check(pDict)) {
-	 std::cout << "pDict is not a dict"<< std::endl;
+         std::cout << "pDict is not a dict"<< std::endl;
       } else {
-	 // pFunc is also a borrowed reference 
-	 PyObject *pFunc = PyDict_GetItemString(pDict, "default");
-	 if (! pFunc) {
-	    // std::cout << "pFunc is NULL" << std::endl;
-	 } else { 
-	    if (PyCallable_Check(pFunc)) {
-	       silicos_it_qed_default_func = pFunc;
-	    } else {
-	       std::cout << "default() function is not callable"  << std::endl;
-	    }
-	 }
+         // pFunc is also a borrowed reference
+         PyObject *pFunc = PyDict_GetItemString(pDict, "default");
+         if (! pFunc) {
+            // std::cout << "pFunc is NULL" << std::endl;
+         } else {
+            if (PyCallable_Check(pFunc)) {
+               std::cout << "Yeay - storing silicos_it_qed_default_func" << std::endl;
+               silicos_it_qed_default_func = pFunc;
+            } else {
+               std::cout << "default() function is not callable"  << std::endl;
+            }
+         }
 
 	 pFunc = PyDict_GetItemString(pDict, "properties");
 	 if (pFunc) {
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_properties_func = pFunc;
+               std::cout << "Yeay - storing silicos_it_qed_properties_func" << std::endl;
 	    } else {
 	       std::cout << "properties() function is not callable"  << std::endl;
 	    }
 	 }
 
-	 silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
+         silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
       }
    }
    Py_DECREF(pName);
