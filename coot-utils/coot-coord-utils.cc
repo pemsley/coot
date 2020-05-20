@@ -620,22 +620,14 @@ coot::residues_near_residues(mmdb::Manager *mol, float dist_crit) {
 
 std::map<mmdb::Residue *, std::set<mmdb::Residue *> >
 coot::residues_near_residues_for_residues(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &all_molecule_map,
-					  const std::vector<std::pair<bool,mmdb::Residue *> > &limit_to_these_residues_vec) {
+					  const std::set<mmdb::Residue *> &limit_to_these_residues_vec) {
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > m;
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
 
    for(it_map=all_molecule_map.begin(); it_map!=all_molecule_map.end(); it_map++) {
       mmdb::Residue *r = it_map->first;
-      // boo (not std::find)
-      bool found = false;
-      for (std::size_t i=0; i<limit_to_these_residues_vec.size(); i++) {
-	 if (limit_to_these_residues_vec[i].second == r) {
-	    found = true;
-	    break;
-	 }
-      }
-      if (found)
+      if (limit_to_these_residues_vec.find(r) != limit_to_these_residues_vec.end())
 	 m[r] = it_map->second;
    }
    return m;
@@ -9495,5 +9487,117 @@ coot::util::delete_anomalous_atoms(mmdb::Manager *mol) {
       mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       mol->FinishStructEdit();
    }
+}
 
+std::vector<mmdb::Residue *>
+coot::util::residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in) {
+
+   std::vector<mmdb::Residue *> v;
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         if (std::string(chain_p->GetChainID()) == chain_id_in) {
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               v.push_back(residue_p);
+            }
+         }
+      }
+   }
+   return v;
+}
+
+std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> >
+coot::interface_residues(mmdb::Manager *mol,
+                         const std::string &chain_A,
+                         const std::string &chain_B,
+                         float min_dist) {
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > all_molecule_map;
+
+   // fill all_molecule_map using seekcontacts
+   if (mol) {
+
+      int SelectionHandle = mol->NewSelection(); // d
+      mol->SelectAtoms (SelectionHandle, 0, "*",
+			mmdb::ANY_RES, // starting resno, an int
+			"*", // any insertion code
+			mmdb::ANY_RES, // ending resno
+			"*", // ending insertion code
+			"*", // any residue name
+			"*", // atom name
+			"*", // elements
+			"*"  // alt loc.
+			);
+
+      mmdb::Atom **atom_selection = 0;
+      int n_selected_atoms = 0;
+      mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+      if (n_selected_atoms > 0) {
+
+	 mmdb::Contact *pscontact = NULL;
+	 int n_contacts;
+	 long i_contact_group = 1;
+	 mmdb::mat44 my_matt;
+	 mmdb::SymOps symm;
+	 for (int i=0; i<4; i++) 
+	    for (int j=0; j<4; j++) 
+	       my_matt[i][j] = 0.0;      
+	 for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+         mol->SeekContacts(atom_selection, n_selected_atoms, 
+                           atom_selection, n_selected_atoms,
+                           0.01, min_dist,
+                           0,        // seqDist 0 -> in same res also
+                           pscontact, n_contacts,
+                           0, &my_matt, i_contact_group);
+
+         if (n_contacts > 0) {
+            if (pscontact) { 
+               for (int i=0; i<n_contacts; i++) {
+                  mmdb::Atom *at_1 = atom_selection[pscontact[i].id1];
+                  mmdb::Atom *at_2 = atom_selection[pscontact[i].id2];
+                  mmdb::Residue *r_1 = at_1->residue;
+                  mmdb::Residue *r_2 = at_2->residue;
+                  mmdb::Chain *ch_1 = r_1->chain;
+                  mmdb::Chain *ch_2 = r_2->chain;
+                  if (r_1 != r_2) {
+                     if (ch_1 != ch_2) {
+                        all_molecule_map[r_1].insert(r_2);
+                     }
+                  }
+               }
+            }
+         }
+      }
+      mol->DeleteSelection(SelectionHandle);
+   }
+
+   std::vector<mmdb::Residue *> r1 = util::residues_in_chain(mol, chain_A);
+   std::vector<mmdb::Residue *> r2 = util::residues_in_chain(mol, chain_B);
+   // the limits are in the "contactors" - i.e. residues of the map, not the set
+   std::set<mmdb::Residue *> limit_to_these_residues_vec_chain_A;
+   std::set<mmdb::Residue *> limit_to_these_residues_vec_chain_B;
+
+   for (unsigned int i=0; i<r1.size(); i++) limit_to_these_residues_vec_chain_A.insert(r1[i]);
+   for (unsigned int i=0; i<r2.size(); i++) limit_to_these_residues_vec_chain_B.insert(r2[i]);
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > mA = residues_near_residues_for_residues(all_molecule_map,
+                                                                                                 limit_to_these_residues_vec_chain_A);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > mB = residues_near_residues_for_residues(all_molecule_map,
+                                                                                                 limit_to_these_residues_vec_chain_B);
+   std::set<mmdb::Residue *> r_1_residues;
+   std::set<mmdb::Residue *> r_2_residues;
+
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it_map;
+   for(it_map=mA.begin(); it_map!=mA.end(); it_map++) r_1_residues.insert(it_map->first);
+   for(it_map=mB.begin(); it_map!=mB.end(); it_map++) r_2_residues.insert(it_map->first);
+   std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> > p(r_1_residues, r_2_residues);
+
+   return p;
 }

@@ -332,7 +332,13 @@ namespace coot {
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues(mmdb::Manager *mol, float dist_crit);
 
-   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues_for_residues(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &all_molecule_map, const std::vector<std::pair<bool,mmdb::Residue *> > &limit_to_these_residues_vec);
+   std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues_for_residues(const std::map<mmdb::Residue *, std::set<mmdb::Residue *> > &all_molecule_map,
+                                                                                             const std::set<mmdb::Residue *> &limit_to_these_residues_vec);
+
+   std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> > interface_residues(mmdb::Manager *mol,
+                                                                                       const std::string &chain_A,
+                                                                                       const std::string &chain_B,
+                                                                                       float min_dist);
 
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
 						  mmdb::Manager *mol,
@@ -876,6 +882,7 @@ namespace coot {
       std::vector<std::string> residue_types_in_residue_vec(const std::vector<mmdb::Residue *> &residues);
 
       std::vector<std::string> chains_in_molecule(mmdb::Manager *mol);
+      std::vector<mmdb::Residue *> residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in);
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
