@@ -1307,11 +1307,6 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.setup_lights();
 
-   GLfloat light0pos[4];
-   glGetLightfv(GL_LIGHT0, GL_POSITION, light0pos);
-   err = glGetError(); if (err) std::cout << "realsize() " << err << std::endl;
-   std::cout << "... light 0: " << light0pos[0] << " " << light0pos[1] << " " << light0pos[2] << " " << std::endl;
-
    // Martin's Molecular triangles
    // setup_molecular_triangles();
 
