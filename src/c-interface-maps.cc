@@ -1218,13 +1218,18 @@ PyObject *get_map_colour_py(int imol) {
 
   PyObject *r = Py_False;
   if (is_valid_map_molecule(imol)) {
-    std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
-    if (colour_v.size() > 2) {
-      r = PyList_New(colour_v.size());
-      for (unsigned int i=0; i<colour_v.size(); i++) {
-        PyList_SetItem(r, i, PyFloat_FromDouble(colour_v[i]));
-      }
-    }
+    std::pair<GdkRGBA, GdkRGBA> colours = graphics_info_t::molecules[imol].map_colours();
+    r = PyList_New(2);
+    PyObject *col_1 = PyList_New(3);
+    PyObject *col_2 = PyList_New(3);
+    PyList_SetItem(col_1, 0, PyFloat_FromDouble(colours.first.red));
+    PyList_SetItem(col_1, 1, PyFloat_FromDouble(colours.first.green));
+    PyList_SetItem(col_1, 2, PyFloat_FromDouble(colours.first.blue));
+    PyList_SetItem(col_2, 0, PyFloat_FromDouble(colours.second.red));
+    PyList_SetItem(col_2, 1, PyFloat_FromDouble(colours.second.green));
+    PyList_SetItem(col_2, 2, PyFloat_FromDouble(colours.second.blue));
+    PyList_SetItem(r, 0, col_1);
+    PyList_SetItem(r, 1, col_2);
   }
   if (PyBool_Check(r)) {
     Py_XINCREF(r);
@@ -1682,12 +1687,12 @@ int average_map_scm(SCM map_number_and_scales) {
 	    if (scm_is_true(scm_number_p(map_scale_scm))) {
 	       int map_number = scm_to_int(map_number_scm);
 	       if (is_valid_map_molecule(map_number)) {
-		  float scale = scm_to_double(map_scale_scm);
-		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
-		  maps_and_scales_vec.push_back(p);
-		  is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
+	          float scale = scm_to_double(map_scale_scm);
+	          std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
+	          maps_and_scales_vec.push_back(p);
+	          is_em_flag = graphics_info_t::molecules[map_number].is_EM_map();
 	       } else {
-		  std::cout << "Invalid map number " << map_number << std::endl;
+	          std::cout << "Invalid map number " << map_number << std::endl;
 	       }
 	    } else {
 	       std::cout << "Bad scale "
@@ -1698,7 +1703,7 @@ int average_map_scm(SCM map_number_and_scales) {
 	    }
 	 } else {
 	    std::cout << "Bad map number " << scm_to_locale_string(display_scm(map_number_scm))
-		      << std::endl;
+	              << std::endl;
 	 }
 
       }
@@ -1732,9 +1737,9 @@ int average_map_py(PyObject *map_number_and_scales) {
       if (ns == 2) {
 	 PyObject *map_number_py = PyList_GetItem(number_and_scale, 0);
 	 PyObject *map_scale_py  = PyList_GetItem(number_and_scale, 1);
-	 if (PyInt_Check(map_number_py)) {
-	   if (PyFloat_Check(map_scale_py) || PyInt_Check(map_scale_py)) {
-	       int map_number = PyInt_AsLong(map_number_py);
+	 if (PyLong_Check(map_number_py)) {
+	   if (PyFloat_Check(map_scale_py) || PyLong_Check(map_scale_py)) {
+	       int map_number = PyLong_AsLong(map_number_py);
 	       if (is_valid_map_molecule(map_number)) {
 		  float scale = PyFloat_AsDouble(map_scale_py);
 		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
@@ -1744,11 +1749,11 @@ int average_map_py(PyObject *map_number_and_scales) {
 		  std::cout << "Invalid map number " << map_number << std::endl;
 	       }
 	    } else {
-	     std::cout << "Bad scale " << PyString_AsString(display_python(map_scale_py))   // FIXME
+	     std::cout << "Bad scale " << PyUnicode_AsUTF8String(display_python(map_scale_py))   // FIXME
 	     		 << std::endl;
 	    }
 	 } else {
-	   std::cout << "Bad map number " << PyString_AsString(display_python(map_number_py))  // FIXME
+	   std::cout << "Bad map number " << PyUnicode_AsUTF8String(display_python(map_number_py))  // FIXME
 	         << std::endl;
 	 }
       }
@@ -1830,8 +1835,8 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
       int n = PyObject_Length(map_molecule_number_list);
       for (int i=0; i<n; i++) {
     PyObject *mol_number_py = PyList_GetItem(map_molecule_number_list, i);
-    if (PyInt_Check(mol_number_py)) {
-       int map_number = PyInt_AsLong(mol_number_py);
+    if (PyLong_Check(mol_number_py)) {
+       int map_number = PyLong_AsLong(mol_number_py);
        if (is_valid_map_molecule(map_number)) {
           v.push_back(map_number);
        }
@@ -2028,11 +2033,11 @@ map_to_model_correlation_stats_per_residue(int imol,
    std::map<coot::residue_spec_t, coot::util::density_stats_info_t> res_map;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-    const clipper::Xmap<float> &xmap_reference = graphics_info_t::molecules[imol_map].xmap;
-    res_map = coot::util::map_to_model_correlation_stats_per_residue(mol, residue_specs,
-       atom_mask_mode, atom_radius,
-       xmap_reference);
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         const clipper::Xmap<float> &xmap_reference = graphics_info_t::molecules[imol_map].xmap;
+         res_map = coot::util::map_to_model_correlation_stats_per_residue(mol, residue_specs,
+                                                                          atom_mask_mode, atom_radius,
+                                                                          xmap_reference);
       }
    }
    return res_map;
@@ -2071,25 +2076,32 @@ map_to_model_correlation_stats_per_residue_scm(int imol,
    SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-    double map_mean = graphics_info_t::molecules[imol_map].map_mean();
-    double map_sd   = graphics_info_t::molecules[imol_map].map_sigma();
-    std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(specs_scm);
-    std::map<coot::residue_spec_t, coot::util::density_stats_info_t> res_map;
-    res_map = map_to_model_correlation_stats_per_residue(imol, specs, atom_mask_mode, atom_radius_for_masking, imol_map);
-    std::map<coot::residue_spec_t, coot::util::density_stats_info_t>::const_iterator it;
-    for (it=res_map.begin(); it!=res_map.end(); it++) {
-       const coot::residue_spec_t &spec = it->first;
-       const coot::util::density_stats_info_t &dcs = it->second;
-       SCM residue_spec_scm = residue_spec_to_scm(spec);
+         double map_mean = graphics_info_t::molecules[imol_map].map_mean();
+         double map_sd   = graphics_info_t::molecules[imol_map].map_sigma();
+         std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(specs_scm);
+         std::map<coot::residue_spec_t, coot::util::density_stats_info_t> res_map;
+         res_map = map_to_model_correlation_stats_per_residue(imol, specs, atom_mask_mode, atom_radius_for_masking, imol_map);
+         std::map<coot::residue_spec_t, coot::util::density_stats_info_t>::const_iterator it;
+         for (it=res_map.begin(); it!=res_map.end(); it++) {
+            const coot::residue_spec_t &spec = it->first;
+            const coot::util::density_stats_info_t &dcs = it->second;
+            SCM residue_spec_scm = residue_spec_to_scm(spec);
 
-       SCM dcs_scm = SCM_EOL; // fixme
+            double mean = dcs.sum/dcs.sum_weight;
+            double var = mean * mean - dcs.sum_sq/dcs.sum_weight;
+            std::pair<double, double> mv = dcs.mean_and_variance();
+            mean = mv.first;
+            var = mv.second;
+            SCM mean_scm = scm_double2num(mean);
+            SCM variance_scm = scm_double2num(var);
+            SCM dcs_scm = scm_list_2(mean_scm, variance_scm);
 
-       SCM item_scm = scm_list_2(residue_spec_scm, dcs_scm);
-       r = scm_cons(item_scm, r);
-
-    }
+            SCM item_scm = scm_list_2(residue_spec_scm, dcs_scm);
+            r = scm_cons(item_scm, r);
+         }
       }
    }
+   r = scm_reverse(r);
    return r;
 
 }
@@ -2460,7 +2472,7 @@ PyObject *amplitude_vs_resolution_py(int imol_map) {
       for (std::size_t i=0; i<data.size(); i++) {
     PyObject *o = PyList_New(3);
     PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_average_fsqrd()));
-    PyList_SetItem(o, 1, PyInt_FromLong(data[i].count));
+    PyList_SetItem(o, 1, PyLong_FromLong(data[i].count));
     PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_invresolsq()));
       }
    }
@@ -2510,7 +2522,7 @@ void set_auto_updating_sfcalc_genmap(int imol_model,
                updating_model_molecule_parameters_t ummp(imol_model, imol_map_with_data_attached, imol_updating_difference_map);
                updating_model_molecule_parameters_t *u = new updating_model_molecule_parameters_t(ummp);
                GSourceFunc f = GSourceFunc(graphics_info_t::molecules[imol_updating_difference_map].watch_coordinates_updates);
-               g_timeout_add(1000, f, u);
+               g_timeout_add(500, f, u);
             }
          }
       }
@@ -2532,4 +2544,37 @@ void go_to_map_molecule_centre(int imol_map) {
          set_rotation_centre(nc.x(), nc.y(), nc.z());
       }
    }
+}
+
+
+//! \brief radial map colouring centre
+void set_radial_map_colouring_centre(int imol, float x, float y, float z) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_centre(x,y,z);
+}
+
+//! \brief radial map colouring min
+void set_radial_map_colouring_min_radius(int imol, float r) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_min_radius(r);
+}
+
+//! \brief radial map colouring max
+void set_radial_map_colouring_max_radius(int imol, float r) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_max_radius(r);
+}
+
+//! \brief radial map colouring inverted colour map
+void set_radial_map_colouring_invert(int imol, int invert_state) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_invert(invert_state);
+}
+
+//! \brief radial map colouring saturation
+//!
+//! saturation is a number between 0 and 1, typically 0.5
+void set_radial_map_colouring_saturation(int imol, float saturation) {
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_saturation(saturation);
 }

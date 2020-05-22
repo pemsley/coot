@@ -280,7 +280,7 @@ int test_function(int i, int j) {
       std::cout << "sizeof(int): " << sizeof(int) << std::endl;
 
       if (graphics_info_t::use_graphics_interface_flag) {
-	 GtkWidget *w = lookup_widget(graphics_info_t::glarea,
+	 GtkWidget *w = lookup_widget(graphics_info_t::get_main_window(),
 				      "main_window_model_fit_dialog_frame");
 	 if (!w) {
 	    std::cout << "failed to lookup toolbar" << std::endl;
@@ -977,8 +977,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    }
 
    if (0) {
-     int i = PyInt_AsLong(i_py); // map molecule
-     int j = PyInt_AsLong(j_py);
+     int i = PyLong_AsLong(i_py); // map molecule
+     int j = PyLong_AsLong(j_py);
 
      // was_found, imol, atom_spec
      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();

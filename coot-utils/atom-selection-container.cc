@@ -195,7 +195,8 @@ get_atom_selection(std::string pdb_name,
        char *str = MMDBManager->GetSpaceGroup();
        if (str) {
 	  std::string sgrp(str);
-	  std::cout << "Spacegroup: " << sgrp << "\n";
+          // We don't need this here.
+	  // std::cout << "Spacegroup: " << sgrp << "\n";
        } else {
           // Too noisy, not valuable
 	  // std::cout << "No Spacegroup found for this PDB file\n";

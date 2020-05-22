@@ -32,6 +32,10 @@ namespace coot {
    process_dfs_plane(const simple_restraint &restraint,
 		     const gsl_vector *v,
 		     std::vector<double> &results);
+   void
+   process_dfs_improper_dihedral(const simple_restraint &restraint,
+		     const gsl_vector *v,
+		     std::vector<double> &results);
 
    void
    process_dfs_parallel_planes(const simple_restraint &restraint,
@@ -78,5 +82,6 @@ namespace coot {
 					       const restraints_container_t *restraints_p,
 					       const gsl_vector *v, gsl_vector *df,
 					       std::atomic<unsigned int> &done_count_for_threads);
+
 
 }

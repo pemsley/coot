@@ -116,6 +116,9 @@ EXTRA_DIST = \
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = dynarama.glade
 
+cootdatadir = $(pkgdatadir)/shaders
+dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
+                     hud-text.shader  map.shader  model.shader screen.shader
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
@@ -124,6 +127,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/cc-interface.hh  \
                              $(top_srcdir)/src/cc-interface-ncs.hh  \
                              $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
+                             $(top_srcdir)/src/cc-interface-scripting.hh \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-refine.hh \
@@ -153,6 +157,8 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/cc-interface.hh    \
                          $(top_srcdir)/src/coot.i             \
                          $(top_srcdir)/src/cc-interface-ncs.hh  \
+                         $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
+	                 $(top_srcdir)/src/cc-interface-scripting.hh \
                          $(top_srcdir)/src/lbg-interface.hh   \
                          $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
@@ -162,7 +168,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/validation.hh \
                          $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
+	swig -o $@  $(CPPFLAGS) $(MOLTRIANGLES_CPPFLAGS) -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CPPFLAGS)  -DUSE_PYTHON $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -py3 -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -239,25 +245,26 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-if COOT_USE_PYTHON
-if MAKE_ENHANCED_LIGAND_TOOLS
-coot_embedded_la_SOURCES = coot-embedded.cc
-coot_extended_la_SOURCES = coot-extended.cc
+_coot_embedded_la_SOURCES = coot-embedded.cc
+_coot_extended_la_SOURCES = coot-extended.cc
 # use -Wl,--no-undefined or  -Wl,-undefined,error (clang) ?
-coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-coot_embedded_la_LIBADD = \
+_coot_embedded_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+_coot_embedded_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)   \
                        $(PYTHON_LIBS)
-coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-coot_extended_la_LIBADD = \
+_coot_extended_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+_coot_extended_la_LIBADD = \
                        $(top_builddir)/pli/libcoot-pli.la   \
                        $(top_builddir)/geometry/libcoot-geometry.la   \
                        $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON)
 
-pyexec_LTLIBRARIES = coot_embedded.la coot_extended.la
-endif
-endif
+pyexec_LTLIBRARIES = _coot_embedded.la _coot_extended.la
+
+_coot_la_SOURCES = coot.cc coot_wrap_python.cc
+_coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+
+pyexec_LTLIBRARIES += _coot.la
 
 
 if OS_WIN32
@@ -339,6 +346,7 @@ coot_bin_SOURCES = \
 	c-interface-refine.cc	 \
 	c-interface-residues.cc	 \
 	c-interface-refmac.cc	 \
+	simple-refmac.cc	 \
 	c-interface-refmac.h	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
@@ -363,6 +371,7 @@ coot_bin_SOURCES = \
 	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
+	cc-interface-scripting.cc\
 	cc-interface-scripting.hh\
 	cc-interface-image.hh    \
 	cc-interface-png.cc      \
@@ -370,10 +379,10 @@ coot_bin_SOURCES = \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
 	callbacks.c callbacks.h	 \
-   canvas-fixes.hh          \
-   cfc.cc cfc.hh            \
-   cfc-widgets.hh           \
-   cfc-widgets-c-interface.h \
+        canvas-fixes.hh          \
+        cfc.cc cfc.hh            \
+        cfc-widgets.hh           \
+        cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
@@ -407,6 +416,8 @@ coot_bin_SOURCES = \
 	coot_wrap_guile.cc       \
         curlew.h                 \
         curlew.hh                \
+	cylinder.hh		 \
+	cylinder.cc		 \
 	data-pair-remover.hh     \
         density-results-container-t.hh \
         dots-representation.hh   \
@@ -424,6 +435,7 @@ coot_bin_SOURCES = \
 	generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
+	generic-vertex.hh	 \
 	gensurf.hh               \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
@@ -450,10 +462,12 @@ coot_bin_SOURCES = \
 	graphics-info-network.cc \
 	graphics-info-mutate.cc	 \
 	graphics-info-lsq.cc	 \
+	graphics-info-opengl.cc	 \
 	graphics-info-pick.cc	 \
 	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
 	graphics-info-residues.cc	\
+	graphics-info-refine.cc	\
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \
@@ -462,6 +476,7 @@ coot_bin_SOURCES = \
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
 	gl-matrix.cc 		 \
+	gl-lights-info.hh	 \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
@@ -473,6 +488,8 @@ coot_bin_SOURCES = \
 	history_list.hh		 \
         idles.hh                 \
 	interface.h              \
+	key-bindings.cc		 \
+	key-bindings.hh		 \
         manipulation-modes.hh    \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh 	 \
@@ -517,6 +534,7 @@ coot_bin_SOURCES = \
 	protein_db-interface.cc  \
 	python-classes.cc	 \
 	python-classes.hh	 \
+	python-3-interface.hh 	 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
@@ -532,6 +550,7 @@ coot_bin_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
+	screen-utils.cc		 \
         sound.cc \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
@@ -578,7 +597,6 @@ coot_bin_SOURCES = \
         json.hpp
 
 if COOT_USE_PYTHON
-   coot_bin_SOURCES += coot_wrap_python.cc
    EXTRA_DIST += coot_wrap_python_pre.cc
 endif
 if COOT_USE_PYTHON

@@ -330,10 +330,10 @@ coot::util::fffear_search::fill_nxmap_mask(mmdb::Manager *mol, int SelectionHand
    nxmap_mask = 0.0;
    clipper::Coord_grid g0, g1;
    g0 = clipper::Coord_map( nxmap.operator_orth_grid().rot() *
-			    clipper::Vec3<>(radius_,radius_,radius_) ).coord_grid();
+                            clipper::Vec3<>(radius_,radius_,radius_) ).coord_grid();
    clipper::Grid_range gd( -g0, g0 );
    clipper::Grid_range box( clipper::Coord_grid(0,0,0),
-			    clipper::Coord_grid(nxmap.grid()) - clipper::Coord_grid(1,1,1) );
+                            clipper::Coord_grid(nxmap.grid()) - clipper::Coord_grid(1,1,1) );
    clipper::NXmap<float>::Map_reference_coord i0, iu, iv, iw;
    for ( int i = 0; i < n_atoms; i++ )
       if ( atom_selection[i] ) {
@@ -353,7 +353,7 @@ coot::util::fffear_search::fill_nxmap_mask(mmdb::Manager *mol, int SelectionHand
       }
 
    std::cout << "INFO:: Number of non-zero points in search mask : " << n_points
-	     << std::endl;
+             << std::endl;
    return n_points;
 }
 

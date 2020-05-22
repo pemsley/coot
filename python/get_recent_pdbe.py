@@ -24,15 +24,15 @@ import socket
 socket.setdefaulttimeout(10)
 #sys.setcheckinterval(10) # doesnt seem to make much of a difference...
 
-import Queue
+import queue
 max_queue = 14
-coot_queue = Queue.Queue()
+coot_queue = queue.Queue()
 
-import thread
-safe_print = thread.allocate_lock()
+import _thread
+safe_print = _thread.allocate_lock()
 def print_thread(*txt):
     safe_print.acquire()
-    print " ".join(map(str, txt))
+    print(" ".join(map(str, txt)))
     safe_print.release()
 
 global coot_pdbe_image_cache_dir
@@ -48,7 +48,7 @@ def get_recent_json(file_name):
     import json  # maybe should be globally imported
     
     if not os.path.isfile(file_name):
-        print "file not found", file_name
+        print("file not found", file_name)
         return False
     else:
         fin = open(file_name, 'r')
@@ -164,10 +164,10 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     scrolled_win.add_with_viewport(inside_vbox)
     scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
     if buttons:
-        map(lambda button_info:
+        list(map(lambda button_info:
             add_button_info_to_box_of_buttons_vbox_for_ligand_images(button_info,
                                                                      inside_vbox),
-            buttons)
+            buttons))
 
     outside_vbox.set_border_width(2)
     outside_vbox.pack_start(h_sep, False, False, 2)
@@ -209,8 +209,8 @@ def is_png_or_gif_qm(file_name):
 #
 def cache_or_net_get_image(image_url, image_name, hbox):
 
-    import thread  # try to get away with the simple ones
-    import urllib  # move to a proper place FIXME
+    import _thread  # try to get away with the simple ones
+    import urllib.request, urllib.parse, urllib.error  # move to a proper place FIXME
     import threading
 
     def show_image_when_ready(image_name, hbox):
@@ -228,7 +228,7 @@ def cache_or_net_get_image(image_url, image_name, hbox):
 
     def get_image(url, file_name):
         try:
-            file_name, url_info = urllib.urlretrieve(url, file_name)
+            file_name, url_info = urllib.request.urlretrieve(url, file_name)
         except socket.timeout:
             print_thread("BL ERROR:: timout download", url[-50:])
         except:
@@ -240,23 +240,23 @@ def cache_or_net_get_image(image_url, image_name, hbox):
 
 def downloader_thread(thread_no):
     
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
 
     def get_image():
         while True:
             try:
                 url, file_name = coot_queue.get()
                 try:
-                    file_name, url_info = urllib.urlretrieve(url, file_name)
+                    file_name, url_info = urllib.request.urlretrieve(url, file_name)
                 except socket.timeout:
                     print_thread("BL ERROR:: timout download", url[-50:])
                 except:
                     print_thread("BL ERROR:: failed download", url[-50:])
                 coot_queue.task_done()
-            except Queue.Empty:
+            except queue.Empty:
                 # nothing left to do, die baby
                 return
-    thread.start_new_thread(get_image, ())
+    _thread.start_new_thread(get_image, ())
     
 
 # return refmac_result or False
@@ -282,7 +282,7 @@ def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
     make_molecules_flag = 0 # ??
 
     save_refmac_extra_params = refmac_extra_params
-    if isinstance(refmac_extra_params, types.ListType):
+    if isinstance(refmac_extra_params, list):
         refmac_extra_params.append("MAKE NEWLIGAND CONTINUE")
     else:
         refmac_extra_params = ["MAKE NEWLIGAND CONTINUE"]
@@ -324,7 +324,7 @@ def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
 def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                              entry_id, method_string=""):
 
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
     import time
 
     global download_thread_status
@@ -367,7 +367,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     # why cant we make a dialog?! (if this is threaded)
                     txt = "WARNING:: Failed to convert " +  \
                           sfs_cif_file_name + " to an mtz file"
-                    print txt
+                    print(txt)
                     #info_dialog(txt)
                     download_thread_status = "fail"
                 else:
@@ -380,11 +380,11 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                         refmac_result = refmac_calc_sfs_make_mtz(pdb_file_name,
                                                                  sfs_mtz_file_name,
                                                                  refmac_out_mtz_file_name)
-                        print "      refmac-result: ", refmac_result
+                        print("      refmac-result: ", refmac_result)
 
                         # if refmac_result is good? (is tuple not list)
                         # good enough if it's not false?!
-                        if not (isinstance(refmac_result, types.TupleType)):
+                        if not (isinstance(refmac_result, tuple)):
                             download_thread_status = "fail-refmac"
                         else:
                             # make map
@@ -393,7 +393,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                             download_thread_status = "done"  #??
 
             # main line get_sfs_run_refmac
-            print "in get_sfs_run_refmac", sfs_cif_file_name,
+            print("in get_sfs_run_refmac", sfs_cif_file_name, end=' ')
             sfs_mtz_file_name, pdb_file_name, refmac_out_mtz_file_name
 
             # check for cached results: only run refmac if
@@ -419,7 +419,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     else:
                         # need to get sfs_mtz_file_name
                         download_thread_status = "downloading-sfs"
-                        cif_thread = thread.start_new_thread(download_file_and_update_widget,
+                        cif_thread = _thread.start_new_thread(download_file_and_update_widget,
                                                              (sfs_cif_url,
                                                               sfs_cif_file_name,
                                                               cif_progress_bar,
@@ -607,22 +607,22 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
             try:
                 #print "BL DEBUG:: start download", url
                 gobject.idle_add(sleeper)
-                file_name_local, url_info = urllib.urlretrieve(url, file_name,
+                file_name_local, url_info = urllib.request.urlretrieve(url, file_name,
                                                                lambda nb, bs, fs, progress_bar=progress_bar:
                                                                update_progressbar_in_download(nb, bs, fs, progress_bar))
                 download_thread_status = "done-download"
             except socket.timeout:
-                print "BL ERROR:: timout download", url[-50:]
+                print("BL ERROR:: timout download", url[-50:])
                 download_thread_status = "fail"
             except IOError:
-                print "BL ERROR:: ioerror downloading", url[-50:]
+                print("BL ERROR:: ioerror downloading", url[-50:])
                 download_thread_status = "fail"
             except:
                 if (not download_thread_status == "cancelled"):
-                    print "BL ERROR:: general problem downloading", url[-50:]
+                    print("BL ERROR:: general problem downloading", url[-50:])
                     download_thread_status = "fail"
                 else:
-                    print "BL INFO:: cancelled download"
+                    print("BL INFO:: cancelled download")
 
         # or shall this be in the timeout function!?
         def update_refmac_progress_bar(refmac_progress_bar, log_file_name):
@@ -720,7 +720,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                  if not (os.path.isfile(sfs_cif_file_name) and
                          os.path.isfile(refmac_out_mtz_file_name)):
                      # download and run refmac
-                     thread.start_new_thread(get_sfs_run_refmac, (sfs_cif_url, sfs_cif_file_name,
+                     _thread.start_new_thread(get_sfs_run_refmac, (sfs_cif_url, sfs_cif_file_name,
                                                                   sfs_mtz_file_name, pdb_file_name,
                                                                   refmac_out_mtz_file_name,
                                                                   cif_progress_bar, window))
@@ -750,7 +750,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
             download_thread_status = "done-download"
         else:
             download_thread_status = "downloading-pdb"
-            pdb_thread = thread.start_new_thread(download_file_and_update_widget,
+            pdb_thread = _thread.start_new_thread(download_file_and_update_widget,
                                                          (pdb_url, pdb_file_name, pdb_progress_bar,
                                                           window))
         gobject.idle_add(check_pdb_download_thread)
@@ -760,7 +760,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
 def recent_structure_browser(t):
 
     import string
-    import thread
+    import _thread
     global refmac_count
     global download_thread_status
     download_thread_status = None  # initiallise
@@ -843,8 +843,8 @@ def recent_structure_browser(t):
         # now make a button list (a label and what to do)
         # entry_id = str(dic["EntryID"])
         groupValue = dic_wrapper["groupValue"]
-        if not isinstance(groupValue, basestring):
-            print "failed to get groupValue"
+        if not isinstance(groupValue, str):
+            print("failed to get groupValue")
         else:
             dic = dic_wrapper["doclist"]["docs"][0]
             entry_id = str(dic["pdb_id"])
@@ -875,12 +875,12 @@ def recent_structure_browser(t):
                                 if resolution_item else ""
 
             if False:
-                print "   title_label:", title_label
-                print "   entry_id:", entry_id
-                print "   method_label:", method_label
-                print "   resolution_string:", resolution_string
-                print "   authors_label:", authors_label
-                print "   ligands_string:", ligands_string
+                print("   title_label:", title_label)
+                print("   entry_id:", entry_id)
+                print("   method_label:", method_label)
+                print("   resolution_string:", resolution_string)
+                print("   authors_label:", authors_label)
+                print("   ligands_string:", ligands_string)
             label = entry_id + "\n" + title_label + "\n" + method_label + \
                     resolution_string + "\n" + authors_label + ligands_string
 
@@ -905,7 +905,7 @@ def recent_structure_browser(t):
     # return a list of buttons
     #
     def handle_pdb_entry_entities(dic):
-        return map(handle_pdb_entry_entity, dic)
+        return list(map(handle_pdb_entry_entity, dic))
                     
     # main line!?
     aa = get_dic_all_entries(t)
@@ -937,7 +937,7 @@ def recent_entries_progress_dialog():
 def pdbe_latest_releases_gui():
 
     import threading
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
 
 
     url = "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
@@ -950,7 +950,7 @@ def pdbe_latest_releases_gui():
     # FIXME:: progress bar!?
     progress_bars = recent_entries_progress_dialog()
 
-    class MyURLopener(urllib.FancyURLopener):
+    class MyURLopener(urllib.request.FancyURLopener):
         def http_error_default(self, url, fp, errcode, errmsg, headers):
             # handle errors the way you'd like to
             # raise StandardError, ("File not found?")
@@ -985,9 +985,9 @@ def pdbe_latest_releases_gui():
                 self.file_name, url_info = MyURLopener().retrieve(self.url, self.file_name, self.update_function)
                 self.status = 0 #?
             except socket.timeout:
-                print "BL ERROR:: timout download", self.url
+                print("BL ERROR:: timout download", self.url)
             except IOError:
-                print "BL ERROR:: ioerror"
+                print("BL ERROR:: ioerror")
             except:
                 self.status = 1
                 # FIXME here dies with the thread. need to go to main thread
@@ -996,16 +996,16 @@ def pdbe_latest_releases_gui():
 
     thread = GetUrlThread(url, json_file_name,
                           progress_bars[0], progress_bars[1])
-    thread.start()
+    _thread.start()
 
     def start_table():
-        if thread.get_url_status() == 0:
+        if _thread.get_url_status() == 0:
             recent_structure_browser(get_recent_json(json_file_name))
             return False  # stop
         return True  # continue
 
     def run_sleeper():
-        if thread.get_url_status() == 0:
+        if _thread.get_url_status() == 0:
             return False   # stop
         time.sleep(0.02)
         return True # continue

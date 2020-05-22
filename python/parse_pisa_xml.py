@@ -43,7 +43,7 @@ def pisa_assemblies_xml(imol, file_name):
     import os
 
     if (os.path.isfile(file_name)):
-        print "opened", file_name
+        print("opened", file_name)
         sm = ElementTree()
         xml_file = clean_xml_file(file_name)
         if xml_file:
@@ -150,7 +150,7 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
 
 
     ( STRING,
-      STDOUT) = range(2)
+      STDOUT) = list(range(2))
     # record in an element in xml element tree (molecule)
     # port is STRING or STDOUT
     #
@@ -162,8 +162,8 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
         # be returned - otherwise return None, False on error)
         ret = None
         if (port == STRING):
-            import StringIO
-            out = StringIO.StringIO()
+            import io
+            out = io.StringIO()
         elif (port == STDOUT):
             import sys
             out = sys.stdout
@@ -195,8 +195,8 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
         # be returned - otherwise return None, False on error)
         ret = None
         if (port == STRING):
-            import StringIO
-            out = StringIO.StringIO()
+            import io
+            out = io.StringIO()
         elif (port == STDOUT):
             import sys
             out = sys.stdout
@@ -248,14 +248,14 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
             ass_rtop_symbols.append([symbol, float(mol_dic[symbol])])
 
         # do something with residues (if interface)
-        if mol_dic.has_key("residues"):
+        if "residues" in mol_dic:
             residues = molecule.getiterator("residue")
             mol_dic["residues"] = handle_residues(residues)
             
         if not (len(ass_rtop_symbols) == 12):
             return False # ass_rtop_symbols were not all set
         else:
-            mat = map(lambda sym: sym[1], ass_rtop_symbols)
+            mat = [sym[1] for sym in ass_rtop_symbols]
             #print "== atom-selection string %s   mat:::: %s" %(atom_selection_string, mat)
             #print "currently %s molecules" %(graphics_n_molecules())
             new_molecule_name = "Symmetry copy of " + \
@@ -360,7 +360,7 @@ def parse_pisa_assemblies(imol, entity):
                 return first_copy
 
     ( STRING,
-      STDOUT) = range(2)
+      STDOUT) = list(range(2))
     # record in an element in xml element tree
     # port is STRING or STDOUT
     #
@@ -372,8 +372,8 @@ def parse_pisa_assemblies(imol, entity):
         # be returned - otherwise return None, False on error)
         ret = None
         if (port == STRING):
-            import StringIO
-            out = StringIO.StringIO()
+            import io
+            out = io.StringIO()
         elif (port == STDOUT):
             import sys
             out = sys.stdout
@@ -455,7 +455,7 @@ def parse_pisa_assemblies(imol, entity):
 
 
     if top_assembly_set:
-        print "top assembly-set:\n", top_assembly_set
+        print("top assembly-set:\n", top_assembly_set)
         s = "top assembly-set: \n\n" + top_assembly_set
     else:
         s = "no assembly-sets found"
@@ -584,7 +584,7 @@ def pisa_interfaces(imol):
 
 def pisa_interfaces_xml(imol, file_name):
     if not os.path.isfile(file_name):
-        print "WARNING:: in pisa_interfaces_xml: %s does not exist" %file_name
+        print("WARNING:: in pisa_interfaces_xml: %s does not exist" %file_name)
     else:
         from xml.etree.ElementTree import ElementTree
         sm = ElementTree()

@@ -252,36 +252,10 @@ namespace coot {
    };
 } // namespace coot
 
-class tri_indices {
-public:
-   unsigned int idx[3];
-   tri_indices() {}
-   tri_indices(const unsigned int &i0, const unsigned int &i1, const unsigned int &i2) {
-      idx[0] = i0;
-      idx[1] = i1;
-      idx[2] = i2;
-   }
-};
 
-class generic_vertex {
-public:
-   glm::mat3 model_rotation_matrix; // orientation
-   glm::vec3 model_translation; // the coordinates of the first atom of the bond
-   glm::vec3 pos;
-   glm::vec3 normal; // normalized when set
-   glm::vec4 colour;
-};
+#include "generic-vertex.hh"
 
-class cylinder {
-public:
-   std::vector<generic_vertex> vertices;
-   std::vector<tri_indices> triangle_indices_vec;
-   cylinder() {} // needs to be filled
-   cylinder(const coot::CartesianPair &cp,
-            float base_radius, float top_radius, float height,
-            unsigned int n_slices, unsigned int n_stacks);
-};
-
+#include "cylinder.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -325,10 +299,6 @@ class molecule_class_info_t {
    float sharpen_b_factor_kurtosis_optimised_;
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
-
-   void draw_density_map_internal(short int display_lists_for_maps_flag_local,
-				  bool draw_map_local_flag,
-				  short int main_or_secondary);
 
    // display flags:
    //
@@ -736,6 +706,8 @@ public:        //                      public
 
       pickable_atom_selection = 1;
 
+      is_intermediate_atoms_molecule = false;
+
       // refmac stuff
       //
       refmac_count = 0;
@@ -871,7 +843,11 @@ public:        //                      public
       // solid surface density representation
       //
       // draw_it_for_solid_density_surface = 0;
-      density_surface_opacity = 0.5;
+      density_surface_opacity = 1.0;
+
+      // other map
+      colour_map_using_other_map_flag = false;
+      other_map_for_colouring_p = 0;
 
       // animated ligand interaction representation
       draw_animated_ligand_interactions_flag = 0;
@@ -881,6 +857,8 @@ public:        //                      public
 
       // mtz updating
       continue_watching_mtz = false;
+
+      previous_eye_position = clipper::Coord_orth(-999, -999, -999);
 
    }
 
@@ -1166,8 +1144,8 @@ public:        //                      public
    }
 
    void makebonds(const coot::protein_geometry *geom_p, const std::set<int> &no_bonds_to_these_atom_indices);
-   void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p);
    void make_ca_bonds(float min_dist, float max_dist);
    void make_ca_bonds(float min_dist, float max_dist, const std::set<int> &no_bonds_to_these_atom_indices);
    void make_ca_bonds();
@@ -1185,7 +1163,9 @@ public:        //                      public
    void b_factor_representation();
    void b_factor_representation_as_cas();
    void occupancy_representation();
-   void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
+   void user_defined_colours_representation(coot::protein_geometry *geom_p,
+                                            bool all_atoms_mode,
+                                            bool draw_missing_loops_flag);
 
    void make_bonds_type_checked();
 
@@ -1270,11 +1250,17 @@ public:        //                      public
    // no need for consolidation before draw time.
    // just lines: std::vector<coot::CartesianPairInfo> draw_vector_sets;
    std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+   std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
+   void sort_map_triangles(const clipper::Coord_orth &eye_position);
+   static void depth_sort();
+   // we only need to sort the triangles if the eye position has moved. So store the eye position
+   // of the previous time the triangles were sorted
+   clipper::Coord_orth previous_eye_position;
 
    static std::atomic<bool> draw_vector_sets_lock; // not here because implicitly deleted copy constructor(?)
    // const coot::CartesianPair* diff_map_draw_vectors;
    // int n_diff_map_draw_vectors;
-   std::vector<coot::CartesianPairInfo> draw_diff_map_vector_sets;
+   std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
 
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
@@ -1400,13 +1386,20 @@ public:        //                      public
    GdkRGBA previous_map_colour;
    void save_previous_map_colour();
    void restore_previous_map_colour();
+   GdkRGBA radius_to_colour(float radius, float min_radius, float max_radius);
+   GdkRGBA fraction_to_colour(float fraction);
+
+   float other_map_for_colouring_min_value;
+   float other_map_for_colouring_max_value;
+   std::vector<coot::colour_t> other_map_for_colouring_colour_table;
+   // use the above values to generate a colour given a value (typically, a correlation)
+   GdkRGBA value_to_colour_using_colour_table(float value);
 
    std::vector<coot::display_list_object_info> display_list_tags;
    void update_map_internal();
    void update_map();
    void compile_density_map_display_list(short int first_or_second);
-   void draw_density_map(short int display_list_for_maps_flag,
-			 short int main_or_secondary);
+
    void draw_surface();
    void draw_dipoles() const;
    bool has_display_list_objects();
@@ -1491,8 +1484,9 @@ public:        //                      public
    //
    void update_map_colour_menu_maybe(int imol);
    void handle_map_colour_change(GdkRGBA map_col,
-				                     bool swap_difference_map_colours_flag,
-				                     bool main_or_secondary);
+                                 bool swap_difference_map_colours_flag,
+                                 bool main_or_secondary);
+   void handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag);
 
    int next_free_map();
 
@@ -1568,7 +1562,7 @@ public:        //                      public
    int sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
-   void fill_fobs_sigfobs();
+   void fill_fobs_sigfobs(); // caches
 
 
    void update_map_in_display_control_widget() const;
@@ -2056,6 +2050,10 @@ public:        //                      public
    void set_map_colour(GdkRGBA col) { map_colour = col; update_map(); }
    std::vector<std::string> set_map_colour_strings() const;
    std::pair<GdkRGBA, GdkRGBA> map_colours() const;
+   void colour_map_using_map(const clipper::Xmap<float> &xmap);
+   void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
+                             const std::vector<coot::colour_t> &colours);
+   const clipper::Xmap<float> *other_map_for_colouring_p;
 
    // save yourself and update have_unsaved_changes_flag status
    //
@@ -2508,6 +2506,8 @@ public:        //                      public
    // merge change/fragments of this molecule
    // return 1 if a merge was done;
    int merge_fragments();
+
+   bool is_intermediate_atoms_molecule;
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
@@ -3083,10 +3083,13 @@ public:        //                      public
 
 
    coot::density_contour_triangles_container_t tri_con_diff_map_neg; // negative contour
-   void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con,
-					bool do_flat_shading) const;
+
+   // these functions are old and need some thought to see if they need to exist.
+   void display_solid_surface_triangles(const coot::density_contour_triangles_container_t &tri_con, bool do_flat_shading) const;
    void draw_solid_density_surface(bool do_flat_shading);
    void set_draw_solid_density_surface(bool state);
+
+   // new
    void setup_glsl_map_rendering();
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
 
@@ -3099,8 +3102,8 @@ public:        //                      public
    GLuint m_VertexBufferID;
    GLuint m_IndexBuffer_for_map_lines_ID;
    GLuint m_IndexBuffer_for_map_triangles_ID; // solid and transparent surfaces
-   GLuint m_NormalBufferID;
-   GLuint m_ColourBufferID;
+   GLuint m_NormalBufferID; // is this map or model - or something else? Be clear!
+   GLuint m_ColourBufferID; // Likewise.
 
    GLuint m_VertexArray_for_model_ID;
    GLuint n_vertices_for_model_VertexArray;
@@ -3112,6 +3115,9 @@ public:        //                      public
    GLuint m_ModelMatrix_for_model_ID;
 
    float density_surface_opacity;
+   bool is_an_opaque_map() const { return density_surface_opacity == 1.0; } // needs explicit assignment to 1.0
+                                                                            // elsewhere in the code, e.g. in
+                                                                            // the adjustment handler.
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.
    bool transparent_molecular_surface_flag; // 0 by default.
@@ -3482,6 +3488,38 @@ public:        //                      public
    void set_mean_and_sigma();
 
    coot::model_composition_stats_t get_model_composition_statistics() const;
+
+   void shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                       const clipper::HKL_data<clipper::data32::Flag> &free);
+
+   void shiftfield_xyz_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
+                                         const clipper::HKL_data<clipper::data32::Flag> &free);
+
+   // radial colouring
+   void set_radial_map_colouring_centre(float x, float y, float z);
+   void set_radial_map_colouring_min_radius(float r);
+   void set_radial_map_colouring_max_radius(float r);
+   void set_radial_map_colouring_invert(bool invert_state);
+   void set_radial_map_colouring_saturation(float saturation);
+   void set_radial_map_colouring_do_radial_colouring(bool state) {
+      radial_map_colouring_do_radial_colouring = state;
+   }
+   bool radial_map_colouring_do_radial_colouring;
+   clipper::Coord_orth radial_map_colour_centre;
+   double radial_map_colour_radius_min;
+   double radial_map_colour_radius_max;
+   double radial_map_colour_invert_flag;
+   double radial_map_colour_saturation;
+
+   // colour by other map (e.g. correlation)
+   bool colour_map_using_other_map_flag;
+   void set_colour_map_using_other_map(bool state) {
+      colour_map_using_other_map_flag = state;
+   }
+   GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
+
+   coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
+
 
 };
 

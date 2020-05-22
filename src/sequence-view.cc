@@ -370,7 +370,11 @@ coot::sequence_view::seq_view_motion_notify(GtkWidget *widget, GdkEventMotion *e
    // move the mouse
    // 
    if (event->is_hint) {
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType mask;
+      GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+      GdkDevice *mouse = gdk_seat_get_pointer(seat);
+      gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
    }
    x = event->x;
    y = event->y;

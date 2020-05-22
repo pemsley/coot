@@ -3,7 +3,7 @@
  * Copyright 2005, 2006 The University of York
  * Copyright 2007, 2012 The University of Oxford
  * Copyright 2014 by Medical Research Council
- * 
+1 * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
@@ -22,6 +22,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -416,7 +417,7 @@ PyObject *generic_object_name_py(unsigned int obj_number_in) {
    for (int i=(n_objs-1); i>=0; i--) {
       if (i == obj_number) {
 	 if (!(*g.generic_objects_p)[i].is_closed_flag) { 
-	    r = PyString_FromString((*g.generic_objects_p)[i].name.c_str());
+	    r = myPyString_FromString((*g.generic_objects_p)[i].name.c_str());
 	    break;
 	 }
       }

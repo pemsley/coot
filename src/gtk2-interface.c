@@ -40,87 +40,87 @@ create_window1 (void)
   GtkWidget *file1;
   GtkWidget *file1_menu;
   GtkWidget *open_coordinates1;
-  GtkWidget *image14249;
+  GtkWidget *image14401;
   GtkWidget *auto_open_mtz;
-  GtkWidget *image14250;
+  GtkWidget *image14402;
   GtkWidget *open_dataset1;
-  GtkWidget *image14251;
+  GtkWidget *image14403;
   GtkWidget *open_map1;
-  GtkWidget *image14252;
+  GtkWidget *image14404;
   GtkWidget *import_cif_dictionary1;
-  GtkWidget *image14253;
+  GtkWidget *image14405;
   GtkWidget *separator2;
   GtkWidget *get_monomer1;
-  GtkWidget *image14254;
+  GtkWidget *image14406;
   GtkWidget *search_monomer_library1;
-  GtkWidget *image14255;
+  GtkWidget *image14407;
   GtkWidget *get_pdb_using_code1;
-  GtkWidget *image14256;
+  GtkWidget *image14408;
   GtkWidget *get_pdb_and_map_using_eds1;
-  GtkWidget *image14257;
+  GtkWidget *image14409;
   GtkWidget *fetch_pdb_and_map_using_pdbredo1;
   GtkWidget *separator3;
   GtkWidget *save_coordinates1;
-  GtkWidget *image14258;
+  GtkWidget *image14410;
   GtkWidget *save_symmetry_coordinates1;
-  GtkWidget *image14259;
+  GtkWidget *image14411;
   GtkWidget *save_state1;
-  GtkWidget *image14260;
+  GtkWidget *image14412;
   GtkWidget *recover_session1;
-  GtkWidget *image14261;
+  GtkWidget *image14413;
   GtkWidget *separator4;
   GtkWidget *export_map1;
   GtkWidget *export_map_fragment1;
   GtkWidget *separator7;
   GtkWidget *close_molecule1;
-  GtkWidget *image14262;
+  GtkWidget *image14414;
   GtkWidget *separator6;
   GtkWidget *curlew1;
   GtkWidget *separator9;
   GtkWidget *exit1;
-  GtkWidget *image14263;
+  GtkWidget *image14415;
   GtkWidget *edit1;
   GtkWidget *edit1_menu;
   GtkWidget *bond_colours1;
-  GtkWidget *image14264;
+  GtkWidget *image14416;
   GtkWidget *bond_parameters1;
-  GtkWidget *image14265;
+  GtkWidget *image14417;
   GtkWidget *edit_change_chain_ids1;
-  GtkWidget *image14266;
+  GtkWidget *image14418;
   GtkWidget *edit_copy_molecule1;
-  GtkWidget *image14267;
+  GtkWidget *image14419;
   GtkWidget *edit_copy_fragment1;
-  GtkWidget *image14268;
+  GtkWidget *image14420;
   GtkWidget *map_colour1;
-  GtkWidget *image14269;
+  GtkWidget *image14421;
   GtkWidget *density_size1;
-  GtkWidget *image14270;
+  GtkWidget *image14422;
   GtkWidget *edit_merge_molecules1;
-  GtkWidget *image14271;
+  GtkWidget *image14423;
   GtkWidget *edit_replace_residue1;
-  GtkWidget *image14272;
+  GtkWidget *image14424;
   GtkWidget *edit_replace_fragment1;
-  GtkWidget *image14273;
+  GtkWidget *image14425;
   GtkWidget *edit_renumber_residues1;
-  GtkWidget *image14274;
+  GtkWidget *image14426;
   GtkWidget *restraints1;
-  GtkWidget *image14275;
+  GtkWidget *image14427;
   GtkWidget *skeleton_parameters1;
-  GtkWidget *image14276;
+  GtkWidget *image14428;
   GtkWidget *skeleton_parameters1_menu;
   GtkWidget *skeleton_colour1;
-  GtkWidget *image14277;
+  GtkWidget *image14429;
   GtkWidget *skeleton_box_radius1;
   GtkWidget *skeletonization_level1;
   GtkWidget *separator5;
   GtkWidget *residue_info2;
-  GtkWidget *image14278;
+  GtkWidget *image14430;
   GtkWidget *font_size1;
-  GtkWidget *image14279;
+  GtkWidget *image14431;
   GtkWidget *pink_pointer_size1;
-  GtkWidget *image14280;
+  GtkWidget *image14432;
   GtkWidget *background_colour1;
-  GtkWidget *image14281;
+  GtkWidget *image14433;
   GtkWidget *background_colour1_menu;
   GSList *background_black1_group = NULL;
   GtkWidget *background_black1;
@@ -128,7 +128,7 @@ create_window1 (void)
   GtkWidget *separator8;
   GtkWidget *edit_settings;
   GtkWidget *preferences1;
-  GtkWidget *image14282;
+  GtkWidget *image14434;
   GtkWidget *calculate1;
   GtkWidget *calculate1_menu;
   GtkWidget *align_and_mutate1;
@@ -139,31 +139,31 @@ create_window1 (void)
   GtkWidget *fit_loop_by_database_search1;
   GtkWidget *fit_loop_by_rama_search1;
   GtkWidget *frames_sec1;
-  GtkWidget *image14283;
+  GtkWidget *image14435;
   GtkWidget *calculate_load_tutorial_model_and_data1;
   GtkWidget *ligand_builder1;
-  GtkWidget *image14284;
+  GtkWidget *image14436;
   GtkWidget *lsq_superpose1;
   GtkWidget *calculate_map_tools;
   GtkWidget *map_sharpening1;
   GtkWidget *cowtan_foadi_skeleton1;
   GtkWidget *modelling;
   GtkWidget *regularize1;
-  GtkWidget *image14285;
+  GtkWidget *image14437;
   GtkWidget *calculate_modules;
   GtkWidget *move_molecule_here1;
   GtkWidget *mutate_molecule1;
   GtkWidget *ncs_maps1;
-  GtkWidget *image14286;
+  GtkWidget *image14438;
   GtkWidget *calculate_ncs_tools;
   GtkWidget *other_modelling_tools1;
-  GtkWidget *image14287;
+  GtkWidget *image14439;
   GtkWidget *calculate_pisa;
   GtkWidget *run_script1;
-  GtkWidget *image14288;
+  GtkWidget *image14440;
   GtkWidget *ssm_superposition1;
   GtkWidget *scripting_testing1;
-  GtkWidget *image14289;
+  GtkWidget *image14441;
   GtkWidget *scripting_testing1_menu;
   GtkWidget *scripting_python1;
   GtkWidget *scripting_scheme1;
@@ -171,98 +171,97 @@ create_window1 (void)
   GtkWidget *draw1_menu;
   GtkWidget *additional_representation1;
   GtkWidget *anisotropic_atoms1;
-  GtkWidget *image14290;
+  GtkWidget *image14442;
   GtkWidget *show_symmetry1;
-  GtkWidget *image14291;
+  GtkWidget *image14443;
   GtkWidget *centre_atom_label1;
-  GtkWidget *image14292;
+  GtkWidget *image14444;
   GtkWidget *clipping1;
   GtkWidget *coordinates_recentring1;
   GtkWidget *crosshairs1;
-  GtkWidget *image14293;
+  GtkWidget *image14445;
   GtkWidget *map_and_mol_control1;
-  GtkWidget *image14294;
+  GtkWidget *image14446;
   GtkWidget *display_only_active1;
   GtkWidget *dragged_map1;
   GtkWidget *generic_display_objects1;
-  GtkWidget *image14295;
+  GtkWidget *image14447;
   GtkWidget *go_to_atom1;
-  GtkWidget *image14296;
+  GtkWidget *image14448;
   GtkWidget *draw_molecular_ribbons;
   GtkWidget *ncs_ghost_control1;
-  GtkWidget *image14297;
-  GtkWidget *perspective_projection1;
+  GtkWidget *image14449;
   GtkWidget *draw_representation_tools;
   GtkWidget *rock_view_on_off1;
   GtkWidget *spin_view_on_off1;
-  GtkWidget *image14298;
+  GtkWidget *image14450;
   GtkWidget *sequence_view1;
-  GtkWidget *image14299;
+  GtkWidget *image14451;
   GtkWidget *screenshot1;
-  GtkWidget *image14300;
+  GtkWidget *image14452;
   GtkWidget *screenshot1_menu;
   GtkWidget *simple1;
   GtkWidget *povray1;
   GtkWidget *raster3d1;
   GtkWidget *recentring1;
   GtkWidget *stereo1;
-  GtkWidget *image14301;
+  GtkWidget *image14453;
   GtkWidget *undo_last_navigation1;
-  GtkWidget *image14302;
+  GtkWidget *image14454;
   GtkWidget *antialiasing1;
-  GtkWidget *image14303;
+  GtkWidget *image14455;
   GtkWidget *main_menu_info;
   GtkWidget *main_menu_info_menu;
   GtkWidget *residue_info1;
-  GtkWidget *image14304;
+  GtkWidget *image14456;
   GtkWidget *distances___angles1;
-  GtkWidget *image14305;
+  GtkWidget *image14457;
   GtkWidget *environment_distances1;
-  GtkWidget *image14306;
+  GtkWidget *image14458;
   GtkWidget *plane_distances1;
-  GtkWidget *image14307;
+  GtkWidget *image14459;
   GtkWidget *pointer_distances1;
-  GtkWidget *image14308;
+  GtkWidget *image14460;
   GtkWidget *clear_atom_labels1;
-  GtkWidget *image14309;
+  GtkWidget *image14461;
   GtkWidget *validate1;
   GtkWidget *validate1_menu;
   GtkWidget *ramachandran_plot1;
-  GtkWidget *image14310;
+  GtkWidget *image14462;
   GtkWidget *ramachandran_differences_plot1;
-  GtkWidget *image14311;
+  GtkWidget *image14463;
   GtkWidget *incorrect_chiral_volumes1;
-  GtkWidget *image14312;
+  GtkWidget *image14464;
   GtkWidget *unmodelled_blobs1;
-  GtkWidget *image14313;
+  GtkWidget *image14465;
   GtkWidget *difference_map_peaks1;
-  GtkWidget *image14314;
+  GtkWidget *image14466;
   GtkWidget *check_waters1;
-  GtkWidget *image14315;
+  GtkWidget *image14467;
   GtkWidget *geometry_analysis1;
-  GtkWidget *image14316;
+  GtkWidget *image14468;
   GtkWidget *peptide_omega_analysis1;
-  GtkWidget *image14317;
+  GtkWidget *image14469;
   GtkWidget *temp_fact_variance_analysis1;
-  GtkWidget *image14318;
+  GtkWidget *image14470;
   GtkWidget *temp_fact_analysis1;
-  GtkWidget *image14319;
+  GtkWidget *image14471;
   GtkWidget *gln_and_asn_b_factor_outliers1;
-  GtkWidget *image14320;
+  GtkWidget *image14472;
   GtkWidget *rotamer_analysis1;
-  GtkWidget *image14321;
+  GtkWidget *image14473;
   GtkWidget *density_fit_analysis1;
-  GtkWidget *image14322;
+  GtkWidget *image14474;
   GtkWidget *probe_clashes1;
-  GtkWidget *image14323;
+  GtkWidget *image14475;
   GtkWidget *ncs_differences1;
   GtkWidget *help1;
   GtkWidget *help1_menu;
   GtkWidget *remarks_browser1;
   GtkWidget *hints1;
-  GtkWidget *image14324;
+  GtkWidget *image14476;
   GtkWidget *about1;
-  GtkWidget *image14325;
+  GtkWidget *image14477;
   GtkWidget *main_toolbar;
   GtkIconSize tmp_toolbar_icon_size;
   GtkWidget *tmp_image;
@@ -434,43 +433,43 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), open_coordinates1);
   // gtk_tooltips_set_tip (tooltips, open_coordinates1, "pdb, cif or shelx res format", NULL);
 
-  image14249 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14249);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_coordinates1), image14249);
+  image14401 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14401);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_coordinates1), image14401);
 
   auto_open_mtz = gtk_image_menu_item_new_with_mnemonic ("Auto Open MTZ...");
   gtk_widget_show (auto_open_mtz);
   gtk_container_add (GTK_CONTAINER (file1_menu), auto_open_mtz);
 
-  image14250 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14250);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (auto_open_mtz), image14250);
+  image14402 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14402);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (auto_open_mtz), image14402);
 
   open_dataset1 = gtk_image_menu_item_new_with_mnemonic ("Open MTZ, mmCIF, fcf or phs...");
   gtk_widget_show (open_dataset1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_dataset1);
   // gtk_tooltips_set_tip (tooltips, open_dataset1, "Create a map \"on the fly\" from mtz, phs or mmCIF data", NULL);
 
-  image14251 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14251);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_dataset1), image14251);
+  image14403 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14403);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_dataset1), image14403);
 
   open_map1 = gtk_image_menu_item_new_with_mnemonic ("Open Map...");
   gtk_widget_show (open_map1);
   gtk_container_add (GTK_CONTAINER (file1_menu), open_map1);
   // gtk_tooltips_set_tip (tooltips, open_map1, "Open a pre-calculated CCP4 map", NULL);
 
-  image14252 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14252);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_map1), image14252);
+  image14404 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14404);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (open_map1), image14404);
 
   import_cif_dictionary1 = gtk_image_menu_item_new_with_mnemonic ("Import CIF dictionary...");
   gtk_widget_show (import_cif_dictionary1);
   gtk_container_add (GTK_CONTAINER (file1_menu), import_cif_dictionary1);
 
-  image14253 = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14253);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (import_cif_dictionary1), image14253);
+  image14405 = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14405);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (import_cif_dictionary1), image14405);
 
   separator2 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator2);
@@ -482,36 +481,36 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), get_monomer1);
   // gtk_tooltips_set_tip (tooltips, get_monomer1, "Give a 3-letter code and use libcheck to generate coordinates from REFMAC monomer library", NULL);
 
-  image14254 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14254);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_monomer1), image14254);
+  image14406 = gtk_image_new_from_stock ("connect-to-ccp4.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14406);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_monomer1), image14406);
 
   search_monomer_library1 = gtk_image_menu_item_new_with_mnemonic ("Search Monomer Library...");
   gtk_widget_show (search_monomer_library1);
   gtk_container_add (GTK_CONTAINER (file1_menu), search_monomer_library1);
   // gtk_tooltips_set_tip (tooltips, search_monomer_library1, "Search monomer names to find 3-letter code", NULL);
 
-  image14255 = gtk_image_new_from_stock ("gtk-index", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14255);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (search_monomer_library1), image14255);
+  image14407 = gtk_image_new_from_stock ("gtk-index", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14407);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (search_monomer_library1), image14407);
 
   get_pdb_using_code1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB using Accession Code...");
   gtk_widget_show (get_pdb_using_code1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_using_code1);
   // gtk_tooltips_set_tip (tooltips, get_pdb_using_code1, "Get PDB Coordinates file from server using accession code", NULL);
 
-  image14256 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14256);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image14256);
+  image14408 = gtk_image_new_from_stock ("connect-to-oca.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14408);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_using_code1), image14408);
 
   get_pdb_and_map_using_eds1 = gtk_image_menu_item_new_with_mnemonic ("Fetch PDB & Map using EDS...");
   gtk_widget_show (get_pdb_and_map_using_eds1);
   gtk_container_add (GTK_CONTAINER (file1_menu), get_pdb_and_map_using_eds1);
   // gtk_tooltips_set_tip (tooltips, get_pdb_and_map_using_eds1, "Use the Electron Density Server at the EBI to get coords and map... (Long live the EDS!)", NULL);
 
-  image14257 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14257);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image14257);
+  image14409 = gtk_image_new_from_stock ("connect-to-usf.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14409);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image14409);
 
   fetch_pdb_and_map_using_pdbredo1 = gtk_menu_item_new_with_mnemonic ("Fetch PDB & Map using PDB-REDO...");
   gtk_widget_show (fetch_pdb_and_map_using_pdbredo1);
@@ -526,33 +525,33 @@ create_window1 (void)
   gtk_widget_show (save_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_coordinates1);
 
-  image14258 = gtk_image_new_from_stock ("gtk-save", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14258);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_coordinates1), image14258);
+  image14410 = gtk_image_new_from_stock ("gtk-save", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14410);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_coordinates1), image14410);
 
   save_symmetry_coordinates1 = gtk_image_menu_item_new_with_mnemonic ("Save Symmetry Coordinates...");
   gtk_widget_show (save_symmetry_coordinates1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_symmetry_coordinates1);
 
-  image14259 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14259);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_symmetry_coordinates1), image14259);
+  image14411 = gtk_image_new_from_stock ("coot-save-symm.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14411);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_symmetry_coordinates1), image14411);
 
   save_state1 = gtk_image_menu_item_new_with_mnemonic ("Save State...");
   gtk_widget_show (save_state1);
   gtk_container_add (GTK_CONTAINER (file1_menu), save_state1);
 
-  image14260 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14260);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_state1), image14260);
+  image14412 = gtk_image_new_from_stock ("coot-save.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14412);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (save_state1), image14412);
 
   recover_session1 = gtk_image_menu_item_new_with_mnemonic ("Recover Session...");
   gtk_widget_show (recover_session1);
   gtk_container_add (GTK_CONTAINER (file1_menu), recover_session1);
 
-  image14261 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14261);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (recover_session1), image14261);
+  image14413 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14413);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (recover_session1), image14413);
 
   separator4 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator4);
@@ -576,9 +575,9 @@ create_window1 (void)
   gtk_widget_show (close_molecule1);
   gtk_container_add (GTK_CONTAINER (file1_menu), close_molecule1);
 
-  image14262 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14262);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close_molecule1), image14262);
+  image14414 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14414);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (close_molecule1), image14414);
 
   separator6 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator6);
@@ -600,9 +599,9 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (file1_menu), exit1);
   // gtk_tooltips_set_tip (tooltips, exit1, "bye", NULL);
 
-  image14263 = gtk_image_new_from_stock ("gtk-quit", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14263);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (exit1), image14263);
+  image14415 = gtk_image_new_from_stock ("gtk-quit", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14415);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (exit1), image14415);
 
   edit1 = gtk_menu_item_new_with_mnemonic ("_Edit");
   gtk_widget_show (edit1);
@@ -615,105 +614,105 @@ create_window1 (void)
   gtk_widget_show (bond_colours1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), bond_colours1);
 
-  image14264 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14264);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_colours1), image14264);
+  image14416 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14416);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_colours1), image14416);
 
   bond_parameters1 = gtk_image_menu_item_new_with_mnemonic ("Bond Parameters...");
   gtk_widget_show (bond_parameters1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), bond_parameters1);
 
-  image14265 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14265);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_parameters1), image14265);
+  image14417 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14417);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (bond_parameters1), image14417);
 
   edit_change_chain_ids1 = gtk_image_menu_item_new_with_mnemonic ("Change Chain IDs...");
   gtk_widget_show (edit_change_chain_ids1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_change_chain_ids1);
 
-  image14266 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14266);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_change_chain_ids1), image14266);
+  image14418 = gtk_image_new_from_stock ("change-chain-id.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14418);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_change_chain_ids1), image14418);
 
   edit_copy_molecule1 = gtk_image_menu_item_new_with_mnemonic ("Copy Molecule...");
   gtk_widget_show (edit_copy_molecule1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_copy_molecule1);
 
-  image14267 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14267);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_molecule1), image14267);
+  image14419 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14419);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_molecule1), image14419);
 
   edit_copy_fragment1 = gtk_image_menu_item_new_with_mnemonic ("Copy Fragment...");
   gtk_widget_show (edit_copy_fragment1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_copy_fragment1);
 
-  image14268 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14268);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_fragment1), image14268);
+  image14420 = gtk_image_new_from_stock ("gtk-copy", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14420);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_copy_fragment1), image14420);
 
   map_colour1 = gtk_image_menu_item_new_with_mnemonic ("Map Colour...");
   gtk_widget_show (map_colour1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), map_colour1);
 
-  image14269 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14269);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_colour1), image14269);
+  image14421 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14421);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_colour1), image14421);
 
   density_size1 = gtk_image_menu_item_new_with_mnemonic ("Map Parameters...");
   gtk_widget_show (density_size1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), density_size1);
 
-  image14270 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14270);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_size1), image14270);
+  image14422 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14422);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_size1), image14422);
 
   edit_merge_molecules1 = gtk_image_menu_item_new_with_mnemonic ("Merge Molecules...");
   gtk_widget_show (edit_merge_molecules1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_merge_molecules1);
 
-  image14271 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14271);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_merge_molecules1), image14271);
+  image14423 = gtk_image_new_from_stock ("merge-molecules.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14423);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_merge_molecules1), image14423);
 
   edit_replace_residue1 = gtk_image_menu_item_new_with_mnemonic ("Replace Residue...");
   gtk_widget_show (edit_replace_residue1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_replace_residue1);
 
-  image14272 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14272);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_residue1), image14272);
+  image14424 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14424);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_residue1), image14424);
 
   edit_replace_fragment1 = gtk_image_menu_item_new_with_mnemonic ("Replace Fragment...");
   gtk_widget_show (edit_replace_fragment1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_replace_fragment1);
 
-  image14273 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14273);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_fragment1), image14273);
+  image14425 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14425);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_replace_fragment1), image14425);
 
   edit_renumber_residues1 = gtk_image_menu_item_new_with_mnemonic ("Renumber Residues...");
   gtk_widget_show (edit_renumber_residues1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), edit_renumber_residues1);
 
-  image14274 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14274);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_renumber_residues1), image14274);
+  image14426 = gtk_image_new_from_stock ("renumber-residues.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14426);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (edit_renumber_residues1), image14426);
 
   restraints1 = gtk_image_menu_item_new_with_mnemonic ("Restraints...");
   gtk_widget_show (restraints1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), restraints1);
 
-  image14275 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14275);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (restraints1), image14275);
+  image14427 = gtk_image_new_from_stock ("radacina_handcuffs-small.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14427);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (restraints1), image14427);
 
   skeleton_parameters1 = gtk_image_menu_item_new_with_mnemonic ("Skeleton Parameters");
   gtk_widget_show (skeleton_parameters1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), skeleton_parameters1);
 
-  image14276 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14276);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_parameters1), image14276);
+  image14428 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14428);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_parameters1), image14428);
 
   skeleton_parameters1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (skeleton_parameters1), skeleton_parameters1_menu);
@@ -722,9 +721,9 @@ create_window1 (void)
   gtk_widget_show (skeleton_colour1);
   gtk_container_add (GTK_CONTAINER (skeleton_parameters1_menu), skeleton_colour1);
 
-  image14277 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14277);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_colour1), image14277);
+  image14429 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14429);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (skeleton_colour1), image14429);
 
   skeleton_box_radius1 = gtk_menu_item_new_with_mnemonic ("Skeleton Box Radius...");
   gtk_widget_show (skeleton_box_radius1);
@@ -743,31 +742,31 @@ create_window1 (void)
   gtk_widget_show (residue_info2);
   gtk_container_add (GTK_CONTAINER (edit1_menu), residue_info2);
 
-  image14278 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14278);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info2), image14278);
+  image14430 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14430);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info2), image14430);
 
   font_size1 = gtk_image_menu_item_new_with_mnemonic ("Font Size...");
   gtk_container_add (GTK_CONTAINER (edit1_menu), font_size1);
 
-  image14279 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14279);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (font_size1), image14279);
+  image14431 = gtk_image_new_from_stock ("gtk-font.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14431);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (font_size1), image14431);
 
   pink_pointer_size1 = gtk_image_menu_item_new_with_mnemonic ("Pink Pointer Size...");
   gtk_container_add (GTK_CONTAINER (edit1_menu), pink_pointer_size1);
 
-  image14280 = gtk_image_new_from_stock ("pink-pointer.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14280);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pink_pointer_size1), image14280);
+  image14432 = gtk_image_new_from_stock ("pink-pointer.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14432);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pink_pointer_size1), image14432);
 
   background_colour1 = gtk_image_menu_item_new_with_mnemonic ("Background Colour...");
   gtk_widget_show (background_colour1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), background_colour1);
 
-  image14281 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14281);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (background_colour1), image14281);
+  image14433 = gtk_image_new_from_stock ("gtk-select-color", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14433);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (background_colour1), image14433);
 
   background_colour1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (background_colour1), background_colour1_menu);
@@ -797,9 +796,9 @@ create_window1 (void)
   gtk_widget_show (preferences1);
   gtk_container_add (GTK_CONTAINER (edit1_menu), preferences1);
 
-  image14282 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14282);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (preferences1), image14282);
+  image14434 = gtk_image_new_from_stock ("gtk-preferences", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14434);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (preferences1), image14434);
 
   calculate1 = gtk_menu_item_new_with_mnemonic ("_Calculate");
   gtk_widget_show (calculate1);
@@ -839,9 +838,9 @@ create_window1 (void)
   gtk_widget_show (frames_sec1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), frames_sec1);
 
-  image14283 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14283);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (frames_sec1), image14283);
+  image14435 = gtk_image_new_from_stock ("appointment-new.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14435);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (frames_sec1), image14435);
 
   calculate_load_tutorial_model_and_data1 = gtk_menu_item_new_with_mnemonic ("Load Tutorial Model and Data");
   gtk_widget_show (calculate_load_tutorial_model_and_data1);
@@ -851,9 +850,9 @@ create_window1 (void)
   gtk_widget_show (ligand_builder1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ligand_builder1);
 
-  image14284 = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14284);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ligand_builder1), image14284);
+  image14436 = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14436);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ligand_builder1), image14436);
 
   lsq_superpose1 = gtk_menu_item_new_with_mnemonic ("LSQ Superpose...");
   gtk_widget_show (lsq_superpose1);
@@ -880,9 +879,9 @@ create_window1 (void)
   gtk_widget_show (regularize1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), regularize1);
 
-  image14285 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14285);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (regularize1), image14285);
+  image14437 = gtk_image_new_from_stock ("gtk-find-and-replace", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14437);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (regularize1), image14437);
 
   calculate_modules = gtk_menu_item_new_with_mnemonic ("Modules...");
   gtk_widget_show (calculate_modules);
@@ -900,9 +899,9 @@ create_window1 (void)
   gtk_widget_show (ncs_maps1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), ncs_maps1);
 
-  image14286 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14286);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_maps1), image14286);
+  image14438 = gtk_image_new_from_stock ("calculate-ghosts.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14438);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_maps1), image14438);
 
   calculate_ncs_tools = gtk_menu_item_new_with_mnemonic ("NCS Tools...");
   gtk_widget_show (calculate_ncs_tools);
@@ -912,9 +911,9 @@ create_window1 (void)
   gtk_widget_show (other_modelling_tools1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), other_modelling_tools1);
 
-  image14287 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14287);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (other_modelling_tools1), image14287);
+  image14439 = gtk_image_new_from_stock ("gnome-run.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14439);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (other_modelling_tools1), image14439);
 
   calculate_pisa = gtk_menu_item_new_with_mnemonic ("PISA...");
   gtk_widget_show (calculate_pisa);
@@ -924,9 +923,9 @@ create_window1 (void)
   gtk_widget_show (run_script1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), run_script1);
 
-  image14288 = gtk_image_new_from_stock ("gtk-execute", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14288);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (run_script1), image14288);
+  image14440 = gtk_image_new_from_stock ("gtk-execute", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14440);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (run_script1), image14440);
 
   ssm_superposition1 = gtk_menu_item_new_with_mnemonic ("SSM Superpose...");
   gtk_widget_show (ssm_superposition1);
@@ -937,9 +936,9 @@ create_window1 (void)
   gtk_widget_show (scripting_testing1);
   gtk_container_add (GTK_CONTAINER (calculate1_menu), scripting_testing1);
 
-  image14289 = gtk_image_new_from_stock ("gtk-justify-left", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14289);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (scripting_testing1), image14289);
+  image14441 = gtk_image_new_from_stock ("gtk-justify-left", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14441);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (scripting_testing1), image14441);
 
   scripting_testing1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (scripting_testing1), scripting_testing1_menu);
@@ -967,25 +966,25 @@ create_window1 (void)
   gtk_widget_show (anisotropic_atoms1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), anisotropic_atoms1);
 
-  image14290 = gtk_image_new_from_stock ("aniso-atom.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14290);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (anisotropic_atoms1), image14290);
+  image14442 = gtk_image_new_from_stock ("aniso-atom.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14442);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (anisotropic_atoms1), image14442);
 
   show_symmetry1 = gtk_image_menu_item_new_with_mnemonic ("Cell & Symmetry...");
   gtk_widget_show (show_symmetry1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), show_symmetry1);
 
-  image14291 = gtk_image_new_from_stock ("cell+symm.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14291);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (show_symmetry1), image14291);
+  image14443 = gtk_image_new_from_stock ("cell+symm.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14443);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (show_symmetry1), image14443);
 
   centre_atom_label1 = gtk_image_menu_item_new_with_mnemonic ("Centre Atom Label...");
   gtk_widget_show (centre_atom_label1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), centre_atom_label1);
 
-  image14292 = gtk_image_new_from_stock ("gtk-justify-center", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14292);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (centre_atom_label1), image14292);
+  image14444 = gtk_image_new_from_stock ("gtk-justify-center", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14444);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (centre_atom_label1), image14444);
 
   clipping1 = gtk_menu_item_new_with_mnemonic ("Clipping...");
   gtk_widget_show (clipping1);
@@ -998,9 +997,9 @@ create_window1 (void)
   gtk_widget_show (crosshairs1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), crosshairs1);
 
-  image14293 = gtk_image_new_from_stock ("crosshairs.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14293);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (crosshairs1), image14293);
+  image14445 = gtk_image_new_from_stock ("crosshairs.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14445);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (crosshairs1), image14445);
 
   map_and_mol_control1 = gtk_image_menu_item_new_with_mnemonic ("Display Manager...");
   gtk_widget_show (map_and_mol_control1);
@@ -1010,9 +1009,9 @@ create_window1 (void)
                               GDK_KEY_F7, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image14294 = gtk_image_new_from_stock ("display-manager.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14294);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_and_mol_control1), image14294);
+  image14446 = gtk_image_new_from_stock ("display-manager.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14446);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (map_and_mol_control1), image14446);
 
   display_only_active1 = gtk_menu_item_new_with_mnemonic ("Display only Active");
   gtk_widget_show (display_only_active1);
@@ -1028,9 +1027,9 @@ create_window1 (void)
   gtk_widget_show (generic_display_objects1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), generic_display_objects1);
 
-  image14295 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14295);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (generic_display_objects1), image14295);
+  image14447 = gtk_image_new_from_stock ("generic-display-objects.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14447);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (generic_display_objects1), image14447);
 
   go_to_atom1 = gtk_image_menu_item_new_with_mnemonic ("Go To Atom...");
   gtk_widget_show (go_to_atom1);
@@ -1039,9 +1038,9 @@ create_window1 (void)
                               GDK_KEY_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image14296 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14296);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (go_to_atom1), image14296);
+  image14448 = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14448);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (go_to_atom1), image14448);
 
   draw_molecular_ribbons = gtk_menu_item_new_with_mnemonic ("Molecular Ribbons");
   gtk_widget_show (draw_molecular_ribbons);
@@ -1052,13 +1051,9 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (draw1_menu), ncs_ghost_control1);
   // gtk_tooltips_set_tip (tooltips, ncs_ghost_control1, "Non-crystallographic Ghost Controller", NULL);
 
-  image14297 = gtk_image_new_from_stock ("ghosts.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14297);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_ghost_control1), image14297);
-
-  perspective_projection1 = gtk_menu_item_new_with_mnemonic ("Perspective Projection");
-  gtk_widget_show (perspective_projection1);
-  gtk_container_add (GTK_CONTAINER (draw1_menu), perspective_projection1);
+  image14449 = gtk_image_new_from_stock ("ghosts.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14449);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ncs_ghost_control1), image14449);
 
   draw_representation_tools = gtk_menu_item_new_with_mnemonic ("Representation Tools...");
   gtk_widget_show (draw_representation_tools);
@@ -1072,25 +1067,25 @@ create_window1 (void)
   gtk_widget_show (spin_view_on_off1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), spin_view_on_off1);
 
-  image14298 = gtk_image_new_from_stock ("spin-view.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14298);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (spin_view_on_off1), image14298);
+  image14450 = gtk_image_new_from_stock ("spin-view.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14450);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (spin_view_on_off1), image14450);
 
   sequence_view1 = gtk_image_menu_item_new_with_mnemonic ("Sequence View");
   gtk_widget_show (sequence_view1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), sequence_view1);
 
-  image14299 = gtk_image_new_from_stock ("sequence-view.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14299);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sequence_view1), image14299);
+  image14451 = gtk_image_new_from_stock ("sequence-view.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14451);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (sequence_view1), image14451);
 
   screenshot1 = gtk_image_menu_item_new_with_mnemonic ("Screenshot");
   gtk_widget_show (screenshot1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), screenshot1);
 
-  image14300 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14300);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (screenshot1), image14300);
+  image14452 = gtk_image_new_from_stock ("panel-screenshot.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14452);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (screenshot1), image14452);
 
   screenshot1_menu = gtk_menu_new ();
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (screenshot1), screenshot1_menu);
@@ -1114,9 +1109,9 @@ create_window1 (void)
   gtk_widget_show (stereo1);
   gtk_container_add (GTK_CONTAINER (draw1_menu), stereo1);
 
-  image14301 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14301);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (stereo1), image14301);
+  image14453 = gtk_image_new_from_stock ("stereo-view.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14453);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (stereo1), image14453);
 
   undo_last_navigation1 = gtk_image_menu_item_new_with_mnemonic ("Undo Last Navigation");
   gtk_widget_show (undo_last_navigation1);
@@ -1125,16 +1120,16 @@ create_window1 (void)
                               GDK_KEY_U, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  image14302 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14302);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (undo_last_navigation1), image14302);
+  image14454 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14454);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (undo_last_navigation1), image14454);
 
   antialiasing1 = gtk_image_menu_item_new_with_mnemonic ("Antialiasing...");
   gtk_container_add (GTK_CONTAINER (draw1_menu), antialiasing1);
 
-  image14303 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14303);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (antialiasing1), image14303);
+  image14455 = gtk_image_new_from_stock ("add-peptide-1.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14455);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (antialiasing1), image14455);
 
   main_menu_info = gtk_menu_item_new_with_mnemonic ("_Measures");
   gtk_widget_show (main_menu_info);
@@ -1148,49 +1143,49 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), residue_info1);
   // gtk_tooltips_set_tip (tooltips, residue_info1, "Display atom names, temperature factors and occupances of all atoms in the residue", NULL);
 
-  image14304 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14304);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info1), image14304);
+  image14456 = gtk_image_new_from_stock ("residue-info.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14456);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (residue_info1), image14456);
 
   distances___angles1 = gtk_image_menu_item_new_with_mnemonic ("Distances & Angles...");
   gtk_widget_show (distances___angles1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), distances___angles1);
 
-  image14305 = gtk_image_new_from_stock ("gtk-unindent", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14305);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (distances___angles1), image14305);
+  image14457 = gtk_image_new_from_stock ("gtk-unindent", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14457);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (distances___angles1), image14457);
 
   environment_distances1 = gtk_image_menu_item_new_with_mnemonic ("Environment Distances...");
   gtk_widget_show (environment_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), environment_distances1);
 
-  image14306 = gtk_image_new_from_stock ("env-distances.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14306);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (environment_distances1), image14306);
+  image14458 = gtk_image_new_from_stock ("env-distances.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14458);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (environment_distances1), image14458);
 
   plane_distances1 = gtk_image_menu_item_new_with_mnemonic ("Plane Distances...");
   gtk_widget_show (plane_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), plane_distances1);
 
-  image14307 = gtk_image_new_from_stock ("plane-distances.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14307);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (plane_distances1), image14307);
+  image14459 = gtk_image_new_from_stock ("plane-distances.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14459);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (plane_distances1), image14459);
 
   pointer_distances1 = gtk_image_menu_item_new_with_mnemonic ("Pointer Distances...");
   gtk_widget_show (pointer_distances1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), pointer_distances1);
 
-  image14308 = gtk_image_new_from_stock ("pointer-distances.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14308);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pointer_distances1), image14308);
+  image14460 = gtk_image_new_from_stock ("pointer-distances.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14460);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (pointer_distances1), image14460);
 
   clear_atom_labels1 = gtk_image_menu_item_new_with_mnemonic ("Clear Atom Labels");
   gtk_widget_show (clear_atom_labels1);
   gtk_container_add (GTK_CONTAINER (main_menu_info_menu), clear_atom_labels1);
 
-  image14309 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14309);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (clear_atom_labels1), image14309);
+  image14461 = gtk_image_new_from_stock ("gtk-clear", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14461);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (clear_atom_labels1), image14461);
 
   validate1 = gtk_menu_item_new_with_mnemonic ("_Validate");
   gtk_widget_show (validate1);
@@ -1203,120 +1198,120 @@ create_window1 (void)
   gtk_widget_show (ramachandran_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_plot1);
 
-  image14310 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14310);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_plot1), image14310);
+  image14462 = gtk_image_new_from_stock ("ramachandran.png", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14462);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_plot1), image14462);
 
   ramachandran_differences_plot1 = gtk_image_menu_item_new_with_mnemonic ("Kleywegt Plot...");
   gtk_widget_show (ramachandran_differences_plot1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), ramachandran_differences_plot1);
   // gtk_tooltips_set_tip (tooltips, ramachandran_differences_plot1, "Ramachandran Difference Plot", NULL);
 
-  image14311 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14311);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_differences_plot1), image14311);
+  image14463 = gtk_image_new_from_stock ("kleywegt.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14463);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (ramachandran_differences_plot1), image14463);
 
   incorrect_chiral_volumes1 = gtk_image_menu_item_new_with_mnemonic ("Incorrect Chiral Volumes...");
   gtk_widget_show (incorrect_chiral_volumes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), incorrect_chiral_volumes1);
 
-  image14312 = gtk_image_new_from_stock ("chiral.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14312);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (incorrect_chiral_volumes1), image14312);
+  image14464 = gtk_image_new_from_stock ("chiral.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14464);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (incorrect_chiral_volumes1), image14464);
 
   unmodelled_blobs1 = gtk_image_menu_item_new_with_mnemonic ("Unmodelled blobs...");
   gtk_widget_show (unmodelled_blobs1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), unmodelled_blobs1);
 
-  image14313 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14313);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (unmodelled_blobs1), image14313);
+  image14465 = gtk_image_new_from_stock ("unknown-blob.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14465);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (unmodelled_blobs1), image14465);
 
   difference_map_peaks1 = gtk_image_menu_item_new_with_mnemonic ("Difference Map Peaks...");
   gtk_widget_show (difference_map_peaks1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), difference_map_peaks1);
 
-  image14314 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14314);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (difference_map_peaks1), image14314);
+  image14466 = gtk_image_new_from_stock ("diff-map.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14466);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (difference_map_peaks1), image14466);
 
   check_waters1 = gtk_image_menu_item_new_with_mnemonic ("Check/Delete Waters...");
   gtk_widget_show (check_waters1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), check_waters1);
 
-  image14315 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14315);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters1), image14315);
+  image14467 = gtk_image_new_from_stock ("water-drop.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14467);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (check_waters1), image14467);
 
   geometry_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Geometry analysis");
   gtk_widget_show (geometry_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), geometry_analysis1);
   // gtk_tooltips_set_tip (tooltips, geometry_analysis1, "Flags distortions in Bond, Angles and Planes", NULL);
 
-  image14316 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14316);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (geometry_analysis1), image14316);
+  image14468 = gtk_image_new_from_stock ("geom.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14468);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (geometry_analysis1), image14468);
 
   peptide_omega_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Peptide omega analysis");
   gtk_widget_show (peptide_omega_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), peptide_omega_analysis1);
   // gtk_tooltips_set_tip (tooltips, peptide_omega_analysis1, "Flags deviations from Trans Peptide", NULL);
 
-  image14317 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14317);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (peptide_omega_analysis1), image14317);
+  image14469 = gtk_image_new_from_stock ("peptide-omega.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14469);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (peptide_omega_analysis1), image14469);
 
   temp_fact_variance_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Temp. fact. variance analysis");
   gtk_widget_show (temp_fact_variance_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_variance_analysis1);
   // gtk_tooltips_set_tip (tooltips, temp_fact_variance_analysis1, "Flags Residues with Large Variance in Atom B factors", NULL);
 
-  image14318 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14318);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_variance_analysis1), image14318);
+  image14470 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14470);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_variance_analysis1), image14470);
 
   temp_fact_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Average Temp. fact. analysis");
   gtk_widget_show (temp_fact_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), temp_fact_analysis1);
   // gtk_tooltips_set_tip (tooltips, temp_fact_analysis1, "Flags Residues with severe discontinuities in Atom B factors", NULL);
 
-  image14319 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14319);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_analysis1), image14319);
+  image14471 = gtk_image_new_from_stock ("temperature.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14471);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (temp_fact_analysis1), image14471);
 
   gln_and_asn_b_factor_outliers1 = gtk_image_menu_item_new_with_mnemonic ("GLN and ASN B-factor Outliers");
   gtk_widget_show (gln_and_asn_b_factor_outliers1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), gln_and_asn_b_factor_outliers1);
   // gtk_tooltips_set_tip (tooltips, gln_and_asn_b_factor_outliers1, "Nakagawa's Bees (probable flips):  identify OE1 and NE2 B-factor outliers in GLNs (similarly ASNs are analysed)", NULL);
 
-  image14320 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14320);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (gln_and_asn_b_factor_outliers1), image14320);
+  image14472 = gtk_image_new_from_stock ("gln-asn-b-factors.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14472);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (gln_and_asn_b_factor_outliers1), image14472);
 
   rotamer_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Rotamer analysis");
   gtk_widget_show (rotamer_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), rotamer_analysis1);
   // gtk_tooltips_set_tip (tooltips, rotamer_analysis1, "Flags Unusual Rotamers, Missing Atoms and Nomenclature Errors", NULL);
 
-  image14321 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14321);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (rotamer_analysis1), image14321);
+  image14473 = gtk_image_new_from_stock ("rotamers.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14473);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (rotamer_analysis1), image14473);
 
   density_fit_analysis1 = gtk_image_menu_item_new_with_mnemonic ("Density fit analysis");
   gtk_widget_show (density_fit_analysis1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), density_fit_analysis1);
 
-  image14322 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14322);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_fit_analysis1), image14322);
+  image14474 = gtk_image_new_from_stock ("density-fit.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14474);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (density_fit_analysis1), image14474);
 
   probe_clashes1 = gtk_image_menu_item_new_with_mnemonic ("Probe clashes");
   gtk_widget_show (probe_clashes1);
   gtk_container_add (GTK_CONTAINER (validate1_menu), probe_clashes1);
 
-  image14323 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14323);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (probe_clashes1), image14323);
+  image14475 = gtk_image_new_from_stock ("probe-clash.svg", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14475);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (probe_clashes1), image14475);
 
   ncs_differences1 = gtk_menu_item_new_with_mnemonic ("NCS Differences");
   gtk_widget_show (ncs_differences1);
@@ -1338,17 +1333,17 @@ create_window1 (void)
   gtk_widget_show (hints1);
   gtk_container_add (GTK_CONTAINER (help1_menu), hints1);
 
-  image14324 = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14324);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (hints1), image14324);
+  image14476 = gtk_image_new_from_stock ("gtk-dialog-info", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14476);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (hints1), image14476);
 
   about1 = gtk_image_menu_item_new_with_mnemonic ("About...");
   gtk_widget_show (about1);
   gtk_container_add (GTK_CONTAINER (help1_menu), about1);
 
-  image14325 = gtk_image_new_from_stock ("gtk-about", GTK_ICON_SIZE_MENU);
-  gtk_widget_show (image14325);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (about1), image14325);
+  image14477 = gtk_image_new_from_stock ("gtk-about", GTK_ICON_SIZE_MENU);
+  gtk_widget_show (image14477);
+  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (about1), image14477);
 
   main_toolbar = gtk_toolbar_new ();
   gtk_widget_show (main_toolbar);
@@ -2302,9 +2297,6 @@ create_window1 (void)
   g_signal_connect ((gpointer) ncs_ghost_control1, "activate",
                     G_CALLBACK (on_ncs_ghost_control1_activate),
                     NULL);
-  g_signal_connect ((gpointer) perspective_projection1, "activate",
-                    G_CALLBACK (on_perspective_projection1_activate),
-                    NULL);
   g_signal_connect ((gpointer) draw_representation_tools, "activate",
                     G_CALLBACK (on_draw_representation_tools_activate),
                     NULL);
@@ -2575,94 +2567,94 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, file1, "file1");
   GLADE_HOOKUP_OBJECT (window1, file1_menu, "file1_menu");
   GLADE_HOOKUP_OBJECT (window1, open_coordinates1, "open_coordinates1");
-  GLADE_HOOKUP_OBJECT (window1, image14249, "image14249");
+  GLADE_HOOKUP_OBJECT (window1, image14401, "image14401");
   GLADE_HOOKUP_OBJECT (window1, auto_open_mtz, "auto_open_mtz");
-  GLADE_HOOKUP_OBJECT (window1, image14250, "image14250");
+  GLADE_HOOKUP_OBJECT (window1, image14402, "image14402");
   GLADE_HOOKUP_OBJECT (window1, open_dataset1, "open_dataset1");
-  GLADE_HOOKUP_OBJECT (window1, image14251, "image14251");
+  GLADE_HOOKUP_OBJECT (window1, image14403, "image14403");
   GLADE_HOOKUP_OBJECT (window1, open_map1, "open_map1");
-  GLADE_HOOKUP_OBJECT (window1, image14252, "image14252");
+  GLADE_HOOKUP_OBJECT (window1, image14404, "image14404");
   GLADE_HOOKUP_OBJECT (window1, import_cif_dictionary1, "import_cif_dictionary1");
-  GLADE_HOOKUP_OBJECT (window1, image14253, "image14253");
+  GLADE_HOOKUP_OBJECT (window1, image14405, "image14405");
   GLADE_HOOKUP_OBJECT (window1, separator2, "separator2");
   GLADE_HOOKUP_OBJECT (window1, get_monomer1, "get_monomer1");
-  GLADE_HOOKUP_OBJECT (window1, image14254, "image14254");
+  GLADE_HOOKUP_OBJECT (window1, image14406, "image14406");
   GLADE_HOOKUP_OBJECT (window1, search_monomer_library1, "search_monomer_library1");
-  GLADE_HOOKUP_OBJECT (window1, image14255, "image14255");
+  GLADE_HOOKUP_OBJECT (window1, image14407, "image14407");
   GLADE_HOOKUP_OBJECT (window1, get_pdb_using_code1, "get_pdb_using_code1");
-  GLADE_HOOKUP_OBJECT (window1, image14256, "image14256");
+  GLADE_HOOKUP_OBJECT (window1, image14408, "image14408");
   GLADE_HOOKUP_OBJECT (window1, get_pdb_and_map_using_eds1, "get_pdb_and_map_using_eds1");
-  GLADE_HOOKUP_OBJECT (window1, image14257, "image14257");
+  GLADE_HOOKUP_OBJECT (window1, image14409, "image14409");
   GLADE_HOOKUP_OBJECT (window1, fetch_pdb_and_map_using_pdbredo1, "fetch_pdb_and_map_using_pdbredo1");
   GLADE_HOOKUP_OBJECT (window1, separator3, "separator3");
   GLADE_HOOKUP_OBJECT (window1, save_coordinates1, "save_coordinates1");
-  GLADE_HOOKUP_OBJECT (window1, image14258, "image14258");
+  GLADE_HOOKUP_OBJECT (window1, image14410, "image14410");
   GLADE_HOOKUP_OBJECT (window1, save_symmetry_coordinates1, "save_symmetry_coordinates1");
-  GLADE_HOOKUP_OBJECT (window1, image14259, "image14259");
+  GLADE_HOOKUP_OBJECT (window1, image14411, "image14411");
   GLADE_HOOKUP_OBJECT (window1, save_state1, "save_state1");
-  GLADE_HOOKUP_OBJECT (window1, image14260, "image14260");
+  GLADE_HOOKUP_OBJECT (window1, image14412, "image14412");
   GLADE_HOOKUP_OBJECT (window1, recover_session1, "recover_session1");
-  GLADE_HOOKUP_OBJECT (window1, image14261, "image14261");
+  GLADE_HOOKUP_OBJECT (window1, image14413, "image14413");
   GLADE_HOOKUP_OBJECT (window1, separator4, "separator4");
   GLADE_HOOKUP_OBJECT (window1, export_map1, "export_map1");
   GLADE_HOOKUP_OBJECT (window1, export_map_fragment1, "export_map_fragment1");
   GLADE_HOOKUP_OBJECT (window1, separator7, "separator7");
   GLADE_HOOKUP_OBJECT (window1, close_molecule1, "close_molecule1");
-  GLADE_HOOKUP_OBJECT (window1, image14262, "image14262");
+  GLADE_HOOKUP_OBJECT (window1, image14414, "image14414");
   GLADE_HOOKUP_OBJECT (window1, separator6, "separator6");
   GLADE_HOOKUP_OBJECT (window1, curlew1, "curlew1");
   GLADE_HOOKUP_OBJECT (window1, separator9, "separator9");
   GLADE_HOOKUP_OBJECT (window1, exit1, "exit1");
-  GLADE_HOOKUP_OBJECT (window1, image14263, "image14263");
+  GLADE_HOOKUP_OBJECT (window1, image14415, "image14415");
   GLADE_HOOKUP_OBJECT (window1, edit1, "edit1");
   GLADE_HOOKUP_OBJECT (window1, edit1_menu, "edit1_menu");
   GLADE_HOOKUP_OBJECT (window1, bond_colours1, "bond_colours1");
-  GLADE_HOOKUP_OBJECT (window1, image14264, "image14264");
+  GLADE_HOOKUP_OBJECT (window1, image14416, "image14416");
   GLADE_HOOKUP_OBJECT (window1, bond_parameters1, "bond_parameters1");
-  GLADE_HOOKUP_OBJECT (window1, image14265, "image14265");
+  GLADE_HOOKUP_OBJECT (window1, image14417, "image14417");
   GLADE_HOOKUP_OBJECT (window1, edit_change_chain_ids1, "edit_change_chain_ids1");
-  GLADE_HOOKUP_OBJECT (window1, image14266, "image14266");
+  GLADE_HOOKUP_OBJECT (window1, image14418, "image14418");
   GLADE_HOOKUP_OBJECT (window1, edit_copy_molecule1, "edit_copy_molecule1");
-  GLADE_HOOKUP_OBJECT (window1, image14267, "image14267");
+  GLADE_HOOKUP_OBJECT (window1, image14419, "image14419");
   GLADE_HOOKUP_OBJECT (window1, edit_copy_fragment1, "edit_copy_fragment1");
-  GLADE_HOOKUP_OBJECT (window1, image14268, "image14268");
+  GLADE_HOOKUP_OBJECT (window1, image14420, "image14420");
   GLADE_HOOKUP_OBJECT (window1, map_colour1, "map_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image14269, "image14269");
+  GLADE_HOOKUP_OBJECT (window1, image14421, "image14421");
   GLADE_HOOKUP_OBJECT (window1, density_size1, "density_size1");
-  GLADE_HOOKUP_OBJECT (window1, image14270, "image14270");
+  GLADE_HOOKUP_OBJECT (window1, image14422, "image14422");
   GLADE_HOOKUP_OBJECT (window1, edit_merge_molecules1, "edit_merge_molecules1");
-  GLADE_HOOKUP_OBJECT (window1, image14271, "image14271");
+  GLADE_HOOKUP_OBJECT (window1, image14423, "image14423");
   GLADE_HOOKUP_OBJECT (window1, edit_replace_residue1, "edit_replace_residue1");
-  GLADE_HOOKUP_OBJECT (window1, image14272, "image14272");
+  GLADE_HOOKUP_OBJECT (window1, image14424, "image14424");
   GLADE_HOOKUP_OBJECT (window1, edit_replace_fragment1, "edit_replace_fragment1");
-  GLADE_HOOKUP_OBJECT (window1, image14273, "image14273");
+  GLADE_HOOKUP_OBJECT (window1, image14425, "image14425");
   GLADE_HOOKUP_OBJECT (window1, edit_renumber_residues1, "edit_renumber_residues1");
-  GLADE_HOOKUP_OBJECT (window1, image14274, "image14274");
+  GLADE_HOOKUP_OBJECT (window1, image14426, "image14426");
   GLADE_HOOKUP_OBJECT (window1, restraints1, "restraints1");
-  GLADE_HOOKUP_OBJECT (window1, image14275, "image14275");
+  GLADE_HOOKUP_OBJECT (window1, image14427, "image14427");
   GLADE_HOOKUP_OBJECT (window1, skeleton_parameters1, "skeleton_parameters1");
-  GLADE_HOOKUP_OBJECT (window1, image14276, "image14276");
+  GLADE_HOOKUP_OBJECT (window1, image14428, "image14428");
   GLADE_HOOKUP_OBJECT (window1, skeleton_parameters1_menu, "skeleton_parameters1_menu");
   GLADE_HOOKUP_OBJECT (window1, skeleton_colour1, "skeleton_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image14277, "image14277");
+  GLADE_HOOKUP_OBJECT (window1, image14429, "image14429");
   GLADE_HOOKUP_OBJECT (window1, skeleton_box_radius1, "skeleton_box_radius1");
   GLADE_HOOKUP_OBJECT (window1, skeletonization_level1, "skeletonization_level1");
   GLADE_HOOKUP_OBJECT (window1, separator5, "separator5");
   GLADE_HOOKUP_OBJECT (window1, residue_info2, "residue_info2");
-  GLADE_HOOKUP_OBJECT (window1, image14278, "image14278");
+  GLADE_HOOKUP_OBJECT (window1, image14430, "image14430");
   GLADE_HOOKUP_OBJECT (window1, font_size1, "font_size1");
-  GLADE_HOOKUP_OBJECT (window1, image14279, "image14279");
+  GLADE_HOOKUP_OBJECT (window1, image14431, "image14431");
   GLADE_HOOKUP_OBJECT (window1, pink_pointer_size1, "pink_pointer_size1");
-  GLADE_HOOKUP_OBJECT (window1, image14280, "image14280");
+  GLADE_HOOKUP_OBJECT (window1, image14432, "image14432");
   GLADE_HOOKUP_OBJECT (window1, background_colour1, "background_colour1");
-  GLADE_HOOKUP_OBJECT (window1, image14281, "image14281");
+  GLADE_HOOKUP_OBJECT (window1, image14433, "image14433");
   GLADE_HOOKUP_OBJECT (window1, background_colour1_menu, "background_colour1_menu");
   GLADE_HOOKUP_OBJECT (window1, background_black1, "background_black1");
   GLADE_HOOKUP_OBJECT (window1, background_white1, "background_white1");
   GLADE_HOOKUP_OBJECT (window1, separator8, "separator8");
   GLADE_HOOKUP_OBJECT (window1, edit_settings, "edit_settings");
   GLADE_HOOKUP_OBJECT (window1, preferences1, "preferences1");
-  GLADE_HOOKUP_OBJECT (window1, image14282, "image14282");
+  GLADE_HOOKUP_OBJECT (window1, image14434, "image14434");
   GLADE_HOOKUP_OBJECT (window1, calculate1, "calculate1");
   GLADE_HOOKUP_OBJECT (window1, calculate1_menu, "calculate1_menu");
   GLADE_HOOKUP_OBJECT (window1, align_and_mutate1, "align_and_mutate1");
@@ -2673,31 +2665,31 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, fit_loop_by_database_search1, "fit_loop_by_database_search1");
   GLADE_HOOKUP_OBJECT (window1, fit_loop_by_rama_search1, "fit_loop_by_rama_search1");
   GLADE_HOOKUP_OBJECT (window1, frames_sec1, "frames_sec1");
-  GLADE_HOOKUP_OBJECT (window1, image14283, "image14283");
+  GLADE_HOOKUP_OBJECT (window1, image14435, "image14435");
   GLADE_HOOKUP_OBJECT (window1, calculate_load_tutorial_model_and_data1, "calculate_load_tutorial_model_and_data1");
   GLADE_HOOKUP_OBJECT (window1, ligand_builder1, "ligand_builder1");
-  GLADE_HOOKUP_OBJECT (window1, image14284, "image14284");
+  GLADE_HOOKUP_OBJECT (window1, image14436, "image14436");
   GLADE_HOOKUP_OBJECT (window1, lsq_superpose1, "lsq_superpose1");
   GLADE_HOOKUP_OBJECT (window1, calculate_map_tools, "calculate_map_tools");
   GLADE_HOOKUP_OBJECT (window1, map_sharpening1, "map_sharpening1");
   GLADE_HOOKUP_OBJECT (window1, cowtan_foadi_skeleton1, "cowtan_foadi_skeleton1");
   GLADE_HOOKUP_OBJECT (window1, modelling, "modelling");
   GLADE_HOOKUP_OBJECT (window1, regularize1, "regularize1");
-  GLADE_HOOKUP_OBJECT (window1, image14285, "image14285");
+  GLADE_HOOKUP_OBJECT (window1, image14437, "image14437");
   GLADE_HOOKUP_OBJECT (window1, calculate_modules, "calculate_modules");
   GLADE_HOOKUP_OBJECT (window1, move_molecule_here1, "move_molecule_here1");
   GLADE_HOOKUP_OBJECT (window1, mutate_molecule1, "mutate_molecule1");
   GLADE_HOOKUP_OBJECT (window1, ncs_maps1, "ncs_maps1");
-  GLADE_HOOKUP_OBJECT (window1, image14286, "image14286");
+  GLADE_HOOKUP_OBJECT (window1, image14438, "image14438");
   GLADE_HOOKUP_OBJECT (window1, calculate_ncs_tools, "calculate_ncs_tools");
   GLADE_HOOKUP_OBJECT (window1, other_modelling_tools1, "other_modelling_tools1");
-  GLADE_HOOKUP_OBJECT (window1, image14287, "image14287");
+  GLADE_HOOKUP_OBJECT (window1, image14439, "image14439");
   GLADE_HOOKUP_OBJECT (window1, calculate_pisa, "calculate_pisa");
   GLADE_HOOKUP_OBJECT (window1, run_script1, "run_script1");
-  GLADE_HOOKUP_OBJECT (window1, image14288, "image14288");
+  GLADE_HOOKUP_OBJECT (window1, image14440, "image14440");
   GLADE_HOOKUP_OBJECT (window1, ssm_superposition1, "ssm_superposition1");
   GLADE_HOOKUP_OBJECT (window1, scripting_testing1, "scripting_testing1");
-  GLADE_HOOKUP_OBJECT (window1, image14289, "image14289");
+  GLADE_HOOKUP_OBJECT (window1, image14441, "image14441");
   GLADE_HOOKUP_OBJECT (window1, scripting_testing1_menu, "scripting_testing1_menu");
   GLADE_HOOKUP_OBJECT (window1, scripting_python1, "scripting_python1");
   GLADE_HOOKUP_OBJECT (window1, scripting_scheme1, "scripting_scheme1");
@@ -2705,98 +2697,97 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, draw1_menu, "draw1_menu");
   GLADE_HOOKUP_OBJECT (window1, additional_representation1, "additional_representation1");
   GLADE_HOOKUP_OBJECT (window1, anisotropic_atoms1, "anisotropic_atoms1");
-  GLADE_HOOKUP_OBJECT (window1, image14290, "image14290");
+  GLADE_HOOKUP_OBJECT (window1, image14442, "image14442");
   GLADE_HOOKUP_OBJECT (window1, show_symmetry1, "show_symmetry1");
-  GLADE_HOOKUP_OBJECT (window1, image14291, "image14291");
+  GLADE_HOOKUP_OBJECT (window1, image14443, "image14443");
   GLADE_HOOKUP_OBJECT (window1, centre_atom_label1, "centre_atom_label1");
-  GLADE_HOOKUP_OBJECT (window1, image14292, "image14292");
+  GLADE_HOOKUP_OBJECT (window1, image14444, "image14444");
   GLADE_HOOKUP_OBJECT (window1, clipping1, "clipping1");
   GLADE_HOOKUP_OBJECT (window1, coordinates_recentring1, "coordinates_recentring1");
   GLADE_HOOKUP_OBJECT (window1, crosshairs1, "crosshairs1");
-  GLADE_HOOKUP_OBJECT (window1, image14293, "image14293");
+  GLADE_HOOKUP_OBJECT (window1, image14445, "image14445");
   GLADE_HOOKUP_OBJECT (window1, map_and_mol_control1, "map_and_mol_control1");
-  GLADE_HOOKUP_OBJECT (window1, image14294, "image14294");
+  GLADE_HOOKUP_OBJECT (window1, image14446, "image14446");
   GLADE_HOOKUP_OBJECT (window1, display_only_active1, "display_only_active1");
   GLADE_HOOKUP_OBJECT (window1, dragged_map1, "dragged_map1");
   GLADE_HOOKUP_OBJECT (window1, generic_display_objects1, "generic_display_objects1");
-  GLADE_HOOKUP_OBJECT (window1, image14295, "image14295");
+  GLADE_HOOKUP_OBJECT (window1, image14447, "image14447");
   GLADE_HOOKUP_OBJECT (window1, go_to_atom1, "go_to_atom1");
-  GLADE_HOOKUP_OBJECT (window1, image14296, "image14296");
+  GLADE_HOOKUP_OBJECT (window1, image14448, "image14448");
   GLADE_HOOKUP_OBJECT (window1, draw_molecular_ribbons, "draw_molecular_ribbons");
   GLADE_HOOKUP_OBJECT (window1, ncs_ghost_control1, "ncs_ghost_control1");
-  GLADE_HOOKUP_OBJECT (window1, image14297, "image14297");
-  GLADE_HOOKUP_OBJECT (window1, perspective_projection1, "perspective_projection1");
+  GLADE_HOOKUP_OBJECT (window1, image14449, "image14449");
   GLADE_HOOKUP_OBJECT (window1, draw_representation_tools, "draw_representation_tools");
   GLADE_HOOKUP_OBJECT (window1, rock_view_on_off1, "rock_view_on_off1");
   GLADE_HOOKUP_OBJECT (window1, spin_view_on_off1, "spin_view_on_off1");
-  GLADE_HOOKUP_OBJECT (window1, image14298, "image14298");
+  GLADE_HOOKUP_OBJECT (window1, image14450, "image14450");
   GLADE_HOOKUP_OBJECT (window1, sequence_view1, "sequence_view1");
-  GLADE_HOOKUP_OBJECT (window1, image14299, "image14299");
+  GLADE_HOOKUP_OBJECT (window1, image14451, "image14451");
   GLADE_HOOKUP_OBJECT (window1, screenshot1, "screenshot1");
-  GLADE_HOOKUP_OBJECT (window1, image14300, "image14300");
+  GLADE_HOOKUP_OBJECT (window1, image14452, "image14452");
   GLADE_HOOKUP_OBJECT (window1, screenshot1_menu, "screenshot1_menu");
   GLADE_HOOKUP_OBJECT (window1, simple1, "simple1");
   GLADE_HOOKUP_OBJECT (window1, povray1, "povray1");
   GLADE_HOOKUP_OBJECT (window1, raster3d1, "raster3d1");
   GLADE_HOOKUP_OBJECT (window1, recentring1, "recentring1");
   GLADE_HOOKUP_OBJECT (window1, stereo1, "stereo1");
-  GLADE_HOOKUP_OBJECT (window1, image14301, "image14301");
+  GLADE_HOOKUP_OBJECT (window1, image14453, "image14453");
   GLADE_HOOKUP_OBJECT (window1, undo_last_navigation1, "undo_last_navigation1");
-  GLADE_HOOKUP_OBJECT (window1, image14302, "image14302");
+  GLADE_HOOKUP_OBJECT (window1, image14454, "image14454");
   GLADE_HOOKUP_OBJECT (window1, antialiasing1, "antialiasing1");
-  GLADE_HOOKUP_OBJECT (window1, image14303, "image14303");
+  GLADE_HOOKUP_OBJECT (window1, image14455, "image14455");
   GLADE_HOOKUP_OBJECT (window1, main_menu_info, "main_menu_info");
   GLADE_HOOKUP_OBJECT (window1, main_menu_info_menu, "main_menu_info_menu");
   GLADE_HOOKUP_OBJECT (window1, residue_info1, "residue_info1");
-  GLADE_HOOKUP_OBJECT (window1, image14304, "image14304");
+  GLADE_HOOKUP_OBJECT (window1, image14456, "image14456");
   GLADE_HOOKUP_OBJECT (window1, distances___angles1, "distances___angles1");
-  GLADE_HOOKUP_OBJECT (window1, image14305, "image14305");
+  GLADE_HOOKUP_OBJECT (window1, image14457, "image14457");
   GLADE_HOOKUP_OBJECT (window1, environment_distances1, "environment_distances1");
-  GLADE_HOOKUP_OBJECT (window1, image14306, "image14306");
+  GLADE_HOOKUP_OBJECT (window1, image14458, "image14458");
   GLADE_HOOKUP_OBJECT (window1, plane_distances1, "plane_distances1");
-  GLADE_HOOKUP_OBJECT (window1, image14307, "image14307");
+  GLADE_HOOKUP_OBJECT (window1, image14459, "image14459");
   GLADE_HOOKUP_OBJECT (window1, pointer_distances1, "pointer_distances1");
-  GLADE_HOOKUP_OBJECT (window1, image14308, "image14308");
+  GLADE_HOOKUP_OBJECT (window1, image14460, "image14460");
   GLADE_HOOKUP_OBJECT (window1, clear_atom_labels1, "clear_atom_labels1");
-  GLADE_HOOKUP_OBJECT (window1, image14309, "image14309");
+  GLADE_HOOKUP_OBJECT (window1, image14461, "image14461");
   GLADE_HOOKUP_OBJECT (window1, validate1, "validate1");
   GLADE_HOOKUP_OBJECT (window1, validate1_menu, "validate1_menu");
   GLADE_HOOKUP_OBJECT (window1, ramachandran_plot1, "ramachandran_plot1");
-  GLADE_HOOKUP_OBJECT (window1, image14310, "image14310");
+  GLADE_HOOKUP_OBJECT (window1, image14462, "image14462");
   GLADE_HOOKUP_OBJECT (window1, ramachandran_differences_plot1, "ramachandran_differences_plot1");
-  GLADE_HOOKUP_OBJECT (window1, image14311, "image14311");
+  GLADE_HOOKUP_OBJECT (window1, image14463, "image14463");
   GLADE_HOOKUP_OBJECT (window1, incorrect_chiral_volumes1, "incorrect_chiral_volumes1");
-  GLADE_HOOKUP_OBJECT (window1, image14312, "image14312");
+  GLADE_HOOKUP_OBJECT (window1, image14464, "image14464");
   GLADE_HOOKUP_OBJECT (window1, unmodelled_blobs1, "unmodelled_blobs1");
-  GLADE_HOOKUP_OBJECT (window1, image14313, "image14313");
+  GLADE_HOOKUP_OBJECT (window1, image14465, "image14465");
   GLADE_HOOKUP_OBJECT (window1, difference_map_peaks1, "difference_map_peaks1");
-  GLADE_HOOKUP_OBJECT (window1, image14314, "image14314");
+  GLADE_HOOKUP_OBJECT (window1, image14466, "image14466");
   GLADE_HOOKUP_OBJECT (window1, check_waters1, "check_waters1");
-  GLADE_HOOKUP_OBJECT (window1, image14315, "image14315");
+  GLADE_HOOKUP_OBJECT (window1, image14467, "image14467");
   GLADE_HOOKUP_OBJECT (window1, geometry_analysis1, "geometry_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14316, "image14316");
+  GLADE_HOOKUP_OBJECT (window1, image14468, "image14468");
   GLADE_HOOKUP_OBJECT (window1, peptide_omega_analysis1, "peptide_omega_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14317, "image14317");
+  GLADE_HOOKUP_OBJECT (window1, image14469, "image14469");
   GLADE_HOOKUP_OBJECT (window1, temp_fact_variance_analysis1, "temp_fact_variance_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14318, "image14318");
+  GLADE_HOOKUP_OBJECT (window1, image14470, "image14470");
   GLADE_HOOKUP_OBJECT (window1, temp_fact_analysis1, "temp_fact_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14319, "image14319");
+  GLADE_HOOKUP_OBJECT (window1, image14471, "image14471");
   GLADE_HOOKUP_OBJECT (window1, gln_and_asn_b_factor_outliers1, "gln_and_asn_b_factor_outliers1");
-  GLADE_HOOKUP_OBJECT (window1, image14320, "image14320");
+  GLADE_HOOKUP_OBJECT (window1, image14472, "image14472");
   GLADE_HOOKUP_OBJECT (window1, rotamer_analysis1, "rotamer_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14321, "image14321");
+  GLADE_HOOKUP_OBJECT (window1, image14473, "image14473");
   GLADE_HOOKUP_OBJECT (window1, density_fit_analysis1, "density_fit_analysis1");
-  GLADE_HOOKUP_OBJECT (window1, image14322, "image14322");
+  GLADE_HOOKUP_OBJECT (window1, image14474, "image14474");
   GLADE_HOOKUP_OBJECT (window1, probe_clashes1, "probe_clashes1");
-  GLADE_HOOKUP_OBJECT (window1, image14323, "image14323");
+  GLADE_HOOKUP_OBJECT (window1, image14475, "image14475");
   GLADE_HOOKUP_OBJECT (window1, ncs_differences1, "ncs_differences1");
   GLADE_HOOKUP_OBJECT (window1, help1, "help1");
   GLADE_HOOKUP_OBJECT (window1, help1_menu, "help1_menu");
   GLADE_HOOKUP_OBJECT (window1, remarks_browser1, "remarks_browser1");
   GLADE_HOOKUP_OBJECT (window1, hints1, "hints1");
-  GLADE_HOOKUP_OBJECT (window1, image14324, "image14324");
+  GLADE_HOOKUP_OBJECT (window1, image14476, "image14476");
   GLADE_HOOKUP_OBJECT (window1, about1, "about1");
-  GLADE_HOOKUP_OBJECT (window1, image14325, "image14325");
+  GLADE_HOOKUP_OBJECT (window1, image14477, "image14477");
   GLADE_HOOKUP_OBJECT (window1, main_toolbar, "main_toolbar");
   GLADE_HOOKUP_OBJECT (window1, coords_toolbutton, "coords_toolbutton");
   GLADE_HOOKUP_OBJECT (window1, reset_view_toolbutton, "reset_view_toolbutton");
@@ -8742,27 +8733,27 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *planes_label;
   GtkWidget *rama_label;
   GtkWidget *frame178;
-  GtkWidget *bonds_eventbox;
+  GtkWidget *accept_reject_label_for_box_bonds;
   GtkWidget *label448;
   GtkWidget *frame179;
-  GtkWidget *angles_eventbox;
+  GtkWidget *accept_reject_label_for_box_angles;
   GtkWidget *label449;
   GtkWidget *frame180;
-  GtkWidget *torsions_eventbox;
+  GtkWidget *accept_reject_lable_for_box_torsions;
   GtkWidget *label450;
   GtkWidget *frame181;
-  GtkWidget *planes_eventbox;
+  GtkWidget *accept_reject_label_for_box_planes;
   GtkWidget *label451;
   GtkWidget *frame184;
-  GtkWidget *rama_eventbox;
+  GtkWidget *accept_reject_label_for_box_rama;
   GtkWidget *label454;
   GtkWidget *chirals_label;
   GtkWidget *frame183;
-  GtkWidget *chirals_eventbox;
+  GtkWidget *accept_reject_label_for_box_chirals;
   GtkWidget *label453;
   GtkWidget *non_bonded_contacts_label;
   GtkWidget *frame182;
-  GtkWidget *non_bonded_contacts_eventbox;
+  GtkWidget *accept_reject_label_for_box_non_bonded_contacts;
   GtkWidget *label452;
   GtkWidget *frame302;
   GtkWidget *alignment163;
@@ -8790,9 +8781,6 @@ create_accept_reject_refinement_dialog (void)
   GtkWidget *hbox197;
   GtkWidget *image1515;
   GtkWidget *label371;
-  // GtkTooltips *tooltips;
-
-  // tooltips = gtk_tooltips_new ();
 
   accept_reject_refinement_dialog = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (accept_reject_refinement_dialog), "Accept Refinement?");
@@ -8887,6 +8875,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (rama_label), 0, 1);
 
   frame178 = gtk_frame_new (NULL);
+  gtk_widget_show (frame178);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame178, 0, 1, 0, 1,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -8894,10 +8883,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame178), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame178), GTK_SHADOW_ETCHED_OUT);
 
-  bonds_eventbox = gtk_event_box_new ();
-  gtk_widget_show (bonds_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame178), bonds_eventbox);
-  // gtk_tooltips_set_tip (tooltips, bonds_eventbox, "Bonds", NULL);
+  accept_reject_label_for_box_bonds = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_label_for_box_bonds);
+  gtk_container_add (GTK_CONTAINER (frame178), accept_reject_label_for_box_bonds);
 
   label448 = gtk_label_new ("");
   gtk_widget_show (label448);
@@ -8905,6 +8893,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label448), TRUE);
 
   frame179 = gtk_frame_new (NULL);
+  gtk_widget_show (frame179);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame179, 0, 1, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -8912,10 +8901,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame179), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame179), GTK_SHADOW_ETCHED_OUT);
 
-  angles_eventbox = gtk_event_box_new ();
-  gtk_widget_show (angles_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame179), angles_eventbox);
-  // gtk_tooltips_set_tip (tooltips, angles_eventbox, "Angles", NULL);
+  accept_reject_label_for_box_angles = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_label_for_box_angles);
+  gtk_container_add (GTK_CONTAINER (frame179), accept_reject_label_for_box_angles);
 
   label449 = gtk_label_new ("");
   gtk_widget_show (label449);
@@ -8923,6 +8911,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label449), TRUE);
 
   frame180 = gtk_frame_new (NULL);
+  gtk_widget_show (frame180);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame180, 0, 1, 2, 3,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -8931,10 +8920,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_align (GTK_FRAME (frame180), 0.02, 0.5);
   gtk_frame_set_shadow_type (GTK_FRAME (frame180), GTK_SHADOW_ETCHED_OUT);
 
-  torsions_eventbox = gtk_event_box_new ();
-  gtk_widget_show (torsions_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame180), torsions_eventbox);
-  // gtk_tooltips_set_tip (tooltips, torsions_eventbox, "Torsions", NULL);
+  accept_reject_lable_for_box_torsions = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_lable_for_box_torsions);
+  gtk_container_add (GTK_CONTAINER (frame180), accept_reject_lable_for_box_torsions);
 
   label450 = gtk_label_new ("");
   gtk_widget_show (label450);
@@ -8942,6 +8930,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label450), TRUE);
 
   frame181 = gtk_frame_new (NULL);
+  gtk_widget_show (frame181);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame181, 0, 1, 3, 4,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -8949,10 +8938,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame181), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame181), GTK_SHADOW_ETCHED_OUT);
 
-  planes_eventbox = gtk_event_box_new ();
-  gtk_widget_show (planes_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame181), planes_eventbox);
-  // gtk_tooltips_set_tip (tooltips, planes_eventbox, "Planes", NULL);
+  accept_reject_label_for_box_planes = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_label_for_box_planes);
+  gtk_container_add (GTK_CONTAINER (frame181), accept_reject_label_for_box_planes);
 
   label451 = gtk_label_new ("");
   gtk_widget_show (label451);
@@ -8960,6 +8948,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_label_set_use_markup (GTK_LABEL (label451), TRUE);
 
   frame184 = gtk_frame_new (NULL);
+  gtk_widget_show (frame184);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame184, 0, 1, 6, 7,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -8967,10 +8956,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame184), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame184), GTK_SHADOW_ETCHED_OUT);
 
-  rama_eventbox = gtk_event_box_new ();
-  gtk_widget_show (rama_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame184), rama_eventbox);
-  // gtk_tooltips_set_tip (tooltips, rama_eventbox, "Ramachandran Plot deviance", NULL);
+  accept_reject_label_for_box_rama = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_label_for_box_rama);
+  gtk_container_add (GTK_CONTAINER (frame184), accept_reject_label_for_box_rama);
 
   label454 = gtk_label_new ("");
   gtk_widget_show (label454);
@@ -8984,6 +8972,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (chirals_label), 0, 1);
 
   frame183 = gtk_frame_new (NULL);
+  gtk_widget_show (frame183);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame183, 0, 1, 4, 5,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -8991,10 +8980,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame183), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame183), GTK_SHADOW_ETCHED_OUT);
 
-  chirals_eventbox = gtk_event_box_new ();
-  gtk_widget_show (chirals_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame183), chirals_eventbox);
-  // gtk_tooltips_set_tip (tooltips, chirals_eventbox, "Chirals", NULL);
+  accept_reject_label_for_box_chirals = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_label_for_box_chirals);
+  gtk_container_add (GTK_CONTAINER (frame183), accept_reject_label_for_box_chirals);
 
   label453 = gtk_label_new ("");
   gtk_widget_show (label453);
@@ -9008,6 +8996,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (non_bonded_contacts_label), 0, 1);
 
   frame182 = gtk_frame_new (NULL);
+  gtk_widget_show (frame182);
   gtk_table_attach (GTK_TABLE (refinement_lights_table), frame182, 0, 1, 5, 6,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
@@ -9015,10 +9004,9 @@ create_accept_reject_refinement_dialog (void)
   gtk_container_set_border_width (GTK_CONTAINER (frame182), 2);
   gtk_frame_set_shadow_type (GTK_FRAME (frame182), GTK_SHADOW_ETCHED_OUT);
 
-  non_bonded_contacts_eventbox = gtk_event_box_new ();
-  gtk_widget_show (non_bonded_contacts_eventbox);
-  gtk_container_add (GTK_CONTAINER (frame182), non_bonded_contacts_eventbox);
-  // gtk_tooltips_set_tip (tooltips, non_bonded_contacts_eventbox, "Non-bonded Contacts", NULL);
+  accept_reject_label_for_box_non_bonded_contacts = gtk_label_new ("   ");
+  gtk_widget_show (accept_reject_label_for_box_non_bonded_contacts);
+  gtk_container_add (GTK_CONTAINER (frame182), accept_reject_label_for_box_non_bonded_contacts);
 
   label452 = gtk_label_new ("");
   gtk_widget_show (label452);
@@ -9191,27 +9179,27 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, planes_label, "planes_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, rama_label, "rama_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame178, "frame178");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, bonds_eventbox, "bonds_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_label_for_box_bonds, "accept_reject_label_for_box_bonds");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label448, "label448");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame179, "frame179");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, angles_eventbox, "angles_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_label_for_box_angles, "accept_reject_label_for_box_angles");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label449, "label449");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame180, "frame180");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, torsions_eventbox, "torsions_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_lable_for_box_torsions, "accept_reject_lable_for_box_torsions");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label450, "label450");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame181, "frame181");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, planes_eventbox, "planes_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_label_for_box_planes, "accept_reject_label_for_box_planes");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label451, "label451");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame184, "frame184");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, rama_eventbox, "rama_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_label_for_box_rama, "accept_reject_label_for_box_rama");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label454, "label454");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chirals_label, "chirals_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame183, "frame183");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, chirals_eventbox, "chirals_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_label_for_box_chirals, "accept_reject_label_for_box_chirals");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label453, "label453");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, non_bonded_contacts_label, "non_bonded_contacts_label");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame182, "frame182");
-  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, non_bonded_contacts_eventbox, "non_bonded_contacts_eventbox");
+  GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, accept_reject_label_for_box_non_bonded_contacts, "accept_reject_label_for_box_non_bonded_contacts");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label452, "label452");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, frame302, "frame302");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, alignment163, "alignment163");
@@ -9239,7 +9227,6 @@ create_accept_reject_refinement_dialog (void)
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, hbox197, "hbox197");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, image1515, "image1515");
   GLADE_HOOKUP_OBJECT (accept_reject_refinement_dialog, label371, "label371");
-  // GLADE_HOOKUP_OBJECT_NO_REF tooltip things");
 
   gtk_widget_grab_default (accept_reject_refinement_accept_button);
   return accept_reject_refinement_dialog;
@@ -11396,8 +11383,8 @@ create_run_refmac_dialog (void)
   GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
-  GtkWidget *label648;
   GtkWidget *refmac_dialog_phases_combobox;
+  GtkWidget *label648;
   GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
@@ -11986,9 +11973,9 @@ create_run_refmac_dialog (void)
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_rfree_combobox, "refmac_dialog_rfree_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_hbox, "refmac_dialog_phases_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label649, "label649");
-  GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_combobox, "refmac_dialog_phases_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label648, "label648");
+  GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_phases_combobox, "refmac_dialog_phases_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_fom_combobox, "refmac_dialog_fom_combobox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, refmac_dialog_hl_hbox, "refmac_dialog_hl_hbox");
   GLADE_HOOKUP_OBJECT (run_refmac_dialog, label650, "label650");
@@ -12709,7 +12696,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.9-pre.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.9.1-pre.png");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
@@ -23247,7 +23234,7 @@ create_ncs_control_dialog (void)
   gtk_widget_show (scrolledwindow25);
   gtk_box_pack_start (GTK_BOX (vbox170), scrolledwindow25, TRUE, TRUE, 0);
   gtk_widget_set_size_request (scrolledwindow25, 370, 177);
-  /* GTK_WIDGET_UNSET_FLAGS (scrolledwindow25, GTK_CAN_FOCUS); */
+  gtk_widget_set_can_focus (scrolledwindow25, 0);
 
   viewport19 = gtk_viewport_new (NULL, NULL);
   gtk_widget_show (viewport19);
@@ -24356,6 +24343,7 @@ create_least_squares_dialog (void)
   least_squares_reference_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_reference_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_reference_molecule_combobox, TRUE, TRUE, 0);
+  gtk_widget_set_can_focus (least_squares_reference_molecule_combobox, 1);
 
   label293 = gtk_label_new ("Moving Molecule:");
   gtk_widget_show (label293);
@@ -24366,6 +24354,7 @@ create_least_squares_dialog (void)
   least_squares_moving_molecule_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_moving_molecule_combobox);
   gtk_box_pack_start (GTK_BOX (vbox189), least_squares_moving_molecule_combobox, TRUE, TRUE, 0);
+  gtk_widget_set_can_focus (least_squares_moving_molecule_combobox, 1);
 
   frame171 = gtk_frame_new (NULL);
   gtk_widget_show (frame171);
@@ -24403,11 +24392,11 @@ create_least_squares_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox147), label296, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label296), GTK_JUSTIFY_CENTER);
 
-  hbox148 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   least_squares_reference_chain_id_combobox = gtk_combo_box_text_new ();
   gtk_widget_show (least_squares_reference_chain_id_combobox);
   gtk_box_pack_start (GTK_BOX (hbox147), least_squares_reference_chain_id_combobox, TRUE, TRUE, 0);
 
+  hbox148 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_show (hbox148);
   gtk_box_pack_start (GTK_BOX (vbox190), hbox148, TRUE, TRUE, 0);
 
@@ -24872,6 +24861,7 @@ create_aboutdialog (void)
     NULL
   };
   const gchar *artists[] = {
+    "\"Nick Pearce\" took the picture for the splash screen.",
     "\"radacina\" make the \"edit restraints\" icon.",
     "\"lunanaut\" made the connect-to-world globe icon.",
     "\"crispy\" made the mouse icon.",
@@ -24887,7 +24877,7 @@ create_aboutdialog (void)
   gtk_about_dialog_set_version (GTK_ABOUT_DIALOG (aboutdialog), VERSION);
   gtk_about_dialog_set_program_name (GTK_ABOUT_DIALOG (aboutdialog), "Coot");
   gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG (aboutdialog), "Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by The University of York\nCopyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford\nCopyright 2001, 2007 by Paul Emsley");
-  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), "Turtle Bay\n");
+  gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG (aboutdialog), "Marina Bay\n");
   gtk_about_dialog_set_license (GTK_ABOUT_DIALOG (aboutdialog), "                    GNU GENERAL PUBLIC LICENSE\n                       Version 3, 29 June 2007\n\n Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>\n Everyone is permitted to copy and distribute verbatim copies\n of this license document, but changing it is not allowed.\n\n                            Preamble\n\n  The GNU General Public License is a free, copyleft license for\nsoftware and other kinds of works.\n\n  The licenses for most software and other practical works are designed\nto take away your freedom to share and change the works.  By contrast,\nthe GNU General Public License is intended to guarantee your freedom to\nshare and change all versions of a program--to make sure it remains free\nsoftware for all its users.  We, the Free Software Foundation, use the\nGNU General Public License for most of our software; it applies also to\nany other work released this way by its authors.  You can apply it to\nyour programs, too.\n\n  When we speak of free software, we are referring to freedom, not\nprice.  Our General Public Licenses are designed to make sure that you\nhave the freedom to distribute copies of free software (and charge for\nthem if you wish), that you receive source code or can get it if you\nwant it, that you can change the software or use pieces of it in new\nfree programs, and that you know you can do these things.\n\n  To protect your rights, we need to prevent others from denying you\nthese rights or asking you to surrender the rights.  Therefore, you have\ncertain responsibilities if you distribute copies of the software, or if\nyou modify it: responsibilities to respect the freedom of others.\n\n  For example, if you distribute copies of such a program, whether\ngratis or for a fee, you must pass on to the recipients the same\nfreedoms that you received.  You must make sure that they, too, receive\nor can get the source code.  And you must show them these terms so they\nknow their rights.\n\n  Developers that use the GNU GPL protect your rights with two steps:\n(1) assert copyright on the software, and (2) offer you this License\ngiving you legal permission to copy, distribute and/or modify it.\n\n  For the developers' and authors' protection, the GPL clearly explains\nthat there is no warranty for this free software.  For both users' and\nauthors' sake, the GPL requires that modified versions be marked as\nchanged, so that their problems will not be attributed erroneously to\nauthors of previous versions.\n\n  Some devices are designed to deny users access to install or run\nmodified versions of the software inside them, although the manufacturer\ncan do so.  This is fundamentally incompatible with the aim of\nprotecting users' freedom to change the software.  The systematic\npattern of such abuse occurs in the area of products for individuals to\nuse, which is precisely where it is most unacceptable.  Therefore, we\nhave designed this version of the GPL to prohibit the practice for those\nproducts.  If such problems arise substantially in other domains, we\nstand ready to extend this provision to those domains in future versions\nof the GPL, as needed to protect the freedom of users.\n\n  Finally, every program is threatened constantly by software patents.\nStates should not allow patents to restrict development and use of\nsoftware on general-purpose computers, but in those that do, we wish to\navoid the special danger that patents applied to a free program could\nmake it effectively proprietary.  To prevent this, the GPL assures that\npatents cannot be used to render the program non-free.\n\n  The precise terms and conditions for copying, distribution and\nmodification follow.\n\n                       TERMS AND CONDITIONS\n\n  0. Definitions.\n\n  \"This License\" refers to version 3 of the GNU General Public License.\n\n  \"Copyright\" also means copyright-like laws that apply to other kinds of\nworks, such as semiconductor masks.\n\n  \"The Program\" refers to any copyrightable work licensed under this\nLicense.  Each licensee is addressed as \"you\".  \"Licensees\" and\n\"recipients\" may be individuals or organizations.\n\n  To \"modify\" a work means to copy from or adapt all or part of the work\nin a fashion requiring copyright permission, other than the making of an\nexact copy.  The resulting work is called a \"modified version\" of the\nearlier work or a work \"based on\" the earlier work.\n\n  A \"covered work\" means either the unmodified Program or a work based\non the Program.\n\n  To \"propagate\" a work means to do anything with it that, without\npermission, would make you directly or secondarily liable for\ninfringement under applicable copyright law, except executing it on a\ncomputer or modifying a private copy.  Propagation includes copying,\ndistribution (with or without modification), making available to the\npublic, and in some countries other activities as well.\n\n  To \"convey\" a work means any kind of propagation that enables other\nparties to make or receive copies.  Mere interaction with a user through\na computer network, with no transfer of a copy, is not conveying.\n\n  An interactive user interface displays \"Appropriate Legal Notices\"\nto the extent that it includes a convenient and prominently visible\nfeature that (1) displays an appropriate copyright notice, and (2)\ntells the user that there is no warranty for the work (except to the\nextent that warranties are provided), that licensees may convey the\nwork under this License, and how to view a copy of this License.  If\nthe interface presents a list of user commands or options, such as a\nmenu, a prominent item in the list meets this criterion.\n\n  1. Source Code.\n\n  The \"source code\" for a work means the preferred form of the work\nfor making modifications to it.  \"Object code\" means any non-source\nform of a work.\n\n  A \"Standard Interface\" means an interface that either is an official\nstandard defined by a recognized standards body, or, in the case of\ninterfaces specified for a particular programming language, one that\nis widely used among developers working in that language.\n\n  The \"System Libraries\" of an executable work include anything, other\nthan the work as a whole, that (a) is included in the normal form of\npackaging a Major Component, but which is not part of that Major\nComponent, and (b) serves only to enable use of the work with that\nMajor Component, or to implement a Standard Interface for which an\nimplementation is available to the public in source code form.  A\n\"Major Component\", in this context, means a major essential component\n(kernel, window system, and so on) of the specific operating system\n(if any) on which the executable work runs, or a compiler used to\nproduce the work, or an object code interpreter used to run it.\n\n  The \"Corresponding Source\" for a work in object code form means all\nthe source code needed to generate, install, and (for an executable\nwork) run the object code and to modify the work, including scripts to\ncontrol those activities.  However, it does not include the work's\nSystem Libraries, or general-purpose tools or generally available free\nprograms which are used unmodified in performing those activities but\nwhich are not part of the work.  For example, Corresponding Source\nincludes interface definition files associated with source files for\nthe work, and the source code for shared libraries and dynamically\nlinked subprograms that the work is specifically designed to require,\nsuch as by intimate data communication or control flow between those\nsubprograms and other parts of the work.\n\n  The Corresponding Source need not include anything that users\ncan regenerate automatically from other parts of the Corresponding\nSource.\n\n  The Corresponding Source for a work in source code form is that\nsame work.\n\n  2. Basic Permissions.\n\n  All rights granted under this License are granted for the term of\ncopyright on the Program, and are irrevocable provided the stated\nconditions are met.  This License explicitly affirms your unlimited\npermission to run the unmodified Program.  The output from running a\ncovered work is covered by this License only if the output, given its\ncontent, constitutes a covered work.  This License acknowledges your\nrights of fair use or other equivalent, as provided by copyright law.\n\n  You may make, run and propagate covered works that you do not\nconvey, without conditions so long as your license otherwise remains\nin force.  You may convey covered works to others for the sole purpose\nof having them make modifications exclusively for you, or provide you\nwith facilities for running those works, provided that you comply with\nthe terms of this License in conveying all material for which you do\nnot control copyright.  Those thus making or running the covered works\nfor you must do so exclusively on your behalf, under your direction\nand control, on terms that prohibit them from making any copies of\nyour copyrighted material outside their relationship with you.\n\n  Conveying under any other circumstances is permitted solely under\nthe conditions stated below.  Sublicensing is not allowed; section 10\nmakes it unnecessary.\n\n  3. Protecting Users' Legal Rights From Anti-Circumvention Law.\n\n  No covered work shall be deemed part of an effective technological\nmeasure under any applicable law fulfilling obligations under article\n11 of the WIPO copyright treaty adopted on 20 December 1996, or\nsimilar laws prohibiting or restricting circumvention of such\nmeasures.\n\n  When you convey a covered work, you waive any legal power to forbid\ncircumvention of technological measures to the extent such circumvention\nis effected by exercising rights under this License with respect to\nthe covered work, and you disclaim any intention to limit operation or\nmodification of the work as a means of enforcing, against the work's\nusers, your or third parties' legal rights to forbid circumvention of\ntechnological measures.\n\n  4. Conveying Verbatim Copies.\n\n  You may convey verbatim copies of the Program's source code as you\nreceive it, in any medium, provided that you conspicuously and\nappropriately publish on each copy an appropriate copyright notice;\nkeep intact all notices stating that this License and any\nnon-permissive terms added in accord with section 7 apply to the code;\nkeep intact all notices of the absence of any warranty; and give all\nrecipients a copy of this License along with the Program.\n\n  You may charge any price or no price for each copy that you convey,\nand you may offer support or warranty protection for a fee.\n\n  5. Conveying Modified Source Versions.\n\n  You may convey a work based on the Program, or the modifications to\nproduce it from the Program, in the form of source code under the\nterms of section 4, provided that you also meet all of these conditions:\n\n    a) The work must carry prominent notices stating that you modified\n    it, and giving a relevant date.\n\n    b) The work must carry prominent notices stating that it is\n    released under this License and any conditions added under section\n    7.  This requirement modifies the requirement in section 4 to\n    \"keep intact all notices\".\n\n    c) You must license the entire work, as a whole, under this\n    License to anyone who comes into possession of a copy.  This\n    License will therefore apply, along with any applicable section 7\n    additional terms, to the whole of the work, and all its parts,\n    regardless of how they are packaged.  This License gives no\n    permission to license the work in any other way, but it does not\n    invalidate such permission if you have separately received it.\n\n    d) If the work has interactive user interfaces, each must display\n    Appropriate Legal Notices; however, if the Program has interactive\n    interfaces that do not display Appropriate Legal Notices, your\n    work need not make them do so.\n\n  A compilation of a covered work with other separate and independent\nworks, which are not by their nature extensions of the covered work,\nand which are not combined with it such as to form a larger program,\nin or on a volume of a storage or distribution medium, is called an\n\"aggregate\" if the compilation and its resulting copyright are not\nused to limit the access or legal rights of the compilation's users\nbeyond what the individual works permit.  Inclusion of a covered work\nin an aggregate does not cause this License to apply to the other\nparts of the aggregate.\n\n  6. Conveying Non-Source Forms.\n\n  You may convey a covered work in object code form under the terms\nof sections 4 and 5, provided that you also convey the\nmachine-readable Corresponding Source under the terms of this License,\nin one of these ways:\n\n    a) Convey the object code in, or embodied in, a physical product\n    (including a physical distribution medium), accompanied by the\n    Corresponding Source fixed on a durable physical medium\n    customarily used for software interchange.\n\n    b) Convey the object code in, or embodied in, a physical product\n    (including a physical distribution medium), accompanied by a\n    written offer, valid for at least three years and valid for as\n    long as you offer spare parts or customer support for that product\n    model, to give anyone who possesses the object code either (1) a\n    copy of the Corresponding Source for all the software in the\n    product that is covered by this License, on a durable physical\n    medium customarily used for software interchange, for a price no\n    more than your reasonable cost of physically performing this\n    conveying of source, or (2) access to copy the\n    Corresponding Source from a network server at no charge.\n\n    c) Convey individual copies of the object code with a copy of the\n    written offer to provide the Corresponding Source.  This\n    alternative is allowed only occasionally and noncommercially, and\n    only if you received the object code with such an offer, in accord\n    with subsection 6b.\n\n    d) Convey the object code by offering access from a designated\n    place (gratis or for a charge), and offer equivalent access to the\n    Corresponding Source in the same way through the same place at no\n    further charge.  You need not require recipients to copy the\n    Corresponding Source along with the object code.  If the place to\n    copy the object code is a network server, the Corresponding Source\n    may be on a different server (operated by you or a third party)\n    that supports equivalent copying facilities, provided you maintain\n    clear directions next to the object code saying where to find the\n    Corresponding Source.  Regardless of what server hosts the\n    Corresponding Source, you remain obligated to ensure that it is\n    available for as long as needed to satisfy these requirements.\n\n    e) Convey the object code using peer-to-peer transmission, provided\n    you inform other peers where the object code and Corresponding\n    Source of the work are being offered to the general public at no\n    charge under subsection 6d.\n\n  A separable portion of the object code, whose source code is excluded\nfrom the Corresponding Source as a System Library, need not be\nincluded in conveying the object code work.\n\n  A \"User Product\" is either (1) a \"consumer product\", which means any\ntangible personal property which is normally used for personal, family,\nor household purposes, or (2) anything designed or sold for incorporation\ninto a dwelling.  In determining whether a product is a consumer product,\ndoubtful cases shall be resolved in favor of coverage.  For a particular\nproduct received by a particular user, \"normally used\" refers to a\ntypical or common use of that class of product, regardless of the status\nof the particular user or of the way in which the particular user\nactually uses, or expects or is expected to use, the product.  A product\nis a consumer product regardless of whether the product has substantial\ncommercial, industrial or non-consumer uses, unless such uses represent\nthe only significant mode of use of the product.\n\n  \"Installation Information\" for a User Product means any methods,\nprocedures, authorization keys, or other information required to install\nand execute modified versions of a covered work in that User Product from\na modified version of its Corresponding Source.  The information must\nsuffice to ensure that the continued functioning of the modified object\ncode is in no case prevented or interfered with solely because\nmodification has been made.\n\n  If you convey an object code work under this section in, or with, or\nspecifically for use in, a User Product, and the conveying occurs as\npart of a transaction in which the right of possession and use of the\nUser Product is transferred to the recipient in perpetuity or for a\nfixed term (regardless of how the transaction is characterized), the\nCorresponding Source conveyed under this section must be accompanied\nby the Installation Information.  But this requirement does not apply\nif neither you nor any third party retains the ability to install\nmodified object code on the User Product (for example, the work has\nbeen installed in ROM).\n\n  The requirement to provide Installation Information does not include a\nrequirement to continue to provide support service, warranty, or updates\nfor a work that has been modified or installed by the recipient, or for\nthe User Product in which it has been modified or installed.  Access to a\nnetwork may be denied when the modification itself materially and\nadversely affects the operation of the network or violates the rules and\nprotocols for communication across the network.\n\n  Corresponding Source conveyed, and Installation Information provided,\nin accord with this section must be in a format that is publicly\ndocumented (and with an implementation available to the public in\nsource code form), and must require no special password or key for\nunpacking, reading or copying.\n\n  7. Additional Terms.\n\n  \"Additional permissions\" are terms that supplement the terms of this\nLicense by making exceptions from one or more of its conditions.\nAdditional permissions that are applicable to the entire Program shall\nbe treated as though they were included in this License, to the extent\nthat they are valid under applicable law.  If additional permissions\napply only to part of the Program, that part may be used separately\nunder those permissions, but the entire Program remains governed by\nthis License without regard to the additional permissions.\n\n  When you convey a copy of a covered work, you may at your option\nremove any additional permissions from that copy, or from any part of\nit.  (Additional permissions may be written to require their own\nremoval in certain cases when you modify the work.)  You may place\nadditional permissions on material, added by you to a covered work,\nfor which you have or can give appropriate copyright permission.\n\n  Notwithstanding any other provision of this License, for material you\nadd to a covered work, you may (if authorized by the copyright holders of\nthat material) supplement the terms of this License with terms:\n\n    a) Disclaiming warranty or limiting liability differently from the\n    terms of sections 15 and 16 of this License; or\n\n    b) Requiring preservation of specified reasonable legal notices or\n    author attributions in that material or in the Appropriate Legal\n    Notices displayed by works containing it; or\n\n    c) Prohibiting misrepresentation of the origin of that material, or\n    requiring that modified versions of such material be marked in\n    reasonable ways as different from the original version; or\n\n    d) Limiting the use for publicity purposes of names of licensors or\n    authors of the material; or\n\n    e) Declining to grant rights under trademark law for use of some\n    trade names, trademarks, or service marks; or\n\n    f) Requiring indemnification of licensors and authors of that\n    material by anyone who conveys the material (or modified versions of\n    it) with contractual assumptions of liability to the recipient, for\n    any liability that these contractual assumptions directly impose on\n    those licensors and authors.\n\n  All other non-permissive additional terms are considered \"further\nrestrictions\" within the meaning of section 10.  If the Program as you\nreceived it, or any part of it, contains a notice stating that it is\ngoverned by this License along with a term that is a further\nrestriction, you may remove that term.  If a license document contains\na further restriction but permits relicensing or conveying under this\nLicense, you may add to a covered work material governed by the terms\nof that license document, provided that the further restriction does\nnot survive such relicensing or conveying.\n\n  If you add terms to a covered work in accord with this section, you\nmust place, in the relevant source files, a statement of the\nadditional terms that apply to those files, or a notice indicating\nwhere to find the applicable terms.\n\n  Additional terms, permissive or non-permissive, may be stated in the\nform of a separately written license, or stated as exceptions;\nthe above requirements apply either way.\n\n  8. Termination.\n\n  You may not propagate or modify a covered work except as expressly\nprovided under this License.  Any attempt otherwise to propagate or\nmodify it is void, and will automatically terminate your rights under\nthis License (including any patent licenses granted under the third\nparagraph of section 11).\n\n  However, if you cease all violation of this License, then your\nlicense from a particular copyright holder is reinstated (a)\nprovisionally, unless and until the copyright holder explicitly and\nfinally terminates your license, and (b) permanently, if the copyright\nholder fails to notify you of the violation by some reasonable means\nprior to 60 days after the cessation.\n\n  Moreover, your license from a particular copyright holder is\nreinstated permanently if the copyright holder notifies you of the\nviolation by some reasonable means, this is the first time you have\nreceived notice of violation of this License (for any work) from that\ncopyright holder, and you cure the violation prior to 30 days after\nyour receipt of the notice.\n\n  Termination of your rights under this section does not terminate the\nlicenses of parties who have received copies or rights from you under\nthis License.  If your rights have been terminated and not permanently\nreinstated, you do not qualify to receive new licenses for the same\nmaterial under section 10.\n\n  9. Acceptance Not Required for Having Copies.\n\n  You are not required to accept this License in order to receive or\nrun a copy of the Program.  Ancillary propagation of a covered work\noccurring solely as a consequence of using peer-to-peer transmission\nto receive a copy likewise does not require acceptance.  However,\nnothing other than this License grants you permission to propagate or\nmodify any covered work.  These actions infringe copyright if you do\nnot accept this License.  Therefore, by modifying or propagating a\ncovered work, you indicate your acceptance of this License to do so.\n\n  10. Automatic Licensing of Downstream Recipients.\n\n  Each time you convey a covered work, the recipient automatically\nreceives a license from the original licensors, to run, modify and\npropagate that work, subject to this License.  You are not responsible\nfor enforcing compliance by third parties with this License.\n\n  An \"entity transaction\" is a transaction transferring control of an\norganization, or substantially all assets of one, or subdividing an\norganization, or merging organizations.  If propagation of a covered\nwork results from an entity transaction, each party to that\ntransaction who receives a copy of the work also receives whatever\nlicenses to the work the party's predecessor in interest had or could\ngive under the previous paragraph, plus a right to possession of the\nCorresponding Source of the work from the predecessor in interest, if\nthe predecessor has it or can get it with reasonable efforts.\n\n  You may not impose any further restrictions on the exercise of the\nrights granted or affirmed under this License.  For example, you may\nnot impose a license fee, royalty, or other charge for exercise of\nrights granted under this License, and you may not initiate litigation\n(including a cross-claim or counterclaim in a lawsuit) alleging that\nany patent claim is infringed by making, using, selling, offering for\nsale, or importing the Program or any portion of it.\n\n  11. Patents.\n\n  A \"contributor\" is a copyright holder who authorizes use under this\nLicense of the Program or a work on which the Program is based.  The\nwork thus licensed is called the contributor's \"contributor version\".\n\n  A contributor's \"essential patent claims\" are all patent claims\nowned or controlled by the contributor, whether already acquired or\nhereafter acquired, that would be infringed by some manner, permitted\nby this License, of making, using, or selling its contributor version,\nbut do not include claims that would be infringed only as a\nconsequence of further modification of the contributor version.  For\npurposes of this definition, \"control\" includes the right to grant\npatent sublicenses in a manner consistent with the requirements of\nthis License.\n\n  Each contributor grants you a non-exclusive, worldwide, royalty-free\npatent license under the contributor's essential patent claims, to\nmake, use, sell, offer for sale, import and otherwise run, modify and\npropagate the contents of its contributor version.\n\n  In the following three paragraphs, a \"patent license\" is any express\nagreement or commitment, however denominated, not to enforce a patent\n(such as an express permission to practice a patent or covenant not to\nsue for patent infringement).  To \"grant\" such a patent license to a\nparty means to make such an agreement or commitment not to enforce a\npatent against the party.\n\n  If you convey a covered work, knowingly relying on a patent license,\nand the Corresponding Source of the work is not available for anyone\nto copy, free of charge and under the terms of this License, through a\npublicly available network server or other readily accessible means,\nthen you must either (1) cause the Corresponding Source to be so\navailable, or (2) arrange to deprive yourself of the benefit of the\npatent license for this particular work, or (3) arrange, in a manner\nconsistent with the requirements of this License, to extend the patent\nlicense to downstream recipients.  \"Knowingly relying\" means you have\nactual knowledge that, but for the patent license, your conveying the\ncovered work in a country, or your recipient's use of the covered work\nin a country, would infringe one or more identifiable patents in that\ncountry that you have reason to believe are valid.\n\n  If, pursuant to or in connection with a single transaction or\narrangement, you convey, or propagate by procuring conveyance of, a\ncovered work, and grant a patent license to some of the parties\nreceiving the covered work authorizing them to use, propagate, modify\nor convey a specific copy of the covered work, then the patent license\nyou grant is automatically extended to all recipients of the covered\nwork and works based on it.\n\n  A patent license is \"discriminatory\" if it does not include within\nthe scope of its coverage, prohibits the exercise of, or is\nconditioned on the non-exercise of one or more of the rights that are\nspecifically granted under this License.  You may not convey a covered\nwork if you are a party to an arrangement with a third party that is\nin the business of distributing software, under which you make payment\nto the third party based on the extent of your activity of conveying\nthe work, and under which the third party grants, to any of the\nparties who would receive the covered work from you, a discriminatory\npatent license (a) in connection with copies of the covered work\nconveyed by you (or copies made from those copies), or (b) primarily\nfor and in connection with specific products or compilations that\ncontain the covered work, unless you entered into that arrangement,\nor that patent license was granted, prior to 28 March 2007.\n\n  Nothing in this License shall be construed as excluding or limiting\nany implied license or other defenses to infringement that may\notherwise be available to you under applicable patent law.\n\n  12. No Surrender of Others' Freedom.\n\n  If conditions are imposed on you (whether by court order, agreement or\notherwise) that contradict the conditions of this License, they do not\nexcuse you from the conditions of this License.  If you cannot convey a\ncovered work so as to satisfy simultaneously your obligations under this\nLicense and any other pertinent obligations, then as a consequence you may\nnot convey it at all.  For example, if you agree to terms that obligate you\nto collect a royalty for further conveying from those to whom you convey\nthe Program, the only way you could satisfy both those terms and this\nLicense would be to refrain entirely from conveying the Program.\n\n  13. Use with the GNU Affero General Public License.\n\n  Notwithstanding any other provision of this License, you have\npermission to link or combine any covered work with a work licensed\nunder version 3 of the GNU Affero General Public License into a single\ncombined work, and to convey the resulting work.  The terms of this\nLicense will continue to apply to the part which is the covered work,\nbut the special requirements of the GNU Affero General Public License,\nsection 13, concerning interaction through a network will apply to the\ncombination as such.\n\n  14. Revised Versions of this License.\n\n  The Free Software Foundation may publish revised and/or new versions of\nthe GNU General Public License from time to time.  Such new versions will\nbe similar in spirit to the present version, but may differ in detail to\naddress new problems or concerns.\n\n  Each version is given a distinguishing version number.  If the\nProgram specifies that a certain numbered version of the GNU General\nPublic License \"or any later version\" applies to it, you have the\noption of following the terms and conditions either of that numbered\nversion or of any later version published by the Free Software\nFoundation.  If the Program does not specify a version number of the\nGNU General Public License, you may choose any version ever published\nby the Free Software Foundation.\n\n  If the Program specifies that a proxy can decide which future\nversions of the GNU General Public License can be used, that proxy's\npublic statement of acceptance of a version permanently authorizes you\nto choose that version for the Program.\n\n  Later license versions may give you additional or different\npermissions.  However, no additional obligations are imposed on any\nauthor or copyright holder as a result of your choosing to follow a\nlater version.\n\n  15. Disclaimer of Warranty.\n\n  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY\nAPPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT\nHOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM \"AS IS\" WITHOUT WARRANTY\nOF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,\nTHE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM\nIS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF\nALL NECESSARY SERVICING, REPAIR OR CORRECTION.\n\n  16. Limitation of Liability.\n\n  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING\nWILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS\nTHE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY\nGENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE\nUSE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF\nDATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD\nPARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),\nEVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF\nSUCH DAMAGES.\n\n  17. Interpretation of Sections 15 and 16.\n\n  If the disclaimer of warranty and limitation of liability provided\nabove cannot be given local legal effect according to their terms,\nreviewing courts shall apply local law that most closely approximates\nan absolute waiver of all civil liability in connection with the\nProgram, unless a warranty or assumption of liability accompanies a\ncopy of the Program in return for a fee.\n\n                     END OF TERMS AND CONDITIONS\n\n            How to Apply These Terms to Your New Programs\n\n  If you develop a new program, and you want it to be of the greatest\npossible use to the public, the best way to achieve this is to make it\nfree software which everyone can redistribute and change under these terms.\n\n  To do so, attach the following notices to the program.  It is safest\nto attach them to the start of each source file to most effectively\nstate the exclusion of warranty; and each file should have at least\nthe \"copyright\" line and a pointer to where the full notice is found.\n\n    <one line to give the program's name and a brief idea of what it does.>\n    Copyright (C) <year>  <name of author>\n\n    This program is free software: you can redistribute it and/or modify\n    it under the terms of the GNU General Public License as published by\n    the Free Software Foundation, either version 3 of the License, or\n    (at your option) any later version.\n\n    This program is distributed in the hope that it will be useful,\n    but WITHOUT ANY WARRANTY; without even the implied warranty of\n    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n    GNU General Public License for more details.\n\n    You should have received a copy of the GNU General Public License\n    along with this program.  If not, see <http://www.gnu.org/licenses/>.\n\nAlso add information on how to contact you by electronic and paper mail.\n\n  If the program does terminal interaction, make it output a short\nnotice like this when it starts in an interactive mode:\n\n    <program>  Copyright (C) <year>  <name of author>\n    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.\n    This is free software, and you are welcome to redistribute it\n    under certain conditions; type `show c' for details.\n\nThe hypothetical commands `show w' and `show c' should show the appropriate\nparts of the General Public License.  Of course, your program's commands\nmight be different; for a GUI interface, you would use an \"about box\".\n\n  You should also get your employer (if you work as a programmer) or school,\nif any, to sign a \"copyright disclaimer\" for the program, if necessary.\nFor more information on this, and how to apply and follow the GNU GPL, see\n<http://www.gnu.org/licenses/>.\n\n  The GNU General Public License does not permit incorporating your program\ninto proprietary programs.  If your program is a subroutine library, you\nmay consider it more useful to permit linking proprietary applications with\nthe library.  If this is what you want to do, use the GNU Lesser General\nPublic License instead of this License.  But first, please read\n<http://www.gnu.org/philosophy/why-not-lgpl.html>.\n");
   gtk_about_dialog_set_website (GTK_ABOUT_DIALOG (aboutdialog), "http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot");
   gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG (aboutdialog), "Coot Website");
@@ -28938,9 +28928,6 @@ create_export_map_filechooserdialog (void)
 
   export_map_filechooserdialog = gtk_file_chooser_dialog_new ("Export Map", NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (export_map_filechooserdialog), 5);
-  g_object_set (export_map_filechooserdialog,
-                "show-hidden", TRUE,
-                NULL);
   gtk_window_set_role (GTK_WINDOW (export_map_filechooserdialog), "GtkFileChooserDialog");
   gtk_window_set_type_hint (GTK_WINDOW (export_map_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -29398,5 +29385,210 @@ create_refinement_restraints_sliders_dialog (void)
   GLADE_HOOKUP_OBJECT (refinement_restraints_sliders_dialog, okbutton2, "okbutton2");
 
   return refinement_restraints_sliders_dialog;
+}
+
+GtkWidget*
+create_simple_refmac_dialog (void)
+{
+  GtkWidget *simple_refmac_dialog;
+  GtkWidget *dialog_vbox137;
+  GtkWidget *vbox333;
+  GtkWidget *label834;
+  GtkWidget *frame309;
+  GtkWidget *alignment174;
+  GtkWidget *simple_refmac_coordinates_combobox;
+  GtkWidget *label835;
+  GtkWidget *label836;
+  GtkWidget *frame310;
+  GtkWidget *alignment175;
+  GtkWidget *hbox453;
+  GtkWidget *simple_refmac_mtz_file_combobox;
+  GtkWidget *simple_refmac_mtz_file_button;
+  GtkWidget *alignment176;
+  GtkWidget *hbox454;
+  GtkWidget *image14098;
+  GtkWidget *label838;
+  GtkWidget *label837;
+  GtkWidget *dialog_action_area136;
+  GtkWidget *cancelbutton3;
+  GtkWidget *okbutton3;
+
+  simple_refmac_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (simple_refmac_dialog), "Run Refmac");
+  gtk_window_set_type_hint (GTK_WINDOW (simple_refmac_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  // gtk_dialog_set_has_separator (GTK_DIALOG (simple_refmac_dialog), FALSE);
+
+  dialog_vbox137 = gtk_dialog_get_content_area( simple_refmac_dialog );
+  gtk_widget_show (dialog_vbox137);
+
+  vbox333 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  gtk_widget_show (vbox333);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox137), vbox333, TRUE, TRUE, 0);
+
+  label834 = gtk_label_new ("");
+  gtk_widget_show (label834);
+  gtk_box_pack_start (GTK_BOX (vbox333), label834, FALSE, FALSE, 0);
+
+  frame309 = gtk_frame_new (NULL);
+  gtk_widget_show (frame309);
+  gtk_box_pack_start (GTK_BOX (vbox333), frame309, TRUE, FALSE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame309), GTK_SHADOW_NONE);
+
+  alignment174 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment174);
+  gtk_container_add (GTK_CONTAINER (frame309), alignment174);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment174), 0, 0, 12, 0);
+
+  simple_refmac_coordinates_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (simple_refmac_coordinates_combobox);
+  gtk_container_add (GTK_CONTAINER (alignment174), simple_refmac_coordinates_combobox);
+
+  label835 = gtk_label_new ("<b>Model Molecule</b>");
+  gtk_widget_show (label835);
+  gtk_frame_set_label_widget (GTK_FRAME (frame309), label835);
+  gtk_label_set_use_markup (GTK_LABEL (label835), TRUE);
+
+  label836 = gtk_label_new ("");
+  gtk_widget_show (label836);
+  gtk_box_pack_start (GTK_BOX (vbox333), label836, FALSE, FALSE, 0);
+
+  frame310 = gtk_frame_new (NULL);
+  gtk_widget_show (frame310);
+  gtk_box_pack_start (GTK_BOX (vbox333), frame310, FALSE, TRUE, 0);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame310), GTK_SHADOW_NONE);
+
+  alignment175 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment175);
+  gtk_container_add (GTK_CONTAINER (frame310), alignment175);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment175), 0, 0, 12, 0);
+
+  hbox453 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+  gtk_widget_show (hbox453);
+  gtk_container_add (GTK_CONTAINER (alignment175), hbox453);
+
+  simple_refmac_mtz_file_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (simple_refmac_mtz_file_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox453), simple_refmac_mtz_file_combobox, TRUE, TRUE, 0);
+
+  simple_refmac_mtz_file_button = gtk_button_new ();
+  gtk_widget_show (simple_refmac_mtz_file_button);
+  gtk_box_pack_start (GTK_BOX (hbox453), simple_refmac_mtz_file_button, FALSE, FALSE, 0);
+
+  alignment176 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment176);
+  gtk_container_add (GTK_CONTAINER (simple_refmac_mtz_file_button), alignment176);
+
+  hbox454 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 2);
+  gtk_widget_show (hbox454);
+  gtk_container_add (GTK_CONTAINER (alignment176), hbox454);
+
+  image14098 = gtk_image_new_from_stock ("gtk-open", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image14098);
+  gtk_box_pack_start (GTK_BOX (hbox454), image14098, FALSE, FALSE, 0);
+
+  label838 = gtk_label_new_with_mnemonic ("File...");
+  gtk_widget_show (label838);
+  gtk_box_pack_start (GTK_BOX (hbox454), label838, FALSE, FALSE, 0);
+
+  label837 = gtk_label_new ("<b>MTZ File</b>");
+  gtk_widget_show (label837);
+  gtk_frame_set_label_widget (GTK_FRAME (frame310), label837);
+  gtk_label_set_use_markup (GTK_LABEL (label837), TRUE);
+
+  dialog_action_area136 = gtk_dialog_get_content_area( simple_refmac_dialog );
+  gtk_widget_show (dialog_action_area136);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area136), GTK_BUTTONBOX_END);
+
+  cancelbutton3 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (cancelbutton3);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_dialog), cancelbutton3, GTK_RESPONSE_CANCEL);
+  gtk_widget_set_can_default (cancelbutton3, 1);
+
+  okbutton3 = gtk_button_new_from_stock ("gtk-ok");
+  gtk_widget_show (okbutton3);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_dialog), okbutton3, GTK_RESPONSE_OK);
+  gtk_widget_set_can_default (okbutton3, 1);
+
+  g_signal_connect ((gpointer) simple_refmac_dialog, "response",
+                    G_CALLBACK (on_simple_refmac_dialog_response),
+                    NULL);
+  g_signal_connect ((gpointer) simple_refmac_dialog, "close",
+                    G_CALLBACK (on_simple_refmac_dialog_close),
+                    NULL);
+  g_signal_connect ((gpointer) simple_refmac_mtz_file_button, "clicked",
+                    G_CALLBACK (on_simple_refmac_mtz_file_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_dialog, simple_refmac_dialog, "simple_refmac_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_dialog, dialog_vbox137, "dialog_vbox137");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, vbox333, "vbox333");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label834, "label834");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, frame309, "frame309");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, alignment174, "alignment174");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, simple_refmac_coordinates_combobox, "simple_refmac_coordinates_combobox");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label835, "label835");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label836, "label836");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, frame310, "frame310");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, alignment175, "alignment175");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, hbox453, "hbox453");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, simple_refmac_mtz_file_combobox, "simple_refmac_mtz_file_combobox");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, simple_refmac_mtz_file_button, "simple_refmac_mtz_file_button");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, alignment176, "alignment176");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, hbox454, "hbox454");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, image14098, "image14098");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label838, "label838");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, label837, "label837");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_dialog, dialog_action_area136, "dialog_action_area136");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, cancelbutton3, "cancelbutton3");
+  GLADE_HOOKUP_OBJECT (simple_refmac_dialog, okbutton3, "okbutton3");
+
+  return simple_refmac_dialog;
+}
+
+GtkWidget*
+create_simple_refmac_filechooserdialog (void)
+{
+  GtkWidget *simple_refmac_filechooserdialog;
+  GtkWidget *dialog_vbox138;
+  GtkWidget *dialog_action_area137;
+  GtkWidget *button35;
+  GtkWidget *button36;
+
+  simple_refmac_filechooserdialog = gtk_file_chooser_dialog_new ("", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
+  gtk_container_set_border_width (GTK_CONTAINER (simple_refmac_filechooserdialog), 5);
+  gtk_window_set_role (GTK_WINDOW (simple_refmac_filechooserdialog), "GtkFileChooserDialog");
+  gtk_window_set_type_hint (GTK_WINDOW (simple_refmac_filechooserdialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  dialog_vbox138 = gtk_dialog_get_content_area( simple_refmac_filechooserdialog );
+  gtk_widget_show (dialog_vbox138);
+
+  dialog_action_area137 = gtk_dialog_get_content_area( simple_refmac_filechooserdialog );
+  gtk_widget_show (dialog_action_area137);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area137), GTK_BUTTONBOX_END);
+
+  button35 = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (button35);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_filechooserdialog), button35, GTK_RESPONSE_CANCEL);
+  gtk_widget_set_can_default (button35, 1);
+
+  button36 = gtk_button_new_from_stock ("gtk-open");
+  gtk_widget_show (button36);
+  gtk_dialog_add_action_widget (GTK_DIALOG (simple_refmac_filechooserdialog), button36, GTK_RESPONSE_OK);
+  gtk_widget_set_can_default (button36, 1);
+
+  g_signal_connect ((gpointer) simple_refmac_filechooserdialog, "response",
+                    G_CALLBACK (on_simple_refmac_filechooserdialog_response),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_filechooserdialog, simple_refmac_filechooserdialog, "simple_refmac_filechooserdialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_filechooserdialog, dialog_vbox138, "dialog_vbox138");
+  GLADE_HOOKUP_OBJECT_NO_REF (simple_refmac_filechooserdialog, dialog_action_area137, "dialog_action_area137");
+  GLADE_HOOKUP_OBJECT (simple_refmac_filechooserdialog, button35, "button35");
+  GLADE_HOOKUP_OBJECT (simple_refmac_filechooserdialog, button36, "button36");
+
+  gtk_widget_grab_default (button36);
+  return simple_refmac_filechooserdialog;
 }
 

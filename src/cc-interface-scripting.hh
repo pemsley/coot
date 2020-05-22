@@ -29,3 +29,18 @@ SCM coot_has_python_p();
 #ifdef USE_GUILE
 SCM test_mol_triangles_scm(SCM i_scm, SCM j_scm);
 #endif
+
+#ifdef USE_PYTHON
+// maybe a better name when things are more established.
+// key can be a single-letter string or an int
+void add_key_binding_gtk3_py(PyObject *key, int ctrl_key_flag, PyObject *func,
+                             const std::string &description);
+void set_light_position_py(int light_id, float x, float y, float z);
+#endif
+
+#ifdef USE_GUILE
+void add_key_binding_gtk3_scm(int key, int ctrl_key, SCM thunk, const std::string &description);
+#endif
+
+void reload_shaders();
+

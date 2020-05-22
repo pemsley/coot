@@ -390,7 +390,8 @@
 # 5.33 20181214 bump the mmdb2 version (pdbx_ins_code)
 # 5.34 20181215 clipper patch fixes
 # 5.35 20190401 clipper configure fftw patch
-script_version=5.35
+# 5.36 20200415 Updates for Release 0.9 - a bit delayed.
+script_version=5.36
 
 
 
@@ -1512,6 +1513,8 @@ coot_prerelease_exists=
 
 # coot_version_pre no longer has .tar.gz extension
 
+echo =========================== build_coot_prerelease currently is $build_coot_prerelease ========================
+
 if test "$build_coot_prerelease" = 1 ; then 
 
    echo debug:: ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
@@ -1522,19 +1525,23 @@ if test "$build_coot_prerelease" = 1 ; then
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
       # this path when there are no pre-releases to be built, i.e. build the latest release.
-      echo trying to build pre-release coot, but failed to find pre-release version
-      echo make a stable release then
-      build_coot_prerelease=
+      echo NNX:: trying to build pre-release coot, but failed to find pre-release version
+      echo NNX:: make a stable release then
+      build_coot_prerelease=no
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
       mkdir -p ${BINARY_TAR_DEST_DIR}/holding
 
       ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
-      echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+      echo NNX:: examining release server files ${AUTOBUILD_SOURCES}/index.html
       # coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' 
       # have another go at latest version extraction.
-      coot_version=$(awk '/compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}'  \
-          ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
-      echo coot_version $coot_version
+
+      # 20200415-PE - man this is fragile code. Don't need to sort now.
+      
+      awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html
+
+      coot_version=$(awk '/.*a href=.coot/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}' ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
+      echo NNX:: coot_version $coot_version
 
    else
       build_coot_prerelease=1  # belt and braces
@@ -1556,11 +1563,20 @@ else
 
     ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-    coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
-        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    echo ========== awk results:
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html
+    echo ==== with tail ==========
+    awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1
+    echo =========== from ${AUTOBUILD_SOURCES}/index.html 
+    cat ${AUTOBUILD_SOURCES}/index.html 
+    echo ==============
+    coot_version=$(awk  ' /a href=.*.tar.gz/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1)
     if test -z "$coot_version" ; then
        # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
-       coot_version=$(awk  ' /compressed.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+       coot_version=$(awk  ' /.*a href=/ {f=$2; split(f, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
     fi
     echo coot_version $coot_version
@@ -1578,7 +1594,6 @@ echo coot_version_pre is $coot_version_pre
 echo build_coot_prerelease: $build_coot_prerelease
 echo release_server_dir $release_server_dir 
 echo coot_version $coot_version
-
 
 
 # set the build prefix for installed stuff.  Put everything in the
@@ -2959,10 +2974,10 @@ if test -n "$build_python" ; then
    cd Python-$pver
 
    # --with-ensurepip=install
-   echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
+   echo INFO:: ./configure $generic_prefix --enable-shared --with-ensurepip=install $python_lib_flags $python_spec_flags for python
    # 
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --enable-shared $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --enable-shared --with-ensurepip=install $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -3995,7 +4010,11 @@ else
                 -e 's/  TLIBS =.*/  TLIBS =/' \
              Makefile.incl
           fi
-       
+
+          echo about to do this: $MAKE render
+          $MAKE render
+          ls -l render
+
           if $MAKE render ; then 
   	     make prefix=$install_top_dir install
 	     # did that work?  I doubt it. Let's do it by hand
@@ -4029,6 +4048,11 @@ fi
 ###############################################################################
 #
 echo BUILDING coot: version $coot_version, guile=$ENABLE_GUILE_COOT, python=$ENABLE_PYTHON_COOT
+
+if [ -z "$coot_version" ] ; then
+   echo coot_version is empty - exit now
+   my_exit 2 coot_version not set
+fi
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
@@ -4059,6 +4083,17 @@ else
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
 fi
 
+# get the cxxsurface patch - not sure if/when it's needed.
+# It seems to be needed for g++ 9.2.1 on Ubuntu 19.10
+# but not on 4.8.5 on Scientific Linux
+${WGET} $extras_place/cxxsurface-for-openmp-v1.patch
+# reset this (set it to "yes") if needed, depending on the OS/compiler
+need_cxxsurface_for_openmp_patch=no
+if [ "$w_fid" = g++-9 ] ; then
+   echo we need the CXXSurface OpenMP patch
+   need_cxxsurface_for_openmp_patch=yes
+fi
+
 echo using coot version $coot_version
 ls -ls ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 if [ -e ${AUTOBUILD_SOURCES}/$coot_version.tar.gz ] ; then
@@ -4073,6 +4108,11 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/$coot_version.tar.gz | tar xf -
 coot_dir_name=`echo $coot_version | sed 's/-revision.*//'`
 cd $coot_dir_name
+
+if [ $need_cxxsurface_for_openmp_patch = yes ] ; then
+    echo patching from ${AUTOBUILD_SOURCES}/cxxsurface-for-openmp-v1.patch
+    patch -p0 < ${AUTOBUILD_SOURCES}/cxxsurface-for-openmp-v1.patch
+fi
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -4154,7 +4194,7 @@ if [ "$architecture" = x86_64 ] ; then
    #coot_optim_args="CXXFLAGS=\"-g -O\""
 
 
-   export CXXFLAGS="-g -O"
+   export CXXFLAGS="-g -O3 -ffast-math"
    #   unset CXXFLAGS
 fi
 
@@ -4201,7 +4241,7 @@ echo ./configure $coot_prefix \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
-      --with-boost=$prfx  \
+      --with-boost=$install_top_dir  \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
@@ -4220,7 +4260,7 @@ echo ./configure $coot_prefix \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
-      --with-boost=$prfx  \
+      --with-boost=$install_top_dir  \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
@@ -4381,7 +4421,7 @@ if [ "$run_tests" = true ] ; then
    fi
 
    # run python tests too, maybe (i.e. if we build with python)
-   if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+   if [ "$ENABLE_PYTHON_COOT" = "disablethisfornow" ] ; then 
        echo running python test... >&2
        test_coot_python > $LOGS/test-python.log 2>&1
        rp=$?

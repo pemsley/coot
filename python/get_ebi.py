@@ -1,3 +1,4 @@
+import numbers
 # get-ebi.py
 # Copyright 2005, 2006 by Bernhard Lohkamp
 # Copyright 2005, 2006 by Paul Emsley, The University of York
@@ -54,9 +55,9 @@ def coot_urlretrieve(url, file_name):
     """Helper function to avoid downloading empty files
     returns download filename upon success or False when fail."""
 
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
     local_filename = False
-    class CootURLopener(urllib.FancyURLopener):
+    class CootURLopener(urllib.request.FancyURLopener):
         def http_error_default(self, url, fp, errcode, errmsg, headers):
             # handle errors the way you'd like to
             # we just pass
@@ -67,7 +68,7 @@ def coot_urlretrieve(url, file_name):
         local_filename, header = opener.retrieve(url, file_name)
     except:
         # we could catch more here, but dont bother for now
-        print "BL WARNING:: retrieve of url %s failed" %url
+        print("BL WARNING:: retrieve of url %s failed" %url)
 
     return local_filename
 
@@ -77,23 +78,23 @@ def coot_urlretrieve(url, file_name):
 # check the directory and get url url_string.
 #
 def check_dir_and_get_url(dir, file_name, url_string):
-    import os,urllib
+    import os,urllib.request,urllib.parse,urllib.error
 
     # FIXME logic, can be done better
     if (os.path.isfile(dir) or os.path.isdir(dir)):
        if (os.path.isfile(dir)):
-          print dir, " is atually a file and not a dir, so we can't write to it"
+          print(dir, " is atually a file and not a dir, so we can't write to it")
        else:
           if (os.path.isdir(dir)):
               coot_urlretrieve(url_string, file_name)
           else:
-              print "ERROR:: Oops - Can't write to ", dir, " directory!"
+              print("ERROR:: Oops - Can't write to ", dir, " directory!")
     else:
        os.makedirs(dir)
        if (os.path.isdir(dir)):
            coot_urlretrieve(url_string, file_name)
        else:
-         print "ERROR:: Oops - create-directory ",dir," failed!"
+         print("ERROR:: Oops - create-directory ",dir," failed!")
 
 # get url_string for data type (string actually) 'pdb' or 'sfs'
 #
@@ -113,7 +114,7 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
        sfs_file_name = coot_tmp_dir + "/" + id + ".cif"
 #       print "BL DEBUG:: cif output file is: ",sfs_file_name
        imol_coords = imol_coords_arg_list
-       if (operator.isNumberType(imol_coords) and imol_coords>=-1):
+       if (isinstance(imol_coords, numbers.Number) and imol_coords>=-1):
          check_dir_and_get_url(coot_tmp_dir, sfs_file_name, url_string)
          read_cif_data(sfs_file_name, imol_coords_arg_list)
          # do we need to return something here too?!
@@ -125,11 +126,11 @@ def get_ebi_pdb_and_sfs(id):
     import operator,string
 
     imol_coords = get_ebi_pdb(id)
-    if (not operator.isNumberType(imol_coords)):
-       print "Failed at reading coordinates. imol-coords was ",imol_coords
+    if (not isinstance(imol_coords, numbers.Number)):
+       print("Failed at reading coordinates. imol-coords was ",imol_coords)
 
     if (imol_coords < 0):	# -1 is coot code for failed read.
-       print "failed to read coordinates."
+       print("failed to read coordinates.")
     else:
        down_id = string.lower(id)
        url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + \
@@ -141,7 +142,7 @@ def get_ebi_pdb_and_sfs(id):
 # or not a number (False) or -1 on error.
 #
 def get_ebi_pdb(id):
-    import urllib, string
+    import urllib.request, urllib.parse, urllib.error, string
 
     # print "======= id:", id
     down_id = string.lower(id)
@@ -169,7 +170,7 @@ def get_ebi_pdb(id):
 #
 def get_eds_pdb_and_mtz(id):
     import string
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
 
     # Gerard DVD Kleywegt says we can find the coords/mtz thusly:
     #
@@ -255,20 +256,20 @@ def get_eds_pdb_and_mtz(id):
                       down_id + "/" + down_id + "_map.mtz"
             eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
 
-            print "model_url:", model_url
-            print "  mtz_url:", mtz_url
-            print "eds_info_page:", eds_info_page
+            print("model_url:", model_url)
+            print("  mtz_url:", mtz_url)
+            print("eds_info_page:", eds_info_page)
 
             try:
                 pre_download_info = coot_get_url_as_string(eds_info_page)
                 # print "INFO:: --------------- pre-download-info:", pre_download_info
                 bad_map_status = "No reliable map available" in pre_download_info
                 if "There is no structure factor entry" in pre_download_info:
-                    print "BL WARNING:: no sfs available for entry %s, so wont download." %id
+                    print("BL WARNING:: no sfs available for entry %s, so wont download." %id)
                     # no pdb and no mtz
                     return False
             except:
-                print "BL ERROR:: could not get pre_download_info from", eds_core
+                print("BL ERROR:: could not get pre_download_info from", eds_core)
                 # we probably wont get anything else, so bail out.
                 return False
 
@@ -282,14 +283,14 @@ def get_eds_pdb_and_mtz(id):
 
             # maybe should then not load the map!?
 
-            print "INFO:: read pdb model status: ",s1
-            print "INFO:: read mtz data  status: ",s2
+            print("INFO:: read pdb model status: ",s1)
+            print("INFO:: read mtz data  status: ",s2)
 
             if os.path.isfile(s1):
                 r_imol = handle_read_draw_molecule(dir_target_pdb_file)
                 if not valid_model_molecule_qm(r_imol):
                     s1_cif = coot_urlretrieve(model_cif_url, dir_target_cif_file)
-                    print "INFO:: read cif model status: ",s1_cif
+                    print("INFO:: read cif model status: ",s1_cif)
                     if (s1_cif == 0):
                         r_imol = handle_read_draw_molecule(dir_target_pdb_file)
                         if not valid_model_molecule_qm(r_imol):
@@ -308,7 +309,7 @@ def get_eds_pdb_and_mtz(id):
                 return False
 
         else:
-            print "Can't make directory ",coot_tmp_dir
+            print("Can't make directory ",coot_tmp_dir)
 
 # not sure if coot function is better or python script function coot_urlretrieve
 # return 0 on success
@@ -318,10 +319,10 @@ def net_get_url(my_url, file_name):
 def get_pdb_redo(text):
 
     if not isinstance(text, str):
-        print "BL WARNING:: No string. No accession code."
+        print("BL WARNING:: No string. No accession code.")
     else:
         if not (len(text) == 4):
-            print "BL WARNING:: Accession code not 4 chars."
+            print("BL WARNING:: Accession code not 4 chars.")
         else:
             text = string.lower(text)
             stub = "https://pdb-redo.eu/db/" + \
@@ -333,25 +334,25 @@ def get_pdb_redo(text):
             url_mtz = stub + ".mtz"
             url_py = stub + ".py"
 
-            print "getting", url_pdb
+            print("getting", url_pdb)
             net_get_url(url_pdb, pdb_file_name)
-            print "getting", url_mtz
+            print("getting", url_mtz)
             net_get_url(url_mtz, mtz_file_name)
-            print "getting", url_py
+            print("getting", url_py)
             net_get_url(url_py, py_file_name)
             
             status_imol = read_pdb(pdb_file_name)
             if status_imol < 0:
-                print "BL INFO:: problem opening pdb file. Most likely \
-                something went wrong in the download"
+                print("BL INFO:: problem opening pdb file. Most likely \
+                something went wrong in the download")
             else:
-                print "make-and-draw-map with", mtz_file_name
+                print("make-and-draw-map with", mtz_file_name)
                 make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
                 make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
                 anom_map = make_and_draw_map(mtz_file_name, "FAN", "PHAN", "", 0, 1)
                 if anom_map > -1:
                     set_map_colour(anom_map, 0.5, 0.5, 0)
-                execfile(py_file_name)
+                exec(compile(open(py_file_name, "rb").read(), py_file_name, 'exec'))
             
 
 # BL says: to test, some examples

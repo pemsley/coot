@@ -22,6 +22,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -144,7 +145,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 		     double phosphate_d = pi.phosphate_distance(following_res);
 		     r = PyList_New(4);
 		     PyList_SetItem(r, 0, PyFloat_FromDouble(phosphate_d));
-		     PyList_SetItem(r, 1, PyString_FromString(pi.puckered_atom().c_str()));
+		     PyList_SetItem(r, 1, myPyString_FromString(pi.puckered_atom().c_str()));
 		     PyList_SetItem(r, 2, PyFloat_FromDouble(pi.out_of_plane_distance));
 		     PyList_SetItem(r, 3, PyFloat_FromDouble(pi.plane_distortion));
 
@@ -165,7 +166,7 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
 	    } else { 
 	       // no pucker check
 	       r = PyList_New(3);
-	       PyList_SetItem(r, 0, PyString_FromString(pi.puckered_atom().c_str()));
+	       PyList_SetItem(r, 0, myPyString_FromString(pi.puckered_atom().c_str()));
 	       PyList_SetItem(r, 1, PyFloat_FromDouble(pi.out_of_plane_distance));
 	       PyList_SetItem(r, 2, PyFloat_FromDouble(pi.plane_distortion));
 	       if (following_res) {

@@ -945,6 +945,8 @@ int model_toolbar_style_state();
 void set_main_toolbar_style(int state);
 int main_toolbar_style_state();
 
+
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -1108,6 +1110,16 @@ void show_set_undo_molecule_chooser();
 void set_unpathed_backup_file_names(int state);
 /*! \brief return the state for adding paths to backup file names*/
 int  unpathed_backup_file_names_state();
+
+/*! \brief set the state for adding paths to backup file names
+
+  by default directories names are added into the filename for backup
+  (with / to _ mapping).  call this with state=1 to turn off directory
+  names  */
+void set_decoloned_backup_file_names(int state);
+/*! \brief return the state for adding paths to backup file names*/
+int  decoloned_backup_file_names_state();
+
 
 /*! \brief return the state for compression of backup files*/
 int  backup_compress_files_state();
@@ -2128,6 +2140,13 @@ int  vt_surface_status();
 void set_clipping_back( float v);
 /*! \brief set clipping plane front */
 void set_clipping_front(float v);
+
+/*! \brief get clipping plane front */
+float get_clipping_plane_front();
+
+/*! \brief get clipping plane back */
+float get_clipping_plane_back();
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -3350,6 +3369,12 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 
 /* Used by on_accept_reject_refinement_reject_button_clicked() */
 void stop_refinement_internal();
+
+/*! \brief shiftfield B-factor refinement */
+void shiftfield_b_factor_refinement(int imol);
+
+/*! \brief shiftfield xyz refinement */
+void shiftfield_xyz_factor_refinement(int imol);
 
 /*! \brief turn on (or off) torsion restraints
 
@@ -4708,6 +4733,12 @@ turn off with state = 0
 turn on with state = 1 */
 void set_draw_stick_mode_atoms(int imol, short int state);
 
+/*! \brief set the state for drawing missing resiude loops
+
+For taking screenshots, we often don't want to see them.
+*/
+void set_draw_missing_residues_loops(short int state);
+
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);
 /*! \brief draw molecule number imol as CA + ligands */
@@ -4838,8 +4869,6 @@ void set_flev_idle_ligand_interactions(int state);
 
 /* Toggle for animated ligand interaction display above */
 void toggle_flev_idle_ligand_interactions();
-
-void add_molecular_representation_test();
 
 
 /* \} */
@@ -5654,7 +5683,14 @@ int backrub_rotamer_intermediate_atoms();
         where there are no atoms atoms.  */
 int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag);
 
+/*! \brief mask map by atom selection */
 int mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_atom_selection, short int invert_flag);
+
+/*! \brief make chain masked maps
+
+   needs to return a list of values
+ */
+int make_masked_maps_split_by_chain(int imol, int imol_map);
 
 /*! \brief set the atom radius for map masking */
 void set_map_mask_atom_radius(float rad);
@@ -6853,7 +6889,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
  *
  * Use a map that is blurred by the give factor for fitting.
  * @return < -100 if not possible, else return the new best fit for this chain.  */
-float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+// float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);  temporary comment                                   
 
 /* \} */
 
@@ -7114,8 +7150,6 @@ void wii_status();
 #endif
 
 void full_screen(int mode);
-void set_use_perspective_projection(int state);
-
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS

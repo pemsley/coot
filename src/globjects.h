@@ -109,7 +109,7 @@ std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
 
 //
 
-void setup_for_mol_triangles();
+void setup_molecular_triangles();
 
 void setup_lighting(short int do_lighting_flag); 
 void show_lighting();

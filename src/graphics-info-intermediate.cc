@@ -416,15 +416,8 @@ void graphics_info_t::run_post_intermediate_atoms_moved_hook_maybe() {
       graphics_info_t g;
       PyObject *o = g.get_intermediate_atoms_bonds_representation();
 
-      if (PyBool_Check(o)) {
-	 // no useful representation, (must be False)
-      } else {
-	 PyObject *py_main = PyImport_AddModule("__main__");
-	 if (py_main) {
-	    // wraps PyDict_SetItemString (String because the key is a string (the variable name))
-	    PyModule_AddObject(py_main, "intermediate_atoms_representation_internal", o);
-	 }
-      }
+      // do something with python
+
    }
 }
 #endif
@@ -569,7 +562,9 @@ graphics_info_t::crankshaft_peptide_rotation_optimization_intermediate_atoms() {
 void
 graphics_info_t::rebond_molecule_corresponding_to_moving_atoms() {
 
-   if (moving_atoms_asc) {
+   // if (moving_atoms_asc) {  // 20200515-PE why was I testing for that here? "Reject" gets here
+                               // after the atoms have been cleared.
+   if (true) {
 
       // we were doing some refinement and decided to give up/reject, in that case, we neeed to redraw
       // the the "static" molecule from which the moving atoms were derived because, during refinement,

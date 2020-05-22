@@ -22,63 +22,66 @@
    std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
    FT_Face face;
-   if (FT_New_Face(ft, "fonts/Vera.ttf", 0, &face))
+   std::string pkgdatadir = coot::package_data_dir();
+   std::string font_dir  = coot::util::append_dir_dir(pkgdatadir, "fonts");
+   std::string font_path = coot::util::append_dir_file(font_dir, "Vera.ttf");
+   if (! coot::file_exists(font_path))
+       font_path = "fonts/Vera.ttf";
+   if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
       std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
-   FT_Set_Pixel_Sizes(face, 0, 48);
+   } else {
+      vera_font_loaded = true;
+      // FT_Set_Pixel_Sizes(face, 0, 24); too big for labels
+      FT_Set_Pixel_Sizes(face, 0, 16);
 
-   glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
-   // only using one byte.
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
+      // only using one byte.
 
-   for (GLubyte ic = 0; ic < 128; ic++) {
-      // Load character glyph
-      if (FT_Load_Char(face, ic, FT_LOAD_RENDER)) {
-         std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-         continue;
-      }
-      // Generate texture
-      GLuint texture;
-      glGenTextures(1, &texture);
-      GLenum err = glGetError(); if (err) std::cout << "Loading characture textures glGenTextures err " << err << std::endl;
-      glBindTexture(GL_TEXTURE_2D, texture);
-      err = glGetError(); if (err) std::cout << "Loading characture textures glBindTexture err " << err << std::endl;
-      glTexImage2D( GL_TEXTURE_2D,
-         0,
-         GL_RED,
-         face->glyph->bitmap.width,
-         face->glyph->bitmap.rows,
-         0,
-         GL_RED,
-         GL_UNSIGNED_BYTE,
-         face->glyph->bitmap.buffer);
+      for (GLubyte ic = 0; ic < 128; ic++) {
+         // Load character glyph
+         if (FT_Load_Char(face, ic, FT_LOAD_RENDER)) {
+            std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+            continue;
+         }
+         // Generate texture
+         GLuint texture;
+         glGenTextures(1, &texture);
+         GLenum err = glGetError(); if (err) std::cout << "Loading characture textures glGenTextures err " << err << std::endl;
+         glBindTexture(GL_TEXTURE_2D, texture);
+         err = glGetError(); if (err) std::cout << "Loading characture textures glBindTexture err " << err << std::endl;
+         glTexImage2D( GL_TEXTURE_2D,
+                       0,
+                       GL_RED,
+                       face->glyph->bitmap.width,
+                       face->glyph->bitmap.rows,
+                       0,
+                       GL_RED,
+                       GL_UNSIGNED_BYTE,
+                       face->glyph->bitmap.buffer);
          // Set texture options
-      err = glGetError(); if (err) std::cout << "Loading characture textures glTexImage2D err " << err << std::endl;
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      err = glGetError(); if (err) std::cout << "Loading characture textures glTexParameteri err " << err << std::endl;
+         err = glGetError(); if (err) std::cout << "Loading characture textures glTexImage2D err " << err << std::endl;
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+         err = glGetError(); if (err) std::cout << "Loading characture textures glTexParameteri err " << err << std::endl;
 
-      // std::cout << "Storing characture with texture id " << texture << std::endl;
-      // Now store the character
-      GLuint face_glyph_advance_x = face->glyph->advance.x;
-      FT_character character = {
-         texture,
-         glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-         glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-         face_glyph_advance_x
-      };
-      ft_characters[ic] = character; // ic type change
+         // std::cout << "Storing characture with texture id " << texture << std::endl;
+         // Now store the character
+         GLuint face_glyph_advance_x = face->glyph->advance.x;
+         FT_character character = {
+                                   texture,
+                                   glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                                   glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                                   face_glyph_advance_x
+         };
+         ft_characters[ic] = character; // ic type change
+      }
+      glBindTexture(GL_TEXTURE_2D, 0);
+      // Destroy FreeType once we're finished
+      FT_Done_Face(face);
+      FT_Done_FreeType(ft);
    }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    // Destroy FreeType once we're finished
-   FT_Done_Face(face);
-   FT_Done_FreeType(ft);
-
-   // ----------------------------- done font test -----------------
-
-
-
-
 }
 
 void
@@ -107,10 +110,11 @@ graphics_info_t::init() {
 
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
-      geom_p->set_verbose(true);
+      geom_p->set_verbose(false); // was true
 
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
+      convert_dictionary_planes_to_improper_dihedrals_flag = false;
 
       geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
 
@@ -161,6 +165,8 @@ graphics_info_t::init() {
 
       // command line scripts:
       command_line_scripts = new std::vector<std::string>;
+
+      console_display_commands.display_commands_flag = false;
 
       // LSQ matching info
       lsq_matchers = new std::vector<coot::lsq_range_match_info_t>;
@@ -428,6 +434,7 @@ graphics_info_t::init() {
 								  1, 1));
 
       do_expose_swap_buffers_flag = 1;
+      vera_font_loaded = false;
 
       regenerate_bonds_needs_make_bonds_type_checked_flag = true;
 
@@ -446,3 +453,4 @@ graphics_info_t::init() {
       preset_number_refmac_cycles->push_back(50);
 
    }
+

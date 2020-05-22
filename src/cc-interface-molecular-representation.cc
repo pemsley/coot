@@ -11,6 +11,7 @@
 // #include "globjects.h" //includes gtk/gtk.h
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "cc-interface.hh"
 #include "cc-interface-molecular-representation.hh"
 
 #ifdef USE_PYTHON
@@ -24,9 +25,9 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
    if (is_valid_model_molecule(imol)) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
       // check that these are strings
-      std::string atom_selection = PyString_AsString(atom_selection_py);
-      std::string ColorScheme    = PyString_AsString(ColorScheme_py);
-      std::string style          = PyString_AsString(style_py);
+      std::string atom_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_selection_py));
+      std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
+      std::string style          = PyBytes_AS_STRING(PyUnicode_AsUTF8String(style_py));
       status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
 #endif
    }
@@ -63,9 +64,7 @@ void remove_molecular_representation(int imol, int rep_no) {
    }
 }
 
-#include "cc-interface.hh"
-
-void add_molecular_representation_test() {
+extern "C" void add_molecular_representation_test() {
    int status = -1;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
    if (active_atom.first) {
@@ -80,17 +79,7 @@ void add_molecular_representation_test() {
    }
 }
 
-
 #else
 
-// needs test for USE_MOLECULES_TO_TRIANGLES in callbacks.c?
-void add_molecular_representation_test() {}
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-void set_use_perspective_projection(int state) {
-
-// temporaily remove this for merge resolution. I don't know where this function should be
-
- //    graphics_info_t::perspective_projection_flag = state;
-
-}

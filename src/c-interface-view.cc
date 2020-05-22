@@ -50,15 +50,24 @@ void orient_view(int imol,
 	 try { 
 	    clipper::Coord_orth vec = g.molecules[imol].get_vector(central_residue_spec,
 								   neighbour_residue_spec);
-	    coot::Cartesian b = unproject(1);
-	    coot::Cartesian f = unproject(0);
+
+            // Use coot::ScreenVectors here (remove duplication)
+
+            glm::vec4 glm_back  = g.unproject(1.0);
+            glm::vec4 glm_front = g.unproject(0.0);
+	    coot::Cartesian b(glm_back.x, glm_back.y, glm_back.z);
+	    coot::Cartesian f(glm_front.x, glm_front.y, glm_front.z);
 	    coot::Cartesian vec_cart(vec);
 	    coot::Cartesian b_to_f_cart = f - b;
 
-	    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-	    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-	    coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-	    coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+	    glm::vec4 glm_centre = g.unproject(0, 0, 0.5);
+	    glm::vec4 glm_right  = g.unproject(1, 0, 0.5);
+	    glm::vec4 glm_top    = g.unproject(0, 1, 0.5);
+
+	    coot::Cartesian centre(glm_centre.x, glm_centre.y, glm_centre.z);
+	    coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+	    coot::Cartesian right(glm_right.x, glm_right.y, glm_right.z);
+	    coot::Cartesian top(glm_top.x, glm_top.y, glm_top.z);
 
 	    coot::Cartesian screen_x = (right - centre);
 	    coot::Cartesian screen_y = (top   - centre);
@@ -86,6 +95,57 @@ void orient_view(int imol,
 	 }
       }
    }
+}
+
+/*  ----------------------------------------------------------------------- */
+/*                         perspective,blur,AO on/off */
+/*  ----------------------------------------------------------------------- */
+
+               // maybe these functions need their own file?
+
+void set_use_perspective_projection(short int state) {
+
+   graphics_info_t::perspective_projection_flag = state;
+   graphics_draw();
+}
+
+int use_perspective_projection_state() {
+   return graphics_info_t::perspective_projection_flag;
+}
+
+//! \brief set use ambient occlusion
+void set_use_ambient_occlusion(short int state) {
+   // user interface is set_use_xxx
+   graphics_info_t::do_ambient_occlusion_flag = state;
+   graphics_draw();
+}
+
+//! \brief query use ambient occlusion
+int use_ambient_occlusion_state() {
+   return graphics_info_t::do_ambient_occlusion_flag;
+}
+
+//! \brief set use depth blur
+void set_use_depth_blur(short int state) {
+   graphics_info_t::do_depth_blur_flag = state;
+   graphics_draw();
+}
+//! \brief query use depth blur
+int use_depth_blur_state() {
+   return graphics_info_t::do_depth_blur_flag;
+}
+
+
+
+//! \brief set use fog
+void set_use_fog(short int state) {
+   graphics_info_t::do_depth_fog_flag = state;
+   graphics_draw();
+}
+
+//! \brief query use fog
+int use_fog_state() {
+   return graphics_info_t::do_depth_fog_flag;
 }
 
 /*  ----------------------------------------------------------------------- */

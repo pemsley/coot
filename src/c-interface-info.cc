@@ -28,6 +28,7 @@
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -256,8 +257,8 @@ PyObject *sequence_info_py(int imol) {
 	    //std::cout << "iv: " << iv << " seq.size: " << seq.size() << std::endl;
 	    //std::cout << "debug pythoning " << seq[iv].first.c_str()
 	    //	      << " and " << seq[iv].second.c_str() << std::endl;
-	    a = PyString_FromString(seq[iv].first.c_str());
-	    b = PyString_FromString(seq[iv].second.c_str());
+	    a = myPyString_FromString(seq[iv].first.c_str());
+	    b = myPyString_FromString(seq[iv].second.c_str());
 	    ls = PyList_New(2);
             PyList_SetItem(ls, 0, a);
             PyList_SetItem(ls, 1, b);
@@ -734,7 +735,7 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 	 r = PyList_New(6);
 	 PyList_SetItem(r, 0, PyFloat_FromDouble(atom->occupancy));
 	 PyList_SetItem(r, 1, PyFloat_FromDouble(atom->tempFactor));
-	 PyList_SetItem(r, 2, PyString_FromString(atom->element));
+	 PyList_SetItem(r, 2, myPyString_FromString(atom->element));
 	 PyList_SetItem(r, 3, PyFloat_FromDouble(atom->x));
 	 PyList_SetItem(r, 4, PyFloat_FromDouble(atom->y));
 	 PyList_SetItem(r, 5, PyFloat_FromDouble(atom->z));
@@ -779,7 +780,7 @@ PyObject *scm_to_py(SCM s) {
       } else {
 	 if (scm_is_true(scm_integer_p(s))) {
 	    int iscm = scm_to_int(s);
-	    o = PyInt_FromLong(iscm);
+	    o = PyLong_FromLong(iscm);
 	 } else {
 	    if (scm_is_true(scm_real_p(s))) {
 	       float f = scm_to_double(s);
@@ -788,7 +789,7 @@ PyObject *scm_to_py(SCM s) {
 	    } else {
 	       if (scm_is_true(scm_string_p(s))) {
 		  std::string str = scm_to_locale_string(s);
-		  o = PyString_FromString(str.c_str());
+		  o = myPyString_FromString(str.c_str());
 	       }
 	    }
 	 }
@@ -825,20 +826,20 @@ SCM py_to_scm(PyObject *o) {
    } else {
       if (PyBool_Check(o)) {
 	 s = SCM_BOOL_F;
-	 int i = PyInt_AsLong(o);
+	 int i = PyLong_AsLong(o);
 	 if (i)
 	    s = SCM_BOOL_T;
       } else {
-	 if (PyInt_Check(o)) {
-	    int i=PyInt_AsLong(o);
+	 if (PyLong_Check(o)) {
+	    int i=PyLong_AsLong(o);
 	    s = SCM_MAKINUM(i);
 	 } else {
 	    if (PyFloat_Check(o)) {
 	       double f = PyFloat_AsDouble(o);
 	       s = scm_float2num(f);
 	    } else {
-	       if (PyString_Check(o)) {
-		  std::string str = PyString_AsString(o);
+	       if (PyUnicode_Check(o)) {
+                  std::string str = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
 		  s = scm_makfrom0str(str.c_str());
 	       } else {
 		  if (o == Py_None) {
@@ -1146,7 +1147,7 @@ void hydrogenate_region(float radius) {
 	    PyObject *r = safe_python_command_with_return(python_command);
 	    std::cout << "::: safe_python_command_with_return() returned " << r << std::endl;
 	    std::cout << "::: safe_python_command_with_return() returned "
-		      << PyString_AsString(display_python(r)) << std::endl;
+		      << PyBytes_AS_STRING(PyBytes_AS_STRING(PyUnicode_AsUTF8String(display_python(r)))) << std::endl;
 	    if (r == Py_True) {
 	       std::cout << "........ calling add_hydrogens_from_file() with pdb_out "
 			 << pdb_out << std::endl;
@@ -1221,17 +1222,17 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
       PyObject *chain_id_py = PyList_GetItem(residue_in, 0+offset);
       PyObject *resno_py    = PyList_GetItem(residue_in, 1+offset);
       PyObject *ins_code_py = PyList_GetItem(residue_in, 2+offset);
-      if (PyString_Check(chain_id_py)) {
-         if (PyString_Check(ins_code_py)) {
-            if (PyInt_Check(resno_py)) {
-               std::string chain_id  = PyString_AsString(chain_id_py);
-               std::string ins_code  = PyString_AsString(ins_code_py);
-               long resno            = PyInt_AsLong(resno_py);
+      if (PyUnicode_Check(chain_id_py)) {
+         if (PyUnicode_Check(ins_code_py)) {
+            if (PyLong_Check(resno_py)) {
+               std::string chain_id  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_py));
+               std::string ins_code  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_py));
+               long resno            = PyLong_AsLong(resno_py);
                rspec = coot::residue_spec_t(chain_id, resno, ins_code);
 	       if (len == 4) {
 		  PyObject *o = PyList_GetItem(residue_in, 0);
-		  if (PyInt_Check(o)) {
-		     long imol = PyInt_AsLong(o);
+		  if (PyLong_Check(o)) {
+		     long imol = PyLong_AsLong(o);
 		     rspec.int_user_data = imol;
 		  }
 	       }
@@ -1375,7 +1376,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 			   std::cout << "WARNING:: error getting uddata for atom " << at << std::endl;
 			   idx = -1; // maybe not needed
 			}
-			PyObject *atom_idx_py = PyInt_FromLong(idx);
+			PyObject *atom_idx_py = PyLong_FromLong(idx);
 
                         at_x  = PyFloat_FromDouble(at->x);
                         at_y  = PyFloat_FromDouble(at->y);
@@ -1387,10 +1388,10 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 
                         at_occ = PyFloat_FromDouble(at->occupancy);
                         at_biso= PyFloat_FromDouble(at->tempFactor);
-                        at_ele = PyString_FromString(at->element);
-                        at_name = PyString_FromString(at->name);
-                        at_segid = PyString_FromString(at->segID);
-                        at_altconf = PyString_FromString(at->altLoc);
+                        at_ele = myPyString_FromString(at->element);
+                        at_name = myPyString_FromString(at->name);
+                        at_segid = myPyString_FromString(at->segID);
+                        at_altconf = myPyString_FromString(at->altLoc);
 
 			at_b = at_biso;
 			if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
@@ -1502,7 +1503,7 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
    r = Py_False;
    std::string res_name = residue_name(imol, chain_id, resno, ins_code);
    if (res_name.size() > 0) {
-      r = PyString_FromString(res_name.c_str());
+      r = myPyString_FromString(res_name.c_str());
    }
 
    if (PyBool_Check(r)) {
@@ -1651,10 +1652,10 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 std::string next_ins_code  = next_atom->GetInsCode();
 
 	 r = PyList_New(4);
-	 PyList_SetItem(r, 0, PyString_FromString(next_chain_id.c_str()));
-	 PyList_SetItem(r, 1, PyInt_FromLong(next_residue_number));
-	 PyList_SetItem(r, 2, PyString_FromString(next_ins_code.c_str()));
-	 PyList_SetItem(r, 3, PyString_FromString(next_atom_name.c_str()));
+	 PyList_SetItem(r, 0, myPyString_FromString(next_chain_id.c_str()));
+	 PyList_SetItem(r, 1, PyLong_FromLong(next_residue_number));
+	 PyList_SetItem(r, 2, myPyString_FromString(next_ins_code.c_str()));
+	 PyList_SetItem(r, 3, myPyString_FromString(next_atom_name.c_str()));
       }
    }
    if (PyBool_Check(r)) {
@@ -1687,10 +1688,10 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 std::string next_ins_code  = next_atom->GetInsCode();
 
 	 r = PyList_New(4);
-	 PyList_SetItem(r, 0, PyString_FromString(next_chain_id.c_str()));
-	 PyList_SetItem(r, 1, PyInt_FromLong(next_residue_number));
-	 PyList_SetItem(r, 2, PyString_FromString(next_ins_code.c_str()));
-	 PyList_SetItem(r, 3, PyString_FromString(next_atom_name.c_str()));
+	 PyList_SetItem(r, 0, myPyString_FromString(next_chain_id.c_str()));
+	 PyList_SetItem(r, 1, PyLong_FromLong(next_residue_number));
+	 PyList_SetItem(r, 2, myPyString_FromString(next_ins_code.c_str()));
+	 PyList_SetItem(r, 3, myPyString_FromString(next_atom_name.c_str()));
       }
    }
    if (PyBool_Check(r)) {
@@ -1789,7 +1790,7 @@ PyObject *active_atom_spec_py() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
       PyObject *state_py = Py_True;
-      PyObject *mol_no = PyInt_FromLong(r.second.first);
+      PyObject *mol_no = PyLong_FromLong(r.second.first);
       PyObject *spec = residue_spec_to_py(r.second.second);
       PyObject *tuple_inner = PyTuple_New(2);
    if (! r.first) {
@@ -1869,12 +1870,12 @@ PyObject *active_residue_py() {
 
    if (pp.first) {
       s = PyList_New(6);
-      PyList_SetItem(s, 0, PyInt_FromLong(pp.second.first));
-      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain_id.c_str()));
-      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.res_no));
-      PyList_SetItem(s, 3, PyString_FromString(pp.second.second.ins_code.c_str()));
-      PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
-      PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
+      PyList_SetItem(s, 0, PyLong_FromLong(pp.second.first));
+      PyList_SetItem(s, 1, myPyString_FromString(pp.second.second.chain_id.c_str()));
+      PyList_SetItem(s, 2, PyLong_FromLong(pp.second.second.res_no));
+      PyList_SetItem(s, 3, myPyString_FromString(pp.second.second.ins_code.c_str()));
+      PyList_SetItem(s, 4, myPyString_FromString(pp.second.second.atom_name.c_str()));
+      PyList_SetItem(s, 5, myPyString_FromString(pp.second.second.alt_conf.c_str()));
    }
    if (PyBool_Check(s)) {
      Py_INCREF(s);
@@ -1898,12 +1899,12 @@ PyObject *closest_atom_simple_py() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = graphics_info_t::active_atom_spec_simple();
    if (pp.first) {
       s = PyList_New(6);
-      PyList_SetItem(s, 0, PyInt_FromLong(pp.second.first));
-      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain_id.c_str()));
-      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.res_no));
-      PyList_SetItem(s, 3, PyString_FromString(pp.second.second.ins_code.c_str()));
-      PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
-      PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
+      PyList_SetItem(s, 0, PyLong_FromLong(pp.second.first));
+      PyList_SetItem(s, 1, myPyString_FromString(pp.second.second.chain_id.c_str()));
+      PyList_SetItem(s, 2, PyLong_FromLong(pp.second.second.res_no));
+      PyList_SetItem(s, 3, myPyString_FromString(pp.second.second.ins_code.c_str()));
+      PyList_SetItem(s, 4, myPyString_FromString(pp.second.second.atom_name.c_str()));
+      PyList_SetItem(s, 5, myPyString_FromString(pp.second.second.alt_conf.c_str()));
    }
    if (PyBool_Check(s)) {
      Py_INCREF(s);
@@ -1949,12 +1950,12 @@ PyObject *closest_atom_py(int imol) {
 	 graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
       if (at_info.atom) {
          r = PyList_New(9);
-	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
-	 PyList_SetItem(r, 1, PyString_FromString(at_info.atom->GetChainID()));
-	 PyList_SetItem(r, 2, PyInt_FromLong(at_info.atom->GetSeqNum()));
-	 PyList_SetItem(r, 3, PyString_FromString(at_info.atom->GetInsCode()));
-	 PyList_SetItem(r, 4, PyString_FromString(at_info.atom->name));
-	 PyList_SetItem(r, 5, PyString_FromString(at_info.atom->altLoc));
+	 PyList_SetItem(r, 0, PyLong_FromLong(imol));
+	 PyList_SetItem(r, 1, myPyString_FromString(at_info.atom->GetChainID()));
+	 PyList_SetItem(r, 2, PyLong_FromLong(at_info.atom->GetSeqNum()));
+	 PyList_SetItem(r, 3, myPyString_FromString(at_info.atom->GetInsCode()));
+	 PyList_SetItem(r, 4, myPyString_FromString(at_info.atom->name));
+	 PyList_SetItem(r, 5, myPyString_FromString(at_info.atom->altLoc));
 	 PyList_SetItem(r, 6, PyFloat_FromDouble(at_info.atom->x));
 	 PyList_SetItem(r, 7, PyFloat_FromDouble(at_info.atom->y));
 	 PyList_SetItem(r, 8, PyFloat_FromDouble(at_info.atom->z));
@@ -2010,12 +2011,12 @@ PyObject *closest_atom_raw_py() {
       mmdb::Atom *at = g.molecules[imol].get_atom(ca_ii.first);
       if (at) {
          r = PyList_New(9);
-	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
-	 PyList_SetItem(r, 1, PyString_FromString(at->GetChainID()));
-	 PyList_SetItem(r, 2, PyInt_FromLong(at->GetSeqNum()));
-	 PyList_SetItem(r, 3, PyString_FromString(at->GetInsCode()));
-	 PyList_SetItem(r, 4, PyString_FromString(at->name));
-	 PyList_SetItem(r, 5, PyString_FromString(at->altLoc));
+	 PyList_SetItem(r, 0, PyLong_FromLong(imol));
+	 PyList_SetItem(r, 1, myPyString_FromString(at->GetChainID()));
+	 PyList_SetItem(r, 2, PyLong_FromLong(at->GetSeqNum()));
+	 PyList_SetItem(r, 3, myPyString_FromString(at->GetInsCode()));
+	 PyList_SetItem(r, 4, myPyString_FromString(at->name));
+	 PyList_SetItem(r, 5, myPyString_FromString(at->altLoc));
 	 PyList_SetItem(r, 6, PyFloat_FromDouble(at->x));
 	 PyList_SetItem(r, 7, PyFloat_FromDouble(at->y));
 	 PyList_SetItem(r, 8, PyFloat_FromDouble(at->z));
@@ -2063,7 +2064,7 @@ PyObject *generic_string_vector_to_list_internal_py(const std::vector<std::strin
 
    r = PyList_New(v.size());
    for (int i=v.size()-1; i>=0; i--) {
-      PyList_SetItem(r, i, PyString_FromString(v[i].c_str()));
+      PyList_SetItem(r, i, myPyString_FromString(v[i].c_str()));
    }
    return r;
 }
@@ -2108,7 +2109,7 @@ generic_list_to_string_vector_internal_py(PyObject *l) {
    int l_length = PyObject_Length(l);
    for (int i=0; i<l_length; i++) {
       PyObject *le = PyList_GetItem(l, i);
-      std::string s = PyString_AsString(le);
+      std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(le));
       r.push_back(s);
    }
 
@@ -2134,7 +2135,7 @@ PyObject *generic_int_vector_to_list_internal_py(const std::vector<int> &v) {
    PyObject *r;
    r = PyList_New(v.size());
    for (int i=v.size()-1; i>=0; i--) {
-      PyList_SetItem(r, i, PyInt_FromLong(v[i]));
+      PyList_SetItem(r, i, PyLong_FromLong(v[i]));
    }
    return r;
 }
@@ -2690,21 +2691,10 @@ PyObject *get_pointer_position_frac_py() {
    if (graphics_info_t::use_graphics_interface_flag) {
 
       graphics_info_t g;
-      double x = g.GetMouseBeginX();
-      double y = g.GetMouseBeginY();
-
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(g.glarea, &allocation);
-
-      double x_max = allocation.width;
-      double y_max = allocation.height;
-
-      double xf = x/x_max;
-      double yf = y/y_max;
-
+      std::pair<double, double> xy = g.get_pointer_position_frac();
       r = PyList_New(2);
-      PyList_SetItem(r, 0, PyFloat_FromDouble(xf));
-      PyList_SetItem(r, 1, PyFloat_FromDouble(yf));
+      PyList_SetItem(r, 0, PyFloat_FromDouble(xy.first));
+      PyList_SetItem(r, 1, PyFloat_FromDouble(xy.second));
 
    }
    if (PyBool_Check(r))
@@ -3453,7 +3443,7 @@ PyObject *save_coords_name_suggestion_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       std::string s = graphics_info_t::molecules[imol].stripped_save_name_suggestion();
-      r = PyString_FromString(s.c_str());
+      r = myPyString_FromString(s.c_str());
    }
 
    return r;
@@ -3647,10 +3637,10 @@ PyObject *map_parameters_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol)) {
       r = PyList_New(5);
-      PyList_SetItem(r, 0, PyString_FromString(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()));
-      PyList_SetItem(r, 1, PyString_FromString(graphics_info_t::molecules[imol].save_f_col.c_str()));
-      PyList_SetItem(r, 2, PyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
-      PyList_SetItem(r, 3, PyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
+      PyList_SetItem(r, 0, myPyString_FromString(graphics_info_t::molecules[imol].save_mtz_file_name.c_str()));
+      PyList_SetItem(r, 1, myPyString_FromString(graphics_info_t::molecules[imol].save_f_col.c_str()));
+      PyList_SetItem(r, 2, myPyString_FromString(graphics_info_t::molecules[imol].save_phi_col.c_str()));
+      PyList_SetItem(r, 3, myPyString_FromString(graphics_info_t::molecules[imol].save_weight_col.c_str()));
       if (graphics_info_t::molecules[imol].save_use_weights) {
 	 // Py_INCREF(Py_True);
 	 PyObject *o_py = PyBool_FromLong(true);
@@ -3873,7 +3863,7 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 
    int imol = 0; // dummy. Hmm.
    graphics_info_t g;
-   return PyString_FromString(g.Geom_p()->get_cif_file_name(comp_id, imol).c_str());
+   return myPyString_FromString(g.Geom_p()->get_cif_file_name(comp_id, imol).c_str());
 }
 #endif // PYTHON
 
@@ -3906,7 +3896,7 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
    PyObject *r = Py_False;
    try {
       std::string s = SMILES_for_comp_id(comp_id);
-      r = PyString_FromString(s.c_str());
+      r = myPyString_FromString(s.c_str());
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -4157,16 +4147,16 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
       coot::dict_chem_comp_t info = restraints.residue_info;
 
       PyObject *chem_comp_py = PyList_New(7);
-      PyList_SetItem(chem_comp_py, 0, PyString_FromString(info.comp_id.c_str()));
-      PyList_SetItem(chem_comp_py, 1, PyString_FromString(info.three_letter_code.c_str()));
-      PyList_SetItem(chem_comp_py, 2, PyString_FromString(info.name.c_str()));
-      PyList_SetItem(chem_comp_py, 3, PyString_FromString(info.group.c_str()));
-      PyList_SetItem(chem_comp_py, 4, PyInt_FromLong(info.number_atoms_all));
-      PyList_SetItem(chem_comp_py, 5, PyInt_FromLong(info.number_atoms_nh));
-      PyList_SetItem(chem_comp_py, 6, PyString_FromString(info.description_level.c_str()));
+      PyList_SetItem(chem_comp_py, 0, myPyString_FromString(info.comp_id.c_str()));
+      PyList_SetItem(chem_comp_py, 1, myPyString_FromString(info.three_letter_code.c_str()));
+      PyList_SetItem(chem_comp_py, 2, myPyString_FromString(info.name.c_str()));
+      PyList_SetItem(chem_comp_py, 3, myPyString_FromString(info.group.c_str()));
+      PyList_SetItem(chem_comp_py, 4, PyLong_FromLong(info.number_atoms_all));
+      PyList_SetItem(chem_comp_py, 5, PyLong_FromLong(info.number_atoms_nh));
+      PyList_SetItem(chem_comp_py, 6, myPyString_FromString(info.description_level.c_str()));
 
       // Put chem_comp_py into a dictionary?
-      PyDict_SetItem(r, PyString_FromString("_chem_comp"), chem_comp_py);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp"), chem_comp_py);
 
 
       // ------------------ chem_comp_atom -------------------------
@@ -4175,9 +4165,9 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
       PyObject *atom_info_list = PyList_New(n_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
 	 PyObject *atom_attributes_list = PyList_New(5);
-	 PyList_SetItem(atom_attributes_list, 0, PyString_FromString(atom_info[iat].atom_id_4c.c_str()));
-	 PyList_SetItem(atom_attributes_list, 1, PyString_FromString(atom_info[iat].type_symbol.c_str()));
-	 PyList_SetItem(atom_attributes_list, 2, PyString_FromString(atom_info[iat].type_energy.c_str()));
+	 PyList_SetItem(atom_attributes_list, 0, myPyString_FromString(atom_info[iat].atom_id_4c.c_str()));
+	 PyList_SetItem(atom_attributes_list, 1, myPyString_FromString(atom_info[iat].type_symbol.c_str()));
+	 PyList_SetItem(atom_attributes_list, 2, myPyString_FromString(atom_info[iat].type_energy.c_str()));
 	 PyList_SetItem(atom_attributes_list, 3, PyFloat_FromDouble(atom_info[iat].partial_charge.second));
 	 PyObject *flag = Py_False;
 	 if (atom_info[iat].partial_charge.first)
@@ -4187,7 +4177,7 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_atom"), atom_info_list);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp_atom"), atom_info_list);
 
       // ------------------ Bonds -------------------------
       PyObject *bond_restraint_list = PyList_New(restraints.bond_restraint.size());
@@ -4216,15 +4206,15 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 }
 
 	 PyObject *bond_restraint = PyList_New(5);
-	 PyList_SetItem(bond_restraint, 0, PyString_FromString(a1.c_str()));
-	 PyList_SetItem(bond_restraint, 1, PyString_FromString(a2.c_str()));
-	 PyList_SetItem(bond_restraint, 2, PyString_FromString(type.c_str()));
+	 PyList_SetItem(bond_restraint, 0, myPyString_FromString(a1.c_str()));
+	 PyList_SetItem(bond_restraint, 1, myPyString_FromString(a2.c_str()));
+	 PyList_SetItem(bond_restraint, 2, myPyString_FromString(type.c_str()));
 	 PyList_SetItem(bond_restraint, 3, py_value_dist);
 	 PyList_SetItem(bond_restraint, 4, py_value_esd);
 	 PyList_SetItem(bond_restraint_list, ibond, bond_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_bond"), bond_restraint_list);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp_bond"), bond_restraint_list);
 
 
       // ------------------ Angles -------------------------
@@ -4236,15 +4226,15 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 double d   = restraints.angle_restraint[iangle].angle();
 	 double esd = restraints.angle_restraint[iangle].esd();
 	 PyObject *angle_restraint = PyList_New(5);
-	 PyList_SetItem(angle_restraint, 0, PyString_FromString(a1.c_str()));
-	 PyList_SetItem(angle_restraint, 1, PyString_FromString(a2.c_str()));
-	 PyList_SetItem(angle_restraint, 2, PyString_FromString(a3.c_str()));
+	 PyList_SetItem(angle_restraint, 0, myPyString_FromString(a1.c_str()));
+	 PyList_SetItem(angle_restraint, 1, myPyString_FromString(a2.c_str()));
+	 PyList_SetItem(angle_restraint, 2, myPyString_FromString(a3.c_str()));
 	 PyList_SetItem(angle_restraint, 3, PyFloat_FromDouble(d));
 	 PyList_SetItem(angle_restraint, 4, PyFloat_FromDouble(esd));
 	 PyList_SetItem(angle_restraint_list, iangle, angle_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_angle"), angle_restraint_list);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp_angle"), angle_restraint_list);
 
 
       // ------------------ Torsions -------------------------
@@ -4259,18 +4249,18 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 double esd = restraints.torsion_restraint[itorsion].esd();
 	 int period = restraints.torsion_restraint[itorsion].periodicity();
 	 PyObject *torsion_restraint = PyList_New(8);
-	 PyList_SetItem(torsion_restraint, 0, PyString_FromString(id.c_str()));
-	 PyList_SetItem(torsion_restraint, 1, PyString_FromString(a1.c_str()));
-	 PyList_SetItem(torsion_restraint, 2, PyString_FromString(a2.c_str()));
-	 PyList_SetItem(torsion_restraint, 3, PyString_FromString(a3.c_str()));
-	 PyList_SetItem(torsion_restraint, 4, PyString_FromString(a4.c_str()));
+	 PyList_SetItem(torsion_restraint, 0, myPyString_FromString(id.c_str()));
+	 PyList_SetItem(torsion_restraint, 1, myPyString_FromString(a1.c_str()));
+	 PyList_SetItem(torsion_restraint, 2, myPyString_FromString(a2.c_str()));
+	 PyList_SetItem(torsion_restraint, 3, myPyString_FromString(a3.c_str()));
+	 PyList_SetItem(torsion_restraint, 4, myPyString_FromString(a4.c_str()));
 	 PyList_SetItem(torsion_restraint, 5, PyFloat_FromDouble(tor));
 	 PyList_SetItem(torsion_restraint, 6, PyFloat_FromDouble(esd));
-	 PyList_SetItem(torsion_restraint, 7, PyInt_FromLong(period));
+	 PyList_SetItem(torsion_restraint, 7, PyLong_FromLong(period));
 	 PyList_SetItem(torsion_restraint_list, itorsion, torsion_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_tor"), torsion_restraint_list);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp_tor"), torsion_restraint_list);
 
       // ------------------ Planes -------------------------
       PyObject *plane_restraints_list = PyList_New(restraints.plane_restraint.size());
@@ -4278,17 +4268,17 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 PyObject *atom_list = PyList_New(restraints.plane_restraint[iplane].n_atoms());
 	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) {
 	    std::string at = restraints.plane_restraint[iplane][iat].first;
-	    PyList_SetItem(atom_list, iat, PyString_FromString(at.c_str()));
+	    PyList_SetItem(atom_list, iat, myPyString_FromString(at.c_str()));
 	 }
 	 double esd = restraints.plane_restraint[iplane].dist_esd(0);
 	 PyObject *plane_restraint = PyList_New(3);
-	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
+	 PyList_SetItem(plane_restraint, 0, myPyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
 	 PyList_SetItem(plane_restraint, 1, atom_list);
 	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(esd));
 	 PyList_SetItem(plane_restraints_list, iplane, plane_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_plane_atom"), plane_restraints_list);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp_plane_atom"), plane_restraints_list);
 
       // ------------------ Chirals -------------------------
       PyObject *chiral_restraint_list = PyList_New(restraints.chiral_restraint.size());
@@ -4303,17 +4293,17 @@ PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol)
 	 double esd = restraints.chiral_restraint[ichiral].volume_sigma();
 	 int volume_sign = restraints.chiral_restraint[ichiral].volume_sign;
 	 PyObject *chiral_restraint = PyList_New(7);
-	 PyList_SetItem(chiral_restraint, 0, PyString_FromString(chiral_id.c_str()));
-	 PyList_SetItem(chiral_restraint, 1, PyString_FromString(ac.c_str()));
-	 PyList_SetItem(chiral_restraint, 2, PyString_FromString(a1.c_str()));
-	 PyList_SetItem(chiral_restraint, 3, PyString_FromString(a2.c_str()));
-	 PyList_SetItem(chiral_restraint, 4, PyString_FromString(a3.c_str()));
-	 PyList_SetItem(chiral_restraint, 5, PyInt_FromLong(volume_sign));
+	 PyList_SetItem(chiral_restraint, 0, myPyString_FromString(chiral_id.c_str()));
+	 PyList_SetItem(chiral_restraint, 1, myPyString_FromString(ac.c_str()));
+	 PyList_SetItem(chiral_restraint, 2, myPyString_FromString(a1.c_str()));
+	 PyList_SetItem(chiral_restraint, 3, myPyString_FromString(a2.c_str()));
+	 PyList_SetItem(chiral_restraint, 4, myPyString_FromString(a3.c_str()));
+	 PyList_SetItem(chiral_restraint, 5, PyLong_FromLong(volume_sign));
 	 PyList_SetItem(chiral_restraint, 6, PyFloat_FromDouble(esd));
 	 PyList_SetItem(chiral_restraint_list, ichiral, chiral_restraint);
       }
 
-      PyDict_SetItem(r, PyString_FromString("_chem_comp_chir"), chiral_restraint_list);
+      PyDict_SetItem(r, myPyString_FromString("_chem_comp_chir"), chiral_restraint_list);
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -4684,20 +4674,20 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 
       std::cout << "looping over restraint" << std::endl;
       while (PyDict_Next(restraints, &pos, &key, &value)) {
-	 // std::cout << ":::::::key: " << PyString_AsString(key) << std::endl;
+	 // std::cout << ":::::::key: " << PyUnicode_AsUTF8String(key) << std::endl;
 
-	 std::string key_string = PyString_AsString(key);
+	 std::string key_string = PyBytes_AS_STRING(PyUnicode_AsUTF8String(key));
 	 if (key_string == "_chem_comp") {
 	    PyObject *chem_comp_list = value;
 	    if (PyList_Check(chem_comp_list)) {
 	       if (PyObject_Length(chem_comp_list) == 7) {
-		  std::string comp_id  = PyString_AsString(PyList_GetItem(chem_comp_list, 0));
-		  std::string tlc      = PyString_AsString(PyList_GetItem(chem_comp_list, 1));
-		  std::string name     = PyString_AsString(PyList_GetItem(chem_comp_list, 2));
-		  std::string group    = PyString_AsString(PyList_GetItem(chem_comp_list, 3));
-		  int n_atoms_all      = PyInt_AsLong(PyList_GetItem(chem_comp_list, 4));
-		  int n_atoms_nh       = PyInt_AsLong(PyList_GetItem(chem_comp_list, 5));
-		  std::string desc_lev = PyString_AsString(PyList_GetItem(chem_comp_list, 6));
+		  std::string comp_id  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_list, 0)));
+		  std::string tlc      = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_list, 1)));
+		  std::string name     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_list, 2)));
+		  std::string group    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_list, 3)));
+		  int n_atoms_all      = PyLong_AsLong(PyList_GetItem(chem_comp_list, 4));
+		  int n_atoms_nh       = PyLong_AsLong(PyList_GetItem(chem_comp_list, 5));
+		  std::string desc_lev = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_list, 6)));
 
 		  coot::dict_chem_comp_t n(comp_id, tlc, name, group,
 					   n_atoms_all, n_atoms_nh, desc_lev);
@@ -4714,9 +4704,9 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  PyObject *chem_comp_atom = PyList_GetItem(chem_comp_atom_list, iat);
 		  if (PyObject_Length(chem_comp_atom) == 5) {
-		     std::string atom_id  = PyString_AsString(PyList_GetItem(chem_comp_atom, 0));
-		     std::string element  = PyString_AsString(PyList_GetItem(chem_comp_atom, 1));
-		     std::string energy_t = PyString_AsString(PyList_GetItem(chem_comp_atom, 2));
+		     std::string atom_id  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_atom, 0)));
+		     std::string element  = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_atom, 1)));
+		     std::string energy_t = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(chem_comp_atom, 2)));
 		     float part_chr        = PyFloat_AsDouble(PyList_GetItem(chem_comp_atom, 3));
 		     bool flag = 0;
 		     if (PyLong_AsLong(PyList_GetItem(chem_comp_atom, 4))) {
@@ -4743,14 +4733,14 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     PyObject *dist_py   = PyList_GetItem(bond_restraint, 3);
 		     PyObject *esd_py    = PyList_GetItem(bond_restraint, 4);
 
-		     if (PyString_Check(atom_1_py) &&
-			 PyString_Check(atom_2_py) &&
-			 PyString_Check(type_py) &&
+		     if (PyUnicode_Check(atom_1_py) &&
+			 PyUnicode_Check(atom_2_py) &&
+			 PyUnicode_Check(type_py) &&
 			 PyFloat_Check(dist_py) &&
 			 PyFloat_Check(esd_py)) {
-			std::string atom_1 = PyString_AsString(atom_1_py);
-			std::string atom_2 = PyString_AsString(atom_2_py);
-			std::string type   = PyString_AsString(type_py);
+			std::string atom_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_1_py));
+			std::string atom_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_2_py));
+			std::string type   = PyBytes_AS_STRING(PyUnicode_AsUTF8String(type_py));
 			float  dist = PyFloat_AsDouble(dist_py);
 			float  esd  = PyFloat_AsDouble(esd_py);
 			coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd);
@@ -4775,14 +4765,14 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     PyObject *angle_py  = PyList_GetItem(angle_restraint, 3);
 		     PyObject *esd_py    = PyList_GetItem(angle_restraint, 4);
 
-		     if (PyString_Check(atom_1_py) &&
-			 PyString_Check(atom_2_py) &&
-			 PyString_Check(atom_3_py) &&
+		     if (PyUnicode_Check(atom_1_py) &&
+			 PyUnicode_Check(atom_2_py) &&
+			 PyUnicode_Check(atom_3_py) &&
 			 PyFloat_Check(angle_py) &&
 			 PyFloat_Check(esd_py)) {
-			std::string atom_1 = PyString_AsString(atom_1_py);
-			std::string atom_2 = PyString_AsString(atom_2_py);
-			std::string atom_3 = PyString_AsString(atom_3_py);
+			std::string atom_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_1_py));
+			std::string atom_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_2_py));
+			std::string atom_3 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_3_py));
 			float  angle = PyFloat_AsDouble(angle_py);
 			float  esd   = PyFloat_AsDouble(esd_py);
 			coot::dict_angle_restraint_t rest(atom_1, atom_2, atom_3, angle, esd);
@@ -4812,21 +4802,21 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     PyObject *esd_py    = PyList_GetItem(torsion_restraint, 6);
 		     PyObject *period_py = PyList_GetItem(torsion_restraint, 7);
 
-		     if (PyString_Check(atom_1_py) &&
-			 PyString_Check(atom_2_py) &&
-			 PyString_Check(atom_3_py) &&
-			 PyString_Check(atom_4_py) &&
+		     if (PyUnicode_Check(atom_1_py) &&
+			 PyUnicode_Check(atom_2_py) &&
+			 PyUnicode_Check(atom_3_py) &&
+			 PyUnicode_Check(atom_4_py) &&
 			 PyFloat_Check(torsion_py) &&
 			 PyFloat_Check(esd_py)    &&
-			 PyInt_Check(period_py)) {
-			std::string id     = PyString_AsString(id_py);
-			std::string atom_1 = PyString_AsString(atom_1_py);
-			std::string atom_2 = PyString_AsString(atom_2_py);
-			std::string atom_3 = PyString_AsString(atom_3_py);
-			std::string atom_4 = PyString_AsString(atom_4_py);
+			 PyLong_Check(period_py)) {
+			std::string id     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(id_py));
+			std::string atom_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_1_py));
+			std::string atom_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_2_py));
+			std::string atom_3 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_3_py));
+			std::string atom_4 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_4_py));
 			float  torsion = PyFloat_AsDouble(torsion_py);
 			float  esd     = PyFloat_AsDouble(esd_py);
-			int  period    = PyInt_AsLong(period_py);
+			int  period    = PyLong_AsLong(period_py);
 			coot::dict_torsion_restraint_t rest(id, atom_1, atom_2, atom_3, atom_4,
 							    torsion, esd, period);
 			torsion_restraints.push_back(rest);
@@ -4851,20 +4841,20 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 		     PyObject *vol_sign_py = PyList_GetItem(chiral_restraint, 5);
 		     PyObject *esd_py      = PyList_GetItem(chiral_restraint, 6);
 
-		     if (PyString_Check(atom_1_py) &&
-			 PyString_Check(atom_2_py) &&
-			 PyString_Check(atom_3_py) &&
-			 PyString_Check(atom_c_py) &&
-			 PyString_Check(chiral_id_py) &&
+		     if (PyUnicode_Check(atom_1_py) &&
+			 PyUnicode_Check(atom_2_py) &&
+			 PyUnicode_Check(atom_3_py) &&
+			 PyUnicode_Check(atom_c_py) &&
+			 PyUnicode_Check(chiral_id_py) &&
 			 PyFloat_Check(esd_py)    &&
-			 PyInt_Check(vol_sign_py)) {
-			std::string chiral_id = PyString_AsString(chiral_id_py);
-			std::string atom_c    = PyString_AsString(atom_c_py);
-			std::string atom_1    = PyString_AsString(atom_1_py);
-			std::string atom_2    = PyString_AsString(atom_2_py);
-			std::string atom_3    = PyString_AsString(atom_3_py);
+			 PyLong_Check(vol_sign_py)) {
+			std::string chiral_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chiral_id_py));
+			std::string atom_c    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_c_py));
+			std::string atom_1    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_1_py));
+			std::string atom_2    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_2_py));
+			std::string atom_3    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_3_py));
 			float  esd            = PyFloat_AsDouble(esd_py);
-			int  vol_sign         = PyInt_AsLong(vol_sign_py);
+			int  vol_sign         = PyLong_AsLong(vol_sign_py);
 			coot::dict_chiral_restraint_t rest(chiral_id,
 							   atom_c, atom_1, atom_2, atom_3,
 							   vol_sign);
@@ -4893,16 +4883,16 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
                    int n_atoms = PyObject_Length(py_atoms_py);
                    for (int iat=0; iat<n_atoms; iat++) {
                       PyObject *at_py = PyList_GetItem(py_atoms_py, iat);
-                      if (PyString_Check(at_py)) {
-                         atoms.push_back(PyString_AsString(at_py));
+                      if (PyUnicode_Check(at_py)) {
+                         atoms.push_back(PyBytes_AS_STRING(PyUnicode_AsUTF8String(at_py)));
                       } else {
                          atoms_pass = 0;
                       }
                    }
                    if (atoms_pass) {
-                      if (PyString_Check(plane_id_py)) {
+                      if (PyUnicode_Check(plane_id_py)) {
                          if (PyFloat_Check(esd_py)) {
-                            std::string plane_id = PyString_AsString(plane_id_py);
+                            std::string plane_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(plane_id_py));
                             float esd = PyFloat_AsDouble(esd_py);
                             if (atoms.size() > 0) {
                                coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
@@ -5185,7 +5175,7 @@ void write_restraints_cif_dictionary(const char *monomer_type, const char *file_
 PyObject *get_pkgdatadir_py() {
 
   std::string pkgdatadir = PKGDATADIR;
-  return PyString_FromString(pkgdatadir.c_str());
+  return myPyString_FromString(pkgdatadir.c_str());
 }
 #endif
 
@@ -5227,8 +5217,8 @@ int refmac_runs_with_nolabels() {
   PyObject *refmac_version;
   refmac_version = safe_python_command_with_return("get_refmac_version()");
   if (refmac_version) {
-     int major = PyInt_AsLong(PyList_GetItem(refmac_version, 0));
-     int minor = PyInt_AsLong(PyList_GetItem(refmac_version, 1));
+     int major = PyLong_AsLong(PyList_GetItem(refmac_version, 0));
+     int minor = PyLong_AsLong(PyList_GetItem(refmac_version, 1));
      if ((major == 5 && minor >= 4) || (major > 5)) {
 	ret = 1;
 	if (minor >= 5 || major > 5) {
@@ -5281,8 +5271,8 @@ PyObject *ccp4i_projects_py() {
       parse_ccp4i_defs(ccp4_defs_file_name);
    for (unsigned int i=0; i<project_pairs.size(); i++) {
       PyObject *p = PyList_New(2);
-      PyList_SetItem(p, 0, PyString_FromString(project_pairs[i].first.c_str()));
-      PyList_SetItem(p, 1, PyString_FromString(project_pairs[i].second.c_str()));
+      PyList_SetItem(p, 0, myPyString_FromString(project_pairs[i].first.c_str()));
+      PyList_SetItem(p, 1, myPyString_FromString(project_pairs[i].second.c_str()));
       PyList_Append(r, p);
       Py_XDECREF(p);
    }
@@ -5329,8 +5319,8 @@ PyObject *remarks_py(int imol) {
       for (int i=0; i<n_records; i++) {
 	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	 PyObject *l = PyList_New(2);
-	 PyList_SetItem(l, 0, PyInt_FromLong(cr->remarkNum));
-	 PyList_SetItem(l, 1, PyString_FromString(cr->remark));
+	 PyList_SetItem(l, 0, PyLong_FromLong(cr->remarkNum));
+	 PyList_SetItem(l, 1, myPyString_FromString(cr->remark));
 	 PyList_SetItem(o, i, l);
       }
    }
@@ -5464,7 +5454,7 @@ PyObject *link_info_py(int imol) {
 		  mmdb::PLink link = model_p->GetLink(i_link);
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link, model_p);
 		  PyObject *l = PyList_New(3);
-		  PyList_SetItem(l, 0, PyInt_FromLong(imod));
+		  PyList_SetItem(l, 0, PyLong_FromLong(imod));
 		  PyList_SetItem(l, 1, atom_spec_to_py(atoms.first));
 		  PyList_SetItem(l, 2, atom_spec_to_py(atoms.second));
 		  PyList_Append(r, l);

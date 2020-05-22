@@ -153,3 +153,33 @@ molecule_class_info_t::set_and_get_histogram_values(unsigned int n_bins) {
    }
    return map_histogram_values;
 }
+
+
+// radial colouring
+void
+molecule_class_info_t::set_radial_map_colouring_centre(float x, float y, float z) {
+
+}
+
+void
+molecule_class_info_t::set_radial_map_colouring_min_radius(float r) {
+
+}
+
+void
+molecule_class_info_t::set_radial_map_colouring_max_radius(float r) {
+
+}
+
+void
+molecule_class_info_t::set_radial_map_colouring_invert(bool invert_state) {
+
+}
+
+void
+molecule_class_info_t::set_radial_map_colouring_saturation(float saturation) {
+
+}
+
+
+

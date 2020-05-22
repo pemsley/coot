@@ -283,7 +283,7 @@ graphics_info_t::check_if_in_user_defined_define(GdkEventButton *event) {
 
    graphics_info_t g;
    if (g.in_user_defined_define) {
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       if (nearest_atom_index_info.success == GL_TRUE) {
 	 in_user_defined_define--;
 	 int im = nearest_atom_index_info.imol;
@@ -311,7 +311,7 @@ graphics_info_t::check_if_in_residue_info_define(GdkEventButton *event) {
    //
    graphics_info_t info;
    if (info.in_residue_info_define == 1) { 
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       if (nearest_atom_index_info.success == GL_TRUE) { 
 	 int im = nearest_atom_index_info.imol; 
 	 // std::cout << "info: clicked on imol: " << im << std::endl;
@@ -335,7 +335,7 @@ graphics_info_t::check_if_in_refine_define(GdkEventButton *event) {
       iv = 1;
 
       //       int auto_range_flag = 0;
-      pick_info naii = atom_pick(event);
+      pick_info naii = atom_pick_gtk3(false);
       if (naii.success == GL_TRUE) { 
 	 molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 
@@ -387,7 +387,7 @@ graphics_info_t::check_if_in_regularize_define(GdkEventButton *event) {
 
       iv = 1;
       
-      pick_info naii = atom_pick(event);
+      pick_info naii = atom_pick_gtk3(false);
       int auto_range_flag = 0;
       if (naii.success == GL_TRUE) { 
 	 int imol = naii.imol;
@@ -446,7 +446,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
    if (in_distance_define) {
       
       pick_info nearest_atom_index_info; 
-      nearest_atom_index_info = atom_pick(event);
+      nearest_atom_index_info = atom_pick_gtk3(false);
 	    
       if ( nearest_atom_index_info.success == GL_TRUE ) {
 
@@ -529,7 +529,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
       // We need a cleaner way to know if this was an atom pick or a symm atom pick.
       // Let's sort it out in the beginning:
       short int picked = 0; 
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       mmdb::Atom *atom = 0;
       coot::Cartesian pos;
       
@@ -590,7 +590,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
       // We need a cleaner way to know if this was an atom pick or a symm atom pick.
       // Let's sort it out in the beginning:
       short int picked = 0; 
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       mmdb::Atom *atom = 0;
       coot::Cartesian pos;
       
@@ -651,7 +651,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 	 std::cout << "in_dynamic_distance_define check "
 		   << in_dynamic_distance_define << std::endl;
 	 if (in_dynamic_distance_define == 1) { 
-	    pick_info nearest_atom_index_info = atom_pick(event);
+	    pick_info nearest_atom_index_info = atom_pick_gtk3(false);
 	    pick_info nearest_intermediate_atom_info = pick_intermediate_atom(*moving_atoms_asc);
 	    bool do_static_atom = 0;
 	    bool do_intermediate_atom = 0;
@@ -695,7 +695,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
 	    if (in_dynamic_distance_define == 2) {
 	       if (running_dynamic_distance.atom_is_filled()) {
-		  pick_info naii = atom_pick(event);
+		  pick_info naii = atom_pick_gtk3(false);
 		  if (naii.success == GL_TRUE) {
 		     std::cout << "in_dynamic_distance_define pick 2 static atom "
 			       << in_dynamic_distance_define << std::endl;
@@ -735,7 +735,7 @@ void
 graphics_info_t::check_if_in_pepflip_define(GdkEventButton *event) {
 
    if (in_pepflip_define == 1) {
-      pick_info nearest_atom_index_info = atom_pick(event);
+      pick_info nearest_atom_index_info = atom_pick_gtk3(false);
       if (nearest_atom_index_info.success == GL_TRUE) {
 	 imol_pepflip = nearest_atom_index_info.imol;
 	 atom_index_pepflip = nearest_atom_index_info.atom_index;
@@ -776,7 +776,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
    if (g.delete_item_widget) { 
       // atom
       if (g.delete_item_atom) {
-	 pick_info naii = atom_pick(event);
+	 pick_info naii = atom_pick_gtk3(false);
 	 if (naii.success == GL_TRUE) {
 	    mmdb::Residue *res = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
 	    std::string resname(res->name);
@@ -829,7 +829,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 
       // water
       if (g.delete_item_water) {
-	 pick_info naii = atom_pick(event);
+	 pick_info naii = atom_pick_gtk3(false);
 	 if (naii.success == GL_TRUE) {
 	    mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
 	    mmdb::Residue *res = at->residue;
@@ -1332,7 +1332,7 @@ graphics_info_t::check_if_in_rotamer_define(GdkEventButton *event) {
 	 pick_pending_flag = 0;
 	 normal_cursor();
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_rotamer_togglebutton");
-	 if (0) { 
+	 if (false) {
 	    if (moving_atoms_asc) {
 	       std::cout << "debug moving atoms to moving-atoms.pdb" << std::endl;
 	       moving_atoms_asc->mol->WritePDBASCII("moving-atoms.pdb");

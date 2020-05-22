@@ -112,6 +112,8 @@ struct FT_character {
 
 #include "atom-pull.hh"
 
+#include "key-bindings.hh"
+
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
 #define HAVE_CURL_H
@@ -128,6 +130,8 @@ struct FT_character {
 #include "restraints-editor.hh"
 
 #include "framebuffer.hh"
+
+#include "gl-lights-info.hh"
 
 // #include "Transform.hh"
 // #include "Camera.hh"
@@ -519,12 +523,13 @@ class graphics_info_t {
    static short int active_map_drag_flag;
 
 
-   void smooth_scroll_maybe(float x, float y, float z,
-			    short int do_zoom_and_move_flag,
+   // return the value "did the scroll happen/was it set up" - or not?
+   bool smooth_scroll_maybe(float x, float y, float z,
+			    bool do_zoom_and_move_flag,
 			    float target_zoom);
-   void smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
-			    short int do_zoom_and_move_flag,
-			    float target_zoom);
+   bool smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
+                                                    short int do_zoom_and_move_flag,
+                                                    float target_zoom);
    void smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
 			    short int do_zoom_and_move_flag,
 			    float target_zoom);
@@ -579,6 +584,7 @@ class graphics_info_t {
    static std::atomic<unsigned int> moving_atoms_bonds_lock; // regularize_object_bonds_box is being updated
 
    static atom_selection_container_t *moving_atoms_asc;
+   // static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
    mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
    static int imol_refinement_map;
@@ -920,26 +926,29 @@ public:
    enum { USE_PYTHON_STATE_COMMANDS = 2, USE_SCM_STATE_COMMANDS = 1 };
 
    //
-   void initialize_molecules() { }
-
    void init();
+   void setup_key_bindings();
 
    static bool prefer_python;
 
    static bool do_expose_swap_buffers_flag;
 
    static std::queue<std::chrono::time_point<std::chrono::system_clock> > frame_draw_queue;
+   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
+   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time_for_per_second_counter;
 
    static void graphics_draw() {
-     if (glarea) {
-       std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
-       frame_draw_queue.push(tp_now);
-       gtk_widget_queue_draw(glarea);
-       if (make_movie_flag)
-	       dump_a_movie_image();
-     }
-     if (glarea_2)
-       gtk_widget_queue_draw(glarea_2);
+      if (glareas.size()) {
+         for (unsigned int i=0; i<glareas.size(); i++) {
+            GtkWidget *glarea = glareas[i];
+            if (glarea) {
+               // frame_draw_queue.push(tp_now);
+               gtk_widget_queue_draw(glarea);
+               if (make_movie_flag)
+                  dump_a_movie_image();
+            }
+         }
+      }
    }
 
 
@@ -995,35 +1004,30 @@ public:
 
    enum {GL_CONTEXT_MAIN = 0, GL_CONTEXT_SECONDARY = 1};
 
-   static bool make_gl_context_current(short int gl_context_current_request) {
-     bool r = 0;
-     if (display_mode_use_secondary_p()) {
-       if (gl_context_current_request == GL_CONTEXT_SECONDARY) {
-	 if (glarea_2) {
-	   make_current_gl_context(glarea_2);
-	 }
-       }
-       if (gl_context_current_request == GL_CONTEXT_MAIN) {
-	 if (glarea) {
-	   make_current_gl_context(glarea);
-	 }
-       }
-     } else {
-       if (gl_context_current_request == GL_CONTEXT_MAIN) {
-	 if (glarea) {
-	   make_current_gl_context(glarea);
-	 }
-       }
-     }
-     return r;
-   }
-
+   static void make_gl_context_current(bool gl_context_current_request_index);
 
 
    // ------------- main window -----------------------
-   static GtkWidget *glarea; // so that the molecule redraw function
-                             // in c-interface.cc can find which window to redraw.
-   static GtkWidget *glarea_2;
+   static GtkWidget *main_window;
+   static void set_main_window(GtkWidget *w) { main_window = w; }
+   static GtkWidget *get_main_window() { return main_window; }
+   // ------------- glareas -----------------------
+   std::chrono::time_point<std::chrono::system_clock> tp_now;
+   static std::vector<GtkWidget *> glareas;
+   static GtkAllocation get_glarea_allocation() {
+      GtkAllocation allocation;
+      if (!glareas.empty())
+         gtk_widget_get_allocation(glareas[0], &allocation);
+      return allocation;
+   }
+   static gl_context_info_t get_gl_context_info() {
+      gl_context_info_t glc; // null default
+      if (glareas.size() > 0) glc.widget_1 = glareas[0];
+      if (glareas.size() > 1) glc.widget_2 = glareas[1];
+      return glc;
+   }
+
+   // ------------- statusbar -----------------------
    static GtkWidget *statusbar;
    static guint statusbar_context_id;
    static short int model_fit_refine_dialog_was_sucked;
@@ -1048,6 +1052,8 @@ public:
    // accept/reject window, now controlled by keyboarding in main window.
    static GtkWidget *accept_reject_dialog;
    static GtkWidget *refine_params_dialog;
+   
+   void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog);
 
    // flag to display the accept/reject dialog in the toolbar
    static int accept_reject_dialog_docked_flag;
@@ -1084,6 +1090,7 @@ public:
    static short int in_wall_eyed_side_by_side_stereo_mode;
    enum stereo_eye_t { FRONT_EYE, LEFT_EYE, RIGHT_EYE };
    static stereo_eye_t which_eye;
+   static glm::vec3 eye_position; // useful in projection (testing)
 
    // return a vector of the current valid map molecules
    std::vector<int> valid_map_molecules() const;
@@ -1250,6 +1257,21 @@ public:
    // Clipping Planes:
    static float clipping_front;
    static float clipping_back;
+   void adjust_clipping(float d);
+   void set_clipping_front(float v);
+   void set_clipping_back(float v);
+   float get_clipping_plane_front() const {
+      if (perspective_projection_flag)
+         return screen_z_near_perspective;
+      else
+         return clipping_front;
+   }
+   float get_clipping_plane_back() const {
+      if (perspective_projection_flag)
+         return screen_z_far_perspective;
+      else
+         return clipping_back;
+   }
 
    // This is for the display object
    static short int display_lists_for_maps_flag;
@@ -1264,6 +1286,7 @@ public:
    static float smooth_scroll_limit;
    static float smooth_scroll_zoom_limit; // above this value we zoom, if zoom is on.
    static int   smooth_scroll_do_zoom;
+   static bool smooth_scroll_on_going;
 
    static
    gboolean smooth_scroll_animation_func(GtkWidget *widget,
@@ -1274,11 +1297,16 @@ public:
    // and the position delta (position at the end of the animation - the postion at the start of the animation)
    static coot::Cartesian smooth_scroll_delta;
 
+   // for reorienting-next-residue, we need to store the start and end view
+   static coot::view_info_t reorienting_residue_start_view;
+   static coot::view_info_t reorienting_residue_end_view;
+
    // atom label font size
    static int atom_label_font_size; // range of 1->3. small, medium, large.
    static void *atom_label_font;
    static int label_atom_on_recentre_flag;
    static coot::colour_holder font_colour;
+   void try_label_unlabel_active_atom();// l key binding
    void remove_all_atom_labels();
 
    static int n_molecules() { return molecules.size();}
@@ -1378,6 +1406,8 @@ public:
    void display_where_is_pointer() const {
       std::cout << "Pointer at" << RotationCentre() << std::endl;
    }
+
+   std::pair<double, double> get_pointer_position_frac() const;
 
    // x_diff and y_diff are the scale factors to the x and y
    // drag vectors.
@@ -1503,6 +1533,9 @@ public:
    void set_phs_filename( std::string filename);
    // static int phs_cell_from_molecule;
 
+   void clear_up_moving_atoms_wrapper(); // wraps the below functions - and is the Esc key function
+
+   void clear_up_glsl_buffers_for_moving_atoms();
    // get rid of the actual molecule (as opposed to
    // clear_moving_atoms_object which removed the bonds).
    void clear_up_moving_atoms();
@@ -1563,6 +1596,9 @@ public:
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    //int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); // DELETE-ME
+
+   static void fill_go_to_atom_window_gtk3(GtkWidget *widget);
+
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);
@@ -1664,6 +1700,8 @@ public:
    int intelligent_next_atom_centring(GtkWidget *widget);
    int intelligent_previous_atom_centring(GtkWidget *widget);
    int intelligent_near_atom_centring(GtkWidget *widget, const std::string &direction);
+
+   pick_info atom_pick_gtk3(bool intermediate_atoms_only_flag) const;
 
    pick_info find_atom_index_from_goto_info(int imol);
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
@@ -2334,6 +2372,7 @@ public:
    void make_moving_atoms_restraints_graphics_object();
    static coot::extra_restraints_representation_t moving_atoms_extra_restraints_representation;
    static bool draw_it_for_moving_atoms_restraints_graphics_object;
+   static bool draw_missing_loops_flag;
 
    //
    static float environment_min_distance;
@@ -2755,7 +2794,7 @@ public:
    //
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
-   void check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
+   bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
@@ -3308,6 +3347,10 @@ public:
    // ------- refmac molecules option menu  -----
    static int refmac_molecule;
 
+   // ------- new style refmac usage ---
+   // above needs to be cleaned or fixed.
+   static std::string mtz_file_for_refmac;
+
    // ------ new style combobox usage -------
 
    // the top one of this is probably what you want.
@@ -3415,7 +3458,8 @@ public:
    static float difference_map_peaks_sigma_level;
 
    // ---------------- backup filenames ----------------------
-   static short int unpathed_backup_file_names_flag;
+   static bool unpathed_backup_file_names_flag;
+   static bool decoloned_backup_file_names_flag;
    static int backup_compress_files_flag;
 
    // --------- Miguel's axis orientation matrix ---------------
@@ -3895,11 +3939,12 @@ string   static std::string sessionid;
    // atom pull restraint
    // static atom_pull_info_t atom_pull; 20180218 just one
    static std::vector<atom_pull_info_t> atom_pulls;
+   static unsigned int n_atom_pulls; // look inside atom_pulls and count the number of pulls with atoms
    static void all_atom_pulls_off();
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
-   static void draw_atom_pull_restraint();
+   static void draw_atom_pull_restraints();
    // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
    // (not least because now the refined atoms have gone out of scope)
    void clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag);
@@ -3972,6 +4017,7 @@ string   static std::string sessionid;
 			   const std::string &version);
    std::string get_version_for_extension(const std::string &extension_name) const;
 
+   void eigen_flip_active_residue();
    static int jed_flip_intermediate_atoms();
    static int crankshaft_peptide_rotation_optimization_intermediate_atoms();
 
@@ -3985,11 +4031,12 @@ string   static std::string sessionid;
    static glm::vec3 get_rotation_centre() {
      return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
    }
-   static void add_to_rotation_centre(const glm::vec4 &offset) {
+   static void add_to_rotation_centre(const glm::vec3 &offset) {
      rotation_centre_x += offset.x;
      rotation_centre_y += offset.y;
      rotation_centre_z += offset.z;
    }
+   static void update_view_quaternion(int area_width, int area_height);
 
    // static benny::Camera camera;
    // static Transform transform;
@@ -4018,6 +4065,7 @@ string   static std::string sessionid;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
+   static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
    static long frame_counter;
@@ -4025,8 +4073,56 @@ string   static std::string sessionid;
    static framebuffer screen_framebuffer;
    static framebuffer blur_framebuffer;
    static bool perspective_projection_flag;
-   static std::chrono::time_point<std::chrono::system_clock> previous_frame_time;
+   static float screen_z_near_perspective;
+   static float screen_z_far_perspective;
+   static bool do_ambient_occlusion_flag;
+   static bool do_depth_blur_flag;
+   static bool do_depth_fog_flag;
    // ---------------------------------------------
+   void init_shaders();
+
+   // draw-2 functions
+   void init_screen_quads();
+   void init_blur_quads();
+   void init_central_cube();
+   void init_buffers();
+   void init_hud_text();
+   static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
+   static glm::mat4 get_model_view_matrix();
+   static glm::vec3 get_world_space_eye_position();
+   static glm::vec4 unproject(float z);
+   static glm::vec4 unproject(float x, float y, float z);
+   static glm::vec3 unproject_to_world_coordinates(glm::vec3 &projected_coords);
+   static glm::mat4 get_view_rotation();
+   static void setup_map_uniforms(const Shader &shader, // in the draw loop
+                                  const glm::mat4 &mvp,
+                                  const glm::mat4 &view_rotation,
+                                  float density_surface_opacity);
+   static gboolean render(GtkGLArea *glarea);
+   static void draw_map_molecules(bool draw_transparent_maps);
+   static void draw_model_molecules();
+   static void draw_intermediate_atoms();
+   static void draw_molecule_atom_labels(const molecule_class_info_t &m,
+                                         const glm::mat4 &mvp,
+                                         const glm::mat4 &view_rotation);
+   static void draw_molecular_triangles();
+   static void draw_molecules();
+   static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
+   static void draw_central_cube(GtkGLArea *glarea);
+   static void draw_origin_cube(GtkGLArea *glarea);
+   void set_do_ambient_occlusion(bool s) { do_ambient_occlusion_flag = true; } // caller redraws
+
+   void reset_frame_buffers(int width, int height);
+   void setup_lights();
+   void translate_in_screen_z(float step_size);
+   void move_forwards();
+   void move_backwards();
+
+   int blob_under_pointer_to_screen_centre();
+
+   // make this private when the glarea render function is moved into graphics_info_t
+   //
+   static molecule_class_info_t moving_atoms_molecule; // used as a container for glsl variables. public access
 
    static bool regenerate_bonds_needs_make_bonds_type_checked_flag;
    void set_regenerate_bonds_needs_make_bonds_type_checked(bool state);
@@ -4053,9 +4149,20 @@ string   static std::string sessionid;
    // we should not wait
    void conditionally_wait_for_refinement_to_finish();
 
- // for updating (difference) maps - we don't want to set 2 of these (or more) off
-//  at the same time.
+   static bool convert_dictionary_planes_to_improper_dihedrals_flag;
+   void set_convert_dictionary_planes_to_improper_dihedrals(bool state) {
+      convert_dictionary_planes_to_improper_dihedrals_flag = state;
+   }
+
+   // for updating (difference) maps - we don't want to set 2 of these (or more) off
+   //  at the same time.
    static std::atomic<bool> on_going_updating_map_lock;
+
+   /*! \brief shiftfield B-factor refinement */
+   void shiftfield_b_factor_refinement(int imol);
+
+   /*! \brief shiftfield xyz refinement */
+   void shiftfield_xyz_factor_refinement(int imol);
 
 
 #ifdef USE_PYTHON
@@ -4075,7 +4182,7 @@ string   static std::string sessionid;
 #ifdef USE_PYTHON
    // Python function, called per frame draw - for Hamish
    static std::string python_draw_function_string;
-  void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+   void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
 #endif // USE_PYTHON
 
    static ctpl::thread_pool static_thread_pool;
@@ -4085,9 +4192,36 @@ string   static std::string sessionid;
    static std::shared_ptr<SceneSetup> mol_tri_scene_setup;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-// text
+   // text
    static std::map<GLchar, FT_character> ft_characters;
    void load_freetype_font_textures();
+   static bool vera_font_loaded;
+
+   // key-bindings
+   static std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
+   static void add_key_binding(keyboard_key_t k, key_bindings_t kb) {
+      key_bindings_map[k] = kb;
+   }
+
+   // GL IDs go here
+
+   // intermediate atom pull restraints (note to self: intermediate atoms have
+   // their own molecule_class_info_t now).
+   // Generic Display objects should have their own class (that contains these IDs)
+   // How about Rama balls and rota dodecs?
+   // Where do contact dots fit in?
+   // Overlap volumes?
+
+   void setup_atom_pull_restraints_glsl();
+   static GLuint m_VertexArray_for_pull_restraints_ID;
+   static GLuint m_VertexBuffer_for_pull_restraints_ID;
+   static GLuint m_IndexBuffer_for_atom_pull_restraints_ID;
+   static unsigned int n_triangles_for_atom_pull_restraints; // index triangles, obviously
+   static unsigned int n_vertices_for_atom_pull_restraints;
+
+   // Lights
+   //
+   static std::map<unsigned int, gl_lights_info_t> lights;
 };
 
 
@@ -4097,8 +4231,6 @@ class molecule_rot_t {
    static float x_axis_angle;
    static float y_axis_angle;
 };
-
-void initialize_graphics_molecules();
 
 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &ref_results);

@@ -1,3 +1,4 @@
+import numbers
 # refmac.py 
 #
 # Copyright 2005, 2006 by Bernhard Lohkamp
@@ -104,7 +105,7 @@ def run_loggraph(logfile):
         # 1st check TCL
         ccp4i_tcltk = os.getenv('CCP4I_TCLTK')
         if not ccp4i_tcltk:
-            print "BL ERROR:: We cannot allocate $CCP4I_TCLTK so no wish available"
+            print("BL ERROR:: We cannot allocate $CCP4I_TCLTK so no wish available")
         else:
             wish_command = "wish"
             if is_windows():
@@ -121,16 +122,16 @@ def run_loggraph(logfile):
                 # maybe we want to check for bltwish instead then?!
 
             if (not os.path.isfile(wish_exe)):
-                print "BL ERROR:: We have $CCP4I_TCLTK but we cannot find wish"
+                print("BL ERROR:: We have $CCP4I_TCLTK but we cannot find wish")
             else:
                 # now that we have tcl + wish we check for loggraph.tcl
                 ccp4i_top = os.getenv('CCP4I_TOP')
                 if not ccp4i_top:
-                    print "BL ERROR:: We cannot allocate $CCP4I_TOP so no loggraph available"
+                    print("BL ERROR:: We cannot allocate $CCP4I_TOP so no loggraph available")
                 else:
                     loggraph_exe = os.path.join(ccp4i_top, "bin", "loggraph.tcl")
                     if not os.path.isfile(loggraph_exe):
-                        print "BL ERROR:: We have $CCP4I_TOP but we cannot find loggraph.tcl"
+                        print("BL ERROR:: We have $CCP4I_TOP but we cannot find loggraph.tcl")
                     else:
                         # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
                         #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
@@ -212,7 +213,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
         std_lines.append("REFInement TYPE RIGID")
 
     imol_coords = refmac_imol_coords()
-    if operator.isNumberType(force_n_cycles):
+    if isinstance(force_n_cycles, numbers.Number):
        if force_n_cycles >=0:
            if (refinement_type == 1):
                std_lines.append("RIGIDbody NCYCle " + str(force_n_cycles))
@@ -230,7 +231,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                                std_lines.append(rigid_line)
                                group_no += 1
                    else:
-                       print "WARNING:: no valid refmac imol!"
+                       print("WARNING:: no valid refmac imol!")
            else:
                std_lines.append("NCYC " + str(force_n_cycles))
     # TLS?
@@ -297,24 +298,24 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     refmac_count = imol_refmac_count + refmac_count + 1
 
-    print "INFO: running refmac with these command line args: ", command_line_args
-    print "INFO: running refmac with these data lines: ", data_lines
+    print("INFO: running refmac with these command line args: ", command_line_args)
+    print("INFO: running refmac with these data lines: ", data_lines)
     try:
-        print "environment variable:  SYMOP: ", os.environ['SYMINFO']
+        print("environment variable:  SYMOP: ", os.environ['SYMINFO'])
     except:
-        print " not set !"
+        print(" not set !")
     try:
-        print "environment variable: ATOMSF: ", os.environ['ATOMSF'] 
+        print("environment variable: ATOMSF: ", os.environ['ATOMSF']) 
     except:
-        print " not set !"
+        print(" not set !")
     try:
-        print "environment variable:  CLIBD: ", os.environ['CLIBD'] 
+        print("environment variable:  CLIBD: ", os.environ['CLIBD']) 
     except:
-        print " not set !"
+        print(" not set !")
     try:
-        print "environment variable:   CLIB: ", os.environ['CLIB'] 
+        print("environment variable:   CLIB: ", os.environ['CLIB']) 
     except:
-        print " not set !"
+        print(" not set !")
 
 
     data_lines += ["END"]
@@ -393,13 +394,13 @@ def post_run_refmac(imol_refmac_count,
         refmac_status = refmac_process
         
     if (refmac_status) : # refmac ran fail...
-        print "Refmac Failed."
+        print("Refmac Failed.")
         if (button):
             button[0].destroy()
             button[1].destroy()
         if (run_in_timer):
             # stop the gobject timer
-            print "... or was killed"
+            print("... or was killed")
             return False
 
     else : # refmac ran OK.
@@ -472,7 +473,7 @@ def post_run_refmac(imol_refmac_count,
                 try:
                     make_and_draw_map_with_refmac_params(*args)
                 except:
-                    print "BL INFO:: couldnt make the anomalous difference map."
+                    print("BL INFO:: couldnt make the anomalous difference map.")
             else:
                 args = [mtz_out_filename, "DELFWT", "PHDELWT", "", 0, 1, 1, f_col, sig_f_col] + r_free_bit
                 make_and_draw_map_with_refmac_params(*args)
@@ -490,13 +491,13 @@ def post_run_refmac(imol_refmac_count,
 #
 def extra_params_include_weight_p(params_list):
 
-   have_weight = map(lambda x: 'WEI' in x.upper(), params_list)
+   have_weight = ['WEI' in x.upper() for x in params_list]
    if (sum(have_weight) == 1):
        return True
    elif (sum(have_weight) == 0):
        return False
    else:
-       print 'BL WARNING:: This shouldn\'t happen, we have more than one weight defined. God knows what refmac will do now...'
+       print('BL WARNING:: This shouldn\'t happen, we have more than one weight defined. God knows what refmac will do now...')
        return False
 
 
@@ -521,18 +522,18 @@ def add_refmac_extra_params(pre_lines, force_no_cycles):
           try:
               f = open(extras_file_name,'r')
           except IOError:
-              print 'BL INFO:: we dont have refmac-extra-params file'
+              print('BL INFO:: we dont have refmac-extra-params file')
           except:
-              print "BL ERROR:: unknown error reading", extras_file_name
+              print("BL ERROR:: unknown error reading", extras_file_name)
           else:
               extra_params = f.readlines()
-              print 'BL INFO:: we have refmac-extra-params file and read lines'
+              print('BL INFO:: we have refmac-extra-params file and read lines')
               f.close()
       # else
       # no extra params file, continue
 
   if extra_params:
-      print "refmac extra params: ", extra_params
+      print("refmac extra params: ", extra_params)
       # remove line with NCYC when n_cycle is 0
       if (force_no_cycles == 0):
           post_lines = [x if not (x[0:3].upper() == 'NCY') else 'NCYC 0' for x in extra_params]
@@ -541,7 +542,7 @@ def add_refmac_extra_params(pre_lines, force_no_cycles):
           post_lines = extra_params
       for line in pre_lines:
           # check the first 3 chars of extra param as upper
-          ls = map(lambda x: line[0:3].upper() in x.upper(), extra_params)
+          ls = [line[0:3].upper() in x.upper() for x in extra_params]
           if not sum(ls):
               # add the param
               post_lines.append(line.upper())
@@ -557,7 +558,7 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
         if valid_model_molecule_qm(imol):
             dir_state = make_directory_maybe("coot-refmac")
             if not dir_state == 0:
-                print "Failed to make coot-refmac directory\n"
+                print("Failed to make coot-refmac directory\n")
             else:
                 stub = "coot-refmac/refmac-for-phases"
                 pdb_in = stub + ".pdb"
@@ -584,9 +585,9 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
                 #print "BL DEBUG:: reset states", ncs_state, tls_state
 
         else:
-            print "BL WARNING:: no valid model molecule!"
+            print("BL WARNING:: no valid model molecule!")
     else:
-        print "BL WARNING:: mtzfile %s not found" %mtz_file_name
+        print("BL WARNING:: mtzfile %s not found" %mtz_file_name)
 
 
 def refmac_for_phases_and_make_map(mtz_file_name, f_col, sig_f_col):
@@ -815,7 +816,7 @@ def read_refmac_log(imol, refmac_log_file):
             if (alt_conf2 == "."): alt_conf2 = ""
 
             if debug():
-                print "BL DEBUG:: haeve item lst", item_ls
+                print("BL DEBUG:: haeve item lst", item_ls)
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Bond distance",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1089,7 +1090,7 @@ def read_refmac_log(imol, refmac_log_file):
             if (alt_conf1 == "."): alt_conf1 = ""       # check, may be '.' if none
 
             if debug():
-                print "BL DEBUG:: have item_ls", item_ls
+                print("BL DEBUG:: have item_ls", item_ls)
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Sphericity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         -999999, "", "", "",
@@ -1126,7 +1127,7 @@ def read_refmac_log(imol, refmac_log_file):
                 item_ls.insert(10, alt_conf2)
             
             if debug():
-                print "BL DEBUG:: have item list", item_ls
+                print("BL DEBUG:: have item list", item_ls)
                 
             dev       = float(item_ls[12])
             sig       = float(item_ls[14])
@@ -1135,7 +1136,7 @@ def read_refmac_log(imol, refmac_log_file):
             if (alt_conf2 == "."): alt_conf2 = ""
 
             if debug():
-                print "BL DEBUG:: have item list", item_ls
+                print("BL DEBUG:: have item list", item_ls)
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Rigid",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1357,7 +1358,7 @@ def read_refmac_log(imol, refmac_log_file):
             lines = fin.readlines()
             fin.close()
         except:
-            print "ERROR opening the filename ", filename
+            print("ERROR opening the filename ", filename)
 
         if (lines):
             i = 0
@@ -1433,12 +1434,12 @@ def read_refmac_log(imol, refmac_log_file):
             try:
                 run_with_gtk_threading(interesting_things_with_fix_maybe, "Refmac outliers etc.", interesting_list)
             except:
-                print "BL INFO:: could not show the interesting Refmac things! Probably no PyGTK!"
+                print("BL INFO:: could not show the interesting Refmac things! Probably no PyGTK!")
         else:
-            print "BL INFO:: no deviations and nothing otherwise interesting found in ", filename
+            print("BL INFO:: no deviations and nothing otherwise interesting found in ", filename)
         
     else:
-        print "WARNING your file with name %s does not seem to exist" %filename
+        print("WARNING your file with name %s does not seem to exist" %filename)
         
 #read_refmac_log(0, "25_refmac5.log")
 #read_refmac_log(0, "refmac-from-coot-0.log")
@@ -1468,12 +1469,12 @@ def get_refmac_version():
                 for line in lines:
                     if ("Program" in line):
                         version = line.split()[-1]
-                        ret = map(int, version.split("."))
+                        ret = list(map(int, version.split(".")))
                         refmac_version_cached = ret
                         return ret
             else:
                 os.remove(log_file)
-                print "INFO:: problem to get refmac version"
+                print("INFO:: problem to get refmac version")
         else:
             return False
 
@@ -1491,7 +1492,7 @@ def restraints_for_occupancy_refinement(imol, file_name="refmac_extra_params.txt
     res_list = residues_with_alt_confs(imol)
     group_id = 1
     if (not res_list):
-        print "BL INFO:: no alt confs"
+        print("BL INFO:: no alt confs")
         return
     else:
         f = open(file_name, 'w')

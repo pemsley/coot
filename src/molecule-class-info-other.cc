@@ -365,12 +365,13 @@ molecule_class_info_t::debug_selection() const {
    } else {
       std::cout << "debug_selection: selected atoms" << std::endl;
       for(int i=0; i<n_atoms; i++) {
-	 std::cout << atom[i] << std::endl;
+         std::cout << atom[i] << std::endl;
       }
       std::cout << "----------- " << std::endl;
    }
 }
 
+// make this a bool
 short int
 molecule_class_info_t::molecule_is_all_c_alphas() const {
 
@@ -381,11 +382,11 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
       is_ca = 0;
    } else {
       for (int i=0; i<n_atoms; i++) {
-	 std::string name_string(atom_sel.atom_selection[i]->name);
-	 if ( ! (name_string== " CA " )) {
-	    is_ca = 0;
-	    break;
-	 }
+         std::string name_string(atom_sel.atom_selection[i]->name);
+         if (name_string != " CA " ) {
+            is_ca = 0;
+            break;
+         }
       }
    }
    return is_ca;
@@ -393,26 +394,39 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
 
 void
 molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p) {
-   std::set<int> dummy;
-   makebonds(geom_p, dummy);
+
+   bool do_rebond = true;
+   if (draw_hydrogens_flag && bonds_box_type == coot::NORMAL_BONDS)
+      do_rebond = false;
+   if (!draw_hydrogens_flag && bonds_box_type == coot::BONDS_NO_HYDROGENS)
+      do_rebond = false;
+
+   if (do_rebond) {
+      std::set<int> dummy;
+      makebonds(geom_p, dummy);
+   }
 }
 
 void
 molecule_class_info_t::ca_representation() {
 
-   bonds_box.clear_up();
+   if (bonds_box_type != coot::CA_BONDS) {
+      bonds_box.clear_up();
 
-   std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
-   make_ca_bonds(2.4, 4.7);
-   bonds_box_type = coot::CA_BONDS;
+      std::cout << "calling make_ca_bonds() in molecule_class_info_t" << std::endl;
+      make_ca_bonds(2.4, 4.7);
+      bonds_box_type = coot::CA_BONDS;
+   }
 }
 
 void
 molecule_class_info_t::ca_plus_ligands_representation(coot::protein_geometry *geom) {
 
-   bonds_box.clear_up();
-   make_ca_plus_ligands_bonds(geom);
-   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   if (bonds_box_type != coot::CA_BONDS_PLUS_LIGANDS) {
+      bonds_box.clear_up();
+      make_ca_plus_ligands_bonds(geom);
+      bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
+   }
 }
 
 void
@@ -426,23 +440,26 @@ molecule_class_info_t::ca_plus_ligands_and_sidechains_representation(coot::prote
 void
 molecule_class_info_t::bonds_no_waters_representation() {
 
-   bonds_box.clear_up();
-   Bond_lines_container bonds;
-   bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds();
-   bonds_box_type = coot::BONDS_NO_WATERS;
-   make_glsl_bonds_type_checked();
+   if (bonds_box_type != coot::BONDS_NO_WATERS) {
+      bonds_box.clear_up();
+      Bond_lines_container bonds;
+      bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
+      bonds_box = bonds.make_graphical_bonds();
+      bonds_box_type = coot::BONDS_NO_WATERS;
+      make_glsl_bonds_type_checked();
+   }
 }
 
 void
 molecule_class_info_t::bonds_sec_struct_representation() {
 
-   //
-   Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
-   bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
-   bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
-   make_glsl_bonds_type_checked();
+   if (bonds_box_type != coot::BONDS_SEC_STRUCT_COLOUR) {
+      Bond_lines_container bonds(graphics_info_t::Geom_p(), draw_hydrogens_flag);
+      bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
+      make_glsl_bonds_type_checked();
+   }
 }
 
 
@@ -451,27 +468,31 @@ molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_g
 
    //
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
+   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7,
+                                                    draw_hydrogens_flag, graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
    make_glsl_bonds_type_checked();
+
 }
 
 void
 molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg) {
 
-   //
-   Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
-				  2.4, 4.7,
-				  coot::COLOUR_BY_RAINBOW,
-				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
-   bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
-   make_glsl_bonds_type_checked();
-}
+    //
+    Bond_lines_container bonds;
+    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
+        2.4, 4.7,
+        graphics_info_t::draw_missing_loops_flag,
+        coot::COLOUR_BY_RAINBOW,
+        draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
+        bonds_box = bonds.make_graphical_bonds_no_thinning();
+        bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
+        make_glsl_bonds_type_checked();
 
-void
+    }
+
+    void
 molecule_class_info_t::b_factor_representation() {
 
    Bond_lines_container::bond_representation_type bond_type =
@@ -4450,7 +4471,7 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                   std::pair<coot::Cartesian, coot::Cartesian> p2;
                   p2.first  = coot::Cartesian(pt_1);
                   p2.second = coot::Cartesian(pt_2);
-			         rtmi.density_lines.push_back(p2);
+                  rtmi.density_lines.push_back(p2);
                   p2.first  = coot::Cartesian(pt_1);
                   p2.second = coot::Cartesian(pt_3);
                   rtmi.density_lines.push_back(p2);
@@ -4460,39 +4481,49 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
                }
             }
          }
-	   } else {
-	      if (! draw_diff_map_vector_sets.empty()) {
+           } else {
+              if (! draw_diff_map_vector_sets.empty()) {
 
-            rtmi.density_colour.col.resize(3);
-            rtmi.density_colour.col[0] = map_colour_negative_level.red;
-            rtmi.density_colour.col[1] = map_colour_negative_level.green;
-            rtmi.density_colour.col[2] = map_colour_negative_level.blue;
+                 rtmi.density_colour.col.resize(3);
+                 rtmi.density_colour.col[0] = map_colour_negative_level.red;
+                 rtmi.density_colour.col[1] = map_colour_negative_level.green;
+                 rtmi.density_colour.col[2] = map_colour_negative_level.blue;
 
-
-            for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
-               for (int j=0; j<draw_diff_map_vector_sets[i].size; j++) {
-                  std::pair<coot::Cartesian, coot::Cartesian> p(draw_diff_map_vector_sets[i].data[j].getStart(),
-                                                                draw_diff_map_vector_sets[i].data[j].getStart());
-               }
-            }
-	      }
-	   }
-	}
+                 for (std::size_t i=0; i<draw_diff_map_vector_sets.size(); i++) {
+                    for (unsigned int j=0; j<draw_vector_sets[i].point_indices.size(); j++) {
+                       const clipper::Coord_orth &pt_1(draw_diff_map_vector_sets[i].points[draw_diff_map_vector_sets[i].point_indices[j].pointID[0]]);
+                       const clipper::Coord_orth &pt_2(draw_diff_map_vector_sets[i].points[draw_diff_map_vector_sets[i].point_indices[j].pointID[1]]);
+                       const clipper::Coord_orth &pt_3(draw_diff_map_vector_sets[i].points[draw_diff_map_vector_sets[i].point_indices[j].pointID[2]]);
+                       std::pair<coot::Cartesian, coot::Cartesian> p2;
+                       p2.first  = coot::Cartesian(pt_1);
+                       p2.second = coot::Cartesian(pt_2);
+                       rtmi.density_lines.push_back(p2);
+                       p2.first  = coot::Cartesian(pt_1);
+                       p2.second = coot::Cartesian(pt_3);
+                       rtmi.density_lines.push_back(p2);
+                       p2.first  = coot::Cartesian(pt_2);
+                       p2.second = coot::Cartesian(pt_3);
+                       rtmi.density_lines.push_back(p2);
+                    }
+                 }
+              }
+           }
+        }
       }
 
       if (fc_skeleton_draw_on == 1) {
 
-	 rtmi.bones_colour.col.resize(3);
-	 for (int i=0; i<3; i++)
-	    rtmi.bones_colour.col[i] = graphics_info_t::skeleton_colour[i];
-	 for (int l=0; l<fc_skel_box.num_colours; l++) {
-	    for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
-	       std::pair<coot::Cartesian, coot::Cartesian>
-		  p(fc_skel_box.bonds_[l].pair_list[j].positions.getStart(),
-		    fc_skel_box.bonds_[l].pair_list[j].positions.getFinish());
-	       rtmi.bone_lines.push_back(p);
-	    }
-	 }
+         rtmi.bones_colour.col.resize(3);
+         for (int i=0; i<3; i++)
+            rtmi.bones_colour.col[i] = graphics_info_t::skeleton_colour[i];
+         for (int l=0; l<fc_skel_box.num_colours; l++) {
+            for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
+               std::pair<coot::Cartesian, coot::Cartesian>
+                  p(fc_skel_box.bonds_[l].pair_list[j].positions.getStart(),
+                    fc_skel_box.bonds_[l].pair_list[j].positions.getFinish());
+               rtmi.bone_lines.push_back(p);
+            }
+         }
       }
       rtmi.molecule_name = name_;
       rtmi.molecule_number = imol_no;
@@ -7148,42 +7179,11 @@ molecule_class_info_t::has_display_list_objects() {
 int
 molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
-   //    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size()
-   // << std::endl;
-   //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
-
-   GLfloat  ambientLight[] = { 0.01f, 0.01f, 0.01f, 0.f };
-   GLfloat  diffuseLight[] = { 0.04f, 0.04f, 0.04f, 0.f };
-   GLfloat specularLight[] = { 0.04f, 0.04f, 0.04f, 0.f };
-
-   // set light0 here too? // FIXME-lighting
-
-   // Assign created components to GL_LIGHT1
-   glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
-   glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
-   glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight);
-
    int n_objects = 0;
    if (draw_it) {
       if (display_list_tags.size() > 0) {
-	 // glEnable(GL_LIGHTING);
-
-	 // glEnable(GL_LIGHT0); // bright.
-	 // glEnable(GL_LIGHT1); // dim, off axis
-
-	 // glEnable(GL_LIGHT2); // very dark
-
-	 // glDisable(GL_LIGHT0);
-	 // glDisable(GL_LIGHT1);
-	 // glDisable(GL_LIGHT2);
-
-         glEnable(GL_LIGHT0);
-         glEnable(GL_LIGHT1);
-         glDisable(GL_LIGHT2);
-         glDisable(GL_LIGHT3);
-         glDisable(GL_LIGHT4);
-
 	 std::vector<coot::display_list_object_info>::const_iterator it;
+         glEnable(GL_COLOR_MATERIAL);
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 	    if (! it->is_closed) {
 	       if (it->display_it) {
@@ -7197,7 +7197,7 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 	       }
 	    }
 	 }
-	 glDisable(GL_LIGHTING);
+         glDisable(GL_COLOR_MATERIAL);
       }
    }
    return n_objects;
@@ -7289,30 +7289,10 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       }
 
-      GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
-
+      GLfloat bgcolor[4] = {0.8, 0.8, 0.8, 0.8};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 40);
-      //Let the returned colour dictate: note obligatory order of these calls
-      glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-      glEnable(GL_COLOR_MATERIAL);
-
-      GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
-      GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
-      // GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
-      GLfloat  mat_shininess[] = {50.0};
-
-      glShadeModel(GL_SMOOTH);
-
-//       // Do these things do anything??
-//       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-//       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-//       glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-//       glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-
-      glEnable(GL_DEPTH_TEST);
-      glEnable(GL_NORMALIZE);
 
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
 	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box_local.bonds_[ii];

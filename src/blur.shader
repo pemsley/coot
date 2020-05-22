@@ -5,6 +5,8 @@
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoords;
 
+uniform float zoom;
+
 out vec2 TexCoords;
 
 void main() {
@@ -23,148 +25,154 @@ in vec2 TexCoords;
 
 uniform sampler2D screenTexture;
 uniform sampler2D screenDepth;
+uniform float zoom;
+uniform bool is_perspective_projection;
+uniform bool do_depth_blur;
 
 layout(location = 0) out vec4 out_color;
 
-// when we are close to the rotation centre, tightness is nearly 1.0
-// when we are far (at the back), tightness is nearly 0.0
-//
-float get_weight_xy(float r_sqrd, float tightness) {
+float depth_scale(float depth_in_centre, float depth_in_ij, float lim) {
 
-   float r = sqrt(r_sqrd); // between 0.0 and 1.0
-   float t = clamp(tightness, 0.0, 1.0);
-   float f_1 = 1.0 - 0.6 * t * r; // 0.2 needs tweaking
-   float f_2 = clamp(f_1, 0.0, 1.0);
-   return f_2;
+   // -1 means there is no blurring to be done.
 
+   // xx_ij is the point being blurred. xx_centre is the point
+   // being blurred into. Keep a clear head.
+
+   // the deeper into the image we go, (depth_in_centre approaches 1.0)
+   // then the more we want to the colour to be influenced by the surroundings.
+
+   if (depth_in_centre < lim) {
+      return -1.0;
+   } else {
+      if (depth_in_ij < lim) {
+         return -1.0;
+      } else {
+         return (depth_in_ij-lim)/(1.0-lim);
+      }
+   }
 }
 
-// Note: the weight here imply (or are based on) linear gradient
-// for the depth. If the projection matrix become perspective,
-// then the depth will be non-linear and will need to be
-// transformed.
+vec3 sampling_blur(int n_pixels_max) {
 
-// blur things at the back more than things at the front
-// - how much should this pixel get blurred?
-float get_weight_z_1(float depth_centre) {
+   float depth_centre = texture(screenDepth, TexCoords).x;
+   vec3 result = vec3(1.0, 1.0, 0.0);
 
-    float w = abs(depth_centre - 0.158);
-    return w;
+   // centre is the point being blurred *into*
 
+   vec3 orig_colour = texture(screenTexture, TexCoords).rgb; // don't blur
+   float lim = 0.501;
+   if (is_perspective_projection) lim = 0.6; // needs checking
+   if (depth_centre < lim) {
+      return orig_colour;
+   } else {
+      vec3 sum_outer = vec3(0,0,0);
+      vec3 sum_inner = vec3(0,0,0);
+      vec2 tex_scale = 1.0/textureSize(screenTexture, 0);
+      // the 0.03 here depends on how much of the origin colour we add back
+      // that is currently 0.5
+      float centre_points_scale = 0.06;
+      int n_inner_neighbs = 0;
+      int n_outer_neighbs = 0;
+      float sum_for_alpha = 0;
+      float w_inner_neighbs = 0;
+      for (int ix= -n_pixels_max; ix<=n_pixels_max; ix++) {
+         for (int iy= -n_pixels_max; iy<=n_pixels_max; iy++) {
+            float r_sqrd = float(ix*ix + iy*iy) / float(n_pixels_max * n_pixels_max); // can optimize
+            if (r_sqrd > 1.0) continue;
+            vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, tex_scale.y * iy);
+            float depth_ij = texture(screenDepth, offset_coords).x;
+            if (depth_ij == 1.0) continue;
+            if (depth_ij < lim) continue; // don't blur from the lines in focus
+            vec3 colour_ij = texture(screenTexture, offset_coords).rgb;
+            // depth_scale() return -1 for no blurring.
+            float dbrs = depth_scale(depth_centre, depth_ij, lim);
+            if (ix == 5550 && iy == 0) {
+               // sum_inner += colour_ij; // use orig_colour
+            } else {
+               if (abs(ix) < 3 && abs(iy) < 3) {
+                  float md = float(abs(ix) + abs(iy));
+                  if (md == 0) md = 0.5; // was 0.5
+                  float w = 1.0 + 1.0 / md;
+                  sum_inner += w * colour_ij;
+                  n_inner_neighbs++;
+                  w_inner_neighbs += w;
+               } else {
+                  if (dbrs < 0.0) {
+                     // nothing
+                  } else {
+                     float blur_radius = (depth_ij - lim) / (1.0 - lim);
+                     // this scaling needs to be zoom dependent.
+                     float k = 0.001; // gaussian scale
+                     dbrs = 1.0;
+                     float gauss = 1.0/dbrs * exp(-0.5 * k * r_sqrd/(blur_radius*blur_radius));
+                     // gauss = 1.0;
+                     float depth_factor = 2.0 * (1.0 - depth_centre); // 0 -> 1 for lim = 0.5
+                     depth_factor = 1.0;
+                     sum_outer += colour_ij * gauss * (1.0 - depth_ij) * depth_factor;
+                     sum_for_alpha += gauss * (1.0 - depth_ij) * depth_factor;
+                     n_outer_neighbs++;
+                  }
+               }
+            }
+         }
+      }
+      vec3 average_col_from_inner_neighbs = sum_inner / w_inner_neighbs;
+      if (w_inner_neighbs == 0.0f)
+         average_col_from_inner_neighbs = vec3(0,0,0); // sanitize before blending
+      float alpha_inner = w_inner_neighbs;
+      alpha_inner = clamp(alpha_inner, 0.0f, 1.0f);
+      float alpha = 0.0f; // not at the moment. was clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
+      float Sc = 0.6f/float(n_pixels_max*n_pixels_max);
+      vec3 result_intermediate = mix(orig_colour, average_col_from_inner_neighbs, alpha_inner);
+      result = mix(result_intermediate, Sc * sum_outer, alpha);
+      if (n_inner_neighbs == 0)
+         result = orig_colour;
+   }
+   return result;
 }
 
-// "this" pixel is contributing to the colour of another pixel.
-//  What weight should this pixel have to colour that pixel?
-float get_weight_z_2(float depth_this, float depth_centre) {
-
-    float c = 0.5652; // 0.66 looks good, but we
-                      // need a "protected" z region - say from  0.05 to 0.3
-    float depth_delta = abs(depth_centre - depth_this);
-    float w = 0.0; // too far, by default.
-    if (depth_delta < c) w = 0.55 + (c - depth_delta)/c;
-    return w;
+vec3 make_outline() {
+   float depth_centre = texture(screenDepth, TexCoords).x;
+   vec3 orig_colour = texture(screenTexture, TexCoords).rgb; // don't blur
+   vec3 result = orig_colour; // update this as needed.
+   vec2 tex_scale = 1.0/textureSize(screenTexture, 0);
+   int n_deep_neighbs = 0;
+   for (int ix= -1; ix<=1; ix++) {
+      for (int iy= -1; iy<=1; iy++) {
+         vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, tex_scale.y * iy);
+         float depth_ij = texture(screenDepth, offset_coords).x;
+         if ((depth_ij - depth_centre) > 0.1) {
+            n_deep_neighbs++;
+         }
+      }
+   }
+   if (n_deep_neighbs > 1) {
+      result = vec3(0.1, 0.1, 0.1);
+   }
+   return result;
 }
 
-vec3 sampling_blur() {
-
-    // at some stage, fix the double addition when x =0 and when y = 0
-
-    vec2 tex_scale = 1.0/textureSize(screenTexture, 0); // the size of single texel
-    // the bigger the z value (it ranges from 0 (front) to 1.0 (back)), the more I want
-    // to blur this pixel. Bigger z means more sampling
-    vec3 sum = vec3(0,0,0); // return this
-    int n_pixels_max = 6;
-    float depth_centre = texture(screenDepth, TexCoords).x;
-    float w_1 = get_weight_z_1(depth_centre); // w_1 is 0.0 at the front/no-blur
-    float tightness = ((1.0 - 0.158) - w_1)/(1.0 - 0.158); // tightness between 0 (close to rotation centre to 1.0 (at the back)
-    vec3 r = vec3(0.0, 0.125, 0.0);
-    if (depth_centre > 0.0 && depth_centre < 0.3) { // the front (in sceen z) doesn't get blurred
-       return texture(screenTexture, TexCoords).rgb;
-    } else {
-       // most of the image:
-       int n_sampled = 0;
-       int n_closer_neighbours = 0; // ambient occlusion (testing)
-       float sum_weight = 0.0;
-       for (int ix=0; ix<n_pixels_max; ix++) {
-          for (int iy=0; iy<n_pixels_max; iy++) {
-             float r_sqrd = (ix*ix + iy*iy) / (n_pixels_max * n_pixels_max);
-             float weight_xy = get_weight_xy(r_sqrd, tightness);
-             if (weight_xy > 0.0) {
-                {
-                   vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, tex_scale.y * iy);
-                   float depth_this = texture(screenDepth, offset_coords).x;
-                   float weight_z_2 = get_weight_z_2(depth_this, depth_centre);
-                   float weight = weight_xy * weight_z_2;
-                   if (weight > 0.0) {
-                      sum += texture(screenTexture, offset_coords).rgb * weight;
-                      n_sampled += 1;
-                      sum_weight += weight;
-                   }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
-                }
-                {
-                   vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, -tex_scale.y * iy);
-                   float depth_this = texture(screenDepth, offset_coords).x;
-                   float weight_z_2 = get_weight_z_2(depth_this, depth_centre);
-                   float weight = weight_xy * weight_z_2;
-                   if (weight > 0.0) {
-                      sum += texture(screenTexture, offset_coords).rgb * weight;
-                      n_sampled += 1;
-                      sum_weight += weight;
-                   }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
-                }
-                {
-                   vec2 offset_coords = TexCoords + vec2(-tex_scale.x * ix, tex_scale.y * iy);
-                   float depth_this = texture(screenDepth, offset_coords).x;
-                   float weight_z_2 = get_weight_z_2(depth_this, depth_centre);
-                   float weight = weight_xy * weight_z_2;
-                   if (weight > 0.0) {
-                      sum += texture(screenTexture, offset_coords).rgb * weight;
-                      n_sampled += 1;
-                      sum_weight += weight;
-                   }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
-                }
-                {
-                   vec2 offset_coords = TexCoords + vec2(-tex_scale.x * ix, -tex_scale * iy);
-                   float depth_this = texture(screenDepth, offset_coords).x;
-                   float weight_z_2 = get_weight_z_2(depth_this, depth_centre);
-                   float weight = weight_xy * weight_z_2;
-                   if (weight > 0.0) {
-                      sum += texture(screenTexture, offset_coords).rgb * weight;
-                      n_sampled += 1;
-                      sum_weight += weight;
-                   }
-                   if (depth_this < depth_centre) n_closer_neighbours++;
-                }
-             }
-          }
-       }
-       if (n_sampled > 0) {
-          r = sum/sum_weight;
-       } else{
-          r = texture(screenTexture, TexCoords).rgb;
-       }
-       return r;
-    }
-}
 
 void main() {
 
    vec3 result = vec3(0,0,0);
 
-   if (true) {
-      result = sampling_blur();
+   bool do_outline    = false;
+
+   if (do_depth_blur) {
+      result = sampling_blur(8); // 14 is good
    } else {
-      result = texture(screenTexture, TexCoords).rgb; // don't blur
-      float depth_centre = texture(screenDepth, TexCoords).x;
-      if (depth_centre < 0.19) {
-          result = vec3(1.0, 0.0, 0.0);
+      if (do_outline) {
+         result = make_outline();
+      } else {
+         float depth_centre = texture(screenDepth, TexCoords).x;
+         result = texture(screenTexture, TexCoords).rgb; // don't blur
+         if (zoom < 2.0)
+            if (depth_centre > 0.99)
+               result = vec3(0.1, 0.3, 0.1);
       }
    }
 
    out_color = vec4(result, 1.0);
 
 }
-

@@ -24,6 +24,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -95,12 +96,6 @@
 
 #include "geometry/dict-utils.hh"
 
-// A few non-class members - should be somewhere else, I guess.
-//
-void initialize_graphics_molecules() {
-  graphics_info_t g;
-  g.initialize_molecules();
-}
 
 // return a vector of the current valid map molecules
 std::vector<int>
@@ -284,12 +279,12 @@ GtkWidget *graphics_info_t::wrapped_nothing_bad_dialog(const std::string &label)
       gtk_label_set_use_markup(GTK_LABEL(label_widget), TRUE); // needed?
 
       // for gtk2
-      gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
+      // gtk_misc_set_alignment(GTK_MISC(label_widget), 0.0, 0.5);
       // for gtk3
-      // gtk_label_set_xalign (label1, 0.0);
+      gtk_label_set_xalign(GTK_LABEL(label_widget), 0.0);
 
       gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
-      gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1")));
+      gtk_window_set_transient_for(GTK_WINDOW(w), GTK_WINDOW(lookup_widget(graphics_info_t::glareas[0], "window1")));
    }
    return w;
 }
@@ -329,8 +324,8 @@ graphics_info_t::draw_anti_aliasing() {
    // I did however change to using background_is_black_p().
 
   // first for stereo
-  if (glarea_2) {
-    if (make_current_gl_context(glarea_2)) {
+  if (glareas.size() == 2) {
+    if (make_current_gl_context(glareas[1])) {
       if (do_anti_aliasing_flag) {
          // should we also add a (quality) hint here?
          glEnable(GL_LINE_SMOOTH);
@@ -348,8 +343,8 @@ graphics_info_t::draw_anti_aliasing() {
     }
   }
   // normal path
-  if (glarea) {
-    if (make_current_gl_context(glarea)) {
+  if (glareas[0]) {
+    if (make_current_gl_context(glareas[0])) {
       if (do_anti_aliasing_flag) {
    glEnable(GL_LINE_SMOOTH);
    glEnable(GL_BLEND);
@@ -599,7 +594,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       int imol = atom_pair.first;
       mmdb::Residue *residue_current = atom_pair.second->residue;
 
-      // check dir here
+      // check direction dir here
       mmdb::Residue *residue_next = 0;
       if (dir)
          residue_next = coot::util::next_residue(residue_current);
@@ -616,59 +611,51 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 
             // Happy case
 
-            // make a view for current pos and one for where you want to go
+            // ----------- target rotation -------------
 
-            // I want to convert from quat (which should be a quaternion) to
-            // a clipper::Mat33<double>
-            //
-            //
-            GL_matrix m(quat);
-            clipper::Mat33<double> current_rot_mat = m.to_clipper_mat();
+            clipper::Mat33<double> cr = ro.second.rot();
+            glm::mat3 m(cr(0,0), cr(0,1), cr(0,2),
+                        cr(1,0), cr(1,1), cr(1,2),
+                        cr(2,0), cr(2,1), cr(2,2));
+            glm::quat qq(m);
+            glm::quat target_quat = glm_quat * qq;
 
-            clipper::Mat33<double> mc = ro.second.rot() * current_rot_mat;
-            coot::util::quaternion vq(mc);
-            // Note to self: Views should use util::quaternion, not this
-            // old style
-            //
-            float vqf[4];
-            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+            //  --------- target position - try the residue and change it if we started on a CA
 
             const clipper::Coord_orth &rc = residue_centre.second;
             coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
             coot::Cartesian rot_centre = RotationCentre();
             coot::Cartesian target_pos = res_centre;
 
-            // however, if we were "close" to the CA of the current
-            // residue, then we should centre on the CA of the next
-            // residue (rather than the mean position) - experimental.
+            // however, if the next residue has a CA atom
+            // then we should centre on the CA of the next
+            // residue (rather than the mean position)
 
             mmdb::Atom *at = atom_pair.second;
             std::string atom_name(at->GetAtomName());
             if (atom_name == " CA ") { // PDBv3 FIXME
                coot::Cartesian ca_pos(at->x, at->y, at->z);
-               coot::Cartesian delta = ca_pos - rot_centre;
-               if (delta.amplitude() < 0.01) {
-                  std::pair<bool, clipper::Coord_orth> ca_next_pos =
-                    coot::util::get_CA_position_in_residue(residue_next);
-                  if (ca_next_pos.first) {
-                     target_pos = coot::Cartesian(ca_next_pos.second.x(),
-                                                  ca_next_pos.second.y(),
-                                                  ca_next_pos.second.z());
-                  }
+               std::pair<bool, clipper::Coord_orth> ca_next_pos =
+                  coot::util::get_CA_position_in_residue(residue_next);
+               if (ca_next_pos.first) {
+                  target_pos = coot::Cartesian(ca_next_pos.second.x(),
+                                               ca_next_pos.second.y(),
+                                               ca_next_pos.second.z());
                }
             }
 
+            smooth_scroll_delta = target_pos - rot_centre;
             set_old_rotation_centre(RotationCentre());
 
             if (smooth_scroll == 1) {
 
-               coot::view_info_t view1(quat, rot_centre, zoom, "current");
-               coot::view_info_t view2(vqf,  target_pos, zoom, "next");
+               coot::view_info_t view1(glm_quat,    rot_centre, zoom, "current");
+               coot::view_info_t view2(target_quat, target_pos, zoom, "next");
                int nsteps = smooth_scroll_steps * 2;
-               coot::view_info_t::interpolate(view1, view2, nsteps);
 
-               // bleugh :-)
-               for(int i=0; i<4; i++) quat[i] = vqf[i];
+               coot::view_info_t::interpolate(view1, view2, nsteps); // sets up a gtk_widget_add_tick_callback with
+                                                                     // a (no-capture) lambda function, so we don't
+                                                                     // want to change thew view here.
 
             } else {
 
@@ -676,8 +663,14 @@ graphics_info_t::reorienting_next_residue(bool dir) {
                rotation_centre_x = target_pos.x();
                rotation_centre_y = target_pos.y();
                rotation_centre_z = target_pos.z();
+
+               // Replace this with updating the glm_quat, then redraw
+
                // bleugh again
-               for(int i=0; i<4; i++) quat[i] = vqf[i];
+               // for(int i=0; i<4; i++) quat[i] = vqf[i];
+
+               try_centre_from_new_go_to_atom();
+               update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
             }
 
@@ -686,8 +679,6 @@ graphics_info_t::reorienting_next_residue(bool dir) {
             go_to_atom_residue_     = residue_next->GetSeqNum();
             go_to_atom_inscode_     = residue_next->GetInsCode();
 
-            try_centre_from_new_go_to_atom();
-            update_things_on_move_and_redraw(); // (symmetry, environment, rama, map) and draw it
 
             if (go_to_atom_window) {
                // what is next_atom here? Hmm
@@ -709,7 +700,7 @@ graphics_info_t::reorienting_next_residue(bool dir) {
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
-   mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
+   mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
 
    float x = atom->x;
    float y = atom->y;
@@ -717,17 +708,24 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 
    set_old_rotation_centre(RotationCentre());
 
-   short int do_zoom_flag = 0;
+   bool do_zoom_flag = false;
 
-   if (smooth_scroll == 1)
-      smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0);
+   bool needs_a_centre_jump = true;
+   if (smooth_scroll == 1) {
+      // this (usually) launches a timeout/tick function
+      if (smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0))
+         needs_a_centre_jump = false;
+   }
 
-   rotation_centre_x = x;
-   rotation_centre_y = y;
-   rotation_centre_z = z;
+   if (needs_a_centre_jump) {
+      // set it now.
+      rotation_centre_x = x;
+      rotation_centre_y = y;
+      rotation_centre_z = z;
+   }
 
-   if (0) {  // Felix test/play code to orient the residue up the
-        // screen on moving to next residue.
+   if (false) {  // Felix test/play code to orient the residue up the
+                 // screen on moving to next residue.
 
       GL_matrix m;
       clipper::Mat33<double> mat_in = m.to_clipper_mat();
@@ -947,16 +945,19 @@ graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
 }
 
 
-void
+bool
 graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
-                                     short int do_zoom_and_move_flag,
-                                    float target_zoom) {
+                                     bool do_zoom_and_move_flag,
+                                     float target_zoom) {
 
+   bool done = false;
    if ( (x - rotation_centre_x) != 0.0 ||
         (y - rotation_centre_y) != 0.0 ||
         (z - rotation_centre_z) != 0.0) {
-      smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+      done = smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
    }
+
+   return done;
 }
 
 #include <glm/gtx/string_cast.hpp>
@@ -966,30 +967,41 @@ gboolean
 graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
                                               GdkFrameClock *frame_clock,
                                               gpointer data) {
+
+   // this is not sinusoidal. The first step is 1.
+
    float frac = 1.0;
+   graphics_info_t::smooth_scroll_steps = 20; // should be user choice?
    if (graphics_info_t::smooth_scroll_steps > 0)
       frac = 1.0/static_cast<float>(graphics_info_t::smooth_scroll_steps);
    smooth_scroll_current_step += 1;
-   // std::cout << "smooth " << smooth_scroll_steps << " vs " << smooth_scroll_current_step << std::endl;
-   if (smooth_scroll_current_step >= smooth_scroll_steps) {
-      // std::cout << " smooth_scroll_animation_func - path A - finish\n";
-      return G_SOURCE_REMOVE;
-   } else {
-      double theta = 2.0 * M_PI * frac * smooth_scroll_current_step;
+
+   if (smooth_scroll_current_step <= smooth_scroll_steps) {
+
+      double theta = 2.0 * M_PI * frac * smooth_scroll_current_step; // not used!
       coot::Cartesian this_step_delta = smooth_scroll_delta * frac;
-      // add_vector_to_rotation_centre(this_step_delta);
-      // std::cout << "Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
-      // std::cout << "smooth_scroll_animation_func - path B\n";
-      // gtk_widget_queue_draw(glarea);
+      add_vector_to_rotation_centre(this_step_delta);
+      if (false)
+         std::cout << "animation this_step " << smooth_scroll_current_step
+                   << " this_step_delta: " << this_step_delta
+                   << " for frac " << frac
+                   << " Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
+
       graphics_draw(); // adds to the queue
+      glFlush();
+
       return G_SOURCE_CONTINUE;
+   } else {
+      return G_SOURCE_REMOVE;
    }
 }
 
-void
+bool
 graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
                                                              short int do_zoom_and_move_flag,
                                                              float target_zoom) {
+
+   bool done_the_move = false; // well, "set it up to go" to be more accurate
 
    // std::cout << "------------ start smooth_scroll_maybe_sinusoidal_acceleration --------------\n";
 
@@ -1009,6 +1021,11 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;
+
+   if (false)
+      std::cout << "debug:: in smooth_scroll_maybe_sinusoidal_acceleration "
+                << "current centre " << X() << " " << Y() << " " << Z()
+                << " delta from target " << xd << " " << yd << " " << zd << std::endl;
    if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
 
       float pre_zoom = zoom;
@@ -1029,11 +1046,23 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       gpointer user_data = 0;
       smooth_scroll_current_step = 0;
       smooth_scroll_delta = coot::Cartesian(xd, yd, zd);
-      gtk_widget_add_tick_callback(glarea, smooth_scroll_animation_func, user_data, NULL);
+      if (true) {
+         std::cout << "in smooth_scroll_maybe_sinusoidal_acceleration() with set smooth_scroll_delta "
+                   << smooth_scroll_delta << " length " << smooth_scroll_delta.amplitude()
+                   << std::endl;
+
+         std::cout << "debug:: in smooth_scroll_maybe_sinusoidal_acceleration "
+                   << "current centre " << X() << " " << Y() << " " << Z() << " about to add tick"
+                   << std::endl;
+      }
+
+      gtk_widget_add_tick_callback(glareas[0], smooth_scroll_animation_func, user_data, NULL);
+      done_the_move = true;
 
       // restore state
       smooth_scroll_on = 0;
    }
+   return done_the_move;
 }
 
 void
@@ -1137,14 +1166,29 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
 
    set_old_rotation_centre(RotationCentre());
 
-   if (graphics_info_t::smooth_scroll == 1)
-      smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
-     0, 100.0); // don't zoom and dummy value
+   // smooth_scroll_maybe
 
-   rotation_centre_x = centre.get_x();
-   rotation_centre_y = centre.get_y();
-   rotation_centre_z = centre.get_z();
-   run_post_set_rotation_centre_hook();
+   // smooth_scroll_maybe now sets up a timeout to move
+   // to the given location, so we can't just jump
+   // to it here as we used to at the end of this function,
+   // because the timeout function  will use "centre"
+   // as the place from which to start moving :-)
+
+   bool needs_centre_jump = true;
+   if (graphics_info_t::smooth_scroll == 1) {
+      // don't zoom and dummy value
+      bool status = smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 0, 100.0);
+      if (status) needs_centre_jump = false; // all in hand
+   }
+
+   if (needs_centre_jump)  {
+
+      rotation_centre_x = centre.get_x();
+      rotation_centre_y = centre.get_y();
+      rotation_centre_z = centre.get_z();
+      run_post_set_rotation_centre_hook();
+   }
+
 }
 
 void
@@ -1459,7 +1503,7 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
-   if (true) {
+   if (false) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
            << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
@@ -1544,7 +1588,8 @@ graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
    run_post_manipulation_hook_scm(imol, mode);
 #endif // GUILE
 #ifdef USE_PYTHON
-   run_post_manipulation_hook_py(imol, mode);
+   // turn this off for the moment.
+   // run_post_manipulation_hook_py(imol, mode);
 #endif
 
 }
@@ -1588,7 +1633,7 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    check_pms += pms;
    check_pms += ")";
    v = safe_python_command_with_return(check_pms);
-   ret = PyInt_AsLong(v);
+   ret = PyLong_AsLong(v);
    if (ret == 1) {
      std::string ss = pms;
      ss += "(";
@@ -1597,13 +1642,13 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
      ss += int_to_string(mode);
      ss += ")";
      PyObject *res = safe_python_command_with_return(ss);
-     PyObject *fmt =  PyString_FromString("result: \%s");
+     PyObject *fmt =  myPyString_FromString("result: \%s");
      PyObject *tuple = PyTuple_New(1);
      PyTuple_SetItem(tuple, 0, res);
      //PyString_Format(p, tuple);
-     PyObject *msg = PyString_Format(fmt, tuple);
+     PyObject *msg = PyUnicode_Format(fmt, tuple);
 
-     std::cout << PyString_AsString(msg)<<std::endl;;
+     std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
      Py_DECREF(msg);
    }
    Py_XDECREF(v);
@@ -1614,12 +1659,15 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 void
 graphics_info_t::run_post_set_rotation_centre_hook() {
 
+   // Don't run the post update hook at the moment.
+  // Python is not wired up (correctly)
+
 #if defined USE_GUILE
-   run_post_set_rotation_centre_hook_scm();
+   // run_post_set_rotation_centre_hook_scm();
 #endif // GUILE
 
 #ifdef USE_PYTHON
-   run_post_set_rotation_centre_hook_py();
+   // run_post_set_rotation_centre_hook_py();
 #endif
 
 }
@@ -1660,17 +1708,17 @@ graphics_info_t::run_post_set_rotation_centre_hook_py() {
       check_ps += ps;
       check_ps += ")";
       v = safe_python_command_with_return(check_ps);
-      ret = PyInt_AsLong(v);
+      ret = PyLong_AsLong(v);
       if (ret == 1) {
         std::string ss = ps;
         ss += "()";
         PyObject *res = safe_python_command_with_return(ss);
-        PyObject *fmt =  PyString_FromString("result: \%s");
+        PyObject *fmt =  myPyString_FromString("result: \%s");
         PyObject *tuple = PyTuple_New(1);
         PyTuple_SetItem(tuple, 0, res);
-        PyObject *msg = PyString_Format(fmt, tuple);
+        PyObject *msg = PyUnicode_Format(fmt, tuple);
 
-        std::cout << PyString_AsString(msg)<<std::endl;;
+        std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
         Py_DECREF(msg);
       }
       Py_XDECREF(v);
@@ -1736,41 +1784,47 @@ graphics_info_t::clear_up_moving_atoms() {
 
    continue_update_refinement_atoms_flag = false;
    continue_threaded_refinement_loop = false;
+   if (moving_atoms_asc) {
 
-   if (moving_atoms_asc->atom_selection != NULL) {
-      if (moving_atoms_asc->n_selected_atoms > 0) {
-    moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
-    moving_atoms_asc->atom_selection = NULL;
+      if (moving_atoms_asc->atom_selection != NULL) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            moving_atoms_asc->mol->DeleteSelection(moving_atoms_asc->SelectionHandle);
+            moving_atoms_asc->atom_selection = NULL;
+         } else {
+            std::cout << "WARNING:: attempting to delete non-NULL ";
+            std::cout << "moving_atoms_asc.atom_selection" << std::endl;
+            std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
+            std::cout << "ignoring " << std::endl;
+         }
       } else {
-    std::cout << "WARNING:: attempting to delete non-NULL ";
-    std::cout << "moving_atoms_asc.atom_selection" << std::endl;
-    std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
-    std::cout << "ignoring " << std::endl;
+         // std::cout << "WARNING:: Ignoring attempt to delete NULL moving_atoms_asc.atom_selection"
+         // << std::endl;
       }
-   } else {
-      // std::cout << "WARNING:: Ignoring attempt to delete NULL moving_atoms_asc.atom_selection"
-      // << std::endl;
-   }
-   if (moving_atoms_asc->mol != NULL) {
-      if (moving_atoms_asc->n_selected_atoms > 0) {
-    moving_atoms_asc->mol = NULL;
+      if (moving_atoms_asc->mol != NULL) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            moving_atoms_asc->mol = NULL;
+         } else {
+            std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
+            std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
+            std::cout << "ignoring " << std::endl;
+         }
       } else {
-    std::cout << "WARNING:: attempting to delete non-NULL moving_atoms_asc.mol" << std::endl;
-    std::cout << "but moving_atoms_asc.n_selected_atoms == 0" << std::endl;
-    std::cout << "ignoring " << std::endl;
+         if (false) {
+            std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
+            std::cout << "ignoring " << std::endl;
+         }
       }
-   } else {
-      if (false) {
-    std::cout << "attempting to delete NULL moving_atoms_asc.mol" << std::endl;
-    std::cout << "ignoring " << std::endl;
-      }
+      moving_atoms_asc->n_selected_atoms = 0;
    }
 
    dynamic_distances.clear();
 
    // and now the signal that moving_atoms_asc has been cleared:
    //
-   moving_atoms_asc->n_selected_atoms = 0;
+   moving_atoms_asc = NULL; // 20200412-PE. Why was this not done years ago?
+                            // Suspicious.
+                            // OK, so let the test be on moving_atoms_asc->mol
+                            // moving_atoms_asc is set in init()
 
 #ifdef HAVE_GSL
 
@@ -1787,6 +1841,8 @@ graphics_info_t::clear_up_moving_atoms() {
 
 
    moving_atoms_lock  = false;
+
+   // std::cout << "calling rebond_molecule_corresponding_to_moving_atoms() " << std::endl;
    graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
 
 }
@@ -1799,9 +1855,11 @@ graphics_info_t::clear_up_moving_atoms_maybe(int imol) {
    // clear up moving atoms for this molecule if they exist for this given molecule
 
    if (imol_moving_atoms == imol) {
-      if (moving_atoms_asc->n_selected_atoms > 0){
-    clear_up_moving_atoms();
-    clear_moving_atoms_object();
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            clear_up_moving_atoms();
+            clear_moving_atoms_object();
+         }
       }
    }
 }
@@ -1908,7 +1966,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          bool draw_hydrogens_flag = false;
          if (molecules[imol_moving_atoms].draw_hydrogens())
          draw_hydrogens_flag = true;
-         bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+         bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7,
+                                        draw_missing_loops_flag, draw_hydrogens_flag);
 
          unsigned int unlocked = 0;
          // Neither of these seems to make a difference re: the intermediate atoms python representation
@@ -1933,6 +1992,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
             regularize_object_bonds_box.clear_up();
             regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+
             moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
@@ -1940,7 +2001,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       } else {
 
          Bond_lines_container bonds;
-         bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7);
+         bonds.do_Ca_bonds(*moving_atoms_asc, 1.0, 4.7, draw_missing_loops_flag);
          unsigned int unlocked = false;
          while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -1994,7 +2055,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       std::set<int> dummy;
       bool do_sticks_for_waters = true; // otherwise waters are (tiny) discs.
       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, dummy, Geom_p(),
-				 do_disulphide_flag, draw_hydrogens_flag, 0, "dummy",
+				 do_disulphide_flag, draw_hydrogens_flag,
+                                 draw_missing_loops_flag, 0, "dummy",
 				 do_rama_markup, do_rota_markup, do_sticks_for_waters, tables_pointer);
       unsigned int unlocked = false;
       while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
@@ -2006,6 +2068,12 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
           do_rama_markup, do_rama_markup);
       moving_atoms_bonds_lock = 0; // unlocked
    }
+
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
+   moving_atoms_molecule.is_intermediate_atoms_molecule = true;
+   moving_atoms_molecule.make_glsl_bonds_type_checked();
+   setup_atom_pull_restraints_glsl();
+
 }
 
 
@@ -2014,6 +2082,10 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 // moving atoms are intermediate atoms
 void
 graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) {
+
+#if 0
+
+   // old - delete this
 
    // very much most of the time, this will be zero
    //
@@ -2094,61 +2166,8 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
       moving_atoms_bonds_lock = false; // unlock.
    }
 
-}
+#endif
 
-void
-graphics_info_t::draw_moving_atoms_atoms(bool against_a_dark_background) {
-
-   if (false)
-      std::cout << "draw_moving_atoms_atoms() " << regularize_object_bonds_box.atom_centres_
-           << std::endl;
-
-   // This is a pointer. Is that what I want to be testing?
-   if (regularize_object_bonds_box.atom_centres_) {
-
-      coot::Cartesian front = unproject(0.0);
-      coot::Cartesian back  = unproject(1.0);
-      coot::Cartesian z_delta = (front - back) * 0.003;
-
-      glBegin(GL_POINTS);
-      // glPointSize(700.0/zoom);
-      // glPointSize(2);
-
-      float zsc = graphics_info_t::zoom;
-      glPointSize(960.0/zsc);
-
-      // GLdouble point_size_data[2];
-      // glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
-      // std::cout << "Point size range " << point_size_data[0] << " " << point_size_data[1] << std::endl;
-
-      for (int icol=0; icol<regularize_object_bonds_box.n_consolidated_atom_centres; icol++) {
-
-    switch(icol) {
-    case BLUE_BOND:
-       glColor3f (0.40, 0.4, 0.79);
-       break;
-    case RED_BOND:
-       glColor3f (0.79, 0.40, 0.640);
-       break;
-    default:
-       if (against_a_dark_background)
-          glColor3f (0.8, 0.8, 0.8);
-       else
-          glColor3f (0.5, 0.5, 0.5);
-    }
-
-    for (unsigned int i=0; i<regularize_object_bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-       // no points for hydrogens
-       if (! regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
-
-          coot::Cartesian fake_pt = regularize_object_bonds_box.consolidated_atom_centres[icol].points[i].position;
-          fake_pt += z_delta;
-          glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
-       }
-    }
-      }
-      glEnd();
-   }
 }
 
 
@@ -2320,22 +2339,22 @@ graphics_info_t::get_rotamer_dodecs() {
    std::vector<coot::generic_display_object_t::dodec_t> dodecs;
    if (regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_rotamer_markups > 0) {
-    dodec d;
-    coot::Cartesian top    = unproject_xyz(100, 100, 0.5);
-    coot::Cartesian bottom = unproject_xyz(100,   0, 0.5);
-    clipper::Coord_orth screen_y(top.x()-bottom.x(),
-         top.y()-bottom.y(),
-         top.z()-bottom.z());
+         dodec d;
+         glm::vec4 top    = unproject(100, 100, 0.5);
+         glm::vec4 bottom = unproject(100,   0, 0.5);
+         clipper::Coord_orth screen_y(top.x-bottom.x,
+                                      top.y-bottom.y,
+                                      top.z-bottom.z);
 
-    for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
+         for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
-       clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
-       double size = 0.52;
-       pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
-       coot::generic_display_object_t::dodec_t dodec(d, size, pos);
-       dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
-       dodecs.push_back(dodec);
-    }
+            clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
+            double size = 0.52;
+            pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
+            coot::generic_display_object_t::dodec_t dodec(d, size, pos);
+            dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
+            dodecs.push_back(dodec);
+         }
       }
    }
    return dodecs;
@@ -2570,93 +2589,13 @@ graphics_info_t::printString_internal(const std::string &s,
          const double &x, const double &y, const double &z,
          bool do_unproject, bool mono_font, double sf) {
 
-   if (graphics_info_t::stroke_characters) {
-
-      // better text with these 3 lines?
-
-      // Not for me, there are missing fragments of the text when I
-      // enable them (looks like stippling).  Consider another
-      // user-settable parameter/function:
-      // set_use_smooth_stroke_characters()
-      //
-      if (0) {
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glEnable(GL_LINE_SMOOTH);
-      }
-
-      glDisable(GL_LINE_STIPPLE);
-
-      glLineWidth(1.0);
-      glPointSize(1.0);
-
-      glPushMatrix();
-      glTranslated(x,y,z);
-
-      float aspect = static_cast<float>(graphics_x_size)/static_cast<float>(graphics_y_size);
-      glScaled(sf/aspect, sf, sf);
-
-      if (do_unproject) {
-    coot::Cartesian b = unproject(1);
-    coot::Cartesian f = unproject(0);
-    coot::Cartesian b_to_f_cart = f - b;
-
-    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-    coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-    coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
-
-    coot::Cartesian screen_x = (right - centre);
-    // coot::Cartesian screen_y = (top   - centre);
-    coot::Cartesian screen_y = (centre - top);
-    coot::Cartesian screen_z = (front - centre);
-
-    screen_x.unit_vector_yourself();
-    screen_y.unit_vector_yourself();
-    screen_z.unit_vector_yourself();
-
-    float mat[16];
-    mat[ 0] = screen_x.x(); mat[ 1] = screen_x.y(); mat[ 2] = screen_x.z();
-    mat[ 4] = screen_y.x(); mat[ 5] = screen_y.y(); mat[ 6] = screen_y.z();
-    mat[ 8] = screen_z.x(); mat[ 9] = screen_z.y(); mat[10] = screen_z.z();
-
-    mat[ 3] = 0; mat[ 7] = 0; mat[11] = 0;
-    mat[12] = 0; mat[13] = 0; mat[14] = 0; mat[15] = 1;
-
-    glMultMatrixf(mat);
-
-      }
-
-#if 0
-      void *font = GLUT_STROKE_ROMAN;
-      if (mono_font)
-          font = GLUT_STROKE_MONO_ROMAN;
-#endif
-      for (unsigned int i=0; i<s.length(); i++) {
-          // glutStrokeCharacter(font, s[i]);
-          // space characters are full-width (105) - I don't like that, so slim them down
-          if (s[i] == ' ')
-             glTranslatef(-40, 0, 0);
-    }
-
-    glPopMatrix();
-
-   } else {
-
-#if 0
-      glRasterPos3f(x,y,z);
-      glPushAttrib (GL_LIST_BIT);
-      for (unsigned int i = 0; i < s.length(); i++)
-          glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
-      glPopAttrib();
-#endif
-   }
+   // Don't do this. Delete this function.
 }
 
 
 void
 graphics_info_t::environment_graphics_object_internal_tube(const coot::CartesianPair &pair,
-      int ipart, int n_parts) const {
+                                                           int ipart, int n_parts) const {
 
    coot::Cartesian bond_vec = pair.getFinish() - pair.getStart();
    coot::Cartesian bond_frag = bond_vec * (1.0/double(n_parts));
@@ -3062,27 +3001,27 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 
       for (unsigned int i=0; i<12; i++) {
 
-    std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
+        std::vector<unsigned int> face = penta_dodec.pkdd.d.face(i);
 
-    glBegin(GL_TRIANGLE_FAN);
+        glBegin(GL_TRIANGLE_FAN);
 
-    // first the base point (tip of the triangles/pyrimid)
-    clipper::Coord_orth pvu(pv[i].unit());
-    glNormal3d(pvu.x(), pvu.y(), pvu.z());
-    glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
+        // first the base point (tip of the triangles/pyrimid)
+        clipper::Coord_orth pvu(pv[i].unit());
+        glNormal3d(pvu.x(), pvu.y(), pvu.z());
+        glVertex3d(pv[i].x(), pv[i].y(), pv[i].z());
 
-    for (unsigned int j=0; j<=4; j++) {
-       const clipper::Coord_orth &pt = v[face[j]];
-       clipper::Coord_orth ptu(pt.unit());
-       glNormal3d(ptu.x(), ptu.y(), ptu.z());
-       glVertex3d(pt.x(),  pt.y(),  pt.z());
-    }
-    const clipper::Coord_orth &pt = v[face[0]];
-    clipper::Coord_orth ptu(pt.unit());
-    glNormal3d(ptu.x(), ptu.y(), ptu.z());
-    glVertex3d(pt.x(),  pt.y(),  pt.z());
-    glEnd();
-      }
+        for (unsigned int j=0; j<=4; j++) {
+           const clipper::Coord_orth &pt = v[face[j]];
+           clipper::Coord_orth ptu(pt.unit());
+           glNormal3d(ptu.x(), ptu.y(), ptu.z());
+           glVertex3d(pt.x(),  pt.y(),  pt.z());
+        }
+        const clipper::Coord_orth &pt = v[face[0]];
+        clipper::Coord_orth ptu(pt.unit());
+        glNormal3d(ptu.x(), ptu.y(), ptu.z());
+        glVertex3d(pt.x(),  pt.y(),  pt.z());
+        glEnd();
+          }
 
    } else {
 
@@ -3439,9 +3378,9 @@ graphics_info_t::Imol_Refinement_Map() const {
 
    if (imol_refinement_map != -1) { // has been set already (or was reset)
       if (imol_refinement_map < n_molecules())
-    if (imol_refinement_map >= 0)
-       if (molecules[imol_refinement_map].has_xmap())
-          return imol_refinement_map;
+         if (imol_refinement_map >= 0)
+            if (molecules[imol_refinement_map].has_xmap())
+               return imol_refinement_map;
    }
 
    // check the molecules for maps - we can assign if there is only
@@ -3455,12 +3394,14 @@ graphics_info_t::Imol_Refinement_Map() const {
          }
       }
    }
+
    if (direct_maps.size() == 1) {
       // let's set it then
       imol_refinement_map = direct_maps[0];
    } else {
       imol_refinement_map = -1;
    }
+
    return imol_refinement_map;
 }
 
@@ -3782,9 +3723,12 @@ graphics_info_t::draw_baton_object() {
 
    if (graphics_info_t::draw_baton_flag) {
 
-      if (false)
-    std::cout << "baton from " << baton_root << " to " << baton_tip
-      << " draw_baton_flag: " << draw_baton_flag << std::endl;
+      if (true)
+         std::cout << "baton from " << baton_root << " to " << baton_tip
+                   << " draw_baton_flag: " << draw_baton_flag << std::endl;
+
+#if 0
+      // needs replacing
 
       coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
       coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
@@ -3812,6 +3756,8 @@ graphics_info_t::draw_baton_object() {
       glVertex3f(baton_tip.x(), baton_tip.y(), baton_tip.z());
       glVertex3f(rp_2.x(), rp_2.y(), rp_2.z());
       glEnd();
+#endif
+
    }
 
 }
@@ -4039,6 +3985,10 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
    diff  = mouse_current_x - GetMouseBeginX();
    diff += mouse_current_y - GetMouseBeginY();
 
+#if 0
+
+   // needs replacing
+
    coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
    coot::Cartesian screen_z = (front - centre);
@@ -4050,6 +4000,8 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
 
    baton_tip = to_cartesian(new_pos);
    graphics_draw();
+#endif
+
 }
 
 void
@@ -4504,8 +4456,9 @@ graphics_info_t::pick_cursor_real() {
       //    GdkCursorType c = GDK_CROSSHAIR;
       GdkCursorType c = pick_cursor_index;
       GdkCursor *cursor;
-      cursor = gdk_cursor_new (c);
-      GdkWindow *window = gtk_widget_get_window(glarea);
+      // cursor = gdk_cursor_new (c);
+      cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
+      GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
    }
@@ -4519,8 +4472,9 @@ graphics_info_t::normal_cursor() {
       if (control_key_for_rotate_flag) {
     GdkCursorType c = GDK_LEFT_PTR;
     GdkCursor *cursor;
-    cursor = gdk_cursor_new (c);
-    GdkWindow *window = gtk_widget_get_window(glarea);
+    //cursor = gdk_cursor_new (c);
+    cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
+    GdkWindow *window = gtk_widget_get_window(glareas[0]);
     gdk_window_set_cursor(window, cursor);
     // gdk_cursor_destroy (cursor);
       }
@@ -4534,8 +4488,9 @@ graphics_info_t::watch_cursor() {
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_WATCH;
       GdkCursor *cursor;
-      cursor = gdk_cursor_new (c);
-      GdkWindow *window = gtk_widget_get_window(glarea);
+      // cursor = gdk_cursor_new (c);
+      cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
+      GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy(cursor);
       while (gtk_events_pending()) {
@@ -4551,8 +4506,9 @@ graphics_info_t::fleur_cursor() {
    if (use_graphics_interface_flag) {
       GdkCursorType c = GDK_FLEUR;
       GdkCursor *cursor;
-      cursor = gdk_cursor_new (c);
-      GdkWindow *window = gtk_widget_get_window(glarea);
+      // cursor = gdk_cursor_new (c);
+      cursor = gdk_cursor_new_for_display (gdk_display_get_default(), c);
+      GdkWindow *window = gtk_widget_get_window(glareas[0]);
       gdk_window_set_cursor(window, cursor);
       // gdk_cursor_destroy (cursor);
    }
@@ -4939,143 +4895,6 @@ graphics_info_t::add_flash_bond(const std::pair<clipper::Coord_orth, clipper::Co
 }
 
 
-void
-graphics_info_t::draw_atom_pull_restraint() {
-
-   // don't draw this if there are not intermediate atoms shown.
-
-#if 0
-   if (! regularize_object_bonds_box.empty()) {
-      if (moving_atoms_asc->n_selected_atoms) {
-    for (std::size_t i=0; i<atom_pulls.size(); i++) {
-       // std::cout << "Here with pull number  " << i << " of " << atom_pulls.size() << std::endl;
-       const atom_pull_info_t &atom_pull = atom_pulls[i];
-       if (atom_pull.get_status()) {
-          std::pair<bool, int> spec = atom_pull.find_spec(moving_atoms_asc->atom_selection,
-          moving_atoms_asc->n_selected_atoms);
-          if (spec.first) {
-     clipper::Coord_orth pt_start = coot::co(graphics_info_t::moving_atoms_asc->atom_selection[spec.second]);
-     clipper::Coord_orth pt_end = atom_pull.pos;
-
-     bool do_gl_lines = false;
-     bool do_arrow    = true;
-
-     if (do_gl_lines) {
-        float ll = clipper::Coord_orth::length(pt_start, pt_end);
-        float dash_density = 8;
-        int n_dashes = int(dash_density * ll);
-        n_dashes = 16;
-
-        bool visible = true;
-        glBegin(GL_LINES);
-        glColor3f(0.3, 1.0, 0.6);
-        for (int idash=0; idash<(n_dashes-1); idash++) {
-   if (visible) {
-      float fracs = float(idash)/float(n_dashes);
-      float fracn = float(idash+1)/float(n_dashes);
-      clipper::Coord_orth p1 = pt_start + fracs * (pt_end - pt_start);
-      clipper::Coord_orth p2 = pt_start + fracn * (pt_end - pt_start);
-
-      glVertex3f(p1.x(), p1.y(), p1.z());
-      glVertex3f(p2.x(), p2.y(), p2.z());
-
-   }
-   visible = !visible;
-        }
-        glEnd();
-     }
-
-     if (do_arrow) {
-
-        double radius = 0.1;
-        double fraction_head_size = 0.1;
-
-        double top =  radius;
-        double base = radius;
-        int slices  = 12;
-        int stacks  = 2;
-
-        GLfloat  mat_specular[] = {0.9, 0.7, 0.7, 0.8};
-        GLfloat  mat_ambient[]  = {0.9, 0.5, 0.6, 1.0};
-        GLfloat  mat_shininess[] = {15};
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT1);
-        glEnable(GL_LIGHT0); // enabled here
-        glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-        glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        glPushMatrix();
-
-        clipper::Coord_orth bond_frag = pt_end - pt_start;
-        double height = sqrt(bond_frag.lengthsq());
-
-        glTranslatef(pt_start.x(), pt_start.y(), pt_start.z());
-
-        double ax;
-        double rx = 0;
-        double ry = 0;
-        double length = height;
-        double vz = bond_frag.z();
-
-        bool rot_x = false;
-        if (fabs(vz)>1e-7) {
-   ax = 180.0/M_PI*acos(vz/length);
-   if(vz<0.0) ax = -ax;
-   rx = -bond_frag.y()*vz;
-   ry = bond_frag.x()*vz;
-        } else {
-   double vx = bond_frag.x();
-   double vy = bond_frag.y();
-   ax = 180.0/M_PI*acos(vx/length);
-   if(vy<0) ax = -ax;
-   rot_x = true;
-        }
-
-        if (rot_x) {
-   glRotated(90.0, 0.0, 1.0, 0.0);
-   glRotated(ax,  -1.0, 0.0, 0.0);
-        } else {
-   glRotated(ax, rx, ry, 0.0);
-        }
-        // 	    --------
-
-        GLUquadric* quad_1 = gluNewQuadric();
-        GLUquadric* quad_2 = gluNewQuadric();
-        GLUquadric* quad_3 = gluNewQuadric();
-
-        gluCylinder(quad_1, base, top, height, slices, stacks);
-        glTranslated(0, 0, height);
-        gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
-
-        glScalef(1.0, 1.0, -1.0);
-        gluDisk(quad_3, 0, base, slices, 2);
-
-        gluDeleteQuadric(quad_1);
-        gluDeleteQuadric(quad_2);
-        gluDeleteQuadric(quad_3);
-        glPopMatrix();
-        glDisable(GL_LIGHTING);
-
-     }
-          } else {
-
-     // we don't want to see this (e.g. when we change the sphere
-     // position and the saved pull atom is not in this region)
-
-     // std::cout << "draw_atom_pull_restraint(): failed to find the atom "
-     // << atom_pull.spec << std::endl;
-
-          }
-       }
-    }
-      }
-   }
-#endif
-}
 
 // Question to self? Have I locked the restraints before I call this?
 //
@@ -6113,13 +5932,13 @@ void graphics_info_t::run_user_defined_click_func() {
     for (unsigned int i=0; i<user_defined_atom_pick_specs.size(); i++) {
        PyObject *spec_py = atom_spec_to_py(user_defined_atom_pick_specs[i]);
        // we need to add the model number too
-       PyObject *model_number_py = PyInt_FromLong(user_defined_atom_pick_specs[i].model_number);
+       PyObject *model_number_py = PyLong_FromLong(user_defined_atom_pick_specs[i].model_number);
        PyList_Insert(spec_py, 0, model_number_py);
 
        // continue output from above
-       PyObject *fmt = PyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
-       PyObject *msg = PyString_Format(fmt, PyList_AsTuple(spec_py));
-       std::cout <<PyString_AsString(msg) << " ";
+       PyObject *fmt = myPyString_FromString("[%i,%i,'%s',%i,'%s','%s','%s']");
+       PyObject *msg = PyUnicode_Format(fmt, PyList_AsTuple(spec_py));
+       std::cout << myPyString_AsString(msg) << " ";
        PyTuple_SetItem(arg_list_py, i, spec_py);
        Py_DECREF(fmt);
        Py_DECREF(msg);
@@ -6172,12 +5991,12 @@ graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
 
   //  PyObject *r = PyTuple_New(6);
   PyObject *r = PyList_New(6);
-  PyList_SetItem(r, 0, PyInt_FromLong(spec.int_user_data));
-  PyList_SetItem(r, 1, PyString_FromString(spec.chain_id.c_str()));
-  PyList_SetItem(r, 2, PyInt_FromLong(spec.res_no));
-  PyList_SetItem(r, 3, PyString_FromString(spec.ins_code.c_str()));
-  PyList_SetItem(r, 4, PyString_FromString(spec.atom_name.c_str()));
-  PyList_SetItem(r, 5, PyString_FromString(spec.alt_conf.c_str()));
+  PyList_SetItem(r, 0, PyLong_FromLong(spec.int_user_data));
+  PyList_SetItem(r, 1, myPyString_FromString(spec.chain_id.c_str()));
+  PyList_SetItem(r, 2, PyLong_FromLong(spec.res_no));
+  PyList_SetItem(r, 3, myPyString_FromString(spec.ins_code.c_str()));
+  PyList_SetItem(r, 4, myPyString_FromString(spec.atom_name.c_str()));
+  PyList_SetItem(r, 5, myPyString_FromString(spec.alt_conf.c_str()));
 
   return r;
 }

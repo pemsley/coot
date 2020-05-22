@@ -53,9 +53,8 @@ graphics_info_t::raster3d(std::string filename) {
    background.col[2] = background_colour[2];
    int width  = 600;
    int height = 600;
-   if (glarea) {
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(glarea, &allocation);
+   if (glareas.size() > 0) {
+      GtkAllocation allocation = get_glarea_allocation();
       width  = allocation.width;
       height = allocation.height;
    } 
@@ -126,8 +125,7 @@ graphics_info_t::povray(std::string filename) {
    background.col[0] = background_colour[0];
    background.col[1] = background_colour[1];
    background.col[2] = background_colour[2];
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(glarea, &allocation);
+   GtkAllocation allocation = get_glarea_allocation();
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    allocation.width,
 			    allocation.height, 
@@ -145,7 +143,8 @@ graphics_info_t::povray(std::string filename) {
    // So where is the "eye"? We have to do an unproject:
    int x0 = allocation.width/2;
    int y0 = allocation.height/2;
-   coot::Cartesian eye = unproject_xyz(x0, y0, 0);
+   glm::vec3 glm_eye = get_world_space_eye_position();
+   coot::Cartesian eye(glm_eye.x, glm_eye.y, glm_eye.z);
 
    // It seems that for raster3d, this eye position is good, but for
    // povray, we are very close in.  So, let's try moving the eye back
@@ -206,12 +205,9 @@ graphics_info_t::renderman(std::string filename) {
    background.col[2] = background_colour[2];
    int width = 600;
    int height = 600;
-   GtkAllocation allocation;
-   gtk_widget_get_allocation(glarea, &allocation);
-   if (glarea) {
-      width  = allocation.width;
-      height = allocation.height;
-   }
+   GtkAllocation allocation = get_glarea_allocation();
+   width  = allocation.width;
+   height = allocation.height;
    bool is_bb = background_is_black_p(); 
 
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
@@ -793,19 +789,21 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       clipper::Polar_ccp4 polar = clipper::Rotation(view_matrix_cl).polar_ccp4();
       std::cout << "kappa: " << polar.kappa() << std::endl;
 
-      GtkAllocation allocation;
-      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
       int x0 = allocation.width/2;
       int y0 = allocation.height/2;
-      coot::Cartesian screen_edge1 = unproject_xyz(0, 0, 0);
-      coot::Cartesian screen_edge2 = unproject_xyz(x0*2, 0, 0);
+      graphics_info_t g;
+      glm::vec4 glm_screen_edge1 = g.unproject(0, 0, 0);
+      glm::vec4 glm_screen_edge2 = g.unproject(x0*2, 0, 0);
+      coot::Cartesian screen_edge1(glm_screen_edge1.x, glm_screen_edge1.y, glm_screen_edge1.z);
+      coot::Cartesian screen_edge2(glm_screen_edge2.x, glm_screen_edge2.y, glm_screen_edge2.z);
 
       coot::Cartesian v1_2 = screen_edge2 - screen_edge1;
 
       clipper::Vec3<double> camera_location_cl(camera_location.x(),
 					       camera_location.y(),
 					       camera_location.z());
-      
+
       clipper::Vec3<double> view_centre_cl(view_centre.x(),
 					   view_centre.y(),
 					   view_centre.z());

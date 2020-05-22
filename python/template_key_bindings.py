@@ -17,7 +17,7 @@ add_key_binding("Add Water +", "W", lambda: add_water_in_blob())
 def key_binding_func_1():
     active_atom = active_residue()
     if (not active_atom):
-        print "No active atom"
+        print("No active atom")
     else:
         imol      = active_atom[0]
         chain_id  = active_atom[1]
@@ -31,7 +31,7 @@ add_key_binding("Add terminal residue", "y", lambda: key_binding_func_1())
 def key_binding_func_2():
     active_atom = active_residue()
     if (not active_atom):
-        print "No active atom"
+        print("No active atom")
     else:
         imol      = active_atom[0]
         chain_id  = active_atom[1]
@@ -167,7 +167,7 @@ def jed_flip_key_func(dir):
     if status == 0:
        active_atom = active_residue()
        if (not active_atom):
-           print "No active atom"
+           print("No active atom")
        else:
            imol      = active_atom[0]
            chain_id  = active_atom[1]

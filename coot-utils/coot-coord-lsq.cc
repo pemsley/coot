@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 
 // LSQing
@@ -147,6 +148,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
    nmc_at_names.push_back(" O3'");
    nmc_at_names.push_back(" O3T");
 
+   std::vector<std::string> warnings;
 
 //   for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires++) {
    if (every_nth < 1 || every_nth > 10) 
@@ -161,9 +163,9 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
       if (false) {
 	 std::cout << "Searching for residue number " << ires << " "
-		   << match.reference_chain_id << " in reference molecule" << std::endl;
+	           << match.reference_chain_id << " in reference molecule" << std::endl;
 	 std::cout << "Searching for residue number " << ires_matcher << " "
-		   << match.matcher_chain_id << " in matcher molecule" << std::endl;
+	           << match.matcher_chain_id << " in matcher molecule" << std::endl;
       }
 
       mol1->Select (SelHnd_res1, mmdb::STYPE_RESIDUE,
@@ -195,14 +197,20 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
       if (nSelResidues_1 == 0 || nSelResidues_2 == 0) {
 
 	 if (nSelResidues_1 == 0) { 
-	    std::cout << "WARNING:: - no residue for reference molecule residue number "
-		      << ires         << " for reference chain-id: \""
-		      << match.reference_chain_id << "\"" << std::endl;
+            std::string s = "WARNING:: - no residue for reference molecule residue number ";
+            s += util::int_to_string(ires);
+            s += " for reference chain-id: \"";
+            s += match.reference_chain_id;
+            s += "\"";
+            warnings.push_back(s);
 	 }
 	 if (nSelResidues_2 == 0) { 
-	    std::cout << "WARNING:: - no residue for moving    molecule residue number "
-		      << ires_matcher << " for   matcher chain-id: \""
-		      << match.matcher_chain_id << "\"" << std::endl;
+            std::string s = "WARNING:: - no residue for moving    molecule residue number ";
+            s += util::int_to_string(ires);
+            s += " for reference chain-id: \"";
+            s += match.reference_chain_id;
+            s += "\"";
+            warnings.push_back(s);
 	 }
       } else {
 
@@ -225,11 +233,11 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 	      ca_name = " CA ";
 	    } else {
 	      if (SelResidue_1[0]->isNucleotide()) {
-		ca_name = " P  ";
+	         ca_name = " P  ";
 	      } else {
-		ca_name = " P  ";
-		std::cout << "WARNING:: residue is not amino acid or nucleotide! "
-			  << "Assuming non-standard nucleotide." << std::endl;
+	        ca_name = " P  ";
+	        std::cout << "WARNING:: residue is not amino acid or nucleotide! "
+	                  << "Assuming non-standard nucleotide." << std::endl;
 	      }
 	    }
 	    at1 = SelResidue_1[0]->GetAtom(ca_name.c_str());
@@ -237,11 +245,11 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
 	    if (at1 == NULL) {
 	      std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
-			<< std::endl;
+	                << std::endl;
 	    }
 	    if (at2 == NULL) {
 	      std::cout << "WARNING:: no " << ca_name << " in this reference residue " << ires
-			<< std::endl;
+                        << std::endl;
 	    }
 	    if (at1 && at2) {
 	       v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
@@ -347,6 +355,15 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
       mol1->DeleteSelection(SelHnd_res1);
       mol2->DeleteSelection(SelHnd_res2);
    }
-      
+
+   if (! warnings.empty()) {
+      unsigned int n_warnings = 10;
+      if (warnings.size() < n_warnings) n_warnings = warnings.size();
+      for (unsigned int ii=0; ii<n_warnings; ii++)
+         std::cout << warnings[ii] << "\n";
+      if (warnings.size() > n_warnings)
+         std::cout << "WARNING:: ... and others...\n";
+   }
+
    return std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > (v1, v2);
 }

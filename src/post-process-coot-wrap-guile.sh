@@ -31,15 +31,20 @@ fi
 pre="$3"
 post="$4"
 
+# sometimes "" gets passed as $1
 guile_config=$1
 gtk2=$2 
 
-# echo ::::::::::::::::::::: post-process-coot-wrap-guile 1 $1 
-# echo ::::::::::::::::::::: post-process-coot-wrap-guile 2 $2 
-# echo ::::::::::::::::::::: post-process-coot-wrap-guile 3 $3 
-# echo ::::::::::::::::::::: post-process-coot-wrap-guile 4 $4 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 1: $1 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 2: $2 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 3: $3 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 4: $4 
 
-guile_version=`$guile_config --version 2>&1`
+if [ -z "$guile_config" ] ; then
+   echo WARNING:: $0 guile_config arg was missing
+else
+   guile_version=`$guile_config --version 2>&1`
+fi
 
 # these can be blank (see below)
 echo post-process-coot-wrap-guile: guile_config:  $guile_config

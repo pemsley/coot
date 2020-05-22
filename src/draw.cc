@@ -34,10 +34,10 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
    bool do_second = false;
 
    if (graphics_info_t::display_mode_use_secondary_p()) {
-      if (widget == graphics_info_t::glarea_2) {
-    do_second = true;
+      if (widget == graphics_info_t::glareas[1]) {
+         do_second = true;
       } else {
-    do_first = true;
+         do_first = true;
       }
    }
 
@@ -58,13 +58,13 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       float trans_fac = 0.038;
 
       if (do_first) {
-    view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
-    glMultMatrixf(view_skew_matrix);
-    glTranslatef(trans_fac, 0.0, 0.0);
+         view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+         glMultMatrixf(view_skew_matrix);
+         glTranslatef(trans_fac, 0.0, 0.0);
       } else {
-    view_skew_matrix[8] = -skew_factor;
-    glMultMatrixf(view_skew_matrix);
-    glTranslatef(-trans_fac, 0.0, 0.0);
+         view_skew_matrix[8] = -skew_factor;
+         glMultMatrixf(view_skew_matrix);
+         glTranslatef(-trans_fac, 0.0, 0.0);
       }
    }
 }
@@ -97,7 +97,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
    if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
       gl_context = GL_CONTEXT_SECONDARY;
 
-   gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
+   GtkWidget *glarea_0 = 0;
+   GtkWidget *glarea_1 = 0;
+   graphics_info_t g;
+   if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+   if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+   gl_context_info_t glci(glarea_0, glarea_1);
 
    bool is_bb = graphics_info_t::background_is_black_p();
 
@@ -256,8 +261,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
       if (! graphics_info_t::esoteric_depth_cue_flag) {
-         coot::Cartesian front = unproject(0.0);
-         coot::Cartesian back  = unproject(1.0);
+         coot::Cartesian front; // = unproject(0.0);
+         coot::Cartesian back; //  = unproject(1.0);
          coot::Cartesian front_to_back = back - front;
          coot::Cartesian fbs = front_to_back.by_scalar(-0.2);
          // glTranslatef(fbs.x(), fbs.y(), fbs.z());
@@ -335,20 +340,19 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
             glEnable(GL_LIGHTING);
             glEnable(GL_LIGHT0);
             glEnable(GL_LIGHT1);
-            glEnable(GL_LIGHT3);
-            glEnable(GL_LIGHT4);
-            glDisable(GL_LIGHT2);
- 	    n_display_list_objects +=
- 	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
-	    glDisable(GL_LIGHTING);
-	 }
-	 
-	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
+            n_display_list_objects +=
+               graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
+            glDisable(GL_LIGHTING);
+	      }
+
+	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);
 	    glDisable(GL_LIGHT2);
-	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info, graphics_info_t::time_holder_for_ligand_interactions);
+            gl_context_info_t gl_info = graphics_info_t::get_gl_context_info();
+	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
+                                                                             graphics_info_t::time_holder_for_ligand_interactions);
 	    glDisable(GL_LIGHTING);
 	 }
 
@@ -360,14 +364,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // used we use the correct part of theMapContours.
 	 //
 
-         // BL says:: bad hack FIXME
-         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
-            graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-                                                            0);
-         } else {
-            graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-                                                            in_stereo_flag);
-         }
+         // Goodbye map drawing
 
          // Turn the light(s) on and after off, if needed.
          //
@@ -395,10 +392,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
       // atom pull restraint
-      graphics_info_t::draw_atom_pull_restraint();
+      // graphics_info_t::draw_atom_pull_restraint();
 
       // regularize object
-      graphics_info_t::draw_moving_atoms_graphics_object(is_bb);
+      // graphics_info_t::draw_moving_atoms_graphics_object(is_bb); gone
 
       // restraints for regularize/moving atoms object
       graphics_info_t::draw_moving_atoms_restraints_graphics_object();
@@ -431,7 +428,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       if (graphics_info_t::show_origin_marker_flag) {
          glLineWidth(1.0);
-         glColor3f(0.7,0.7,0.2);
+         glColor3f(0.8,0.8,0.8);
          myWireCube (0.6);
       }
 
@@ -529,8 +526,8 @@ void draw_molecular_triangles(GtkWidget *widget) {
    // front plane is at z=0;
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
-   coot::Cartesian tp_1_cart = unproject_xyz(allocation.width/2,
-                                             allocation.height/2, 1);
+   coot::Cartesian tp_1_cart; //  = unproject_xyz(allocation.width/2,
+                              //                  allocation.height/2, 1);
    FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
    FCXXCoord diff = tp_1 - pos;
    FCXXCoord eye_pos = pos + diff * 5.0;
@@ -659,17 +656,17 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
       draw_hardware_stereo(widget, event);
    } else {
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
-    draw_zalman_stereo(widget, event);
+         draw_zalman_stereo(widget, event);
       } else {
-    if (graphics_info_t::display_mode_use_secondary_p()) {
-       if (widget == graphics_info_t::glarea_2) {
-          draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
-       } else {
-          draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
-       }
-    } else {
-       draw_mono(widget, event, IN_STEREO_MONO);
-    }
+         if (graphics_info_t::display_mode_use_secondary_p()) {
+            if (graphics_info_t::glareas.size() == 2) {
+               draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
+            } else {
+               draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
+            }
+         } else {
+            draw_mono(widget, event, IN_STEREO_MONO);
+         }
       }
    }
    return TRUE;

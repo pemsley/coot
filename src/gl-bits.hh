@@ -13,6 +13,10 @@ public:
       widget_1 = widget_1_in;
       widget_2 = widget_2_in;
    } 
+   gl_context_info_t() {
+      widget_1 = 0;
+      widget_2 = 0;
+   }
 };
 
 

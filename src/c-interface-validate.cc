@@ -24,6 +24,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -759,15 +760,15 @@ PyObject *rotamer_graphs_py(int imol) {
       r = PyList_New(results.info.size());
       for (int ir=int(results.info.size()-1); ir>=0; ir--) {
 	 PyObject *ele = PyList_New(5);
-	 PyObject *name = PyString_FromString(results.info[ir].rotamer_name.c_str());
+	 PyObject *name = myPyString_FromString(results.info[ir].rotamer_name.c_str());
 	 PyList_SetItem(ele, 4, name);;
 	 PyObject *pr = PyFloat_FromDouble(results.info[ir].probability);
 	 PyList_SetItem(ele, 3, pr);
-	 PyObject *inscode = PyString_FromString(results.info[ir].inscode.c_str());
+	 PyObject *inscode = myPyString_FromString(results.info[ir].inscode.c_str());
 	 PyList_SetItem(ele, 2, inscode);
-	 PyObject *resno = PyInt_FromLong(results.info[ir].resno);
+	 PyObject *resno = PyLong_FromLong(results.info[ir].resno);
 	 PyList_SetItem(ele, 1, resno);
-	 PyObject *chainid = PyString_FromString(results.info[ir].chain_id.c_str());
+	 PyObject *chainid = myPyString_FromString(results.info[ir].chain_id.c_str());
 	 PyList_SetItem(ele, 0, chainid);
 
          PyList_SetItem(r, ir, ele);
@@ -1014,9 +1015,9 @@ int probe_available_p() {
 #ifdef USE_PYTHON
 
       PyObject *result;
-      result = safe_python_command_with_return("command_in_path_qm(probe_command)");
+      result = safe_python_command_with_return("coot.command_in_path_qm(probe_command)");
 
-      int was_boolean_flag = PyInt_AsLong(result);
+      int was_boolean_flag = PyLong_AsLong(result);
       if (was_boolean_flag) {
 	 r = 1;
       } else {
@@ -1041,7 +1042,7 @@ int probe_available_p_py() {
     PyObject *result;
     result = safe_python_command_with_return("command_in_path_qm(probe_command)");
 
-    int was_boolean_flag = PyInt_AsLong(result);
+    int was_boolean_flag = PyLong_AsLong(result);
     if (was_boolean_flag) {
               r = 1;
     }
@@ -2136,7 +2137,7 @@ PyObject *alignment_mismatches_py(int imol) {
      PyObject * mutations_py = PyList_New(0);
      for (unsigned int i=0; i<mutations.size(); i++) {
 	 PyObject *rs_py = residue_spec_to_py(mutations[i].first);
-	 PyObject *str = PyString_FromString(mutations[i].second.c_str());
+	 PyObject *str = myPyString_FromString(mutations[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(mutations_py, rs_py);
 	 Py_XDECREF(str);
@@ -2144,7 +2145,7 @@ PyObject *alignment_mismatches_py(int imol) {
       }
       for (unsigned int i=0; i<insertions.size(); i++) {
 	 PyObject *rs_py = residue_spec_to_py(insertions[i].first);
-	 PyObject *str = PyString_FromString(insertions[i].second.c_str());
+	 PyObject *str = myPyString_FromString(insertions[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(insertions_py, rs_py);
 	 Py_XDECREF(str);
@@ -2152,7 +2153,7 @@ PyObject *alignment_mismatches_py(int imol) {
       }
       for (unsigned int i=0; i<deletions.size(); i++) {
 	 PyObject *rs_py = residue_spec_to_py(deletions[i].first);
-	 PyObject *str = PyString_FromString(deletions[i].second.c_str());
+	 PyObject *str = myPyString_FromString(deletions[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(deletions_py, rs_py);
 	 Py_XDECREF(str);
@@ -2536,7 +2537,7 @@ PyObject *all_molecule_rotamer_score_py(int imol) {
       graphics_info_t g;
       coot::rotamer_score_t rs = g.all_molecule_rotamer_score(imol);
       PyObject *a_py = PyFloat_FromDouble(rs.score);
-      PyObject *b_py = PyInt_FromLong(rs.n_rotamer_residues());
+      PyObject *b_py = PyLong_FromLong(rs.n_rotamer_residues());
       r = PyList_New(2);
       PyList_SetItem(r, 0, a_py);
       PyList_SetItem(r, 1, b_py);
@@ -2599,10 +2600,10 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
    if (is_valid_model_molecule(imol)) {
       coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
       PyObject *a_py = PyFloat_FromDouble(rs.score);
-      PyObject *b_py = PyInt_FromLong(rs.n_residues());
+      PyObject *b_py = PyLong_FromLong(rs.n_residues());
       PyObject *c_py = PyFloat_FromDouble(rs.score_non_sec_str);
-      PyObject *d_py = PyInt_FromLong(rs.n_residues_non_sec_str());
-      PyObject *e_py = PyInt_FromLong(rs.n_zeros);
+      PyObject *d_py = PyLong_FromLong(rs.n_residues_non_sec_str());
+      PyObject *e_py = PyLong_FromLong(rs.n_zeros);
       PyObject *info_by_residue_py = PyList_New(rs.scores.size());
       for (std::size_t ii=0; ii<rs.scores.size(); ii++) {
 	 PyObject *info_for_residue_py = PyList_New(4);
@@ -2617,16 +2618,16 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
 	    PyObject *res_names_py = PyList_New(3);
 	    PyList_SetItem(phi_psi_py, 0, phi_py);
 	    PyList_SetItem(phi_psi_py, 1, psi_py);
-	    PyList_SetItem(res_names_py, 0, PyString_FromString(rs.scores[ii].residue_prev->GetResName()));
-	    PyList_SetItem(res_names_py, 1, PyString_FromString(rs.scores[ii].residue_this->GetResName()));
-	    PyList_SetItem(res_names_py, 2, PyString_FromString(rs.scores[ii].residue_next->GetResName()));
+	    PyList_SetItem(res_names_py, 0, myPyString_FromString(rs.scores[ii].residue_prev->GetResName()));
+	    PyList_SetItem(res_names_py, 1, myPyString_FromString(rs.scores[ii].residue_this->GetResName()));
+	    PyList_SetItem(res_names_py, 2, myPyString_FromString(rs.scores[ii].residue_next->GetResName()));
 	    PyList_SetItem(info_for_residue_py, 0, phi_psi_py);
 	    PyList_SetItem(info_for_residue_py, 1, residue_spec_py);
        PyList_SetItem(info_for_residue_py, 2, residue_score_py);
 	    PyList_SetItem(info_for_residue_py, 3, res_names_py);
 	    PyList_SetItem(info_by_residue_py, ii, info_for_residue_py);
 	 } else {
-	    PyList_SetItem(info_by_residue_py, ii, PyInt_FromLong(-1)); // shouldn't happen
+	    PyList_SetItem(info_by_residue_py, ii, PyLong_FromLong(-1)); // shouldn't happen
 	 }
       }
       r = PyList_New(6);
@@ -2658,7 +2659,7 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
         for (unsigned int i=0; i<rama_region.size(); i++) {
           pair = PyTuple_New(2);
           PyTuple_SetItem(pair, 0, residue_spec_to_py(rama_region[i].first));
-          PyTuple_SetItem(pair, 1, PyInt_FromLong(rama_region[i].second));
+          PyTuple_SetItem(pair, 1, PyLong_FromLong(rama_region[i].second));
           PyList_SetItem(r, i, pair);
         }
       } else {

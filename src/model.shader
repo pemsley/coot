@@ -13,14 +13,10 @@ layout(location = 6) in vec4 colour;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation; // the quaternion attached to what the mouse has done
-uniform vec4 background_colour;
-uniform vec4 eye_position;
 
 out vec3 frag_pos;
 out vec3 Normal;
 out vec4 tri_color;
-out vec4 bg_colour;
-out vec4 eye_position_transfer; // needed?
 
 void main() {
 
@@ -36,8 +32,6 @@ void main() {
    Normal = normalize(n2.xyz);
    frag_pos =  p3.xyz;
    tri_color = colour;
-   bg_colour = background_colour;
-   eye_position_transfer = eye_position;
 }
 
 #shader fragment
@@ -47,55 +41,74 @@ void main() {
 in vec3 frag_pos;
 in vec3 Normal;
 in vec4 tri_color;
-in vec4 bg_colour;
-in vec4 eye_position_transfer;
 
 layout(location = 0) out vec4 out_col;
 
+uniform vec4 eye_position;
+uniform vec4 background_colour;
+uniform bool is_perspective_projection;
+uniform vec4 light_0_position;
+
+
+float get_fog_amount(float depth_in) {
+
+   // make this a uniform
+   if (! is_perspective_projection) {
+      return depth_in;
+   } else {
+      // needs tweaking
+      float d = depth_in;
+      float d4 = d * d * d * d;
+      return d * d;;
+   }
+
+}
+
+
 void main() {
 
-  vec4 light_colour = vec4(0.4, 0.4, 0.4, 1.0);
-  float specular_strength = 0.8;
-  vec3 lightdir_1 = normalize(vec3(-2, -2, 4)); // positive z means light from my side of the screen
-  vec3 lightdir_2 = normalize(vec3( 2,  2, 4));
-  float dp_l1 = dot(Normal, -lightdir_1);
-  float dp_l2 = dot(Normal, -lightdir_2);
+  float specular_strength = 0.6; // 1.5 is very shiny
+  vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
 
-  float f_1 = 1.0 - gl_FragCoord.z; // because glm::ortho() near and far are reversed?
-  // f_1 = gl_FragCoord.z;
-  float f_2 = 1.0 - abs(f_1 - 0.7)/0.7;
-  // f_2 = f_1; // just testing
-  vec4 col_1 = vec4(vec3(f_2), 1.0) * tri_color;
-  vec4 col_2_1 = col_1 * dp_l1;
-  vec4 col_2_2 = col_1 * dp_l2;
-  vec4 col_2 = col_2_1; // + col_2_2;
+  // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
+  vec3 lightdir = normalize(vec3(-2, 1, -2));
 
-  float flat_frac = 0.1;
-  // vec4 c_1 = col_2 * (1.0 - flat_frac) + col_1 * flat_frac;
-  vec4 c_1 = mix(col_2, col_1, flat_frac);
-  vec4 c_2 = mix(bg_colour, c_1, f_1);
+  // using the light_0_position give to the shader in a uniform
+  // gives us rotating lights
+  lightdir = normalize(-light_0_position.xyz);
+  float dp = dot(Normal, -lightdir);
+  dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
-  // is this right?
-  vec3 eye_pos =  vec3(0.0, 0.0, 5.0);
-  eye_pos = -eye_position_transfer.xyz;
+  float m = clamp(gl_FragCoord.z, 0.0f, 1.0f);
 
-  vec3 view_dir = eye_pos - frag_pos; // view_dir.z positive is a good idea.
+
+  float fog_amount = get_fog_amount(gl_FragCoord.z);
+
+  vec4 bg_col = background_colour; // needed?
+
+  vec3 eye_pos_3 =  eye_position.xyz;
+
+  vec3 view_dir = eye_pos_3 - frag_pos;
   view_dir = normalize(view_dir);
 
   vec3 norm_2 = Normal;
   norm_2 = normalize(norm_2);
-  vec3 reflect_dir = reflect(-lightdir_1, norm_2);
-
+  vec3 reflect_dir = reflect(lightdir, norm_2);
   float dp_view_reflect = dot(view_dir, reflect_dir);
   dp_view_reflect = max(dp_view_reflect, 0.0);
+  // when the exponent is low, the specular_strength needs to be reduced
+  // a low exponent means lots of the map is specular (around the edges)
+  float spec = pow(dp_view_reflect, 6.62);
+  vec4 specular = specular_strength * spec * specular_light_colour;
 
-  float spec = pow(dp_view_reflect, 3.2);
-  vec4 specular = specular_strength * spec * light_colour;
-  vec4 c_3 = c_1 + specular;
-  // c_3 = specular;
-  vec4 c_4 = mix(bg_colour, c_3, f_1);
+  vec4 colour_local = tri_color;
 
+  vec4 col_1 = colour_local;  // ambient
+  float ambient_strength = 0.3;
+  vec4 col_2 = colour_local * dp;
+  vec4 col_3 = col_1 * ambient_strength + col_2 + specular;
+  vec4 col_4 = mix(col_3, bg_col, fog_amount);
 
-  out_col = c_4;
+  out_col = col_4;
 
 }

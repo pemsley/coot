@@ -49,13 +49,13 @@ global use_gui_qm
 global have_guile_gtk
 
 pre_list = ["redefine_functions.py",
-	    "coot_utils.py",
+            "coot_utils.py",
             "filter.py",
             "coot_lsq.py",
             "shelx.py",
             "get_ebi.py",
             "local_code.py",
-            # hello might give some people problems (according to Paul, it does 
+            # hello might give some people problems (according to Paul, it does
             # in the scheme version), if so, just comment out the next line:
             "hello.py",
             "mutate.py",
@@ -119,66 +119,52 @@ for arg in sys.argv:
 
 have_coot_python = False
 if use_gui_qm:
-    try:
-        # we only append the graphics modules if we have pygtk 2
-        import pygtk
-        import gtk
-        # now try to import coot_python
-        try: 
-            import coot_python
-            have_coot_python = True
-        except:
-            print """BL WARNING:: could not import coot_python module!!
-            Some things, esp. extensions, may be crippled!"""
-
-        # now make a global tooltip
-        if (gtk.pygtk_version < (2, 12)):
-            coot_tooltips = gtk.Tooltips()
-        # pygtk.require("2.0")
-	# print "adding to load list:", post_list # .. not sure that this is what I want
-        python_list += post_list
-        if (use_gui_qm == 2):
-            # we do have guile_gtk and dont want to have 
-            # the extra extensions from python
-            python_list.remove("extensions.py")
-	    python_list.remove("gui_contact_score_isolated_ligand.py")
-    except:
-        print "BL INFO:: could not import pygtk and gtk"
-        pass    
+    # some test that sets have_coot_python
+    have_coot_python = False
 
 coot_python_dir = os.getenv('COOT_PYTHON_DIR')
 if coot_python_dir:
     search_load_path = coot_python_dir
 else:
-    # old 
+    # old
     # search_load_path = "@prefix@/share/coot/python"
 
     # this is a bit ugly - I'm hacking in the python site packages path
     #
     # this is what I want to do:
     search_load_path = "@pkgpythondir@"
-    # 
+    #
     # hack
-    search_load_path = "@prefix@/lib/python2.7/site-packages/coot"
+    # search_load_path = "@prefix@/lib/python2.7/site-packages/coot"
+    # Hmm {pythondir} is not expanded
+    search_load_path = "@prefix@/lib/python3.6/site-packages/coot"
 
 
 def load_from_search_load_path(file):
-    print "DEBUG:: search_load_path is ", search_load_path
+    print("DEBUG:: search_load_path is ", search_load_path)
     f = os.path.join(search_load_path, file)
     if f:
-        print "load", file
-        execfile(f, globals())
+        import importlib
+        print("load", file)
+        # execfile(f, globals())
+        importlib.reload(f)
     else:
-        print "Error finding", file
+        print("Error finding", file)
+
+
+python_list = ["redefine_functions.py", "ncs.py", "coot_utils.py", "fitting.py"]
+# print("Here in coot_load_modules with python_list", python_list)
 
 
 for coot_python_file in python_list:
     filename = os.path.join(search_load_path, coot_python_file)
-    if filename and os.path.isfile(filename):
-        # we need user configuration of this verbosity
+    # print("Here in coot_load_modules with filename", filename)
+    # if filename and os.path.isfile(filename):
+    if True:
+            # we need user configuration of this verbosity
 
-	if False:
-	   print "Loading:", coot_python_file
+        if True:
+            print("Loading:", coot_python_file)
 
         try:
             # BL says::
@@ -187,14 +173,18 @@ for coot_python_file in python_list:
             # if you wish to rather use modules use, e.g.
             # exec "from " + base + " import *"
             # and set PYTHONPATH to point to COOT_PYTHON_DIR
-            execfile(filename)
+
+            import runpy
+            runpy.run_path(filename)
+
+            # import importlib
+            # importlib.reload(filename)
+            # importlib.reload(coot_python_file)
+
         except:
             traceback.print_exc()
-            print "ERROR:: couldn't load ", coot_python_file
+            print("ERROR:: couldn't load ", coot_python_file)
             if coot_unittesting:
                 coot_real_exit(1)
-    else:
-        print "ERROR: cannot find", coot_python_file
-
-
-
+            else:
+                print("ERROR: cannot find", coot_python_file)

@@ -250,11 +250,11 @@ PyObject *probe_clash_score_as_py(const coot::probe_clash_score_t &p) {
    PyObject *r = Py_False;
    if (p.filled) {
       r = PyList_New(5);
-      PyList_SetItem(r, 0, PyInt_FromLong(p.n_bad_overlaps));
-      PyList_SetItem(r, 1, PyInt_FromLong(p.n_hydrogen_bonds));
-      PyList_SetItem(r, 2, PyInt_FromLong(p.n_small_overlaps));
-      PyList_SetItem(r, 3, PyInt_FromLong(p.n_close_contacts));
-      PyList_SetItem(r, 4, PyInt_FromLong(p.n_wide_contacts));
+      PyList_SetItem(r, 0, PyLong_FromLong(p.n_bad_overlaps));
+      PyList_SetItem(r, 1, PyLong_FromLong(p.n_hydrogen_bonds));
+      PyList_SetItem(r, 2, PyLong_FromLong(p.n_small_overlaps));
+      PyList_SetItem(r, 3, PyLong_FromLong(p.n_close_contacts));
+      PyList_SetItem(r, 4, PyLong_FromLong(p.n_wide_contacts));
    }
    if (PyBool_Check(r)) {
       Py_XINCREF(r);

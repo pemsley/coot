@@ -264,7 +264,7 @@ coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_steps =  10;
-float  graphics_info_t::smooth_scroll_limit =  10.0; // A
+float  graphics_info_t::smooth_scroll_limit =  20.0; // A
 float  graphics_info_t::smooth_scroll_zoom_limit = 30.0; // A
 int    graphics_info_t::smooth_scroll_do_zoom = 0;  // initially no, too ugly ATM.
 short int graphics_info_t::smooth_scroll_on = 0;
@@ -426,8 +426,8 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0;
 
-float    graphics_info_t::box_radius_xray =  25.0;
-float    graphics_info_t::box_radius_em   = 155.0;
+float    graphics_info_t::box_radius_xray =  20.0;
+float    graphics_info_t::box_radius_em   =  80.0;
 
 
 int      graphics_info_t::debug_atom_picking = 0;
@@ -487,7 +487,8 @@ coot::console_display_commands_t graphics_info_t::console_display_commands;
 int graphics_info_t::undo_molecule = -1;
 
 // backup filenames
-short int graphics_info_t::unpathed_backup_file_names_flag = 0;
+bool graphics_info_t::unpathed_backup_file_names_flag = 0;
+bool graphics_info_t::decoloned_backup_file_names_flag = 0;
 
 // backup compress files (default: compress)
 int graphics_info_t::backup_compress_files_flag = 1;
@@ -512,16 +513,10 @@ std::string graphics_info_t::browser_open_command = "firefox -remote";
 // (triple star)
 //
 
-GtkWidget *graphics_info_t::glarea = NULL;
-GtkWidget *graphics_info_t::glarea_2 = NULL;
+std::vector<GtkWidget *> graphics_info_t::glareas;
 GtkWidget *graphics_info_t::statusbar = NULL;
 guint      graphics_info_t::statusbar_context_id = 0;
 std::string graphics_info_t::main_window_title;
-
-// float graphics_info_t::clipping_front = -7.0;
-// float graphics_info_t::clipping_back  = -6.0;
-float graphics_info_t::clipping_front = 0.0;
-float graphics_info_t::clipping_back  = 0.0;
 
 //
 int       graphics_info_t::atom_label_font_size = 2; // medium
@@ -874,8 +869,12 @@ bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float grey_level = 0.24;
 float norm_255 = 1.0/255.0;
-glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
 
+// this background is too "light" when we zoom in - the depth-cueing looks bad.
+// glm::vec3 graphics_info_t::background_colour = glm::vec3(51.0 * norm_255, 57.0 * norm_255, 59.0 * norm_255);
+glm::vec3 graphics_info_t::background_colour = glm::vec3(32.0 * norm_255,
+                                                         34.0 * norm_255,
+                                                         34.0 * norm_255);
 //
 short int graphics_info_t::delete_item_atom = 0;
 short int graphics_info_t::delete_item_residue = 1;
@@ -1170,7 +1169,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 // smaller is smoother and less jerky - especially for big molecules
-int       graphics_info_t::dragged_refinement_steps_per_frame = 8;
+int       graphics_info_t::dragged_refinement_steps_per_frame = 6;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
@@ -1449,19 +1448,6 @@ framebuffer graphics_info_t::screen_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer;
 bool graphics_info_t::perspective_projection_flag = false;
 
-// GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
-//programID_for_central_cube should be
-Shader graphics_info_t::shader_for_maps;
-Shader graphics_info_t::shader_for_models;
-Shader graphics_info_t::shader_for_central_cube;
-Shader graphics_info_t::shader_for_origin_cube;
-Shader graphics_info_t::shader_for_hud_text;
-Shader graphics_info_t::shader_for_screen;
-Shader graphics_info_t::shader_for_blur;
-std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
-long graphics_info_t::frame_counter = 0;
-long graphics_info_t::frame_counter_at_last_display = 0;
-std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
 // --------------------------------------------------------------------------------------------
 
@@ -1613,7 +1599,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
      if (context_count == 1) {
 	drawing_area = drawing_area_tmp;
      } else {
-	graphics_info_t::glarea_2 = drawing_area_tmp;
+	graphics_info_t::glarea[1] = drawing_area_tmp;
      }
 
      {
@@ -1625,9 +1611,9 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) { // rename gl_extras_gtk
 
  	if (context_count > 1) { // more than the first context
 	   // std::cout << " =============== " << context_count << std::endl;
-	  if (graphics_info_t::glarea) {
- 	   gl_context_x_size = graphics_info_t::glarea->allocation.width;
- 	   gl_context_y_size = graphics_info_t::glarea->allocation.height;
+	  if (graphics_info_t::glareas[0]) {
+ 	   gl_context_x_size = graphics_info_t::glareas[0]->allocation.width;
+ 	   gl_context_y_size = graphics_info_t::glareas[0]->allocation.height;
 	  }
 	   // std::cout << " ===============" << gl_context_x_size
 	   // << " "<< gl_context_y_size << std::endl;
@@ -1863,7 +1849,7 @@ init_gl_widget(GtkWidget *widget) {
 
    // should be in graphics_info_t?
    //
-   setup_for_mol_triangles();
+   setup_molecular_triangles();
 
    // setup_for_single_triangle();
 
@@ -1871,14 +1857,26 @@ init_gl_widget(GtkWidget *widget) {
 }
 
 void
-setup_for_mol_triangles() {
+setup_molecular_triangles() {
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 
+   std::cout << "################ setup_for_mol_triangles() started ############" << std::endl;
+
+   GLenum err = glGetError(); std::cout << "   setup_for_mol_triangles() A err " << err << std::endl;
+
    graphics_info_t::mol_tri_renderer = RendererGLSL::create();
+
+   err = glGetError(); std::cout << "   setup_for_mol_triangles() B calling init() currently err "
+                                 << err << std::endl;
+
    graphics_info_t::mol_tri_renderer->init();
 
+   err = glGetError(); std::cout << "   setup_for_mol_triangles() C err " << err << std::endl;
+
    graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
+
+   err = glGetError(); std::cout << "   setup_for_mol_triangles() D err " << err << std::endl;
 
    //Add a simple light..set some parameters and move it
    auto simpleLight = Light::defaultLight();
@@ -1895,7 +1893,8 @@ setup_for_mol_triangles() {
    simpleLight2->setDrawLight(false);
    simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
 
-   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is " << graphics_info_t::mol_tri_scene_setup << std::endl;
+   std::cout << "debug:: now graphics_info_t::mol_tri_scene_setup is "
+             << graphics_info_t::mol_tri_scene_setup << std::endl;
 
 #endif // USE_MOLECULES_TO_TRIANGLES
 
@@ -1903,6 +1902,9 @@ setup_for_mol_triangles() {
 
 void
 setup_lighting(short int do_lighting_flag) {
+
+   std::cout << "------------------------------------------------------------------------------------------------------------------"
+             << " setup_lighting() -------------------------------------------------------------------" << std::endl;
 
    // I'm not sure that this does anything other than enable the lights.
    // The light positions are properly set in draw_mono().
@@ -1970,7 +1972,10 @@ setup_lighting(short int do_lighting_flag) {
 
 void show_lighting() {
 
-  // Is this a useful function?
+   // Is this a useful function?
+
+   std::cout << "------------------------------------------------------------------------------------------------------------------"
+             << " show_lighting() -------------------------------------------------------------------" << std::endl;
 
    if (true) {
 
@@ -2111,7 +2116,7 @@ draw_crosshairs_maybe() {
       //
       // adjust for the width being strange
       GtkAllocation allocation;
-      gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
       float adjustment = float(allocation.height) / float(allocation.width);
       s *= adjustment;
 
@@ -2187,11 +2192,15 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    GdkModifierType my_button3_mask = info.gdk_button3_mask();
 
-   GdkModifierType state;
+   GdkModifierType state;                                                    
    short int button_was_pressed = 0;
 
    if (event->is_hint) {
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      // gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+      GdkModifierType mask;
+      GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+      GdkDevice *mouse = gdk_seat_get_pointer(seat);
+      gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
       x = x_as_int;
       y = y_as_int;
    } else {
@@ -2302,7 +2311,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	    } else {
 	       // info.in_moving_atoms_drag_atom_mode_flag test
 
-	       short int handled_non_atom_drag_event = 0;
+	       bool handled_non_atom_drag_event = false;
 	       x_diff = x - info.GetMouseBeginX();
 	       y_diff = y - info.GetMouseBeginY();
 	       handled_non_atom_drag_event =
@@ -2537,10 +2546,10 @@ do_button_zoom(gdouble x, gdouble y) {
       int iv = 1 + int (0.009*(info.zoom + info.dynamic_map_zoom_offset));
       if (iv != info.graphics_sample_step) {
 
-	 for (int imap=0; imap<info.n_molecules(); imap++) {
-	    info.molecules[imap].update_map(); // uses g.zoom
-	 }
-	 info.graphics_sample_step = iv;
+         for (int imap=0; imap<info.n_molecules(); imap++) {
+            info.molecules[imap].update_map(); // uses g.zoom
+         }
+         info.graphics_sample_step = iv;
       }
    }
    // redraw it
@@ -2597,7 +2606,7 @@ do_ztrans_and_clip(gdouble x, gdouble y) {
    gdouble x_diff = x - g.GetMouseBeginX();
    gdouble y_diff = y - g.GetMouseBeginY();
 
-   coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glarea);
+   coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
 
 //    // Like Frank showed me in Pymol?
 //    double slab_change = 0.05  * (x_diff + y_diff); // about 0.2?
@@ -2622,21 +2631,13 @@ do_ztrans_and_clip(gdouble x, gdouble y) {
 
 }
 
+
+// move this to graphics_info_t and its call from key-bindings.
 void
 adjust_clipping(double d) {
 
-   if (d>0) {
-      // I am not sure that this limit does any good these days
-      if (graphics_info_t::clipping_back < 165.0) {
-         set_clipping_front(graphics_info_t::clipping_front + d);
-         set_clipping_back (graphics_info_t::clipping_front + d);
-      }
-   } else {
-      if (graphics_info_t::clipping_back > -165.2) {
-         set_clipping_front(graphics_info_t::clipping_front + d);
-         set_clipping_back (graphics_info_t::clipping_front + d);
-      }
-   }
+   graphics_info_t g;
+   g.adjust_clipping(d);
 }
 
 
@@ -3262,13 +3263,13 @@ void keypad_translate_xyz(short int axis, short int direction) {
 
   graphics_info_t g;
   if (axis == 3) {
-    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glarea);
+    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
     v *= 0.05 * float(direction);
     g.add_vector_to_RotationCentre(v);
   } else {
     gdouble x_diff, y_diff;
     x_diff = y_diff = 0;
-    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glarea);
+    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glareas[0]);
     if (axis == 1) x_diff = 1;
     if (axis == 2) y_diff = 1;
     g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction),
@@ -3377,7 +3378,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 // std::cout << "here in key_release_event for -" << std::endl;
 	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
@@ -3395,7 +3396,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       if (s >= 0) {
 
 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glarea);
+	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 
 	 // graphics_info_t::molecules[s].change_contour(1); // positive change
 	 // graphics_info_t::molecules[s].update_map();
@@ -3542,8 +3543,6 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 //
 gint idle_contour_function(gpointer data) {
 
-   std::cout << "idle_contour_function() started" << std::endl;
-
    gint continue_status = 0;
    bool something_changed = false;
 
@@ -3551,7 +3550,6 @@ gint idle_contour_function(gpointer data) {
    //
    // then update maps
 
-   std::cout << "--- debug:: idle_contour_function() running" << std::endl;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
          int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
@@ -3572,10 +3570,9 @@ gint idle_contour_function(gpointer data) {
 	              }
 	          }
 
-            graphics_info_t g;
-            std::cout << "idle_contour_function() update_maps()" << std::endl;
-	          g.molecules[imol].update_map();
-	          continue_status = 0;
+           graphics_info_t g;
+	   g.molecules[imol].update_map();
+	   continue_status = 0;
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            g.display_density_level_this_image = 1;
            something_changed = true;
@@ -4167,7 +4164,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
          if (imol_map_for_scroll>=0) {
             // short int istate = info.molecules[s].change_contour(-1);
             info.molecules[imol_map_for_scroll].pending_contour_level_change_count--;
-            int contour_idle_token = g_idle_add(idle_contour_function, info.glarea);
+            int contour_idle_token = g_idle_add(idle_contour_function, info.glareas[0]);
             float cl = info.molecules[imol_map_for_scroll].contour_level;
             info.set_density_level_string(imol_map_for_scroll, cl);
             info.display_density_level_this_image = 1;

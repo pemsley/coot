@@ -1,3 +1,4 @@
+import numbers
 # shelx_extensions.py
 # Copyright 2007, 2008 by The University of York
 # Copyright 2008 by Bernhard Lohkamp
@@ -49,7 +50,7 @@ def add_module_shelx():
                 import operator
                 txt = entry.get_text()
                 imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
-                if (operator.isNumberType(imol)):
+                if (isinstance(imol, numbers.Number)):
                     editable_shelx_gui(imol, txt)
                 window.destroy()
                 return False
@@ -130,7 +131,7 @@ def shelx_ins_strings(imol):
         lines = fin.readlines()
         fin.close()
     except:
-        print "INFO:: problems reading file", ins_tmp_file
+        print("INFO:: problems reading file", ins_tmp_file)
     return lines
 
 def shelxl_refine_gui(imol, hkl_file_name_maybe=False):

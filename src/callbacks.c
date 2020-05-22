@@ -2175,6 +2175,7 @@ on_accept_reject_refinement_reject_button_clicked (GtkButton       *button,
   /*   clear_up_moving_atoms(); done in destroy of the window */
 
   stop_refinement_internal();
+  clear_up_moving_atoms();
   gtk_widget_destroy(window);
 }
 
@@ -3713,24 +3714,55 @@ on_single_map_properties_colour_button_clicked (GtkButton       *button,
    struct map_colour_data_type *map_colour_data;
    GtkWidget *col_chooser = NULL;
    GdkRGBA map_colour;
+   GdkRGBA *map_colour_p;
+   GdkColor map_gdk_color;      /* old style used by the Color Selection  */
    GtkWidget *parent = lookup_widget(GTK_WIDGET(button), "single_map_properties_dialog");
    GtkWindow *parent_w = GTK_WINDOW(parent);
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "imol"));
+
+   GtkWidget *color_selection_dialog;
+   GtkWidget *color_selection;
 
    printf("in on_single_map_properties_colour_button_clicked() imol %d\n", imol);
    printf("in on_single_map_properties_colour_button_clicked() parent 0%p\n", parent);
 
    if (is_valid_map_molecule(imol)) {
 
+#if 0
       col_chooser = gtk_color_chooser_dialog_new("Select Map Colour", parent_w);
-      map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
-      map_colour_data->imol = imol;
       map_colour_data->color_chooser = col_chooser;
-      g_signal_connect(col_chooser, "response", G_CALLBACK(on_single_map_properties_colour_dialog_response),
+      g_signal_connect(col_chooser, "response",
+                       G_CALLBACK(on_single_map_properties_colour_dialog_response),
                        map_colour_data);
-      map_colour = get_map_colour(imol);
       gtk_color_chooser_set_rgba(col_chooser, &map_colour);
       gtk_widget_show(col_chooser);
+#endif
+
+      color_selection_dialog = gtk_color_selection_dialog_new ("Map Colour Selection");
+
+      map_colour = get_map_colour(imol);
+      map_colour_data = (struct map_colour_data_type *) malloc(sizeof(struct map_colour_data_type));
+      map_colour_data->imol = imol;
+      map_colour_data->color_selection =
+        gtk_color_selection_dialog_get_color_selection(color_selection_dialog);
+      color_selection = gtk_color_selection_dialog_get_color_selection(color_selection_dialog);
+
+      g_signal_connect(G_OBJECT(gtk_color_selection_dialog_get_color_selection(color_selection_dialog)),
+                       "color_changed",
+                       G_CALLBACK(on_map_color_changed), map_colour_data);
+
+      map_colour_p = (GdkRGBA *) malloc(sizeof(GdkRGBA));
+      *map_colour_p = map_colour;
+      map_gdk_color.red   = map_colour.red;
+      map_gdk_color.green = map_colour.green;
+      map_gdk_color.blue  = map_colour.blue;
+      printf("setting map_gdk_color %d %d %d\n", map_gdk_color.red, map_gdk_color.green, map_gdk_color.blue);
+      gtk_color_selection_set_current_color(color_selection, &map_gdk_color);
+      gtk_widget_show(color_selection_dialog);
+      g_signal_connect(color_selection_dialog, "response",
+                       G_CALLBACK(on_map_color_selection_dialog_response),
+                       map_colour_p);
+      g_object_set_data(G_OBJECT(color_selection_dialog), "imol", GINT_TO_POINTER(imol));
 
    }
 }
@@ -6388,7 +6420,7 @@ on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *w;
   GdkColor bg_colour;
   float fval1;
@@ -6402,7 +6434,6 @@ on_preferences_bg_colour_own_radiobutton_toggled
 
   preferences_internal_change_value_float3(PREFERENCES_BG_COLOUR, fval1, fval2, fval3);
   set_background_colour(fval1, fval2, fval3);
-#endif
 
 }
 
@@ -10069,7 +10100,8 @@ void
 on_model_toolbar_refmac_button_clicked (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
-  wrapped_create_run_refmac_dialog();
+  /* wrapped_create_run_refmac_dialog(); */
+  wrapped_create_simple_refmac_dialog();
 
 }
 
@@ -11725,6 +11757,8 @@ on_map_opacity_hscale_value_changed    (GtkRange        *range,
 
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
+  if (fvalue > 0.99)
+    fvalue = 1.0;
   set_solid_density_surface_opacity(imol, fvalue);
 
 }
@@ -12654,13 +12688,93 @@ on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
 #endif
 }
 
+
+
 void
-on_perspective_projection1_activate    (GtkMenuItem     *menuitem,
+on_simple_refmac_dialog_response       (GtkDialog       *dialog,
+                                        gint             response_id,
                                         gpointer         user_data)
 {
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      /* do I need to do this? */
+      /* gtk_widget_destroy(dialog); */
+   }
 
-   /* set_use_perspective_projection(1); */
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      gtk_widget_destroy(GTK_WIDGET(dialog));
+   }
 
-   printf("This caused linking problems - so was removed - must fix\n");
+   if (response_id == GTK_RESPONSE_OK) {
+      simple_refmac_run_refmac(GTK_WIDGET(dialog));
+      gtk_widget_destroy(GTK_WIDGET(dialog));
+   }
+
+}
+
+
+void
+on_simple_refmac_dialog_close          (GtkDialog       *dialog,
+                                        gpointer         user_data)
+{
+   /* Do I need to do anything here? */
+}
+
+ 
+void
+on_simple_refmac_mtz_file_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *w = create_simple_refmac_filechooserdialog();
+   GtkWidget *simple_refmac_dialog = lookup_widget(GTK_WIDGET(button), "simple_refmac_dialog");
+   /* automtically file filter only mtz files */
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.mtz");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(w), filterselect);
+   /* we need to find the file combo box in the simple refmac dialog */
+   g_object_set_data(G_OBJECT(w), "simple_refmac_dialog", simple_refmac_dialog);
+   gtk_widget_show(w);
+}
+
+void
+on_simple_refmac_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data)
+{
+   const gchar *file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+   GtkWidget *simple_refmac_dialog = 0;
+   GtkWidget *file_combobox = 0;
+   /* get rid of these with GTK3 */
+   GtkTreeModel *model_from_combobox = 0;
+   GtkListStore *store_from_model = 0;
+
+   if (response_id == GTK_RESPONSE_CLOSE) {
+      printf("on_simple_refmac_filechooserdialog_response() Close\n");
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      printf("on_simple_refmac_filechooserdialog_response() Cancel\n");
+   }
+
+   if (response_id == GTK_RESPONSE_OK) {
+      simple_refmac_dialog = g_object_get_data(G_OBJECT(dialog), "simple_refmac_dialog");
+      if (simple_refmac_dialog) {
+         file_combobox = lookup_widget(GTK_WIDGET(simple_refmac_dialog), "simple_refmac_mtz_file_combobox");
+         if (file_combobox) {
+#if (GTK_MAJOR_VERSION > 2)
+            gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(file_combobox));
+#else
+            model_from_combobox = gtk_combo_box_get_model(GTK_COMBO_BOX(file_combobox));
+            store_from_model = GTK_LIST_STORE(model_from_combobox);
+            gtk_list_store_clear(store_from_model);
+#endif
+            gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(file_combobox), file_name);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(file_combobox), 0);
+         }
+      }
+   }
+
+   gtk_widget_destroy(GTK_WIDGET(dialog));
 
 }

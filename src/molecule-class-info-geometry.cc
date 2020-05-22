@@ -7,7 +7,7 @@
 std::pair<std::vector<generic_vertex>, std::vector<tri_indices> >
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const {
 
-   float atom_scale = 0.105; // how big should atoms be?
+   float sphere_radius = 0.105; // how big should atoms be?
    // atom_scale = 1.45;
 
    std::vector<generic_vertex> v1;
@@ -19,15 +19,23 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
    for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
       // set_bond_colour_by_mol_no(icol, against_a_dark_background); // this function is const ATM.
       for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-         // points for hydrogens need smaller radius. Exclude them for now
-         if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
-            const coot::Cartesian &at_pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
+
+         const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
+         float sphere_scale = ai.radius_scale * 1.18;
+
+         if (ai.is_hydrogen_atom) // this should be set already (in the generator). Is it?
+            sphere_scale = 0.5;
+
+         if (true) {
+            const coot::Cartesian &at_pos = ai.position;
 
             for (unsigned int i=0; i<20; i++) { // dodec vertices
                const clipper::Coord_orth &pt = d.d.get_point(i);
                generic_vertex gv;
                gv.model_rotation_matrix = glm::mat3(1.0f); // identity
-               gv.model_translation = glm::vec3(atom_scale * pt.x(), atom_scale * pt.y(), atom_scale * pt.z());
+               gv.model_translation = glm::vec3(sphere_radius * sphere_scale * pt.x(),
+                                                sphere_radius * sphere_scale * pt.y(),
+                                                sphere_radius * sphere_scale * pt.z());
                gv.pos = glm::vec3(at_pos.x(), at_pos.y(), at_pos.z());
                gv.normal = glm::normalize(glm::vec3(gv.model_translation));
                gv.colour = index_to_colour[icol];
@@ -38,7 +46,9 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
                const clipper::Coord_orth &pv = d.pyrimid_vertices[i];
                generic_vertex gv;
                gv.model_rotation_matrix = glm::mat3(1.0f); // identity
-               gv.model_translation = glm::vec3(atom_scale * pv.x(), atom_scale * pv.y(), atom_scale * pv.z());
+               gv.model_translation = glm::vec3(sphere_radius * sphere_scale * pv.x(),
+                                                sphere_radius * sphere_scale * pv.y(),
+                                                sphere_radius * sphere_scale * pv.z());
                gv.pos = glm::vec3(at_pos.x(), at_pos.y(), at_pos.z());
                gv.normal = glm::normalize(glm::vec3(gv.model_translation));
                gv.colour = index_to_colour[icol];

@@ -197,8 +197,7 @@ graphics_info_t::graphics_ligand_view() {
       try {
 	 
 	 graphics_info_t g;
-         GtkAllocation allocation;
-         gtk_widget_get_allocation(glarea, &allocation);
+         GtkAllocation allocation = get_glarea_allocation();
 
 	 std::pair<lig_build::pos_t, lig_build::pos_t> ext = 
 	    g.graphics_ligand_mol.ligand_extents();
@@ -310,7 +309,7 @@ graphics_info_t::graphics_ligand_view() {
 	 // std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
-} 
+}
 
 
 void
@@ -324,157 +323,177 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
       if (n_residue_atoms == 0) {
-	 std::cout << "ERROR: Residue " << residue_spec << "has 0 atoms " << std::endl;
-      } else { 
-	 clipper::Coord_orth running_centre(0.0, 0.0, 0.0); 
-	 for (int iat=0; iat<n_residue_atoms; iat++) {
-	    mmdb::Atom *at = residue_atoms[iat];
-	    running_centre += coot::co(at);
-	 }
-	 double scale = 1/double(n_residue_atoms);
-	 clipper::Coord_orth mean_pos(running_centre.x() * scale,
-				      running_centre.y() * scale,
-				      running_centre.z() * scale);
-	 clipper::Matrix<double> mat(3,3);
-	 for (int ii=0; ii<3; ii++) 
-	    for (int jj=0; jj<3; jj++) 
-	       mat(ii,jj) = 0.0; 
+         std::cout << "ERROR: Residue " << residue_spec << "has 0 atoms " << std::endl;
+      } else {
+         clipper::Coord_orth running_centre(0.0, 0.0, 0.0);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            running_centre += coot::co(at);
+         }
+         double scale = 1/double(n_residue_atoms);
+         clipper::Coord_orth mean_pos(running_centre.x() * scale,
+                                      running_centre.y() * scale,
+                                      running_centre.z() * scale);
+         clipper::Matrix<double> mat(3,3);
+         for (int ii=0; ii<3; ii++)
+            for (int jj=0; jj<3; jj++)
+               mat(ii,jj) = 0.0;
 
-	 for (int iat=0; iat<n_residue_atoms; iat++) { 
-	    mmdb::Atom *at = residue_atoms[iat];
-	    clipper::Coord_orth co = coot::co(at);
-	    mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x()); 
-	    mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y()); 
-	    mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z()); 
-	    mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x()); 
-	    mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y()); 
-	    mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z()); 
-	    mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x()); 
-	    mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y()); 
-	    mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
-	 }
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            clipper::Coord_orth co = coot::co(at);
+            mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x());
+            mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y());
+            mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z());
+            mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x());
+            mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y());
+            mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z());
+            mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x());
+            mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y());
+            mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
+         }
 
-	 graphics_info_t g;
-	 std::pair<bool, clipper::Coord_orth> residue_centre = g.molecules[imol].residue_centre(residue_p);
-	 if (residue_centre.first) {
+         graphics_info_t g;
+         std::pair<bool, clipper::Coord_orth> residue_centre = g.molecules[imol].residue_centre(residue_p);
+         if (residue_centre.first) {
 
-	    if (false) // new style ligand navigation 20160720
-	       g.setRotationCentre(residue_centre.second);
+            if (false) // new style ligand navigation 20160720
+               g.setRotationCentre(residue_centre.second);
 
-	    if (false) { // debug matrices/eigen
+            if (false) { // debug matrices/eigen
 
-	       std::cout << "raw mat" << std::endl;
-	       for (int ii=0; ii<3; ii++) { 
-		  std::cout << "(";
-		  for (int jj=0; jj<3; jj++) {
-		     std::cout <<  "  " << mat(ii,jj);
-		  }
-		  std::cout << ")\n";
-	       }
-	    }
-			
-	    std::vector<double> eigens = mat.eigen(false);
+               std::cout << "raw mat" << std::endl;
+               for (int ii=0; ii<3; ii++) {
+                  std::cout << "(";
+                  for (int jj=0; jj<3; jj++) {
+                     std::cout <<  "  " << mat(ii,jj);
+                  }
+                  std::cout << ")\n";
+               }
+            }
 
-	    if (false) { // debug matrices
-	       std::cout << "eigens:\n     " << sqrt(eigens[0]) << " " << sqrt(eigens[1]) << " "
-			 << sqrt(eigens[2]) << std::endl;
-	       std::cout << "post mat" << std::endl;
-	       for (int ii=0; ii<3; ii++) { 
-		  std::cout << "(";
-		  for (int jj=0; jj<3; jj++) {
-		     std::cout << std::right << std::setprecision(4) << std::fixed <<  "   " << mat(ii,jj);
-		  }
-		  std::cout << ")\n";
-	       }
-	       std::cout.setf(std::ios::fixed, std::ios::floatfield);
-	    }
+            std::vector<double> eigens = mat.eigen(false);
 
-	    clipper::Mat33<double> md(mat(0,0), mat(0,1), mat(0,2),
-				      mat(1,0), mat(1,1), mat(1,2),
-				      mat(2,0), mat(2,1), mat(2,2));
+            if (false) { // debug matrices
+               std::cout << "eigens:\n     " << sqrt(eigens[0]) << " " << sqrt(eigens[1]) << " "
+                         << sqrt(eigens[2]) << std::endl;
+               std::cout << "post mat" << std::endl;
+               for (int ii=0; ii<3; ii++) {
+                  std::cout << "(";
+                  for (int jj=0; jj<3; jj++) {
+                     std::cout << std::right << std::setprecision(4) << std::fixed <<  "   " << mat(ii,jj);
+                  }
+                  std::cout << ")\n";
+               }
+               std::cout.setf(std::ios::fixed, std::ios::floatfield);
+            }
 
-	    // OK, so md gives us an unsorted eigenvector matrix,
-	    // which, when we apply it to the view orients the ligands
-	    // along one of screen X, Y or Z.  Ideally, we'd like the
-	    // long axis of the ligand to be along screen X (and the
-	    // thinnest direction of the ligand along screen Z).  It
-	    // might be possible to rotate md by rotating the columns
-	    // (or rows).  But I don't do that.  I now test for the
-	    // longest eigenvector and that gives us the axis about
-	    // which I need to rotate the view by 90 degrees to put
-	    // the long axis of the ligand along screen z (we don't
-	    // need a rotation if eigen[0] is the longest vector of
-	    // course (unless we consider the tweak to rotate the
-	    // second longest eigenvector along screen y).  The order
-	    // the rotations are applied is important.  The flags are
-	    // set so that screen-x rotation happens last.
+            clipper::Mat33<double> md(mat(0,0), mat(0,1), mat(0,2),
+                                      mat(1,0), mat(1,1), mat(1,2),
+                                      mat(2,0), mat(2,1), mat(2,2));
 
-	    bool need_x_rotate = false;
-	    bool need_y_rotate = false;
-	    bool need_z_rotate = false;
+            // OK, so md gives us an unsorted eigenvector matrix,
+            // which, when we apply it to the view orients the ligands
+            // along one of screen X, Y or Z.  Ideally, we'd like the
+            // long axis of the ligand to be along screen X (and the
+            // thinnest direction of the ligand along screen Z).  It
+            // might be possible to rotate md by rotating the columns
+            // (or rows).  But I don't do that.  I now test for the
+            // longest eigenvector and that gives us the axis about
+            // which I need to rotate the view by 90 degrees to put
+            // the long axis of the ligand along screen z (we don't
+            // need a rotation if eigen[0] is the longest vector of
+            // course (unless we consider the tweak to rotate the
+            // second longest eigenvector along screen y).  The order
+            // the rotations are applied is important.  The flags are
+            // set so that screen-x rotation happens last.
 
-	    coot::util::quaternion vq(md);
+            bool need_x_rotate = false;
+            bool need_y_rotate = false;
+            bool need_z_rotate = false;
 
-	    // convert a coot::util::quaternion to a float *.
+            coot::util::quaternion vq(md);
 
-	    // ugly - we should have equivalent of this in the quaternion class.
-	    // 
-	    float vqf[4];
-	    vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+            // convert a coot::util::quaternion to a float *.
 
-	    // test: initally along screen Y?
-	    if (eigens[1] > eigens[0]) {
-	       if (eigens[1] > eigens[2]) {
-		  need_z_rotate = true;
-		  if (eigens[2] > eigens[0]) // minor correction
-		     need_x_rotate = true;
-	       }
-	    }
+            // ugly - we should have equivalent of this in the quaternion class.
+            //
+            float vqf[4];
+            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+            glm::quat target_quat(vq.q0, vq.q1, vq.q2, vq.q3);
 
-	    // test: initally along screen Z?
-	    if (eigens[2] > eigens[0]) {
-	       if (eigens[2] > eigens[1]) {
-		  need_y_rotate = true;
-		  if (eigens[0] > eigens[1]) // minor correction
-		     need_x_rotate = true;
-	       }
-	    }
+            // test: initally along screen Y?
+            if (eigens[1] > eigens[0]) {
+               if (eigens[1] > eigens[2]) {
+                  need_z_rotate = true;
+                  if (eigens[2] > eigens[0]) // minor correction
+                     need_x_rotate = true;
+               }
+            }
 
-	    // test: initally along screen X? (only minor correction may be needed)
-	    if (eigens[0] > eigens[1])
-	       if (eigens[0] > eigens[2])
-		  if (eigens[2] > eigens[1])
-		     need_x_rotate = true;
+            // test: initally along screen Z?
+            if (eigens[2] > eigens[0]) {
+               if (eigens[2] > eigens[1]) {
+                  need_y_rotate = true;
+                  if (eigens[0] > eigens[1]) // minor correction
+                     need_x_rotate = true;
+               }
+            }
 
-	    if (need_z_rotate) {
-	       float spin_quat[4];
-	       trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
-	       add_quats(spin_quat, vqf, vqf);
-	    }
-	    if (need_y_rotate) {
-	       float spin_quat[4];
-	       trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
-	       add_quats(spin_quat, vqf, vqf);
-	    }
-	    if (need_x_rotate) {
-	       float spin_quat[4];
-	       trackball(spin_quat, 0, 0, 0.0, 0.0174533*45, 0.8);
-	       add_quats(spin_quat, vqf, vqf);
-	    } 
+            // test: initally along screen X? (only minor correction may be needed)
+            if (eigens[0] > eigens[1])
+               if (eigens[0] > eigens[2])
+                  if (eigens[2] > eigens[1])
+                     need_x_rotate = true;
 
-	    // interpolate between current view and new view
-	    //
+            if (need_z_rotate) {
+               float spin_quat[4];
+               trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
+               add_quats(spin_quat, vqf, vqf);
+            }
+            if (need_y_rotate) {
+               float spin_quat[4];
+               trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
+               add_quats(spin_quat, vqf, vqf);
+            }
+            if (need_x_rotate) {
+               float spin_quat[4];
+               trackball(spin_quat, 0, 0, 0.0, 0.0174533*45, 0.8);
+               add_quats(spin_quat, vqf, vqf);
+            }
 
-	    float nice_zoom = 23.1; // "ligand-sized"
-	    const clipper::Coord_orth &rc = residue_centre.second;
-	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
-	    coot::Cartesian rot_centre = RotationCentre();
-	    coot::view_info_t view1(g.quat, rot_centre,      zoom, "current");
-	    coot::view_info_t view2(vqf,    res_centre, nice_zoom, "ligand-perp");
-	    int nsteps = 60;
-	    coot::view_info_t::interpolate(view1, view2, nsteps);
+            // interpolate between current view and new view
+            //
 
-	 }
+            float nice_zoom = 23.1; // "ligand-sized"
+            const clipper::Coord_orth &rc = residue_centre.second;
+            coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+            coot::Cartesian rot_centre = RotationCentre();
+            coot::view_info_t view1(g.glm_quat,  rot_centre,      zoom, "current");
+            coot::view_info_t view2(target_quat, res_centre, nice_zoom, "ligand-perp");
+            int nsteps = 60;
+            coot::view_info_t::interpolate(view1, view2, nsteps);
+
+         }
       }
    }
-} 
+}
+
+
+void
+graphics_info_t::eigen_flip_active_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+
+   if (aa_spec_pair.first) {
+      int imol = aa_spec_pair.second.first;
+      mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+      mmdb::Residue *residue_p = at->GetResidue();
+      if (residue_p) {
+         std::string chain_id = residue_p->GetChainID();
+         int res_no = residue_p->GetSeqNum();
+         molecules[imol].eigen_flip_residue(chain_id, res_no);
+         graphics_draw();
+      }
+   }
+}

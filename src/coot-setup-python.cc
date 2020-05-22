@@ -52,115 +52,57 @@ void setup_python(int argc, char **argv) {
 
 
 #ifdef USE_PYTHON
-     //  (on Mac OS, call PyMac_Initialize() instead)
-     //http://www.python.org/doc/current/ext/embedding.html
-
 #ifdef USE_PYMAC_INIT 
+
+  //  (on Mac OS, call PyMac_Initialize() instead)
+  //http://www.python.org/doc/current/ext/embedding.html
+  //
   PyMac_Initialize();
-#else  
-  Py_Initialize(); // otherwise it core dumps saying python
-  // interpreter not initialized (or something).
-  PySys_SetArgv(argc, argv);
-#endif     
 
-  init_coot(); // i.e. SWIG_init for python, best we do this before
-               // running .coot.py, eh?
-
-  
-  char *hds = getenv("HOME");
-  std::string home_directory;
-
-  if (hds)
-     home_directory = hds;
-
-  // I won't mess with this - not sure what it does.
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-  // In Windows we should use COOT_HOME
-  char *win_home = getenv("COOT_HOME");
-  std::string pkgdirectory = PKGDATADIR;
-  if (win_home) {
-     home_directory = win_home;
-  } else {
-     // if there is no COOT_HOME, there may be a HOME, then use this
-     // usually for advanced users... (set already)
-     if (!hds) {
-        // BL says:: not sure if this is the right fallback place. But where/what else?
-        home_directory = pkgdirectory;
-     }
-  }
-#endif
-
-     short int use_graphics_flag = use_graphics_interface_state();
-
-     // First load coot.py, then load the standard startup files, 
-     // then load 0-coot.state.py
-
-     std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
-     
-     char *pydirectory_over = getenv("COOT_PYTHON_DIR");
-     if (pydirectory_over)
-	pydirectory = pydirectory_over;
-
-     int err = import_python_module("coot", 0);
-     if (err == -1) {
-	std::cout << "ERROR:: could not import coot.py" << std::endl;
-     } else {
-	std::cout << "INFO:: coot.py imported" << std::endl;
-
-	if (! use_graphics_flag) {
-	   safe_python_command("global use_gui_qm; use_gui_qm = False");
-	} else { 
-	   // we have gui
-	   // BL says:: lets initialize glue too but only if we have pygtk 
-	   // (and gtk2)
-
-#ifdef USE_PYGTK
-	   initcoot_python();
-	   std::cout << "INFO:: coot_python initialized" << std::endl;
-#   ifdef USE_GUILE_GTK
-	   safe_python_command("global use_gui_qm; use_gui_qm = 2");
-#   else
-	   safe_python_command("global use_gui_qm; use_gui_qm = 1");
-#   endif
 #else
-	   safe_python_command("global use_gui_qm; use_gui_qm = False");
-#endif // PYTGK
-	}
-	
-	std::string coot_load_modules_dot_py = "coot_load_modules.py";
-	std::string coot_py_file_name = graphics_info_t::add_dir_file(pydirectory, coot_load_modules_dot_py);
-	if (coot::file_exists(coot_py_file_name)) { 
-	   run_python_script(coot_py_file_name.c_str());
-	} else {
-	   std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
-		     << std::endl;
-	}
-     }
-     // try to load extra dir files (if exist) do before preferences (as for
-     // scheme version
-     try_load_python_extras_dir();
 
-     // we only want to run one state file if using both scripting
-     // languages.  Let that be the guile one.
-     //
-     try_load_dot_coot_py_and_preferences(home_directory);
-     
-#ifndef USE_GUILE
+   wchar_t** _argv = static_cast<wchar_t **>(PyMem_Malloc(sizeof(wchar_t*)*argc));
+   for (int i=0; i<argc; i++) {
+      wchar_t* arg = Py_DecodeLocale(argv[i], NULL);
+      _argv[i] = arg;
+   }
+   Py_InitializeEx(0);
+   PySys_SetArgv(argc, _argv);
 
-     // we get here if there is no guile but there is python and the ifdef is only here so 
-     // that we don't run both state script.
+#endif // USE_PYMAC_INIT
 
-     command_line_data cld = parse_command_line(argc, argv);
-     handle_command_line_data(cld);
 
-     // BL says::should this still be here?
-     run_state_file_maybe(); // run local 0-coot.state.py?
+   std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
 
-     // run_update_self_maybe(); nope.  Not yet.
-     
-#endif // USE_GUILE - not both start-up scripts
+   int err = import_python_module("coot", 0);
+   if (err == -1) {
+      std::cout << "ERROR:: could not import coot.py" << std::endl;
+   } else {
+      std::cout << "INFO:: coot.py imported" << std::endl;
+      std::string coot_load_modules_dot_py = "coot_load_modules.py";
+      std::string coot_py_file_name = coot::util::append_dir_file(pydirectory, coot_load_modules_dot_py);
+      if (coot::file_exists(coot_py_file_name)) {
+         PyRun_SimpleString("global use_gui_qm; use_gui_qm = False");
+         FILE *fp = fopen(coot_py_file_name.c_str(), "r");
+         PyRun_SimpleFile(fp, coot_py_file_name.c_str());
+         fclose(fp);
+         std::cout << "read " << coot_py_file_name << std::endl;
+      } else {
+         std::cout << "WARNING:: No coot modules found! Python scripting crippled. "
+                   << std::endl;
+      }
+   }
 
-#endif // USE_PYTHON  
+
+#if 1 // Add a test for PyGObject (the new Python GTK interface)
+
+   initcoot_python_gobject(); // this is not a good name for this function. We need to say
+                      // this this is the module that wraps the glue to get
+                      // the status-bar, menu-bar etc.
+                      // Done.
+
+#endif // GObject
+#endif // USE_PYTHON
 
 }
 
@@ -168,7 +110,7 @@ void
 setup_python_classes() {
 #ifdef USE_PYTHON
 
-      init_pathology_data();
+  init_pathology_data(); 
 
 #endif
 

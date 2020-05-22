@@ -299,6 +299,26 @@ PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
 //! \}
 
+// maybe we need to spefify_other things like the colour table.
+void
+colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
+
+#ifdef USE_PYTHON
+//! \brief  the colour_table should be a list of colours
+//!
+//! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
+//! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
+//!
+void
+colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
+                           PyObject *colour_table_list);
+#endif
+
+PyObject *export_molecule_as_x3d(int imol);
+
+void
+colour_map_by_other_map_turn_off(int imol_map);
+
 
 //! \name Multi-Residue Torsion
 //! \{
@@ -1279,12 +1299,37 @@ void orient_view(int imol,
 		 const coot::residue_spec_t &central_residue_spec, // ligand typically
 		 const coot::residue_spec_t &neighbour_residue_spec);
 
-
 /*  \brief return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names). */
 std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  Mew Graphics Control                                    */
+/*  ----------------------------------------------------------------------- */
+
+//! \brief set use perspective mode
+void set_use_perspective_projection(short int state);
+
+//! \brief query if perspective mode is being used
+int use_perspective_projection_state();
+
+//! \brief set use ambient occlusion
+void set_use_ambient_occlusion(short int state);
+//! \brief query use ambient occlusion
+int use_ambient_occlusion_state();
+
+//! \brief set use depth blur
+void set_use_depth_blur(short int state);
+//! \brief query use depth blur
+int use_depth_blur_state();
+
+//! \brief set use fog
+void set_use_fog(short int state);
+
+//! \brief query use fog
+int use_fog_state();
 
 
 
@@ -1466,13 +1511,31 @@ int handle_drag_and_drop_string(const std::string &uri);
 /*                      Map Contours                                         */
 /* ------------------------------------------------------------------------- */
 
-#ifdef USE_PYTHON
 /*! \name Map Contouring Functions */
+
+#ifdef USE_PYTHON
 // \{
 //! \brief return two lists: a list of vertices and a list of indices for connection
 PyObject *map_contours(int imol, float contour_level);
 // \}
 #endif // USE_PYTHON
+
+//! \brief radial map colouring centre
+void set_radial_map_colouring_centre(int imol, float x, float y, float z);
+
+//! \brief radial map colouring min
+void set_radial_map_colouring_min_radius(int imol, float r);
+
+//! \brief radial map colouring max
+void set_radial_map_colouring_max_radius(int imol, float r);
+
+//! \brief radial map colouring inverted colour map
+void set_radial_map_colouring_invert(int imol, int invert_state);
+
+//! \brief radial map colouring saturation
+//!
+//! saturation is a number between 0 and 1, typically 0.5
+void set_radial_map_colouring_saturation(int imol, float saturation);
 
 
 

@@ -29,6 +29,7 @@
 #ifndef PYTHONH
 #define PYTHONH
 #include <Python.h>
+#include "python-3-interface.hh"
 #endif
 #endif
 
@@ -219,7 +220,7 @@ SCM coot_sys_build_type_scm() {
 PyObject *coot_sys_build_type_py() {
 
    std::string sb = COOT_SYS_BUILD_TYPE;
-   PyObject *r = PyString_FromString(sb.c_str());
+   PyObject *r = myPyString_FromString(sb.c_str());
    return r;
 }
 #endif // USE_PYTHON
@@ -350,7 +351,7 @@ PyObject *molecule_name_stub_py(int imol, int include_path_flag) {
    std::string r;
    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].name_sans_extension(include_path_flag);
-   return PyString_FromString(r.c_str());
+   return myPyString_FromString(r.c_str());
 }
 #endif
 
@@ -949,11 +950,13 @@ int first_unsaved_coords_imol() {
 
 void hardware_stereo_mode() {
 
+   // this should be a graphics-info function. Move me. FIXME
+
    if (graphics_info_t::use_graphics_interface_flag) {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
 	 } else {
@@ -962,9 +965,9 @@ void hardware_stereo_mode() {
 		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  ||
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
-	       if (graphics_info_t::glarea_2) {
-		  gtk_widget_destroy(graphics_info_t::glarea_2);
-		  graphics_info_t::glarea_2 = NULL;
+	       if (graphics_info_t::glareas.size() == 2) {
+		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
 
@@ -973,8 +976,8 @@ void hardware_stereo_mode() {
 	    if (glarea) {
 	       // std::cout << "INFO:: switch to hardware_stereo_mode succeeded\n";
 	       if (graphics_info_t::idle_function_spin_rock_token) {
-		  toggle_idle_spin_function(); // turn it off;
-	       }
+                  toggle_idle_spin_function(); // turn it off;
+               }
 // BL says:: maybe we should set the set_display_lists_for_maps here for
 // windows, actually Mac as well if I remember correctly
 // well, it seems actually to be a GTK2 (or gtkglext) thing!!
@@ -983,20 +986,20 @@ void hardware_stereo_mode() {
 //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
              set_display_lists_for_maps(0);
 #endif // WINDOWS_MINGW
-	       gtk_widget_destroy(graphics_info_t::glarea);
-	       graphics_info_t::glarea = glarea;
-	       gtk_widget_show(glarea);
-	       // antialiasing?
-	       graphics_info_t g;
-	       g.draw_anti_aliasing();
-	       graphics_draw();
-	    } else {
-	       std::cout << "WARNING:: switch to hardware_stereo_mode failed\n";
-	       graphics_info_t::display_mode = previous_mode;
-	    }
-	 }
+               gtk_widget_destroy(graphics_info_t::glareas[0]);
+               graphics_info_t::glareas[0] = glarea;
+               gtk_widget_show(glarea);
+               // antialiasing?
+               graphics_info_t g;
+               g.draw_anti_aliasing();
+               graphics_draw();
+            } else {
+               std::cout << "WARNING:: switch to hardware_stereo_mode failed\n";
+               graphics_info_t::display_mode = previous_mode;
+            }
+         }
       } else {
-	 std::cout << "Already in hardware stereo mode" << std::endl;
+         std::cout << "Already in hardware stereo mode" << std::endl;
       }
    }
    add_to_history_simple("hardware-stereo-mode");
@@ -1010,7 +1013,7 @@ void zalman_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
 	 } else {
@@ -1019,9 +1022,9 @@ void zalman_stereo_mode() {
 		 (previous_mode == coot::DTI_SIDE_BY_SIDE_STEREO)  ||
 		 (previous_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ) {
 
-	       if (graphics_info_t::glarea_2) {
-		  gtk_widget_destroy(graphics_info_t::glarea_2);
-		  graphics_info_t::glarea_2 = NULL;
+	       if (graphics_info_t::glareas.size() == 2) {
+		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  graphics_info_t::glareas[1] = NULL;
 	       }
 	    }
 
@@ -1032,8 +1035,8 @@ void zalman_stereo_mode() {
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
-	       gtk_widget_destroy(graphics_info_t::glarea);
-	       graphics_info_t::glarea = glarea;
+	       gtk_widget_destroy(graphics_info_t::glareas[0]);
+	       graphics_info_t::glareas[0] = glarea;
 	       gtk_widget_show(glarea);
 	       // antialiasing?
 	       graphics_info_t g;
@@ -1058,11 +1061,11 @@ void mono_mode() {
 
       if (graphics_info_t::display_mode != coot::MONO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
-         GtkWidget *gl_widget = lookup_widget(graphics_info_t::glarea, "window1");
+         GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
          int x_size = gtk_widget_get_allocated_width(gl_widget);
          int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
@@ -1079,12 +1082,12 @@ void mono_mode() {
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
-	       gtk_widget_destroy(graphics_info_t::glarea);
-	       if (graphics_info_t::glarea_2) {
-		  gtk_widget_destroy(graphics_info_t::glarea_2);
-		  graphics_info_t::glarea_2 = NULL;
+	       gtk_widget_destroy(graphics_info_t::get_main_window());
+	       if (graphics_info_t::glareas.size() == 2) {
+		  gtk_widget_destroy(graphics_info_t::glareas[1]);
+		  graphics_info_t::glareas[1] = NULL;
 	       }
-	       graphics_info_t::glarea = glarea;
+	       graphics_info_t::glareas[0] = glarea;
 	       gtk_widget_show(glarea);
                // now we shall resize to half the window size if we had
                // side-by-side stereo before
@@ -1121,50 +1124,50 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
       // generated 2 new glareas by calling gl_extras().
       //
       if (!((graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) ||
-	    (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
-	    (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO))) {
+            (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
+            (graphics_info_t::display_mode == coot::DTI_SIDE_BY_SIDE_STEREO))) {
 
-	 if (use_wall_eye_flag == 1) {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 } else {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
-	 }
-	 // int previous_mode = graphics_info_t::display_mode;
-	 short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
-	 if (use_wall_eye_flag)
-	    stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
-	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
-	 if (glarea) {
-	    if (graphics_info_t::idle_function_spin_rock_token) {
-	       toggle_idle_spin_function(); // turn it off;
-	    }
-	    gtk_widget_destroy(graphics_info_t::glarea);
-	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
-	    gtk_widget_show(glarea);
-	    gtk_widget_show(graphics_info_t::glarea_2);
-	    update_maps();
-	    // antialiasing?
-	    graphics_info_t g;
-	    g.draw_anti_aliasing();
-	    redraw_background();
-	    graphics_draw();
-	 } else {
-	    std::cout << "WARNING:: switch to side by side mode failed!\n";
-	 }
+         if (use_wall_eye_flag == 1) {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+         } else {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
+         }
+         // int previous_mode = graphics_info_t::display_mode;
+         short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
+         if (use_wall_eye_flag)
+            stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+         GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *glarea = gl_extras(vbox, stereo_mode);
+         if (glarea) {
+            if (graphics_info_t::idle_function_spin_rock_token) {
+               toggle_idle_spin_function(); // turn it off;
+            }
+            gtk_widget_destroy(graphics_info_t::glareas[0]);
+            graphics_info_t::glareas[0] = glarea; // glarea_2 is stored by gl_extras()
+            gtk_widget_show(glarea);
+            gtk_widget_show(graphics_info_t::glareas[1]);
+            update_maps();
+            // antialiasing?
+            graphics_info_t g;
+            g.draw_anti_aliasing();
+            redraw_background();
+            graphics_draw();
+         } else {
+            std::cout << "WARNING:: switch to side by side mode failed!\n";
+         }
       } else {
 
-	 if (use_wall_eye_flag == 1) {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 } else {
-	    graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
-	    graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
-	 }
-	 // were were already in some sort of side by side stereo mode:
-	 graphics_draw();
+         if (use_wall_eye_flag == 1) {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 1;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
+         } else {
+            graphics_info_t::in_wall_eyed_side_by_side_stereo_mode = 0;
+            graphics_info_t::display_mode = coot::SIDE_BY_SIDE_STEREO;
+         }
+         // were were already in some sort of side by side stereo mode:
+         graphics_draw();
       }
    }
    std::vector<coot::command_arg_t> args;
@@ -1178,27 +1181,28 @@ void set_dti_stereo_mode(short int state) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       if (state) {
-	 short int stereo_mode;
-	 if (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
-	    // int previous_mode = graphics_info_t::display_mode;
-	    stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
-	 } else {
-	    stereo_mode = coot::SIDE_BY_SIDE_STEREO;
-	 }
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
-	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
-	 if (graphics_info_t::use_graphics_interface_flag) {
-	    if (graphics_info_t::idle_function_spin_rock_token) {
-	       toggle_idle_spin_function(); // turn it off;
-	    }
-	    gtk_widget_destroy(graphics_info_t::glarea);
-	    graphics_info_t::glarea = glarea; // glarea_2 is stored by gl_extras()
-	    gtk_widget_show(glarea);
-	    gtk_widget_show(graphics_info_t::glarea_2);
-	    graphics_draw();
-	 } else {
-	    std::cout << "WARNING:: switch to side by side mode failed!\n";
-	 }
+         short int stereo_mode;
+         if (graphics_info_t::display_mode != coot::DTI_SIDE_BY_SIDE_STEREO) {
+            // int previous_mode = graphics_info_t::display_mode;
+            stereo_mode = coot::DTI_SIDE_BY_SIDE_STEREO;
+         } else {
+            stereo_mode = coot::SIDE_BY_SIDE_STEREO;
+         }
+         GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *glarea = gl_extras(vbox, stereo_mode);
+         if (graphics_info_t::use_graphics_interface_flag) {
+            if (graphics_info_t::idle_function_spin_rock_token) {
+               toggle_idle_spin_function(); // turn it off;
+            }
+            gtk_widget_destroy(graphics_info_t::glareas[0]);
+            graphics_info_t::glareas[0] = glarea;
+            gtk_widget_show(glarea);
+            if (graphics_info_t::glareas.size() == 2)
+               gtk_widget_show(graphics_info_t::glareas[1]);
+            graphics_draw();
+         } else {
+            std::cout << "WARNING:: switch to side by side mode failed!\n";
+         }
       }
    }
    // add_to_history_simple("dti-side-by-side-stereo-mode");
@@ -1458,7 +1462,7 @@ void toggle_idle_spin_function() {
 
    if (g.idle_function_spin_rock_token == 0) {
       // g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
-      g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glarea);
+      g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glareas[0]);
    } else {
 
       std::cout << "GTK-FIXME remove spin idle function here!" << std::endl;
@@ -1614,8 +1618,8 @@ set_main_window_title(const char *s) {
    graphics_info_t g;
    if (s) {
       if (g.use_graphics_interface_flag){
-	 if (g.glarea) {
-	    GtkWidget *win = lookup_widget(g.glarea, "window1");
+	 if (g.get_main_window()) {
+	    GtkWidget *win = g.get_main_window();
 	    if (win) {
 	       std::string ss(s);
 	       if (! ss.empty()) {
@@ -1835,19 +1839,19 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
    float v = 0.0;
    if (is_valid_map_molecule(imol_map)) {
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t g;
-	 coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
-	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
-	 if (r) {
-	    mmdb::PPAtom residue_atoms = 0;
-	    int n_residue_atoms;
-	    r->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (int iat=0; iat<n_residue_atoms; iat++) {
-	       mmdb::Atom *at = residue_atoms[iat];
-	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
-	       v += d_at * at->occupancy;
-	    }
-	 }
+         graphics_info_t g;
+         coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+         mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
+         if (r) {
+            mmdb::PPAtom residue_atoms = 0;
+            int n_residue_atoms;
+            r->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+               v += d_at * at->occupancy;
+            }
+         }
       }
    }
    return v;
@@ -1919,9 +1923,9 @@ SCM map_statistics_scm(int imol) {
   if (is_valid_map_molecule(imol)) {
      map_statistics_t ms = graphics_info_t::molecules[imol].map_statistics();
      r = scm_list_4(scm_double2num(ms.mean),
-		    scm_double2num(ms.sd),
-		    scm_double2num(ms.skew),
-		    scm_double2num(ms.kurtosis));
+                    scm_double2num(ms.sd),
+                    scm_double2num(ms.skew),
+                    scm_double2num(ms.kurtosis));
   }
   return r;
 }
@@ -1959,13 +1963,13 @@ void set_density_size_from_widget(const char *text) {
       g.box_radius_xray = tmp;
    } else {
       std::cout << "ERROR:: set_density_size_from_widget() Cannot interpret \""
-		<< text << "\".  Assuming 10A" << std::endl;
+                << text << "\".  Assuming 10A" << std::endl;
       g.box_radius_xray = 10.0;
    }
    //
    for (int ii=0; ii<g.n_molecules(); ii++) {
       if (is_valid_map_molecule(ii))
-	  g.molecules[ii].update_map();
+         g.molecules[ii].update_map();
    }
    graphics_draw();
 }
@@ -2188,9 +2192,9 @@ void set_symmetry_whole_chain(int imol, int state) {
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
       if (is_valid_model_molecule(imol)) {
-	 g.molecules[imol].symmetry_whole_chain_flag = state;
-	 if (g.glarea)
-	    g.update_things_on_move_and_redraw();
+         g.molecules[imol].symmetry_whole_chain_flag = state;
+         if (! g.glareas.empty())
+            g.update_things_on_move_and_redraw();
       }
    }
    std::string cmd = "set-symmetry-whole-chain";
@@ -2271,6 +2275,22 @@ void set_draw_stick_mode_atoms(int imol, short int state) {
    graphics_draw();
 }
 
+void set_draw_missing_residues_loops(short int state) {
+
+   bool prev_state = graphics_info_t::draw_missing_loops_flag;
+   bool new_state = state;
+   if (new_state != prev_state) {
+      graphics_info_t::draw_missing_loops_flag = new_state;
+      for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
+         if (is_valid_model_molecule(imol)) {
+            graphics_info_t::molecules[imol].make_bonds_type_checked();
+         }
+      }
+      graphics_draw();
+   }
+}
+
+
 
 /*! \brief the state of draw hydrogens for molecule number imol.
 
@@ -2324,6 +2344,9 @@ get_map_colour(int imol) {
    if (imol < graphics_info_t::n_molecules()) {
       if (graphics_info_t::molecules[imol].has_xmap()) {
          colour = graphics_info_t::molecules[imol].map_colour;
+         colour.red   *= 65535;
+         colour.green *= 65535;
+         colour.blue  *= 65535;
       }
    }
    std::string cmd = "get-map-colour";
@@ -2333,10 +2356,19 @@ get_map_colour(int imol) {
    return colour;
 }
 
+void
+on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
+                                                     gpointer           user_data) {
+
+   // this is not used now, I think
+   std::cout << "colour changed" << std::endl;
+}
 
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data) {
+   // this is not used now, I think
+
    if (response_id == GTK_RESPONSE_OK) {
       GdkRGBA color;
       gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER (dialog), &color);
@@ -2351,6 +2383,31 @@ void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
       }
    }
    gtk_widget_destroy (GTK_WIDGET (dialog));
+}
+
+void
+on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
+                                       gint response_id,
+                                       gpointer user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      // nothing - because it's already been done on the color_changed handler.
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) {
+      // reset the colour to what it was.
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(color_selection_dialog), "imol"));
+      if (is_valid_map_molecule(imol)) {
+         GdkRGBA *original_map_colour_data = static_cast<GdkRGBA *>(user_data);
+         float m = 1.0/65535.0;
+         original_map_colour_data->red   *= m;
+         original_map_colour_data->green *= m;
+         original_map_colour_data->blue  *= m;
+         graphics_info_t::molecules[imol].set_map_colour(*original_map_colour_data);
+         graphics_draw();
+      }
+   }
+   gtk_widget_destroy (GTK_WIDGET (color_selection_dialog));
 }
 
 //! \brief return the colour of the imolth map (e.g.: (list 0.4 0.6
@@ -2384,9 +2441,9 @@ PyObject *map_colour_components_py(int imol) {
    PyObject *r;
    r = Py_False;
    if (is_valid_map_molecule(imol)) {
-      double rc = graphics_info_t::molecules[imol].map_colour[0][0];
-      double gc = graphics_info_t::molecules[imol].map_colour[0][1];
-      double bc = graphics_info_t::molecules[imol].map_colour[0][2];
+      double rc = graphics_info_t::molecules[imol].map_colour.red;
+      double gc = graphics_info_t::molecules[imol].map_colour.green;
+      double bc = graphics_info_t::molecules[imol].map_colour.blue;
       r = PyList_New(3);
       // put red at the front of the resulting list
       PyList_SetItem(r, 0, PyFloat_FromDouble(rc));
@@ -2424,6 +2481,127 @@ void restore_previous_map_colour(int imol) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    add_to_history_typed(cmd, args);
+}
+
+
+// Noddy version
+void
+colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_map_used_for_colouring)) {
+         graphics_info_t g;
+         clipper::Xmap<float> &xmap_for_colouring = g.molecules[imol_map_used_for_colouring].xmap;
+
+         std::cout << "------------- colour_map_by_other_map() API calling molecules colour_map_using_map()"
+                   << std::endl;
+         g.molecules[imol_map].colour_map_using_map(xmap_for_colouring);
+      }
+   }
+
+}
+
+
+//! So, if the map has 4 entries covering the range from  0 to 1, then the table_bin_size would be 0.25
+//! and the colour_table list would have 4 entries covering the range 0->0.25, 0.25->0.5, 0.5->0.75, 0.75->1.0
+void
+colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
+                           PyObject *colour_table_py) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_map_molecule(imol_map_used_for_colouring)) {
+         if (PyList_Check(colour_table_py)) {
+            graphics_info_t g;
+            clipper::Xmap<float> &xmap_for_colouring = g.molecules[imol_map_used_for_colouring].xmap;
+            std::vector<coot::colour_t> colour_list;
+            unsigned int n = PyObject_Length(colour_table_py);
+            for (unsigned int i=0; i<n; i++) {
+               PyObject *i_py = PyList_GetItem(colour_table_py, i);
+               if (PyList_Check(i_py)) {
+                  unsigned int i_l = PyObject_Length(i_py);
+                  if (i_l == 3) {
+                     double r = PyFloat_AsDouble(PyList_GetItem(i_py, 0));
+                     double g = PyFloat_AsDouble(PyList_GetItem(i_py, 1));
+                     double b = PyFloat_AsDouble(PyList_GetItem(i_py, 2));
+                     coot::colour_t col(r,g,b);
+                     colour_list.push_back(col);
+                  }
+               } else {
+                  std::cout << "Not a list " << std::endl;
+                  break;
+               }
+            }
+
+            if (colour_list.size() == n) {
+               // we read the table OK.
+               g.molecules[imol_map].colour_map_using_map(xmap_for_colouring,
+                                                          table_bin_start, table_bin_size,
+                                                          colour_list);
+            }
+         } else {
+            std::cout << "colour table was not a list " << std::endl;
+         }
+      }
+   }
+}
+
+
+void
+colour_map_by_other_map_turn_off(int imol_map) {
+
+   if (is_valid_map_molecule(imol_map)) {
+      graphics_info_t::molecules[imol_map].colour_map_using_other_map_flag = false;
+      std::cout << "FIXME:: make the map update" << std::endl;
+   }
+
+}
+
+
+// -------------------------------------------------------------------
+
+PyObject *export_molecule_as_x3d(int imol) {
+
+   PyObject *r = PyList_New(3);
+   PyList_SetItem(r, 0, PyList_New(0));
+   PyList_SetItem(r, 1, PyList_New(0));
+   PyList_SetItem(r, 2, PyList_New(0));
+   // or model, eventually.
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      coot::density_contour_triangles_container_t tc = g.molecules[imol].export_molecule_as_x3d();
+      if (false)
+         std::cout << "debug:: tc.points " << tc.points.size() << " tc.normals " << tc.normals.size()
+                   << " tc-point_indices " << tc.point_indices.size() << std::endl;
+      if (tc.points.size() > 0) {
+         if (tc.point_indices.size() > 0) {
+            PyObject *indices_list = PyList_New(3 * tc.point_indices.size());
+            PyObject *vertex_list  = PyList_New(3 * tc.points.size());
+            PyObject *normals_list = PyList_New(3 * tc.normals.size());
+
+            for (unsigned int i=0; i<tc.points.size(); i++) {
+               PyList_SetItem(vertex_list, i*3,   PyFloat_FromDouble(tc.points[i].x()));
+               PyList_SetItem(vertex_list, i*3+1, PyFloat_FromDouble(tc.points[i].y()));
+               PyList_SetItem(vertex_list, i*3+2, PyFloat_FromDouble(tc.points[i].z()));
+            }
+            for (unsigned int i=0; i<tc.normals.size(); i++) {
+               PyList_SetItem(normals_list, i*3,   PyFloat_FromDouble(tc.normals[i].x()));
+               PyList_SetItem(normals_list, i*3+1, PyFloat_FromDouble(tc.normals[i].y()));
+               PyList_SetItem(normals_list, i*3+2, PyFloat_FromDouble(tc.normals[i].z()));
+            }
+            for (unsigned int i=0; i<tc.point_indices.size(); i++) {
+               PyList_SetItem(indices_list, i*3,   PyLong_FromLong(tc.point_indices[i].pointID[0]));
+               PyList_SetItem(indices_list, i*3+1, PyLong_FromLong(tc.point_indices[i].pointID[1]));
+               PyList_SetItem(indices_list, i*3+2, PyLong_FromLong(tc.point_indices[i].pointID[2]));
+            }
+
+            PyList_SetItem(r, 0, indices_list);
+            PyList_SetItem(r, 1, vertex_list);
+            PyList_SetItem(r, 2, normals_list);
+         }
+      }
+   }
+   return r;
+
 }
 
 
@@ -2562,33 +2740,42 @@ short int get_show_symmetry() {
 
 void
 set_clipping_front(float v) {
-
-   float clipping_max = 15.0; // was 10
-   graphics_info_t::clipping_front = v;
-   if (graphics_info_t::clipping_front > clipping_max)
-      graphics_info_t::clipping_front = clipping_max;
-   graphics_draw();
+   graphics_info_t g;
+   g.set_clipping_front(v);
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
    args.push_back(v);
+   std::cout << "mid-1 adding to historyin in set_clipping_front" << std::endl;
    add_to_history_typed(cmd, args);
-
+   std::cout << "done set_clipping_front" << std::endl;
 }
 
 
 void
 set_clipping_back(float v) {
+   graphics_info_t g;
+   g.set_clipping_back(v);
 
-   float clipping_max = 15.0;
-   graphics_info_t::clipping_back = v;
-   if (graphics_info_t::clipping_back > clipping_max)
-      graphics_info_t::clipping_back = clipping_max;
-   graphics_draw();
    std::string cmd = "set-clipping-back";
    std::vector<coot::command_arg_t> args;
    args.push_back(v);
    add_to_history_typed(cmd, args);
 }
+
+
+/*! \brief get clipping plane front */
+float get_clipping_plane_front() {
+   graphics_info_t g;
+   return g.get_clipping_plane_front();
+}
+
+/*! \brief get clipping plane back */
+float get_clipping_plane_back() {
+   graphics_info_t g;
+   return g.get_clipping_plane_back();
+}
+
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -2711,7 +2898,7 @@ void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 void set_rotation_centre(float x, float y, float z) {
    graphics_info_t g;
    g.setRotationCentre(coot::Cartesian(x,y,z));
-   if (g.glarea)
+   if (! g.glareas.empty())
       g.update_things_on_move_and_redraw();
    std::string cmd = "set-rotation-centre";
    std::vector<coot::command_arg_t> args;
@@ -3004,20 +3191,24 @@ int get_default_bond_thickness() {
 }
 
 int make_ball_and_stick(int imol,
-			const char *atom_selection_str,
-			float bond_thickness,
-			float sphere_size,
-			int do_spheres_flag) {
+                        const char *atom_selection_str,
+                        float bond_thickness,
+                        float sphere_size,
+                        int do_spheres_flag) {
 
    int i = imol;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
       int dloi =
       graphics_info_t::molecules[imol].make_ball_and_stick(std::string(atom_selection_str),
-							   bond_thickness,
-							   sphere_size, do_spheres_flag,
-							   glci, g.Geom_p());
+                                                           bond_thickness,
+                                                           sphere_size, do_spheres_flag,
+                                                           glci, g.Geom_p());
       // std::cout << "dloi: " << dloi << std::endl;
       graphics_draw();
    }
@@ -3092,7 +3283,11 @@ int additional_representation_by_string(int imol,  const char *atom_selection_st
       coot::atom_selection_info_t info(atom_selection_str);
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
 									 bond_width,
@@ -3118,7 +3313,11 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
       graphics_info_t g;
       GtkWidget *dcw = g.display_control_window();
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
-      gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      GtkWidget *glarea_0 = 0;
+      GtkWidget *glarea_1 = 0;
+      if (g.glareas.size() > 0) glarea_0 = g.glareas[0];
+      if (g.glareas.size() > 1) glarea_1 = g.glareas[1];
+      gl_context_info_t glci(glarea_0, glarea_1);
 
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
@@ -3199,14 +3398,14 @@ PyObject *additional_representation_info_py(int imol) {
 	 int type = rep.atom_sel_info.type;
 	 if (type == coot::atom_selection_info_t::BY_STRING)
 	    atom_spec_py
-	       = PyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
+	       = myPyString_FromString(rep.atom_sel_info.atom_selection_str.c_str());
 	 else
 	    if (type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
 	       atom_spec_py = PyList_New(4);
-	       PyObject *chain_id_py    = PyString_FromString(rep.atom_sel_info.chain_id.c_str());
-	       PyObject *resno_start_py = PyInt_FromLong(rep.atom_sel_info.resno_start);
-	       PyObject *resno_end_py   = PyInt_FromLong(rep.atom_sel_info.resno_end);
-	       PyObject *ins_code_py    = PyString_FromString(rep.atom_sel_info.ins_code.c_str());
+	       PyObject *chain_id_py    = myPyString_FromString(rep.atom_sel_info.chain_id.c_str());
+	       PyObject *resno_start_py = PyLong_FromLong(rep.atom_sel_info.resno_start);
+	       PyObject *resno_end_py   = PyLong_FromLong(rep.atom_sel_info.resno_end);
+	       PyObject *ins_code_py    = myPyString_FromString(rep.atom_sel_info.ins_code.c_str());
 	       PyList_SetItem(atom_spec_py, 0, chain_id_py);
 	       PyList_SetItem(atom_spec_py, 1, resno_start_py);
 	       PyList_SetItem(atom_spec_py, 2, resno_end_py);
@@ -3216,8 +3415,8 @@ PyObject *additional_representation_info_py(int imol) {
 	 Py_XDECREF(atom_spec_py);
 
      Py_XINCREF(is_show_flag_py);
-	 PyList_SetItem(l, 0, PyInt_FromLong(ir));
-	 PyList_SetItem(l, 1, PyString_FromString(s.c_str()));
+	 PyList_SetItem(l, 0, PyLong_FromLong(ir));
+	 PyList_SetItem(l, 1, myPyString_FromString(s.c_str()));
 	 PyList_SetItem(l, 2, is_show_flag_py);
 	 PyList_SetItem(l, 3, bond_width_py);
 	 PyList_Append(r, l);
@@ -3516,7 +3715,7 @@ void set_draw_axes(int i) {
 
 
 GtkWidget *main_window() {
-   return graphics_info_t::glarea;
+   return graphics_info_t::get_main_window();
 };
 
 int graphics_n_molecules() {
@@ -3894,12 +4093,15 @@ int reset_view() {
 	 }
       }
 
-      float size = g.molecules[new_centred_molecule].size_of_molecule();
-      if (size<1)
-	 size = 1;
-      float new_zoom = 7.0*size;
 
-      g.setRotationCentreAndZoom(new_centre, new_zoom);
+      if (! graphics_info_t::perspective_projection_flag) {
+         float size = g.molecules[new_centred_molecule].size_of_molecule();
+         if (size < 1.0) size = 1.0;
+         float new_zoom = 7.0*size;
+         g.setRotationCentreAndZoom(new_centre, new_zoom);
+      } else {
+         g.setRotationCentre(new_centre);
+      }
       for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
 	 graphics_info_t::molecules[ii].update_map();
 	 graphics_info_t::molecules[ii].update_symmetry();
@@ -4085,36 +4287,40 @@ void make_image_povray(const char *filename) {
 #ifdef USE_GUILE
 
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   int x_size = allocation.width;
-   int y_size = allocation.height;
-   std::string cmd("(raytrace 'povray ");
-   cmd += single_quote(pov_name);
-   cmd += " ";
-   cmd += single_quote(filename);
-   cmd += " ";
-   cmd += graphics_info_t::int_to_string(x_size);
-   cmd += " ";
-   cmd += graphics_info_t::int_to_string(y_size);
-   cmd += ")";
-   safe_scheme_command(cmd);
+   if (! graphics_info_t::glareas.empty()) {
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+      int x_size = allocation.width;
+      int y_size = allocation.height;
+      std::string cmd("(raytrace 'povray ");
+      cmd += single_quote(pov_name);
+      cmd += " ";
+      cmd += single_quote(filename);
+      cmd += " ";
+      cmd += graphics_info_t::int_to_string(x_size);
+      cmd += " ";
+      cmd += graphics_info_t::int_to_string(y_size);
+      cmd += ")";
+      safe_scheme_command(cmd);
+   }
 
 #else
 #ifdef USE_PYTHON
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
-   int x_size = allocation.width;
-   int y_size = allocation.height;
-   std::string cmd("raytrace('povray',");
-   cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
-   cmd += ",";
-   cmd += single_quote(coot::util::intelligent_debackslash(filename));
-   cmd += ",";
-   cmd += graphics_info_t::int_to_string(x_size);
-   cmd += ",";
-   cmd += graphics_info_t::int_to_string(y_size);
-   cmd += ")";
-   safe_python_command(cmd);
+   if (! graphics_info_t::glareas.empty()) {
+      gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+      int x_size = allocation.width;
+      int y_size = allocation.height;
+      std::string cmd("raytrace('povray',");
+      cmd += single_quote(coot::util::intelligent_debackslash(pov_name));
+      cmd += ",";
+      cmd += single_quote(coot::util::intelligent_debackslash(filename));
+      cmd += ",";
+      cmd += graphics_info_t::int_to_string(x_size);
+      cmd += ",";
+      cmd += graphics_info_t::int_to_string(y_size);
+      cmd += ")";
+      safe_python_command(cmd);
+   }
 #endif // USE_PYTHON
 #endif // USE_GUILE
 }
@@ -4125,7 +4331,7 @@ void make_image_povray_py(const char *filename) {
    pov_name += ".pov";
    povray(pov_name.c_str());
    GtkAllocation allocation;
-   gtk_widget_get_allocation(graphics_info_t::glarea, &allocation);
+   gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    int x_size = allocation.width;
    int y_size = allocation.height;
    std::string cmd("raytrace('povray',");
@@ -5035,7 +5241,8 @@ void graphics_to_user_defined_atom_colours_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), false);
+      bool all_atoms_flag = false;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), all_atoms_flag, g.draw_missing_loops_flag);
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-user-defined-colours-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -5053,7 +5260,8 @@ void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), true);
+      bool all_atoms_flag = false;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), all_atoms_flag, g.draw_missing_loops_flag);
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-user-defined-colours-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -5479,8 +5687,8 @@ void display_maps_py(PyObject *pyo) {
       int n = PyObject_Length(pyo);
       for (int i=0; i<n; i++) {
 	 PyObject *item_py = PyList_GetItem(pyo, i);
-	 if (PyInt_Check(item_py)) {
-	    int imol = PyInt_AsLong(item_py);
+	 if (PyLong_Check(item_py)) {
+	    int imol = PyLong_AsLong(item_py);
 	    if (is_valid_map_molecule(imol)) {
 	       map_on[imol] = true;
 	    }
@@ -5758,7 +5966,7 @@ PyObject *space_group_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
       std::string s =  graphics_info_t::molecules[imol].show_spacegroup();
-      r = PyString_FromString(s.c_str());
+      r = myPyString_FromString(s.c_str());
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -5813,7 +6021,7 @@ PyObject *symmetry_operators_py(int imol) {
 	    graphics_info_t::molecules[imol].get_symop_strings();
 	 o = PyList_New(sv.size());
 	 for (unsigned int i=0; i<sv.size(); i++) {
-	    PyList_SetItem(o, i, PyString_FromString(sv[i].c_str()));
+	    PyList_SetItem(o, i, myPyString_FromString(sv[i].c_str()));
 	 }
       } else {
 	 std::cout << "WARNING:: in symmetry_operators_py() null space group " << std::endl;
@@ -5844,7 +6052,7 @@ symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
    PyObject *o = Py_False;
    clipper::Spacegroup sg = py_symop_strings_to_space_group(symmetry_operators);
    if (! sg.is_null())
-      o = PyString_FromString(sg.symbol_hm().c_str());
+      o = myPyString_FromString(sg.symbol_hm().c_str());
    if PyBool_Check(o) {
      Py_INCREF(o);
    }
@@ -5943,7 +6151,7 @@ void set_refine_ramachandran_angles(int state) {
    // Adjust the GUI
    if (graphics_info_t::use_graphics_interface_flag) {
       std::string w_name = "main_toolbar_restraints_rama_label";
-      GtkWidget *w = lookup_widget(graphics_info_t::glarea, w_name.c_str());
+      GtkWidget *w = lookup_widget(graphics_info_t::glareas[0], w_name.c_str());
       if (w) {
 	 if (state) {
 	    if (graphics_info_t::restraints_rama_type == coot::RAMA_TYPE_ZO) {
@@ -6086,12 +6294,12 @@ PyObject *py_clean_internal(PyObject *o) {
    } else {
       if (PyBool_Check(o)) {
 	 // apparently doesnt seem to need resetting
-	 int i = PyInt_AsLong(o);
+	 int i = PyLong_AsLong(o);
 	 ret = o;
       } else {
-	 if (PyInt_Check(o)) {
+	 if (PyLong_Check(o)) {
 	    // apparently doesnt seem to need resetting
-	    int i=PyInt_AsLong(o);
+	    int i=PyLong_AsLong(o);
 	    ret = o;
 	 } else {
 	    if (PyFloat_Check(o)) {
@@ -6099,7 +6307,7 @@ PyObject *py_clean_internal(PyObject *o) {
 	       double f = PyFloat_AsDouble(o);
 	       ret = PyFloat_FromDouble(f);
 	    } else {
-	       if (PyString_Check(o)) {
+	       if (PyUnicode_Check(o)) {
 		  ret = o;
 	       } else {
 		  if (PyFunction_Check(o)) {
@@ -6110,7 +6318,8 @@ PyObject *py_clean_internal(PyObject *o) {
 			ret = o;
 		     } else {
 			std::cout <<"WARNING:: py_clean_internal: incomprehensible argument passed  "
-				  << PyString_AsString(PyObject_Str(o)) <<std::endl;
+				  << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyObject_Str(o)))
+                                  <<std::endl;
 		     }
 		  }
 	       }
@@ -6139,90 +6348,6 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
    PyObject *ret = NULL;
 
-   if (python_cmd != "") {
-
-      PyObject *pName, *pModule;
-      PyObject *globals;
-      PyObject *pValue = NULL;
-      // include $COOT_PYTHON_DIR in module search path
-      // but is alread (except for windows - shall fix BL)
-      //PyRun_SimpleString("import sys, os");
-      //PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
-
-      // Build the name object
-      const char *modulename = "__main__";
-      pName = PyString_FromString(modulename);
-      pModule = PyImport_Import(pName);
-      pModule = PyImport_AddModule("__main__");
-      globals = PyModule_GetDict(pModule);
-      Py_XINCREF(globals);
-
-      if (globals == NULL) {
-	std::cout<<"ERROR:: globals are NULL when running "<< python_cmd <<std::endl;
-      } else {
-	if (! PyDict_Check(globals)) {
-	  std::cout<<"ERROR:: could not get globals when running " << python_cmd <<std::endl;
-	} else {
-	   char *py_command_str = new char[python_cmd.length() + 2];
-	   strncpy(py_command_str, python_cmd.c_str(), python_cmd.length()+1);
-	   // std::cout << "running PyRun_String() on :" << py_command_str << ":" << std::endl;
-	   pValue = PyRun_String(py_command_str, Py_eval_input, globals, globals);
-
-	   if (0) // debugging
-	      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-			<< pValue << std::endl;
-
-	   if (pValue != NULL) {
-	      if (pValue != Py_None) {
-
-		 // ret = py_clean_internal(pValue); // old style 'sometimes-copy'
-		 ret = pValue;
-		 if (! ret)
-		    ret = Py_None;
-	      } else {
-		 ret = Py_None;
-	      }
-	   } else {
-
-	      // deal with pValue = NULL
-
-	      // there is an Error. Could be a syntax error whilst trying to evaluate a statement
-	      // so let's try to run it as a statement
-	      if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
-		 std::cout << "error (syntax error)" << std::endl;
-
-		 PyErr_Clear();
-		 pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, globals, globals);
-		 if (pValue != NULL) {
-		    ret = pValue;
-		 }
-	      } else {
-		 std::cout << "error (not syntax error)" << std::endl;
-		 PyErr_Print();
-	      }
-	   }
-	   delete[] py_command_str;
-	   // Py_XDECREF(pValue); // No. We want objects from here to have a refcount of 1.
-	}
-      }
-      // Clean up
-      Py_XDECREF(pModule);
-      Py_XDECREF(pName);
-      Py_XDECREF(globals);
-   }
-
-   // Running PyBool_Check(NULL) crashes.
-   if (ret == NULL) {
-      Py_INCREF(Py_None);
-      return Py_None; // don't try to convert this to a SCM thing.
-   }
-
-   if (PyBool_Check(ret)) {
-      Py_INCREF(ret);
-   }
-   if (ret == Py_None) {
-      Py_INCREF(ret);
-   }
    return ret;
 }
 #endif //PYTHON
@@ -6342,9 +6467,9 @@ PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
 // 	     << res.insertion_code  << std::endl;
    Py_XINCREF(Py_True);
    PyList_SetItem(r, 0, Py_True);
-   PyList_SetItem(r, 1, PyString_FromString(res.chain_id.c_str()));
-   PyList_SetItem(r, 2, PyInt_FromLong(res.res_no));
-   PyList_SetItem(r, 3, PyString_FromString(res.ins_code.c_str()));
+   PyList_SetItem(r, 1, myPyString_FromString(res.chain_id.c_str()));
+   PyList_SetItem(r, 2, PyLong_FromLong(res.res_no));
+   PyList_SetItem(r, 3, myPyString_FromString(res.ins_code.c_str()));
 
    return r;
 }
@@ -6394,9 +6519,9 @@ PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
       PyList_SetItem(r, 1, res_no_py);
       PyList_SetItem(r, 2, ins_code_py);
    } else {
-      PyList_SetItem(r, 0, PyString_FromString(res_spec_default.chain_id.c_str()));
-      PyList_SetItem(r, 1, PyInt_FromLong(res_spec_default.res_no));
-      PyList_SetItem(r, 2, PyString_FromString(res_spec_default.ins_code.c_str()));
+      PyList_SetItem(r, 0, myPyString_FromString(res_spec_default.chain_id.c_str()));
+      PyList_SetItem(r, 1, PyLong_FromLong(res_spec_default.res_no));
+      PyList_SetItem(r, 2, myPyString_FromString(res_spec_default.ins_code.c_str()));
    }
    return r;
 }
@@ -6954,7 +7079,9 @@ GtkWidget *wrapped_create_run_state_file_dialog_py() {
       std::string s = "    ";
       s += v[i];
       GtkWidget *label = gtk_label_new(s.c_str());
-      gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
+      std::cout << "fix the alignment wrapped_create_run_state_file_dialog_py()"
+                << std::endl;
+      // gtk_misc_set_alignment (GTK_MISC (label), 0.0, 0.5);
       gtk_box_pack_start(GTK_BOX(vbox_mols), label, FALSE, FALSE, 2);
       gtk_widget_show(label);
    }
@@ -6988,11 +7115,22 @@ run_python_script(const char *filename_in) {
 #ifdef USE_PYTHON
 
    std::string s = coot::util::intelligent_debackslash(filename_in);
+#if 0 // as it was for Python2  
    std::string simple = "execfile(";
    simple += single_quote(s);
    simple += ")";
    std::cout << "Running python script " << s  << std::endl;
    PyRun_SimpleString(simple.c_str());
+#endif
+
+   if (coot::file_exists(filename_in)) {
+      FILE *fp = fopen(filename_in, "r");
+      PyRun_SimpleFile(fp, filename_in);
+      fclose(fp);
+   } else {
+      std::cout << "WARNING:: in run_python_script() file " << filename_in
+                << " does not exist" << std::endl;
+   }
 
 #endif // USE_PYTHON
 }
@@ -7016,7 +7154,7 @@ import_python_module(const char *module_name, int use_namespace) {
 
    if (false)
       std::cout << "Importing python module " << module_name
-		<< " using command " << simple << std::endl;
+                << " using command " << simple << std::endl;
 
    err = PyRun_SimpleString(simple.c_str());
 #endif // USE_PYTHON
@@ -7032,19 +7170,19 @@ void add_on_rama_choices(){  // the the menu
    // first delete all the current menu items.
    //
    graphics_info_t g;
-   GtkWidget* menu = lookup_widget(GTK_WIDGET(g.glarea), "rama_plot_menu");
+   GtkWidget* menu = lookup_widget(GTK_WIDGET(g.get_main_window()), "rama_plot_menu");
 
    if (menu) {
       gtk_container_foreach(GTK_CONTAINER(menu),
-			    my_delete_ramachandran_mol_option,
-			    (gpointer) menu);
+                            my_delete_ramachandran_mol_option,
+                            (gpointer) menu);
 
       std::string name;
       for (int i=0; i<g.n_molecules(); i++) {
-	 if (g.molecules[i].has_model() > 0) {
-	    name = graphics_info_t::molecules[i].dotted_chopped_name();
-	    update_ramachandran_plot_menu_manual(i, name.c_str());
-	 }
+         if (g.molecules[i].has_model() > 0) {
+            name = graphics_info_t::molecules[i].dotted_chopped_name();
+            update_ramachandran_plot_menu_manual(i, name.c_str());
+         }
       }
    }
 }
@@ -7079,41 +7217,41 @@ void print_sequence_chain(int imol, const char *chain_id) {
       mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 if (std::string(chain_p->GetChainID()) == chain_id) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::PResidue residue_p;
-	    int residue_count_block = 0;
-	    int residue_count_line = 0;
-	    if (nres > 0 ) {
-	       residue_count_block = chain_p->GetResidue(0)->GetSeqNum();
-	       residue_count_line  = residue_count_block;
-	       if (residue_count_block > 0)
-		  while (residue_count_block > 10)
-		     residue_count_block -= 10;
-	       if (residue_count_line > 0)
-		  while (residue_count_line > 50)
-		     residue_count_line -= 50;
-	    }
-	    for (int ires=0; ires<nres; ires++) {
-	       residue_p = chain_p->GetResidue(ires);
-	       seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
-	       if (residue_count_block == 10) {
-		  if (with_spaces)
-		     seq += " ";
-		  residue_count_block = 0;
-	       }
-	       if (residue_count_line == 50) {
-		  seq += "\n";
-		  residue_count_line = 0;
-	       }
-	       residue_count_block++;
-	       residue_count_line++;
-	    }
-	 }
+         chain_p = model_p->GetChain(ichain);
+         if (std::string(chain_p->GetChainID()) == chain_id) {
+            int nres = chain_p->GetNumberOfResidues();
+            mmdb::PResidue residue_p;
+            int residue_count_block = 0;
+            int residue_count_line = 0;
+            if (nres > 0 ) {
+               residue_count_block = chain_p->GetResidue(0)->GetSeqNum();
+               residue_count_line  = residue_count_block;
+               if (residue_count_block > 0)
+                  while (residue_count_block > 10)
+                     residue_count_block -= 10;
+               if (residue_count_line > 0)
+                  while (residue_count_line > 50)
+                     residue_count_line -= 50;
+            }
+            for (int ires=0; ires<nres; ires++) {
+               residue_p = chain_p->GetResidue(ires);
+               seq += coot::util::three_letter_to_one_letter(residue_p->GetResName());
+               if (residue_count_block == 10) {
+                  if (with_spaces)
+                     seq += " ";
+                  residue_count_block = 0;
+               }
+               if (residue_count_line == 50) {
+                  seq += "\n";
+                  residue_count_line = 0;
+               }
+               residue_count_block++;
+               residue_count_line++;
+            }
+         }
       }
       std::cout << ">" << graphics_info_t::molecules[imol].name_sans_extension(0)
-		<< " chain " << chain_id << std::endl;
+                << " chain " << chain_id << std::endl;
       std::cout << seq << std::endl;
    }
 }
@@ -7125,23 +7263,23 @@ void do_sequence_view(int imol) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
-	 do_old_style = 1;
+         do_old_style = 1;
       } else {
-	 // was it a big shelx molecule?
-	 if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
-	    std::pair<bool, int> max_resno =
-	       coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
-	    if (max_resno.first)
-	       if (max_resno.second > 3200)
-		  do_old_style = 1;
-	 }
+         // was it a big shelx molecule?
+         if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
+            std::pair<bool, int> max_resno =
+               coot::util::max_resno_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+            if (max_resno.first)
+               if (max_resno.second > 3200)
+                  do_old_style = 1;
+         }
       }
 
 
       if (do_old_style) {
-	 sequence_view_old_style(imol);
+         sequence_view_old_style(imol);
       } else {
-	 nsv(imol);
+         nsv(imol);
       }
    }
 }
@@ -7734,25 +7872,25 @@ void set_background_colour(double red, double green, double blue) {
    graphics_info_t g;
 
    if (g.use_graphics_interface_flag) {
-     if(g.glarea_2) {
-       g.make_current_gl_context(g.glarea_2);
-       glClearColor(red,green,blue,1.0);
-       g.background_colour[0] = red;
-       g.background_colour[1] = green;
-       g.background_colour[2] = blue;
-       // glFogfv(GL_FOG_COLOR, g.background_colour);
-     }
-     g.make_current_gl_context(g.glarea);
-     glClearColor(red,green,blue,1.0);
-     g.background_colour[0] = red;
-     g.background_colour[1] = green;
-     g.background_colour[2] = blue;
-     // glFogfv(GL_FOG_COLOR, g.background_colour);
-     if (g.do_anti_aliasing_flag) {
-       // update the antialias?!
-       g.draw_anti_aliasing();
-     }
-     graphics_draw();
+      if(g.glareas.size() == 2) {
+         g.make_current_gl_context(g.glareas[1]);
+         glClearColor(red,green,blue,1.0);
+         g.background_colour[0] = red;
+         g.background_colour[1] = green;
+         g.background_colour[2] = blue;
+         // glFogfv(GL_FOG_COLOR, g.background_colour);
+      }
+      g.make_current_gl_context(g.glareas[0]);
+      glClearColor(red,green,blue,1.0);
+      g.background_colour[0] = red;
+      g.background_colour[1] = green;
+      g.background_colour[2] = blue;
+      // glFogfv(GL_FOG_COLOR, g.background_colour);
+      if (g.do_anti_aliasing_flag) {
+         // update the antialias?!
+         g.draw_anti_aliasing();
+      }
+      graphics_draw();
    }
 }
 
@@ -7765,15 +7903,15 @@ redraw_background() {
    double green = g.background_colour[1];
    double blue  = g.background_colour[2];
    if (g.use_graphics_interface_flag && !background_is_black_p()) {
-     if(g.glarea_2) {
-       g.make_current_gl_context(g.glarea_2);
-       glClearColor(red,green,blue,1.0);
-       // glFogfv(GL_FOG_COLOR, g.background_colour);
-     }
-     g.make_current_gl_context(g.glarea);
-     glClearColor(red,green,blue,1.0);
-     // glFogfv(GL_FOG_COLOR, g.background_colour);
-     graphics_draw();
+      if(g.glareas.size() == 2) {
+         g.make_current_gl_context(g.glareas[1]);
+         glClearColor(red,green,blue,1.0);
+         // glFogfv(GL_FOG_COLOR, g.background_colour);
+      }
+      g.make_current_gl_context(g.glareas[0]);
+      glClearColor(red,green,blue,1.0);
+      // glFogfv(GL_FOG_COLOR, g.background_colour);
+      graphics_draw();
    }
 
 }
@@ -8275,13 +8413,10 @@ int add_view_here(const char *view_name) {
    std::cout << "------------------ debug: in add_view_here() with view name " << view_name << std::endl;
 
    std::string name(view_name);
-   float quat[4];
-   for (int i=0; i<4; i++)
-      quat[i] = graphics_info_t::quat[i];
    graphics_info_t g;
    coot::Cartesian rc = g.RotationCentre();
    float zoom = graphics_info_t::zoom;
-   coot::view_info_t view(quat, rc, zoom, name);
+   coot::view_info_t view(graphics_info_t::glm_quat, rc, zoom, name);
 
    std::cout << "------------ in add_view_here() made a view with name: " << view.view_name << std::endl;
    std::cout << "------------ in add_view_here() made a view: " << view << std::endl;
@@ -8296,13 +8431,9 @@ int add_view_here(const char *view_name) {
 int add_view_raw(float rcx, float rcy, float rcz, float quat0, float quat1,
 		  float quat2, float quat3, float zoom, const char *view_name) {
 
-   float quat[4];
-   quat[0] = quat0;
-   quat[1] = quat1;
-   quat[2] = quat2;
-   quat[3] = quat3;
+   glm::quat q(quat0, quat1, quat2, quat3);
    coot::Cartesian rc(rcx, rcy, rcz);
-   coot::view_info_t v(quat, rc, zoom, view_name);
+   coot::view_info_t v(q, rc, zoom, view_name);
    graphics_info_t::views.push_back(v);
    return (graphics_info_t::views.size() -1);
 }
@@ -8398,7 +8529,7 @@ void play_views() {
 	       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
 				  graphics_info_t::RotationCentre_y(),
 				  graphics_info_t::RotationCentre_z());
-	       coot::view_info_t current_view(graphics_info_t::quat,
+	       coot::view_info_t current_view(graphics_info_t::glm_quat,
 					      rc, graphics_info_t::zoom, "dummy");
 	       coot::view_info_t::interpolate(current_view, view2, nsteps);
 	       update_things_on_move_and_redraw();
@@ -8413,14 +8544,11 @@ void remove_this_view() {
 
    graphics_info_t g;
    coot::Cartesian rc = g.RotationCentre();
-   float quat[4];
-   for (int i=0; i<4; i++)
-      quat[i] = graphics_info_t::quat[i];
    float zoom =  g.zoom;
 
    int r=0;
    bool found = false;
-   coot::view_info_t v(quat, rc, zoom, "");
+   coot::view_info_t v(graphics_info_t::glm_quat, rc, zoom, "");
 
    std::vector<coot::view_info_t>::iterator it; // needs to be const_iterator? depending on c++ version?
    for (it=graphics_info_t::views.begin(); it!=graphics_info_t::views.end(); it++) {
@@ -8472,10 +8600,9 @@ int go_to_view_number(int view_number, int snap_to_view_flag) {
 	    if (snap_to_view_flag) {
 	       g.setRotationCentre(view.rotation_centre);
 	       g.zoom = view.zoom;
-	       for (int iq=0; iq<4; iq++)
-		  g.quat[iq] = view.quat[iq];
+               g.glm_quat = view.quaternion;
 	    } else {
-	       coot::view_info_t this_view(g.quat, g.RotationCentre(), g.zoom, "");
+	       coot::view_info_t this_view(g.glm_quat, g.RotationCentre(), g.zoom, "");
 	       int nsteps = 2000;
 	       if (graphics_info_t::views_play_speed > 0.000000001)
 		  nsteps = int(2000.0/graphics_info_t::views_play_speed);
@@ -8536,7 +8663,7 @@ PyObject *view_name_py(int view_number) {
    if (view_number < n_view)
       if (view_number >= 0) {
          std::string name = graphics_info_t::views[view_number].view_name;
-         r = PyString_FromString(name.c_str());
+         r = myPyString_FromString(name.c_str());
       }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
@@ -8569,7 +8696,7 @@ PyObject *view_description_py(int view_number) {
       if (view_number < int(graphics_info_t::views.size())) {
          std::string d = graphics_info_t::views[view_number].description;
          if (d != "") {
-            r = PyString_FromString(d.c_str());
+            r = myPyString_FromString(d.c_str());
          }
       }
    if (PyBool_Check(r)) {
@@ -8778,15 +8905,11 @@ void go_to_view_py(PyObject *view) {
       // What is the current view:
       //
       std::string name("Current Position");
-      float quat[4];
-      for (int i=0; i<4; i++)
-         quat[i] = graphics_info_t::quat[i];
       coot::Cartesian rc = g.RotationCentre();
       float zoom = graphics_info_t::zoom;
-      coot::view_info_t view_c(quat, rc, zoom, name);
+      coot::view_info_t view_c(graphics_info_t::glm_quat, rc, zoom, name);
 
       // view_target is where we want to go
-      float quat_target[4];
       quat_python = PyList_GetItem(view, 0);
       int len_quat = PyObject_Length(quat_python);
       if (len_quat == 4) {
@@ -8794,10 +8917,10 @@ void go_to_view_py(PyObject *view) {
          PyObject *q1_python = PyList_GetItem(quat_python, 1);
          PyObject *q2_python = PyList_GetItem(quat_python, 2);
          PyObject *q3_python = PyList_GetItem(quat_python, 3);
-         quat_target[0] = PyFloat_AsDouble(q0_python);
-         quat_target[1] = PyFloat_AsDouble(q1_python);
-         quat_target[2] = PyFloat_AsDouble(q2_python);
-         quat_target[3] = PyFloat_AsDouble(q3_python);
+         glm::quat quat_target(PyFloat_AsDouble(q0_python),
+                               PyFloat_AsDouble(q1_python),
+                               PyFloat_AsDouble(q2_python),
+                               PyFloat_AsDouble(q3_python));
 
          PyObject *rc_target_python = PyList_GetItem(view, 1);
          int len_rc_target = PyObject_Length(rc_target_python);
@@ -8816,7 +8939,7 @@ void go_to_view_py(PyObject *view) {
             double zoom_target = PyFloat_AsDouble(target_zoom_python);
 
             PyObject *name_target_python = PyList_GetItem(view, 3);
-            std::string name_target = PyString_AsString(name_target_python);
+            std::string name_target = PyBytes_AS_STRING(PyUnicode_AsUTF8String(name_target_python));
 
             coot::view_info_t view_target(quat_target, rc_target, zoom_target, name_target);
 

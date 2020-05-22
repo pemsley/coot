@@ -176,6 +176,7 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
    //
    int imol = go_to_atom_molecule();
    pick_info pi = find_atom_index_from_goto_info(imol);
+
    if (pi.success) {
 
       setRotationCentre(pi.atom_index, go_to_atom_molecule());
@@ -286,19 +287,16 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 //
 int
 graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
-						                              const std::string &direction) {
+                                                const std::string &direction) {
 
-
-   std::cout << "------------ intelligent_near_atom_centring " << direction
-             << std::endl;
 
    std::string chain =     go_to_atom_chain_;
    std::string atom_name = go_to_atom_atom_name_;
    std::string ins_code =  go_to_atom_inscode_;
    int resno = go_to_atom_residue();
-   int imol = go_to_atom_molecule();
+   int imol  = go_to_atom_molecule();
 
-   if (true) {
+   if (false) {
       std::cout << "intelligent_near_atom_centring() " << direction << std::endl;
       std::cout << "intelligent_near_atom_centring() " << imol << std::endl;
       std::cout << "intelligent_near_atom_centring() :" << chain << ":" << std::endl;
@@ -337,12 +335,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
          atom_index = molecules[imol].intelligent_previous_atom(chain, resno, atom_name, ins_code, rc);
       }
 
-      std::cout << "in intelligent_near_atom_centring here with atom_index " << atom_index
-                << std::endl;
-
       if (atom_index != -1) {
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
-         std::cout << "in intelligent_near_atom_centring here with next atom " << coot::atom_spec_t(next_atom) << std::endl;
          go_to_atom_chain_       = next_atom->GetChainID();
          go_to_atom_atom_name_   = next_atom->name;
          go_to_atom_residue_     = next_atom->GetSeqNum();
@@ -358,6 +352,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
             // 						 "go_to_atom_residue_tree");
             // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
          }
+
          try_centre_from_new_go_to_atom();
 
          // Update the graphics (glarea widget):
@@ -518,12 +513,6 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	    //
 	    std::pair<std::string, std::string> p =
 	       graphics_info_t::split_atom_name(go_to_atom_atom_name());
-
-	    char altconf[2];
-	    strncpy(altconf, go_to_atom_atom_altLoc_.c_str(), 2);
-	    if (go_to_atom_atom_altLoc_ == "empty") {
-	       strcpy(altconf, "");
-	    }
 
 // 	    std::cout << "FAI:: searching chain :" << go_to_atom_chain() << std::endl;
 // 	    std::cout << "FAI:: searching residue no :" << go_to_atom_residue() << std::endl;
@@ -713,16 +702,21 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
      int resno = atoi(resno_inscode.first.c_str());
      std::string inscode = resno_inscode.second;
 
-//      std::cout << "DEBUG:: in apply_go_to_atom_from_widget: chain_str " << chain_str
-// 	       << " resno " << resno << " inscode " << inscode << " atom_name_str "
-// 	       << atom_name_str << " split thing " << p.second << "\n";
+     if (false)
+        std::cout << "DEBUG:: in apply_go_to_atom_from_widget(): chain_str " << chain_str
+                  << " resno " << resno << " inscode " << inscode << " atom_name_str \""
+                  << atom_name_str << "\" split thing \"" << p.second << "\"\n";
 
      set_go_to_atom_chain_residue_atom_name(chain_str,
 					    resno,
 					    inscode.c_str(),
 					    atom_name_str,
 					    p.second.c_str());
+
      int success = try_centre_from_new_go_to_atom();
+     if (false)
+        std::cout << "debug() try_centre_from_new_go_to_atom() returns "
+                  << success << std::endl;
      if (success)
 	update_things_on_move_and_redraw();
   }

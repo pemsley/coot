@@ -3986,10 +3986,11 @@ INFO::
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
+     Use configure-it-for-release
    o git commit -a
-   o git push [maybe here? not sure]
    o git tag Release-0.x.y
    o git commit
+   o git push [maybe here? not sure]
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
         OK, disable the build-latest cron-job
@@ -9342,3 +9343,93 @@ Sat 29 Feb 2020 17:52:41 IST
    o put sfcheck functions (graphs) into coot.
 
 
+---
+Fri 10 Apr 17:07:51 BST 2020
+
+   o Gtk/Gdk mode touches OpenGL at glXChooseVisual
+     THis is not called in Gtk3.24.11
+
+
+---
+Fri 15 May 13:24:21 BST 2020
+
+   building from scratch
+
+   run the build-it-3-3 script
+   pip3 install pycairo
+   cd ~/compile/PyGObject-xyz
+   python setup.py build
+   python setup.py install
+
+   cd ~/autobuild/Linux-penelope-gtk3-python/include/
+   ln -s ../lib/python3.6/site-packages/PyGObject-3.36.0-py3.6-linux-x86_64.egg/include/pygobject-3.0
+
+   now import gi works from python
+
+   ... or does it?
+
+
+   make sure that g-ir-scanner is correctly installed (from gobject-introspection-1.50.0 or so)
+
+   cd PyGObject-3.36.0 # or so
+   meson -Dprefix=/home/paule/autobuild/Linux-penelope-pre-release-gtk3-python build
+   cd build
+   ninja
+   ninja install
+
+
+---
+Sun 17 May 03:08:44 BST 2020
+
+ problems with python:
+
+ This is trying to use python3.8. It used to work with 3.6 - I don't know if that is related.
+
+enelope coot-gtk3/build/src> ./coot-bin --no-graphics
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'coot'
+ERROR:: could not import coot.py
+in PyInit_coot_gui_api() returing module 0x7fa9847def90
+INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
+INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
+INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
+Python 3.8.2 (default, May 17 2020, 01:35:28) 
+[GCC 9.2.1 20191008] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import _coot
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
+>>> 
+
+penelope coot-gtk3/build/src> nm .libs/coot-bin | grep n_models
+00000000000ce800 T n_models
+0000000000055234 t n_models.cold
+00000000003f9660 T _ZNK21molecule_class_info_t8n_modelsEv
+
+So, Does _coot.so want to be linked with all of coot, despite being "part of" coot-bin. Has the linking
+in 3.8 changed?
+
+Read about embedding here: https://docs.python.org/3/whatsnew/3.8.html
+
+   ... but I get the same problems in 3.6?
+
+./coot-bin --no-graphics
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/python3.6/site-packages/coot.py", line 15, in <module>
+    import _coot
+ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
+ERROR:: could not import coot.py
+in PyInit_coot_gui_api() returing module 0x7fbaf1d5b318
+INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
+INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
+INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
+Python 3.6.5 (default, Mar 29 2020, 05:23:17) 
+[GCC 9.2.1 20191008] on linux
+
+
+Fri 10 Apr 10:49:21 BST 2020
+
+   o 3tib is a good structure for adding carbohydrates (tutorial)

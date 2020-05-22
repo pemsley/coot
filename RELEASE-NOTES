@@ -1,4 +1,65 @@
 
+  Release 0.9
+
+  This release has been a long-term effort (4 years according to my notes). It is powerful but not as
+  clean and stable as I would have liked, but I don't want to delay any longer. Many of the additions
+  and updates have been focused on the problems posed by cryo-EM reconstructions.
+
+  o REQUIREMENT:  C+11 required for compilation
+
+  o REQUIREMENT:  Boost required for compilation
+
+  o FEATURE: Automatic addition of alpha helix, nucleic acid stacking and pairing restraints and
+             metal coordination bond restraints
+
+  o FEATURE: Standard molecular representation now has "atoms" (not just bonds).
+             Waters are balls, not crosses
+
+  o FEATURE: interactive representation of Ramachandran and rotamer probabilities during refinement
+             Add set_show_intermediate_atoms_rota_markup()
+             Add set_show_intermediate_atoms_rama_markup()
+
+  o FEATURE: Curlew (the Extensions Wrangler) now has a menu item and has been redesigned
+
+  o FEATURE: Added function "Go To Middle of Cryo-EM Reconstruction Molecule"
+
+  o FEATURE: Sharpen/blur map feature added
+
+  o CHANGE:  Improved Real Space Refinement - now refinement is on-going instead of activated by
+             dropping (releasing) the atom
+
+  o CHANGE:  Multi-threaded code for real-space refinement, jiggle-fit, rotamer probabilities,
+             atom overlaps, restraints generation, density contouring
+
+  o CHANGE:  Improved Jiggle Fit
+
+  o CHANGE:  All option menus replaced by comboboxes
+
+  o CHANGE:  The non-bonded contact model is now Lennard-Jones
+
+  o CHANGE:  Lidia chemical diagram rendering improvements
+
+  o CHANGE:  "Hit" atom radius increased for atom picking
+
+  o CHANGE:  Chiral atom restraints tightened, torsion restraints use a canonical cosine form
+
+  o CHANGE:  Rotamer fitting deletes clashing waters
+
+  o CHANGE:  Origin marker is now white
+
+  o CHANGE (API): Add access to CaBLAM markup
+
+  o CHANGE (API): Create multiple maps based on atom selection masking
+
+  o CHANGE (API): Add access to shift-field B-factor refinement (algorithm from Kevin Cowtan)
+
+  o BUG-FIX: Improved XML parsing of molecules from Wikipedia
+
+  o BUG-FIX: Align & Mutate output fixed
+
+
+-----
+
   Pre-Release 0.8.9.3
 
   o FEATURE: Add a menu item to save graphics window size and position
@@ -38,8 +99,8 @@
              [Erec Stebbins]
              (set-use-variable-bond-thickness 1)
 
-  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic")
-             [Hannah Bridges]
+  o CHANGE:  Iron-Sulfur clusters are now bonded using the dictionary (and so appear "cubic"
+             rather than disconnected) [Hannah Bridges]
 
   o CHANGE:  Edit -> Copy Fragment now has a "Move it Here" check-button
 

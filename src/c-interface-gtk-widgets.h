@@ -180,8 +180,12 @@ void manage_refmac_column_selection(GtkWidget *w);
 void fill_combobox_with_expert_options(GtkWidget *f_optionmenu);
 void handle_column_label_make_fourier(GtkWidget *column_label_window);
 void handle_column_label_make_fourier_v2(GtkWidget *column_label_window); /* gtk3 version */
-void wrapped_create_run_refmac_dialog();
 
+/* old */
+void wrapped_create_run_refmac_dialog();
+/* new */
+void wrapped_create_simple_refmac_dialog();
+void simple_refmac_run_refmac(GtkWidget *dialog);
 
 void on_remarks_dialog_close_button_clicked     (GtkButton *button,
 						 gpointer         user_data);
@@ -205,7 +209,7 @@ void
 on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
 						  gpointer         user_data);
 
-void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection);
+void add_recentre_on_read_pdb_combobox(GtkWidget *filechooser);
 /* the callback for the above: */
 void
 on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
@@ -250,6 +254,13 @@ GdkRGBA get_map_colour(int imol);
 void on_single_map_properties_colour_dialog_response(GtkDialog *dialog,
                                                      gint       response_id,
                                                      gpointer   user_data);
+
+void on_single_map_properties_colour_dialog_color_changed(GtkColorSelection *colorselection,
+                                                          gpointer           user_data);
+void
+on_map_color_selection_dialog_response(GtkDialog *color_selection_dialog,
+                                       gint response_id,
+                                       gpointer user_data);
 
 /* the callback set on the submenu items in the above function */
 void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,

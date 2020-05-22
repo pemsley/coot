@@ -590,7 +590,9 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
 	
     CXXSphereElement unitSphereAtOrigin(CXXCoord(0.,0.,0.), 1., delta);
 	
-#pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
+
+#pragma omp parallel for default(none) shared(selHnd, nSelAtoms, SelAtom, probeRadius, delta, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
+// #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		mmdb::PAtom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();		
 		if (!(atomNr%100) || atomNr==nSelAtoms-1) {
@@ -598,8 +600,8 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
 			cout << "Dealing with atom number " <<atomNr <<endl;
 		}
 		double radiusOfAtom1 = getAtomRadius(centralAtom);
-        CXXNewHood theNewHood;
-        theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
+                CXXNewHood theNewHood;
+                theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
         
 		//We have precalculated neighbours of the central atom, and now can use that 
 		//to our advantage
@@ -610,13 +612,13 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
 		
 		//Find the non-hidden segments of the circles
 		theNewHood.findSegments();
-        CXXSurface elementSurface;
+                CXXSurface elementSurface;
 		if (!CXXNewHood::doesNotContainDrawable(theNewHood)){
-            theNewHood.triangulateAsRegularHoodInto(&elementSurface, delta, &unitSphereAtOrigin);
-            theNewHood.identifyUniqueNodes(splitReentrantProbes[atomNr], selHnd);
-            elementSurface.compress(0.00001);
+                   theNewHood.triangulateAsRegularHoodInto(&elementSurface, delta, &unitSphereAtOrigin);
+                   theNewHood.identifyUniqueNodes(splitReentrantProbes[atomNr], selHnd);
+                   elementSurface.compress(0.00001);
 #pragma omp critical (mainTriangles)
-            appendSurface(elementSurface);
+                   appendSurface(elementSurface);
 		}
 	}
 

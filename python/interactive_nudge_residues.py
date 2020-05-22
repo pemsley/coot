@@ -8,12 +8,12 @@ def new_molecule_with_nudged_residues(imol, residue_spec,
     resno_end = residue_spec_to_res_no(residue_spec) + residue_delta
 
     if debug():
-        print "imol:", imol
-        print "residue_spec:", residue_spec
-        print "residue_delta:", residue_delta
-        print "resno_start:", resno_start
-        print "resno_end:", resno_end
-        print "nudge_by:", nudge_by
+        print("imol:", imol)
+        print("residue_spec:", residue_spec)
+        print("residue_delta:", residue_delta)
+        print("resno_start:", resno_start)
+        print("resno_end:", resno_end)
+        print("nudge_by:", nudge_by)
 
     status = nudge_residue_sequence(imol_new, chain_id, resno_start, resno_end,
                                     nudge_by, 1)
@@ -41,7 +41,7 @@ def nudge_residues_gui(imol, residue_spec):
         try:
             rd = int(rdt)
         except:
-            print "BL WARNING:: could not convert %s to a number, set to 1 then." %rdt
+            print("BL WARNING:: could not convert %s to a number, set to 1 then." %rdt)
             # or shall we bail!?
             rd = 1
         residue_delta = rd

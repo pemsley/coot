@@ -23,6 +23,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -387,6 +388,72 @@ graphics_info_t::copy_model_molecule(int imol) {
    return iret;
 }
 
+
+void
+graphics_info_t::save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
+
+   // 20070801 crash reported by "Gajiwala, Ketan"
+
+   // OK, we can reproduce a problem
+   // Refine something
+   // Close the window using WM delete window
+   // Press return in Graphics window (globjects:key_press_event() GDK_Return case)
+   // 
+   // So, we need to set graphics_info_t::accept_reject_dialog to NULL
+   // when we get a WM delete event on the Accept/Reject box
+   
+   if (acc_rej_dialog) { 
+      gint upositionx, upositiony;
+      // if (acc_rej_dialog->window) {
+      if (true) { // no access to window
+	    std::cout << "GTK-FIXME no root origin B" << std::endl;
+	 // gdk_window_get_root_origin (acc_rej_dialog->window, &upositionx, &upositiony);
+	 // graphics_info_t::accept_reject_dialog_x_position = upositionx;
+	 //	 graphics_info_t::accept_reject_dialog_y_position = upositiony;
+      } else {
+	 std::cout << "ERROR:: Trapped an error in save_accept_reject_dialog_window_position\n"
+		   << "        Report to Central Control!\n"
+		   << "        (What did you do to make this happen?)\n";
+      }
+   }
+}
+
+void
+graphics_info_t::clear_up_glsl_buffers_for_moving_atoms() {
+
+}
+
+void
+graphics_info_t::clear_up_moving_atoms_wrapper() {
+
+   rebond_molecule_corresponding_to_moving_atoms();
+
+   // poke a value into the threaded refinement loop, to stop
+   if (continue_threaded_refinement_loop) {
+      // and tell it to clear up the moving atoms
+      threaded_refinement_needs_to_clear_up = true;
+      std::cout << ".... Esc key tells refinement to clean up" << std::endl;
+      continue_threaded_refinement_loop = false;
+   } else {
+
+      // refinement was not running. we can clear up the atoms ourselves
+      clear_up_moving_atoms();
+      clear_up_glsl_buffers_for_moving_atoms();
+      clear_moving_atoms_object();
+
+      if (accept_reject_dialog) {
+         if (accept_reject_dialog_docked_flag == coot::DIALOG) {
+            save_accept_reject_dialog_window_position(accept_reject_dialog);
+            // this calls clear_up_moving_atoms() and clears atom pull restraint.
+            gtk_widget_destroy(accept_reject_dialog);
+            accept_reject_dialog = 0;
+         } else {
+            gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
+         }
+      }
+   }
+}
+
 std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::restraints_lock(false);
 std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
@@ -426,8 +493,7 @@ graphics_info_t::refinement_loop_threaded() {
 
    graphics_info_t g;
 
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS; // for now
-   flags = g.set_refinement_flags(); // flags should not be needed for minimize()
+   coot::restraint_usage_Flags flags = g.set_refinement_flags(); // flags should not be needed for minimize()
 
    // continue_threaded_refinement_loop = true; not here - set it in the calling function
    while (continue_threaded_refinement_loop) {
@@ -539,6 +605,10 @@ coot::restraint_usage_Flags
 graphics_info_t::set_refinement_flags() const {
 
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+   flags = coot::TYPICAL_RESTRAINTS_WITH_IMPROPERS;
+
+   // Oh, these will interact badly.
+
    if (do_torsion_restraints) {
       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
    }
@@ -1065,6 +1135,10 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 				   mol_for_residue_selection,
 				   fixed_atom_specs, xmap_p);
 
+   if (convert_dictionary_planes_to_improper_dihedrals_flag) {
+      last_restraints->set_convert_plane_restraints_to_improper_dihedral_restraints(true);
+   }
+
    // This seems not to work yet.
    // last_restraints->set_dist_crit_for_bonded_pairs(9.0);
 
@@ -1099,8 +1173,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
    last_restraints->set_rama_type(restraints_rama_type);
    last_restraints->set_rama_plot_weight(rama_restraints_weight); // >2? danger of non-convergence
-   // if planar peptide restraints are used
-
+                                                                  // if planar peptide restraints are used
    // Oh, I see... it's not just the non-Bonded contacts of the hydrogens.
    // It's the planes, chiral and angles too. Possibly bonds too.
    // How about marking non-H atoms in restraints that contain H atoms as
@@ -1139,10 +1212,11 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
       // rr.found_restraints_flag = true;
 
       if (refinement_immediate_replacement_flag) {
-	 // wait until refinement finishes
-	 while (restraints_lock) {
-	    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            std::cout << "restrainst locked by " << restraints_locking_function_name << std::endl;
+         // wait until refinement finishes
+         while (restraints_lock) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
+                      << restraints_locking_function_name << std::endl;
          }
       }
 
@@ -1174,7 +1248,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    if (is_valid_map_molecule(Imol_Refinement_Map()) || (! use_map_flag)) {
       float weight = geometry_vs_map_weight;
       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-      coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+      coot::restraint_usage_Flags flags = set_refinement_flags();
       bool do_residue_internal_torsions = false;
       if (do_torsion_restraints) {
 	 do_residue_internal_torsions = 1;
@@ -1504,17 +1578,16 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
                   const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
                      moving_atoms_extra_restraints_representation.bonds[ib];
 
-                  // red if actual distance is greater than target
+                  // purple if actual distance is greater than target
                   //
                   double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+                  double d = sqrt(d_sqd);
                   double esd = 0.05;
-
-                  double b = 0.005 * (res.target_dist*res.target_dist - d_sqd)/esd;
+                  double z = (res.target_dist - d)/esd;
+                  double b = 0.02 * z;
                   if (b >  0.4999) b =  0.4999;
                   if (b < -0.4999) b = -0.4999;
                   double b_green = b;
-                  if (b > 0) b_green *= 0.2;
-		  // std::cout << "b " << b << " b_green " << b_green << std::endl;
                   glColor3d(0.5-b, 0.5+b_green*0.9, 0.5-b);
 
                   glVertex3f(res.first.x(), res.first.y(), res.first.z());
@@ -2165,15 +2238,15 @@ graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
 
    if (rr.found_restraints_flag) {
       PyObject *lights_py = Py_False;
-      PyObject *progress_py = PyInt_FromLong(rr.progress);
-      PyObject *info_py = PyString_FromString(rr.info_text.c_str());
+      PyObject *progress_py = PyLong_FromLong(rr.progress);
+      PyObject *info_py = myPyString_FromString(rr.info_text.c_str());
       if (rr.lights.size())
 	lights_py = PyList_New(rr.lights.size());
       for (unsigned int il=0; il<rr.lights.size(); il++) {
 	PyObject *light_py = PyList_New(3);
 	PyObject *value_py = PyFloat_FromDouble(rr.lights[il].value);
-	PyObject *label_py = PyString_FromString(rr.lights[il].label.c_str());
-	PyObject *name_py  = PyString_FromString(rr.lights[il].name.c_str());
+	PyObject *label_py = myPyString_FromString(rr.lights[il].label.c_str());
+	PyObject *name_py  = myPyString_FromString(rr.lights[il].name.c_str());
 
 	PyList_SetItem(light_py, 0, name_py);
 	PyList_SetItem(light_py, 1, label_py);
@@ -2228,7 +2301,7 @@ graphics_info_t::flash_selection(int imol,
 
    return;
 
-   if (glarea) {
+   if (glareas[0]) {
       if (nSelAtoms) {
 	 // now we can make an atom_selection_container_t with our new
 	 // atom selection that we will use to find bonds.
@@ -2268,7 +2341,7 @@ graphics_info_t::flash_selection(int imol,
 void
 graphics_info_t::flash_position(const clipper::Coord_orth &pos) {
 
-   if (glarea) {
+   if (glareas[0]) {
       int n_flash = residue_selection_flash_frames_number; // default 3
       flash_intermediate_atom_pick_flag = 1;
       intermediate_flash_point = pos;
@@ -3436,8 +3509,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    if (good_settings) {
 
       GtkWidget *widget = create_rotate_translate_obj_dialog();
-      GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea,
-							"window1"));
+      GtkWindow *main_window = GTK_WINDOW(get_main_window());
       gtk_window_set_transient_for(GTK_WINDOW(widget), main_window);
 
       do_rot_trans_adjustments(widget);
@@ -3677,10 +3749,16 @@ graphics_info_t::do_rot_trans_adjustments(GtkWidget *dialog) {
 
 coot::ScreenVectors::ScreenVectors() {
 
-   coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
-   coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
-   coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
-   coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+   graphics_info_t g;
+   glm::vec4 glm_centre = g.unproject(0, 0, 0.5);
+   glm::vec4 glm_front  = g.unproject(0, 0, 0.0);
+   glm::vec4 glm_right  = g.unproject(1, 0, 0.5);
+   glm::vec4 glm_top    = g.unproject(0, 1, 0.5);
+
+   coot::Cartesian centre(glm_centre.x, glm_centre.y, glm_centre.z);
+   coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
+   coot::Cartesian right(glm_right.x, glm_right.y, glm_right.z);
+   coot::Cartesian top(glm_top.x, glm_top.y, glm_top.z);
 
    screen_x = (right - centre);
    screen_y = (top   - centre);
@@ -3814,7 +3892,8 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       if (molecules[imol_moving_atoms].draw_hydrogens())
 	 draw_hydrogens_flag = true;
 
-      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol_moving_atoms, Geom_p(), 1.0, 4.7,
+                                     draw_missing_loops_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    } else {
@@ -3902,11 +3981,11 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
 	 angle *= -5;
       coot::Cartesian rc = g.RotationCentre();
       clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
-      coot::Cartesian front_centre = unproject(0.0);
-      coot::Cartesian  back_centre = unproject(1.0);
-      coot::Cartesian ftb = back_centre - front_centre;
-      clipper::Coord_orth around_vec(ftb.x(), ftb.y(), ftb.z());
-     g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
+      glm::vec4 front_centre = unproject(0.0);
+      glm::vec4  back_centre = unproject(1.0);
+      glm::vec4 ftb = back_centre - front_centre;
+      clipper::Coord_orth around_vec(ftb.x, ftb.y, ftb.z);
+      g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
       graphics_draw();
    }
 }
@@ -4194,7 +4273,7 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       /* set focus to glarea widget - we need this to get key presses. */
       std::cout << "Focus on the table " << std::endl;
       // GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
-      gtk_widget_grab_focus(GTK_WIDGET(glarea)); // but set focus to the graphics.
+      gtk_widget_grab_focus(GTK_WIDGET(glareas[0])); // but set focus to the graphics.
 
       fill_rotamer_selection_buttons(dialog, atom_index, imol);
 
@@ -4460,6 +4539,10 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 	    mol->FinishStructEdit();
 
 	    imol_moving_atoms = imol;
+
+            if (! moving_atoms_asc)
+               moving_atoms_asc = new atom_selection_container_t;
+
 	    *moving_atoms_asc = make_asc(mol);
 	    //    std::cout << "there are " << moving_atoms_asc->n_selected_atoms
 	    // 	     << " selected atoms in the moving_atoms_asc" << std::endl;

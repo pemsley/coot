@@ -27,7 +27,7 @@ def launch_jligand_function():
         #
         java_exe = find_exe(java_command)
         if not java_exe:
-            print "BL INFO:: no java found"
+            print("BL INFO:: no java found")
         else:
             # first check if we can run it with coot, i.e. is '-version'
             # a valid command line arg
@@ -60,12 +60,12 @@ def click_select_residues_for_jligand():
     global imol_jligand_link
     
     def link_em(*args):
-        print "we received these clicks", args
+        print("we received these clicks", args)
         if (len(args) == 2):
             click_1 = args[0]
             click_2 = args[1]
-            print "click_1:", click_1
-            print "click_2:", click_2
+            print("click_1:", click_1)
+            print("click_2:", click_2)
             if ((len(click_1) == 7)
                 and (len(click_2) ==7)):
                 resname_1 = residue_name(click_1[1],
@@ -84,7 +84,7 @@ def click_select_residues_for_jligand():
                 resno_click_2 = click_2[3]
                 if not (isinstance(resname_1, str) and
                         isinstance(resname_2, str)):
-                    print "Bad resnames: %s and %s" %(resname_1, resname_2)
+                    print("Bad resnames: %s and %s" %(resname_1, resname_2))
                 else:
                     if not (imol_click_1 == imol_click_2):
                         msg = "Two different molecules %s and %s selected.\n" \

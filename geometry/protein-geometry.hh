@@ -519,7 +519,6 @@ namespace coot {
       std::string local_atom_id_2;
       std::string local_atom_id_3;
       std::string local_atom_id_4;
-      double volume_sigma_;
 
    public:
 
@@ -532,14 +531,14 @@ namespace coot {
 	 local_atom_id_2 = atom_id_2_in;
 	 local_atom_id_3 = atom_id_3_in;
 	 local_atom_id_4 = atom_id_4_in;
-	 volume_sigma_  = 1.0; // willl need fixing
+	 sigma  = 0.005; // willl need fixing
       }
+      double sigma;
       std::string atom_id_1_4c() const { return atom_id_mmdb_expand(local_atom_id_1);}
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
       std::string atom_id_4_4c() const { return atom_id_mmdb_expand(local_atom_id_4);}
       std::string get_atom_id_centre() const { return local_atom_id_2; }
-      double volume_sigma()  const { return volume_sigma_;}
       friend std::ostream& operator<<(std::ostream &s, const dict_improper_dihedral_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_improper_dihedral_restraint_t &rest);
@@ -2169,7 +2168,7 @@ namespace coot {
       // If you read new restraints, you will need to call this function again
       // and then delete_plane_restraints().
       //
-      void plane_restraint_to_improper_dihedrals();
+      void all_plane_restraints_to_improper_dihedrals();
       void delete_plane_restraints();
 
 

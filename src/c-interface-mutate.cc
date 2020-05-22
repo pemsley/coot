@@ -24,6 +24,7 @@
 
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#include "python-3-interface.hh"
 #endif
 
 #include "compat/coot-sysdep.h"
@@ -121,19 +122,19 @@ atom_spec_from_python_expression(PyObject *expr) {
 	 if (len == 6) offset = 1;
       
 	 PyObject *chain_id_python = PyList_GetItem(expr, 0+offset);
-	 std::string chain_id = PyString_AsString(chain_id_python);
+	 std::string chain_id = PyBytes_AS_STRING(PyUnicode_AsUTF8String(chain_id_python));
 
 	 PyObject *resno_python = PyList_GetItem(expr, 1+offset);
-	 int resno = PyInt_AsLong(resno_python);
+	 int resno = PyLong_AsLong(resno_python);
 
 	 PyObject *ins_code_python = PyList_GetItem(expr, 2+offset);
-	 std::string ins_code = PyString_AsString(ins_code_python);
+	 std::string ins_code = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ins_code_python));
       
 	 PyObject *atom_name_python = PyList_GetItem(expr, 3+offset);
-	 std::string atom_name = PyString_AsString(atom_name_python);
+	 std::string atom_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_name_python));
       
 	 PyObject *alt_conf_python = PyList_GetItem(expr, 4+offset);
-	 std::string alt_conf = PyString_AsString(alt_conf_python);
+	 std::string alt_conf = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alt_conf_python));
 
 	 if (false)
 	    std::cout << "decoding spec chain-id :" << chain_id << " resno :" << resno << " :" << ins_code
@@ -146,8 +147,8 @@ atom_spec_from_python_expression(PyObject *expr) {
 	 //
 	 if (len == 6) {
 	    PyObject *o = PyList_GetItem(expr, 0);
-	    if (PyInt_Check(o)) {
-	       long imol = PyInt_AsLong(o);
+	    if (PyLong_Check(o)) {
+	       long imol = PyLong_AsLong(o);
 	       atom_spec.int_user_data = imol;
 	    }
 	 }
@@ -326,7 +327,7 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 								     graphics_info_t::alignment_wgap,
 								     graphics_info_t::alignment_wspace);
       if (p.first) {
-	 r = PyString_FromString(p.second.c_str());
+	 r = myPyString_FromString(p.second.c_str());
       }
    }
    if (PyBool_Check(r)) {
@@ -423,8 +424,8 @@ PyObject *align_to_closest_chain_py(std::string target_seq, float match_fraction
    std::pair<int, std::string> result = align_to_closest_chain(target_seq, match_fraction);
    if (is_valid_model_molecule(result.first)) {
       r = PyList_New(2);
-      PyList_SetItem(r, 0, PyInt_FromLong(result.first));
-      PyList_SetItem(r, 1, PyString_FromString(result.second.c_str()));
+      PyList_SetItem(r, 0, PyLong_FromLong(result.first));
+      PyList_SetItem(r, 1, myPyString_FromString(result.second.c_str()));
    }
 
    if (PyBool_Check(r)) {

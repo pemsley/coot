@@ -29,12 +29,12 @@ def generic_object_from_bones(bones_file):
 
     def add_ordinate(s):
         global atom_xyz_list
-        obj = map(float, s.split())
+        obj = list(map(float, s.split()))
         atom_xyz_list.append(obj)
 
     def add_bone(s):
         global bone_list
-        obj = map(int, s.split())
+        obj = list(map(int, s.split()))
         bone_list += obj
 
     #def add_connection_pairs(s):
@@ -42,7 +42,7 @@ def generic_object_from_bones(bones_file):
 
     def add_connection(s):
         global conn_list
-        obj = map(int, s.split())
+        obj = list(map(int, s.split()))
         conn_list += obj     
 
     def my_indexer(n):
@@ -71,7 +71,7 @@ def generic_object_from_bones(bones_file):
             
             # atom colour
             if ("SKL_ATOM_COLOUR" in line):
-                print "found atom_colour."
+                print("found atom_colour.")
                 reading_connectivity_flag = False
                 #saved_conn = False
 
@@ -79,7 +79,7 @@ def generic_object_from_bones(bones_file):
             if (reading_connectivity_flag):
                 add_connection(line)
             if ("SKL_CONNECTIVITY" in line):
-                print "found atom_connectivity."
+                print("found atom_connectivity.")
                 reading_connectivity_flag = True
                 reading_atom_bone_flag = False
 
@@ -87,7 +87,7 @@ def generic_object_from_bones(bones_file):
             if (reading_atom_bone_flag):
                 add_bone(line)
             if ("SKL_ATOM_BONE" in line):
-                print "found atom_bone."
+                print("found atom_bone.")
                 reading_atoms_flag = False
                 reading_atom_bone_flag = True
 
@@ -95,11 +95,11 @@ def generic_object_from_bones(bones_file):
             if (reading_atoms_flag):
                 add_ordinate(line)
             if ("SKL_ATOM_XYZ" in line):
-                print "found atom_xyz"
+                print("found atom_xyz")
                 reading_atoms_flag = True
 
-        print "length atom_xyz_list: %s length bone_list: %s length conn_list: %s" \
-              %(len(atom_xyz_list), len(bone_list), len(conn_list))
+        print("length atom_xyz_list: %s length bone_list: %s length conn_list: %s" \
+              %(len(atom_xyz_list), len(bone_list), len(conn_list)))
 
         lines_obj = new_generic_object_number("Lines")
 
@@ -133,7 +133,7 @@ def generic_object_from_bones(bones_file):
         set_display_generic_object(lines_obj, 1)
             
     else:
-        print "BL INFO:: no bones file %s found" %bones_file
+        print("BL INFO:: no bones file %s found" %bones_file)
 
 
 def bones_it(map_file_name):
@@ -154,12 +154,12 @@ def bones_it(map_file_name):
 menu = coot_menubar_menu("Mapman")
 
 def bonesing_func(imol):
-    print "bonesing", imol
+    print("bonesing", imol)
     export_map(imol, "tmp.map")
     bones_it("tmp.map")
     # remove tmp map?
     if (os.path.isfile("tmp.map")):
-        print "BL INFO:: removing temporary map file tmp.map"
+        print("BL INFO:: removing temporary map file tmp.map")
         os.remove("tmp.map")
 
 add_simple_coot_menu_menuitem(menu, "Mapman Bones...",
