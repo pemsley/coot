@@ -6083,10 +6083,10 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 // -1 on failure.
 int
 molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
-    int resno,
-    const std::string &atom_name,
-    const std::string &ins_code,
-    const coot::Cartesian &rc) {
+                                                 int resno,
+                                                 const std::string &atom_name,
+                                                 const std::string &ins_code,
+                                                 const coot::Cartesian &rc) {
 
    // This is quite similar to intelligent_next_atom() (see comments
    // there).  However, this is a bit more complex, because we keep a
@@ -6111,31 +6111,31 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-    chain_p = model_p->GetChain(ichain);
-    std::string this_chain_id = chain_p->GetChainID();
-    if ((chain_id == this_chain_id) || (found_this_residue && !prev_residue)) {
-       int nres = chain_p->GetNumberOfResidues();
-       mmdb::PResidue residue_p;
-       for (int ires=0; ires<nres; ires++) {
-          residue_p = chain_p->GetResidue(ires);
-          if (residue_p->GetSeqNum() == resno) {
-     if (ins_code == residue_p->GetInsCode()) {
-        if (chain_id == this_chain_id) {
-   found_this_residue = true;
-   if (prev_residue_candidate) {
-      prev_residue = prev_residue_candidate;
-      break;
-   }
-        }
-     }
-          }
-          prev_residue_candidate = residue_p;
-          if (prev_residue)
-     break;
-       }
-    }
-    if (prev_residue)
-       break;
+         chain_p = model_p->GetChain(ichain);
+         std::string this_chain_id = chain_p->GetChainID();
+         if ((chain_id == this_chain_id) || (found_this_residue && !prev_residue)) {
+            int nres = chain_p->GetNumberOfResidues();
+            mmdb::PResidue residue_p;
+            for (int ires=0; ires<nres; ires++) {
+               residue_p = chain_p->GetResidue(ires);
+               if (residue_p->GetSeqNum() == resno) {
+                  if (ins_code == residue_p->GetInsCode()) {
+                     if (chain_id == this_chain_id) {
+                        found_this_residue = true;
+                        if (prev_residue_candidate) {
+                           prev_residue = prev_residue_candidate;
+                           break;
+                        }
+                     }
+                  }
+               }
+               prev_residue_candidate = residue_p;
+               if (prev_residue)
+                  break;
+            }
+         }
+         if (prev_residue)
+            break;
       }
 
       // OK, we can get here by going backward through the chain
@@ -6147,22 +6147,22 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // deleted, and the residue before that (prev_residue_candidate)
       //
       if (! found_this_residue) {
-    for (int ichain=0; ichain<nchains; ichain++) {
-       chain_p = model_p->GetChain(ichain);
-       if (chain_id == chain_p->GetChainID()) {
-          int nres = chain_p->GetNumberOfResidues();
-          mmdb::PResidue residue_p;
-          for (int ires=0; ires<nres; ires++) {
-     residue_p = chain_p->GetResidue(ires);
-     if (residue_p->GetSeqNum() > resno) {
-        if (prev_residue_candidate)
-   prev_residue = prev_residue_candidate;
-        break;
-     }
-     prev_residue_candidate = residue_p;
-          }
-       }
-    }
+         for (int ichain=0; ichain<nchains; ichain++) {
+            chain_p = model_p->GetChain(ichain);
+            if (chain_id == chain_p->GetChainID()) {
+               int nres = chain_p->GetNumberOfResidues();
+               mmdb::PResidue residue_p;
+               for (int ires=0; ires<nres; ires++) {
+                  residue_p = chain_p->GetResidue(ires);
+                  if (residue_p->GetSeqNum() > resno) {
+                     if (prev_residue_candidate)
+                        prev_residue = prev_residue_candidate;
+                     break;
+                  }
+                  prev_residue_candidate = residue_p;
+               }
+            }
+         }
       }
 
       // Handle the case where we are on first atom of water chain and
