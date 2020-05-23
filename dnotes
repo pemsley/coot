@@ -9434,3 +9434,15 @@ Python 3.6.5 (default, Mar 29 2020, 05:23:17)
 Fri 10 Apr 10:49:21 BST 2020
 
    o 3tib is a good structure for adding carbohydrates (tutorial)
+
+----
+Sat 23 May 03:05:12 BST
+
+python -m ensurepip --default-pip
+python -m pip install --upgrade pip setuptools wheel
+
+https://packaging.python.org/tutorials/installing-packages/
+
+# use that to install pycairo
+pip3 install  pycairo
+now we are ready to install PyGObject?
