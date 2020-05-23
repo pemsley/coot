@@ -2869,27 +2869,47 @@ if test -n "$build_pygobject" ; then
    echo BUILDING pygobject: 2>&1
    #
    pygobject_major_minor_version=3.29
+   pygobject_major_minor_version=3.30
    pygobject_version=3.29.1
+   pygobject_version=3.30.5
 
    (
    date
+   pwd
    skip_build=false
    if [ $test_for_already_installed_dependencies = true ] ; then
-      if [ -e $install_top_dir/include/gobject-introspection-1.0/girffi.h ] ; then
+      if [ -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
          skip_build=true
       fi
    fi
+   echo skip_build for gobject is $skip_build
 
    if [ $skip_build = false ] ; then
       echo trying to untar ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz 
-      if [ -e ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz ] ; then 
-         gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
-         cd pygobject-$pygobject_version
-         python setup.py build
-         python setup.py install
+      if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then 
+         gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
+         cd PyGObject-$pygobject_version
+         ### python setup.py build
+         ### python setup.py install
+         echo which python
+         which python
+         echo ld_library_path $LD_LIBRARY_PATH
+         x=$LD_LIBRARY_PATH
+         unset LD_LIBRARY_PATH
+         if meson -Dprefix=$install_top_dir build ; then
+            echo meson passed
+            cd build
+            ninja
+            ninja install
+         else
+            echo meson failed
+         fi
+         export LD_LIBRARY_PATH=$x
       else
-         echo ERROR:: ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz file not found.
+         echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi
+   else
+      echo skip build of gobject
    fi ) > $HOSTLOGDIR/07b-pygobject.txt 2>&1
 else 
    echo not building pygobject:
