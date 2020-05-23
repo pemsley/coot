@@ -1529,14 +1529,8 @@ add_file_dialog_action_area_vbox(GtkWidget *fileselection) {
 GtkWidget *add_filename_filter_button(GtkWidget *fileselection,
 				      short int data_type) {
 
-   bool no_chooser_filter = 1;
    GtkWidget *button = 0;
-
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      	no_chooser_filter = 0;
-	add_filechooser_filter_button(fileselection, data_type);
-   }
-
+   add_filechooser_filter_button(fileselection, data_type);
    return button;
 }
 
@@ -1555,7 +1549,7 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 // only available in gtk2
 // here we go
 
-#if (GTK_MAJOR_VERSION > 1)
+
 // where data type:
 // 0 coords
 // 1 mtz etc
@@ -1574,8 +1568,8 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
   GtkFileFilter *filterall    = gtk_file_filter_new();
   GtkFileFilter *filterselect = gtk_file_filter_new();
 
-  gtk_file_filter_set_name (filterall, "all-files");
-  gtk_file_filter_add_pattern (filterall, "*");
+  gtk_file_filter_set_name(filterall, "all-files");
+  gtk_file_filter_add_pattern(filterall, "*");
 
   if (d == COOT_COORDS_FILE_SELECTION || d == COOT_SAVE_COORDS_FILE_SELECTION) {
 
@@ -1617,7 +1611,7 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
     script_glob_extension.push_back("*.scm");
 #endif // USE_GUILE
 
-    gtk_file_filter_set_name (filterselect, "scripting-files");
+    gtk_file_filter_set_name(filterselect, "scripting-files");
 
     globs = script_glob_extension;
 
@@ -1630,10 +1624,10 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
     gtk_file_filter_add_pattern (filterselect, s.c_str());
   };
 
-  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-			       GTK_FILE_FILTER (filterall));
-  gtk_file_chooser_add_filter (GTK_FILE_CHOOSER (fileselection),
-			       GTK_FILE_FILTER (filterselect));
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
+                              GTK_FILE_FILTER (filterall));
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER (fileselection),
+                              GTK_FILE_FILTER (filterselect));
 
   if (filter_fileselection_filenames_state() == 1) {
     // filter automatically
@@ -1662,8 +1656,6 @@ void add_filechooser_extra_filter_button(GtkWidget *fileselection,
 
 }
 
-
-#endif // GTK_MAJOR_VERSION
 
 void
 on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,

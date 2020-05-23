@@ -3487,6 +3487,8 @@ public:        //                      public
    // allow this to be called from the outside, when this map gets updated (by sfcalc_genmap)
    void set_mean_and_sigma();
 
+   std::string pdb_string() const;
+
    coot::model_composition_stats_t get_model_composition_statistics() const;
 
    void shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,

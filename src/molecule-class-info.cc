@@ -3489,7 +3489,7 @@ molecule_class_info_t::make_colour_by_chain_bonds(const std::set<int> &no_bonds_
 
    Bond_lines_container bonds(graphics_info_t::Geom_p(), no_bonds_to_these_atoms, draw_hydrogens_flag);
 
-   bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag,
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol_no, draw_hydrogens_flag,
                                   graphics_info_t::draw_missing_loops_flag,
                                   change_c_only_flag, goodsell_mode);
    bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty
@@ -3702,10 +3702,12 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       generic_vertex *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
 
-      std::cout << "---------------------- n atom vertices:  " << atom_vertices.size()
-                << " " << atom_vertices.size()/(1024*1024) << " M" << std::endl;
-      std::cout << "---------------------- n atom triangles: " << atom_triangles.size()
-                << " " << atom_triangles.size()/(1024*1024) << " M" << std::endl;
+      if (false) {
+         std::cout << "---------------------- n atom vertices:  " << atom_vertices.size()
+                   << " " << atom_vertices.size()/(1024*1024) << " M" << std::endl;
+         std::cout << "---------------------- n atom triangles: " << atom_triangles.size()
+                   << " " << atom_triangles.size()/(1024*1024) << " M" << std::endl;
+      }
 
       for(unsigned int i=0; i<atom_vertices.size(); i++){
          const generic_vertex &v = atom_vertices[i];
@@ -3798,7 +3800,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
       err = glGetError(); if (err) std::cout << "GL error bonds 5\n";
 
-      // model matrix (orientation) 4 x 4, starting at 0
+      // "from-origin" model matrix (orientation)
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
@@ -3810,7 +3812,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
 
-      // translate position, 3, size 3 floats
+      // "from origin" translate position, 3, size 3 floats
       glEnableVertexAttribArray(3);
       glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex), reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";

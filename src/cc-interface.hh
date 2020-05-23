@@ -268,6 +268,12 @@ PyObject *amplitude_vs_resolution_py(int mol_map);
 SCM amplitude_vs_resolution_scm(int mol_map);
 #endif
 
+//! \brief Flip the hand of the map
+//!
+//! in case it was accidentally generated on the wrong one.
+//! @return the molecule number of the flipped map.
+int flip_hand(int imol_map);
+
 //! \brief Go to the centre of the molecule - for Cryo-EM Molecules
 //!
 //!        and recontour at a sensible value.
@@ -620,6 +626,7 @@ PyObject *get_residue_by_type_py(int, const std::string &residue_type);
 SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 			 const char *ins_code, const char *atname,
 			 const char *altconf);
+SCM molecule_to_pdb_string_scm(int imol);
 #endif // USE_GUILE
 
 /*! \brief return the rename from a residue serial number
@@ -756,6 +763,12 @@ void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 			      const char *ins_code, const char *atname,
 			      const char *altconf);
+
+//! \brief
+//!
+//! Return the molecule as a PDB string
+PyObject *molecule_to_pdb_string_py(int imol);
+
 //! \brief
 //! Return a list of atom info for each atom in the specified residue:
 //

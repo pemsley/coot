@@ -1307,11 +1307,6 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.setup_lights();
 
-   GLfloat light0pos[4];
-   glGetLightfv(GL_LIGHT0, GL_POSITION, light0pos);
-   err = glGetError(); if (err) std::cout << "realsize() " << err << std::endl;
-   std::cout << "... light 0: " << light0pos[0] << " " << light0pos[1] << " " << light0pos[2] << " " << std::endl;
-
    // Martin's Molecular triangles
    // setup_molecular_triangles();
 
@@ -1591,6 +1586,13 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 gboolean
 on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
+   if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
+      graphics_info_t g;
+      g.unset_moving_atoms_currently_dragged_atom_index();
+      g.do_post_drag_refinement_maybe();
+      graphics_info_t::in_moving_atoms_drag_atom_mode_flag = 0;
+   }
+
    if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
       pick_info nearest_atom_index_info = atom_pick_gtk3();
@@ -1611,7 +1613,7 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 void
 do_drag_pan_gtk3(GtkWidget *widget) {
 
-   // This should be a graphics_info_t function?
+   // This should be a graphics_info_t function
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
