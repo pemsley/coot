@@ -1193,6 +1193,7 @@ molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_o
       }
 
       c = fraction_to_colour(f);
+      // std::cout << "fraction " << f << " col " << c.red << " " << c.green << " " << c.blue << std::endl;
    } else {
       return c;
    }
@@ -4447,7 +4448,8 @@ molecule_class_info_t::fraction_to_colour(float fraction) {
    GdkRGBA col;
    float sat = radial_map_colour_saturation;
    coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
-   cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
+   // cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
+   cc.rotate(0.66 * fraction);
    col.red   = cc.col[0];
    col.green = cc.col[1];
    col.blue  = cc.col[2];
@@ -4475,7 +4477,8 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
    } else {
       // we need to tell the glsl colour setup to use value_to_colour() (which uses our table)
       // (not done yet).
-      colour_map_using_other_map_flag = true;
+      colour_map_using_other_map_flag = true; // tell the triangle generator to use a function to get the colour
+                                              // (position_to_colour_using_other_map(co))
       other_map_for_colouring_p = &xmap;
       other_map_for_colouring_min_value = table_bin_start;
       other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
