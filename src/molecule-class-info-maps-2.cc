@@ -246,6 +246,9 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
    //
 
    // first fill the 2D grid with density values
+   std::cout << "........... fill the grid other_map_for_colouring_p " << other_map_for_colouring_p
+             << std::endl;
+
    float f = -999.9;
    coord_array_2d arr(n_x_axis_points, n_y_axis_points);
    for (unsigned int i=0; i<n_x_axis_points; i++) {
@@ -254,12 +257,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
             static_cast<double>(i) * one_step_along_x +
             static_cast<double>(j) * one_step_along_y;
          const float &f_m = density_at_point(co);
-         if (other_map_for_colouring_p) {
-            f = coot::util::density_at_point(*other_map_for_colouring_p, co);
-            arr.set(i,j,co,f);
-         } else {
-            arr.set(i,j,co,f_m);
-         }
+         arr.set(i,j,co,f_m);
       }
    }
 
@@ -285,35 +283,75 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                               }
                            };
 
-
    float minv = other_map_for_colouring_min_value;
    float maxv = other_map_for_colouring_max_value;
+   float cl = contour_level;
 
    if (! other_map_for_colouring_p) {
-      minv = 0.4;
-      maxv = 1.8;
+      float s = map_sigma();
+      minv = 0.9 * cl;
+      maxv = 6.0 * s;
    }
 
    float sat = radial_map_colour_saturation;
-   auto map_colour_function = [sat, minv, maxv] (const float &dv) {
-                                 coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
-                                 float fraction = 0.0;
-                                 if (dv > minv) {
-                                    if (dv > maxv) {
-                                       fraction = 1.0;
-                                    } else {
-                                       float range = maxv - minv;
-                                       float m = dv - minv;
-                                       fraction = m/range;
-                                    }
-                                    cc.rotate(0.66 * fraction);
-                                 }
-                                 // return glm::vec4(cc.col[0], cc.col[1], cc.col[2], 1.0f);
-                                 return glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-                              };
-   auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
-                            return glm::vec4(co.x(), co.y(), co.z(), 1.0);
+
+   const clipper::Xmap<float> *xmap_this = &xmap;
+   std::map<unsigned int, float> map_f;
+   const clipper::Xmap<float> *om = 0;
+   if (colour_map_using_other_map_flag)
+      om = other_map_for_colouring_p;
+
+   auto map_col_func_1 = [sat, minv, maxv] (const float &dv) {
+                            coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
+                            float fraction = 0.0;
+                            if (dv > minv) {
+                               if (dv > maxv) {
+                                  fraction = 1.0;
+                               } else {
+                                  float range = maxv - minv;
+                                  float m = dv - minv;
+                                  fraction = m/range;
+                               }
+                               cc.rotate(0.66 * fraction);
+                            }
+                            return glm::vec4(cc.col[0], cc.col[1], cc.col[2], 1.0f);
                          };
+
+   auto map_col_func_2 = [sat, minv, maxv, arr, xmap_this, om, map_col_func_1] (const unsigned int &i, const unsigned int &j,
+                                                                     std::map<unsigned int, float> &map_f) {
+                            const unsigned int OFFS = 10000;
+                            unsigned int idx = j * OFFS + i;
+                            std::map<unsigned int, float>::const_iterator it;
+                            it = map_f.find(idx);
+                            if (it != map_f.end()) {
+                               return map_col_func_1(it->second);
+                            } else {
+                               const clipper::Coord_orth &co = arr.get_co(i,j);
+                               float f = -1;
+                               if (om) {
+                                  f = coot::util::density_at_point(*om, co);
+                               } else {
+                                  f = coot::util::density_at_point(*xmap_this, co);
+                               }
+                               map_f[idx] = f;
+                               return map_col_func_1(f);
+                            }
+                         };
+
+   auto map_col_func_3 = [xmap_this, om, map_col_func_1] (const clipper::Coord_orth &co) {
+                            float f = -1;
+                            if (om) {
+                               f = coot::util::density_at_point(*om, co);
+                            } else {
+                               f = coot::util::density_at_point(*xmap_this, co);
+                            }
+                            return map_col_func_1(f);
+                         };
+
+   auto map_colour_function = [map_col_func_1] (const float &dv) { return map_col_func_1(dv); };
+
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &co) { return glm::vec4(co.x(), co.y(), co.z(), 1.0); };
 
    for (unsigned int i=0; i<(n_x_axis_points-1); i++) {
       for (unsigned int j=0; j<(n_y_axis_points-1); j++) {
@@ -333,22 +371,22 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
             int idx_01 = get_vertex_index(i,   j+1, arr, grid_coords_index_map);
             int idx_11 = get_vertex_index(i+1, j+1, arr, grid_coords_index_map);
             if (idx_00 == -1) {
-               p.first.push_back(s_generic_vertex(clipper_to_glm(co00), normal, map_colour_function(v00)));
+               p.first.push_back(s_generic_vertex(clipper_to_glm(co00), normal, map_col_func_2(i, j, map_f)));
                idx_00 = p.first.size() - 1;
                grid_coords_index_map[j * OFFS + i] = idx_00;
             }
             if (idx_10 == -1) {
-               p.first.push_back(s_generic_vertex(clipper_to_glm(co10), normal, map_colour_function(v10)));
+               p.first.push_back(s_generic_vertex(clipper_to_glm(co10), normal, map_col_func_2(i+1, j, map_f)));
                idx_10 = p.first.size() - 1;
                grid_coords_index_map[j * OFFS + i+1] = idx_10;
             }
             if (idx_01 == -1) {
-               p.first.push_back(s_generic_vertex(clipper_to_glm(co01), normal, map_colour_function(v01)));
+               p.first.push_back(s_generic_vertex(clipper_to_glm(co01), normal, map_col_func_2(i, j+1, map_f)));
                idx_01 = p.first.size() - 1;
                grid_coords_index_map[(j+1) * OFFS + i] = idx_01;
             }
             if (idx_11 == -1) {
-               p.first.push_back(s_generic_vertex(clipper_to_glm(co11), normal, map_colour_function(v11)));
+               p.first.push_back(s_generic_vertex(clipper_to_glm(co11), normal, map_col_func_2(i, j+1, map_f)));
                idx_11 = p.first.size() - 1;
                grid_coords_index_map[(j+1) * OFFS + i + 1] = idx_11;
             }
@@ -378,9 +416,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec3 px_glm(pxc.x(), pxc.y(), pxc.z());
                   glm::vec3 py_glm(pyc.x(), pyc.y(), pyc.z());
                   unsigned int idx_base = p.first.size();
-                  glm::vec4 col(0.0, 0.0, 0.9, 1.0);
-                  s_generic_vertex vx(px_glm, normal, col);
-                  s_generic_vertex vy(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pyc);
+                  s_generic_vertex vx(px_glm, normal, col_1);
+                  s_generic_vertex vy(py_glm, normal, col_2);
                   p.first.push_back(vx);
                   p.first.push_back(vy);
                   graphical_triangle tri(idx_00, idx_base, idx_base + 1);
@@ -397,9 +436,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec3 px_glm = clipper_to_glm(pxc);
                   glm::vec3 py_glm = clipper_to_glm(pyc);
                   // 3 triangles, 2 extra vertices
-                  glm::vec4 col(0.0, 0.0, 0.9, 1.0);
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pyc);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned int idx_base = p.first.size();
                   p.first.push_back(v0);
                   p.first.push_back(v1);
@@ -425,9 +465,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px_glm = clipper_to_glm(pxc);
                   glm::vec4 py_glm = clipper_to_glm(pxy);
                   // one triangle, 2 vertices
-                  glm::vec4 col(0.0, 0.0, 0.9, 1.0);
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pxy);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   p.first.push_back(v0);
                   p.first.push_back(v1);
@@ -450,9 +491,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px_glm = clipper_to_glm(pxc);
                   glm::vec4 py_glm = clipper_to_glm(pxy);
                   // 3 triangle, same 2 vertices (as above)
-                  glm::vec4 col(0.0, 0.0, 0.9, 1.0);
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pxy);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   graphical_triangle gt0(idx_00, idx_10, idx_base + 1);
                   graphical_triangle gt1(idx_10, idx_base, idx_base + 1);
@@ -479,8 +521,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px_glm = clipper_to_glm(pxc);
                   glm::vec4 py_glm = clipper_to_glm(pxy);
                   // 1 triangle,  2 new vertices
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pxy);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   graphical_triangle gt0(idx_base, idx_10, idx_base + 1);
                   p.first.push_back(v0);
@@ -504,8 +548,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px_glm = clipper_to_glm(pxc);
                   glm::vec4 py_glm = clipper_to_glm(pxy);
                   // 3 triangles, 2 vertices as above
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pxy);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   graphical_triangle gt0(idx_01, idx_00, idx_base);
                   graphical_triangle gt1(idx_01, idx_base, idx_base + 1);
@@ -532,10 +578,11 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   clipper::Coord_orth pxy(co10 + frac_y * one_step_along_y);
                   glm::vec4 px_glm = clipper_to_glm(pxc);
                   glm::vec4 py_glm = clipper_to_glm(pxy);
-                  glm::vec4 col(0.0, 0.9, 0.0, 1.0);
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
-                  unsigned  int idx_base = p.first.size();
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pxy);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
+                  unsigned int idx_base = p.first.size();
                   graphical_triangle gt0(idx_11, idx_base, idx_base + 1);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
@@ -558,9 +605,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px_glm = clipper_to_glm(pxc);
                   glm::vec4 py_glm = clipper_to_glm(pxy);
                   // 3 triangles, 2 vertices as above
-                  glm::vec4 col(0.0, 0.9, 0.0, 1.0);
-                  s_generic_vertex v0(px_glm, normal, col);
-                  s_generic_vertex v1(py_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(pxc);
+                  glm::vec4 col_2 = map_col_func_3(pxy);
+                  s_generic_vertex v0(px_glm, normal, col_1);
+                  s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   graphical_triangle gt0(idx_00, idx_10, idx_base + 1);
                   graphical_triangle gt1(idx_00, idx_base + 1, idx_base);
@@ -590,9 +638,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px1_glm = clipper_to_glm(px1c);
                   glm::vec4 px2_glm = clipper_to_glm(px2c);
                   // 2 triangles, 2 vertices
-                  glm::vec4 col(0.2, 0.0, 0.2, 1.0);
-                  s_generic_vertex v0(px1_glm, normal, col);
-                  s_generic_vertex v1(px2_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(px1c);
+                  glm::vec4 col_2 = map_col_func_3(px2c);
+                  s_generic_vertex v0(px1_glm, normal, col_1);
+                  s_generic_vertex v1(px2_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   graphical_triangle gt0(idx_00, idx_base, idx_01);
                   graphical_triangle gt1(idx_00, idx_base + 1, idx_base);
@@ -618,9 +667,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 px1_glm = clipper_to_glm(px1c);
                   glm::vec4 px2_glm = clipper_to_glm(px2c);
                   // 2 triangles, 2 vertices as above
-                  glm::vec4 col(0.9, 0.0, 0.9, 1.0);
-                  s_generic_vertex v0(px1_glm, normal, col);
-                  s_generic_vertex v1(px2_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(px1c);
+                  glm::vec4 col_2 = map_col_func_3(px2c);
+                  s_generic_vertex v0(px1_glm, normal, col_1);
+                  s_generic_vertex v1(px2_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
                   graphical_triangle gt0(idx_10, idx_base, idx_base + 1);
                   graphical_triangle gt1(idx_10, idx_11, idx_base);
@@ -645,8 +695,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   glm::vec4 py1_glm = clipper_to_glm(py1c);
                   glm::vec4 py2_glm = clipper_to_glm(py2c);
                   glm::vec4 col(0.3, 0.0, 0.3, 1.0);
-                  s_generic_vertex v0(py1_glm, normal, col);
-                  s_generic_vertex v1(py2_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(py1c);
+                  glm::vec4 col_2 = map_col_func_3(py2c);
+                  s_generic_vertex v0(py1_glm, normal, col_1);
+                  s_generic_vertex v1(py2_glm, normal, col_2);
                   unsigned int idx_base = p.first.size();
                   graphical_triangle gt0(idx_00, idx_10, idx_base + 1);
                   graphical_triangle gt1(idx_00, idx_base + 1, idx_base);
@@ -669,9 +721,10 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   clipper::Coord_orth py2c(co10 + frac_y2 * one_step_along_y);
                   glm::vec4 py1_glm = clipper_to_glm(py1c);
                   glm::vec4 py2_glm = clipper_to_glm(py2c);
-                  glm::vec4 col(0.3, 0.0, 0.3, 1.0);
-                  s_generic_vertex v0(py1_glm, normal, col);
-                  s_generic_vertex v1(py2_glm, normal, col);
+                  glm::vec4 col_1 = map_col_func_3(py1c);
+                  glm::vec4 col_2 = map_col_func_3(py2c);
+                  s_generic_vertex v0(py1_glm, normal, col_1);
+                  s_generic_vertex v1(py2_glm, normal, col_2);
                   unsigned int idx_base = p.first.size();
                   graphical_triangle gt0(idx_11, idx_base + 1, idx_base);
                   graphical_triangle gt1(idx_11, idx_01, idx_base);

@@ -3644,6 +3644,7 @@ void close_molecule(int imol) {
 
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
+      g.delete_pointers_to_map_in_other_molecules(imol);
       g.molecules[imol].close_yourself();
       // and close the graphics ligand view if it was a residue of this molecule
       g.close_graphics_ligand_view_for_mol(imol);

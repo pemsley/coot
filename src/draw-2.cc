@@ -1143,7 +1143,7 @@ graphics_info_t::draw_graphical_molecules() {
    for (int ii=n_molecules()-1; ii>=0; ii--) {
       molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
       if (! is_valid_map_molecule(ii)) continue;
-      if (true)
+      if (false)
          m.graphical_molecules_draw_normals(mvp);
       for (unsigned int jj=0; jj<m.graphical_molecules.size(); jj++) {
          m.graphical_molecules[jj].draw(&shader_for_map_caps, mvp,

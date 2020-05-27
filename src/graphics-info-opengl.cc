@@ -74,11 +74,18 @@ graphics_info_t::unproject(float x, float y, float z) {
 
 }
 
+// projected_coords are in clip space, so mouse position will have to be converted.
+//
 // static
 glm::vec3
-graphics_info_t::unproject_to_world_coordinates(glm::vec3 &projected_coords) {
+graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coords) {
 
-   glm::vec4 c = unproject(projected_coords.x, projected_coords.y, projected_coords.z);
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   glm::vec4 screenPos = glm::vec4(projected_coords, 1.0f);
+   glm::vec4 c = vp_inv * screenPos;
+
+   std::cout << "debug:: unproject_to_world_coordinates() c " << glm::to_string(c) << std::endl;
    double oow = 1.0/c.w;
    return glm::vec3(c.x * oow, c.y * oow, c.z * oow);
 

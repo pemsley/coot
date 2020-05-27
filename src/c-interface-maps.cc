@@ -2607,15 +2607,35 @@ add_density_map_cap() {
       graphics_info_t g;
       clipper::Coord_orth base_point = g.get_rotation_centre_co();
       base_point -= clipper::Coord_orth(10, 10, 0);
-      clipper::Coord_orth x_axis_uv(1, 0, 0);
-      clipper::Coord_orth y_axis_uv(0, 1, 0);
       double x_axis_step_size = 0.5;
       double y_axis_step_size = 0.5;
-      unsigned int n_x_axis_points = 40; // 20 / x_axis_step_size
-      unsigned int n_y_axis_points = 40;
+
+      float z = -0.999; // screen z
+      glm::vec3 base        = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f,-1.0f, z));
+      glm::vec3 plus_x_axis = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f, 1.0f, z));
+      glm::vec3 plus_y_axis = graphics_info_t::unproject_to_world_coordinates(glm::vec3( 1.0f,-1.0f, z));
+
+      clipper::Coord_orth base_co(base.x, base.y, base.z);
+      clipper::Coord_orth plus_x_axis_co(plus_x_axis.x, plus_x_axis.y, plus_x_axis.z);
+      clipper::Coord_orth plus_y_axis_co(plus_y_axis.x, plus_y_axis.y, plus_y_axis.z);
+      clipper::Coord_orth delta_x_co = plus_x_axis_co - base_co;
+      clipper::Coord_orth delta_y_co = plus_y_axis_co - base_co;
+
+      double l = std::sqrt(delta_x_co.lengthsq());
+      unsigned int n_x_axis_points = static_cast<int>(l/x_axis_step_size + 1);
+      unsigned int n_y_axis_points = n_x_axis_points;
+
+      std::cout << "debug:: base " << glm::to_string(base) << " x-axis " << glm::to_string(plus_x_axis)
+                << std::endl;
+      std::cout << "debug:: l " << l << " n_x_axis_points " << n_x_axis_points << std::endl;
+
+      // clipper::Coord_orth x_axis_uv(1, 0, 0);
+      // clipper::Coord_orth y_axis_uv(0, 1, 0);
+      clipper::Coord_orth x_axis_uv(delta_x_co.unit());
+      clipper::Coord_orth y_axis_uv(delta_y_co.unit());
 
       g.molecules[imol_map].setup_map_cap(&graphics_info_t::shader_for_map_caps,
-                                          base_point, x_axis_uv, y_axis_uv,
+                                          base_co, x_axis_uv, y_axis_uv,
                                           x_axis_step_size, y_axis_step_size,
                                           n_x_axis_points, n_y_axis_points);
 

@@ -2060,6 +2060,10 @@ public:        //                      public
    void colour_map_using_map(const clipper::Xmap<float> &xmap, float table_bin_start, float table_bin_size,
                              const std::vector<coot::colour_t> &colours);
    const clipper::Xmap<float> *other_map_for_colouring_p;
+   void turn_off_other_map_for_colouring() {
+      other_map_for_colouring_p = NULL;
+      colour_map_using_other_map_flag = false;
+   }
 
    // save yourself and update have_unsaved_changes_flag status
    //
