@@ -463,9 +463,10 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       Shader &shader = graphics_info_t::shader_for_maps;
 
       glm::vec4 ep(get_world_space_eye_position(), 1.0);
+      glm::vec3 ep3 = ep/ep.w;
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-         const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+         molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          if (! m.draw_it_for_map) continue;
          if (draw_transparent_maps)
@@ -560,6 +561,8 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             }
          }
       }
+
+
    }
 
    // to be clean we should use
@@ -1122,9 +1125,35 @@ graphics_info_t::draw_molecules() {
 
    draw_map_molecules(false); // transparency
 
+   draw_graphical_molecules(); // get a better name
+
    // transparent things...
 
    draw_map_molecules(true);
+
+}
+
+void
+graphics_info_t::draw_graphical_molecules() {
+
+   glm::vec3 eye_position = get_world_space_eye_position();
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 view_rotation = get_view_rotation();
+
+   for (int ii=n_molecules()-1; ii>=0; ii--) {
+      molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+      if (! is_valid_map_molecule(ii)) continue;
+      if (true)
+         m.graphical_molecules_draw_normals(mvp);
+      for (unsigned int jj=0; jj<m.graphical_molecules.size(); jj++) {
+         m.graphical_molecules[jj].draw(&shader_for_map_caps, mvp,
+                                        view_rotation, view_rotation,
+                                        lights, eye_position);
+      }
+      glUseProgram(0);
+   }
+   
+
 }
 
 void
@@ -1379,7 +1408,7 @@ graphics_info_t::render(GtkGLArea *glarea) {
 
       // glClearColor(0.5, 0.2, 0.2, 1.0);
       const glm::vec3 &bg = graphics_info_t::background_colour;
-      glClearColor (bg[0], bg[1], bg[2], 1.0);
+      glClearColor(bg[0], bg[1], bg[2], 1.0);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       GLuint pid = graphics_info_t::shader_for_screen.get_program_id();

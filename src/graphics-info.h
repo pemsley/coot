@@ -4031,6 +4031,9 @@ string   static std::string sessionid;
    static glm::vec3 get_rotation_centre() {
      return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
    }
+   static clipper::Coord_orth get_rotation_centre_co() {
+      return clipper::Coord_orth(rotation_centre_x, rotation_centre_y, rotation_centre_z);
+   }
    static void add_to_rotation_centre(const glm::vec3 &offset) {
      rotation_centre_x += offset.x;
      rotation_centre_y += offset.y;
@@ -4061,6 +4064,7 @@ string   static std::string sessionid;
    static GLuint textureColorbuffer_blur;
    static GLuint hud_text_array_buffer_id;
    static Shader shader_for_maps;
+   static Shader shader_for_map_caps;
    static Shader shader_for_models;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
@@ -4107,6 +4111,7 @@ string   static std::string sessionid;
                                          const glm::mat4 &view_rotation);
    static void draw_molecular_triangles();
    static void draw_molecules();
+   static void draw_graphical_molecules();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);

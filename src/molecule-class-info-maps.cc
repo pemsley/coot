@@ -44,6 +44,10 @@
 #include <sys/stat.h>
 
 #include <string>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
@@ -648,11 +652,44 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
-// static
 void
-molecule_class_info_t::depth_sort() {
+molecule_class_info_t::setup_map_cap(Shader *shader_p,
+                                     const clipper::Coord_orth &base_point, // Bring it into this class.
+                                     const clipper::Coord_orth &x_axis_uv, // Of the cap plane, of course.
+                                     const clipper::Coord_orth &y_axis_uv,
+                                     double x_axis_step_size,
+                                     double y_axis_step_size,
+                                     unsigned int n_x_axis_points,
+                                     unsigned int n_y_axis_points) {
 
+   // this line is completely vital!
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
+   std::pair<std::vector<s_generic_vertex>, std::vector<graphical_triangle> > map_cap =
+      make_map_cap(base_point, x_axis_uv, y_axis_uv, x_axis_step_size, y_axis_step_size,
+                   n_x_axis_points, n_y_axis_points);
+
+   shader_p->Use();
+   Material material;
+   graphical_molecule gm;
+   graphical_molecule gm_cap(map_cap.first, map_cap.second);
+   gm.setup_simple_triangles(shader_p, material);
+   graphical_molecules.push_back(gm);
+   graphical_molecules.push_back(gm_cap);
+   
 }
+
+
+void
+molecule_class_info_t::graphical_molecules_draw_normals(const glm::mat4 &mvp) {
+
+   for (unsigned int i=0; i<graphical_molecules.size(); i++) {
+      graphical_molecules[i].draw_normals(mvp);
+   }
+}
+
+
 
 void
 molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_position) {
@@ -668,6 +705,7 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
       map_triangle_centres[i].second.back_front_projection_distance = dd;
    }
 
+   // this sign needs checking.
    auto map_triangle_sorter = [](const std::pair<int, TRIANGLE> &t1,
                                  const std::pair<int, TRIANGLE> &t2) {
                                  return (t1.second.back_front_projection_distance > t2.second.back_front_projection_distance);
@@ -676,7 +714,6 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
    std::sort(map_triangle_centres.begin(), map_triangle_centres.end(), map_triangle_sorter);
 
    unsigned int n_triangle_centres = map_triangle_centres.size();
-   // std::cout << "compare these: " << n_indices_for_triangles << " " << 3 * n_triangle_centres << std::endl;
 
    int *indices_for_triangles = new int[3 * n_triangle_centres];
    for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
@@ -724,8 +761,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          if (false) {
             std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
-            std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << " triangles" << std::endl;
-            std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here B ------------"
+                      << tri_con.point_indices.size() << " triangles" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here C ------------"
+                      << tri_con.normals.size() << " normals" << std::endl;
          }
 
          sum_tri_con_points    += tri_con.points.size();
@@ -1057,7 +1096,12 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          glGenVertexArrays(1, &m_VertexArrayID_for_map);
          GLenum err = glGetError();
+         if (err) std::cout << "############## in setup_glsl_map_rendering() error trying to bind vertex array "
+                            << m_VertexArrayID_for_map << std::endl;
          glBindVertexArray(m_VertexArrayID_for_map);
+         err = glGetError();
+         if (err) std::cout << "############## in setup_glsl_map_rendering() error glBindVertexArray() "
+                            << m_VertexArrayID_for_map << std::endl;
          err = glGetError();
 
          // positions
@@ -1155,7 +1199,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       }
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
+      // std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
    }
 
    if (false)

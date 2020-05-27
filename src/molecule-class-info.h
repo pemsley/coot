@@ -117,6 +117,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "map-statistics.hh"
 #include "animated-ligand.hh"
 
+#include "array-2d.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
@@ -256,6 +258,8 @@ namespace coot {
 #include "generic-vertex.hh"
 
 #include "cylinder.hh"
+
+#include "graphical-molecule.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -796,7 +800,7 @@ public:        //                      public
 
       //
       cootsurface = NULL; // no surface initial, updated by make_surface()
-      theSurface = 0;
+     theSurface = 0;
       transparent_molecular_surface_flag = 0;
 
       //
@@ -809,6 +813,7 @@ public:        //                      public
       n_indices_for_lines = 0;
       // Assigning to GLuint. Hmm
       m_VertexArrayID_for_map  = -1;
+      m_VertexArrayID_for_map_cap  = -1;
       m_VertexBufferID = -1;
       m_IndexBuffer_for_map_lines_ID  = -1;
       m_IndexBuffer_for_map_triangles_ID = -1;
@@ -817,6 +822,7 @@ public:        //                      public
       m_VertexBuffer_for_model_ID = -1;
       m_IndexBuffer_for_model_ID = -1;
       n_indices_for_model_triangles = 0;
+      n_vertices_for_map_cap = 0;
 
       // draw vectors
       draw_vector_sets.reserve(120); // more than enough
@@ -3094,6 +3100,7 @@ public:        //                      public
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
 
    GLuint m_VertexArrayID_for_map;
+   GLuint m_VertexArrayID_for_map_cap;
 
    GLuint n_vertices_for_map_VertexArray;
 
@@ -3113,11 +3120,45 @@ public:        //                      public
    GLuint m_NormalBuffer_for_model_ID;
    GLuint m_ColourBuffer_for_modelID;
    GLuint m_ModelMatrix_for_model_ID;
+   GLuint m_VertexBuffer_for_map_cap_ID;  // more on map cap below
+   GLuint m_IndexBuffer_for_map_cap_ID;
+   GLuint n_vertices_for_map_cap;
 
    float density_surface_opacity;
    bool is_an_opaque_map() const { return density_surface_opacity == 1.0; } // needs explicit assignment to 1.0
                                                                             // elsewhere in the code, e.g. in
                                                                             // the adjustment handler.
+
+   // using current contour level,
+   // return world coordinates and normals
+   std::pair<std::vector<s_generic_vertex>, std::vector<graphical_triangle> >
+   make_map_cap(const clipper::Coord_orth &base_point,
+                const clipper::Coord_orth &x_axis_uv,  // unit vectors
+                const clipper::Coord_orth &y_axis_uv,
+                double x_axis_step_size,
+                double y_axis_step_size,
+                unsigned int n_axis_points,
+                unsigned int y_axis_points) const;
+
+   void setup_map_cap(Shader *shader_p,
+                      const clipper::Coord_orth &base_pt, // Bring it into this class.
+                      const clipper::Coord_orth &x_axis_uv, // Of the cap plane, of course.
+                      const clipper::Coord_orth &y_axis_uv,
+                      double x_axis_step_size,
+                      double y_axis_step_size,
+                      unsigned int n_axis_points,
+                      unsigned int y_axis_points);
+   void draw_map_cap(Shader *shader_p,
+                     const glm::mat4 &mvp,
+                     const glm::mat4 &world_rotation_matrix,
+                     const glm::mat4 &world_rotation_translation_matrix,
+                     const std::map<unsigned int, gl_lights_info_t> &lights,
+                     const glm::vec3 &eye_position);
+   void draw_normals(const glm::mat4 &mvp); // defunct now I think
+   void graphical_molecules_draw_normals(const glm::mat4 &mvp);
+   int get_square_type(const unsigned int &ii, const unsigned int &jj, // contouring
+                       const coord_array_2d &arr, const float &contour_level) const;
+
    void setup_density_surface_material(bool solid_mode, float opacity,
 				       bool is_negative_level = 0); // shininess, material colour etc.
    bool transparent_molecular_surface_flag; // 0 by default.
@@ -3510,7 +3551,7 @@ public:        //                      public
    clipper::Coord_orth radial_map_colour_centre;
    double radial_map_colour_radius_min;
    double radial_map_colour_radius_max;
-   double radial_map_colour_invert_flag;
+   bool radial_map_colour_invert_flag;
    double radial_map_colour_saturation;
 
    // colour by other map (e.g. correlation)
@@ -3522,6 +3563,7 @@ public:        //                      public
 
    coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
 
+   std::vector<graphical_molecule> graphical_molecules; // find a better name
 
 };
 

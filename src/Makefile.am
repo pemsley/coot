@@ -288,6 +288,7 @@ coot_fix_nomenclature_errors_SOURCES = \
 coot_bin_SOURCES = \
 	main.cc 		 \
 	atom-pull.hh		 \
+	array-2d.hh		 \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
@@ -448,6 +449,8 @@ coot_bin_SOURCES = \
 	globjects.h gl-matrix.h  \
 	globularize.cc           \
 	globularize.hh           \
+	graphical-molecule.cc    \
+	graphical-molecule.hh    \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
 	graphics-info-graphs.cc	 \

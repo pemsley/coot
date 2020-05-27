@@ -318,12 +318,16 @@ colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
 void
 colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
                            PyObject *colour_table_list);
-#endif
 
 PyObject *export_molecule_as_x3d(int imol);
 
+#endif
+
 void
 colour_map_by_other_map_turn_off(int imol_map);
+
+void
+add_density_map_cap();
 
 
 //! \name Multi-Residue Torsion

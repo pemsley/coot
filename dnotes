@@ -9430,6 +9430,8 @@ INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/c
 Python 3.6.5 (default, Mar 29 2020, 05:23:17) 
 [GCC 9.2.1 20191008] on linux
 
+   delete all *coot* in site-packages. Try again.
+
 
 Fri 10 Apr 10:49:21 BST 2020
 

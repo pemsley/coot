@@ -65,7 +65,10 @@ public:
    void set_float_for_uniform(const std::string &uniform_name, float v);
    void set_vec4_for_uniform(const std::string &uniform_name, float f0, float f1, float f2, float f3);
    void set_vec4_for_uniform(const std::string &uniform_name, const glm::vec4 &v);
-   void setup_light(unsigned int light_index, const gl_lights_info_t &light);
+   void set_vec3_for_uniform(const std::string &uniform_name, const glm::vec3 &v);
+   void setup_light(unsigned int light_index,
+                    const gl_lights_info_t &light,
+                    const glm::mat4 &world_rotation_matrix); // mouse trackball rotation
    void close();
 };
 

@@ -29,6 +29,7 @@ float graphics_info_t::clipping_back  = 1.0;
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
+Shader graphics_info_t::shader_for_map_caps;
 Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;

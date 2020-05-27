@@ -5,6 +5,8 @@
 #include <sys/stat.h>
 #include <epoxy/gl.h>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL 
+#include <glm/gtx/string_cast.hpp>
 
 #include "Shader.hh"
 
@@ -158,7 +160,8 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
    } else {
       GLint l = glGetUniformLocation(program_id, key.c_str());
       if (l == -1)
-         std::cout << "INFO/WARNING:: " << name << " can't get a uniform location for " << key << std::endl;
+         if (false)
+            std::cout << "INFO/WARNING:: " << name << " can't get a uniform location for " << key << std::endl;
       uniform_location_map[key] = l;
       return l;
    }
@@ -261,6 +264,13 @@ Shader::set_vec4_for_uniform(const std::string &u_name, const glm::vec4 &v) {
    glUniform4fv(idx, 1, glm::value_ptr(v));
 }
 
+void
+Shader::set_vec3_for_uniform(const std::string &u_name, const glm::vec3 &v) {
+
+   GLuint idx = glGetUniformLocation_internal(u_name);
+   glUniform3fv(idx, 1, glm::value_ptr(v));
+}
+
 void Shader::set_more_uniforms_for_molecular_triangles() {
 
    // put more uniforms here
@@ -346,7 +356,8 @@ unsigned int Shader::create() const {
 }
 
 void
-Shader::setup_light(unsigned int light_index, const gl_lights_info_t &light) {
+Shader::setup_light(unsigned int light_index, const gl_lights_info_t &light,
+                    const glm::mat4 &wrtm) {
 
    std::string s = "light_sources[" + std::to_string(light_index) + std::string("]");
    std::string a;
@@ -359,7 +370,24 @@ Shader::setup_light(unsigned int light_index, const gl_lights_info_t &light) {
    set_vec4_for_uniform(a, light.diffuse);
    a = s + ".specular";
    set_vec4_for_uniform(a, light.specular);
+
+   // the lights are in view coordinates (1,1,2) say, they need to move as the
+   // world is rotated by the mouse (analogous to the eye position, which also
+   // moves in the world coordinates when the view is rotated by the mouse
+
+   glm::mat4 iwrtm = glm::inverse(wrtm);
+   glm::vec4 p4 = light.position * iwrtm;
+   glm::vec4 p3 = p4 / p4.w;
+
+   p3 = light.position;
+   p3.z = 1;
+   p3.x = 1;
+
+   std::cout << "sending light position "  << glm::to_string(p3) << std::endl;
+
+   // std::cout << "lights: using wrm "  << glm::to_string(wrm) << std::endl;
+
    a = s + ".position";
-   set_vec4_for_uniform(a, light.position);
+   set_vec4_for_uniform(a, p3);
 
 }

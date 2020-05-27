@@ -27,6 +27,7 @@ graphics_info_t::init_shaders() {
       it->get().set_default_directory(d);
 
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
    shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
    shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);

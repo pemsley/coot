@@ -2597,3 +2597,29 @@ int flip_hand(int imol) {
    return imol_new;
 
 }
+
+void
+add_density_map_cap() {
+
+   int imol_map = imol_refinement_map();
+   if (is_valid_map_molecule(imol_map)) {
+
+      graphics_info_t g;
+      clipper::Coord_orth base_point = g.get_rotation_centre_co();
+      base_point -= clipper::Coord_orth(10, 10, 0);
+      clipper::Coord_orth x_axis_uv(1, 0, 0);
+      clipper::Coord_orth y_axis_uv(0, 1, 0);
+      double x_axis_step_size = 0.5;
+      double y_axis_step_size = 0.5;
+      unsigned int n_x_axis_points = 40; // 20 / x_axis_step_size
+      unsigned int n_y_axis_points = 40;
+
+      g.molecules[imol_map].setup_map_cap(&graphics_info_t::shader_for_map_caps,
+                                          base_point, x_axis_uv, y_axis_uv,
+                                          x_axis_step_size, y_axis_step_size,
+                                          n_x_axis_points, n_y_axis_points);
+
+      graphics_draw();
+
+   }
+}
