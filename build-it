@@ -3213,6 +3213,10 @@ if [ true = true ] ; then
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
 
+      # maybe get numpy from github?
+      # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
+      # numpy needset setuptools
+      # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
       ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
       #
       tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
@@ -3261,6 +3265,7 @@ if [ "$build_rdkit" = true ] ; then
 
    if [ $skip_this = false ] ;  then
 
+      echo building rdkit
       (
       echo building ========================= rdkit ==============================
 
@@ -3295,13 +3300,9 @@ if [ "$build_rdkit" = true ] ; then
          tree_from_build=../rdkit
       else
 
-         echo x
          echo wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         echo xx
          wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         echo xxx
          echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-         echo xxxx
          tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          pwd
          ls
