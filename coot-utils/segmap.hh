@@ -21,6 +21,8 @@ namespace coot {
       segmap(const clipper::Xmap<float> &xmap_in) : xmap(xmap_in) {}
       const clipper::Xmap<float> &xmap;
       void proc();
+      // remove "dust" that is smaller than 5.0A across (by default)
+      void dedust(float vol=5.0);
 
    };
 

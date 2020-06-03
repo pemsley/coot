@@ -13,6 +13,8 @@
 void
 coot::segmap::proc() {
 
+   bool write_results_map = false;
+
    // std::pair<float, float> mv = mean_and_variance(xmap);
    mean_and_variance<float> map_stats = map_density_distribution(xmap, 1000, false, true);
 
@@ -20,9 +22,11 @@ coot::segmap::proc() {
 
    {
       std::ofstream f("map.hist");
-      for (std::size_t i=0; i<map_stats.size(); i++) {
-	 float this_level = static_cast<float>(i) * map_stats.bin_width + map_stats.min_density;
-	 f << this_level << " " << map_stats.bins[i] << "\n";
+      if (f) {
+         for (std::size_t i=0; i<map_stats.size(); i++) {
+            float this_level = static_cast<float>(i) * map_stats.bin_width + map_stats.min_density;
+            f << this_level << " " << map_stats.bins[i] << "\n";
+         }
       }
    }
 
@@ -82,14 +86,16 @@ coot::segmap::proc() {
    clipper::Xmap<float> m = flood_from_peaks(peaks, contour_level);
 
    // write results
-   std::string map_file_name("segmented.map");
-   clipper::CCP4MAPfile file;
-   try {
-      file.open_write(map_file_name);
-      file.export_xmap(m);
-   }
-   catch (const clipper::Message_base &exc) {
-      std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
+   if (write_results_map) {
+      std::string map_file_name("segmented.map");
+      clipper::CCP4MAPfile file;
+      try {
+         file.open_write(map_file_name);
+         file.export_xmap(m);
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: failed to open " << map_file_name << std::endl;
+      }
    }
 }
 
@@ -195,4 +201,11 @@ coot::segmap::flood_from_peaks(const std::vector<std::pair<clipper::Xmap_base::M
    }
 
    return segmented;
+}
+
+
+// remove "dust" that is smaller than 5.0A across (by default)
+void
+coot::segmap::dedust(float vol) {
+
 }

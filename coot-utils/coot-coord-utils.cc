@@ -6961,7 +6961,6 @@ coot::util::rotate_around_vector(const clipper::Coord_orth &direction,
    clipper::Mat33<double> r( ll+(mm+nn)*cosk,    l*m*I_cosk-n*sink,  n*l*I_cosk+m*sink,
 			     l*m*I_cosk+n*sink,  mm+(ll+nn)*cosk,    m*n*I_cosk-l*sink,
 			     n*l*I_cosk-m*sink,  m*n*I_cosk+l*sink,  nn+(ll+mm)*cosk );
-   
    clipper::RTop_orth rtop(r, clipper::Coord_orth(0,0,0));
    return origin_shift + (position-origin_shift).transform(rtop);
 }
@@ -6982,11 +6981,13 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) {
-	    clipper::Coord_orth pt(at->x, at->y, at->z);
-	    clipper::Coord_orth pt_new = rotate_around_vector(direction, pt, origin_shift, angle);
-	    at->x = pt_new.x();
-	    at->y = pt_new.y();
-	    at->z = pt_new.z();
+            if (! at->isTer()) {
+               clipper::Coord_orth pt(at->x, at->y, at->z);
+               clipper::Coord_orth pt_new = rotate_around_vector(direction, pt, origin_shift, angle);
+               at->x = pt_new.x();
+               at->y = pt_new.y();
+               at->z = pt_new.z();
+            }
 	 }
       }
    }
