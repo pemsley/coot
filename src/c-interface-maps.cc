@@ -2594,6 +2594,7 @@ int flip_hand(int imol) {
       bool is_em_flag = graphics_info_t::molecules[imol].is_EM_map();
       graphics_info_t::molecules[imol_new].install_new_map(xmap, name, is_em_flag);
       graphics_info_t::molecules[imol_new].set_contour_level(contour_level);
+      graphics_draw();
    }
    return imol_new;
 
