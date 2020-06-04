@@ -182,7 +182,7 @@ void to_generic_object_add_dodecahedron(int object_number,
 
    if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
 
-      g.generic_objects_p->at(object).add_dodecahedron(colour, c, radius, x1);
+      g.generic_objects_p->at(object_number).add_dodecahedron(colour, c, radius, x1);
 
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
