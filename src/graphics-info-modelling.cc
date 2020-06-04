@@ -3214,19 +3214,41 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  // if (terminus_type == "C" || terminus_type == "MC") 
 		  //    molecules[imol_moving_atoms].move_O_atom_of_added_to_residue(res_p, chain_id);
 
-		  graphics_draw();
-	       }
-	    }
-	 }
+                  graphics_draw();
+               }
+            }
+         }
       }
    }
    return state;
 }
 
+void
+graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &chain_id, int res_no) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: wrong model " << imol << std::endl;
+      return;
+   }
+
+   mmdb::Residue *residue_p = molecules[imol].get_residue(chain_id, res_no, "");
+   if (! residue_p) {
+      std::cout << "WARNING:: missing-residue" << chain_id << " " << res_no << std::endl;
+   } else {
+      std::string term_type = "";
+      mmdb::Residue *r_p = molecules[imol].get_residue(chain_id, res_no-1, "");
+      mmdb::Residue *r_n = molecules[imol].get_residue(chain_id, res_no+1, "");
+      if (r_p  && ! r_n) term_type = "C";
+      if (r_n  && ! r_p) term_type = "N";
+      if (!r_n && ! r_p) term_type = "MC";
+      execute_simple_nucleotide_addition(imol, term_type, residue_p, chain_id);
+   }
+}
+
 
 void
 graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
-						    mmdb::Residue *res_p, const std::string &chain_id) {
+                                                    mmdb::Residue *res_p, const std::string &chain_id) {
 
 
    // If it's RNA beam it in in ideal A form,
@@ -3243,7 +3265,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 
    if (term_type == "not-terminal-residue") {
       std::cout << "That was not a terminal residue (check for neighbour solvent residues maybe) "
-		<< coot::residue_spec_t(res_p) << std::endl;
+                << coot::residue_spec_t(res_p) << std::endl;
       add_status_bar_text("That was not a terminal residue.");
    } else { 
 
