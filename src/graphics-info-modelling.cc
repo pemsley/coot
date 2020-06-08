@@ -675,10 +675,15 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
       }
 
       if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
-         std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
-                   << std::endl;
+         if (false)
+            std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
+                      << std::endl;
          g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
          g.clear_moving_atoms_object();
+         if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
+	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+         }
       }
 
       // no need to do this if Esc is pressed.
