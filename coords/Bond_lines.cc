@@ -4904,10 +4904,12 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
                    solvent_res.c_str(), "*", "*", "*",
                    mmdb::SKEY_XOR);
 
+   // this is better than it was - now the main-chain atoms of GLY are excluded.
+   // but we still get a star on a GLY.
    asc.mol->Select(asc.SelectionHandle, mmdb::STYPE_ATOM, 0, "*",
                    mmdb::ANY_RES, "*",
                    mmdb::ANY_RES, "*",
-                   "!GLY", "[ C  ],[ N  ],[ O  ]", "*", "*",
+                   "*", "[ C  ],[ N  ],[ O  ],[ H  ],[ HA ],[ HA2],[ HA3]", "*", "*",
                    mmdb::SKEY_XOR);
 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
@@ -4917,8 +4919,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
    std::cout << "debug:: --------------- calling construct_from_asc with atom_colour_type "
              << atom_colour_type << std::endl;
    short int symm_flag = 0;
-   // construct_from_asc(asc, imol, min_dist, max_dist, atom_colour_type, symm_flag,
-   // draw_missing_loops_flag, model_number, do_rama_markup);
+   // for these side chain atoms
    do_colour_by_chain_bonds(asc, true, imol, do_bonds_to_hydrogens_in, draw_missing_loops_flag, 0, false);
    asc.mol->DeleteSelection(asc.SelectionHandle);
 
