@@ -1414,8 +1414,8 @@ graphics_info_t::density_fit_graphs(int imol) {
 	    int imol_for_map = Imol_Refinement_Map();
 	    if (imol_for_map == -1)
 	       show_select_map_dialog();
-        // maybe we have it now?!
-        imol_for_map = Imol_Refinement_Map();
+            // maybe we have it now?!
+            imol_for_map = Imol_Refinement_Map();
 	    if (imol_for_map > -1) {
 	       // std::cout << "DEBUG:: starting" << std::endl;
 	       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
@@ -1434,8 +1434,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 	       } else {
 		  for (int imodel = 1; imodel <= n_models; imodel++) { 
 		     mmdb::Model *model_p = mol->GetModel(imodel);
-		     mmdb::Chain *chain_p;
-		     const char *chain_id;
+                     if (! model_p) continue;
 		     int n_chains = model_p->GetNumberOfChains();
 		     coot::geometry_graphs *graphs =
 			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_DENSITY_FIT,
@@ -1447,15 +1446,14 @@ graphics_info_t::density_fit_graphs(int imol) {
 		     set_validation_graph(imol, coot::GEOMETRY_GRAPH_DENSITY_FIT, graphs->dialog());
 		     
 		     for (int ich=0; ich<n_chains; ich++) {
-			chain_p = model_p->GetChain(ich);
-			chain_id = chain_p->GetChainID();
+                        mmdb::Chain *chain_p = model_p->GetChain(ich);
+			const char *chain_id = chain_p->GetChainID();
 			std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
 			if (m.first) {
 			   int offset = m.second - 1;
-			   int selHnd = mol->NewSelection();
+			   int selHnd = mol->NewSelection(); // d
 			   mmdb::PResidue *SelResidues = NULL;
 			   int nSelResidues;
-			   
 			   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				       chain_id,
 				       mmdb::ANY_RES, "*",
@@ -1467,7 +1465,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 				       mmdb::SKEY_NEW // selection key
 				       );
 			   mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
-			   
+
 			   std::vector<coot::geometry_graph_block_info_generic> v = 
 			      graphics_info_t::density_fit_from_residues(SelResidues, nSelResidues,
 									 imol, 

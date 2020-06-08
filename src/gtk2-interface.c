@@ -18392,7 +18392,7 @@ create_geometry_graphs_dialog (void)
 {
   GtkWidget *geometry_graphs_dialog;
   GtkWidget *dialog_vbox75;
-  GtkWidget *vbox199;
+  GtkWidget *geometry_graphs_dialog_vbox;
   GtkWidget *geometry_graphs_label;
   GtkWidget *geometry_graphs_scrolledwindow;
   GtkWidget *geometry_graphs_viewport;
@@ -18410,18 +18410,18 @@ create_geometry_graphs_dialog (void)
   dialog_vbox75 = GTK_DIALOG (geometry_graphs_dialog)->vbox;
   gtk_widget_show (dialog_vbox75);
 
-  vbox199 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox199);
-  gtk_box_pack_start (GTK_BOX (dialog_vbox75), vbox199, TRUE, TRUE, 0);
+  geometry_graphs_dialog_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (geometry_graphs_dialog_vbox);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox75), geometry_graphs_dialog_vbox, TRUE, TRUE, 0);
 
   geometry_graphs_label = gtk_label_new ("Graph: ");
   gtk_widget_show (geometry_graphs_label);
-  gtk_box_pack_start (GTK_BOX (vbox199), geometry_graphs_label, FALSE, FALSE, 2);
+  gtk_box_pack_start (GTK_BOX (geometry_graphs_dialog_vbox), geometry_graphs_label, FALSE, FALSE, 2);
   gtk_misc_set_alignment (GTK_MISC (geometry_graphs_label), 0.05, 0.5);
 
   geometry_graphs_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (geometry_graphs_scrolledwindow);
-  gtk_box_pack_start (GTK_BOX (vbox199), geometry_graphs_scrolledwindow, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (geometry_graphs_dialog_vbox), geometry_graphs_scrolledwindow, TRUE, TRUE, 0);
   GTK_WIDGET_UNSET_FLAGS (geometry_graphs_scrolledwindow, GTK_CAN_FOCUS);
 
   geometry_graphs_viewport = gtk_viewport_new (NULL, NULL);
@@ -18463,7 +18463,7 @@ create_geometry_graphs_dialog (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, geometry_graphs_dialog, "geometry_graphs_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (geometry_graphs_dialog, dialog_vbox75, "dialog_vbox75");
-  GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, vbox199, "vbox199");
+  GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_dialog_vbox, "geometry_graphs_dialog_vbox");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_label, "geometry_graphs_label");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_scrolledwindow, "geometry_graphs_scrolledwindow");
   GLADE_HOOKUP_OBJECT (geometry_graphs_dialog, geometry_graphs_viewport, "geometry_graphs_viewport");

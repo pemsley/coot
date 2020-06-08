@@ -180,6 +180,8 @@ namespace coot {
    public:
       geometry_graphs(geometry_graph_type type, int imol, std::string graph_label,
 		      int nchains, int max_chain_length);
+
+      int get_imol() const { return imol; }
       void render_to_canvas(const geometry_distortion_info_container_t &dv, 
 			    int chain_number);
       void render_to_canvas(const geometry_distortion_info_container_t &dv, 
@@ -223,6 +225,9 @@ namespace coot {
       int Imol() const { return imol; }
       geometry_graph_type Graph_Type() const { return graph_type; }
       void close_yourself();
+
+      static void density_fit_rescale_button_callback(GtkButton *button, gpointer user_data);
+
    };
 }
 

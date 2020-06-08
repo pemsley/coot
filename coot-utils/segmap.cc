@@ -11,9 +11,9 @@
 #include "segmap.hh"
 
 void
-coot::segmap::proc() {
+coot::segmap::proc(bool write_results_map_flag, const std::string &file_name) {
 
-   bool write_results_map = false;
+   bool write_results_map = write_results_map_flag;
 
    // std::pair<float, float> mv = mean_and_variance(xmap);
    mean_and_variance<float> map_stats = map_density_distribution(xmap, 1000, false, true);
@@ -78,9 +78,15 @@ coot::segmap::proc() {
 
    std::cout << "contour-level: " << contour_level << std::endl;
 
+   // Note to self: for de-dusting, in order for the contoured shape of the density not to change
+   // (e.g. apoFerritin map) I need to keep the points that are below the contour level but are
+   // neighbours of a point that is above it. Probably that should be done in flood_from_peaks().
+
    // This might need to be also (or instead) a function of mean and standard deviation
    //
    float cut_off_for_peak_search = 0.4 * map_stats.max_density;
+   float sigma = sqrt(map_stats.variance);
+   cut_off_for_peak_search = 1.0 * sigma;
 
    std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float > > peaks = find_peaks(cut_off_for_peak_search);
    clipper::Xmap<float> m = flood_from_peaks(peaks, contour_level);
