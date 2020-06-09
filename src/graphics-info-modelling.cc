@@ -670,24 +670,24 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw()
 
       graphics_info_t g; // 37 nanoseconds
 
-      if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
+      if (threaded_refinement_needs_to_accept_moving_atoms) {
          g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
       }
 
-      if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
+      if (threaded_refinement_needs_to_clear_up) {
          if (false)
             std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
                       << std::endl;
          g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
          g.clear_moving_atoms_object();
-         if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+         if (accept_reject_dialog_docked_flag == coot::DIALOG) {
 	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
-	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	       gtk_widget_destroy(accept_reject_dialog);
          }
       }
 
       // no need to do this if Esc is pressed.
-      if (! graphics_info_t::refinement_immediate_replacement_flag)
+      if (! refinement_immediate_replacement_flag)
          g.check_and_warn_inverted_chirals_and_cis_peptides();
    }
 

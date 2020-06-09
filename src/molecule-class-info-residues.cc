@@ -231,7 +231,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);
 		  residue_mol->FinishStructEdit();
 
-		  if (0) { // -------- debug ----------
+		  if (false) { // -------- debug ----------
 		     int imod = 1;
 		     mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 		     mmdb::Chain *chain_p;
@@ -260,6 +260,9 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 							  atom_sel.links,
 							  geom, residue_mol, fixed_atoms,
 							  &dummy_xmap);
+                  int n_threads = coot::get_max_number_of_threads() - 1;
+                  if (n_threads < 1) n_threads = 1;
+                  restraints.thread_pool(&graphics_info_t::static_thread_pool, n_threads);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
