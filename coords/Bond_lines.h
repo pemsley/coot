@@ -238,11 +238,24 @@ public:
    // this is a bit of a weird construction
    bool radius_for_atom_should_be_big(mmdb::Atom *atom_p) const {
 
-      // you might like to add other tests here.
+      // 20190822-PE: you might like to add other tests here.
+      // 20200608-PE: I did!
       mmdb::Residue *r = atom_p->GetResidue();
       if (r) {
          std::string res_name = r->GetResName();
          if (res_name == "HOH")
+            return true;
+         if (res_name == "CA")
+            return true;
+         if (res_name == "MG")
+            return true;
+         if (res_name == "IOD")
+            return true;
+         if (res_name == "CL")
+            return true;
+         if (res_name == "NA")
+            return true;
+         if (res_name == "K")
             return true;
       }
       return false;
