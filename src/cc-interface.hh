@@ -716,7 +716,7 @@ SCM residues_near_residue(int imol, SCM residue_in_scm, float radius);
 //!
 SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 
-//! \brief resdiues near residue
+//! \brief residues near residue
 //!
 //! @return residues within radius of pos (x,y,z) position
 //!
@@ -724,6 +724,10 @@ SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 //! pos is a list of 3 numbers.  (get imol from active-atom)
 //!
 SCM residues_near_position_scm(int imol, SCM pos, float radius);
+
+//! \brief label the closest atoms in the residues that neighbour residue_spec
+//!
+void label_closest_atoms_in_neighbour_residues_scm(int imol, SCM residue_spec_scm, float radius);
 
 #endif	/* USE_GUILE */
 
@@ -850,6 +854,10 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
 //! closer than radius Angstroems to the given position.
 //!
 PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
+
+//! \brief label the closest atoms in the residues that neighbour residue_spec
+//!
+void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *residue_spec_py, float radius);
 
 //! \brief return a Python object for the bonds
 //

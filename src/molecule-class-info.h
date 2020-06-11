@@ -860,7 +860,11 @@ public:        //                      public
 			  int brief_atom_labels_flag,
 			  short int seg_ids_in_atom_labels_flag) const;
 
-   void label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_label(int atom_index, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+
+   // don't count the mainchain of the peptide-linked residues
+   //
+   std::vector<mmdb::Atom *> closest_atoms_in_neighbour_residues(mmdb::Residue *residue_p, float radius) const;
 
    void debug_selection() const;
    void debug(bool debug_atoms_also_flag=false) const;
@@ -1148,7 +1152,7 @@ public:        //                      public
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
 
 
-   void label_atoms(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_labels(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
 
    //
    void update_molecule_after_additions(); // cleanup, new
@@ -2806,6 +2810,7 @@ public:        //                      public
    graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(); return bonds_box; }
    //
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const;
+   void label_closest_atoms_in_neighbour_atoms(coot::residue_spec_t residue_spec, float radius);
 
    void remove_ter_atoms(const coot::residue_spec_t &spec); // from all models
 

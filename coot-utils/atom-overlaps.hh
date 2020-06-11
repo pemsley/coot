@@ -311,6 +311,8 @@ namespace coot {
 				double clash_spike_length_in = 0.5,
 				double probe_radius_in = 0.25);
 
+      // If there are no overlaps, is it because there was no dictionary for one or more residues?
+      bool get_have_dictionary() const { return have_dictionary; }
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
       void make_all_atom_overlaps();

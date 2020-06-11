@@ -4804,3 +4804,7 @@ on_simple_refmac_filechooserdialog_response
                                         (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data);
+
+void
+on_label_neighbours1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);

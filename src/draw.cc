@@ -398,8 +398,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Label the atoms in the atoms label list.
 	 //
-	 graphics_info_t::molecules[ii].label_atoms(graphics_info_t::brief_atom_labels_flag,
-						    graphics_info_t::seg_ids_in_atom_labels_flag);
+	 graphics_info_t::molecules[ii].draw_atom_labels(graphics_info_t::brief_atom_labels_flag,
+                                                         graphics_info_t::seg_ids_in_atom_labels_flag);
 
 	 // Draw the dotted atoms:
 	 graphics_info_t::molecules[ii].draw_dots();

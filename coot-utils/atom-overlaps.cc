@@ -180,7 +180,8 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
 		  std::pair<bool, dictionary_residue_restraints_t> d =
 		     geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
 		  if (! d.first) {
-		     std::cout << "Failed to get dictionary for " << residue_name << std::endl;
+		     std::cout << "WARNING::Failed to get dictionary for " << residue_name << std::endl;
+                     std::cout << "WARNING:: turning off have_dictionary" << std::endl;
 		     have_dictionary = false;
 		  } else {
 		     dictionary_map[residue_name] = d.second;
@@ -376,7 +377,7 @@ void
 coot::atom_overlaps_container_t::make_overlaps() {
 
    if (! have_dictionary) {
-      std::cout << "No dictionary" << std::endl;
+      std::cout << "WARNING:: make_overlaps(): No dictionary!" << std::endl;
       return;
    }
 
@@ -532,6 +533,8 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 						     &ring_list_map        // updatedby fn.
 						     );
 		     if (ait == CLASHABLE) {
+                        std::cout << "debug:: clashable: " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                                  << std::endl;
 			double r_1 = get_vdw_radius_neighb_atom(ii);
 			double r_2 = get_vdw_radius_neighb_atom(jj);
 			clipper::Coord_orth co_at_1 = co(at_1);

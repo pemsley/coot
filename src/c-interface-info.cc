@@ -1131,6 +1131,58 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
 } 
 #endif
 
+/*! \brief Label the atoms in the residues around the central residue */
+void label_neighbours() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      float radius = 4.0;
+      int imol = pp.second.first;
+      coot::residue_spec_t central_residue(pp.second.second);
+      graphics_info_t g;
+      g.molecules[imol].label_closest_atoms_in_neighbour_atoms(central_residue, radius);
+      graphics_draw();
+   }
+
+}
+
+#include "c-interface-scm.hh"
+#include "c-interface-python.hh"
+
+#ifdef USE_GUILE
+void label_closest_atoms_in_neighbour_residues_scm(int imol, SCM residue_spec_scm, float radius) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec = make_residue_spec(residue_spec_scm);
+      if (res_spec.first) {
+         graphics_info_t g;
+         g.molecules[imol].label_closest_atoms_in_neighbour_atoms(res_spec.second, radius);
+         graphics_draw();
+      } else {
+         std::cout << "WARNING:: bad spec " << std::endl;
+      }
+   }
+
+}
+#endif
+
+#ifdef USE_PYTHON
+void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *res_spec_py, float radius) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec = make_residue_spec_py(res_spec_py);
+      if (res_spec.first) {
+         graphics_info_t g;
+         g.molecules[imol].label_closest_atoms_in_neighbour_atoms(res_spec.second, radius);
+         graphics_draw();
+      } else {
+         std::cout << "WARNING:: bad spec " << std::endl;
+      }
+   }
+}
+#endif
+
+
 //! find the active residue, find the near residues (within radius) 
 //! create a new molecule, run reduce on that, import hydrogens from
 //! the result and apply them to the molecule of the active residue.

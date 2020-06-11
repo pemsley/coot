@@ -108,7 +108,11 @@
 		baddies)))
 
     (define (molecule-atom-overlap-baddies)
-      (molecule-atom-overlaps imol))
+      (let ((l (molecule-atom-overlaps imol)))
+        (if (list? l)
+            (begin l)
+            (begin (info-dialog l)
+                   '()))))
 
     (define (filter-molecule-atom-overlap-baddies mao-baddies)
       (let ((baddie-limit 2.0)) ;; more than this is marked as a baddie, was 2.2. Is 2.0 good?
@@ -186,13 +190,13 @@
     (define (make-buttons)
 
       (let* ((frb (find-rama-baddies))
-	          (fcbb (find-c-beta-baddies))
-	          (maob (molecule-atom-overlap-baddies))
-	          (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob))
-	          (residue-correlations
-	             (if (not (ok-to-do-density-correlations?))
-		             '()
-		             (map-to-model-correlation-per-residue imol (all-residues-sans-water imol) 0 imol-map))))
+             (fcbb (find-c-beta-baddies))
+             (maob (molecule-atom-overlap-baddies))
+             (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob))
+             (residue-correlations
+              (if (not (ok-to-do-density-correlations?))
+                  '()
+                  (map-to-model-correlation-per-residue imol (all-residues-sans-water imol) 0 imol-map))))
 
         ;; debug
         ;; (format #t "debug maob: ~s~%" maob)
@@ -496,4 +500,69 @@
 	      ))))
 
       ))))
+
+(define (molecule-atom-overlaps-gui imol)
+
+  (define (filter-molecule-atom-overlap-baddies mao-baddies)
+    (let ((baddie-limit 1.0)) ;; more than this is marked as a baddie, was 2.2. Is 2.0 good?
+      (let ((fn (lambda(mao-item)
+                  (let ((atom-spec-1 (list-ref mao-item 0))
+                        (atom-spec-2 (list-ref mao-item 1))
+                        (overlap     (list-ref mao-item 4)))
+                    (> overlap baddie-limit)))))
+        (filter fn mao-baddies))))
+
+  (define (make-buttons)
+
+    (let* ((maob (molecule-atom-overlaps imol))
+           (maob-2 (if (list? maob)
+                       (begin maob)
+                       (begin (info-dialog maob)
+                              '())))
+           (nov   (format #t "debug:: maob: ~s~%" maob))
+           (nov-2 (format #t "debug:: maob-2: ~s~%" maob-2))
+           (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob-2)))
+
+      (if #f
+          (call-with-output-file "mao.table"
+            (lambda (port)
+              (for-each (lambda (item)
+                          (format port "~s~%" item))
+                        maob))))
+
+      (map (lambda(baddie)
+             (let ((atom-spec-1 (cdr (list-ref baddie 0))) ;; unprefix
+                   (atom-spec-2 (cdr (list-ref baddie 1))) ;; ditto
+                   (overlap     (list-ref baddie 4)))
+               (let ((res-name-1 (residue-spec->residue-name imol (atom-spec->residue-spec atom-spec-1)))
+                     (res-name-2 (residue-spec->residue-name imol (atom-spec->residue-spec atom-spec-2))))
+                 (let ((buton-label
+                        (string-append
+                         "Atom Overlap "
+                         (atom-spec->string atom-spec-1)
+                         " " res-name-1
+                         " on "
+                         (atom-spec->string atom-spec-2)
+                         " " res-name-2
+                         " OV: "
+                         (format #f "~5f" overlap)))
+                       (fn (lambda()
+                             (set-go-to-atom-molecule imol)
+                             (set-go-to-atom-from-atom-spec atom-spec-1))))
+                   (list buton-label fn)))))
+           filtered-mao-baddies)))
+
+  (define (make-window-title n)
+    (string-append "Atom Overlaps for Molecule " (number->string n)))
+  
+  ;; --- main line ---
+
+  (let ((dialog-vbox #f)
+          (window #f))
+
+      (let* ((buttons (make-buttons)))
+
+        (let ((p (dialog-box-of-buttons (make-window-title (length buttons)) (cons 350 200) buttons " Close ")))
+
+          p))))
 

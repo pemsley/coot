@@ -575,8 +575,8 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 
 void
-molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
-				   short int seg_ids_in_atom_labels_flag) {
+molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
+                                        short int seg_ids_in_atom_labels_flag) {
 
    if (draw_it) {
 
@@ -593,7 +593,7 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
 
 	 // also remove labels from atom indexes list of over the end.
 	 for (int ii=0; ii<n_atoms_to_label ; ii++)
-	    label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+	    draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
 
 	 n_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -3397,36 +3397,27 @@ molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
 // Put a label at the ith atom of mol_class_info::atom_selection.
 //
 void
-molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag) {
+molecule_class_info_t::draw_atom_label(int atom_index,
+                                       int brief_atom_labels_flag,
+                                       short int seg_ids_in_atom_labels_flag) {
 
    if (has_model()) {
-
-      if (i < atom_sel.n_selected_atoms) {
-
-	 mmdb::PAtom atom = (atom_sel.atom_selection)[i];
-
+      if (atom_index < atom_sel.n_selected_atoms) {
+	 mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
 	 if (atom) {
-
 	    std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-
 	    // GLfloat white[3] = { 1.0, 1.0, 1.0 };
 	    GLfloat pink[3] =  { graphics_info_t::font_colour.red,
 				 graphics_info_t::font_colour.green,
 				 graphics_info_t::font_colour.blue };
-
-	    // glClear(GL_COLOR_BUFFER_BIT);
 	    glColor3fv(pink);
-	    // glShadeModel (GL_FLAT);
-
-	    // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
 	    graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-
 	 }
       } else {
 	 std::cout << "INFO:: trying to label atom out of range: "
-		   << i << " " << atom_sel.n_selected_atoms
+		   << atom_index << " " << atom_sel.n_selected_atoms
 		   << " Removing label\n";
-	 unlabel_atom(i);
+	 unlabel_atom(atom_index);
       }
    }
 }
