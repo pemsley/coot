@@ -286,6 +286,7 @@ namespace coot {
 
       static bool overlap_sorter(const atom_overlap_t &ao1, const atom_overlap_t &ao2);
       void sort_overlaps();
+      bool kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
