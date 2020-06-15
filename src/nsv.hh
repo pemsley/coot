@@ -122,15 +122,17 @@ namespace exptl {
       void helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offet);
       void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale);
       void strand(mmdb::Chain *, int resno_low, int resno_high, double x_offset, double y_offset, double scale);
-      
+
    public:
       nsv(mmdb::Manager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
+          GtkWidget *main_window_vbox,
 	  bool use_graphics_interface);
       nsv(mmdb::Manager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
+          GtkWidget *main_window_vbox,
 	  bool use_graphics_interface,
 	  int canvas_pixel_limit);
       void regenerate(mmdb::Manager *mol);
@@ -138,6 +140,14 @@ namespace exptl {
       // default is 22500 
       void set_points_max(int v) { points_max = v; }
       std::string sequence_letter_background_colour;
+
+
+      // is this used?
+      static gboolean on_canvas_button_press(GtkWidget      *canvas,
+                                             GdkEventButton *event,
+                                             gpointer        data);
+      // used for the docked sequence view.
+      static gint close_docked_sequence_view(GtkWidget *menu_item, GdkEventButton *event);
    };
 }
 

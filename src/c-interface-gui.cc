@@ -2893,7 +2893,6 @@ toolbar_popup_menu (GtkToolbar *toolbar,
     { N_("Display on the bottom"), coot::model_toolbar::BOTTOM },
   };
 
-#if (GTK_MAJOR_VERSION > 1)
   if (hdlbox->child_detached) {
     item = gtk_menu_item_new_with_label (_("Reattach to main window"));
     gtk_menu_shell_append (GTK_MENU_SHELL (menu), item);
@@ -2942,7 +2941,7 @@ toolbar_popup_menu (GtkToolbar *toolbar,
   gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL, 0,
 		  (event_button != NULL) ? event_button->time
 		  : gtk_get_current_event_time());
-#endif // GTK_MAJOR_VERSION
+
 }
 
 void
@@ -5615,7 +5614,10 @@ void nsv(int imol) {
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
    if (is_valid_model_molecule(imol)) {
+
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+
+      std::cout << "in nsv " << imol << " widget w is " << w << std::endl;
       if (w) {
 
 	 // it already exists... just raise it and map it.
@@ -5647,9 +5649,14 @@ void nsv(int imol) {
 
       } else {
 	 graphics_info_t g;
+         GtkWidget *main_window_vbox = 0;
+         if (g.sequence_view_is_docked_flag) {
+            main_window_vbox = lookup_widget(g.glarea, "main_window_vbox");
+         }
 	 std::string name = g.molecules[imol].name_for_display_manager();
 	 exptl::nsv *seq_view =
 	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
+                           main_window_vbox,
 			   g.use_graphics_interface_flag,
 			   g.nsv_canvas_pixel_limit);
 	 // I think that there is a false positive for scan-build here.

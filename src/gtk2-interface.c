@@ -35,7 +35,7 @@ create_window1 (void)
   GtkWidget *main_window_outer_vbox;
   GtkWidget *main_window_hbox;
   GtkWidget *main_window_model_fit_dialog_frame_left;
-  GtkWidget *vbox1;
+  GtkWidget *main_window_vbox;
   GtkWidget *menubar1;
   GtkWidget *file1;
   GtkWidget *file1_menu;
@@ -415,13 +415,13 @@ create_window1 (void)
   main_window_model_fit_dialog_frame_left = gtk_frame_new (NULL);
   gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_model_fit_dialog_frame_left, FALSE, FALSE, 0);
 
-  vbox1 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox1);
-  gtk_box_pack_start (GTK_BOX (main_window_hbox), vbox1, TRUE, TRUE, 0);
+  main_window_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (main_window_vbox);
+  gtk_box_pack_start (GTK_BOX (main_window_hbox), main_window_vbox, TRUE, TRUE, 0);
 
   menubar1 = gtk_menu_bar_new ();
   gtk_widget_show (menubar1);
-  gtk_box_pack_start (GTK_BOX (vbox1), menubar1, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), menubar1, FALSE, FALSE, 0);
 
   file1 = gtk_menu_item_new_with_mnemonic ("_File");
   gtk_widget_show (file1);
@@ -1349,7 +1349,7 @@ create_window1 (void)
 
   main_toolbar = gtk_toolbar_new ();
   gtk_widget_show (main_toolbar);
-  gtk_box_pack_start (GTK_BOX (vbox1), main_toolbar, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), main_toolbar, FALSE, FALSE, 0);
   gtk_toolbar_set_style (GTK_TOOLBAR (main_toolbar), GTK_TOOLBAR_BOTH_HORIZ);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (main_toolbar));
 
@@ -1494,7 +1494,7 @@ create_window1 (void)
   gtk_box_pack_start (GTK_BOX (hbox404), label731, FALSE, FALSE, 0);
 
   accept_reject_dialog_frame_docked = gtk_frame_new (NULL);
-  gtk_box_pack_start (GTK_BOX (vbox1), accept_reject_dialog_frame_docked, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), accept_reject_dialog_frame_docked, FALSE, TRUE, 0);
 
   hbox274 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox274);
@@ -1706,7 +1706,7 @@ create_window1 (void)
 
   main_window_graphics_frame = gtk_frame_new (NULL);
   gtk_widget_show (main_window_graphics_frame);
-  gtk_box_pack_start (GTK_BOX (vbox1), main_window_graphics_frame, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), main_window_graphics_frame, TRUE, TRUE, 0);
   gtk_frame_set_label_align (GTK_FRAME (main_window_graphics_frame), 0, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (main_window_graphics_frame), GTK_SHADOW_NONE);
 
@@ -2578,7 +2578,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, main_window_outer_vbox, "main_window_outer_vbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_hbox, "main_window_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame_left, "main_window_model_fit_dialog_frame_left");
-  GLADE_HOOKUP_OBJECT (window1, vbox1, "vbox1");
+  GLADE_HOOKUP_OBJECT (window1, main_window_vbox, "main_window_vbox");
   GLADE_HOOKUP_OBJECT (window1, menubar1, "menubar1");
   GLADE_HOOKUP_OBJECT (window1, file1, "file1");
   GLADE_HOOKUP_OBJECT (window1, file1_menu, "file1_menu");

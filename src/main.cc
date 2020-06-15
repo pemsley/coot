@@ -286,7 +286,7 @@ main (int argc, char *argv[]) {
 
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
 
-      glarea = gl_extras(lookup_widget(window1, "vbox1"),
+      glarea = gl_extras(lookup_widget(window1, "main_window_vbox"),
 			 cld.hardware_stereo_flag);
       if (glarea) {
 	 // application icon:

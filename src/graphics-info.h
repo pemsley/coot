@@ -1052,6 +1052,8 @@ public:
    static short int do_lighting_flag;
    static bool do_flat_shading_for_solid_density_surface;
 
+   static bool sequence_view_is_docked_flag;
+
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
    void draw_anti_aliasing();

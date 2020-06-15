@@ -955,7 +955,7 @@ void hardware_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
 	 } else {
@@ -1012,7 +1012,7 @@ void zalman_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
 	 } else {
@@ -1064,7 +1064,7 @@ void mono_mode() {
          int x_size = main_win->allocation.width;
          int y_size = main_win->allocation.height;
 	 graphics_info_t::display_mode = coot::MONO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
@@ -1137,7 +1137,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
 	 short int stereo_mode = coot::SIDE_BY_SIDE_STEREO;
 	 if (use_wall_eye_flag)
 	    stereo_mode = coot::SIDE_BY_SIDE_STEREO_WALL_EYE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (glarea) {
 	    if (graphics_info_t::idle_function_spin_rock_token) { 
@@ -1187,7 +1187,7 @@ void set_dti_stereo_mode(short int state) {
 	 } else {
 	    stereo_mode = coot::SIDE_BY_SIDE_STEREO;
 	 }
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "vbox1");
+	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
 	 GtkWidget *glarea = gl_extras(vbox, stereo_mode);
 	 if (graphics_info_t::use_graphics_interface_flag) {
 	    if (graphics_info_t::idle_function_spin_rock_token) { 
