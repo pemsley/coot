@@ -286,6 +286,8 @@ main (int argc, char *argv[]) {
 
       gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
 
+      // this vbox is not used execut to look up "main_window_graphics_hbox"
+      // which is where the gl_area goes
       glarea = gl_extras(lookup_widget(window1, "main_window_vbox"),
 			 cld.hardware_stereo_flag);
       if (glarea) {

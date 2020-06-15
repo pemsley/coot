@@ -7095,13 +7095,22 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
+
+/*!  \brief display the sequence view for molecule number imol */
 void nsv(int imol);
+/*!  \brief control where the sequence view is displayed
+
+in the main application or a new dialog */
+void set_sequence_view_is_docked(short int state);
+
+/*!  \brief set the pixel limit for sequence view windows */
 void set_nsv_canvas_pixel_limit(int cpl);
 
 void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
 
+/*!  \brief display the ligand builder dialog */
 void start_ligand_builder_gui();
 
 #ifdef __cplusplus

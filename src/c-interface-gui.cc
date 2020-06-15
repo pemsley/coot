@@ -5609,6 +5609,10 @@ void show_restraints_editor(const char *monomer_type) {
 //                   sequence view
 // ===================================================================
 
+void set_sequence_view_is_docked(short int state) {
+   graphics_info_t::sequence_view_is_docked_flag = state;
+}
+
 
 void nsv(int imol) {
 
@@ -5617,16 +5621,13 @@ void nsv(int imol) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 
-      std::cout << "in nsv " << imol << " widget w is " << w << std::endl;
       if (w) {
 
 	 // it already exists... just raise it and map it.
 
-	 // GtkWidget *canvas = g.sequence_view_is_displayed[imol];
 	 GtkWidget *canvas = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+
 	 // so what is the window (which we shall call widget)?
-
-
 	 GtkWidget *widget = lookup_widget(canvas, "nsv_dialog");
 
 	 if (widget) {
@@ -5636,6 +5637,8 @@ void nsv(int imol) {
 	       gdk_window_raise(widget->window);
 	    }
 	 } else {
+
+            std::cout << "WARNING:: in nsv() lookup of nsv_dialog from canvas failed " << std::endl;
 
 	    widget = lookup_widget(canvas, "sequence_view_dialog");
 	    if (widget) {

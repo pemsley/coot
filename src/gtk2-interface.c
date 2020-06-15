@@ -336,6 +336,7 @@ create_window1 (void)
   GtkWidget *hbox277;
   GtkWidget *image6030;
   GtkWidget *label456;
+  GtkWidget *main_window_vpaned;
   GtkWidget *main_window_graphics_frame;
   GtkWidget *main_window_graphics_hbox;
   GtkWidget *main_window_model_fit_dialog_frame;
@@ -1704,9 +1705,13 @@ create_window1 (void)
   gtk_widget_show (label456);
   gtk_box_pack_start (GTK_BOX (hbox277), label456, FALSE, FALSE, 0);
 
+  main_window_vpaned = gtk_vpaned_new ();
+  gtk_widget_show (main_window_vpaned);
+  gtk_box_pack_start (GTK_BOX (main_window_vbox), main_window_vpaned, TRUE, TRUE, 0);
+
   main_window_graphics_frame = gtk_frame_new (NULL);
   gtk_widget_show (main_window_graphics_frame);
-  gtk_box_pack_start (GTK_BOX (main_window_vbox), main_window_graphics_frame, TRUE, TRUE, 0);
+  gtk_paned_pack2 (GTK_PANED (main_window_vpaned), main_window_graphics_frame, TRUE, TRUE);
   gtk_frame_set_label_align (GTK_FRAME (main_window_graphics_frame), 0, 0);
   gtk_frame_set_shadow_type (GTK_FRAME (main_window_graphics_frame), GTK_SHADOW_NONE);
 
@@ -2876,6 +2881,7 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, hbox277, "hbox277");
   GLADE_HOOKUP_OBJECT (window1, image6030, "image6030");
   GLADE_HOOKUP_OBJECT (window1, label456, "label456");
+  GLADE_HOOKUP_OBJECT (window1, main_window_vpaned, "main_window_vpaned");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_frame, "main_window_graphics_frame");
   GLADE_HOOKUP_OBJECT (window1, main_window_graphics_hbox, "main_window_graphics_hbox");
   GLADE_HOOKUP_OBJECT (window1, main_window_model_fit_dialog_frame, "main_window_model_fit_dialog_frame");

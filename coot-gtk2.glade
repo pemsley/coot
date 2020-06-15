@@ -3335,26 +3335,41 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkFrame" id="main_window_graphics_frame">
+		<widget class="GtkVPaned" id="main_window_vpaned">
 		  <property name="visible">True</property>
-		  <property name="label_xalign">0</property>
-		  <property name="label_yalign">0</property>
-		  <property name="shadow_type">GTK_SHADOW_NONE</property>
+		  <property name="can_focus">True</property>
 
 		  <child>
-		    <widget class="GtkHBox" id="main_window_graphics_hbox">
+		    <placeholder/>
+		  </child>
+
+		  <child>
+		    <widget class="GtkFrame" id="main_window_graphics_frame">
 		      <property name="visible">True</property>
-		      <property name="homogeneous">True</property>
-		      <property name="spacing">0</property>
+		      <property name="label_xalign">0</property>
+		      <property name="label_yalign">0</property>
+		      <property name="shadow_type">GTK_SHADOW_NONE</property>
 
 		      <child>
-			<placeholder/>
-		      </child>
+			<widget class="GtkHBox" id="main_window_graphics_hbox">
+			  <property name="visible">True</property>
+			  <property name="homogeneous">True</property>
+			  <property name="spacing">0</property>
 
-		      <child>
-			<placeholder/>
+			  <child>
+			    <placeholder/>
+			  </child>
+
+			  <child>
+			    <placeholder/>
+			  </child>
+			</widget>
 		      </child>
 		    </widget>
+		    <packing>
+		      <property name="shrink">True</property>
+		      <property name="resize">True</property>
+		    </packing>
 		  </child>
 		</widget>
 		<packing>

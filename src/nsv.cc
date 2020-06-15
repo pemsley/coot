@@ -63,19 +63,15 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    nsv(mol, molecule_name, molecule_number_in, vbox, use_graphics_interface_in, points_max);
 }
 
-// put this in exptl::nsv
 gint
 exptl::nsv::close_docked_sequence_view(GtkWidget *menu_item, GdkEventButton *event) {
 
    // the scrolled window is the widget that is packed into the paned widget
 
    GtkWidget *scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(menu_item), "scrolled_window"));
-   std::cout << "close sequence view - we have menu_item " << menu_item << std::endl;
-   std::cout << "close sequence view - we have scrolled_window " << scrolled_window << std::endl;
    gtk_widget_destroy(scrolled_window);
-   
+
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(scrolled_window), "imol"));
-   std::cout << "DEBUG:: on_nsv_dialog_destroy() called for molecule " << imol << std::endl;
    set_sequence_view_is_displayed(0, imol);
    return TRUE;
 };
@@ -88,13 +84,9 @@ exptl::nsv::on_canvas_button_press(GtkWidget      *canvas,
 
    if (event->button == 3) {
       GtkWidget *scrolled_window = static_cast<GtkWidget *>(data);
-      std::cout << "button 3"  << std::endl;
       GtkWidget *menu = gtk_menu_new();
       GtkWidget *item = gtk_menu_item_new_with_label("Close");
       g_object_set_data(G_OBJECT(item), "scrolled_window", scrolled_window);
-      std::cout << "on_canvas_button_press item " << item << std::endl;
-      std::cout << "on_canvas_button_press menu " << menu << std::endl;
-      std::cout << "on_canvas_button_press scrolled_window (from data) " << scrolled_window << std::endl;
       g_signal_connect (G_OBJECT (item), "activate",
                         G_CALLBACK(close_docked_sequence_view), NULL);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
@@ -117,18 +109,24 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 		bool use_graphics_interface_in,
 		int canvas_pixel_limit) {
 
-   std::cout << "-------------------- in nsv::nsv() " << main_window_vbox << std::endl;
-
    // if main_window_vbox is not null, then put this widget into the vbox rather than
    // create a new window.
 
    // Consider a vertical GtkPaned, which gives the user a drag-widget to resize the
    // sequence.
    // The glarea widget and the sequence will be the widgets in the pane.
-   // According to docs, the pane should not be apparent if the sequence is not docked. 
+   // According to docs, the pane should not be apparent if the sequence is not docked.
 
+   GtkWidget *paned = lookup_widget(main_window_vbox, "main_window_vpaned");
    bool make_top_level_dialog = true;
    if (main_window_vbox) make_top_level_dialog = false;
+   if (paned) {
+      GtkWidget *pane_child_1 = gtk_paned_get_child1(GTK_PANED(paned));
+      if (pane_child_1) {
+         std::cout << "Something already here!" << std::endl;
+         make_top_level_dialog = true;
+      }
+   }
 
    molecule_number = molecule_number_in;
    use_graphics_interface_flag = use_graphics_interface_in;
@@ -139,12 +137,17 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    if (make_top_level_dialog) {
       top_lev = gtk_dialog_new();
-      gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
+      gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev); // huh?
       gtk_window_set_title(GTK_WINDOW(top_lev), "Coot Sequence View");
       GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
       container_vbox = vbox;
-   } else {
-      container_vbox = main_window_vbox;
+      std::string label_string = "Molecule Number ";
+      label_string += coot::util::int_to_string(molecule_number_in);
+      label_string += ": ";
+      label_string += molecule_name;
+      GtkWidget *name_label = gtk_label_new(label_string.c_str());
+      gtk_widget_show(GTK_WIDGET(name_label));
+      gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    }
 
 #ifdef HAVE_GOOCANVAS
@@ -157,26 +160,18 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
 #endif
 
-   std::string label_string = "Molecule Number ";
-   label_string += coot::util::int_to_string(molecule_number_in);
-   label_string += ": ";
-   label_string += molecule_name;
-   GtkWidget *name_label = gtk_label_new(label_string.c_str());
-
-   if (make_top_level_dialog)
-      gtk_box_pack_start(GTK_BOX(container_vbox), name_label, FALSE, FALSE, 1);
-
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-   std::cout << "in constructor, scrolled_window is " << scrolled_window << std::endl;
-   gtk_widget_set_size_request(scrolled_window, -1, 70);
-   gtk_box_pack_start(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), FALSE, FALSE, 1);
-   if (main_window_vbox) {
-      // below the menu bars, above the OpenGL widget
-      gtk_box_reorder_child(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), 2);
+   if (make_top_level_dialog) {
+      gtk_box_pack_start(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
+      gtk_widget_set_size_request(top_lev, 120, 70);
+   } else {
+      gtk_widget_set_size_request(scrolled_window, -1, 70);
+      // if the sequence view is docked then we use to use panes
+      gtk_paned_add1(GTK_PANED(paned), scrolled_window);
    }
 
    g_object_set_data(G_OBJECT(scrolled_window), "imol", GINT_TO_POINTER(molecule_number));
-   
+
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
 
@@ -196,18 +191,17 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    }
 
    // used on destroy
-   gtk_object_set_user_data(GTK_OBJECT(top_lev),
-			    GINT_TO_POINTER(molecule_number));
+   gtk_object_set_user_data(GTK_OBJECT(top_lev), GINT_TO_POINTER(molecule_number));
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
    sequence_letter_background_colour = "white";
    int y_size_initial = setup_canvas(mol);
 
-   gtk_window_set_default_size(GTK_WINDOW(top_lev), 700, y_size_initial + 100);
-		      
+   //  gtk_window_set_default_size(GTK_WINDOW(top_lev), 1700, y_size_initial + 100);
+   gtk_widget_set_size_request(top_lev, 799, y_size_initial + 100);
+
    if (use_graphics_interface_flag) { 
-      gtk_widget_show(GTK_WIDGET(name_label));
       gtk_widget_show(GTK_WIDGET(canvas));
       gtk_widget_show(scrolled_window);
    }
@@ -239,8 +233,11 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 void
 exptl::nsv::on_nsv_close_button_clicked(GtkButton *button,
 					gpointer user_data) {
-   
+
    GtkWidget *window = lookup_widget(GTK_WIDGET(button), "nsv_dialog");
+   if (! window) {
+      std::cout << "ERROR:: window not found in on_nsv_close_button_clicked()" << std::endl;
+   }
    gtk_widget_destroy(window);
 }
 
