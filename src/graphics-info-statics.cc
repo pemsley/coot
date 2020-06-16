@@ -65,9 +65,10 @@ coot::view_info_t graphics_info_t::reorienting_residue_end_view;
 
 bool graphics_info_t::smooth_scroll_on_going = false;
 
-bool graphics_info_t::do_ambient_occlusion_flag = true;
-bool graphics_info_t::do_depth_blur_flag = true;
-bool graphics_info_t::do_depth_fog_flag = true;
+bool graphics_info_t::shader_do_ambient_occlusion_flag = true;
+bool graphics_info_t::shader_do_depth_blur_flag = true;
+bool graphics_info_t::shader_do_depth_fog_flag = true;
+bool graphics_info_t::shader_do_outline_flag = false;
 
 
 // static

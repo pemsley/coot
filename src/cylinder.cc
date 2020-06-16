@@ -24,8 +24,8 @@ cylinder::cylinder(const coot::CartesianPair &pospair,
       const coot::Cartesian &finish = pospair.getFinish();
       coot::Cartesian b = finish - start;
       b.unit_vector_yourself();
-      glm::vec3 normal(b.x(), b.y(), b.z());
-      glm::mat4 ori = glm::orientation(normal, glm::vec3(0.0, 0.0, 1.0));
+      glm::vec3 normalized_bond_orientation(b.x(), b.y(), b.z());
+      glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
 
       // std::cout << "ori " << glm::to_string(ori) << "\n";
 

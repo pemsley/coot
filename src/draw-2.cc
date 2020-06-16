@@ -42,7 +42,7 @@ float quadVertices[] = { // vertex attributes for a quad that fills the entire s
       -1.0f,  1.0f,  0.0f, 1.0f,
        1.0f, -1.0f,  1.0f, 0.0f,
        1.0f,  1.0f,  1.0f, 1.0f
-   };
+};
 
 void init_shaders() {
 
@@ -448,11 +448,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       GLenum err = glGetError();
       if (err) std::cout << "gtk3_draw_map_molecules() glLineWidth " << err << std::endl;
 
-      GLuint pid = graphics_info_t::shader_for_maps.get_program_id();
-      glUseProgram(pid);
-      err = glGetError();
-      if (err) std::cout << "gtk3_draw_map_molecules() glUseProgram with GL err "
-                         << err << std::endl;
+      shader_for_maps.Use();
 
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation = get_view_rotation();
@@ -460,7 +456,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
       glDepthFunc(GL_LESS);
 
-      Shader &shader = graphics_info_t::shader_for_maps;
+      Shader &shader = shader_for_maps;
 
       glm::vec4 ep(get_world_space_eye_position(), 1.0);
       glm::vec3 ep3 = ep/ep.w;
@@ -482,8 +478,10 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                         graphics_info_t::perspective_projection_flag);
             err = glGetError(); if (err) std::cout << "   draw_map_molecules() error B " << std::endl;
 
-            shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::do_depth_fog_flag);
+            shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::shader_do_depth_fog_flag);
             shader.set_bool_for_uniform("do_diffuse_lighting", true);
+            shader.set_float_for_uniform("shininess", m.shader_shininess);
+            shader.set_float_for_uniform("specular_strength", m.shader_specular_strength);
 
             if (draw_with_lines) {
                // I don't see why this is needed - but it is.
@@ -641,7 +639,7 @@ graphics_info_t::draw_model_molecules() {
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
 
-         shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::do_depth_fog_flag);
+         shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::shader_do_depth_fog_flag);
          shader.set_bool_for_uniform("do_diffuse_lighting", true); // false for demo c.f. old styple graphics
 
          // lights
@@ -792,7 +790,7 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          // std::cout << glm::to_string(view_rotation) << std::endl;
 
          GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-         glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+         glm::vec4 bgc(background_colour, 1.0);
          glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
@@ -803,7 +801,7 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
 
-         shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::do_depth_fog_flag);
+         shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
 
          // draw with the vertex count, not the index count.
          GLuint n_verts = m.n_indices_for_model_triangles;
@@ -1202,7 +1200,8 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
       if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for mvp " << err << std::endl;
       glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
       err = glGetError();
-      if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for view_rotation " << err << std::endl;
+      if (err) std::cout << "   error draw_central_cube() glUniformMatrix4fv() for view_rotation " << err
+                         << std::endl;
 
       GLuint line_colour_uniform_location = shader.line_colour_uniform_location;
       glm::vec4 lc(0.5, 0.4, 0.4, 1.0);
@@ -1358,8 +1357,6 @@ on_glarea_render(GtkGLArea *glarea) {
 gboolean
 graphics_info_t::render(GtkGLArea *glarea) {
 
-   // most of this should be a graphics_info_t function.
-
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
    int w = allocation.width;
@@ -1402,9 +1399,9 @@ graphics_info_t::render(GtkGLArea *glarea) {
 
    {
 
-      bool do_ambient_occlusion = graphics_info_t::do_ambient_occlusion_flag;
+      bool do_ambient_occlusion = shader_do_ambient_occlusion_flag;
       graphics_info_t::shader_for_screen.Use();
-      glBindVertexArray(graphics_info_t::screen_quad_vertex_array_id);
+      glBindVertexArray(screen_quad_vertex_array_id);
 
       // glClearColor(0.5, 0.2, 0.2, 1.0);
       const glm::vec3 &bg = graphics_info_t::background_colour;
@@ -1452,7 +1449,8 @@ graphics_info_t::render(GtkGLArea *glarea) {
       glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
       glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-B err " << err << std::endl;
-      graphics_info_t::shader_for_blur.set_bool_for_uniform("do_depth_blur", graphics_info_t::do_depth_blur_flag);
+      shader.set_bool_for_uniform("do_depth_blur", graphics_info_t::shader_do_depth_blur_flag);
+      shader.set_bool_for_uniform("do_outline", graphics_info_t::shader_do_outline_flag);
 
       glDrawArrays(GL_TRIANGLES, 0, 6);
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
@@ -1830,7 +1828,7 @@ graphics_info_t::translate_in_screen_z(float step_size) {
    glm::vec3 delta_uv = normalize(delta);
 
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
-   glm::vec3 step = 0.0003 * step_size * zoom * delta_uv;
+   glm::vec3 step = 0.001 * step_size * zoom * delta_uv;
 
    if (true) // debug
       std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)

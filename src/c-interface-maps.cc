@@ -2610,7 +2610,7 @@ add_density_map_cap() {
       double x_axis_step_size = 0.5;
       double y_axis_step_size = 0.5;
 
-      float z = -0.999; // screen z
+      float z = -0.999; // screen z, front clipping plane
       glm::vec3 base        = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f,-1.0f, z));
       glm::vec3 plus_x_axis = graphics_info_t::unproject_to_world_coordinates(glm::vec3(-1.0f, 1.0f, z));
       glm::vec3 plus_y_axis = graphics_info_t::unproject_to_world_coordinates(glm::vec3( 1.0f,-1.0f, z));

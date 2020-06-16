@@ -9448,3 +9448,11 @@ https://packaging.python.org/tutorials/installing-packages/
 # use that to install pycairo
 pip3 install  pycairo
 now we are ready to install PyGObject?
+
+
+----
+Mon 15 Jun 09:28:20 BST 2020
+
+   Fresnel and related:
+
+   https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/

@@ -1348,7 +1348,17 @@ void set_use_fog(short int state);
 //! \brief query use fog
 int use_fog_state();
 
+//! \brief set use ourline
+void set_use_outline(short int state);
 
+//! \brief query use outline
+int use_outline_state();
+
+//! \brief set the map shininess
+void set_map_shininess(int imol, float shininess);
+
+//! \brief set the map specular strength
+void set_map_specular_strength(int imol, float specular_strength);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */

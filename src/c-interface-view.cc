@@ -116,36 +116,61 @@ int use_perspective_projection_state() {
 //! \brief set use ambient occlusion
 void set_use_ambient_occlusion(short int state) {
    // user interface is set_use_xxx
-   graphics_info_t::do_ambient_occlusion_flag = state;
+   graphics_info_t g;
+   g.set_do_ambient_occlusion(state);
    graphics_draw();
 }
 
 //! \brief query use ambient occlusion
 int use_ambient_occlusion_state() {
-   return graphics_info_t::do_ambient_occlusion_flag;
+   return graphics_info_t::shader_do_ambient_occlusion_flag;
 }
 
 //! \brief set use depth blur
 void set_use_depth_blur(short int state) {
-   graphics_info_t::do_depth_blur_flag = state;
+   graphics_info_t::shader_do_depth_blur_flag = state;
    graphics_draw();
 }
 //! \brief query use depth blur
 int use_depth_blur_state() {
-   return graphics_info_t::do_depth_blur_flag;
+   return graphics_info_t::shader_do_depth_blur_flag;
 }
-
 
 
 //! \brief set use fog
 void set_use_fog(short int state) {
-   graphics_info_t::do_depth_fog_flag = state;
+   graphics_info_t::shader_do_depth_fog_flag = state;
    graphics_draw();
 }
 
 //! \brief query use fog
 int use_fog_state() {
-   return graphics_info_t::do_depth_fog_flag;
+   return graphics_info_t::shader_do_depth_fog_flag;
+}
+
+void set_use_outline(short int state) {
+   graphics_info_t g;
+   g.shader_do_outline_flag = state;
+   graphics_draw();
+}
+
+int use_outline_state() {
+   graphics_info_t g;
+   return g.shader_do_outline_flag;
+}
+
+void set_map_shininess(int imol, float shininess) {
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].shader_shininess = shininess;
+      graphics_draw();
+   }
+}
+
+void set_map_specular_strength(int imol, float specular_strength) {
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].shader_specular_strength = specular_strength;
+      graphics_draw();
+   }
 }
 
 /*  ----------------------------------------------------------------------- */
