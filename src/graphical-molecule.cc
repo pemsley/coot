@@ -194,9 +194,10 @@ graphical_molecule::draw_normals(const glm::mat4 &mvp) {
    GLenum err = glGetError(); if (err) std::cout << "   error draw_normals() -- start -- "
                                                  << err << std::endl;
 
-   unsigned int vao;
-   glGenVertexArrays(1, &vao);
-   glBindVertexArray(vao);
+   if (! normals_setup)
+      glGenVertexArrays(1, &vao_normals);
+
+   glBindVertexArray(vao_normals);
 
    auto vec_length = [](const glm::vec3 &v) {
                         float s = v.x * v.x + v.y * v.y + v.z * v.z;
@@ -249,9 +250,10 @@ graphical_molecule::draw_normals(const glm::mat4 &mvp) {
       tmp_normals.push_back(p2+delta_2);
    }
 
-   unsigned int tmp_buffer_id;
-   glGenBuffers(1, &tmp_buffer_id);
-   glBindBuffer(GL_ARRAY_BUFFER, tmp_buffer_id);
+   if (! normals_setup)
+      glGenBuffers(1, &normals_buffer_id);
+
+   glBindBuffer(GL_ARRAY_BUFFER, normals_buffer_id);
    unsigned int n_normals = tmp_normals.size();
    glBufferData(GL_ARRAY_BUFFER, n_normals * sizeof(glm::vec3), &(tmp_normals[0]), GL_STATIC_DRAW);
    glEnableVertexAttribArray(0);
@@ -260,6 +262,7 @@ graphical_molecule::draw_normals(const glm::mat4 &mvp) {
    err = glGetError(); if (err) std::cout << "   error draw_normals() post gldrawarrays "
                                           << err << std::endl;
 
+   normals_setup = true;    
 }
 
 void
@@ -289,8 +292,8 @@ graphical_molecule::fill_with_simple_triangles_vertices() {
    vertices[4].color = glm::vec4(0.1f, 0.9f, 0.2f, 1.f);
    vertices[5].color = glm::vec4(0.9f, 0.3f, 0.2f, 1.f);
 
-   graphical_triangle gt_0(0,1,2);
-   graphical_triangle gt_1(3,4,5);
+   g_triangle gt_0(0,1,2);
+   g_triangle gt_1(3,4,5);
    triangle_vertex_indices.push_back(gt_0);
    triangle_vertex_indices.push_back(gt_1);
 

@@ -1134,24 +1134,40 @@ graphics_info_t::draw_molecules() {
 void
 graphics_info_t::draw_graphical_molecules() {
 
+   bool draw_meshes = false;
+   bool draw_mesh_normals = true;
+
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation();
 
-   for (int ii=n_molecules()-1; ii>=0; ii--) {
-      molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-      if (! is_valid_map_molecule(ii)) continue;
-      if (false)
-         m.graphical_molecules_draw_normals(mvp);
-      for (unsigned int jj=0; jj<m.graphical_molecules.size(); jj++) {
-         m.graphical_molecules[jj].draw(&shader_for_map_caps, mvp,
-                                        view_rotation, view_rotation,
-                                        lights, eye_position);
-      }
-      glUseProgram(0);
-   }
-   
+   if (draw_meshes) {
+      for (int ii=n_molecules()-1; ii>=0; ii--) {
+         molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+         if (! is_valid_map_molecule(ii)) continue;
+         for (unsigned int jj=0; jj<m.graphical_molecules.size(); jj++) {
+            if (! is_valid_map_molecule(ii)) continue;
+            if (! m.draw_it_for_map) continue;
 
+            if (false)
+               m.graphical_molecules[jj].draw(&shader_for_map_caps, mvp,
+                                              view_rotation, view_rotation,
+                                              lights, eye_position);
+         }
+         glUseProgram(0);
+      }
+   }
+
+   if (draw_mesh_normals) {
+      if (draw_normals_flag) {
+         for (int ii=n_molecules()-1; ii>=0; ii--) {
+            molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+            if (! is_valid_map_molecule(ii)) continue;
+            if (! m.draw_it_for_map) continue;
+            m.graphical_molecules_draw_normals(mvp);
+         }
+      }
+   }
 }
 
 void

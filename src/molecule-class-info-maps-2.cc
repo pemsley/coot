@@ -211,7 +211,7 @@ enum { MS_NO_CROSSING = -2,
 
 // using current contour level,
 // return world coordinates and normals
-std::pair<std::vector<s_generic_vertex>, std::vector<graphical_triangle> >
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                                     const clipper::Coord_orth &x_axis_uv,
                                     const clipper::Coord_orth &y_axis_uv,
@@ -220,7 +220,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                                     unsigned int n_x_axis_points,
                                     unsigned int n_y_axis_points) const {
 
-   std::pair<std::vector<s_generic_vertex>, std::vector<graphical_triangle> > p;
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p;
    if (n_x_axis_points < 2) return p;
    if (n_y_axis_points < 2) return p;
 
@@ -396,8 +396,8 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
             case MS_ALL_ABOVE:
 
                {
-                  graphical_triangle gt_0(idx_00, idx_10, idx_11);
-                  graphical_triangle gt_1(idx_00, idx_11, idx_01);
+                  g_triangle gt_0(idx_00, idx_10, idx_11);
+                  g_triangle gt_1(idx_00, idx_11, idx_01);
                   p.second.push_back(gt_0);
                   p.second.push_back(gt_1);
                }
@@ -422,7 +422,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex vy(py_glm, normal, col_2);
                   p.first.push_back(vx);
                   p.first.push_back(vy);
-                  graphical_triangle tri(idx_00, idx_base, idx_base + 1);
+                  g_triangle tri(idx_00, idx_base, idx_base + 1);
                   p.second.push_back(tri);
                }
                break;
@@ -443,9 +443,9 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   unsigned int idx_base = p.first.size();
                   p.first.push_back(v0);
                   p.first.push_back(v1);
-                  graphical_triangle gt0(idx_11, idx_01, idx_base + 1);
-                  graphical_triangle gt1(idx_11, idx_base + 1, idx_base);
-                  graphical_triangle gt2(idx_11, idx_base, idx_10);
+                  g_triangle gt0(idx_11, idx_01, idx_base + 1);
+                  g_triangle gt1(idx_11, idx_base + 1, idx_base);
+                  g_triangle gt2(idx_11, idx_base, idx_10);
                   p.second.push_back(gt0);
                   p.second.push_back(gt1);
                   p.second.push_back(gt2);
@@ -472,7 +472,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   unsigned  int idx_base = p.first.size();
                   p.first.push_back(v0);
                   p.first.push_back(v1);
-                  graphical_triangle gt(idx_01, idx_base, idx_base + 1);
+                  g_triangle gt(idx_01, idx_base, idx_base + 1);
                   p.second.push_back(gt);
 
                }
@@ -496,9 +496,9 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px_glm, normal, col_1);
                   s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_00, idx_10, idx_base + 1);
-                  graphical_triangle gt1(idx_10, idx_base, idx_base + 1);
-                  graphical_triangle gt2(idx_10, idx_11, idx_base);
+                  g_triangle gt0(idx_00, idx_10, idx_base + 1);
+                  g_triangle gt1(idx_10, idx_base, idx_base + 1);
+                  g_triangle gt2(idx_10, idx_11, idx_base);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -526,7 +526,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px_glm, normal, col_1);
                   s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_base, idx_10, idx_base + 1);
+                  g_triangle gt0(idx_base, idx_10, idx_base + 1);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -553,9 +553,9 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px_glm, normal, col_1);
                   s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_01, idx_00, idx_base);
-                  graphical_triangle gt1(idx_01, idx_base, idx_base + 1);
-                  graphical_triangle gt2(idx_01, idx_base + 1, idx_11);
+                  g_triangle gt0(idx_01, idx_00, idx_base);
+                  g_triangle gt1(idx_01, idx_base, idx_base + 1);
+                  g_triangle gt2(idx_01, idx_base + 1, idx_11);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -583,7 +583,7 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px_glm, normal, col_1);
                   s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_11, idx_base, idx_base + 1);
+                  g_triangle gt0(idx_11, idx_base, idx_base + 1);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -610,9 +610,9 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px_glm, normal, col_1);
                   s_generic_vertex v1(py_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_00, idx_10, idx_base + 1);
-                  graphical_triangle gt1(idx_00, idx_base + 1, idx_base);
-                  graphical_triangle gt2(idx_00, idx_base, idx_01);
+                  g_triangle gt0(idx_00, idx_10, idx_base + 1);
+                  g_triangle gt1(idx_00, idx_base + 1, idx_base);
+                  g_triangle gt2(idx_00, idx_base, idx_01);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -643,8 +643,8 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px1_glm, normal, col_1);
                   s_generic_vertex v1(px2_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_00, idx_base, idx_01);
-                  graphical_triangle gt1(idx_00, idx_base + 1, idx_base);
+                  g_triangle gt0(idx_00, idx_base, idx_01);
+                  g_triangle gt1(idx_00, idx_base + 1, idx_base);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -672,8 +672,8 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(px1_glm, normal, col_1);
                   s_generic_vertex v1(px2_glm, normal, col_2);
                   unsigned  int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_10, idx_base, idx_base + 1);
-                  graphical_triangle gt1(idx_10, idx_11, idx_base);
+                  g_triangle gt0(idx_10, idx_base, idx_base + 1);
+                  g_triangle gt1(idx_10, idx_11, idx_base);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -700,8 +700,8 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(py1_glm, normal, col_1);
                   s_generic_vertex v1(py2_glm, normal, col_2);
                   unsigned int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_00, idx_10, idx_base + 1);
-                  graphical_triangle gt1(idx_00, idx_base + 1, idx_base);
+                  g_triangle gt0(idx_00, idx_10, idx_base + 1);
+                  g_triangle gt1(idx_00, idx_base + 1, idx_base);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);
@@ -726,8 +726,8 @@ molecule_class_info_t::make_map_cap(const clipper::Coord_orth &base_point,
                   s_generic_vertex v0(py1_glm, normal, col_1);
                   s_generic_vertex v1(py2_glm, normal, col_2);
                   unsigned int idx_base = p.first.size();
-                  graphical_triangle gt0(idx_11, idx_base + 1, idx_base);
-                  graphical_triangle gt1(idx_11, idx_01, idx_base);
+                  g_triangle gt0(idx_11, idx_base + 1, idx_base);
+                  g_triangle gt1(idx_11, idx_01, idx_base);
                   p.first.push_back(v0);
                   p.first.push_back(v1);
                   p.second.push_back(gt0);

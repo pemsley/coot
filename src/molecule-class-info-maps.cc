@@ -538,8 +538,16 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads[ii].join();
       }
 
+      // post_process_map_triangles();
+
       setup_glsl_map_rendering(); // turn tri_con into buffers.
 
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp =
+         make_map_mesh();
+
+      graphical_molecule gm(vp.first, vp.second);
+      graphical_molecules.push_back(gm);
+      
 
 /*
 Threaded difference map lines:
@@ -652,6 +660,47 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
+
+void
+molecule_class_info_t::post_process_map_triangles() {
+
+   // average the normals of the vertices that are close.
+   // note std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+
+   double min_dist = 0.03;
+   double min_dist_sqrd = min_dist * min_dist;
+   unsigned int n_reset = 0;
+
+   for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+      coot::density_contour_triangles_container_t &tri_con_i = draw_vector_sets[i];
+      for (unsigned int ii=0; ii<tri_con_i.points.size(); ii++) {
+         const clipper::Coord_orth &pt_i = tri_con_i.points[ii];
+         std::vector<clipper::Coord_orth> neighb_normals;
+         for (unsigned int j=0; j<draw_vector_sets.size(); j++) {
+            const coot::density_contour_triangles_container_t &tri_con_j = draw_vector_sets[j];
+            for (unsigned int jj=0; jj<tri_con_j.points.size(); jj++) {
+               if (i == j && ii == jj ) continue;
+               const clipper::Coord_orth &pt_j = tri_con_j.points[jj];
+               double dd = (pt_i-pt_j).lengthsq();
+               if (dd < min_dist_sqrd) {
+                  neighb_normals.push_back(tri_con_j.normals[jj]);
+               }
+            }
+         }
+         if (! neighb_normals.empty()) {
+            clipper::Coord_orth sum = tri_con_i.normals[ii];
+            for (unsigned int in=0; in<neighb_normals.size(); in++)
+               sum += neighb_normals[in];
+            tri_con_i.normals[ii] = clipper::Coord_orth(sum.unit());
+            n_reset++;
+         }
+      }
+   }
+   
+   std::cout << "DEBUG:: n_reset " << n_reset << std::endl;
+
+}
+
 void
 molecule_class_info_t::setup_map_cap(Shader *shader_p,
                                      const clipper::Coord_orth &base_point, // Bring it into this class.
@@ -666,7 +715,7 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
    GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
-   std::pair<std::vector<s_generic_vertex>, std::vector<graphical_triangle> > map_cap =
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > map_cap =
       make_map_cap(base_point, x_axis_uv, y_axis_uv, x_axis_step_size, y_axis_step_size,
                    n_x_axis_points, n_y_axis_points);
 
@@ -681,12 +730,51 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
 }
 
 
+// there are called molecular meshes now
 void
 molecule_class_info_t::graphical_molecules_draw_normals(const glm::mat4 &mvp) {
 
-   for (unsigned int i=0; i<graphical_molecules.size(); i++) {
-      graphical_molecules[i].draw_normals(mvp);
+   bool do_all = false;
+   // there are molecular meshes now
+   if (do_all) {
+      for (unsigned int i=0; i<graphical_molecules.size(); i++) {
+         graphical_molecules[i].draw_normals(mvp);
+      }
+   } else {
+      graphical_molecules.back().draw_normals(mvp);
    }
+}
+
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecule_class_info_t::make_map_mesh() {
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+   std::vector<s_generic_vertex> &vertices = vp.first;
+   std::vector<g_triangle> &triangles = vp.second;
+
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      // vertices
+      int idx_base = vertices.size();
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+         glm::vec3 p( tri_con.points[i].x(),  tri_con.points[i].y(),  tri_con.points[i].z());
+         glm::vec3 n(tri_con.normals[i].x(), tri_con.normals[i].y(), tri_con.normals[i].z());
+         glm::vec4 c(0.5, 0.5, 0.5, 1.0);
+         s_generic_vertex g(p,n,c);
+         vertices.push_back(g);
+      }
+      // triangles
+      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+         g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
+                      tri_con.point_indices[i].pointID[1] + idx_base,
+                      tri_con.point_indices[i].pointID[2] + idx_base);
+         if (triangles.size() < 10000)
+            triangles.push_back(t);
+      }
+   }
+   return vp;
 }
 
 

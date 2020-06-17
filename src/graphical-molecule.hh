@@ -3,18 +3,7 @@
 #include "gl-lights-info.hh"
 #include "Shader.hh"
 #include "Material.hh"
-
-class graphical_triangle {
-public:
-   graphical_triangle(const unsigned int &a0,
-                      const unsigned int &a1,
-                      const unsigned int &a2) {
-      point_id[0] = a0;
-      point_id[1] = a1;
-      point_id[2] = a2;
-   }
-   unsigned int point_id[3];
-};
+#include "g_triangle.hh"
 
 class graphical_molecule {
    void setup_instancing_buffers(); // or buffers, when we add rotation
@@ -23,11 +12,12 @@ class graphical_molecule {
    void setup_instanced_dodecs(Shader *shader_p, const Material &material_in);
 
 public:
-   graphical_molecule() { is_instanced = false; }
+   graphical_molecule() { is_instanced = false; normals_setup = false; }
    graphical_molecule(const std::vector<s_generic_vertex> &v,
-                      const std::vector<graphical_triangle> &t)
+                      const std::vector<g_triangle> &t)
       : vertices(v), triangle_vertex_indices(t) {
       is_instanced = false;
+      normals_setup = false;
       setup_buffers();
    }
    GLuint vao;
@@ -37,12 +27,16 @@ public:
    GLuint index_buffer_id;
    bool is_instanced;
    std::vector<s_generic_vertex> vertices;
-   std::vector<graphical_triangle> triangle_vertex_indices;
+   std::vector<g_triangle> triangle_vertex_indices;
    void setup_simple_triangles(Shader *shaderp, const Material &material_in);
    // setup_simple_triangles() calls fill_with_simple_triangles_vertices()
    void fill_with_simple_triangles_vertices();
    void fill_with_direction_triangles();
    void setup_instanced_debugging_objects(Shader *shader_p, const Material &material_in);
+
+   bool normals_setup;
+   GLuint vao_normals;
+   GLuint normals_buffer_id;
 
    // can be considered as "draw_self()"
    void draw(Shader *shader,
@@ -62,3 +56,5 @@ public:
    void fill_one_dodec();
    void setup_buffers();
 };
+
+

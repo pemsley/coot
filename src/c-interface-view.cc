@@ -173,6 +173,19 @@ void set_map_specular_strength(int imol, float specular_strength) {
    }
 }
 
+void set_draw_normals(short int state) {
+
+   graphics_info_t::draw_normals_flag = state;
+   graphics_draw();
+
+}
+
+int  draw_normals_state() {
+   return graphics_info_t::draw_normals_flag;
+}
+
+   
+
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */
 /*  ----------------------------------------------------------------------- */

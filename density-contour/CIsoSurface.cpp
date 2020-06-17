@@ -1004,7 +1004,8 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       // Don't add this triangle if it's outside the sphere
       //
       if ((tri.mid_point-centre).lengthsq() > radius_sqd) valid_co = false;
-      // If you want to bring back "all" triangle, test on true
+
+      // If you want to bring back "all" triangles, test on true
       if (valid_co) {
 
          // Note we apply a negation to get the normal pointing out of
@@ -1025,6 +1026,10 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    }
 
    tri_con.calculate_normals();
+   // tri_con.remove_small_triangles(); // all very interesting, but not the way to do it.
+                                        // We need to merge and remove after all the
+                                        // sections have been calculated.
+
    return tri_con;
 }
 

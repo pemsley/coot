@@ -69,7 +69,7 @@ bool graphics_info_t::shader_do_ambient_occlusion_flag = true;
 bool graphics_info_t::shader_do_depth_blur_flag = true;
 bool graphics_info_t::shader_do_depth_fog_flag = true;
 bool graphics_info_t::shader_do_outline_flag = false;
-
+bool graphics_info_t::draw_normals_flag = false;
 
 // static
 void

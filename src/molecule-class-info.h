@@ -145,6 +145,8 @@ namespace molecule_map_type {
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "model-composition-statistics.hh"
 
+#include "g_triangle.hh"
+
 namespace coot {
 
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
@@ -2918,6 +2920,7 @@ public:        //                      public
    void set_draw_solid_density_surface(bool state);
 
    // new
+   void post_process_map_triangles();
    void setup_glsl_map_rendering();
    std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
 
@@ -2953,7 +2956,7 @@ public:        //                      public
 
    // using current contour level,
    // return world coordinates and normals
-   std::pair<std::vector<s_generic_vertex>, std::vector<graphical_triangle> >
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    make_map_cap(const clipper::Coord_orth &base_point,
                 const clipper::Coord_orth &x_axis_uv,  // unit vectors
                 const clipper::Coord_orth &y_axis_uv,
@@ -2976,8 +2979,16 @@ public:        //                      public
                      const glm::mat4 &world_rotation_translation_matrix,
                      const std::map<unsigned int, gl_lights_info_t> &lights,
                      const glm::vec3 &eye_position);
+
+   // non molecular mesh
+   Shader shader_for_draw_map_normals;
+   void draw_map_normals(const glm::mat4 &mvp);
+
+   // uses molecular meshes/graphical molecules
    void draw_normals(const glm::mat4 &mvp); // defunct now I think
    void graphical_molecules_draw_normals(const glm::mat4 &mvp);
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_map_mesh();
 
    float shader_shininess;
    float shader_specular_strength;

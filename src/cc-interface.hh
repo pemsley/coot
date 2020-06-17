@@ -1360,6 +1360,10 @@ void set_map_shininess(int imol, float shininess);
 //! \brief set the map specular strength
 void set_map_specular_strength(int imol, float specular_strength);
 
+void set_draw_normals(short int state);
+
+int draw_normals_state();
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

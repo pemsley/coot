@@ -115,10 +115,12 @@ Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
 void
 Shader::Use() {
    GLuint err = glGetError();
-   if (err) std::cout << "Shader::Use() pre glUseProgram() err " << err << std::endl;
+   if (err) std::cout << "Shader::Use() pre glUseProgram() " << name
+                      << " err " << err << std::endl;
    glUseProgram(program_id);
    err = glGetError();
-   if (err) std::cout << "Shader::Use() err " << err << " for program_id " << program_id << std::endl;
+   if (err) std::cout << "Shader::Use() " << name << " err " << err
+                      << " for program_id " << program_id << std::endl;
 }
 
 void
