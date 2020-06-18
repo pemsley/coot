@@ -9351,7 +9351,6 @@ Thu  4 Jun 10:53:57 BST 2020
 
    The test-out-of-the-box build for hal is on teraraid
 
-
 ---
 Tue  9 Jun 20:34:17 BST 2020
 
@@ -9360,3 +9359,19 @@ Tue  9 Jun 20:34:17 BST 2020
    there is
    The Extragalactic Distance Database (EDD)
    http://edd.ifa.hawaii.edu/
+
+---
+Mon 15 Jun 08:57:41 BST 2020
+
+    ERRAT notes and improvement:
+
+    https://yeateslab.mbi.ucla.edu/structure-validation/
+
+    One weakness of the program was a high sensitivity to small
+    deviations in atomic positions, owing mainly to the discontinuous
+    nature of the error function arising from the distance
+    cutoff. Around 2002, another undergraduate student Dennis Obukov,
+    rewrote ERRAT with a continuous distance weighting scheme, which
+    led to more stable and robust behavior.
+
+

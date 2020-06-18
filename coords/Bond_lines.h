@@ -741,7 +741,53 @@ class Bond_lines_container {
 							const coot::Cartesian &atom_1,
 							const coot::Cartesian &atom_2,
 							int uddHnd);
-   
+
+   void do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
+                                                   int imol,
+                                                   int draw_hydrogens_flag,
+                                                   bool draw_missing_loops_flag,
+                                                   short int change_c_only_flag,
+                                                   bool do_goodsell_colour_mode);
+
+   void add_residue_monomer_bonds(const std::map<std::string, std::vector<mmdb::Residue *> > &residue_monomer_map,
+                                  int imol, int model_number,
+                                  int atom_colour_type,
+                                  int udd_atom_index_handle,
+                                  int udd_bond_handle,
+                                  int draw_hydrogens_flag,
+                                  bool do_goodsell_colour_mode);
+
+   void do_colour_by_dictionary_and_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
+                                                                int imol,
+                                                                int draw_hydrogens_flag,
+                                                                bool draw_missing_loops_flag,
+                                                                bool do_goodsell_colour_mode);
+   // and the bonds between the above monomers
+   void add_polymer_bonds(const atom_selection_container_t &asc,
+                          int atom_colour_type,
+                          int draw_hydrogens_flag,
+                          bool draw_missing_loops_flag,
+                          bool do_goodsell_colour_mode);
+   void add_peptide_bonds(const atom_selection_container_t &asc,
+                          int atom_colour_type,
+                          int draw_hydrogens_flag,
+                          bool do_goodsell_colour_mode);
+   void add_phosphodiester_bonds(const atom_selection_container_t &asc,
+                                 int atom_colour_type,
+                                 int draw_hydrogens_flag,
+                                 bool do_goodsell_colour_mode);
+   void add_carbohydrate_bonds(const atom_selection_container_t &asc, // oh. Tricky.
+                               int atom_colour_type,
+                               int draw_hydrogens_flag,
+                               bool do_goodsell_colour_mode);
+   void add_SS_bonds(const atom_selection_container_t &asc,
+                     int atom_colour_type,
+                     int draw_hydrogens_flag,
+                     bool do_goodsell_colour_mode);
+   void add_link_bonds(const atom_selection_container_t &asc,
+                       int atom_colour_type,
+                       int draw_hydrogens_flag,
+                       bool do_goodsell_colour_mode);
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
@@ -911,6 +957,7 @@ public:
       have_dictionary = 0;
       for_GL_solid_model_rendering = 0;
       udd_has_ca_handle = -1;
+      do_sticks_for_waters = true;
       init();
       if (bonds.size() == 0) { 
 	 for (int i=0; i<13; i++) { // 13 colors now in bond_colours

@@ -1162,33 +1162,6 @@ int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const s
 
 
 
-// do it if have intermediate atoms and ctrl is pressed.
-// 
-// axis: 0 for Z, 1 for X.
-// 
-short int
-graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
-
-
-   short int handled_flag = 0;
-
-   if (rot_trans_rotation_origin_atom) { 
-      if (moving_atoms_asc) {
-	 if (moving_atoms_asc->n_selected_atoms > 0) {
-	    if (control_is_pressed) {
-	       if (axis == 0)
-		  rotate_intermediate_atoms_round_screen_z(angle);
-	       else 
-		  rotate_intermediate_atoms_round_screen_x(angle);
-	       handled_flag = 1;
-	    }
-	 }
-      }
-   }
-   return handled_flag;
-}
-
-
 // --- unapply symmetry to current view, (we are looking at
 // symmetry and we want to get back to the main molecule,
 // preserving the orientation, if possible.

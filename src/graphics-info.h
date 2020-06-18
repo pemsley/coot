@@ -3020,7 +3020,7 @@ public:
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
-   short int rotate_intermediate_atoms_maybe(short int axis, double angle);
+   short int rotate_intermediate_atoms_maybe(unsigned int widget_height, unsigned int widget_width);
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
    // axis: 0 for Z, 1 for X.

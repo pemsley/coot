@@ -5850,8 +5850,14 @@ symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
 void 
 scale_zoom_internal(float f) {
 
+   // now we filter out unusual/erroneous changes in zoom
+
    graphics_info_t g;
-   g.zoom *= fabs(f);
+   if (f > 0.0)
+      if (f < 1.8)
+         if (f > 0.5)
+            g.zoom *= f;
+
 }
 
 void scale_zoom(float f) {

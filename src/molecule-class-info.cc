@@ -7921,6 +7921,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       }
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions(); // sets unsaved changes flag
+      update_symmetry();
    }
 
    return istat;

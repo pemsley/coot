@@ -475,3 +475,57 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
       }
    }
 } 
+
+
+
+// do it if have intermediate atoms and ctrl is pressed.
+// 
+// axis: 0 for Z, 1 for X.
+// 
+short int
+graphics_info_t::rotate_intermediate_atoms_maybe(unsigned int width, unsigned int height) {
+
+   // for rotation, use trackball rotation about the centre of the fragment.
+
+   short int handled_flag = 0;
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         if (control_is_pressed) {
+            handled_flag = true;
+            bool sane_deltas = true;
+            if (mouse_current_x - GetMouseBeginX() >  80) sane_deltas = false; 
+            if (mouse_current_x - GetMouseBeginX() < -80) sane_deltas = false; 
+            if (mouse_current_y - GetMouseBeginY() >  80) sane_deltas = false; 
+            if (mouse_current_y - GetMouseBeginY() < -80) sane_deltas = false; 
+            if (sane_deltas) {
+               clipper::Coord_orth mac = moving_atoms_centre();
+               float spin_quat[4];
+               trackball(spin_quat,
+                         (2.0*GetMouseBeginX() - width) /width,
+                         (height - 2.0*GetMouseBeginY())/height,
+                         (2.0*mouse_current_x - width)  /width,
+                         (height -  2.0*mouse_current_y)/height,
+                         get_trackball_size() );
+               GL_matrix m;
+               m.from_quaternion(spin_quat);
+               clipper::Mat33<double> m33 = m.to_clipper_mat();
+               clipper::Coord_orth zero(0,0,0);
+               for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+                  mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+                  clipper::Coord_orth origin_based_pos = coot::co(at) - mac;
+                  clipper::RTop_orth rtop(m33, zero);
+                  clipper::Coord_orth new_pos = origin_based_pos.transform(rtop);
+                  new_pos += mac;
+                  at->x = new_pos.x(); at->y = new_pos.y(); at->z = new_pos.z();
+               }
+	       Bond_lines_container bonds(*moving_atoms_asc, true);
+	       regularize_object_bonds_box.clear_up();
+	       regularize_object_bonds_box = bonds.make_graphical_bonds();
+               graphics_draw();
+            }
+	 }
+      }
+   }
+   return handled_flag;
+}
