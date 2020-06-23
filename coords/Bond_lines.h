@@ -784,6 +784,13 @@ class Bond_lines_container {
                                int atom_colour_type,
                                int draw_hydrogens_flag,
                                bool do_goodsell_colour_mode);
+   void add_polymer_bonds_generic(const atom_selection_container_t &asc,
+                                  int atom_colour_type,
+                                  int draw_hydrogens_flag,
+                                  const std::string &res_1_atom_name, // in "res1"
+                                  const std::string &res_2_atom_name, // in "res2"
+                                  bool allow_het_group_link_bond,
+                                  bool do_goodsell_colour_mode);
    void add_SS_bonds(const atom_selection_container_t &asc,
                      int atom_colour_type,
                      int draw_hydrogens_flag,

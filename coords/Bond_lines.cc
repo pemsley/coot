@@ -830,8 +830,8 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
 
       coot::Cartesian v1 = pt_1 - mp;
       coot::Cartesian v2 = pt_2 - mp;
-      coot::Cartesian ip1 = mp + v1 * 0.8;
-      coot::Cartesian ip2 = mp + v2 * 0.8;
+      coot::Cartesian ip1 = mp + v1 * 0.9; // 0.8 look better with no atoms
+      coot::Cartesian ip2 = mp + v2 * 0.9;
       mmdb::Atom *at_1 = ring_atoms[iat_1];
       int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
       int atom_1_index = -1;
@@ -5609,6 +5609,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
       do_disulphide_bonds(asc, imod);
       add_cis_peptide_markup(asc, imod);
+      construct_from_model_links(asc.mol->GetModel(imod), udd_atom_index_handle, atom_colour_type);
    }
 
    add_zero_occ_spots(asc);
@@ -5617,7 +5618,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   // add_atom_centres(asc, atom_colour_type);
+   add_atom_centres(asc, atom_colour_type);
 
 }
 
@@ -5634,10 +5635,16 @@ Bond_lines_container::add_polymer_bonds(const atom_selection_container_t &asc,
 }
 
 void
-Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
-                                        int atom_colour_type,
-                                        int draw_hydrogens_flag,
-                                        bool do_goodsell_colour_mode) {
+Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t &asc,
+                                                int atom_colour_type,
+                                                int draw_hydrogens_flag,
+                                                const std::string &res_1_atom_name, // in "res1"
+                                                const std::string &res_2_atom_name, // in "res2"
+                                                bool linking_het_groups,
+                                                bool do_goodsell_colour_mode) {
+
+   // hetgroups should generally not be linked to each other, unless allow_het_group_link_bonds
+   // which allows linking (of carbohydrates). In that case, we need a distance sanity check.
 
    coot::my_atom_colour_map_t atom_colour_map;
 
@@ -5657,12 +5664,12 @@ Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
                   mmdb::Atom *at_1 = residue_this_p->GetAtom(iat);
                   if (! at_1->isTer()) {
                      std::string at_1_name(at_1->name);
-                     if (at_1_name == " C  ") {
+                     if (at_1_name == res_1_atom_name) {
                         for (int jat=0; jat<n_next_res_atoms; jat++) {
                            mmdb::Atom *at_2 = residue_next_p->GetAtom(jat);
                            if (! at_2->isTer()) {
                               std::string at_2_name(at_2->name);
-                              if (at_2_name == " N  ") {
+                              if (at_2_name == res_2_atom_name) {
                                  std::string alt_conf_1(at_1->altLoc);
                                  std::string alt_conf_2(at_2->altLoc);
                                  if (alt_conf_1 == alt_conf_2 || alt_conf_1 == "" || alt_conf_2 == "") {
@@ -5672,13 +5679,19 @@ Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
 
                                     int res_no_delta = residue_next_p->GetSeqNum() - residue_this_p->GetSeqNum();
                                     bool do_it = true;
-                                    if (res_no_delta > 1) {
-                                       float dd =
-                                          (atom_1_pos.x() - atom_2_pos.x()) * (atom_1_pos.x() - atom_2_pos.x()) +
-                                          (atom_1_pos.y() - atom_2_pos.y()) * (atom_1_pos.y() - atom_2_pos.y()) +
-                                          (atom_1_pos.z() - atom_2_pos.z()) * (atom_1_pos.z() - atom_2_pos.z());
-                                       if (dd > 9.0)
-                                          do_it = false;
+
+                                    if (at_1->Het && ! linking_het_groups) do_it = false;
+                                    if (at_2->Het && ! linking_het_groups) do_it = false;
+
+                                    if (do_it) {
+                                       if (res_no_delta > 1 || (at_1->Het && linking_het_groups)) {
+                                          float dd =
+                                             (atom_1_pos.x() - atom_2_pos.x()) * (atom_1_pos.x() - atom_2_pos.x()) +
+                                             (atom_1_pos.y() - atom_2_pos.y()) * (atom_1_pos.y() - atom_2_pos.y()) +
+                                             (atom_1_pos.z() - atom_2_pos.z()) * (atom_1_pos.z() - atom_2_pos.z());
+                                          if (dd > 9.0)
+                                             do_it = false;
+                                       }
                                     }
 
                                     if (do_it) {
@@ -5704,6 +5717,17 @@ Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
          }
       }
    }
+
+}
+
+void
+Bond_lines_container::add_peptide_bonds(const atom_selection_container_t &asc,
+                                        int atom_colour_type,
+                                        int draw_hydrogens_flag,
+                                        bool do_goodsell_colour_mode) {
+
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " C  ", " N  ", false,
+                             do_goodsell_colour_mode);
 
 }
 
@@ -5713,71 +5737,9 @@ Bond_lines_container::add_phosphodiester_bonds(const atom_selection_container_t 
                                                int draw_hydrogens_flag,
                                                bool do_goodsell_colour_mode) {
 
-   coot::my_atom_colour_map_t atom_colour_map;
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O3'", " P  ", false,
+                             do_goodsell_colour_mode);
 
-   for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = asc.mol->GetModel(imod);
-      if (model_p) {
-         int n_chains = model_p->GetNumberOfChains();
-         for (int ichain=0; ichain<n_chains; ichain++) {
-            mmdb::Chain *chain_p = model_p->GetChain(ichain);
-            int nres = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<(nres-1); ires++) {
-               mmdb::Residue *residue_this_p = chain_p->GetResidue(ires);
-               mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
-               int n_this_res_atoms = residue_this_p->GetNumberOfAtoms();
-               int n_next_res_atoms = residue_next_p->GetNumberOfAtoms();
-               for (int iat=0; iat<n_this_res_atoms; iat++) {
-                  mmdb::Atom *at_1 = residue_this_p->GetAtom(iat);
-                  if (! at_1->isTer()) {
-                     std::string at_1_name(at_1->name);
-                     if (at_1_name == " O3'") {
-                        for (int jat=0; jat<n_next_res_atoms; jat++) {
-                           mmdb::Atom *at_2 = residue_next_p->GetAtom(jat);
-                           if (! at_2->isTer()) {
-                              std::string at_2_name(at_2->name);
-                              if (at_2_name == " P  ") {
-                                 std::string alt_conf_1(at_1->altLoc);
-                                 std::string alt_conf_2(at_2->altLoc);
-                                 if (alt_conf_1 == alt_conf_2 || alt_conf_1 == "" || alt_conf_2 == "") {
-
-                                    coot::Cartesian atom_1_pos(at_1->x, at_1->y, at_1->z);
-                                    coot::Cartesian atom_2_pos(at_2->x, at_2->y, at_2->z);
-
-                                    int res_no_delta = residue_next_p->GetSeqNum() - residue_this_p->GetSeqNum();
-                                    bool do_it = true;
-                                    if (res_no_delta > 1) {
-                                       float dd =
-                                          (atom_1_pos.x() - atom_2_pos.x()) * (atom_1_pos.x() - atom_2_pos.x()) +
-                                          (atom_1_pos.y() - atom_2_pos.y()) * (atom_1_pos.y() - atom_2_pos.y()) +
-                                          (atom_1_pos.z() - atom_2_pos.z()) * (atom_1_pos.z() - atom_2_pos.z());
-                                       if (dd > 9.0)
-                                          do_it = false;
-                                    }
-
-                                    if (do_it) {
-                                       int atom_index_1 = -1;
-                                       int atom_index_2 = -1;
-                                       int ierr_1 = at_1->GetUDData(asc.UDDAtomIndexHandle, atom_index_1);
-                                       int ierr_2 = at_2->GetUDData(asc.UDDAtomIndexHandle, atom_index_2);
-
-                                       add_half_bonds(atom_1_pos, atom_2_pos,
-                                                      at_1, at_2,
-                                                      imod,
-                                                      atom_index_1, atom_index_2,
-                                                      atom_colour_type, &atom_colour_map);
-                                    }
-                                 }
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
 }
 
 void
@@ -5785,6 +5747,14 @@ Bond_lines_container::add_carbohydrate_bonds(const atom_selection_container_t &a
                                              int atom_colour_type,
                                              int draw_hydrogens_flag,
                                              bool do_goodsell_colour_mode) {
+
+   bool gm = do_goodsell_colour_mode;
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O1 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O2 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O3 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O4 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O5 ", " C1 ", true, gm);
+   add_polymer_bonds_generic(asc, atom_colour_type, draw_hydrogens_flag, " O6 ", " C1 ", true, gm);
 
 }
 
