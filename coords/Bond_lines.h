@@ -659,19 +659,23 @@ class Bond_lines_container {
 		       int model_number,
 		       int atom_index_1,
 		       int atom_index_2,
-		       int atom_colour_type);
+		       int atom_colour_type,
+                       coot::my_atom_colour_map_t *atom_colour_map_p);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // We pass udd_atom_index_handle because we need the atom index (not residue atom index) for
    // using no_bonds_to_these_atoms
-   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms,
+                        int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
 			int udd_atom_index_handle,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
-			bool is_deloc=0);
+			bool is_deloc=false);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms,
+                        int atom_colour_type,
+                        coot::my_atom_colour_map_t *atom_colour_map_p,
 			int udd_atom_index_handle,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
@@ -789,6 +793,22 @@ class Bond_lines_container {
                        int draw_hydrogens_flag,
                        bool do_goodsell_colour_mode);
 
+   // the atoms have been added in order 0 is bonded to 1, 1 is bonded to 2, 2 is bonded to 3 etc.
+   // and there is a double bond between 0 and 1, 2 and 3, and 4 to 5. Or maybe we could explicitly
+   // add that to the the ring_atoms data.
+   void draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                         int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                         int udd_atom_index_handle);
+   // this calls the above function
+   void draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model_number,
+                               int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                               int udd_atom_index_handle);
+   void draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p, int udd_atom_index_handle);
+   void draw_trp_ring_outer(mmdb::Residue *residue_p, int model_number,
+                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                            int udd_atom_index_handle);
+
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_found_bond_handle, int udd_atom_index_handle);
@@ -817,6 +837,7 @@ class Bond_lines_container {
    // we can put other things here
    void init() {
       rotamer_probability_tables_p = NULL;
+      do_sticks_for_waters = false;
    }
    
 
