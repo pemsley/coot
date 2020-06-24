@@ -7728,8 +7728,6 @@ molecule_class_info_t::store_refmac_params(const std::string &mtz_filename,
 					   const std::string &r_free_col,
 					   int r_free_flag) {
 
-   std::cout << "------------------- store_refmac_params() called!\n";
-
    have_sensible_refmac_params = 1; // true
    refmac_mtz_filename = mtz_filename;
    refmac_fobs_col = fobs_col;
