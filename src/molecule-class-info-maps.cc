@@ -743,6 +743,10 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads[ii].join();
       }
 
+      if (is_dynamically_transformed_map_flag)
+         for (unsigned int ii=0; ii<draw_vector_sets.size(); ii++)
+            dynamically_transform(draw_vector_sets[ii]);
+
       if (draw_it_for_solid_density_surface) {
          tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
                                  contour_level, dy_radius, centre,
@@ -1220,7 +1224,7 @@ molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
       clipper::Coord_orth ct1 = c1.transform(map_ghost_info.rtop);
       clipper::Coord_orth ct2 = c2.transform(map_ghost_info.rtop);
       v.data[i] = coot::CartesianPair(coot::Cartesian(ct1.x(), ct1.y(), ct1.z()),
-				coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
+                                      coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
    }
 
 }
