@@ -1593,7 +1593,7 @@ public:        //                      public
 			  const coot::ghost_molecule_display_t &ghost_info,
 			  int is_diff_map_flag,
 			  int swap_difference_map_colours_flag,
-			  float sigma_in);
+			  float contour_level_in);
 
    void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in);
    void set_name(std::string name); // you are encouraged not to use
