@@ -519,8 +519,8 @@
                        (begin maob)
                        (begin (info-dialog maob)
                               '())))
-           (nov   (format #t "debug:: maob: ~s~%" maob))
-           (nov-2 (format #t "debug:: maob-2: ~s~%" maob-2))
+           ;; (nov   (format #t "debug:: maob: ~s~%" maob))
+           ;; (nov-2 (format #t "debug:: maob-2: ~s~%" maob-2))
            (filtered-mao-baddies (filter-molecule-atom-overlap-baddies maob-2)))
 
       (if #f
