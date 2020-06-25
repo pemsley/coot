@@ -14,3 +14,5 @@ set_decoloned_backup_file_names(1)
 
 It might work.
 
+(Available in 0.9.1)
+
