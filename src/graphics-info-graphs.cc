@@ -1582,7 +1582,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 					   int imol_for_map) const {
 
    std::vector<coot::geometry_graph_block_info_generic> v;
-   float distortion_max = 100.0;
+   float distortion_max = 132.0;
    if (nSelResidues > 0) {
       int max_resno = -9999;
       double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap);
