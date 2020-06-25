@@ -94,7 +94,7 @@ namespace coot {
 	 y_ = in.y_;
 	 z_ = in.z_;
 	 return *this;
-      } 
+      }
    
       void unit_vector_yourself() {
 	 float length = (*this).amplitude();
@@ -159,6 +159,8 @@ namespace coot {
 
       static Cartesian CrossProduct(const Cartesian &Atom_1, 
 				    const Cartesian &Atom_2);
+
+      static float lengthsq(const Cartesian &c1, const Cartesian &c2);
 
       std::vector<Cartesian> third_points(const Cartesian &other) const;
 

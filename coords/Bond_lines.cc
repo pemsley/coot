@@ -5685,10 +5685,7 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
 
                                     if (do_it) {
                                        if (res_no_delta > 1 || (at_1->Het && linking_het_groups)) {
-                                          float dd =
-                                             (atom_1_pos.x() - atom_2_pos.x()) * (atom_1_pos.x() - atom_2_pos.x()) +
-                                             (atom_1_pos.y() - atom_2_pos.y()) * (atom_1_pos.y() - atom_2_pos.y()) +
-                                             (atom_1_pos.z() - atom_2_pos.z()) * (atom_1_pos.z() - atom_2_pos.z());
+                                          float dd = coot::Cartesian::lengthsq(atom_1_pos, atom_2_pos);
                                           if (dd > 9.0)
                                              do_it = false;
                                        }
