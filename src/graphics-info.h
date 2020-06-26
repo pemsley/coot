@@ -2027,6 +2027,7 @@ public:
    // sequence view
    static GtkWidget **sequence_view_is_displayed;
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
+   GtkWidget * get_sequence_view_is_displayed(int imol) const;
    static int nsv_canvas_pixel_limit;
 
    // Geometry Graphs:

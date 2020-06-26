@@ -60,6 +60,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    //
    std::cout << "nsv weird" << std::endl;
    points_max = 22500;
+   current_highlight_residue = 0;
    nsv(mol, molecule_name, molecule_number_in, vbox, use_graphics_interface_in, points_max);
 }
 
@@ -131,6 +132,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    molecule_number = molecule_number_in;
    use_graphics_interface_flag = use_graphics_interface_in;
    points_max = canvas_pixel_limit;
+   current_highlight_residue = 0;
 
    GtkWidget *top_lev = 0;
    GtkWidget *container_vbox = 0;
@@ -593,7 +595,6 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
          txt_letter_group = goo_canvas_group_new(canvas_group, NULL);
 
          GooCanvasItem *rect_item;
-
          rect_item = goo_canvas_rect_new(txt_letter_group,
                                          x1, y1,
                                          x2-x1,
@@ -603,14 +604,15 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                          "can-focus", TRUE,
                                          NULL);
 
+         rect_residue_map[residue_p] = rect_item;
+
          // Save the rectangle to be able to change the bg of the letter later.
          g_object_set_data(G_OBJECT(txt_letter_group), "rect", rect_item);
 
 	 g_object_set(G_OBJECT(txt_letter_group), "tooltip", label.c_str(), NULL);
 
 #else
-    GtkCanvasItem *rect_item;
-
+         GtkCanvasItem *rect_item;
 	 rect_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 					 GNOME_TYPE_CANVAS_RECT,
 					 "x1", x1,
@@ -650,6 +652,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                     "font", fixed_font_str.c_str(),
                                     "can-focus", FALSE,
                                     NULL);
+
     g_signal_connect(G_OBJECT(txt_letter_group), "enter_notify_event",
                      G_CALLBACK(rect_notify_event), this);
     g_signal_connect(G_OBJECT(txt_letter_group), "leave_notify_event",
@@ -724,8 +727,8 @@ exptl::nsv::letter_event(GtkObject *obj,
 
    // path for mouse motion callback when we are compiled with gtkcanvas, not goocanvas.
 
-   // use static cast here (if this code is ever run again :-))
-   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
+   exptl::nsv::spec_and_object spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
 
    // I had been checking on mouse motion (it seems).  But lots of
    // mouse motion causes many calls to set_go_to_atom_from_spec()
@@ -733,7 +736,7 @@ exptl::nsv::letter_event(GtkObject *obj,
    // So, only go to an atom on button release.
    // 
 
-   std::cout << "letter event of type: " << event->type << std::endl;
+   std::cout << "debug:: letter_event(): letter event of type: " << event->type << std::endl;
 
    if (event->type == GDK_BUTTON_RELEASE) {
       set_go_to_atom_molecule(spec_obj.mol_no);
@@ -759,8 +762,10 @@ exptl::nsv::letter_event(GtkObject *obj,
 gboolean
 exptl::nsv::rect_notify_event (GooCanvasItem *item,
                                GooCanvasItem *target,
-                               GdkEventCrossing *event,
+                               GdkEvent *event,
                                gpointer data) {
+
+   std::cout << "rect_notify_event for item " << item << std::endl;
 
    GooCanvasItem *rect;
    rect = static_cast<GooCanvasItem *> (g_object_get_data(G_OBJECT(item), "rect"));
@@ -786,10 +791,11 @@ exptl::nsv::rect_button_event(GooCanvasItem *item,
                               gpointer data) {
 
    std::cout << "rect button event" << std::endl;
-   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
+   exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
    set_go_to_atom_molecule(spec_obj.mol_no);
    set_go_to_atom_from_spec(spec_obj.atom_spec);
-   return TRUE; // handled this
+   return TRUE; // this has been handled.
 }
 
 #else
@@ -799,10 +805,11 @@ exptl::nsv::rect_event (GtkObject *obj,
 			GdkEvent *event,
 			gpointer data) {
 
-   std::cout << "rect_event " << std::endl;
-   
-   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
-   // if (event->motion.state & GDK_BUTTON1_MASK) {
+   std::cout << "debug:: rect_event(): " << std::endl;
+
+   exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
+
    if (event->type == GDK_BUTTON_RELEASE) {
       std::cout << "rect button release " << std::endl;
       set_go_to_atom_molecule(spec_obj.mol_no);
@@ -1448,6 +1455,32 @@ exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
    case mmdb::SSE_None   : s = "black";       break;
    } 
    return s;
+}
+
+void
+exptl::nsv::highlight_residue(mmdb::Residue *residue_p) {
+
+#ifdef HAVE_GOOCANVAS
+   std::map<mmdb::Residue *, GooCanvasItem *>::const_iterator it;
+   it = rect_residue_map.find(residue_p);
+   if (it != rect_residue_map.end()) {
+      GooCanvasItem *rect = it->second;
+      if (GOO_IS_CANVAS_ITEM(rect)) {
+         g_object_set(rect, "fill_color", "lightgreen", NULL);
+      }
+      if (current_highlight_residue != residue_p) {
+         it = rect_residue_map.find(current_highlight_residue);
+         if (it != rect_residue_map.end()) {
+            GooCanvasItem *rect_prev = it->second;
+            if (GOO_IS_CANVAS_ITEM(rect_prev)) {
+               g_object_set(rect_prev, "fill_color", "grey95", NULL);
+            }
+         }
+      }
+      current_highlight_residue = residue_p;
+   }
+#endif HAVE_GOOCANVAS
+
 }
 
 

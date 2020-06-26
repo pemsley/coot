@@ -282,6 +282,8 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 
 }
 
+#include "nsv.hh"
+
 // direction is either "next" or "previous"
 // 
 int
@@ -296,7 +298,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    int resno = go_to_atom_residue();
    int imol = go_to_atom_molecule();
 
-   if (0) { 
+   if (false) {
       std::cout << "intelligent_near_atom_centring() " << direction << std::endl;
       std::cout << "intelligent_near_atom_centring() " << imol << std::endl;
       std::cout << "intelligent_near_atom_centring() :" << chain << ":" << std::endl;
@@ -358,10 +360,19 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 	 // Update the graphics (glarea widget):
 	 // 
 	 update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
-     // and show something in the statusbar
-     std::string ai;
-     ai = atom_info_as_text_for_statusbar(atom_index, imol);
-     add_status_bar_text(ai);
+         // and show something in the statusbar
+         std::string ai;
+         ai = atom_info_as_text_for_statusbar(atom_index, imol);
+         add_status_bar_text(ai);
+
+         mmdb::Residue *residue_p = next_atom->residue;
+         if (residue_p) {
+            GtkWidget *svc = get_sequence_view_is_displayed(imol);
+            if (svc) {
+               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+               nsv->highlight_residue(residue_p);
+            }
+         }
       }
    }
    return 1;
