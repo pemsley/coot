@@ -1,11 +1,11 @@
 
+#include <iostream>
 #define _USE_MATH_DEFINES
 #include <cmath>
 const double pi = M_PI;
 
-#include <iostream>
-#include "cylinder.hh"
-#define GLM_ENABLE_EXPERIMENTAL
+#include "g_triangle.hh"
+#include "cylinder-with-rotation-translation.hh"
 #include <glm/gtx/rotate_vector.hpp>
 
 // Make triangles for a cylinder along the z axis
@@ -13,21 +13,25 @@ const double pi = M_PI;
 // top_radius is currently ignored, cylinders only
 // This should have a less generic name.
 //
-cylinder::cylinder(const std::pair<glm::vec3, glm::vec3> &pos_pair,
-                   float base_radius, float top_radius, float height,
-                   unsigned int n_slices, unsigned int n_stacks) {
+cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std::pair<glm::vec3,
+                                                                       glm::vec3> &pos_pair,
+                                                                       float base_radius,
+                                                                       float top_radius,
+                                                                       float height,
+                                                                       unsigned int n_slices,
+                                                                       unsigned int n_stacks) {
 
-      // n_stacks*n_slices = 12
-      // cylinder_vertex vertices[12];
-      // n_triangles = n_stacks * n_slices * 2;
-      // tri_indices cylinder_indices[24];
+   // n_stacks*n_slices = 12
+   // cylinder_vertex vertices[12];
+   // n_triangles = n_stacks * n_slices * 2;
+   // tri_indices cylinder_indices[24];
 
    const glm::vec3 &start  = pos_pair.first;
    const glm::vec3 &finish = pos_pair.second;
    glm::vec3 b = finish - start;
    b = glm::normalize(b);
-   glm::vec3 normalized(b.x, b.y, b.z);
-   glm::mat4 ori = glm::orientation(normalized, glm::vec3(0.0, 0.0, 1.0));
+   glm::vec3 normalized_bond_orientation(b.x, b.y, b.z);
+   glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
 
    // std::cout << "ori " << glm::to_string(ori) << "\n";
 
@@ -61,13 +65,14 @@ cylinder::cylinder(const std::pair<glm::vec3, glm::vec3> &pos_pair,
                std::cout << "debug radii: " << i_stack << " " << base_radius << " "
                          << top_radius << " " << interpolated_radius << std::endl;
          glm::vec3 sp(x*interpolated_radius, y*interpolated_radius, z_this);
-         glm::vec3 t = start;
+         glm::vec3 t(start.x, start.y, start.z);
 
-         // vertex_with_rotation_translation &v = vertices[idx];
-         s_generic_vertex &v = vertices[idx];
+         vertex_with_rotation_translation &v = vertices[idx];
 
          v.pos = sp;
          v.normal = glm::vec3(x,y,0.0f);
+         v.model_rotation_matrix = glm::transpose(ori);
+         v.model_translation = t;
          idx++;
       }
    }

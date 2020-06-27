@@ -545,8 +545,9 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp =
          make_map_mesh();
 
-      graphical_molecule gm(vp.first, vp.second);
-      graphical_molecules.push_back(gm);
+      Mesh gm(vp);
+      meshes.push_back(gm);
+      // meshes.back().setup() here?                          
       
 
 /*
@@ -711,7 +712,8 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
                                      unsigned int n_x_axis_points,
                                      unsigned int n_y_axis_points) {
 
-   // this line is completely vital!
+   // this line is completely vital! - But do I want gtk_gl_area_attach_buffers(gl_area) ?
+   //
    gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
    GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
@@ -721,27 +723,34 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
 
    shader_p->Use();
    Material material;
-   graphical_molecule gm;
-   graphical_molecule gm_cap(map_cap.first, map_cap.second);
-   gm.setup_simple_triangles(shader_p, material);
-   graphical_molecules.push_back(gm);
-   graphical_molecules.push_back(gm_cap);
+
+   // What was I trying to do here?
+   // graphical_molecule gm;
+   // graphical_molecule gm_cap(map_cap.first, map_cap.second);
+   // gm.setup_simple_triangles(shader_p, material);
+   // graphical_molecules.push_back(gm);
+   // graphical_molecules.push_back(gm_cap);
+
+   Mesh gm_cap(map_cap);
+   meshes.push_back(gm_cap);
+   meshes.back().setup(shader_p, material);
    
 }
 
 
 // there are called molecular meshes now
 void
-molecule_class_info_t::graphical_molecules_draw_normals(const glm::mat4 &mvp) {
+molecule_class_info_t::mesh_draw_normals(const glm::mat4 &mvp) {
 
    bool do_all = false;
    // there are molecular meshes now
+   const float s = 0.1;
    if (do_all) {
-      for (unsigned int i=0; i<graphical_molecules.size(); i++) {
-         graphical_molecules[i].draw_normals(mvp);
+      for (unsigned int i=0; i<meshes.size(); i++) {
+         meshes[i].draw_normals(mvp, s);
       }
    } else {
-      graphical_molecules.back().draw_normals(mvp);
+      meshes.back().draw_normals(mvp, s);
    }
 }
 

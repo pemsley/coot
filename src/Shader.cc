@@ -2,18 +2,15 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <sys/stat.h>
 #include <epoxy/gl.h>
-#include <glm/gtc/type_ptr.hpp>
-#define GLM_ENABLE_EXPERIMENTAL 
-#include <glm/gtx/string_cast.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
 
 #include "Shader.hh"
 
 Shader::Shader() {
    program_id = 0; // unset
-   zoom_uniform_location = -999; // for debugging
-   map_opacity_uniform_location = -999;
 }
 
 Shader::Shader(const std::string &file_name, Shader::Entity_t e) {
@@ -50,11 +47,6 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    std::string::size_type pos = file_name.find_first_of(".shader");
    name = file_name;
    std::cout << "::: Shader compile " << file_name << std::endl;
-   bool file_exists = true; // fixme
-   if (! file_exists) {
-      std::cout << "WARNING:: Missing file " << file_name << std::endl;
-      return;
-   }
 
    entity_type = e;
    parse(file_name);
@@ -98,15 +90,15 @@ void
 Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
 
    GLuint err = glGetError();
-   if (err) std::cout << "set_bool_for_uniform() " << uniform_name << " start err " << err << std::endl;
+   if (err) std::cout << "error:: Shader::set_bool_for_uniform() " << uniform_name << " start err " << err << std::endl;
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
    // std::cout << "set_bool_for_uniform() got loc " << loc << std::endl;
    err = glGetError();
-   if (err) std::cout << "ERROR:: " << name << " set_bool_for_uniform() " << uniform_name << " A err "
+   if (err) std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " A err "
                       << err << std::endl;
    glUniform1i(loc, value);
    err = glGetError();
-   if (err) std::cout << "ERROR:: " << name << " set_bool_for_uniform() " << uniform_name << " B err "
+   if (err) std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " B err "
                       << err << std::endl;
 }
 
@@ -115,8 +107,7 @@ Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
 void
 Shader::Use() {
    GLuint err = glGetError();
-   if (err) std::cout << "Shader::Use() pre glUseProgram() " << name
-                      << " err " << err << std::endl;
+   if (err) std::cout << "Shader::Use() " << name << " pre glUseProgram() err " << err << std::endl;
    glUseProgram(program_id);
    err = glGetError();
    if (err) std::cout << "Shader::Use() " << name << " err " << err
@@ -125,6 +116,8 @@ Shader::Use() {
 
 void
 Shader::set_attribute_locations() {
+
+   // Is this needed? instanced-balls was working without it.
 
    if (entity_type == Entity_t::MODEL) {
       glBindAttribLocation(program_id, 0, "model_rotation_matrix_0");
@@ -140,10 +133,22 @@ Shader::set_attribute_locations() {
       glBindAttribLocation(program_id, 1, "normal");
       glBindAttribLocation(program_id, 2, "colour");
    }
-   if (entity_type == Entity_t::HUD_TEXT) {
-      glBindAttribLocation(program_id, 0, "vertex"); // 2 x 2 pos, texture
+   if (entity_type == Entity_t::GENERIC_DISPLAY_OBJECT) {
+      glBindAttribLocation(program_id, 0, "position");
+      glBindAttribLocation(program_id, 1, "normal");
+      glBindAttribLocation(program_id, 2, "colour");
+      glBindAttribLocation(program_id, 3, "model_translation");
    }
-   if (entity_type == Entity_t::TEXT_3D) { // atom label
+   if (entity_type == Entity_t::INSTANCED_DISPLAY_OBJECT) {
+      glBindAttribLocation(program_id, 0, "position");
+      glBindAttribLocation(program_id, 1, "normal");
+      glBindAttribLocation(program_id, 2, "colour");
+      glBindAttribLocation(program_id, 3, "model_rotation_translation_scale_0");
+      glBindAttribLocation(program_id, 4, "model_rotation_translation_scale_1");
+      glBindAttribLocation(program_id, 5, "model_rotation_translation_scale_2");
+      glBindAttribLocation(program_id, 6, "model_rotation_translation_scale_3");
+   }
+   if (entity_type == Entity_t::HUD_TEXT) {
       glBindAttribLocation(program_id, 0, "vertex"); // 2 x 2 pos, texture
    }
 }
@@ -165,6 +170,7 @@ Shader::glGetUniformLocation_internal(const std::string &key) {
          if (false)
             std::cout << "INFO/WARNING:: " << name << " can't get a uniform location for " << key << std::endl;
       uniform_location_map[key] = l;
+      // std::cout << "creating a new location for key " << key << " " << l << std::endl;
       return l;
    }
 }
@@ -175,6 +181,7 @@ void Shader::set_uniform_locations() {
    if (entity_type == Entity_t::MODEL ||
        entity_type == Entity_t::MAP ||
        entity_type == Entity_t::MOLECULAR_TRIANGLES ||
+       entity_type == Entity_t::INSTANCED_DISPLAY_OBJECT ||
        entity_type == Entity_t::GENERIC_DISPLAY_OBJECT) {
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 0: " << err << std::endl;
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
@@ -186,15 +193,6 @@ void Shader::set_uniform_locations() {
       eye_position_uniform_location = glGetUniformLocation_internal("eye_position");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 4: " << err << std::endl;
 
-      is_perspective_projection_uniform_location = glGetUniformLocation_internal("is_perspective_projection");
-      light_0_is_on_uniform_location = glGetUniformLocation_internal("light_0_is_on");
-      light_1_is_on_uniform_location = glGetUniformLocation_internal("light_1_is_on");
-      light_0_position_uniform_location = glGetUniformLocation_internal("light_0_position");
-      light_1_position_uniform_location = glGetUniformLocation_internal("light_1_position");
-      light_0_diffuse_colour_uniform_location = glGetUniformLocation_internal("light_0_diffuse_colour");
-      light_1_diffuse_colour_uniform_location = glGetUniformLocation_internal("light_1_diffuse_colour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5: " << err << std::endl;
-
       // the compiler can "throw these away" 4294967295 if they are not used in the fragment shader (it optimizes)
       if (false)
          std::cout << "debug:: set_uniform_locations() mvp: "
@@ -205,10 +203,6 @@ void Shader::set_uniform_locations() {
    }
    if (entity_type == Entity_t::MOLECULAR_TRIANGLES) {
       set_more_uniforms_for_molecular_triangles();
-   }
-   if (entity_type == Entity_t::MAP) {
-      map_opacity_uniform_location = glGetUniformLocation_internal("map_opacity");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 1b: " << err << std::endl;
    }
    if (entity_type == Entity_t::INFRASTRUCTURE) {
       mvp_uniform_location           = glGetUniformLocation_internal("mvp");
@@ -223,18 +217,6 @@ void Shader::set_uniform_locations() {
    if (entity_type == Entity_t::HUD_TEXT) {
       hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5d: " << err << std::endl;
-   }
-   if (entity_type == Entity_t::TEXT_3D) {
-      atom_label_projection_uniform_location           = glGetUniformLocation_internal("projection"); // may change
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6a: " << err << std::endl;
-      atom_label_textColour_uniform_location           = glGetUniformLocation_internal("textColour");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6b: " << err << std::endl;
-   }
-   if (entity_type == Entity_t::SCREEN) {
-      zoom_uniform_location = glGetUniformLocation_internal("zoom");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 7a: " << err << std::endl;
-      is_perspective_projection_uniform_location = glGetUniformLocation_internal("is_perspective_projection");
-      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 7b: " << err << std::endl;
    }
 }
 
@@ -358,8 +340,11 @@ unsigned int Shader::create() const {
 }
 
 void
-Shader::setup_light(unsigned int light_index, const gl_lights_info_t &light,
-                    const glm::mat4 &wrtm) {
+Shader::setup_light(unsigned int light_index, const lights_info_t &light,
+                    const glm::mat4 &vrm) {
+
+   GLenum err = glGetError();
+   if (err) std::cout << "error setup_light() " << name << " -- start -- " << err << std::endl;
 
    std::string s = "light_sources[" + std::to_string(light_index) + std::string("]");
    std::string a;
@@ -377,19 +362,28 @@ Shader::setup_light(unsigned int light_index, const gl_lights_info_t &light,
    // world is rotated by the mouse (analogous to the eye position, which also
    // moves in the world coordinates when the view is rotated by the mouse
 
-   glm::mat4 iwrtm = glm::inverse(wrtm);
-   glm::vec4 p4 = light.position * iwrtm;
-   glm::vec4 p3 = p4 / p4.w;
+   glm::mat4 ivrm = glm::inverse(vrm);
+   glm::vec4 p4   = glm::vec4(light.direction,1.0) * vrm;
+   glm::vec4 p4_i = glm::vec4(light.direction,1.0) * ivrm;
+   glm::vec4 p4_wc(glm::vec3(p4_i / p4_i.w), 1.0);
 
-   p3 = light.position;
-   p3.z = 1;
-   p3.x = 1;
+   err = glGetError();
+   if (err) std::cout << "error setup_light() " << name << " A " << err << std::endl;
 
-   std::cout << "sending light position "  << glm::to_string(p3) << std::endl;
+   if (false)
+      std::cout << "sending light direction_in_molecule_coordinates_space orig: "
+                << glm::to_string(light.direction) << " now: "
+                << glm::to_string(glm::vec3(p4)) << std::endl;
 
-   // std::cout << "lights: using wrm "  << glm::to_string(wrm) << std::endl;
+   a = s + ".direction";
+   set_vec3_for_uniform(a, light.direction);
 
-   a = s + ".position";
-   set_vec4_for_uniform(a, p3);
+   err = glGetError();
+   if (err) std::cout << "error setup_light() " << name << " B " << err << std::endl;
+
+   a = s + ".direction_in_molecule_coordinates_space";
+   set_vec3_for_uniform(a, glm::vec3(p4));
+   err = glGetError();
+   if (err) std::cout << "error setup_light() " << name << " -- end -- " << err << std::endl;
 
 }

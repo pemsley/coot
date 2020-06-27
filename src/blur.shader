@@ -28,6 +28,7 @@ uniform sampler2D screenDepth;
 uniform float zoom;
 uniform bool is_perspective_projection;
 uniform bool do_depth_blur;
+uniform bool do_outline;
 
 layout(location = 0) out vec4 out_color;
 
@@ -92,7 +93,7 @@ vec3 sampling_blur(int n_pixels_max) {
                if (abs(ix) < 3 && abs(iy) < 3) {
                   float md = float(abs(ix) + abs(iy));
                   if (md == 0) md = 0.5; // was 0.5
-                  float w = 1.0 + 1.0 / md;
+                  float w = 0.2 + 1.0 / md;
                   sum_inner += w * colour_ij;
                   n_inner_neighbs++;
                   w_inner_neighbs += w;
@@ -157,9 +158,9 @@ void main() {
 
    vec3 result = vec3(0,0,0);
 
-   bool do_outline    = false;
+   // bool do_outline    = false;  this is passed now.
 
-   if (do_depth_blur) {
+   if (do_depth_blur && ! do_outline) {
       result = sampling_blur(8); // 14 is good
    } else {
       if (do_outline) {
@@ -167,7 +168,7 @@ void main() {
       } else {
          float depth_centre = texture(screenDepth, TexCoords).x;
          result = texture(screenTexture, TexCoords).rgb; // don't blur
-         if (zoom < 2.0)
+         if (zoom < 0.02)
             if (depth_centre > 0.99)
                result = vec3(0.1, 0.3, 0.1);
       }

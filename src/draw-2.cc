@@ -23,6 +23,7 @@
 
 #include "text-rendering-utils.hh"
 #include "cc-interface-scripting.hh"
+#include "cylinder-with-rotation-translation.hh"
 
 // header
 // glm::mat4 get_view_rotation();
@@ -370,51 +371,35 @@ graphics_info_t::get_view_rotation() {
 
 
 void
-graphics_info_t::setup_map_uniforms(const Shader &shader,
+graphics_info_t::setup_map_uniforms(Shader *shader_p,
                                     const glm::mat4 &mvp,
                                     const glm::mat4 &view_rotation,
                                     float density_surface_opacity) {
 
-   glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    GLenum err = glGetError();
    if (err) std::cout << "   setup_map_uniforms() glUniformMatrix4fv() mvp " << err << std::endl;
-   glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
    err = glGetError();
    if (err) std::cout << "   setup_map_uniforms() glUniformMatrix4fv() vr  " << err << std::endl;
 
-   GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
+   GLuint background_colour_uniform_location = shader_p->background_colour_uniform_location;
    glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
    glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
    err = glGetError();
    if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for bg  " << err << std::endl;
 
-   // opacity: (I can't get this to work for lines)
-   GLuint opacity_uniform_location = shader.map_opacity_uniform_location;
-   float opacity = density_surface_opacity;
-   glUniform1f(opacity_uniform_location, opacity);
+   // GLuint opacity_uniform_location = shader.map_opacity_uniform_location;
+   shader_p->set_float_for_uniform("map_opacity", density_surface_opacity);
    err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniformf() for opacity "
                                           << err << std::endl;
 
-   GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
+   GLuint eye_position_uniform_location = shader_p->eye_position_uniform_location;
    glm::vec4 ep = glm::vec4(get_world_space_eye_position(), 1.0);
    glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
    err = glGetError(); if (err) std::cout << "   setup_map_uniforms() glUniform4fv() for eye position "
                                           << err << std::endl;
 
-   // lights
-   std::map<unsigned int, gl_lights_info_t>::const_iterator it;
-   it = graphics_info_t::lights.find(0);
-   if (it != graphics_info_t::lights.end()) {
-      const gl_lights_info_t &light = it->second;
-      glUniform1i(shader.light_0_is_on_uniform_location, light.is_on);
-      glUniform4fv(shader.light_0_position_uniform_location, 1, glm::value_ptr(light.position));
-   }
-   it = graphics_info_t::lights.find(1);
-   if (it != graphics_info_t::lights.end()) {
-      const gl_lights_info_t &light = it->second;
-      glUniform1i(shader.light_1_is_on_uniform_location, light.is_on);
-      glUniform4fv(shader.light_1_position_uniform_location, 1, glm::value_ptr(light.position));
-   }
 }
 
 
@@ -462,6 +447,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       glm::vec3 ep3 = ep/ep.w;
 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+
          molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          if (! m.draw_it_for_map) continue;
@@ -471,17 +457,29 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
          if (m.n_vertices_for_map_VertexArray > 0) {
 
+            err = glGetError(); if (err) std::cout << "   draw_map_molecules() --- map start --- error " << std::endl;
+
             bool draw_with_lines = true;
             if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
 
-            glUniform1i(shader.is_perspective_projection_uniform_location,
-                        graphics_info_t::perspective_projection_flag);
+            //glUniform1i(shader.is_perspective_projection_uniform_location,
+            // graphics_info_t::perspective_projection_flag);
+            shader.set_bool_for_uniform("is_perspective_projection", perspective_projection_flag);
             err = glGetError(); if (err) std::cout << "   draw_map_molecules() error B " << std::endl;
 
             shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::shader_do_depth_fog_flag);
             shader.set_bool_for_uniform("do_diffuse_lighting", true);
             shader.set_float_for_uniform("shininess", m.shader_shininess);
             shader.set_float_for_uniform("specular_strength", m.shader_specular_strength);
+
+            // --- lights ----
+
+            std::map<unsigned int, lights_info_t>::const_iterator it; // iterate over the lights map
+            for (it=lights.begin(); it!=lights.end(); it++) {
+               unsigned int light_idx = it->first;
+               const lights_info_t &light = it->second;
+               shader.setup_light(light_idx, light, view_rotation);
+            }
 
             if (draw_with_lines) {
                // I don't see why this is needed - but it is.
@@ -496,7 +494,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
-               setup_map_uniforms(shader, mvp, view_rotation, m.density_surface_opacity);
+               setup_map_uniforms(&shader, mvp, view_rotation, m.density_surface_opacity);
                glDrawElements(GL_LINES, m.n_vertices_for_map_VertexArray,
                               GL_UNSIGNED_INT, nullptr);
                err = glGetError();
@@ -541,9 +539,10 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
                // opacity:
-               GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
-               float opacity = m.density_surface_opacity;
-               glUniform1f(opacity_uniform_location, opacity);
+               // GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
+               // float opacity = m.density_surface_opacity;
+               // glUniform1f(opacity_uniform_location, opacity);
+               shader.set_float_for_uniform("map_opacity", m.density_surface_opacity);
                err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
                                                       << err << std::endl;
 
@@ -599,8 +598,9 @@ graphics_info_t::draw_model_molecules() {
          GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
                                                        << err << std::endl;
 
-         glUniform1i(shader.is_perspective_projection_uniform_location,
-                     graphics_info_t::perspective_projection_flag);
+         // glUniform1i(shader.is_perspective_projection_uniform_location,
+         // graphics_info_t::perspective_projection_flag);
+         shader.set_bool_for_uniform("is_perspective_projection", perspective_projection_flag);
 
          glBindVertexArray(m.m_VertexArray_for_model_ID);
          err = glGetError();
@@ -623,7 +623,9 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
          glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation " << err << std::endl;
+         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation "
+                            << err << std::endl;
+
          // std::cout << glm::to_string(mvp) << std::endl;
          // std::cout << glm::to_string(view_rotation) << std::endl;
 
@@ -640,30 +642,35 @@ graphics_info_t::draw_model_molecules() {
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
 
          shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::shader_do_depth_fog_flag);
-         shader.set_bool_for_uniform("do_diffuse_lighting", true); // false for demo c.f. old styple graphics
+         shader.set_bool_for_uniform("do_diffuse_lighting", true); // false for demo c.f. old style graphics
 
-         // lights
-         std::map<unsigned int, gl_lights_info_t>::const_iterator it;
-         it = graphics_info_t::lights.find(0);
-         if (it != graphics_info_t::lights.end()) {
-            const gl_lights_info_t &light = it->second;
-            glUniform1i(shader.light_0_is_on_uniform_location, light.is_on);
-            glUniform4fv(shader.light_0_position_uniform_location, 1, glm::value_ptr(light.position));
-         }
-         it = graphics_info_t::lights.find(1);
-         if (it != graphics_info_t::lights.end()) {
-            const gl_lights_info_t &light = it->second;
-            glUniform1i(shader.light_1_is_on_uniform_location, light.is_on);
-            glUniform4fv(shader.light_1_position_uniform_location, 1, glm::value_ptr(light.position));
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() pre-lights glDrawElements() "
+                            << shader.name << " with err " << err << std::endl;
+
+         // --- lights ----
+
+         std::map<unsigned int, lights_info_t>::const_iterator it; // iterate over the lights map
+         for (it=lights.begin(); it!=lights.end(); it++) {
+            unsigned int light_idx = it->first;
+            const lights_info_t &light = it->second;
+            shader.setup_light(light_idx, light, view_rotation);
          }
 
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() post-lights glDrawElements() "
+                            << shader.name << " with err " << err << std::endl;
+ 
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
          // std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
+         err = glGetError();
+         if (err) std::cout << "   error pre draw_model_molecules() glDrawElements() " << shader.name
+                            << " n_vertices " << n_verts << " with GL err " << err << std::endl;
          glDrawElements(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glDrawElements() "
-                            << n_verts << " with GL err " << err << std::endl;
+         if (err) std::cout << "   error draw_model_molecules() glDrawElements() " << shader.name
+                            << " n_vertices " << n_verts << " with GL err " << err << std::endl;
 
          draw_molecule_atom_labels(m, mvp, view_rotation);
 
@@ -847,8 +854,9 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       unsigned int     *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
       unsigned int     *flat_indices_start = flat_indices;
       unsigned int ifi = 0; // index into flat indices - running
-      generic_vertex *vertices = new generic_vertex[n_vertices_for_atom_pull_restraints];
-      generic_vertex *vertices_start = vertices;
+      vertex_with_rotation_translation *vertices =
+         new vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
+      vertex_with_rotation_translation *vertices_start = vertices;
       unsigned int iv = 0; // index into vertices - running
 
       for (std::size_t i=0; i<atom_pulls.size(); i++) {
@@ -860,42 +868,53 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
                float arrow_head_length = 0.2;
 
                mmdb::Atom *at = moving_atoms_asc->atom_selection[spec.second];
-               coot::Cartesian pt_start_c(at->x, at->y, at->z);
-               coot::Cartesian pt_end_c(atom_pull.pos.x(), atom_pull.pos.y(), atom_pull.pos.z());
-               coot::Cartesian b = pt_end_c - pt_start_c;
-               float bl_pull = b.length();
+
+               // coot::Cartesian pt_start_c(at->x, at->y, at->z);
+               // coot::Cartesian pt_end_c(atom_pull.pos.x(), atom_pull.pos.y(), atom_pull.pos.z());
+               // coot::Cartesian b = pt_end_c - pt_start_c;
+
+               glm::vec3 pt_start_g(at->x, at->y, at->z);
+               glm::vec3 pt_end_g(atom_pull.pos.x(), atom_pull.pos.y(), atom_pull.pos.z());
+               glm::vec3 b = pt_end_g - pt_start_g;
+
+               float bl_pull = glm::distance(b, glm::vec3(0,0,0));
                float bl = bl_pull - arrow_head_length;
                if (arrow_head_length > bl_pull)
                   arrow_head_length = bl_pull;
-               coot::Cartesian b_uv = b.unit();
+               glm::vec3 b_uv = glm::normalize(b);
                float bl_stick = bl_pull - arrow_head_length;
                if (bl_stick < 0.0) bl_stick = 0.0;
 
-               coot::Cartesian meeting_point = pt_start_c + b_uv * bl_stick;
-               coot::CartesianPair pos_pair(pt_start_c, meeting_point);
+               // coot::Cartesian meeting_point = pt_start_c + b_uv * bl_stick;
+               // coot::CartesianPair pos_pair(pt_start_c, meeting_point);
+               glm::vec3 meeting_point = pt_start_g + b_uv * bl_stick;
+               std::pair<glm::vec3, glm::vec3> pos_pair(pt_start_g, meeting_point);
                float radius = 0.1;
 
-               cylinder c(pos_pair, radius, radius, bl, n_slices, n_stacks);
+               cylinder_with_rotation_translation c(pos_pair, radius, radius, bl, n_slices, n_stacks);
                for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {
-                  flat_indices[ifi  ] = c.triangle_indices_vec[j].idx[0]+iv;
-                  flat_indices[ifi+1] = c.triangle_indices_vec[j].idx[1]+iv;
-                  flat_indices[ifi+2] = c.triangle_indices_vec[j].idx[2]+iv;
+                  flat_indices[ifi  ] = c.triangle_indices_vec[j].point_id[0]+iv;
+                  flat_indices[ifi+1] = c.triangle_indices_vec[j].point_id[1]+iv;
+                  flat_indices[ifi+2] = c.triangle_indices_vec[j].point_id[2]+iv;
                   ifi += 3;
                }
                for (std::size_t j=0; j<c.vertices.size(); j++) {
+                  // Use a constructor here when hmt code has been correctly integrated
                   vertices[iv] = c.vertices[j];
                   vertices[iv].colour = glm::vec4(0.8, 0.5, 0.3, 1.0);
                   iv++;
                }
 
-               coot::CartesianPair pp(pt_end_c, meeting_point);
-               std::cout << "arrow-head: " << radius << " " << arrow_head_length << std::endl;
-               cylinder c_arrow_head(pp, 2.0 * radius, 0.0, arrow_head_length, n_slices, n_stacks_for_arrow_tip);
+               // coot::CartesianPair pp(pt_end_c, meeting_point);
+               std::pair<glm::vec3, glm::vec3> pp(pt_end_g, meeting_point);
+               // std::cout << "arrow-head: " << radius << " " << arrow_head_length << std::endl;
+               cylinder_with_rotation_translation c_arrow_head(pp, 2.0 * radius, 0.0, arrow_head_length,
+                                                               n_slices, n_stacks_for_arrow_tip);
                for (std::size_t j=0; j<c_arrow_head.triangle_indices_vec.size(); j++) {
                   if (ifi < n_triangles_for_atom_pull_restraints * 3) {
-                     flat_indices[ifi  ] = c_arrow_head.triangle_indices_vec[j].idx[0]+iv;
-                     flat_indices[ifi+1] = c_arrow_head.triangle_indices_vec[j].idx[1]+iv;
-                     flat_indices[ifi+2] = c_arrow_head.triangle_indices_vec[j].idx[2]+iv;
+                     flat_indices[ifi  ] = c_arrow_head.triangle_indices_vec[j].point_id[0]+iv;
+                     flat_indices[ifi+1] = c_arrow_head.triangle_indices_vec[j].point_id[1]+iv;
+                     flat_indices[ifi+2] = c_arrow_head.triangle_indices_vec[j].point_id[2]+iv;
                   } else {
                      std::cout << "ERROR:: indexing for c_arrow_head "
                                << ifi << " " << n_triangles_for_atom_pull_restraints << std::endl;
@@ -929,9 +948,9 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       err = glGetError();
       if (err) std::cout << "   error setup_atom_pull_restraints_glsl() D"
                           << " with GL err " << err << std::endl;
-      GLuint n_bytes = sizeof(generic_vertex) * n_vertices_for_atom_pull_restraints;
+      GLuint n_bytes = sizeof(vertex_with_rotation_translation) * n_vertices_for_atom_pull_restraints;
       // maybe STATIC_DRAW, maybe not
-      glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, n_bytes, vertices, GL_DYNAMIC_DRAW);
       err = glGetError();
       if (err) std::cout << "   error setup_atom_pull_restraints_glsl() E"
                           << " with GL err " << err << std::endl;
@@ -941,13 +960,13 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
       err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
-      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
 
@@ -955,28 +974,28 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(3);
 
       // surely this (annd below) has been set-up already? -- CheckMe.
-      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(3 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17aa\n";
 
       // positions, 4, size 3 floats
       glEnableVertexAttribArray(4);
       err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
-      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
 
       //  normals, 5, size 3 floats
       glEnableVertexAttribArray(5);
       err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
-      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
 
       //  colours, 6, size 4 floats
       glEnableVertexAttribArray(6);
       err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
-      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(generic_vertex),
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
       err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
@@ -991,7 +1010,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       n_bytes = n_triangles_for_atom_pull_restraints * 3 * sizeof(unsigned int);
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, flat_indices, GL_STATIC_DRAW);
       err = glGetError();
-      std::cout << "info:: setup_atom_pull_restraints_glsl() err " << err << std::endl;
+      if (err) std::cout << "setup_atom_pull_restraints_glsl() --end-- err " << err << std::endl;
 
       delete [] flat_indices;
       delete [] vertices;
@@ -1123,7 +1142,7 @@ graphics_info_t::draw_molecules() {
 
    draw_map_molecules(false); // transparency
 
-   draw_graphical_molecules(); // get a better name
+   draw_meshes(); // get a better name
 
    // transparent things...
 
@@ -1132,7 +1151,7 @@ graphics_info_t::draw_molecules() {
 }
 
 void
-graphics_info_t::draw_graphical_molecules() {
+graphics_info_t::draw_meshes() {
 
    bool draw_meshes = false;
    bool draw_mesh_normals = true;
@@ -1140,19 +1159,17 @@ graphics_info_t::draw_graphical_molecules() {
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation();
+   glm::vec4 bg_col(background_colour, 1.0);
+
+   bool do_depth_fog = true;
 
    if (draw_meshes) {
       for (int ii=n_molecules()-1; ii>=0; ii--) {
          molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
          if (! is_valid_map_molecule(ii)) continue;
-         for (unsigned int jj=0; jj<m.graphical_molecules.size(); jj++) {
-            if (! is_valid_map_molecule(ii)) continue;
-            if (! m.draw_it_for_map) continue;
-
-            if (false)
-               m.graphical_molecules[jj].draw(&shader_for_map_caps, mvp,
-                                              view_rotation, view_rotation,
-                                              lights, eye_position);
+         for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
+            m.meshes[jj].draw(&shader_for_map_caps, mvp,
+                              view_rotation, lights, eye_position, bg_col, do_depth_fog);
          }
          glUseProgram(0);
       }
@@ -1162,9 +1179,7 @@ graphics_info_t::draw_graphical_molecules() {
       if (draw_normals_flag) {
          for (int ii=n_molecules()-1; ii>=0; ii--) {
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-            if (! is_valid_map_molecule(ii)) continue;
-            if (! m.draw_it_for_map) continue;
-            m.graphical_molecules_draw_normals(mvp);
+            m.mesh_draw_normals(mvp);
          }
       }
    }
@@ -1267,11 +1282,13 @@ graphics_info_t::setup_lights() {
 
    // not your old style lights
 
-   gl_lights_info_t light;
+   lights_info_t light;
    light.position = glm::vec4(-2.0f, -1.0f, 5.0f, 1.0f);
+   light.direction = glm::normalize(glm::vec3(0,0,1));
    graphics_info_t::lights[0] = light;
    light.position = glm::vec4( 3.0f, -2.0f, 4.0f, 1.0f);
-   graphics_info_t::lights[1] = light;
+   light.direction = glm::normalize(glm::vec3(1,0,0));
+   // graphics_info_t::lights[1] = light;
 }
 
 void
@@ -1451,10 +1468,11 @@ graphics_info_t::render(GtkGLArea *glarea) {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       Shader &shader = graphics_info_t::shader_for_blur;
 
-      glUniform1f(shader.zoom_uniform_location, graphics_info_t::zoom);
+      shader.set_float_for_uniform("zoom", zoom);
+      // glUniform1f(shader.zoom_uniform_location, graphics_info_t::zoom);
       err = glGetError(); if (err) std::cout << "on_glarea_render() blur-A err " << err << std::endl;
-      glUniform1i(shader.is_perspective_projection_uniform_location,
-                  perspective_projection_flag);
+      // glUniform1i(shader.is_perspective_projection_uniform_location, perspective_projection_flag);
+      shader.set_bool_for_uniform("is_perspective_projection", perspective_projection_flag);
       err = glGetError(); if (err) std::cout << "   on_glarea_render() blur-A2 error " << std::endl;
 
       GLuint pid = graphics_info_t::shader_for_blur.get_program_id();

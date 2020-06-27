@@ -419,6 +419,8 @@ coot_bin_SOURCES = \
         curlew.hh                \
 	cylinder.hh		 \
 	cylinder.cc		 \
+	cylinder-with-rotation-translation.hh	 \
+	cylinder-with-rotation-translation.cc	 \
 	data-pair-remover.hh     \
         density-results-container-t.hh \
         dots-representation.hh   \
@@ -449,8 +451,6 @@ coot_bin_SOURCES = \
 	globjects.h gl-matrix.h  \
 	globularize.cc           \
 	globularize.hh           \
-	graphical-molecule.cc    \
-	graphical-molecule.hh    \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
 	graphics-info-graphs.cc	 \
@@ -500,6 +500,7 @@ coot_bin_SOURCES = \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
         map-statistics.hh        \
+	Mesh.cc Mesh.hh          \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
@@ -528,10 +529,13 @@ coot_bin_SOURCES = \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
+	oct.cc oct.hh            \
 	pisa-interface.hh	 \
         pick.hh pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
+	prideout-octasphere.hh   \
+	prideout-octasphere.cc   \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
@@ -539,6 +543,7 @@ coot_bin_SOURCES = \
 	python-classes.cc	 \
 	python-classes.hh	 \
 	python-3-interface.hh 	 \
+	Particle.cc Particle.hh  \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \

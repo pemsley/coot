@@ -131,7 +131,7 @@ struct FT_character {
 
 #include "framebuffer.hh"
 
-#include "gl-lights-info.hh"
+#include "lights-info.hh"
 
 // #include "Transform.hh"
 // #include "Camera.hh"
@@ -4103,7 +4103,7 @@ string   static std::string sessionid;
    static glm::vec4 unproject(float x, float y, float z);
    static glm::vec3 unproject_to_world_coordinates(const glm::vec3 &projected_coords);
    static glm::mat4 get_view_rotation();
-   static void setup_map_uniforms(const Shader &shader, // in the draw loop
+   static void setup_map_uniforms(Shader *shader_p, // in the draw loop
                                   const glm::mat4 &mvp,
                                   const glm::mat4 &view_rotation,
                                   float density_surface_opacity);
@@ -4116,7 +4116,7 @@ string   static std::string sessionid;
                                          const glm::mat4 &view_rotation);
    static void draw_molecular_triangles();
    static void draw_molecules();
-   static void draw_graphical_molecules();
+   static void draw_meshes();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
@@ -4231,7 +4231,7 @@ string   static std::string sessionid;
 
    // Lights
    //
-   static std::map<unsigned int, gl_lights_info_t> lights;
+   static std::map<unsigned int, lights_info_t> lights;
 };
 
 

@@ -4,14 +4,14 @@
 
 // We can think about a more efficient interface when this one works
 //
-std::pair<std::vector<generic_vertex>, std::vector<tri_indices> >
+std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const {
 
    float sphere_radius = 0.105; // how big should atoms be?
    // atom_scale = 1.45;
 
-   std::vector<generic_vertex> v1;
-   std::vector<tri_indices> v2;
+   std::vector<vertex_with_rotation_translation> v1;
+   std::vector<g_triangle> v2;
 
    bool against_a_dark_background = true;
    pentakis_dodec d(1.0);
@@ -31,7 +31,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
 
             for (unsigned int i=0; i<20; i++) { // dodec vertices
                const clipper::Coord_orth &pt = d.d.get_point(i);
-               generic_vertex gv;
+               vertex_with_rotation_translation gv;
                gv.model_rotation_matrix = glm::mat3(1.0f); // identity
                gv.model_translation = glm::vec3(sphere_radius * sphere_scale * pt.x(),
                                                 sphere_radius * sphere_scale * pt.y(),
@@ -44,7 +44,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
 
             for (unsigned int i=0; i<12; i++) { // dodec faces
                const clipper::Coord_orth &pv = d.pyrimid_vertices[i];
-               generic_vertex gv;
+               vertex_with_rotation_translation gv;
                gv.model_rotation_matrix = glm::mat3(1.0f); // identity
                gv.model_translation = glm::vec3(sphere_radius * sphere_scale * pv.x(),
                                                 sphere_radius * sphere_scale * pv.y(),
@@ -67,7 +67,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
                   unsigned int t_idx_1 = 32 * atom_idx + f_indices[j];
                   unsigned int t_idx_2 = 32 * atom_idx + f_indices[j_next];
                   unsigned int t_idx_3 = 32 * atom_idx + 20 + i;
-                  tri_indices t(t_idx_1, t_idx_2, t_idx_3);
+                  g_triangle t(t_idx_1, t_idx_2, t_idx_3);
                   v2.push_back(t);
                }
             }
@@ -75,5 +75,5 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
          }
       }
    }
-   return std::pair<std::vector<generic_vertex>, std::vector<tri_indices> >(v1, v2);
+   return std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >(v1, v2);
 }

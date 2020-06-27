@@ -47,7 +47,7 @@ glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
 float graphics_info_t::screen_z_near_perspective =  83.0;
 float graphics_info_t::screen_z_far_perspective  = 125.0;
 
-std::map<unsigned int, gl_lights_info_t> graphics_info_t::lights;
+std::map<unsigned int, lights_info_t> graphics_info_t::lights;
 
 molecule_class_info_t graphics_info_t::moving_atoms_molecule;
 

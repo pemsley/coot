@@ -261,7 +261,7 @@ namespace coot {
 
 #include "cylinder.hh"
 
-#include "graphical-molecule.hh"
+#include "Mesh.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -2922,7 +2922,8 @@ public:        //                      public
    // new
    void post_process_map_triangles();
    void setup_glsl_map_rendering();
-   std::pair<std::vector<generic_vertex>, std::vector<tri_indices> > make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
 
    GLuint m_VertexArrayID_for_map;
    GLuint m_VertexArrayID_for_map_cap;
@@ -2977,7 +2978,7 @@ public:        //                      public
                      const glm::mat4 &mvp,
                      const glm::mat4 &world_rotation_matrix,
                      const glm::mat4 &world_rotation_translation_matrix,
-                     const std::map<unsigned int, gl_lights_info_t> &lights,
+                     const std::map<unsigned int, lights_info_t> &lights,
                      const glm::vec3 &eye_position);
 
    // non molecular mesh
@@ -2986,7 +2987,7 @@ public:        //                      public
 
    // uses molecular meshes/graphical molecules
    void draw_normals(const glm::mat4 &mvp); // defunct now I think
-   void graphical_molecules_draw_normals(const glm::mat4 &mvp);
+   void mesh_draw_normals(const glm::mat4 &mvp);
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_map_mesh();
 
@@ -3400,7 +3401,7 @@ public:        //                      public
 
    coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
 
-   std::vector<graphical_molecule> graphical_molecules; // find a better name
+   std::vector<Mesh> meshes;
 
 };
 
