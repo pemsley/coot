@@ -1082,6 +1082,8 @@ public:
    static short int do_lighting_flag;
    static bool do_flat_shading_for_solid_density_surface;
 
+   static bool sequence_view_is_docked_flag;
+
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
    void draw_anti_aliasing();
@@ -2103,6 +2105,7 @@ public:
    // sequence view
    static GtkWidget **sequence_view_is_displayed;
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
+   GtkWidget * get_sequence_view_is_displayed(int imol) const;
    static int nsv_canvas_pixel_limit;
 
    // Geometry Graphs:
@@ -2440,7 +2443,8 @@ public:
 				     const std::string &res_type,
 				     short int immediate_addition_flag);
    void execute_simple_nucleotide_addition(int imol, const std::string &term_type,
-					   mmdb::Residue *res_p, const std::string &chain_id);
+                                           mmdb::Residue *res_p, const std::string &chain_id);
+   void execute_simple_nucleotide_addition(int imol, const std::string &chain_id, int res_no);
 
    static short int add_terminal_residue_immediate_addition_flag;
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
@@ -3085,7 +3089,7 @@ public:
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
-   short int rotate_intermediate_atoms_maybe(short int axis, double angle);
+   short int rotate_intermediate_atoms_maybe(unsigned int widget_height, unsigned int widget_width);
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
    // axis: 0 for Z, 1 for X.

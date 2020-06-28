@@ -702,7 +702,7 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
 
 		  if (with_nbcs)
 		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-		  
+
 		  unsigned int n_threads = coot::get_max_number_of_threads();
 		  if (n_threads > 0)
 		     restraints.thread_pool(&static_thread_pool, n_threads);
@@ -1414,8 +1414,8 @@ graphics_info_t::density_fit_graphs(int imol) {
 	    int imol_for_map = Imol_Refinement_Map();
 	    if (imol_for_map == -1)
 	       show_select_map_dialog();
-        // maybe we have it now?!
-        imol_for_map = Imol_Refinement_Map();
+            // maybe we have it now?!
+            imol_for_map = Imol_Refinement_Map();
 	    if (imol_for_map > -1) {
 	       // std::cout << "DEBUG:: starting" << std::endl;
 	       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
@@ -1434,8 +1434,7 @@ graphics_info_t::density_fit_graphs(int imol) {
 	       } else {
 		  for (int imodel = 1; imodel <= n_models; imodel++) {
 		     mmdb::Model *model_p = mol->GetModel(imodel);
-		     mmdb::Chain *chain_p;
-		     const char *chain_id;
+                     if (! model_p) continue;
 		     int n_chains = model_p->GetNumberOfChains();
 		     coot::geometry_graphs *graphs =
 			new coot::geometry_graphs(coot::GEOMETRY_GRAPH_DENSITY_FIT,
@@ -1447,12 +1446,12 @@ graphics_info_t::density_fit_graphs(int imol) {
 		     set_validation_graph(imol, coot::GEOMETRY_GRAPH_DENSITY_FIT, graphs->dialog());
 
 		     for (int ich=0; ich<n_chains; ich++) {
-			chain_p = model_p->GetChain(ich);
-			chain_id = chain_p->GetChainID();
+                        mmdb::Chain *chain_p = model_p->GetChain(ich);
+			const char *chain_id = chain_p->GetChainID();
 			std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
 			if (m.first) {
 			   int offset = m.second - 1;
-			   int selHnd = mol->NewSelection();
+			   int selHnd = mol->NewSelection(); // d
 			   mmdb::PResidue *SelResidues = NULL;
 			   int nSelResidues;
 
@@ -1584,7 +1583,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 					   int imol_for_map) const {
 
    std::vector<coot::geometry_graph_block_info_generic> v;
-   float distortion_max = 100.0;
+   float distortion_max = 132.0;
    if (nSelResidues > 0) {
       int max_resno = -9999;
       double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap);

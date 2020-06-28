@@ -3846,6 +3846,11 @@ void set_show_environment_distances_as_solid(int state);
 /*! \brief Label the atom on Environment Distances start/change */
 void set_environment_distances_label_atom(int state);
 
+/*! \brief Label the atoms in the residues around the central residue */
+void label_neighbours();
+
+
+
 /*! \brief Add a geometry distance between points in a given molecule
 
 @return the distance between the points
@@ -5023,7 +5028,13 @@ residue type can be "auto" and immediate_add is recommended to be 1.
 
 @return 0 on failure, 1 on success */
 int add_terminal_residue(int imol, const char *chain_id, int residue_number,
-			 const char *residue_type, int immediate_add);
+                          const char *residue_type, int immediate_add);
+
+/*! \brief Add a terminal nucleotide
+
+No fitting is done
+*/
+int add_nucleotide(int imol, const char *chain_id, int res_no);
 
 
 /*! \brief Add a terminal residue using given phi and psi angles
@@ -7092,13 +7103,22 @@ void set_show_graphics_ligand_view(int state);
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
+
+/*!  \brief display the sequence view for molecule number imol */
 void nsv(int imol);
+/*!  \brief control where the sequence view is displayed
+
+in the main application or a new dialog */
+void set_sequence_view_is_docked(short int state);
+
+/*!  \brief set the pixel limit for sequence view windows */
 void set_nsv_canvas_pixel_limit(int cpl);
 
 void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
 
+/*!  \brief display the ligand builder dialog */
 void start_ligand_builder_gui();
 
 #ifdef __cplusplus

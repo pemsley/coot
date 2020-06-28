@@ -178,7 +178,8 @@ test_segmap_SOURCES = test-segmap.cc
 test_segmap_LDADD = \
         ./libcoot-map-utils.la \
 	./libcoot-map-heavy.la \
-	$(top_builddir)/coords/libcoot-coords.la
+	$(top_builddir)/coords/libcoot-coords.la \
+	$(CLIPPER_LIBS) -lpthread
 
 # other test binaries may need to be linked like this too
 test_coot_utils_SOURCES = test-coot-utils.cc

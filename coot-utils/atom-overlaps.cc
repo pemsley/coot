@@ -180,7 +180,8 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
 		  std::pair<bool, dictionary_residue_restraints_t> d =
 		     geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
 		  if (! d.first) {
-		     std::cout << "Failed to get dictionary for " << residue_name << std::endl;
+		     std::cout << "WARNING::Failed to get dictionary for " << residue_name << std::endl;
+                     std::cout << "WARNING:: turning off have_dictionary" << std::endl;
 		     have_dictionary = false;
 		  } else {
 		     dictionary_map[residue_name] = d.second;
@@ -376,7 +377,7 @@ void
 coot::atom_overlaps_container_t::make_overlaps() {
 
    if (! have_dictionary) {
-      std::cout << "No dictionary" << std::endl;
+      std::cout << "WARNING:: make_overlaps(): No dictionary!" << std::endl;
       return;
    }
 
@@ -463,6 +464,45 @@ coot::atom_overlaps_container_t::make_overlaps() {
    }
 }
 
+bool
+coot::atom_overlaps_container_t::kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_2) const {
+
+   // C2 (NAG) and NE2 (ASN) are angle related - but we don't know that unless we
+   // generate full restraints - which we don't do.
+
+   bool reject = false;
+   if (at_1->residue->chain == at_2->residue->chain) {
+      std::string res_name_1(at_1->residue->GetResName());
+      if (res_name_1 == "ASN") {
+         std::string res_name_2(at_2->residue->GetResName());
+         if (res_name_2 == "NAG") {
+            std::string atom_name_1(at_1->name);
+            if (atom_name_1 == " NE2") {
+               std::string atom_name_2(at_2->name);
+               if (atom_name_2 == " C2 ") {
+                  reject = true;
+               }
+            }
+         }
+      }
+      if (res_name_1 == "NAG") {
+         std::string res_name_2(at_2->residue->GetResName());
+         if (res_name_2 == "ASN") {
+            std::string atom_name_1(at_1->name);
+            if (atom_name_1 == " C2 ") {
+               std::string atom_name_2(at_2->name);
+               if (atom_name_2 == " NE2") {
+                  reject = true;
+               }
+            }
+         }
+      }
+   }
+
+   return reject;
+
+}
+
 
 // modifies overlaps
 void
@@ -532,6 +572,9 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 						     &ring_list_map        // updatedby fn.
 						     );
 		     if (ait == CLASHABLE) {
+                        if (false)
+                           std::cout << "debug:: clashable: " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                                     << std::endl;
 			double r_1 = get_vdw_radius_neighb_atom(ii);
 			double r_2 = get_vdw_radius_neighb_atom(jj);
 			clipper::Coord_orth co_at_1 = co(at_1);
@@ -539,9 +582,11 @@ coot::atom_overlaps_container_t::make_all_atom_overlaps() {
 			double ds = (co_at_1 - co_at_2).lengthsq();
 			double d = std::sqrt(ds);
 			if (d < (r_1 + r_2)) {
-			   double ovl = get_overlap_volume(d, r_2, r_1);
-			   atom_overlap_t ao(pscontact[i].id2, at_1, at_2, r_1 ,r_2, ovl);
-			   overlaps.push_back(ao);
+                           if (! kludge_filter(at_1, at_2)) {
+                              double ovl = get_overlap_volume(d, r_2, r_1);
+                              atom_overlap_t ao(pscontact[i].id2, at_1, at_2, r_1 ,r_2, ovl);
+                              overlaps.push_back(ao);
+                           }
 			}
 		     }
 		  }

@@ -231,7 +231,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);
 		  residue_mol->FinishStructEdit();
 
-		  if (0) { // -------- debug ----------
+		  if (false) { // -------- debug ----------
 		     int imod = 1;
 		     mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 		     mmdb::Chain *chain_p;
@@ -260,6 +260,9 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 							  atom_sel.links,
 							  geom, residue_mol, fixed_atoms,
 							  &dummy_xmap);
+                  int n_threads = coot::get_max_number_of_threads() - 1;
+                  if (n_threads < 1) n_threads = 1;
+                  restraints.thread_pool(&graphics_info_t::static_thread_pool, n_threads);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
@@ -2413,4 +2416,81 @@ molecule_class_info_t::merge_fragments() {
 
    return status;
 
+}
+
+
+std::vector<mmdb::Atom *>
+molecule_class_info_t::closest_atoms_in_neighbour_residues(mmdb::Residue *residue_ref_p, float radius) const {
+
+   std::vector<mmdb::Atom *> v;
+
+   // we don't want to include main chain atoms that are peptide bonded to this one (residue_ref_p)
+
+   if (residue_ref_p) {
+      std::vector<mmdb::Residue *> rv = coot::residues_near_residue(residue_ref_p, atom_sel.mol, radius);
+      for (unsigned int i=0; i<rv.size(); i++) {
+         mmdb::Residue *r = rv[i];
+         int n_residue_atoms = 0;
+         mmdb::Atom **residue_atoms;
+         float closest_dist = 99999.9;
+         mmdb::Atom *closest_atom = 0;
+         r->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int j=0; j<n_residue_atoms; j++) {
+            mmdb::Atom *at = residue_atoms[j];
+            if (! at->isTer()) {
+               clipper::Coord_orth co = coot::co(at);
+               mmdb::Atom **residue_ref_atoms = 0;
+               int n_residue_ref_atoms = 0;
+               residue_ref_p->GetAtomTable(residue_ref_atoms, n_residue_ref_atoms);
+               for (int k=0; k<n_residue_ref_atoms; k++) {
+                  mmdb::Atom *at_ref = residue_ref_atoms[k];
+                  if (! at_ref->isTer()) {
+                     clipper::Coord_orth co_ref = coot::co(at_ref);
+                     double dd = (co-co_ref).lengthsq();
+                     double d = sqrt(dd);
+                     if (d < closest_dist) {
+                        bool exclude = false;
+                        if (coot::is_main_chain_p(at)) {
+                           if (residue_ref_p->chain == r->chain) {
+                              int res_no_delta = r->GetSeqNum() - residue_ref_p->GetSeqNum();
+                              if (abs(res_no_delta) < 2)
+                                 exclude = true;
+                           }
+                        }
+                        if (! exclude) {
+                           closest_dist = d;
+                           closest_atom = at;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         if (closest_atom) {
+            v.push_back(closest_atom);
+         }
+      }
+   }
+
+   std::cout << "debug:: got " << v.size() << " closest atoms " << std::endl;
+
+   return v;
+}
+
+void
+molecule_class_info_t::label_closest_atoms_in_neighbour_atoms(coot::residue_spec_t residue_spec, float radius) {
+
+   mmdb::Residue *residue_ref_p = get_residue(residue_spec);
+   if (residue_ref_p) {
+      int atom_index_handle = atom_sel.UDDAtomIndexHandle; // or SelectionHandle?
+      std::vector<mmdb::Atom *>v = closest_atoms_in_neighbour_residues(residue_ref_p, radius);
+      for (unsigned int i=0; i<v.size(); i++) {
+         mmdb::Atom *at = v[i];
+         int atom_index = -1;
+         at->GetUDData(atom_index_handle, atom_index);
+         if (atom_index >= 0)
+            if (atom_index < atom_sel.n_selected_atoms)
+               labelled_atom_index_list.push_back(atom_index);
+      }
+   }
 }

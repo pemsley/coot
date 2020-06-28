@@ -116,6 +116,10 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
 
 #ifdef USE_GUILE
 SCM molecule_atom_overlaps_scm(int imol) {
+
+   // if the return list is null then that's possibly because there was a missing dictionary.
+   // return a string in that case.
+
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -138,6 +142,15 @@ SCM molecule_atom_overlaps_scm(int imol) {
 	 r = scm_cons(item_scm, r);
       }
       r = scm_reverse(r);
+
+      // if the list is null then that's possibly because there was a missing dictionary.
+      // return a string in that case.
+      //
+      if (olv.empty()) {
+         if (!overlaps.get_have_dictionary()) {
+            r = scm_from_locale_string("WARNING:: No-dictionary (something missing) ");
+         }
+      }
    }
    return r;
 }

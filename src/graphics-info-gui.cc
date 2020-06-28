@@ -3281,6 +3281,21 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 #endif // HAVE_GTK_CANVAS
 }
 
+GtkWidget *
+graphics_info_t::get_sequence_view_is_displayed(int imol) const {
+
+   GtkWidget *w = 0;
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+   if (is_valid_model_molecule(imol))
+       w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+
+#endif
+   return w;
+}
+
+
+
 void
 graphics_info_t::unset_geometry_dialog_distance_togglebutton() {
 

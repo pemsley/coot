@@ -391,7 +391,7 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 						local_ncs_ghosts[ighost],
 						g.molecules[imol_map].is_difference_map_p(),
 						g.swap_difference_map_colours,
-						g.molecules[imol_map].map_sigma());
+						g.molecules[imol_map].get_contour_level());
 	    nmaps++;
 	 }
 

@@ -792,7 +792,7 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2,
 
 #ifdef USE_PYTHON
 void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
-		  const std::string &link_name, float length) {
+                  const std::string &link_name, float length) {
    coot::atom_spec_t s1 = atom_spec_from_python_expression(spec_1);
    coot::atom_spec_t s2 = atom_spec_from_python_expression(spec_2);
    if (s1.string_user_data != "OK")
@@ -806,3 +806,17 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
        make_link(imol, s1, s2, link_name, length);
 }
 #endif
+
+int add_nucleotide(int imol, const char *chain_id, int res_no) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.execute_simple_nucleotide_addition(imol, chain_id, res_no);
+      graphics_draw();
+      return 1;
+   }
+   return 0;
+
+}
+
+

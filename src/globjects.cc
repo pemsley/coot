@@ -2188,11 +2188,18 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 //    area.width  = widget->allocation.width;
 //    area.height = widget->allocation.height;
 
+   GtkAllocation allocation;
+   gint width;
+   gint height;
+   gtk_widget_get_allocation (widget, &allocation);
+   width = allocation.width;
+   height = allocation.height;
+
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    GdkModifierType my_button3_mask = info.gdk_button3_mask();
 
-   GdkModifierType state;                                                    
+   GdkModifierType state;
    short int button_was_pressed = 0;
 
    if (event->is_hint) {
@@ -2280,9 +2287,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		  // intermediate-atom-screen-z-rotate not a single
 		  // atom move.
 
-// 		  std::cout << "Moving single atom " << x_as_int << " "
-// 				<< y_as_int << " " << x << " " << y << std::endl;
-
 		  info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
 		  // info.move_atom_pull_target_position(x_as_int ,y_as_int);
 
@@ -2312,11 +2316,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	       // info.in_moving_atoms_drag_atom_mode_flag test
 
 	       bool handled_non_atom_drag_event = false;
-	       x_diff = x - info.GetMouseBeginX();
-	       y_diff = y - info.GetMouseBeginY();
-	       handled_non_atom_drag_event =
-		  info.rotate_intermediate_atoms_maybe(0, x_diff * 0.01);
-	       info.rotate_intermediate_atoms_maybe(1, y_diff * 0.01);
+           handled_non_atom_drag_event = info.rotate_intermediate_atoms_maybe(width, height);
 
 	       if (! handled_non_atom_drag_event) {
 

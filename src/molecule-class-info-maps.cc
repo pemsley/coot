@@ -538,6 +538,10 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads[ii].join();
       }
 
+      if (is_dynamically_transformed_map_flag)
+         for (unsigned int ii=0; ii<draw_vector_sets.size(); ii++)
+            dynamically_transform(draw_vector_sets[ii]);
+
       // post_process_map_triangles();
 
       setup_glsl_map_rendering(); // turn tri_con into buffers.
@@ -547,8 +551,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       // Mesh gm(vp);
       // meshes.push_back(gm);
-      // meshes.back().setup() here?                          
-      
+      // meshes.back().setup() here?
+
 
 /*
 Threaded difference map lines:
@@ -697,7 +701,7 @@ molecule_class_info_t::post_process_map_triangles() {
          }
       }
    }
-   
+
    std::cout << "DEBUG:: n_reset " << n_reset << std::endl;
 
 }
@@ -734,7 +738,7 @@ molecule_class_info_t::setup_map_cap(Shader *shader_p,
    Mesh gm_cap(map_cap);
    meshes.push_back(gm_cap);
    meshes.back().setup(shader_p, material);
-   
+
 }
 
 
@@ -1553,7 +1557,7 @@ molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
       clipper::Coord_orth ct1 = c1.transform(map_ghost_info.rtop);
       clipper::Coord_orth ct2 = c2.transform(map_ghost_info.rtop);
       v.data[i] = coot::CartesianPair(coot::Cartesian(ct1.x(), ct1.y(), ct1.z()),
-				coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
+                                      coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
    }
 
 }

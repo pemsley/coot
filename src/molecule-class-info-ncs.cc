@@ -955,7 +955,7 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 					 const coot::ghost_molecule_display_t &ghost_info,
 					 int is_diff_map_flag,
 					 int swap_difference_map_colours_flag,
-					 float sigma_in) {
+					 float contour_level_in) {
 
    std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
 
@@ -970,9 +970,10 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
    map_ghost_info = ghost_info;
    
    // fill class variables
-   map_mean_ = 0.0;
-   map_sigma_ = sigma_in;
-   contour_level  = 0.2;
+   mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+   map_mean_  = mv.mean;
+   map_sigma_ = sqrt(mv.variance);
+   contour_level  = contour_level_in;
    update_map();
 
    std::cout << "Done install_ghost_map" << std::endl;

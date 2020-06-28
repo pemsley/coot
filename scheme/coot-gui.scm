@@ -4026,6 +4026,11 @@
 	 refmac-multi-sharpen-gui)
 
 	(add-simple-coot-menu-menuitem
+	 menu "Flip Hand of Map..."
+	 (lambda ()
+           (molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "Interactive Nudge Residues..."
 	 (lambda ()
 	   (using-active-atom (nudge-residues-gui aa-imol aa-res-spec)))))))

@@ -711,7 +711,7 @@ coot::geometry_graphs::update_residue_blocks(const coot::geometry_distortion_inf
    // represented multiple times, we don't want to keep deleting the
    // same residue, so let's make a vector of deleted residues.
    std::vector<coot::residue_spec_t> deleted_block_res_specs;
-   
+
    int chain_number = chain_id_to_chain_index(dc.chain_id);
    for (unsigned int iblock=0; iblock<dc.geometry_distortion.size(); iblock++) {
       coot::residue_spec_t rs(dc.geometry_distortion[iblock].residue_spec);
@@ -928,8 +928,31 @@ coot::geometry_graphs::delete_block(const std::string &chain_id, int resno) {
    }
 }
 
+// make this a static of coot::geometry_graphs
+//
+// static
 void
-coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) { 
+coot::geometry_graphs::density_fit_rescale_button_callback(GtkButton *button, gpointer user_data) {
+
+   coot::geometry_graphs *graph = static_cast<coot::geometry_graphs *>(user_data);
+   GtkWidget *entry = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "rescale_entry"));
+   const char *txt = gtk_entry_get_text(GTK_ENTRY(entry));
+   if (txt) {
+      std::string t(txt);
+      float scale = coot::util::string_to_float(t);
+      graphics_info_t::residue_density_fit_scale_factor = scale;
+      graphics_info_t g;
+      std::vector<coot::geometry_graph_block_info_generic> block_set =
+         g.density_fit_from_mol(g.molecules[graph->get_imol()].atom_sel,
+                                graph->get_imol(),
+                                g.Imol_Refinement_Map());
+      graph->update_residue_blocks(block_set);
+   }
+};
+
+
+void
+coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
 
 #ifndef HAVE_GNOME_CANVAS
    // Fixes: could not find argument "points" in the `GnomeCanvasLine' class ancestry
@@ -984,7 +1007,29 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
    gtk_widget_ref(GTK_WIDGET(canvas));
    gtk_object_set_data_full(GTK_OBJECT(dialog), "geometry_graph_canvas", canvas,
 			    (GtkDestroyNotify) gtk_widget_unref);
-   gtk_object_set_user_data(GTK_OBJECT(canvas), (char *) this); 
+   gtk_object_set_user_data(GTK_OBJECT(canvas), (char *) this);
+
+   if (graph_type == GEOMETRY_GRAPH_DENSITY_FIT) {
+      GtkWidget *dialog_vbox = lookup_widget(dialog, "geometry_graphs_dialog_vbox");
+      if (dialog_vbox) {
+
+         GtkWidget *vbox = gtk_hbox_new(FALSE, 0);
+         GtkWidget *button = gtk_button_new_with_label("Rescale");
+         GtkWidget *entry = gtk_entry_new();
+         gtk_entry_set_text(GTK_ENTRY(entry), "1.2");
+         gtk_box_pack_start (GTK_BOX (vbox), entry,  FALSE, FALSE, 3);
+         gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 3);
+         gtk_widget_show(entry);
+         gtk_widget_show(button);
+         gtk_widget_show(vbox);
+         gtk_widget_set_size_request(entry, 90, -1);
+         gtk_box_pack_start(GTK_BOX(dialog_vbox), vbox, FALSE, FALSE, 3);
+         g_object_set_data(G_OBJECT(button), "rescale_entry", entry);
+         g_signal_connect(G_OBJECT(button), "clicked",
+                          G_CALLBACK(density_fit_rescale_button_callback),
+                          this);
+      }
+   }
 
 }
 

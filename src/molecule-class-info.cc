@@ -774,8 +774,8 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 
 void
-molecule_class_info_t::label_atoms(int brief_atom_labels_flag,
-                                   short int seg_ids_in_atom_labels_flag) {
+molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
+                                        short int seg_ids_in_atom_labels_flag) {
 
    if (draw_it) {
 
@@ -3487,7 +3487,9 @@ molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
 // Put a label at the ith atom of mol_class_info::atom_selection.
 //
 void
-molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag) {
+molecule_class_info_t::draw_atom_label(int atom_index,
+                                       int brief_atom_labels_flag,
+                                       short int seg_ids_in_atom_labels_flag) {
 
    if (has_model()) {
 
@@ -8148,8 +8150,6 @@ molecule_class_info_t::store_refmac_params(const std::string &mtz_filename,
       const std::string &r_free_col,
       int r_free_flag) {
 
-   std::cout << "------------------- store_refmac_params() called!\n";
-
    have_sensible_refmac_params = 1; // true
    refmac_mtz_filename = mtz_filename;
    refmac_fobs_col = fobs_col;
@@ -8341,6 +8341,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       }
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions(); // sets unsaved changes flag
+      update_symmetry();
    }
 
    return istat;

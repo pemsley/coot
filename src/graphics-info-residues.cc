@@ -1,18 +1,18 @@
 /* src/graphics-info-residues.cc
- * 
+ *
  * Copyright 2011 by The University of Oxford.
  * Copyright 2015, 2016 by Medical Research Council
- * 
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
@@ -43,9 +43,9 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 
       // we probably don't need residues, but we do need to check that
       // we have restraints for each of the residue types.
-      // 
+      //
       std::vector<std::string> residue_types;
-      for (unsigned int i=0; i<v.size(); i++) { 
+      for (unsigned int i=0; i<v.size(); i++) {
 	 mmdb::Residue *r= molecules[imol].get_residue(v[i]);
 	 if (r) {
 	    std::string comp_id = r->GetResName();
@@ -77,14 +77,14 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 				 mmdb::ANY_RES, "*",
 				 "*", // residue name
 				 "*",
-				 "*", 
+				 "*",
 				 "*"); // alt-loc
 	 moving_mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 
-	 try { 
-	    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > pairs = 
+	 try {
+	    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > pairs =
 	       coot::torsionable_bonds(imol, mol, atom_selection, n_selected_atoms, Geom_p());
-	    
+
 	    GtkWidget *w = wrapped_create_multi_residue_torsion_dialog(pairs);
 	    gtk_widget_show(w);
 
@@ -93,16 +93,16 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;
-	 } 
+	 }
 
 	 moving_mol->DeleteSelection(selhnd);
       }
    }
-} 
+}
 
 
 // bottom left flat ligand view:
-// 
+//
 void
 graphics_info_t::setup_graphics_ligand_view_aa() {
 
@@ -120,7 +120,7 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
 }
 
 // bottom left flat ligand view:
-// 
+//
 void
 graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
 
@@ -143,14 +143,14 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
    if (show_graphics_ligand_view_flag) { // user control
       if (!use_graphics_interface_flag) {
 	 graphics_ligand_view_flag = false;
-      } else { 
+      } else {
 	 if (!residue_p) {
 	    graphics_ligand_view_flag = false;
 	 } else {
 	    if (coot::util::residue_has_hetatms(residue_p) != 1) {
 	       graphics_ligand_view_flag = false;
 	    } else {
-	       if (residue_p->GetNumberOfAtoms() > 1) { 
+	       if (residue_p->GetNumberOfAtoms() > 1) {
 		  if (0)
 		     std::cout << "   setup_graphics_ligand() on residue "
 			       << coot::residue_spec_t(residue_p) << std::endl;
@@ -159,13 +159,13 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 
 		  // This overwrites the atom info in the status bar - I don't like that.
 		  // There needs to be a different mechanism to report the residue type.
-		  // 
+		  //
 		  if (false) {
 		     std::string res_name = residue_p->GetResName();
-		     std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+		     std::pair<bool, coot::dictionary_residue_restraints_t> p =
 			Geom_p()->get_monomer_restraints_at_least_minimal(res_name, imol);
 		     if (! p.first) {
-			// 
+			//
 		     } else {
 			const coot::dictionary_residue_restraints_t &restraints = p.second;
 			add_status_bar_text(restraints.residue_info.name);
@@ -191,15 +191,15 @@ graphics_info_t::graphics_ligand_view() {
 
    if (! molecules[graphics_ligand_mol.imol].is_displayed_p())
       return;
-   
-   if (graphics_ligand_view_flag) { 
+
+   if (graphics_ligand_view_flag) {
 
       try {
-	 
+
 	 graphics_info_t g;
          GtkAllocation allocation = get_glarea_allocation();
 
-	 std::pair<lig_build::pos_t, lig_build::pos_t> ext = 
+	 std::pair<lig_build::pos_t, lig_build::pos_t> ext =
 	    g.graphics_ligand_mol.ligand_extents();
 
 	 float sc = 28;
@@ -214,11 +214,11 @@ graphics_info_t::graphics_ligand_view() {
 
 	 // std::cout << "extents: top_left " << ext.first
 	 // << "   bottom right" << ext.second << std::endl;
-	 // 
+	 //
 	 // If the offset scale factor (now 0.9) is 1.0, then when we
 	 // have big molecules, they sit too much towards the centre
 	 // of the screen (i.e. the offset correction is too much).
-	 // 
+	 //
 	 // glTranslatef(-20.5-0.8*ext.first.x, -21.0+0.8*ext.second.y, 0);
 	 // glTranslatef(-20.5-0.8*ext.first.x, -20.5-0.8*ext.first.y, 0);
 
@@ -226,13 +226,13 @@ graphics_info_t::graphics_ligand_view() {
 	 double screen_bottom_left_y_pos = -1 * h/sc;
 	 double x_trans = screen_bottom_left_x_pos -0.8*ext.first.x + 3;
 	 double y_trans = screen_bottom_left_y_pos -0.8*ext.first.y + 2;
-	 
+
 	 glTranslatef(x_trans, y_trans, 0);
 
 	 glMatrixMode(GL_PROJECTION);
 	 glPushMatrix();
 	 glLoadIdentity();
-   
+
 	 GLfloat col[3] = { 0.6, 0.6, 0.6 };
 	 glColor3fv(col);
 
@@ -253,8 +253,8 @@ graphics_info_t::graphics_ligand_view() {
 	    glVertex3d(x_pos,   y_pos-1, 0);
 	    glVertex3d(x_pos,   y_pos+1, 0);
 	    glEnd();
-	 } 
-	 
+	 }
+
 	 glLineWidth(2.0);
 	 g.graphics_ligand_mol.render();
 
@@ -269,32 +269,32 @@ graphics_info_t::graphics_ligand_view() {
 	    glVertex3d(x_pos+3, y_pos+3, 0);
 	    glVertex3d(x_pos+3, y_pos-3, 0);
 	    glEnd();
-	 } 
+	 }
 
 	 // debug box, ligand space
-	 if (0) { 
+	 if (0) {
 	    // the lines ------------------
 	    glBegin(GL_LINES);
-   
+
 	    glVertex3f( 0.0,  0.0, 0.0);
 	    glVertex3f( 1.0,  0.0, 0.0);
 
 	    glVertex3f( 1.0,  0.0, 0.0);
 	    glVertex3f( 1.0,  1.0, 0.0);
-   
+
 	    glVertex3f( 1.0,  1.0, 0.0);
 	    glVertex3f( 0.0,  1.0, 0.0);
-   
+
 	    glVertex3f( 0.0,  1.0, 0.0);
 	    glVertex3f( 0.0,  0.0, 0.0);
-   
+
 	    glEnd();
 	    // end of the lines ------------
 	 }
 
 	 glDisable(GL_LINE_SMOOTH);
 	 glDisable(GL_BLEND);
-   
+
 	 glPopMatrix();
 	 glMatrixMode(GL_MODELVIEW);
 	 glPopMatrix();
@@ -305,7 +305,7 @@ graphics_info_t::graphics_ligand_view() {
 	 // This is useful for debugging, but not for production
 	 // (e.g. where the comp-id is ZN we get here currently and it
 	 // is printed on every frame)
-	 // 
+	 //
 	 // std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
@@ -496,4 +496,58 @@ graphics_info_t::eigen_flip_active_residue() {
          graphics_draw();
       }
    }
+}
+
+
+
+// do it if have intermediate atoms and ctrl is pressed.
+//
+// axis: 0 for Z, 1 for X.
+//
+short int
+graphics_info_t::rotate_intermediate_atoms_maybe(unsigned int width, unsigned int height) {
+
+   // for rotation, use trackball rotation about the centre of the fragment.
+
+   short int handled_flag = 0;
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         if (control_is_pressed) {
+            handled_flag = true;
+            bool sane_deltas = true;
+            if (mouse_current_x - GetMouseBeginX() >  80) sane_deltas = false;
+            if (mouse_current_x - GetMouseBeginX() < -80) sane_deltas = false;
+            if (mouse_current_y - GetMouseBeginY() >  80) sane_deltas = false;
+            if (mouse_current_y - GetMouseBeginY() < -80) sane_deltas = false;
+            if (sane_deltas) {
+               clipper::Coord_orth mac = moving_atoms_centre();
+               float spin_quat[4];
+               trackball(spin_quat,
+                         (2.0*GetMouseBeginX() - width) /width,
+                         (height - 2.0*GetMouseBeginY())/height,
+                         (2.0*mouse_current_x - width)  /width,
+                         (height -  2.0*mouse_current_y)/height,
+                         get_trackball_size() );
+               GL_matrix m;
+               m.from_quaternion(spin_quat);
+               clipper::Mat33<double> m33 = m.to_clipper_mat();
+               clipper::Coord_orth zero(0,0,0);
+               for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+                  mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+                  clipper::Coord_orth origin_based_pos = coot::co(at) - mac;
+                  clipper::RTop_orth rtop(m33, zero);
+                  clipper::Coord_orth new_pos = origin_based_pos.transform(rtop);
+                  new_pos += mac;
+                  at->x = new_pos.x(); at->y = new_pos.y(); at->z = new_pos.z();
+               }
+	       Bond_lines_container bonds(*moving_atoms_asc, true);
+	       regularize_object_bonds_box.clear_up();
+	       regularize_object_bonds_box = bonds.make_graphical_bonds();
+               graphics_draw();
+            }
+	 }
+      }
+   }
+   return handled_flag;
 }
