@@ -521,11 +521,14 @@ coot_bin_SOURCES = \
         molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-string.cc 	\
-	molecule-class-info-patterson.cc \
-	molecule-class-info-ncs.cc 	\
-	molecule-class-info-mol-tris.cc 	\
+	molecule-class-info-patterson.cc   \
+	molecule-class-info-ncs.cc         \
+	molecule-class-info-mol-tris.cc	   \
 	molecule-class-info-widget-work.cc \
-	molecule-class-info-geometry.cc \
+	molecule-class-info-geometry.cc    \
+	molecular-mesh-generator.cc \
+	molecular-mesh-generator-mol-tris.cc \
+	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \

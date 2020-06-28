@@ -406,10 +406,14 @@ graphics_info_t::setup_map_uniforms(Shader *shader_p,
 void
 graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
-   // run throgh this molecule loop twice - for opaque then transparent maps
+   // run through this molecule loop twice - for opaque then transparent maps
    // first, a block that decides if we need to do anything.
 
    bool needs_blend_reset = false;
+
+   //
+
+   bool cosine_dependent_map_opacity = false;
 
    unsigned int n_transparent_maps = 0;
    if (draw_transparent_maps) {
@@ -425,6 +429,12 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
          glEnable(GL_BLEND);
          glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       }
+   }
+
+   if (cosine_dependent_map_opacity) {
+      needs_blend_reset = true;
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    }
 
    if (!draw_transparent_maps || n_transparent_maps > 0) {
@@ -545,6 +555,8 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                shader.set_float_for_uniform("map_opacity", m.density_surface_opacity);
                err = glGetError(); if (err) std::cout << "   draw_map_molecules() glUniformf() for opacity "
                                                       << err << std::endl;
+               // cosine_dependent_map_opacity
+               shader.set_bool_for_uniform("cosine_dependent_map_opacity", cosine_dependent_map_opacity);
 
                GLuint eye_position_uniform_location = graphics_info_t::shader_for_maps.eye_position_uniform_location;
                glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
@@ -1138,11 +1150,9 @@ graphics_info_t::draw_molecules() {
    draw_intermediate_atoms();
    draw_atom_pull_restraints();
 
-   // draw_molecular_triangles(); // Martin's renderings
+   draw_meshes(); // get a better name
 
    draw_map_molecules(false); // transparency
-
-   draw_meshes(); // get a better name
 
    // transparent things...
 
@@ -1153,8 +1163,8 @@ graphics_info_t::draw_molecules() {
 void
 graphics_info_t::draw_meshes() {
 
-   bool draw_meshes = false;
-   bool draw_mesh_normals = true;
+   bool draw_meshes = true;
+   bool draw_mesh_normals = false;
 
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 mvp = get_molecule_mvp();
@@ -1163,23 +1173,33 @@ graphics_info_t::draw_meshes() {
 
    bool do_depth_fog = true;
 
-   if (draw_meshes) {
-      for (int ii=n_molecules()-1; ii>=0; ii--) {
-         molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-         if (! is_valid_map_molecule(ii)) continue;
-         for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
-            m.meshes[jj].draw(&shader_for_map_caps, mvp,
-                              view_rotation, lights, eye_position, bg_col, do_depth_fog);
+   if (draw_meshes) { //local, debugging
+      bool have_meshes_to_draw = false;
+      for (int i=n_molecules()-1; i>=0; i--) {
+         if (! molecules[i].meshes.empty()) {
+            have_meshes_to_draw = true;
+            break;
          }
-         glUseProgram(0);
       }
-   }
 
-   if (draw_mesh_normals) {
-      if (draw_normals_flag) {
+      if (have_meshes_to_draw) {
+         glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
-            m.mesh_draw_normals(mvp);
+            for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
+               m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                                 view_rotation, lights, eye_position, bg_col, do_depth_fog);
+            }
+            glUseProgram(0);
+         }
+
+         if (draw_mesh_normals) {
+            if (draw_normals_flag) {
+               for (int ii=n_molecules()-1; ii>=0; ii--) {
+                  molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+                  m.mesh_draw_normals(mvp);
+               }
+            }
          }
       }
    }
@@ -1375,7 +1395,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    // handle_command_line_data(cld);
 #endif
 
-   err = glGetError(); if (true) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
+   err = glGetError(); if (true) std::cout << "on_glarea_realize() --end-- with err " << err
+                                           << std::endl;
 
    g.setup_key_bindings();
 }

@@ -1364,6 +1364,11 @@ void set_draw_normals(short int state);
 
 int draw_normals_state();
 
+void set_draw_mesh(int imol, int mesh_index, short int state);
+
+// return -1 on unable to lookup mesh
+int draw_mesh_state(int imol, int mesh_index);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

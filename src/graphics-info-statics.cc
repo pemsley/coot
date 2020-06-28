@@ -31,6 +31,7 @@ float graphics_info_t::clipping_back  = 1.0;
 Shader graphics_info_t::shader_for_maps;
 Shader graphics_info_t::shader_for_map_caps;
 Shader graphics_info_t::shader_for_models;
+Shader graphics_info_t::shader_for_moleculestotriangles;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;

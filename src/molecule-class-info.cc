@@ -3880,7 +3880,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
    sum_n_vertices  += atom_bits.first.size();
    sum_n_triangles += atom_bits.second.size();
    const std::vector<vertex_with_rotation_translation> &atom_vertices  = atom_bits.first;
-   const std::vector<g_triangle>    &atom_triangles = atom_bits.second;
+   const std::vector<g_triangle> &atom_triangles = atom_bits.second;
 
    if (sum_n_triangles > 0) {
       n_vertices_for_model_VertexArray = sum_n_vertices;
@@ -3914,7 +3914,8 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
       float pbw = 5.0;
       // intermediate atoms have a default bond width of 3, whereas normal molecules
       // have a default bond width of 5. Not sure why, but "correct" for that here
-      if (imol_no == -1) pbw = 3.0;
+      // 20200628-PE - no longer need to make this correction
+      // if (imol_no == -1) pbw = 3.0;
       float radius = 0.12f * bond_width/pbw;
 
       bool do_real = true;
@@ -3950,7 +3951,7 @@ molecule_class_info_t::make_glsl_bonds_type_checked() {
                float bl = glm::distance(b, glm::vec3(0,0,0));
                // fill vertices and indices
                float radius_scale = 1.0;
-               if (do_thinning) radius_scale = 0.5;
+               if (do_thinning) radius_scale *= 0.5;
                cylinder_with_rotation_translation c(pospair, radius * radius_scale, radius * radius_scale, bl, n_slices, n_stacks);
                // indices are a bit hard - they need to be offset
                for (std::size_t j=0; j<c.triangle_indices_vec.size(); j++) {

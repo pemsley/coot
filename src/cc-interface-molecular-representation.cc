@@ -75,6 +75,7 @@ extern "C" void add_molecular_representation_test() {
          std::string ColorScheme = "colorRampChainsScheme";
          std::string style = "Ribbon";
          status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
+         graphics_info_t::graphics_draw();
       }
    }
 }

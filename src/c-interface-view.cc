@@ -184,6 +184,25 @@ int  draw_normals_state() {
    return graphics_info_t::draw_normals_flag;
 }
 
+
+void set_draw_mesh(int imol, int mesh_index, short int state) {
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      if (mesh_index >= 0 && mesh_index < graphics_info_t::molecules[imol].meshes.size()) {
+         graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh = state;
+      }
+   }
+}
+
+int draw_mesh_state(int imol, int mesh_index) {
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      if (mesh_index >= 0 && mesh_index < graphics_info_t::molecules[imol].meshes.size()) {
+         return graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh;
+      }
+   }
+   return -1;
+}
+
+
    
 
 /*  ----------------------------------------------------------------------- */

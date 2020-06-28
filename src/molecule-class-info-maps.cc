@@ -545,8 +545,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp =
          make_map_mesh();
 
-      Mesh gm(vp);
-      meshes.push_back(gm);
+      // Mesh gm(vp);
+      // meshes.push_back(gm);
       // meshes.back().setup() here?                          
       
 

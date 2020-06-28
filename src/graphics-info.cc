@@ -4415,6 +4415,7 @@ graphics_info_t::set_bond_thickness(int imol, float t) {
       if (imol >= 0) {
     if (graphics_info_t::molecules[imol].has_model()) {
        molecules[imol].set_bond_thickness(t);
+       molecules[imol].make_bonds_type_checked();
        graphics_draw();
     }
       }

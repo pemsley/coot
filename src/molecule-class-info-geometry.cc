@@ -8,6 +8,7 @@ std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle>
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const {
 
    float sphere_radius = 0.105; // how big should atoms be?
+   float radius_scale = 0.2 * bond_width; // arbs
    // atom_scale = 1.45;
 
    std::vector<vertex_with_rotation_translation> v1;
@@ -21,7 +22,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
       for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
 
          const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
-         float sphere_scale = ai.radius_scale * 1.18;
+         float sphere_scale = radius_scale * ai.radius_scale * 1.18;
 
          if (ai.is_hydrogen_atom) // this should be set already (in the generator). Is it?
             sphere_scale = 0.5;
