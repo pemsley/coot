@@ -49,7 +49,7 @@ When we are at the ligand site, you can dismiss the Blob dialog.
 
 **File**  → **Get Monomer**  → PLP  → **OK**
 
-Taht should have imported a PLP, let's undisplay it:
+That should have imported a PLP, let's undisplay it:
 
 **Display Manager**  → for the PLP_from_dist section, click the **Display** checkbutton to undisplay this model
 
