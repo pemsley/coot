@@ -261,3 +261,4 @@ void check_chiral_volumes(int imol) {
             int n_atoms = residue_p->GetNumberOfAtoms();
             for (int iat=0; iat<n_atoms; iat++) {
                mmdb::Atom *at = residue_p->GetAtom(iat);
+               if (! at->isTer()) {

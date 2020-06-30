@@ -49,6 +49,8 @@
 #include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
 
+#include "geometry/bonded-quad.hh"
+
 namespace coot {
 
    static std::string b_factor_bonds_scale_handle_name;
@@ -811,14 +813,35 @@ class Bond_lines_container {
                                int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                                int udd_atom_index_handle);
    void draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
-                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p, int udd_atom_index_handle);
+                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                       int udd_atom_index_handle);
    void draw_trp_ring_outer(mmdb::Residue *residue_p, int model_number,
                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                             int udd_atom_index_handle);
+   void draw_GA_rings_outer(mmdb::Residue *residue_p, int model_number,
+                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                            int udd_atom_index_handle);
+   void draw_CUT_ring_outer(mmdb::Residue *residue_p, int model_number,
+                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                            int udd_atom_index_handle);
+   void draw_het_group_rings(mmdb::Residue *residue_p,
+                             const std::vector<bonded_quad_atom_names> &bonded_quad_atom_names,
+                             int model_number, int atom_colour_type,
+                             coot::my_atom_colour_map_t *atom_colour_map,
+                             int udd_atom_index_handle);
+   void draw_bonded_quad_atoms_rings(const std::vector<bonded_quad_atoms> &ring_atoms,
+                             int imodel, int atom_colour_type,
+                             coot::my_atom_colour_map_t *atom_colour_map_p,
+                             int udd_atom_index_handle);
+   
+   std::vector<std::pair<std::string, std::string> >
+   get_aromatic_bonds(const coot::dictionary_residue_restraints_t &restraints) const;
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
-   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_found_bond_handle, int udd_atom_index_handle);
+   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues,
+                               int imol, int atom_colour_t, short int have_udd_atoms,
+                               int udd_found_bond_handle, int udd_atom_index_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints,
 				   int udd_atom_index_handle, int col);
    // pass a list of atom name that are part of the aromatic ring system.
