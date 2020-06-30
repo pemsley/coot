@@ -705,6 +705,75 @@ Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1_pos,
 
 #include "mini-mol/atom-quads.hh"
 
+
+void
+Bond_lines_container::draw_bonded_quad_atoms_rings(const std::vector<bonded_quad_atoms> &ring_quads,
+                                                   int imodel, int atom_colour_type,
+                                                   coot::my_atom_colour_map_t *atom_colour_map_p,
+                                                   int udd_atom_index_handle) {
+
+   for (unsigned int i=0; i<ring_quads.size(); i++) {
+      const bonded_quad_atoms &bq = ring_quads[i];
+      int col = atom_colour(bq.atom_2, atom_colour_type, atom_colour_map_p);
+      coot::Cartesian p2(bq.atom_2->x, bq.atom_2->y, bq.atom_2->z);
+      coot::Cartesian p3(bq.atom_3->x, bq.atom_3->y, bq.atom_3->z);
+      int atom_2_index = -1;
+      int atom_3_index = -1;
+      bq.atom_2->GetUDData(udd_atom_index_handle, atom_2_index);
+      bq.atom_3->GetUDData(udd_atom_index_handle, atom_3_index);
+
+      mmdb::Atom *at_2 = bq.atom_2;
+      mmdb::Atom *at_3 = bq.atom_3;
+      std::string ele_2(at_2->element);
+      std::string ele_3(at_3->element);
+
+      // std::cout << "ring quad " << i << " " << bq << " has bond_type " << bq.bond_type << std::endl;
+
+      if (bq.bond_type == bonded_quad_atoms::SINGLE || bq.bond_type == bonded_quad_atoms::DOUBLE) {
+
+         // draw the single bond.
+
+         // I put this code here because of the mix up with indexing.
+         // this is cleaner - without a complete rewrite.
+
+         if (ele_2 == ele_3) {
+            int col = atom_colour(at_2, atom_colour_type, atom_colour_map_p);
+            graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+            addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index);
+         } else {
+            add_half_bonds(p2, p3, at_2, at_3, imodel, atom_2_index, atom_3_index,
+                           atom_colour_type, atom_colour_map_p);
+            }
+      }
+      if (bq.bond_type == bonded_quad_atoms::DOUBLE) {
+         // nice and consistent...
+         coot::Cartesian pt_0(bq.atom_1->x, bq.atom_1->y, bq.atom_1->z);
+         coot::Cartesian pt_1(bq.atom_2->x, bq.atom_2->y, bq.atom_2->z);
+         coot::Cartesian pt_2(bq.atom_3->x, bq.atom_3->y, bq.atom_3->z);
+         coot::Cartesian pt_3(bq.atom_4->x, bq.atom_4->y, bq.atom_4->z);
+         coot::Cartesian mp = pt_0.mid_point(pt_3); // doesn't work for cyclopropane
+
+         coot::Cartesian v1 = pt_1 - mp;
+         coot::Cartesian v2 = pt_2 - mp;
+         coot::Cartesian ip1 = mp + v1 * 0.78;
+         coot::Cartesian ip2 = mp + v2 * 0.78;
+
+         if (ele_2 == ele_3) {
+            // std::cout << "phenyl ring bond between " << atom_1_index << " " << atom_2_index << std::endl;
+            int col = atom_colour(at_2, atom_colour_type, atom_colour_map_p);
+            graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+            addBond(col, ip1, ip2, cc, imodel, atom_2_index, atom_3_index);
+         } else {
+            // a nucleotide base is using this function
+            add_half_bonds(ip1, ip2, at_2, at_3, imodel, atom_2_index, atom_3_index,
+                           atom_colour_type, atom_colour_map_p);
+         }
+
+      }
+   }
+
+}
+
 void
 Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
                                      int atom_colour_type,
@@ -798,15 +867,23 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
       int jat = iat + 1;
       if (iat == 5) jat = 0;
       mmdb::Atom *at_1 = ring_atoms[iat];
-      int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
-      int atom_1_index = -1;
-      int atom_2_index = -1;
+      mmdb::Atom *at_2 = ring_atoms[jat];
+      std::string ele_1(at_1->element);
+      std::string ele_2(at_2->element);
       coot::Cartesian p1(ring_atoms[iat]->x, ring_atoms[iat]->y, ring_atoms[iat]->z);
       coot::Cartesian p2(ring_atoms[jat]->x, ring_atoms[jat]->y, ring_atoms[jat]->z);
+      int atom_1_index = -1;
+      int atom_2_index = -1;
       ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
       ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
-      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+      if (ele_1 == ele_2) {
+         int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+      } else {
+         // a nucleotide base is using this function
+         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+      }
    }
 
    for (int i=0; i<3; i++) {
@@ -830,17 +907,25 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
 
       coot::Cartesian v1 = pt_1 - mp;
       coot::Cartesian v2 = pt_2 - mp;
-      coot::Cartesian ip1 = mp + v1 * 0.9; // 0.8 look better with no atoms
-      coot::Cartesian ip2 = mp + v2 * 0.9;
+      coot::Cartesian ip1 = mp + v1 * 0.78;
+      coot::Cartesian ip2 = mp + v2 * 0.78;
       mmdb::Atom *at_1 = ring_atoms[iat_1];
-      int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
+      mmdb::Atom *at_2 = ring_atoms[iat_2];
+      std::string ele_1(at_1->element);
+      std::string ele_2(at_2->element);
       int atom_1_index = -1;
       int atom_2_index = -1;
       ring_atoms[iat_1]->GetUDData(udd_atom_index_handle, atom_1_index);
       ring_atoms[iat_2]->GetUDData(udd_atom_index_handle, atom_2_index);
-      // std::cout << "phenyl ring bond between " << atom_1_index << " " << atom_2_index << std::endl;
-      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+      if (ele_1 == ele_2) {
+         // std::cout << "phenyl ring bond between " << atom_1_index << " " << atom_2_index << std::endl;
+         int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+      } else {
+         // a nucleotide base is using this function
+         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+      }
    }
 
 }
@@ -1345,6 +1430,26 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 }
 
 
+std::vector<std::pair<std::string, std::string> >
+Bond_lines_container::get_aromatic_bonds(const coot::dictionary_residue_restraints_t &restraints) const {
+   std::vector<std::pair<std::string, std::string> > aromatic_bonds;
+   for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+      const coot::dict_bond_restraint_t &br = restraints.bond_restraint[ib];
+      if (br.type() == "aromatic") { // old CCP4 dictionary style
+	 std::string atom_name_1 = br.atom_id_1_4c();
+	 std::string atom_name_2 = br.atom_id_2_4c();
+	 std::pair<std::string, std::string> p(atom_name_1, atom_name_2);
+	 aromatic_bonds.push_back(p);
+      }
+      if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC) { // new acedrg style
+	 std::string atom_name_1 = br.atom_id_1_4c();
+	 std::string atom_name_2 = br.atom_id_2_4c();
+	 std::pair<std::string, std::string> p(atom_name_1, atom_name_2);
+	 aromatic_bonds.push_back(p);
+      }
+   }
+   return aromatic_bonds;
+}
 
 void
 Bond_lines_container::het_residue_aromatic_rings(mmdb::Residue *res,
@@ -1352,11 +1457,23 @@ Bond_lines_container::het_residue_aromatic_rings(mmdb::Residue *res,
 						 int udd_atom_index_handle,
 						 int col) {
 
+   // not used?
+
+   enum representation_style { AROMATIC, KEKULIZED };
+   representation_style rs = KEKULIZED;
+
    std::vector<std::pair<std::string, std::string> > aromatic_bonds;
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
-      if (restraints.bond_restraint[ib].type() == "aromatic") {
-	 std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
-	 std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
+      const coot::dict_bond_restraint_t &br = restraints.bond_restraint[ib];
+      if (br.type() == "aromatic") { // old CCP4 dictionary style
+	 std::string atom_name_1 = br.atom_id_1_4c();
+	 std::string atom_name_2 = br.atom_id_2_4c();
+	 std::pair<std::string, std::string> p(atom_name_1, atom_name_2);
+	 aromatic_bonds.push_back(p);
+      }
+      if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC) { // new acedrg style
+	 std::string atom_name_1 = br.atom_id_1_4c();
+	 std::string atom_name_2 = br.atom_id_2_4c();
 	 std::pair<std::string, std::string> p(atom_name_1, atom_name_2);
 	 aromatic_bonds.push_back(p);
       }
@@ -1364,9 +1481,10 @@ Bond_lines_container::het_residue_aromatic_rings(mmdb::Residue *res,
    if (aromatic_bonds.size() > 4) {
       coot::aromatic_graph_t ag(aromatic_bonds);
       std::vector<std::vector<std::string> > rings = ag.ring_list();
-      // std::cout << "Found " << rings.size() << " aromatic ring system" << std::endl;
-      for (unsigned int i=0; i<rings.size(); i++) {
-	 add_aromatic_ring_bond_lines(rings[i], res, udd_atom_index_handle, col);
+      if (rs == AROMATIC) {
+         for (unsigned int i=0; i<rings.size(); i++) {
+            add_aromatic_ring_bond_lines(rings[i], res, udd_atom_index_handle, col);
+         }
       }
    }
 }
@@ -5246,6 +5364,37 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 }
 
 void
+Bond_lines_container::draw_GA_rings_outer(mmdb::Residue *residue_p, int model_number,
+                                          int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                                          int udd_atom_index_handle) {
+
+   std::vector<std::string> G_rings_atom_names = {" N9 ", " C8 ", " N7 ", " C5 ", " C4 ", " N3 ", " C2 ", " N1 ", " C6 "};
+   std::vector<mmdb::Atom *> G_rings_atoms(9, 0);
+   unsigned int n_found = 0;
+   for (unsigned int i=0; i<G_rings_atom_names.size(); i++) {
+      const std::string &G_rings_atom_name = G_rings_atom_names[i];
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->name);
+            if (atom_name == G_rings_atom_name) {
+               G_rings_atoms[i] = at;
+               n_found++;
+            }
+         }
+      }
+   }
+   if (n_found == 9)
+      draw_trp_rings(G_rings_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+   else
+      std::cout << "partial trp sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
+}
+
+
+void
 Bond_lines_container::draw_trp_ring_outer(mmdb::Residue *residue_p, int model_number,
                                           int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
                                           int udd_atom_index_handle) {
@@ -5277,15 +5426,16 @@ Bond_lines_container::draw_trp_ring_outer(mmdb::Residue *residue_p, int model_nu
 }
 
 void
-Bond_lines_container::draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model_number,
-                                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
-                                             int udd_atom_index_handle) {
+Bond_lines_container::draw_CUT_ring_outer(mmdb::Residue *residue_p, int model_number,
+                                          int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                                          int udd_atom_index_handle) {
 
-   std::vector<std::string> phenyl_ring_atom_names = {" CG ", " CD1", " CE1", " CZ ", " CE2", " CD2"};
-   std::vector<mmdb::Atom *> phenyl_ring_atoms(6, 0);
+
+   std::vector<std::string> ring_atom_names = {" N1 ", " C2 ", " N3 ", " C4 ", " C5 ", " C6 "}; // "A" is same
+   std::vector<mmdb::Atom *> ring_atoms(6, 0);
    unsigned int n_found = 0;
-   for (unsigned int i=0; i<phenyl_ring_atom_names.size(); i++) {
-      const std::string &phenyl_ring_atom_name = phenyl_ring_atom_names[i];
+   for (unsigned int i=0; i<ring_atom_names.size(); i++) {
+      const std::string &ring_atom_name = ring_atom_names[i];
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -5293,19 +5443,91 @@ Bond_lines_container::draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model
          mmdb::Atom *at = residue_atoms[iat];
          if (! at->isTer()) {
             std::string atom_name(at->name);
-            if (atom_name == phenyl_ring_atom_name) {
-               phenyl_ring_atoms[i] = at;
+            if (atom_name == ring_atom_name) {
+               ring_atoms[i] = at;
                n_found++;
             }
          }
       }
    }
    if (n_found == 6)
-      draw_phenyl_ring(phenyl_ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+      draw_phenyl_ring(ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
    else
-      std::cout << "partial phenyl sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
+      std::cout << "partial base atoms (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
 }
 
+void
+Bond_lines_container::draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model_number,
+                                             int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                                             int udd_atom_index_handle) {
+
+   std::vector<std::string> ring_atom_names = {" CG ", " CD1", " CE1", " CZ ", " CE2", " CD2"};
+   std::vector<mmdb::Atom *> ring_atoms(6, 0);
+   unsigned int n_found = 0;
+   for (unsigned int i=0; i<ring_atom_names.size(); i++) {
+      const std::string &ring_atom_name = ring_atom_names[i];
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->name);
+            if (atom_name == ring_atom_name) {
+               ring_atoms[i] = at;
+               n_found++;
+            }
+         }
+      }
+   }
+   if (n_found == 6)
+      draw_phenyl_ring(ring_atoms, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+   else
+      std::cout << "partial ring sidechain (sad face) " << n_found << " " << coot::residue_spec_t(residue_p) << std::endl;
+}
+
+// how does this draw a benzodiazepine? Does the ring finder find 7 membered rings?
+// - it works very nicely
+void
+Bond_lines_container::draw_het_group_rings(mmdb::Residue *residue_p,
+                                           const std::vector<bonded_quad_atom_names> &bonded_quads,
+                                           int model_number, int atom_colour_type,
+                                           coot::my_atom_colour_map_t *atom_colour_map_p,
+                                           int udd_atom_index_handle) {
+
+   // 20200630-PE the current cif file parse make protein residues het groups. Hmm.
+
+   std::cout << "------ draw_het_group_rings() for residue " << coot::residue_spec_t(residue_p)
+             << " " << residue_p->GetResName() << std::endl;
+
+   std::vector<bonded_quad_atoms> bqv;
+
+   for (unsigned int i=0; i<bonded_quads.size(); i++) {
+      const bonded_quad_atom_names &names = bonded_quads[i];
+      bonded_quad_atoms bq;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->name);
+            if (names.atom_name(0) == atom_name) bq.atom_1 = at;
+            if (names.atom_name(1) == atom_name) bq.atom_2 = at;
+            if (names.atom_name(2) == atom_name) bq.atom_3 = at;
+            if (names.atom_name(3) == atom_name) bq.atom_4 = at;
+         }
+      }
+      if (bq.filled_p()) {
+         if (names.bond_type == bonded_quad_atom_names::SINGLE)
+            bq.bond_type = bonded_quad_atoms::SINGLE;
+         if (names.bond_type == bonded_quad_atom_names::DOUBLE)
+            bq.bond_type = bonded_quad_atoms::DOUBLE;
+         bqv.push_back(bq);
+      }
+   }
+   draw_bonded_quad_atoms_rings(bqv, model_number, atom_colour_type, atom_colour_map_p, udd_atom_index_handle);
+}
 
 void
 Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std::vector<mmdb::Residue *> > &residue_monomer_map,
@@ -5318,6 +5540,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                                 bool do_goodsell_colour_mode) {
 
    coot::my_atom_colour_map_t atom_colour_map;
+   bool is_het = false;
 
    std::map<std::string, std::vector<mmdb::Residue *> >::const_iterator it;
    std::map<std::string, std::vector<std::vector<std::pair<std::string, std::string> > > > atom_name_ele_map;
@@ -5336,22 +5559,31 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                std::string atom_name(at->name);
                std::string ele(at->element);
                atom_name_ele_map[monomer_name][i].push_back(std::pair<std::string, std::string>(atom_name, ele));
+               if (at->Het)
+                  is_het = true;
             }
          }
       }
    }
 
    std::vector<std::string> phenyl_ring_atom_names = {" CG ", " CD1", " CE1", " CZ ", " CE2", " CD2"};
-   std::vector<std::string> trp_rings_atom_names = {" CG ", " CD1", " NE1", " CE2", " CD2", " CE3", " CZ3", " CH2", " CZ2"};
+   std::vector<std::string>   CUT_rings_atom_names = {" N1 ", " C2 ", " N3 ", " C4 ", " C5 ", " C6 "};
+   std::vector<std::string>   trp_rings_atom_names = {" CG ", " CD1", " NE1", " CE2", " CD2", " CE3", " CZ3", " CH2", " CZ2"};
+   std::vector<std::string>     G_rings_atom_names = {" N9 ", " C8 ", " N7 ", " C5 ", " C4 ", " N3 ", " C2 ", " N1 ", " C6 "}; // "A" is same
 
    for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); it++) {
       const std::string &monomer_name(it->first);
       const std::string &res_name = monomer_name;
-      const std::vector<mmdb::Residue *> &v = it->second;
+      const std::vector<mmdb::Residue *> &rv = it->second;
       bool phenyl_exception = false;
       bool trp_exception = false;
+      bool GA_exception = false;
+      bool CUT_exception = false;
       if (res_name == "TRP") trp_exception = true;
       if (res_name == "PHE" || res_name == "TYR") phenyl_exception = true;
+      if (res_name == "G" || res_name == "A") GA_exception = true;
+      if (res_name == "DG" || res_name == "DA") GA_exception = true;
+      if (res_name == "C" || res_name == "U" || res_name == "DT") CUT_exception = true;
 
       if (geom->have_at_least_minimal_dictionary_for_residue_type(monomer_name, imol)) {
 
@@ -5361,16 +5593,53 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
          if (restraints_pair.first) {
             const coot::dictionary_residue_restraints_t &restraints = restraints_pair.second;
 
+            // Here outer, doesn't mean the outer ring, it's the function name to draw both (if needed) of the
+            // ring bonds (and it has an inner function). Probably better to rename things when it works.
+
             if (phenyl_exception)
-               for (unsigned int i=0; i<v.size(); i++)
-                  draw_phenyl_ring_outer(v[i], model_number, atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+               for (unsigned int i=0; i<rv.size(); i++)
+                  draw_phenyl_ring_outer(rv[i], model_number, atom_colour_type, &atom_colour_map, udd_atom_index_handle);
 
             if (trp_exception)
-               for (unsigned int i=0; i<v.size(); i++)
-                  draw_trp_ring_outer(v[i], model_number, atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+               for (unsigned int i=0; i<rv.size(); i++)
+                  draw_trp_ring_outer(rv[i], model_number, atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+
+            if (GA_exception)
+               for (unsigned int i=0; i<rv.size(); i++)
+                  draw_GA_rings_outer(rv[i], model_number, atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+
+            if (CUT_exception)
+               for (unsigned int i=0; i<rv.size(); i++)
+                  draw_CUT_ring_outer(rv[i], model_number, atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+
+            std::vector<std::vector<std::string> > rings;
+            std::vector<bonded_quad_atom_names> rings_as_bonded_quads_atom_names;
+
+            // mmdb cif parse make protein residues HET at the moment, so let's excude those too
+            if (is_het && ! phenyl_exception && ! trp_exception && ! GA_exception && ! CUT_exception) {
+               std::vector<std::pair<std::string, std::string> > aromatic_bonds = get_aromatic_bonds(restraints);
+               coot::aromatic_graph_t ag(aromatic_bonds);
+               rings = ag.ring_list();
+               rings_as_bonded_quads_atom_names = ag.bonded_quad_ring_list();
+               // put the bond orders into the elments of rings_as_bonded_quads_atom_names
+               for (unsigned int i=0; i<rings_as_bonded_quads_atom_names.size(); i++) {
+                  bonded_quad_atom_names &quad = rings_as_bonded_quads_atom_names[i];
+                  std::string br = restraints.get_bond_type(quad.atom_name(1), quad.atom_name(2));
+                  if (false)
+                     std::cout << "look up bond type: for " << quad.atom_name(1) << " " << quad.atom_name(2)
+                               << " got " << br << std::endl;
+                  if (br == "double")
+                     quad.bond_type = bonded_quad_atom_names::DOUBLE;
+                  else
+                     quad.bond_type = bonded_quad_atom_names::SINGLE;
+               }
+               for (unsigned int i=0; i<rv.size(); i++)
+                  draw_het_group_rings(rv[i], rings_as_bonded_quads_atom_names, model_number,
+                                       atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+            }
 
             for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
-               coot::dictionary_residue_restraints_t &restraints = restraints_pair.second;
+               const coot::dict_bond_restraint_t &br = restraints.bond_restraint[ib];
                std::string bt = restraints.bond_restraint[ib].type();
                std::string dict_atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
                std::string dict_atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
@@ -5385,8 +5654,33 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                      if (std::find(trp_rings_atom_names.begin(), trp_rings_atom_names.end(), dict_atom_name_2) != trp_rings_atom_names.end())
                         continue;
 
-               for (unsigned int i=0; i<v.size(); i++) {
-                  mmdb::Residue *residue_p = v[i];
+               if (GA_exception)
+                  if (std::find(G_rings_atom_names.begin(), G_rings_atom_names.end(), dict_atom_name_1) != G_rings_atom_names.end())
+                     if (std::find(G_rings_atom_names.begin(), G_rings_atom_names.end(), dict_atom_name_2) != G_rings_atom_names.end())
+                        continue;
+
+               if (CUT_exception)
+                  if (std::find(CUT_rings_atom_names.begin(), CUT_rings_atom_names.end(), dict_atom_name_1) != CUT_rings_atom_names.end())
+                     if (std::find(CUT_rings_atom_names.begin(), CUT_rings_atom_names.end(), dict_atom_name_2) != CUT_rings_atom_names.end())
+                        continue;
+
+               bool in_het_ring = false;
+               for (unsigned int j=0; j<rings.size(); j++) {
+                  if (std::find(rings[j].begin(), rings[j].end(), dict_atom_name_1) != rings[j].end()) {
+                     if (std::find(rings[j].begin(), rings[j].end(), dict_atom_name_2) != rings[j].end()) {
+                        in_het_ring = true;
+                        break;
+                     }
+                  }
+               }
+               if (in_het_ring)
+                  continue;
+
+               // std::cout << "If we are here then " << dict_atom_name_1 << " and " << dict_atom_name_2
+               //            << " are not in a ring" << std::endl;
+
+               for (unsigned int i=0; i<rv.size(); i++) {
+                  mmdb::Residue *residue_p = rv[i];
                   const std::vector<std::pair<std::string, std::string> > &atom_name_ele_vec =
                      atom_name_ele_map[monomer_name][i];
                   // find the atom indices in the first atom name vector then try to use
@@ -5431,9 +5725,17 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                            if (!is_hydrogen(element_1) && !is_hydrogen(element_2)) {
 
                               if (bt == "double") {
-                                 add_double_bond(imol, model_number, iat, jat, residue_atoms, n_residue_atoms,
-                                                 atom_colour_type, &atom_colour_map,
-                                                 udd_atom_index_handle, restraints.bond_restraint);
+                                 if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC) {
+
+                                    add_half_bonds(p1, p2, residue_atoms[iat], residue_atoms[jat],
+                                                   model_number, iat_1_atom_index, iat_2_atom_index,
+                                                   atom_colour_type, &atom_colour_map);
+
+                                 } else {
+                                    add_double_bond(imol, model_number, iat, jat, residue_atoms, n_residue_atoms,
+                                                    atom_colour_type, &atom_colour_map,
+                                                    udd_atom_index_handle, restraints.bond_restraint);
+                                 }
                               } else {
                                  if (bt == "deloc") {
                                     bool is_deloc = true;
@@ -5481,6 +5783,10 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                            // addBond uses all-molecule atom indexing.
                            int col = atom_colour(residue_atoms[iat], atom_colour_type, &atom_colour_map);
                            if (bt == "double") {
+
+                              if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC)
+                                 std::cout << "double and aromatic and same-ele!" << std::endl;
+                              
                               add_double_bond(imol, model_number, iat, jat, residue_atoms, n_residue_atoms,
                                               atom_colour_type, &atom_colour_map,
                                               udd_atom_index_handle,
@@ -5579,7 +5885,6 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
             mmdb::Residue *residue_p = at->residue;
             std::string res_name(residue_p->GetResName());
             if (res_name == "HOH") {
-               std::cout << "do sticks for waters " << coot::residue_spec_t(residue_p) << " " << do_sticks_for_waters << std::endl;
                if (! do_sticks_for_waters)
                   continue;
             }

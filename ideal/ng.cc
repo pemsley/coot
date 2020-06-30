@@ -1739,7 +1739,7 @@ coot::restraints_container_t::add_header_metal_link_bond_ng(const coot::atom_spe
 	 break;
    }
 
-   if (false)
+   if (true)
       std::cout << "debug:: in add_header_metal_link_bond_ng() indices: " << index_1 << " " << index_2
 		<< std::endl;
 

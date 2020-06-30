@@ -1764,7 +1764,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 
 	 // Acedrg marks aromatic bonds in this way.
 	 // 
-	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
+	 s = mmCIFLoop->GetString("aromatic", j, ierr_optional);
 	 if (s) {
 	    if (! ierr_optional) {
 	       std::string ss(s);

@@ -1466,7 +1466,7 @@ exptl::nsv::highlight_residue(mmdb::Residue *residue_p) {
    if (it != rect_residue_map.end()) {
       GooCanvasItem *rect = it->second;
       if (GOO_IS_CANVAS_ITEM(rect)) {
-         g_object_set(rect, "fill_color", "lightgreen", NULL);
+         g_object_set(rect, "fill_color", "orange", NULL);
       }
       if (current_highlight_residue != residue_p) {
          it = rect_residue_map.find(current_highlight_residue);

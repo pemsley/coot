@@ -21,5 +21,25 @@ For each fragment
 
   
 
+---------------------------
+
+Robbie suggest the use of CCP4 Energy types
+
+Use Symmetry-related molecules when generating the table
+
+Roobie whatif packing score: fine and coarse: to monitor refinement progress.
+
+Ligand validation : break all lignads into rigid groups and look at distribution of side chain groups.
+
+Check the chirality in SMARTS - can it be use t to type ligand fragments?
+
+Internal symmetry: say for a PHE side chain - how does that work?
+
+partition on beta-strand also (as well as helices)
+
+What happens about water? check the code and the paper? Just leave it out?
+
+Tuesday next week? yes.
+
 
 
