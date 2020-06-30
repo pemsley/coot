@@ -28,7 +28,7 @@ Let's start up coot (having run the CCP4 set-up in that shell):
 
 Now try to read in the data:
 
-**File** → xx &rightarrow; **Open MTZ,mmcif,fcf or phs...**
+**File** → **Open MTZ,mmcif,fcf or phs...**
 
 Then
 
@@ -41,21 +41,21 @@ In the `refmac-for-phases-tmp.pdb` section, click the **Display** checkbutton to
 
 **Close** (the Display Manager dialog)
 
-**Validate** &rightarrow;  **Unmodelled Blobs** &rightarrow;  **Find Blobs**
+**Validate** →  **Unmodelled Blobs** →  **Find Blobs**
 
 Coot gives us a dialog - for me the blob of interest is "Blob 2" which is close to B258 LYS. Click **Blob 2**
 
 When we are at the ligand site, you can dismiss the Blob dialog.
 
-**File** &rightarrow;  **Get Monomer** &rightarrow;  PLP &rightarrow;  OK
+**File**  → **Get Monomer**  → PLP  → OK
 
 Should have imported PLP, let's undisplay it:
 
-**Display Manager** &rightarrow;  for the PLP_from_dist section, click the **Display** checkbutton to undisplay this model
+**Display Manager**  → for the PLP_from_dist section, click the **Display** checkbutton to undisplay this model
 
 **Close**
 
-From the main menu bar: **Ligand** &rightarrow;  **Find Ligands**
+From the main menu bar: **Ligand** → **Find Ligands**
 
 Click the "PLP_from_dict" checkbutton to select it
 
@@ -67,16 +67,16 @@ OK the resulting Dialogs and see that the PLP has been fit reasonably well.
 
 Let's merge the new ligand into the protein molecule
 
-**Edit** &rightarrow;  **Merge Molecules** "5 Fitted ligand #0-0" &rightarrow;  **Merge**
+**Edit** → **Merge Molecules** "5 Fitted ligand #0-0" → **Merge**
 (you may have a different molecule index)
 
 Now the ligand is the same colour as the protein - indicating that the ligand has been merged.
 
 Right.... so with that "preamble" done - we are ready to use Acedrg!
 
-**Calculate** &rightarrow;  **Modules** &rightarrow;  **CCP4**, then
+**Calculate** → **Modules** → **CCP4**, then
 
-From the main menubar: **CCP4** &rightarrow;  **Make Link via Acedrg**
+From the main menubar: **CCP4** → **Make Link via Acedrg**
 
 In the resulting dialog:
 
