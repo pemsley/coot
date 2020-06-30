@@ -10,11 +10,11 @@ Let's try it out, first we will need to do a conventional ligand fitting procedu
 
 Get the tutorial data:
 
-http://www.ysbl.york.ac.uk/mxstat/JLigand/JLigand_link_tutorial.tar.gz
+[http://www.ysbl.york.ac.uk/mxstat/JLigand/JLigand_link_tutorial.tar.gz](http://www.ysbl.york.ac.uk/mxstat/JLigand/JLigand_link_tutorial.tar.gz)
 
 which is the "DATA" link in this page:
 
-http://www.ysbl.york.ac.uk/mxstat/JLigand/tutorial_link.html
+[http://www.ysbl.york.ac.uk/mxstat/JLigand/tutorial_link.html](http://www.ysbl.york.ac.uk/mxstat/JLigand/tutorial_link.html)
 
 *(We no longer recommend using JLigand for links, but the tutorial dataset 
 is nice and useful)*
@@ -28,7 +28,7 @@ Let's start up coot (having run the CCP4 set-up in that shell):
 
 Now try to read in the data:
 
-**File** &rightarrow; **Open MTZ,mmcif,fcf or phs...**
+**File** → xx &rightarrow; **Open MTZ,mmcif,fcf or phs...**
 
 Then
 
