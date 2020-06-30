@@ -792,7 +792,7 @@ molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
 
          // also remove labels from atom indexes list of over the end.
          for (int ii=0; ii<n_atoms_to_label ; ii++)
-            label_atom(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+            draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
 
          n_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -3493,9 +3493,9 @@ molecule_class_info_t::draw_atom_label(int atom_index,
 
    if (has_model()) {
 
-      if (i < atom_sel.n_selected_atoms) {
+      if (atom_index < atom_sel.n_selected_atoms) {
 
-         mmdb::PAtom atom = (atom_sel.atom_selection)[i];
+         mmdb::PAtom atom = (atom_sel.atom_selection)[atom_index];
 
          if (atom) {
 
@@ -3516,9 +3516,9 @@ molecule_class_info_t::draw_atom_label(int atom_index,
          }
       } else {
          std::cout << "INFO:: trying to label atom out of range: "
-                   << i << " " << atom_sel.n_selected_atoms
+                   << atom_index << " " << atom_sel.n_selected_atoms
                    << " Removing label\n";
-         unlabel_atom(i);
+         unlabel_atom(atom_index);
       }
    }
 }

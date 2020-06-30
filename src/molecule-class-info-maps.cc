@@ -538,9 +538,12 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads[ii].join();
       }
 
-      if (is_dynamically_transformed_map_flag)
-         for (unsigned int ii=0; ii<draw_vector_sets.size(); ii++)
-            dynamically_transform(draw_vector_sets[ii]);
+      if (is_dynamically_transformed_map_flag) {
+         for (unsigned int ii=0; ii<draw_vector_sets.size(); ii++) {
+            // needs the type changing?       FIXME
+            // dynamically_transform(draw_vector_sets[ii]);
+         }
+      }
 
       // post_process_map_triangles();
 
@@ -1544,21 +1547,11 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
 // modify v
 void
-molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
+molecule_class_info_t::dynamically_transform(coot::density_contour_triangles_container_t *dctc) {
 
-   int s = v.size;
-   for (int i=0; i<s; i++) {
-      clipper::Coord_orth c1(v.data[i].getStart().x(),
-			     v.data[i].getStart().y(),
-			     v.data[i].getStart().z());
-      clipper::Coord_orth c2(v.data[i].getFinish().x(),
-			     v.data[i].getFinish().y(),
-			     v.data[i].getFinish().z());
-      clipper::Coord_orth ct1 = c1.transform(map_ghost_info.rtop);
-      clipper::Coord_orth ct2 = c2.transform(map_ghost_info.rtop);
-      v.data[i] = coot::CartesianPair(coot::Cartesian(ct1.x(), ct1.y(), ct1.z()),
-                                      coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
-   }
+   int s = dctc->points.size();
+   for (int i=0; i<s; i++)
+      dctc->points[i] = dctc->points[i].transform(map_ghost_info.rtop);
 
 }
 

@@ -1278,7 +1278,8 @@ public:        //                      public
 			       bool allow_waters_flag);
 
 
-   void dynamically_transform(coot::CartesianPairInfo v);
+   // void dynamically_transform(coot::CartesianPairInfo v);
+   void dynamically_transform(coot::density_contour_triangles_container_t *dctc);
 
    void clear_draw_vecs();
    void clear_diff_map_draw_vecs();

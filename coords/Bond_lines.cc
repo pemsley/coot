@@ -830,8 +830,8 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
 
       coot::Cartesian v1 = pt_1 - mp;
       coot::Cartesian v2 = pt_2 - mp;
-      coot::Cartesian ip1 = mp + v1 * 0.9; // 0.8 look better with no atoms
-      coot::Cartesian ip2 = mp + v2 * 0.9;
+      coot::Cartesian ip1 = mp + v1 * 0.78; // 0.8 look better with no atoms
+      coot::Cartesian ip2 = mp + v2 * 0.78;
       mmdb::Atom *at_1 = ring_atoms[iat_1];
       int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
       int atom_1_index = -1;

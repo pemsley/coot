@@ -368,10 +368,12 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
           mmdb::Residue *residue_p = next_atom->residue;
           if (residue_p) {
               GtkWidget *svc = get_sequence_view_is_displayed(imol);
+#if GTK3_CAN_DO_SEQUENCE_VIEW
               if (svc) {
                   exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
                   nsv->highlight_residue(residue_p);
               }
+#endif
           }
       }
    }
@@ -1170,33 +1172,6 @@ int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const s
    return status;
 }
 
-
-
-// do it if have intermediate atoms and ctrl is pressed.
-//
-// axis: 0 for Z, 1 for X.
-//
-short int
-graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
-
-
-   short int handled_flag = 0;
-
-   if (rot_trans_rotation_origin_atom) {
-      if (moving_atoms_asc) {
-	 if (moving_atoms_asc->n_selected_atoms > 0) {
-	    if (control_is_pressed) {
-	       if (axis == 0)
-		  rotate_intermediate_atoms_round_screen_z(angle);
-	       else
-		  rotate_intermediate_atoms_round_screen_x(angle);
-	       handled_flag = 1;
-	    }
-	 }
-      }
-   }
-   return handled_flag;
-}
 
 
 // --- unapply symmetry to current view, (we are looking at

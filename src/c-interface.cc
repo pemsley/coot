@@ -956,7 +956,8 @@ void hardware_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
+         GtkWidget *gl_area = graphics_info_t::glareas[0];
+	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
 	 } else {
@@ -1013,7 +1014,8 @@ void zalman_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
+         GtkWidget *gl_area = graphics_info_t::glareas[0];
+	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
 	 } else {
@@ -1065,17 +1067,12 @@ void mono_mode() {
          int x_size = gtk_widget_get_allocated_width(gl_widget);
          int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::glarea, "main_window_vbox");
+         GtkWidget *gl_area = graphics_info_t::glareas[0];
+	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
 	    short int try_hardware_stereo_flag = 0;
-	    //BL says:: and we switch the lists_maps back to normal
-            //          for windows users; seems to be necessary at the moment
-#ifdef WINDOWS_MINGW
-	    set_display_lists_for_maps(1);
-	    //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-#endif // WINDOWS_MINGW
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
