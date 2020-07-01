@@ -1377,6 +1377,8 @@ void set_draw_mesh(int imol, int mesh_index, short int state);
 // return -1 on unable to lookup mesh
 int draw_mesh_state(int imol, int mesh_index);
 
+void set_map_material_specular(int imol, float specular_strength, float shininess);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

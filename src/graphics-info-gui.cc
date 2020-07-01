@@ -282,6 +282,8 @@ void set_colour_accept_reject_event_box(GtkWidget *label, GdkColor *col) {
    // sigh - use css.
    // std::cout << "set_colour_accept_reject_event_box() set the label colour here " << std::endl;
 
+   // gtk_widget_override_background_color(label, col);
+
    gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
 }
 

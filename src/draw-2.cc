@@ -491,6 +491,17 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                shader.setup_light(light_idx, light, view_rotation);
             }
 
+            // --- material ---
+
+            Material &material = m.material_for_maps;
+            shader.set_vec4_for_uniform( "material.ambient",   material.ambient);
+            shader.set_vec4_for_uniform( "material.diffuse",   material.diffuse);
+            shader.set_vec4_for_uniform( "material.specular",  material.specular);
+            shader.set_float_for_uniform("material.shininess", material.shininess);
+            shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+            // --- draw ---
+
             if (draw_with_lines) {
                // I don't see why this is needed - but it is.
                if (! m.is_an_opaque_map())

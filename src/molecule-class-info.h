@@ -2961,6 +2961,8 @@ public:        //                      public
                                                                             // elsewhere in the code, e.g. in
                                                                             // the adjustment handler.
 
+   Material material_for_maps;
+
    // using current contour level,
    // return world coordinates and normals
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >

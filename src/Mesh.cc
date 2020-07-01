@@ -984,6 +984,10 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_vec4_for_uniform( "material.diffuse",   material.diffuse);
    shader_p->set_vec4_for_uniform( "material.specular",  material.specular);
    shader_p->set_float_for_uniform("material.shininess", material.shininess);
+   shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+   // std::cout << "sent material.shininess " << material.shininess << std::endl;
+   // std::cout << "sent material.specular_strength " << material.specular_strength << std::endl;
 
    if (false) {
       std::cout << "debug:: draw(): " << shader_p->name << " material.ambient "   << glm::to_string(material.ambient) << std::endl;

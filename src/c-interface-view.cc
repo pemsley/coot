@@ -202,6 +202,16 @@ int draw_mesh_state(int imol, int mesh_index) {
    return -1;
 }
 
+void set_map_material_specular(int imol, float specular_strength, float shininess) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.material_for_maps.specular_strength = specular_strength;
+      m.material_for_maps.shininess         = shininess;
+      graphics_draw();
+   }
+
+}
 
    
 
