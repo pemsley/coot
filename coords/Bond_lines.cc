@@ -5497,9 +5497,6 @@ Bond_lines_container::draw_het_group_rings(mmdb::Residue *residue_p,
 
    // 20200630-PE the current cif file parse make protein residues het groups. Hmm.
 
-   std::cout << "------ draw_het_group_rings() for residue " << coot::residue_spec_t(residue_p)
-             << " " << residue_p->GetResName() << std::endl;
-
    std::vector<bonded_quad_atoms> bqv;
 
    for (unsigned int i=0; i<bonded_quads.size(); i++) {
@@ -5634,8 +5631,9 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                      quad.bond_type = bonded_quad_atom_names::SINGLE;
                }
                for (unsigned int i=0; i<rv.size(); i++)
-                  draw_het_group_rings(rv[i], rings_as_bonded_quads_atom_names, model_number,
-                                       atom_colour_type, &atom_colour_map, udd_atom_index_handle);
+                  if (res_name != "HOH")
+                     draw_het_group_rings(rv[i], rings_as_bonded_quads_atom_names, model_number,
+                                          atom_colour_type, &atom_colour_map, udd_atom_index_handle);
             }
 
             for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
