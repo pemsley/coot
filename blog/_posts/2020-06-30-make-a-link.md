@@ -47,15 +47,15 @@ Coot gives us a dialog - for me the blob of interest is "Blob 2" which is close 
 
 When we are at the ligand site, you can dismiss the Blob dialog.
 
-**File**  → **Get Monomer**  → PLP  → **OK**
+**File** → **Get Monomer** → PLP  → **OK**
 
 That should have imported a PLP, let's undisplay it:
 
-**Display Manager**  → for the PLP_from_dist section, click the **Display** checkbutton to undisplay this model
+**Display Manager** → for the PLP_from_dist section, click the **Display** checkbutton to undisplay this model
 
-Undisplay the difference map while you are there - it has served it's purpose.
+Undisplay the difference map while you are there - it has served its purpose.
 
-**Close**
+**Close** the Display Manager dialog
 
 From the main menu bar: **Ligand** → **Find Ligands**
 
