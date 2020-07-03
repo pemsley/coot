@@ -434,8 +434,8 @@ coot_bin_SOURCES = \
 	flev.cc                  \
         framebuffer.cc           \
         framebuffer.hh           \
-	generic-display-object.hh\
-	generic-display-object.cc\
+	old-generic-display-object.hh\
+	old-generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
 	generic-vertex.hh	 \

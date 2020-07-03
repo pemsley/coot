@@ -10,7 +10,7 @@
 #include "coords/Cartesian.h"
 #include "gl-matrix.h"
 
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
 
 #include "coot-colour.hh"
 

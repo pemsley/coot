@@ -104,7 +104,6 @@ struct FT_character {
 #include "coot-utils/coot-coord-extras.hh"
 
 #include "positioned-widgets.h"
-#include "geometry-graphs.hh"
 
 #include "coot-database.hh"
 
@@ -160,7 +159,7 @@ namespace coot {
 
 enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
 
 
 namespace coot {
@@ -3635,7 +3634,6 @@ public:
      }
      return index;
    }
-
 
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();

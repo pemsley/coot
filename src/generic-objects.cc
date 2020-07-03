@@ -38,7 +38,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
 #include "c-interface-widgets.hh" // for generic_objects_dialog_table_add_object_internal()
 
 #include "graphics-info.h"

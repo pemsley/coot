@@ -5,7 +5,7 @@
 
 // #include <GL/glu.h> OpenGLv1
 
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
 #include "graphics-info.h"
 #include "c-interface-widgets.hh"
 
@@ -182,7 +182,7 @@ graphics_info_t::draw_generic_objects_solid() {
       for (unsigned int i=0; i<generic_objects_p->size(); i++) {
          const coot::old_generic_display_object_t &obj = generic_objects_p->at(i);
 	 if (obj.is_displayed_flag) {
-            std::cout << "draw_generic_objects_solid() " << i << std::endl;
+            // std::cout << "draw_generic_objects_solid() " << i << std::endl;
          }
       }
    }

@@ -15,7 +15,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "cylinder.hh"
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
 
 void
 Mesh::init() {
@@ -106,7 +106,6 @@ Mesh::setup_rama_balls(Shader *shader_p, const Material &material_in) {
    setup_buffers();
 }
 
-#include "generic-display-object.hh"
 
 void
 Mesh::fill_one_dodec() {
