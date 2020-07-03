@@ -1759,7 +1759,7 @@ display_control_add_reps_frame(GtkWidget *display_control_window_glade,
       if (t)
 	 w = t;
       else
-	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
+	 std::cout << "ERROR:: in display_control_add_reps_frame failed to lookup "
 		   << name << " widget" << std::endl;
    } 
    return w;
@@ -1776,7 +1776,7 @@ display_control_add_reps_all_on_check_button(GtkWidget *display_control_window_g
       if (t)
 	 w = t;
       else
-	 std::cout << "ERROR:: in display_control_add_reps_container failed to lookup "
+	 std::cout << "ERROR:: in display_control_add_reps_all_on_check_button failed to lookup "
 		   << name << " widget" << std::endl;
    }
    return w;
