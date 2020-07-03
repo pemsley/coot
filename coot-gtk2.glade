@@ -11530,7 +11530,7 @@ just the cell and symmetry)
 <widget class="GtkWindow" id="python_window">
   <property name="border_width">10</property>
   <property name="visible">True</property>
-  <property name="title" translatable="yes">window2</property>
+  <property name="title" translatable="yes">Python Shell</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
@@ -11539,7 +11539,7 @@ just the cell and symmetry)
   <property name="decorated">True</property>
   <property name="skip_taskbar_hint">False</property>
   <property name="skip_pager_hint">False</property>
-  <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+  <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
   <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
   <property name="focus_on_map">True</property>
   <property name="urgency_hint">False</property>
@@ -11549,6 +11549,28 @@ just the cell and symmetry)
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">0</property>
+
+      <child>
+	<widget class="GtkEntry" id="python_window_entry">
+	  <property name="width_request">350</property>
+	  <property name="visible">True</property>
+	  <property name="can_focus">True</property>
+	  <property name="editable">True</property>
+	  <property name="visibility">True</property>
+	  <property name="max_length">0</property>
+	  <property name="text" translatable="yes"></property>
+	  <property name="has_frame">True</property>
+	  <property name="invisible_char">*</property>
+	  <property name="activates_default">False</property>
+	  <signal name="activate" handler="on_python_window_entry_activate" last_modification_time="Wed, 01 Jul 2020 10:18:05 GMT"/>
+	  <signal name="key_press_event" handler="on_python_window_entry_key_press_event" last_modification_time="Wed, 01 Jul 2020 10:18:34 GMT"/>
+	</widget>
+	<packing>
+	  <property name="padding">5</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
 
       <child>
 	<widget class="GtkScrolledWindow" id="scrolledwindow4">
@@ -11582,25 +11604,6 @@ just the cell and symmetry)
 	  <property name="padding">0</property>
 	  <property name="expand">True</property>
 	  <property name="fill">True</property>
-	</packing>
-      </child>
-
-      <child>
-	<widget class="GtkEntry" id="python_window_entry">
-	  <property name="visible">True</property>
-	  <property name="can_focus">True</property>
-	  <property name="editable">True</property>
-	  <property name="visibility">True</property>
-	  <property name="max_length">0</property>
-	  <property name="text" translatable="yes"></property>
-	  <property name="has_frame">True</property>
-	  <property name="invisible_char">*</property>
-	  <property name="activates_default">False</property>
-	</widget>
-	<packing>
-	  <property name="padding">5</property>
-	  <property name="expand">False</property>
-	  <property name="fill">False</property>
 	</packing>
       </child>
     </widget>

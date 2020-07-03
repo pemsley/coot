@@ -7,6 +7,8 @@ const double pi = M_PI;
 #include "g_triangle.hh"
 #include "cylinder-with-rotation-translation.hh"
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 
 // Make triangles for a cylinder along the z axis
 //
@@ -15,10 +17,10 @@ const double pi = M_PI;
 //
 cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std::pair<glm::vec3,
                                                                        glm::vec3> &pos_pair,
-                                                                       float base_radius,
-                                                                       float top_radius,
-                                                                       float height,
-                                                                       unsigned int n_slices,
+                                                                       float base_radius_in,
+                                                                       float top_radius_in,
+                                                                       float height_in,
+                                                                       unsigned int n_slices_in,
                                                                        unsigned int n_stacks) {
 
    // n_stacks*n_slices = 12
@@ -26,12 +28,19 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
    // n_triangles = n_stacks * n_slices * 2;
    // tri_indices cylinder_indices[24];
 
+   height = height_in;
+   n_slices = n_slices_in;
+   base_radius = base_radius_in;
+   top_radius = top_radius_in;
    const glm::vec3 &start  = pos_pair.first;
    const glm::vec3 &finish = pos_pair.second;
    glm::vec3 b = finish - start;
    b = glm::normalize(b);
    glm::vec3 normalized_bond_orientation(b.x, b.y, b.z);
    glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0));
+
+   model_rotation_matrix = glm::transpose(ori);
+   model_translation = start;
 
    // std::cout << "ori " << glm::to_string(ori) << "\n";
 
@@ -65,7 +74,7 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
                std::cout << "debug radii: " << i_stack << " " << base_radius << " "
                          << top_radius << " " << interpolated_radius << std::endl;
          glm::vec3 sp(x*interpolated_radius, y*interpolated_radius, z_this);
-         glm::vec3 t(start.x, start.y, start.z);
+         glm::vec3 t = start;
 
          vertex_with_rotation_translation &v = vertices[idx];
 
@@ -104,3 +113,56 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
 }
 
 
+void
+cylinder_with_rotation_translation::add_start_cap() {
+   add_cap(0.0f);
+}
+
+
+void
+cylinder_with_rotation_translation::add_end_cap() {
+
+   add_cap(height);
+}
+
+void
+cylinder_with_rotation_translation::add_cap(float z) {
+
+   glm::vec3 n(0,0,1);
+   if (z == 0.0f) n = -n;
+
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_base_tri = triangle_indices_vec.size();
+
+   vertex_with_rotation_translation vertex;
+   vertex.pos    = glm::vec3(0,0,z);
+   vertex.normal = n;
+   vertex.model_rotation_matrix = model_rotation_matrix;
+   vertex.model_translation = model_translation;
+   vertices.push_back(vertex);
+
+   float one_over_n_slices = 1.0/static_cast<float>(n_slices);
+   float radius = base_radius;
+
+   for (unsigned int i=0; i<n_slices; i++) {
+      float theta_this = 2.0 * pi * static_cast<float>(i) * one_over_n_slices;
+      float x = cosf(theta_this);
+      float y = sinf(theta_this);
+      glm::vec3 sp(x*radius, y*radius, z);
+      vertex_with_rotation_translation v;
+      v.pos    = sp;
+      v.normal = n;
+      v.model_rotation_matrix = model_rotation_matrix;
+      v.model_translation = model_translation;
+      vertices.push_back(v);
+   }
+
+   for (unsigned int i=0; i<n_slices; i++) {
+      unsigned int i_next = idx_base + i + 1 + 1;
+      if (i == (n_slices-1)) i_next = idx_base + 1;
+      g_triangle triangle(idx_base, idx_base + i + 1, i_next);
+      triangle_indices_vec.push_back(triangle);
+   }
+
+
+}

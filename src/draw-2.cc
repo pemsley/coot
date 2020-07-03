@@ -686,6 +686,7 @@ graphics_info_t::draw_model_molecules() {
  
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
+
          // std::cout << "   Drawing " << n_verts << " model vertices" << std::endl;
          err = glGetError();
          if (err) std::cout << "   error pre draw_model_molecules() glDrawElements() " << shader.name

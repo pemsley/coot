@@ -762,9 +762,11 @@ Bond_lines_container::draw_bonded_quad_atoms_rings(const std::vector<bonded_quad
             // std::cout << "phenyl ring bond between " << atom_1_index << " " << atom_2_index << std::endl;
             int col = atom_colour(at_2, atom_colour_type, atom_colour_map_p);
             graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-            addBond(col, ip1, ip2, cc, imodel, atom_2_index, atom_3_index);
+            addBond(col, ip1, ip2, cc, imodel, atom_2_index, atom_3_index, true, true);
          } else {
-            // a nucleotide base is using this function
+            // a nucleotide base is using this function.
+            //
+            // I need to be able to say that these bonds should have end caps.
             add_half_bonds(ip1, ip2, at_2, at_3, imodel, atom_2_index, atom_3_index,
                            atom_colour_type, atom_colour_map_p);
          }
@@ -818,7 +820,7 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
       ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+      addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index, true, true);
    }
 
    for (unsigned int i=0; i<inner_doubles.size(); i++) {
@@ -921,7 +923,7 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
          // std::cout << "phenyl ring bond between " << atom_1_index << " " << atom_2_index << std::endl;
          int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, true, true);
       } else {
          // a nucleotide base is using this function
          add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);

@@ -6770,6 +6770,9 @@ void post_python_scripting_window() {
      PyRun_SimpleString("coot_gui()");
 
   } else {
+
+#if 0 // what does this block do? Is it relevant today?
+
      // we don't get a proper status from python_gui_loaded_flag so
      // lets check again here whether MAPVIEW_GUI_DIR was defined.
      char *t;
@@ -6782,14 +6785,17 @@ void post_python_scripting_window() {
         std::cout << "COOT_PYTHON_DIR  was not defined - cannot open ";
         std::cout << "scripting window" << std::endl;
      }
-// so let's load the usual window!!
-  GtkWidget *window;
-  GtkWidget *python_entry;
-  window = create_python_window();
+#endif
 
-  python_entry = lookup_widget(window, "python_window_entry");
-  setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
-  gtk_widget_show(window);
+
+     // so let's load the usual window!!
+     GtkWidget *window;
+     GtkWidget *python_entry;
+     window = create_python_window();
+
+     python_entry = lookup_widget(window, "python_window_entry");
+     setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+     gtk_widget_show(window);
   }
 
   // clear the entry here

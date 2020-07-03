@@ -147,6 +147,8 @@ namespace molecule_map_type {
 
 #include "g_triangle.hh"
 
+glm::vec3 cartesian_to_glm(const coot::Cartesian &c);
+
 namespace coot {
 
    enum { UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2,
@@ -2930,6 +2932,10 @@ public:        //                      public
    void setup_glsl_map_rendering();
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);
+
+   void setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
+                                 const std::vector<g_triangle> &triangles);
 
    GLuint m_VertexArrayID_for_map;
    GLuint m_VertexArrayID_for_map_cap;
