@@ -2333,10 +2333,10 @@ graphics_info_t::draw_rotamer_probability_object() {
 }
 
 // can this be const?
-std::vector<coot::generic_display_object_t::dodec_t>
+std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
 
-   std::vector<coot::generic_display_object_t::dodec_t> dodecs;
+   std::vector<coot::old_generic_display_object_t::dodec_t> dodecs;
    if (regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_rotamer_markups > 0) {
          dodec d;
@@ -2351,7 +2351,7 @@ graphics_info_t::get_rotamer_dodecs() {
             clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
             double size = 0.52;
             pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
-            coot::generic_display_object_t::dodec_t dodec(d, size, pos);
+            coot::old_generic_display_object_t::dodec_t dodec(d, size, pos);
             dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
             dodecs.push_back(dodec);
          }
@@ -2949,7 +2949,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 }
 
 void
-graphics_info_t::graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec) {
+graphics_info_t::graphics_object_internal_dodec(const coot::old_generic_display_object_t::dodec_t &dodec) {
 
 #if 0
    glPushMatrix();
@@ -5358,7 +5358,7 @@ graphics_info_t::draw_generic_text() {
 
 // static
 coot::colour_holder
-coot::generic_display_object_t::colour_values_from_colour_name(const std::string &c) {
+coot::old_generic_display_object_t::colour_values_from_colour_name(const std::string &c) {
 
    coot::colour_holder colour;
    colour.red = 0.4;

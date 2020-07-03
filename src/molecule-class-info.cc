@@ -4407,7 +4407,7 @@ void
 molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {
 
    std::string s = "Mol " + coot::util::int_to_string(imol_no) + " Parallel-Plane-Restraints";
-   coot::generic_display_object_t rest_rep(s);
+   coot::old_generic_display_object_t rest_rep(s);
 
    // needed for parallel plane restraints atom name lookup.
    const coot::protein_geometry &geom = *graphics_info_t::Geom_p();  // pass this?

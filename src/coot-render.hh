@@ -147,7 +147,7 @@ namespace coot {
       float clipping;
       float atom_radius;
       float ortho_left, ortho_right, ortho_bottom, ortho_top;
-      std::vector<coot::generic_display_object_t> display_objects;
+      std::vector<coot::old_generic_display_object_t> display_objects;
       std::vector<std::pair<std::string, clipper::Coord_orth> > labels;
       colour_t atom_label_colour;
       std::string font_size_string;
@@ -215,12 +215,12 @@ namespace coot {
 	 raster3d_enable_shadows = state;
       } 
       
-      void add_display_objects(const std::vector<coot::generic_display_object_t> &display_objects_in) {
+      void add_display_objects(const std::vector<coot::old_generic_display_object_t> &display_objects_in) {
 	 for (unsigned int i=0; i<display_objects_in.size(); i++) {
 	    display_objects.push_back(display_objects_in[i]);
 	 } 
       }
-      void add_display_object(const coot::generic_display_object_t &display_object_in) {
+      void add_display_object(const coot::old_generic_display_object_t &display_object_in) {
 	 display_objects.push_back(display_object_in);
       }
 

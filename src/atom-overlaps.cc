@@ -221,20 +221,20 @@ graphics_info_t::do_interactive_coot_probe() {
 
 	 // for quick colour lookups.
 	 std::map<std::string, coot::colour_holder> colour_map;
-	 colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
-	 colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
-	 colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
-	 colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
-	 colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
-	 colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
-	 colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
-	 colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
-	 colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
-	 colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
-	 colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
-	 colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
-	 colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
-	 colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+	 colour_map["blue"      ] = coot::old_generic_display_object_t::colour_values_from_colour_name("blue");
+	 colour_map["sky"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("sky");
+	 colour_map["sea"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("sea");
+	 colour_map["greentint" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("greentint");
+	 colour_map["green"     ] = coot::old_generic_display_object_t::colour_values_from_colour_name("green");
+	 colour_map["orange"    ] = coot::old_generic_display_object_t::colour_values_from_colour_name("orange");
+	 colour_map["orangered" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("orangered");
+	 colour_map["yellow"    ] = coot::old_generic_display_object_t::colour_values_from_colour_name("yellow");
+	 colour_map["yellowtint"] = coot::old_generic_display_object_t::colour_values_from_colour_name("yellowtint");
+	 colour_map["red"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("red");
+	 colour_map["#55dd55"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("#55dd55");
+	 colour_map["hotpink"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("hotpink");
+	 colour_map["grey"      ] = coot::old_generic_display_object_t::colour_values_from_colour_name("grey");
+	 colour_map["magenta"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("magenta");
 
 	 for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	    const std::string &type = it->first;

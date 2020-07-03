@@ -3793,7 +3793,7 @@ int place_text(const char *text, float x, float y, float z, int size) {
 
    int handle = graphics_info_t::generic_texts_p->size();
    std::string s(text);
-   coot::generic_text_object_t o(s, handle, x, y, z);
+   coot::old_generic_text_object_t o(s, handle, x, y, z);
    graphics_info_t::generic_texts_p->push_back(o);
    //   return graphics_info_t::generic_text->size() -1; // the index of the
 	  					    // thing we just
@@ -3813,7 +3813,7 @@ int place_text(const char *text, float x, float y, float z, int size) {
 
 void remove_text(int text_handle) {
 
-   std::vector<coot::generic_text_object_t>::iterator it;
+   std::vector<coot::old_generic_text_object_t>::iterator it;
    for (it = graphics_info_t::generic_texts_p->begin();
 	it != graphics_info_t::generic_texts_p->end();
 	it++) {

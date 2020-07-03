@@ -1166,6 +1166,8 @@ graphics_info_t::draw_molecules() {
 
    draw_map_molecules(false); // transparency
 
+   draw_generic_objects();
+
    // transparent things...
 
    draw_map_molecules(true);

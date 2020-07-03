@@ -640,9 +640,9 @@ class graphics_info_t {
 				     const coot::Cartesian &normal,
 				     float radius, float radius_inner);
 
-   void graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec);
+   void graphics_object_internal_dodec(const coot::old_generic_display_object_t::dodec_t &dodec);
 
-   void graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec);
+   void graphics_object_internal_pentakis_dodec(const coot::old_generic_display_object_t::pentakis_dodec_t &penta_dodec);
 
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
@@ -2064,7 +2064,7 @@ public:
    static void draw_moving_atoms_peptide_markup();
    static void draw_moving_atoms_atoms(bool against_a_dark_background);
    static void draw_moving_atoms_restraints_graphics_object();
-   std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
+   std::vector<coot::old_generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
@@ -3613,9 +3613,9 @@ public:
    static int in_base_paring_define;
 
    // ------- generic object interface ------
-   static std::vector<coot::generic_display_object_t> *generic_objects_p;
+   static std::vector<coot::old_generic_display_object_t> *generic_objects_p;
    int new_generic_object_number(const std::string &name) {
-     coot::generic_display_object_t o(name);
+     coot::old_generic_display_object_t o(name);
      generic_objects_p->push_back(o);
      int r = generic_objects_p->size() -1;
      return r;
@@ -3680,7 +3680,7 @@ public:
    static float probe_dots_on_chis_molprobity_radius;
 
    // a text string and a handle (so that it can be removed)
-   static std::vector<coot::generic_text_object_t> *generic_texts_p;
+   static std::vector<coot::old_generic_text_object_t> *generic_texts_p;
 
    // -- move molecule here
    static int move_molecule_here_molecule_number;

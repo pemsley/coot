@@ -144,7 +144,7 @@ Mesh::add_one_ball(float scale, const glm::vec3 &centre) { // i.e. a smooth-shad
    pentakis_dodec pkdd(1.05);
    // coordninate system finagalling - baah - convert dodecs to glm.
    clipper::Coord_orth centre_c(centre.x, centre.y, centre.z);
-   coot::generic_display_object_t::pentakis_dodec_t penta_dodec(pkdd, 0.01, centre_c);
+   coot::old_generic_display_object_t::pentakis_dodec_t penta_dodec(pkdd, 0.01, centre_c); // Hmmm!!!!    
    std::vector<clipper::Coord_orth> v = penta_dodec.pkdd.d.coords();
 
    unsigned int vertex_index_start_base   = vertices.size();
@@ -190,7 +190,7 @@ Mesh::add_one_origin_ball() { // i.e. a smooth-shaded pentakis dodec
    pentakis_dodec pkdd(1.05);
    // coordninate system finagalling - baah - convert dodecs to glm.
    clipper::Coord_orth centre_c(0,0,0);
-   coot::generic_display_object_t::pentakis_dodec_t penta_dodec(pkdd, 0.01, centre_c);
+   coot::old_generic_display_object_t::pentakis_dodec_t penta_dodec(pkdd, 0.01, centre_c);
    std::vector<clipper::Coord_orth> v = penta_dodec.pkdd.d.coords();
 
    unsigned int vertex_index_start_base   = vertices.size();
@@ -255,7 +255,7 @@ Mesh::add_one_origin_dodec() { // i.e. a smooth-shaded pentakis dodec
       dodec d;
       float radius = 0.2;
       clipper::Coord_orth position(0,0,0);
-      coot::generic_display_object_t::dodec_t dod(d, radius, position);
+      coot::old_generic_display_object_t::dodec_t dod(d, radius, position);
       // we can put a colour into dod here
    
       std::vector<clipper::Coord_orth> v = dod.d.coords();

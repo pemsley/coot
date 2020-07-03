@@ -699,7 +699,7 @@ coot::raytrace_info_t::set_ortho_params(float left, float right, float bottom, f
 
 
 void 
-coot::generic_display_object_t::raster3d(std::ofstream &render_stream) const {
+coot::old_generic_display_object_t::raster3d(std::ofstream &render_stream) const {
 
    if (! is_closed_flag) {
       if (is_displayed_flag) {

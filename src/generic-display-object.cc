@@ -31,7 +31,7 @@ PyObject *get_generic_object_py(unsigned int idx) {
 
    if (idx < size) {
       r = PyDict_New();
-      const coot::generic_display_object_t &gdo = g.generic_objects_p->at(idx);
+      const coot::old_generic_display_object_t &gdo = g.generic_objects_p->at(idx);
       if (! gdo.is_closed_flag) {
 	 // also, is_transparent_flag, is_solid_flag, opacity
 	 PyDict_SetItemString(r, "name", myPyString_FromString(gdo.name.c_str()));
@@ -41,12 +41,12 @@ PyObject *get_generic_object_py(unsigned int idx) {
 	 if (gdo.lines_set.size() > 0) {
 	    PyObject *lines_set_py = PyList_New(gdo.lines_set.size());
 	    for (std::size_t i=0; i<gdo.lines_set.size(); i++) {
-	       const coot::generic_display_line_set_t &ls = gdo.lines_set[i];
+	       const coot::old_generic_display_line_set_t &ls = gdo.lines_set[i];
 	       PyObject *line_set_dict = PyDict_New();
 	       PyObject *colour_py = colour_holder_to_py(ls.colour);
 	       PyObject *lines_py = PyList_New(ls.lines.size());
 	       for (std::size_t j=0; j<ls.lines.size(); j++) {
-		  const coot::generic_display_line_t &l = ls.lines[j];
+		  const coot::old_generic_display_line_t &l = ls.lines[j];
 		  PyObject *pt_0_py = PyList_New(3);
 		  PyObject *pt_1_py = PyList_New(3);
 		  for (std::size_t jj=0; jj<3; jj++){
@@ -69,7 +69,7 @@ PyObject *get_generic_object_py(unsigned int idx) {
 	 if (gdo.points_set.size() > 0) {
 	    PyObject *points_set_py = PyList_New(gdo.points_set.size());
 	    for (std::size_t i=0; i<gdo.points_set.size(); i++) {
-	       const coot::generic_display_point_set_t &ps = gdo.points_set[i];
+	       const coot::old_generic_display_point_set_t &ps = gdo.points_set[i];
 	       PyObject *point_set_dict = PyDict_New();
 	       PyObject *colour_py = colour_holder_to_py(ps.colour);
 	       PyObject *points_py = PyList_New(ps.points.size());

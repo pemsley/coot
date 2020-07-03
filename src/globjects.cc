@@ -153,7 +153,7 @@ coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
-std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::old_generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> graphics_info_t::views;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
@@ -467,7 +467,7 @@ int graphics_info_t::n_molecules_max = 60;
 // int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 
 // generic display objects, gets set in init.
-std::vector<coot::generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+std::vector<coot::old_generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
 bool graphics_info_t::display_generic_objects_as_solid_flag = 0;
 bool graphics_info_t::display_environment_graphics_object_as_solid_flag = 0;
 GtkWidget *graphics_info_t::generic_objects_dialog = NULL;

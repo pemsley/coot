@@ -66,15 +66,13 @@ void to_generic_object_add_line(int object_number,
 
    std::string c(colour_name);
    coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
    if (object_number >= 0) { 
       unsigned int object_number_u(object_number);
-      if (object_number_u < g.generic_objects_p->size()) { 
-	 (*g.generic_objects_p)[object_number].add_line(colour,
-							c,
-							line_width,
-							coords);
-	 
+      if (object_number_u < g.generic_objects_p->size()) {
+         coot::old_generic_display_object_t &obj = (*g.generic_objects_p)[object_number];
+	 obj.add_line(colour, c, line_width, coords);
+         std::cout << "added line " << std::endl;
       } else {
 	 std::cout << "BAD object_number in to_generic_object_add_line"
 		   << " out of range high" << object_number << std::endl;
@@ -132,7 +130,7 @@ void to_generic_object_add_point(int object_number,
    clipper::Coord_orth x1(from_x1, from_y1, from_z1);
    std::string c(colour_name);
    coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
 //    std::cout << "debug:: colour input " << c << " gave colour "
 // 	     << colour << std::endl;
@@ -179,7 +177,7 @@ void to_generic_object_add_dodecahedron(int object_number,
    clipper::Coord_orth x1(x, y, z);
    std::string c(colour_name);
    coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
    if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
 
@@ -203,7 +201,7 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
    clipper::Coord_orth x1(x, y, z);
    std::string c(colour_name);
    coot::colour_holder colour =
-      coot::generic_display_object_t::colour_values_from_colour_name(c);
+      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
    if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
 
@@ -234,7 +232,7 @@ void to_generic_object_add_arc(int object_number,
 			       float normal_z) {
    graphics_info_t g;
    if (object_number >=0 && object_number < int(g.generic_objects_p->size())) {
-      coot::generic_display_object_t::arc_t arc(from_angle, to_angle,
+      coot::old_generic_display_object_t::arc_t arc(from_angle, to_angle,
 						clipper::Coord_orth(start_point_x,
 								    start_point_y,
 								    start_point_z),
@@ -246,7 +244,7 @@ void to_generic_object_add_arc(int object_number,
 								    normal_z),
 						radius, radius_inner);
       coot::colour_holder colour =
-	 coot::generic_display_object_t::colour_values_from_colour_name(std::string(colour_name));
+	 coot::old_generic_display_object_t::colour_values_from_colour_name(std::string(colour_name));
       // bleugh!  Make your colour holders consistent!  - use the utils version throughout!
       arc.col.col[0] = colour.red;
       arc.col.col[1] = colour.green;
@@ -339,7 +337,7 @@ int new_generic_object_number(const std::string &name_string) {
       GtkWidget *table = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
 				       "generic_objects_dialog_table");
       if (table) { 
-	 const coot::generic_display_object_t &gdo = (*g.generic_objects_p)[n_new];
+	 const coot::old_generic_display_object_t &gdo = (*g.generic_objects_p)[n_new];
 	 generic_objects_dialog_table_add_object_internal(gdo,
 							  g.generic_objects_dialog,
 							  table,

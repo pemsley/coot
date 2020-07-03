@@ -11,43 +11,43 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 
 namespace coot {
 
-   class generic_display_line_t {
+   class old_generic_display_line_t {
    public:
-     std::pair<clipper::Coord_orth, clipper::Coord_orth> coords;
-     generic_display_line_t(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) {
-       coords = coords_in;
-     }
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> coords;
+      old_generic_display_line_t(const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) {
+         coords = coords_in;
+      }
    };
 
    // a container for lines of the same colour and width
-   class generic_display_line_set_t {
+   class old_generic_display_line_set_t {
    public:
       colour_holder colour;
       std::string colour_name;
       int width;
-      std::vector<generic_display_line_t> lines;
-      generic_display_line_set_t(const colour_holder &colour_in,
-                                 const std::string &colour_name_in,
-                                 const int &width_in) {
-            colour = colour_in;
-            colour_name = colour_name_in;
-            width = width_in;
+      std::vector<old_generic_display_line_t> lines;
+      old_generic_display_line_set_t(const colour_holder &colour_in,
+                                     const std::string &colour_name_in,
+                                     const int &width_in) {
+         colour = colour_in;
+         colour_name = colour_name_in;
+         width = width_in;
       }
-      void add_line(const generic_display_line_t &line) {
+      void add_line(const old_generic_display_line_t &line) {
          lines.push_back(line);
       }
    };
 
    // a container for points of the same colour and size
-   class generic_display_point_set_t {
+   class old_generic_display_point_set_t {
    public:
       colour_holder colour;
       std::string colour_name;
       int size;
       std::vector<clipper::Coord_orth> points;
-      generic_display_point_set_t(const colour_holder &colour_in,
-                                  const std::string &colour_name_in,
-                                  const int &size_in) {
+      old_generic_display_point_set_t(const colour_holder &colour_in,
+                                      const std::string &colour_name_in,
+                                      const int &size_in) {
          colour = colour_in;
          colour_name = colour_name_in;
          size = size_in;
@@ -57,7 +57,7 @@ namespace coot {
       }
    };
 
-   class generic_display_object_t {
+   class old_generic_display_object_t {
 
    public:
 
@@ -107,27 +107,27 @@ namespace coot {
       // arc is part of a torus
       class arc_t {
       public:
-    arc_t(float start_angle_in, float end_angle_in,
-          const clipper::Coord_orth &start_point_in,
-          const clipper::Coord_orth &start_dir_in,
-          const clipper::Coord_orth &normal_in,
-          float radius_in, float radius_inner_in) {
-       start_point = start_point_in;
-       start_angle = start_angle_in;
-       end_angle = end_angle_in;
-       normal = normal_in;
-       start_dir = start_dir_in;
-       radius = radius_in;
-       radius_inner = radius_inner_in;
-    }
-    clipper::Coord_orth normal;
-    clipper::Coord_orth start_point;
-    clipper::Coord_orth start_dir;
-    float start_angle;
-    float end_angle;
-    colour_t col;
-    float radius;
-    float radius_inner;
+         arc_t(float start_angle_in, float end_angle_in,
+               const clipper::Coord_orth &start_point_in,
+               const clipper::Coord_orth &start_dir_in,
+               const clipper::Coord_orth &normal_in,
+               float radius_in, float radius_inner_in) {
+            start_point = start_point_in;
+            start_angle = start_angle_in;
+            end_angle = end_angle_in;
+            normal = normal_in;
+            start_dir = start_dir_in;
+            radius = radius_in;
+            radius_inner = radius_inner_in;
+         }
+         clipper::Coord_orth normal;
+         clipper::Coord_orth start_point;
+         clipper::Coord_orth start_dir;
+         float start_angle;
+         float end_angle;
+         colour_t col;
+         float radius;
+         float radius_inner;
       };
 
       class dodec_t {
@@ -165,8 +165,8 @@ namespace coot {
       bool is_transparent_flag;
       float opacity; // 0.0 -> 1.0
       std::string name; // name the object, use for indexing, perhaps
-      std::vector<generic_display_line_set_t> lines_set;
-      std::vector<generic_display_point_set_t> points_set;
+      std::vector<old_generic_display_line_set_t> lines_set;
+      std::vector<old_generic_display_point_set_t> points_set;
       std::vector<arrow_t> arrows;
       std::vector<sphere_t> spheres;
       std::vector<torus_t> tori;
@@ -174,47 +174,47 @@ namespace coot {
       std::vector<dodec_t> dodecs;
       std::vector<pentakis_dodec_t> pentakis_dodecs;
       std::vector<int> GL_display_list_handles;
-      generic_display_object_t(const std::string &n) {
-    name = n;
-    is_displayed_flag = false;
-    is_closed_flag = false;
-    opacity = 1.0;
-    is_transparent_flag = false;
-    imol = UNDEFINED;
+      old_generic_display_object_t(const std::string &n) {
+         name = n;
+         is_displayed_flag = false;
+         is_closed_flag = false;
+         opacity = 1.0;
+         is_transparent_flag = false;
+         imol = UNDEFINED;
       }
-      generic_display_object_t(int imol_in, const std::string &n) {
-    name = n;
-    is_displayed_flag = false;
-    is_closed_flag = false;
-    opacity = 1.0;
-    is_transparent_flag = false;
-    imol = imol_in;
+      old_generic_display_object_t(int imol_in, const std::string &n) {
+         name = n;
+         is_displayed_flag = false;
+         is_closed_flag = false;
+         opacity = 1.0;
+         is_transparent_flag = false;
+         imol = imol_in;
       }
       void add_line(const colour_holder &colour_in,
-       const std::string &colour_name,
-       const int &width_in,
-       const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in);
+                    const std::string &colour_name,
+                    const int &width_in,
+                    const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in);
       void add_point(const colour_holder &colour_in,
-        const std::string &colour_name,
-        const int &size_in,
-        const clipper::Coord_orth &coords_in);
+                     const std::string &colour_name,
+                     const int &size_in,
+                     const clipper::Coord_orth &coords_in);
       void add_dodecahedron(const colour_holder &colour_in,
-       const std::string &colour_name,
-       double radius, const clipper::Coord_orth &pos);
+                            const std::string &colour_name,
+                            double radius, const clipper::Coord_orth &pos);
       void add_pentakis_dodecahedron(const colour_holder &colour_in,
-        const std::string &colour_name,
-        double stellation_factor,
-        double radius,
-        const clipper::Coord_orth &pos);
+                                     const std::string &colour_name,
+                                     double stellation_factor,
+                                     double radius,
+                                     const clipper::Coord_orth &pos);
       void raster3d(std::ofstream &render_stream) const;
       void clear() {
-    lines_set.clear();
-    points_set.clear();
+         lines_set.clear();
+         points_set.clear();
       }
       void close_yourself() {
-    name = "Closed Generic Display Object";
-    clear();
-    is_closed_flag = true;
+         name = "Closed Generic Display Object";
+         clear();
+         is_closed_flag = true;
       }
       static colour_holder colour_values_from_colour_name(const std::string &colour_name);
       int get_imol() const { return imol; }
@@ -224,19 +224,19 @@ namespace coot {
       void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
    };
 
-   class generic_text_object_t {
+   class old_generic_text_object_t {
    public:
-     int handle;
-     std::string s;
-     float x, y, z;
-     generic_text_object_t(const std::string &s_in, int handle_in,
-      float x_in, float y_in, float z_in) {
-       handle = handle_in;
-       s = s_in;
-       x = x_in;
-       y = y_in;
-       z = z_in;
-     }
+      int handle;
+      std::string s;
+      float x, y, z;
+      old_generic_text_object_t(const std::string &s_in, int handle_in,
+                            float x_in, float y_in, float z_in) {
+         handle = handle_in;
+         s = s_in;
+         x = x_in;
+         y = y_in;
+         z = z_in;
+      }
    };
 
 }

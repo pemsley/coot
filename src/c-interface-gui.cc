@@ -5746,7 +5746,7 @@ on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
 // the given object number.
 //
 void
-generic_objects_dialog_table_add_object_internal(const coot::generic_display_object_t &gdo,
+generic_objects_dialog_table_add_object_internal(const coot::old_generic_display_object_t &gdo,
 						 GtkWidget *dialog,
 						 GtkWidget *table,
 						 int io) {
@@ -5811,7 +5811,7 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
       // gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
 
       for (unsigned int io=0; io<n_objs; io++) {
-	 const coot::generic_display_object_t &gdo = g.generic_objects_p->at(io);
+	 const coot::old_generic_display_object_t &gdo = g.generic_objects_p->at(io);
 	 generic_objects_dialog_table_add_object_internal(gdo, w, generic_objects_dialog_table, io);
       }
    }
@@ -5820,7 +5820,7 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
 
 /* return a new object number (so that we can set it to be displayed). */
-int add_generic_display_object(const coot::generic_display_object_t &gdo) {
+int add_generic_display_object(const coot::old_generic_display_object_t &gdo) {
 
    graphics_info_t g;
    int n_objs = g.generic_objects_p->size();
