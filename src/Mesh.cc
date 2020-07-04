@@ -19,12 +19,13 @@
 
 void
 Mesh::init() {
-      is_instanced = false;
-      is_instanced_with_rts_matrix = false;
-      use_blending = false;
-      draw_this_mesh = true;
-      normals_are_setup = false;
-      this_mesh_is_closed = false;
+   is_instanced = false;
+   is_instanced_with_rts_matrix = false;
+   use_blending = false;
+   draw_this_mesh = true;
+   normals_are_setup = false;
+   this_mesh_is_closed = false;
+   vao = 99999999; // unset
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
@@ -35,6 +36,7 @@ Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle
    use_blending = false;
    vertices = indexed_vertices.first;
    triangle_vertex_indices = indexed_vertices.second;
+   vao = 99999999;
 }
 
 void
@@ -341,16 +343,10 @@ Mesh::add_one_origin_octahemisphere(unsigned int num_subdivisions) {
 void
 Mesh::add_one_origin_octasphere(unsigned int num_subdivisions) {
 
+   // what is this?
+
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > oct =
       tessellate_hemisphere_patch(num_subdivisions);
-
-   // to match the cylinder, we need to turn half a face, 8 faces per cylinder default
-
-   // num_subdivisions  sides   turn
-   //  1                  4     1/8
-   //  2                  8     1/16
-   //  3                 16     1/32
-   //  4                 32     1/64
 
    float turn_fraction = 0.125; // default num_subdivisions = 1
    float angle = 2.0f * M_PI * turn_fraction;
@@ -1020,9 +1016,14 @@ Mesh::draw(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "   error draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
+
+   if (vao == 99999999)
+      std::cout << "You forget to setup this mesh " << name << " "
+                << shader_p->name << std::endl;
+
    glBindVertexArray(vao);
    err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_name << " glBindVertexArray() vao " << vao
+   if (err) std::cout << "   error draw() " << shader_name << " " << name << " glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);

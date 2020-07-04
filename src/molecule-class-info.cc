@@ -3898,9 +3898,9 @@ molecule_class_info_t::make_bonds_type_checked() {
           idx_tri_base = triangles.size();
           cylinder_with_rotation_translation c(pospair, radius * radius_scale, radius * radius_scale, bl, n_slices, n_stacks);
           if (ll.pair_list[j].has_begin_cap)
-             c.add_start_cap();
+             c.add_flat_start_cap();
           if (ll.pair_list[j].has_end_cap)
-             c.add_end_cap();
+             c.add_flat_end_cap();
           for (std::size_t k=0; k<c.vertices.size(); k++)
              c.vertices[k].colour = index_to_colour[i];
           vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());

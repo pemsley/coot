@@ -3457,7 +3457,9 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
    graphics_info_t g;
    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
-   if (residue_p) {
+   if (!residue_p) {
+      std::cout << "Can't find residue" << res_spec << std::endl;
+   } else {
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
@@ -3481,6 +3483,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       colour_map["magenta"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("magenta");
       colour_map["royalblue" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("royalblue");
 
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
@@ -3494,21 +3497,31 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 	    const std::string &col = v[i].col;
 	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
 	 }
+         // now setup() that mesh
+         Material material;
+         g.generic_display_objects[obj].mesh.setup(&g.shader_for_moleculestotriangles, material);
 	 if (type != "vdw-surface")
-	    set_display_generic_object(obj, 1); // should be a function with no redraw
+	    set_display_generic_object_simple(obj, 1); // a function with no redraw
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
       int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
+      meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj];
+      coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
+      float line_radius = 0.062f;
       for (unsigned int i=0; i<c.clashes.size(); i++) {
-	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
-				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
-				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
-      }
-      set_display_generic_object(clashes_obj, 1);
 
-   } else {
-      std::cout << "Can't find residue" << res_spec << std::endl;
+         // Do I really want to go through this C interface?
+
+         const unsigned int n_slices = 16;
+         std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
+                                                  glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
+         obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true);
+
+      }
+      Material material;
+      obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+      set_display_generic_object(clashes_obj, 1);
    }
 }
 

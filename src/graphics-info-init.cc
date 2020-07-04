@@ -14,7 +14,7 @@
  graphics_info_t::load_freetype_font_textures() {
 
 
-   std::cout << "------------------------------- font loading -------" << std::endl;
+    // std::cout << "------------------------------- font loading -------" << std::endl;
 
    // ----------------------------- font test -----------------
    FT_Library ft;

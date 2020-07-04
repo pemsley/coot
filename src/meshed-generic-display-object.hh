@@ -13,7 +13,9 @@
 
 std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
 
-static coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
+coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
+
+glm::vec3 coord_orth_to_glm(const clipper::Coord_orth &co);
 
 class meshed_generic_display_object {
 public:
@@ -114,6 +116,10 @@ public:
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
+   void add_cylinder(const std::pair<glm::vec3, glm::vec3> &start_end,
+                     coot::colour_holder &col, float line_radius,
+                     unsigned int n_slices,
+                     bool cap_start, bool cap_end);
    void add_point(const coot::colour_holder &colour_in,
                   const std::string &colour_name,
                   const int &size_in,

@@ -114,19 +114,18 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
 
 
 void
-cylinder_with_rotation_translation::add_start_cap() {
-   add_cap(0.0f);
+cylinder_with_rotation_translation::add_flat_start_cap() {
+   add_flat_cap(0.0f);
 }
 
 
 void
-cylinder_with_rotation_translation::add_end_cap() {
-
-   add_cap(height);
+cylinder_with_rotation_translation::add_flat_end_cap() {
+   add_flat_cap(height);
 }
 
 void
-cylinder_with_rotation_translation::add_cap(float z) {
+cylinder_with_rotation_translation::add_flat_cap(float z) {
 
    glm::vec3 n(0,0,1);
    if (z == 0.0f) n = -n;

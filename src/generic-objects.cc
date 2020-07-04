@@ -66,21 +66,55 @@ void to_generic_object_add_line(int object_number,
    std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
 
    std::string c(colour_name);
-   coot::colour_holder colour = coot::old_generic_display_object_t::colour_values_from_colour_name(c);
+   coot::colour_holder colour = colour_values_from_colour_name(c);
    if (object_number >= 0) {
       unsigned int object_number_u(object_number);
       if (object_number_u < g.generic_display_objects.size()) {
          meshed_generic_display_object &obj = g.generic_display_objects[object_number];
-	 obj.add_line(colour, c, line_width, coords);
+         obj.add_line(colour, c, line_width, coords);
       } else {
-	 std::cout << "BAD object_number in to_generic_object_add_line"
-		   << " out of range high" << object_number << std::endl;
+         std::cout << "BAD object_number in to_generic_object_add_line"
+                   << " out of range high" << object_number << std::endl;
       }
    } else {
       std::cout << "BAD object_number (out of range low) in to_generic_object_add_line"
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 }
+
+bool is_valid_generic_display_object_number(int obj) {
+   if (obj < 0) return false;
+   int s = graphics_info_t::generic_display_objects.size();
+   if (obj >= s) return false;
+   return true;
+}
+
+
+void to_generic_object_add_cylinder(int object_number,
+                                    const char *colour,
+                                    float line_radius,
+                                    int n_slices, // 4, 8, 16
+                                    float from_x,
+                                    float from_y,
+                                    float from_z,
+                                    float to_x,
+                                    float to_y,
+                                    float to_z,
+                                    bool cap_start,
+                                    bool cap_end) {
+
+   glm::vec3 x1(from_x, from_y, from_z);
+   glm::vec3 x2(to_x, to_y, to_z);
+   std::pair<glm::vec3, glm::vec3> p(x1, x2);
+   std::string colour_name(colour);
+   coot::colour_holder col = colour_values_from_colour_name(colour_name);
+   graphics_info_t g;
+   if (is_valid_generic_display_object_number(object_number)) {
+      meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+      obj.add_cylinder(p, col, line_radius, n_slices, cap_start, cap_end);
+   }
+}
+
 
 /*! \brief add line to generic object object_number */
 void to_generic_object_add_dashed_line(int object_number, 
@@ -118,12 +152,12 @@ void to_generic_object_add_dashed_line(int object_number,
 
 
 
-void to_generic_object_add_point(int object_number, 
-				 const char *colour_name,
-				 int point_width,
-				 float from_x1, 
-				 float from_y1, 
-				 float from_z1) {
+void to_generic_object_add_point(int object_number,
+                                 const char *colour_name,
+                                 int point_width,
+                                 float from_x1,
+                                 float from_y1,
+                                 float from_z1) {
 
    graphics_info_t g;
    clipper::Coord_orth x1(from_x1, from_y1, from_z1);
@@ -132,43 +166,40 @@ void to_generic_object_add_point(int object_number,
       coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
 //    std::cout << "debug:: colour input " << c << " gave colour "
-// 	     << colour << std::endl;
+//      << colour << std::endl;
 
-   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) { 
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
 
       g.generic_display_objects[object_number].add_point(colour, c, point_width, x1);
 
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
-   } 
+                << object_number << std::endl;
+   }
 }
 
 void to_generic_object_add_point_internal(int object_number,
-					  const std::string &colour_name,
-					  const coot::colour_holder &colour,
-					  int point_width,
-					  const clipper::Coord_orth &pt) {
-
+                                          const std::string &colour_name,
+                                          const coot::colour_holder &colour,
+                                          int point_width,
+                                          const clipper::Coord_orth &pt) {
    graphics_info_t g;
 
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
-
       g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
-
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 }
 
 
 void to_generic_object_add_dodecahedron(int object_number,
-					const char *colour_name,
-					float radius,
-					float x,
-					float y,
-					float z) {
+                                        const char *colour_name,
+                                        float radius,
+                                        float x,
+                                        float y,
+                                        float z) {
 
    graphics_info_t g;
    clipper::Coord_orth x1(x, y, z);
@@ -205,7 +236,7 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
       g.generic_display_objects[object_number].add_pentakis_dodecahedron(colour, c, stellation_factor, radius, x1);
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
-		<< object_number << std::endl;
+                << object_number << std::endl;
    }
 }
 
@@ -213,20 +244,20 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
 
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_arc(int object_number,
-			       const char *colour_name,
-			       float radius,
-			       float radius_inner,
-			       float from_angle,
-			       float to_angle,
-			       float start_point_x,
-			       float start_point_y,
-			       float start_point_z,
-			       float start_dir_x,
-			       float start_dir_y,
-			       float start_dir_z,
-			       float normal_x,
-			       float normal_y,
-			       float normal_z) {
+                               const char *colour_name,
+                               float radius,
+                               float radius_inner,
+                               float from_angle,
+                               float to_angle,
+                               float start_point_x,
+                               float start_point_y,
+                               float start_point_z,
+                               float start_dir_x,
+                               float start_dir_y,
+                               float start_dir_z,
+                               float normal_x,
+                               float normal_y,
+                               float normal_z) {
    graphics_info_t g;
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
       meshed_generic_display_object::arc_t arc(from_angle, to_angle,

@@ -116,9 +116,31 @@ tessellate_octasphere(unsigned int num_subdivisions) {
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 make_octasphere(unsigned int num_subdivisions, const glm::vec3 &centre,
-                float radius, float radiusAlongNormal,
-                const glm::vec3 &dish_normal,
-                const glm::vec4 &colour_in) {
+                float radius, const glm::vec4 &colour_in) {
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > r;
+
+   std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > vp =
+      tessellate_octasphere(num_subdivisions);
+   r.first.resize(vp.first.size());
+   r.second = vp.second;
+
+   for (unsigned int i=0; i<vp.first.size(); i++) {
+      r.first[i].pos = vp.first[i];
+      r.first[i].pos *= radius;
+      r.first[i].pos += centre;
+      r.first[i].color = colour_in;
+      r.first[i].normal = vp.first[i];
+   }
+
+   return r;
+}
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+make_octasphere_dish(unsigned int num_subdivisions, const glm::vec3 &centre,
+                     float radius, float radiusAlongNormal,
+                     const glm::vec3 &dish_normal,
+                     const glm::vec4 &colour_in) {
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > r;
 

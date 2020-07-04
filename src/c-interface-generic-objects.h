@@ -42,6 +42,7 @@ int new_generic_object_number(const std::string &obj_name);
 /*! \brief create a new generic object with name objname
            and attach it to the given molecule
 
+bool is_valid_generic_display_object_number(int obj);
   @return the index of the object */
 int new_generic_object_number_for_molecule(const std::string &obj_name, int imol);
 
@@ -49,12 +50,25 @@ int new_generic_object_number_for_molecule(const std::string &obj_name, int imol
 void to_generic_object_add_line(int object_number, 
 				const char *colour,
 				int line_width,
-				float from_x1, 
-				float from_y1, 
-				float from_z1, 
-				float to_x2, 
-				float to_y2, 
+				float from_x1,
+				float from_y1,
+				float from_z1,
+				float to_x2,
+				float to_y2,
 				float to_z2);
+
+void to_generic_object_add_cylinder(int object_number,
+                                    const char *colour,
+                                    float line_radius,
+                                    int n_slices, // 4, 8, 16
+                                    float from_x,
+                                    float from_y,
+                                    float from_z,
+                                    float to_x,
+                                    float to_y,
+                                    float to_z,
+                                    bool cap_start,
+                                    bool cap_end);
 
 /*! \brief add a dashed line to generic object object_number 
 
@@ -190,7 +204,6 @@ one might do this if the generic object is specific to a molecule.
  */
 void attach_generic_object_to_molecule(int obj_number, int imol);
 
-void set_display_generic_objects_as_solid(int state);
 
 
 /* \} */

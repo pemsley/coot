@@ -97,7 +97,26 @@ coot::old_generic_display_object_t::add_pentakis_dodecahedron(const colour_holde
 void
 graphics_info_t::draw_generic_objects() {
    graphics_info_t g;
-   g.draw_generic_objects_solid();
+   if (! generic_display_objects.empty()) {
+
+      bool draw_meshes = true;
+      bool draw_mesh_normals = false;
+
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      Shader &shader = shader_for_moleculestotriangles;
+
+      bool do_depth_fog = true;
+      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+         meshed_generic_display_object &obj = generic_display_objects.at(i);
+	 if (obj.mesh.draw_this_mesh) {
+            obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
+                          bg_col, do_depth_fog);
+         }
+      }
+   }
 }
 
 

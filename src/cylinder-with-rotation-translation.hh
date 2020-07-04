@@ -9,7 +9,7 @@
 // But then we have to worry about the layout of the memory...
 //
 class cylinder_with_rotation_translation {
-   void add_cap(float z);
+   void add_flat_cap(float z);
    float height;
    float base_radius;
    float top_radius;
@@ -23,8 +23,8 @@ public:
    cylinder_with_rotation_translation(const std::pair<glm::vec3, glm::vec3> &cart_pair,
                                       float base_radius, float top_radius, float height,
                                       unsigned int n_slices, unsigned int n_stacks);
-   void add_end_cap();
-   void add_start_cap();
+   void add_flat_end_cap();
+   void add_flat_start_cap();
 };
 
 #endif
