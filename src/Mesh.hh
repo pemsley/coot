@@ -33,6 +33,7 @@ public:
    GLuint inst_model_translation_buffer_id;
    GLuint inst_colour_buffer_id;
    GLuint index_buffer_id;
+   bool this_mesh_is_closed;
    bool draw_this_mesh;
    bool is_instanced;
    bool is_instanced_with_rts_matrix;
@@ -59,6 +60,7 @@ public:
       use_blending = false;
       normals_are_setup = false;
    }
+   void close();
    void set_draw_mesh_state(bool state) { draw_this_mesh = state; }
    void set_name(const std::string &n) { name = n; }
    void import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);

@@ -3305,7 +3305,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 	    name += coot::util::int_to_string(residue_p->GetSeqNum());
 	    name += " ";
 	    name += residue_p->GetInsCode();
-	    coot::old_generic_display_object_t features_obj(name);
+	    meshed_generic_display_object features_obj(name);
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    mol->GetSelIndex(SelHnd_lig, residue_atoms, n_residue_atoms);
@@ -3315,15 +3315,15 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 	       at->GetUDData(status.second, hb_type);
 	       if (hb_type != coot::HB_UNASSIGNED) {
 		  clipper::Coord_orth centre = coot::co(at);
-		  coot::old_generic_display_object_t::sphere_t sphere(centre, 0.5);
+		  meshed_generic_display_object::sphere_t sphere(centre, 0.5);
 		  if (hb_type == coot::HB_DONOR) {
-		     sphere.col = coot::colour_t(0.2, 0.6, 0.7);
+		     sphere.col = glm::vec4(0.2, 0.6, 0.7, 1.0);
 		  }
 		  if (hb_type == coot::HB_ACCEPTOR) {
-		     sphere.col = coot::colour_t(0.8, 0.2, 0.2);
+		     sphere.col = glm::vec4(0.8, 0.2, 0.2, 1.0);
 		  }
 		  if (hb_type == coot::HB_BOTH) {
-		     sphere.col = coot::colour_t(0.8, 0.2, 0.8);
+		     sphere.col = glm::vec4(0.8, 0.2, 0.8, 1.0);
 		  }
 		  if (hb_type == coot::HB_HYDROGEN) {
 		     sphere.radius = 0.35;
@@ -3332,12 +3332,12 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 		      hb_type == coot::HB_ACCEPTOR ||
 		      hb_type == coot::HB_BOTH     ||
 		      hb_type == coot::HB_HYDROGEN) {
-		     features_obj.spheres.push_back(sphere);
+		     features_obj.add(sphere);
 		  }
 	       }
 	    }
-	    features_obj.is_displayed_flag = true;
-	    g.generic_objects_p->push_back(features_obj);
+	    features_obj.mesh.draw_this_mesh = true;
+	    g.generic_display_objects.push_back(features_obj);
 	    graphics_draw();
 	 }
 	 mol->DeleteSelection(SelHnd_lig);

@@ -5,6 +5,7 @@
 
 // #include <GL/glu.h> OpenGLv1
 
+#include "utils/coot-utils.hh"
 #include "old-generic-display-object.hh"
 #include "graphics-info.h"
 #include "c-interface-widgets.hh"
@@ -109,25 +110,27 @@ graphics_info_t::draw_generic_objects_simple() {
    // << " generic objects" << std::endl;
 
    unsigned int n_points = 0;
-   for (unsigned int i=0; i<generic_objects_p->size(); i++) {
+   for (unsigned int i=0; i<generic_display_objects.size(); i++) {
 
-      if ((*generic_objects_p)[i].is_displayed_flag) {
+      if (generic_display_objects[i].mesh.draw_this_mesh) {
 
 	 // if this is attached to a molecule that is not displayed, skip it.
-	 if (generic_objects_p->at(i).is_valid_imol()) { // i.e. is not UNDEFINED
-	    int imol = generic_objects_p->at(i).get_imol();
+	 if (generic_display_objects.at(i).is_valid_imol()) { // i.e. is not UNDEFINED
+	    int imol = generic_display_objects.at(i).get_imol();
 	    if (is_valid_model_molecule(imol))
 	       if (! graphics_info_t::molecules[imol].is_displayed_p()) {
 		  continue;
 	       }
 	 } else {
-	    if (generic_objects_p->at(i).is_intermediate_atoms_object()) {
+	    if (generic_display_objects.at(i).is_intermediate_atoms_object()) {
 	       if (! moving_atoms_asc)
 		  continue;
 	       if (! moving_atoms_asc->mol)
 		  continue;
 	    }
 	 }
+
+#if 0 // it doesn't work like this any more
 
 	 // Lines
 	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
@@ -169,6 +172,8 @@ graphics_info_t::draw_generic_objects_simple() {
 	 for (unsigned int idl=0; idl<(*generic_objects_p)[i].GL_display_list_handles.size(); idl++) {
              glCallList((*generic_objects_p)[i].GL_display_list_handles[idl]);
          }
+#endif // old drawing mechanism
+
       }
    }
    // VRCoot info
@@ -178,10 +183,10 @@ graphics_info_t::draw_generic_objects_simple() {
 void
 graphics_info_t::draw_generic_objects_solid() {
 
-   if (generic_objects_p->size()) {
-      for (unsigned int i=0; i<generic_objects_p->size(); i++) {
-         const coot::old_generic_display_object_t &obj = generic_objects_p->at(i);
-	 if (obj.is_displayed_flag) {
+   if (! generic_display_objects.empty()) {
+      for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+         const meshed_generic_display_object &obj = generic_display_objects.at(i);
+	 if (obj.mesh.draw_this_mesh) {
             // std::cout << "draw_generic_objects_solid() " << i << std::endl;
          }
       }
@@ -478,7 +483,7 @@ graphics_info_t::draw_generic_objects_solid_old() {
 int number_of_generic_objects() {
 
    graphics_info_t g;
-   return g.generic_objects_p->size();
+   return g.generic_display_objects.size();
 }
 
 std::pair<short int, std::string>

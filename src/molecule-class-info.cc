@@ -3918,8 +3918,9 @@ molecule_class_info_t::make_bonds_type_checked() {
     molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
                                                     const std::vector<g_triangle> &triangles) {
 
-    std::cout << "debug:: in setup_glsl_bonds_buffers() with vertices size " << vertices.size()
-              << " and triangles size " << triangles.size() << std::endl;
+    if (false)
+       std::cout << "debug:: in setup_glsl_bonds_buffers() with vertices size " << vertices.size()
+                 << " and triangles size " << triangles.size() << std::endl;
 
    if (triangles.empty()) return;
    if (vertices.empty()) return;

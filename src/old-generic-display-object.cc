@@ -24,10 +24,13 @@ PyObject *colour_holder_to_py(const coot::colour_holder &c) {
 #if defined USE_PYTHON
 PyObject *get_generic_object_py(unsigned int idx) {
 
-   graphics_info_t g;
-   unsigned int size = g.generic_objects_p->size();
+   // Why did I want to do this? Anyway, much too tricky to fix now.
 
    PyObject *r = Py_False;
+
+#if 0
+   graphics_info_t g;
+   unsigned int size = g.generic_objects_p->size();
 
    if (idx < size) {
       r = PyDict_New();
@@ -92,10 +95,10 @@ PyObject *get_generic_object_py(unsigned int idx) {
       }
    }
 
+#endif
    if (PyBool_Check(r)) {
       Py_XINCREF(r);
    }
-
    return r;
 }
 #endif

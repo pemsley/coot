@@ -501,6 +501,8 @@ coot_bin_SOURCES = \
 	ligand-check.hh          \
         map-statistics.hh        \
 	Mesh.cc Mesh.hh          \
+	meshed-generic-display-object.hh \
+	meshed-generic-display-object.cc \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \

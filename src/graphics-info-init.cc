@@ -216,7 +216,7 @@ graphics_info_t::init() {
       merge_molecules_merging_molecules = new std::vector<int>;
 
       // generic display objects
-      generic_objects_p = new std::vector<coot::old_generic_display_object_t>;
+      // generic_objects_p = new std::vector<coot::old_generic_display_object_t>;
       generic_objects_dialog = NULL;
 
       // generic text:

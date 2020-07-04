@@ -24,6 +24,7 @@ Mesh::init() {
       use_blending = false;
       draw_this_mesh = true;
       normals_are_setup = false;
+      this_mesh_is_closed = false;
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
@@ -34,6 +35,14 @@ Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle
    use_blending = false;
    vertices = indexed_vertices.first;
    triangle_vertex_indices = indexed_vertices.second;
+}
+
+void
+Mesh::close() {
+
+   clear();
+   draw_this_mesh = false;
+   this_mesh_is_closed = true;
 }
 
 void

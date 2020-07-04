@@ -1,7 +1,7 @@
 
-#ifdef HAVE_CXX_THREAD
 #include <thread>
-#endif // HAVE_CXX_THREAD
+
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"

@@ -5742,6 +5742,15 @@ on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
    set_display_generic_object(generic_object_number, state);
 }
 
+void
+generic_objects_dialog_table_add_object_internal(const meshed_generic_display_object &gdo,
+						 GtkWidget *dialog,
+						 GtkWidget *table,
+						 int io) {
+   std::cout << "something here for generic_objects_dialog_table_add_object_internal" << std::endl;
+
+}
+
 // This presumes that the table is big enough to add the widgets for
 // the given object number.
 //
@@ -5805,13 +5814,13 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
    if (generic_objects_dialog_table) {
 
-      unsigned int n_objs = g.generic_objects_p->size();
+      unsigned int n_objs = g.generic_display_objects.size();
 
       // auto now.
       // gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
 
       for (unsigned int io=0; io<n_objs; io++) {
-	 const coot::old_generic_display_object_t &gdo = g.generic_objects_p->at(io);
+	 const meshed_generic_display_object &gdo = g.generic_display_objects.at(io);
 	 generic_objects_dialog_table_add_object_internal(gdo, w, generic_objects_dialog_table, io);
       }
    }
@@ -5820,14 +5829,13 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
 
 /* return a new object number (so that we can set it to be displayed). */
-int add_generic_display_object(const coot::old_generic_display_object_t &gdo) {
+int add_generic_display_object(const meshed_generic_display_object &gdo) {
 
    graphics_info_t g;
-   int n_objs = g.generic_objects_p->size();
-   g.generic_objects_p->push_back(gdo);
+   int n_objs = g.generic_display_objects.size();
+   g.generic_display_objects.push_back(gdo);
    if (g.generic_objects_dialog) {
-      GtkWidget *table = lookup_widget(g.generic_objects_dialog,
-				       "generic_objects_dialog_table");
+      GtkWidget *table = lookup_widget(g.generic_objects_dialog, "generic_objects_dialog_table");
       if (table) {
          // auto resize now
 	 // gtk_table_resize(GTK_TABLE(table), n_objs+1, 2);

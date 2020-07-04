@@ -1,0 +1,135 @@
+
+#ifndef MESHED_GENERIC_DISPLAY_OBJECT_HH
+#define MESHED_GENERIC_DISPLAY_OBJECT_HH
+
+#include "utils/coot-utils.hh"  // for colour_holder
+#include "utils/dodec.hh"
+
+// How many ways of specifying a colour does an application need?
+// At least 3, it turns out.
+#include "Mesh.hh"
+#include "utils/colour-holder.hh"
+#include "coot-colour.hh"
+
+std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
+
+static coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
+
+class meshed_generic_display_object {
+public:
+   class sphere_t {
+   public:
+      sphere_t() {}
+      sphere_t(const clipper::Coord_orth &centre_in, float r) {
+         centre = centre_in;
+         radius = r;
+      }
+      clipper::Coord_orth centre;
+      glm::vec4 col;
+      float radius;
+   };
+   class torus_t {
+   public:
+      torus_t() {}
+      torus_t(const clipper::Coord_orth &pt1,
+              const clipper::Coord_orth &pt2,
+              float r1, float r2) {
+         start_point = pt1;
+         end_point   = pt2;
+         radius_1 = r1;
+         radius_2 = r2;
+         n_ring_atoms = 6;
+      }
+      clipper::Coord_orth start_point;
+      clipper::Coord_orth end_point;
+      coot::colour_holder col;
+      float radius_1;
+      float radius_2;
+      int n_ring_atoms;
+   };
+   // arc is part of a torus
+   class arc_t {
+   public:
+      arc_t(float start_angle_in, float end_angle_in,
+            const clipper::Coord_orth &start_point_in,
+            const clipper::Coord_orth &start_dir_in,
+            const clipper::Coord_orth &normal_in,
+            float radius_in, float radius_inner_in) {
+         start_point = start_point_in;
+         start_angle = start_angle_in;
+         end_angle = end_angle_in;
+         normal = normal_in;
+         start_dir = start_dir_in;
+         radius = radius_in;
+         radius_inner = radius_inner_in;
+      }
+      clipper::Coord_orth normal;
+      clipper::Coord_orth start_point;
+      clipper::Coord_orth start_dir;
+      float start_angle;
+      float end_angle;
+      coot::colour_holder col;
+      float radius;
+      float radius_inner;
+   };
+   class dodec_t {
+   public:
+      dodec_t(const dodec &d_in, double size_in, const clipper::Coord_orth &pos_in) {
+         d = d_in;
+         size = size_in;
+         position = pos_in;
+      }
+      dodec d;
+      double size;
+      clipper::Coord_orth position;
+      coot::colour_holder col;
+   };
+
+   class pentakis_dodec_t { // perhaps this should inherit from above
+   public:
+      pentakis_dodec_t(const pentakis_dodec &pkdd_in, double size_in,
+                       const clipper::Coord_orth &pos_in) {
+         pkdd = pkdd_in;
+         size = size_in;
+         position = pos_in;
+      }
+      pentakis_dodec pkdd;
+      double size;
+      clipper::Coord_orth position;
+      coot::colour_holder col;
+   };
+   enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
+   meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
+   int imol;
+   int get_imol() const { return imol; }
+   bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }
+   bool is_intermediate_atoms_object() const { return imol == INTERMEDIATE_ATOMS; }
+   Mesh mesh;
+   void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
+   void attach_to_molecule(int imol_in) { imol = imol_in; }
+   void clear() { mesh.clear(); imol = UNDEFINED; }
+   void close_yourself() { clear(); mesh.close(); }
+   void add(const sphere_t &sphere) {
+      std::cout << "add a sphere here" << std::endl;
+   }
+   void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
+                 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
+   void add_point(const coot::colour_holder &colour_in,
+                  const std::string &colour_name,
+                  const int &size_in,
+                  const clipper::Coord_orth &coords_in);
+   void add_dodecahedron(const coot::colour_holder &colour_in,
+                         const std::string &colour_name,
+                         double radius, const clipper::Coord_orth &pos);
+   void add_pentakis_dodecahedron(const coot::colour_holder &colour_in,
+                                  const std::string &colour_name,
+                                  double stellation_factor,
+                                  double radius,
+                                  const clipper::Coord_orth &pos);
+   void add_arc(const arc_t &arc);
+   void raster3d(std::ofstream &render_stream) const;
+
+};
+
+
+#endif // MESHED_GENERIC_DISPLAY_OBJECT_HH

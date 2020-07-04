@@ -1,8 +1,8 @@
 
-#ifndef HAVE_GENERIC_DISPLAY_OBJECT_HH
-#define HAVE_GENERIC_DISPLAY_OBJECT_HH
+#ifndef HAVE_OLD_GENERIC_DISPLAY_OBJECT_HH
+#define HAVE_OLD_GENERIC_DISPLAY_OBJECT_HH
 
-#include "utils/coot-utils.hh"  // for colour_holder
+#include "utils/colour-holder.hh"
 #include "utils/dodec.hh"
 
 #include "coot-colour.hh"
@@ -241,4 +241,4 @@ namespace coot {
 
 }
 
-#endif // HAVE_GENERIC_DISPLAY_OBJECT_HH
+#endif // HAVE_OLD_GENERIC_DISPLAY_OBJECT_HH

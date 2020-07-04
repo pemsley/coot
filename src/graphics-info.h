@@ -161,6 +161,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "old-generic-display-object.hh"
 
+#include "meshed-generic-display-object.hh"
+
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -3611,6 +3613,7 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+#if 0 // old style - keep for reference (for now).
    // ------- generic object interface ------
    static std::vector<coot::old_generic_display_object_t> *generic_objects_p;
    int new_generic_object_number(const std::string &name) {
@@ -3619,8 +3622,6 @@ public:
      int r = generic_objects_p->size() -1;
      return r;
    }
-   static GtkWidget *generic_objects_dialog;
-
    static int generic_object_index(const std::string &n) {
      int index = -1;
      int nobjs = generic_objects_p->size();
@@ -3632,6 +3633,27 @@ public:
 	 }
        }
      }
+     return index;
+   }
+#endif
+
+   static GtkWidget *generic_objects_dialog;
+   static std::vector<meshed_generic_display_object> generic_display_objects;
+   int new_generic_object_number(const std::string &name) {
+      generic_display_objects.push_back(Mesh(name));
+      return generic_display_objects.size() - 1;
+   }
+   static int generic_object_index(const std::string &name) {
+      int index = -1;
+      int nobjs = generic_display_objects.size();
+      for (int iobj=0; iobj<nobjs; iobj++) {
+         if (generic_display_objects[iobj].mesh.name == name) {
+            if (!generic_display_objects[iobj].mesh.this_mesh_is_closed) {
+               index = iobj;
+               break;
+            }
+         }
+      }
      return index;
    }
 
