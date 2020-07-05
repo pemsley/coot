@@ -48,14 +48,14 @@ int new_generic_object_number_for_molecule(const std::string &obj_name, int imol
 
 /*! \brief add line to generic object object_number */
 void to_generic_object_add_line(int object_number, 
-				const char *colour,
-				int line_width,
-				float from_x1,
-				float from_y1,
-				float from_z1,
-				float to_x2,
-				float to_y2,
-				float to_z2);
+                                const char *colour,
+                                int line_width,
+                                float to_x1,
+                                float to_y1,
+                                float to_z1,
+                                float to_x2,
+                                float to_y2,
+                                float to_z2);
 
 void to_generic_object_add_cylinder(int object_number,
                                     const char *colour,
