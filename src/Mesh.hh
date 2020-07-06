@@ -120,6 +120,7 @@ public:
    void fill_one_dodec();
    void flatten_triangles(); // needs implementation (will generate new vertices).
    void smooth_triangles();  // needs implementation.
+   bool is_closed() const { return this_mesh_is_closed; }
 
 };
 

@@ -9282,16 +9282,21 @@ coot::arc_info_type::arc_info_type(mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Ato
    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
 
-   clipper::Coord_orth v1 = p3 - p2;
-   clipper::Coord_orth v2 = p1 - p2; // vectors away from central atom
+   clipper::Coord_orth v1(clipper::Coord_orth(p3 - p2).unit());
+   clipper::Coord_orth v2(clipper::Coord_orth(p1 - p2).unit()); // vectors away from central atom
 
-   normal = clipper::Coord_orth(clipper::Coord_orth::cross(v1, v2).unit());
+   clipper::Coord_orth v3 = clipper::Coord_orth(clipper::Coord_orth::cross(v1, v2).unit());
+   clipper::Coord_orth v4 = clipper::Coord_orth(clipper::Coord_orth::cross(v3, v1).unit());
+
+   normal = v3;
    start_point = p2;
    start_dir = clipper::Coord_orth(v2.unit());
-   start = 0.0;
-   end  = -clipper::Util::rad2d(clipper::Coord_orth::angle(p1,p2,p3));
-   // start to end needs to go backwards
-   
+
+   delta  = clipper::Util::rad2d(clipper::Coord_orth::angle(p1,p2,p3));
+
+   orientation_matrix = clipper::Mat33<double>(v1.x(), v1.y(), v1.z(),
+                                               v4.x(), v4.y(), v4.z(),
+                                               v3.x(), v3.y(), v3.z());
 }
 
 

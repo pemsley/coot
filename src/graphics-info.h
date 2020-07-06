@@ -812,11 +812,12 @@ class graphics_info_t {
       }
       return gr;
    }
+#endif // HAVE_GSL
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
    std::vector<coot::geometry_distortion_info_container_t>
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
-#endif // HAVE_GSL
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    int  check_if_in_regularize_define(GdkEventButton *event);
    int  check_if_in_refine_define(GdkEventButton *event);

@@ -683,6 +683,7 @@ class Bond_lines_container {
 
 
    bool have_dictionary;
+   bool use_deuteranomaly_mode;
    const coot::protein_geometry *geom;
    enum { NOT_HALF_BOND, HALF_BOND_FIRST_ATOM, HALF_BOND_SECOND_ATOM };
 
@@ -868,6 +869,7 @@ class Bond_lines_container {
    void init() {
       rotamer_probability_tables_p = NULL;
       do_sticks_for_waters = false;
+      use_deuteranomaly_mode = false;
    }
    
 
@@ -1245,6 +1247,7 @@ public:
 					   const std::vector <symmetry_atom_bond> &sabv,
 					   const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 
+   void set_use_deuteranomaly_mode() { use_deuteranomaly_mode = true; }
 
 };
 

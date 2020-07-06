@@ -94,8 +94,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 			      coot::arc_info_type angle_info(at_1, at_2, at_3);
 			      to_generic_object_add_arc(new_obj, hex_colour.c_str(),
 							radius, radius_inner,
-							angle_info.start,
-							angle_info.end,
+							angle_info.delta,
 							angle_info.start_point.x(),
 							angle_info.start_point.y(),
 							angle_info.start_point.z(),

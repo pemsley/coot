@@ -9,6 +9,7 @@
 // At least 3, it turns out.
 #include "Mesh.hh"
 #include "utils/colour-holder.hh"
+#include "coot-utils/arc-info.hh"
 #include "coot-colour.hh"
 
 std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
@@ -52,24 +53,34 @@ public:
    // arc is part of a torus
    class arc_t {
    public:
-      arc_t(float start_angle_in, float end_angle_in,
+      arc_t(float delta_angle_in,
             const clipper::Coord_orth &start_point_in,
             const clipper::Coord_orth &start_dir_in,
             const clipper::Coord_orth &normal_in,
             float radius_in, float radius_inner_in) {
          start_point = start_point_in;
-         start_angle = start_angle_in;
-         end_angle = end_angle_in;
+         delta_angle = delta_angle_in;
          normal = normal_in;
          start_dir = start_dir_in;
+         radius = radius_in;
+         radius_inner = radius_inner_in;
+      }
+      arc_t(coot::arc_info_type &ai, float radius_in, float radius_inner_in,
+            const coot::colour_holder &ch) {
+         normal = ai.normal;
+         start_point = ai.start_point;
+         start_dir = ai.start_dir;
+         orientation_matrix = ai.orientation_matrix;
+         delta_angle = ai.delta;
+         col = ch;
          radius = radius_in;
          radius_inner = radius_inner_in;
       }
       clipper::Coord_orth normal;
       clipper::Coord_orth start_point;
       clipper::Coord_orth start_dir;
-      float start_angle;
-      float end_angle;
+      clipper::Mat33<double> orientation_matrix;
+      float delta_angle;
       coot::colour_holder col;
       float radius;
       float radius_inner;
@@ -133,6 +144,7 @@ public:
                                   double radius,
                                   const clipper::Coord_orth &pos);
    void add_arc(const arc_t &arc);
+   void add_torus(const torus_t &torus);
    void raster3d(std::ofstream &render_stream) const;
 
 };

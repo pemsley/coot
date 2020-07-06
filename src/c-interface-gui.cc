@@ -5747,10 +5747,45 @@ generic_objects_dialog_table_add_object_internal(const meshed_generic_display_ob
 						 GtkWidget *dialog,
 						 GtkWidget *table,
 						 int io) {
-   std::cout << "something here for generic_objects_dialog_table_add_object_internal" << std::endl;
+
+   std::cout << "something here for generic_objects_dialog_table_add_object_internal "
+             << table << std::endl;
+
+   if (! gdo.mesh.is_closed()) {
+      GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
+      std::string label_str = gdo.mesh.name;
+      GtkWidget *label = gtk_label_new(label_str.c_str());
+
+      std::string stub = "generic_object_" + std::to_string(io);
+      std::string toggle_button_name = stub + "_toggle_button";
+      std::string label_name = stub + "_label";
+
+      // set the names of these widgets so that they can be
+      // looked up and toggled/hidden dynamically.
+
+      g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
+      g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
+
+      gtk_grid_attach (GTK_GRID (table), label,       0, 1, 1, 1);
+      gtk_grid_attach (GTK_GRID (table), checkbutton, 1, 2, 1, 1);
+
+      if (gdo.mesh.draw_this_mesh)
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+
+      g_signal_connect(G_OBJECT(checkbutton), "toggled",
+		       G_CALLBACK(on_generic_objects_dialog_object_toggle_button_toggled),
+		       GINT_TO_POINTER(io));
+
+      gtk_widget_show (label);
+      gtk_widget_show (checkbutton);
+
+   }
 
 }
 
+
+// Get rid of this
+//
 // This presumes that the table is big enough to add the widgets for
 // the given object number.
 //

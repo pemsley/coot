@@ -550,7 +550,6 @@ coot::geometry_distortion_info_container_t
 graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool with_nbcs) {
 
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    if (residue_p) {
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
@@ -566,14 +565,14 @@ graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool 
 	 asc.clear_up();
       }
    }
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
    return gdc;
 }
 #endif // HAVE_GSL
 
 
-#ifdef HAVE_GSL
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+// #ifdef HAVE_GSL
+// #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
 std::vector<coot::geometry_distortion_info_container_t>
 graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc,
 						bool with_nbcs) {
@@ -760,8 +759,8 @@ graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_c
    // print_geometry_distortion(dcv);
    return dcv;
 }
-#endif // HAVE_GSL
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+// #endif // HAVE_GSL
+// #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)

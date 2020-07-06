@@ -247,8 +247,7 @@ void to_generic_object_add_arc(int object_number,
                                const char *colour_name,
                                float radius,
                                float radius_inner,
-                               float from_angle,
-                               float to_angle,
+                               float angle_delta,
                                float start_point_x,
                                float start_point_y,
                                float start_point_z,
@@ -260,7 +259,7 @@ void to_generic_object_add_arc(int object_number,
                                float normal_z) {
    graphics_info_t g;
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
-      meshed_generic_display_object::arc_t arc(from_angle, to_angle,
+      meshed_generic_display_object::arc_t arc(angle_delta,
                                                clipper::Coord_orth(start_point_x,
                                                                    start_point_y,
                                                                    start_point_z),

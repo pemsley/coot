@@ -50,6 +50,8 @@
 
 #include "geometry/residue-and-atom-specs.hh"
 
+#include "arc-info.hh"
+
 namespace coot {
 
    // a generally useful class to be used with std::map where the
@@ -1543,19 +1545,6 @@ namespace coot {
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);
    std::ostream& operator<<(std::ostream& s, const atom_spec_t &spec);
    std::ostream& operator<<(std::ostream& s, const residue_spec_t &spec);
-
-   // can throw an exception (e.g. null pointers, overlapping atoms)
-   //
-   class arc_info_type {
-   public:
-      float start; // degrees
-      float end; // degrees
-      clipper::Coord_orth start_point;
-      clipper::Coord_orth start_dir;
-      clipper::Coord_orth normal;
-      arc_info_type(mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3);
-   };
-
 
    std::vector<clipper::RTop_orth> mtrix_info(const std::string &file_name);
 

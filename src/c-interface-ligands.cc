@@ -3083,6 +3083,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
       } else {
 	 bool with_nbcs = true;
 	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(imol, residue_p, with_nbcs);
+         unsigned int n_angles = 0;
 	 if (gdc.geometry_distortion.size()) {
 
 	    std::string name = std::string("Ligand Distortion of ");
@@ -3091,7 +3092,12 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 	    name += coot::util::int_to_string(residue_p->GetSeqNum());
 	    name += " ";
 	    name += residue_p->GetResName();
+            gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 	    int new_obj = new_generic_object_number(name.c_str());
+            meshed_generic_display_object &obj = g.generic_display_objects[new_obj];
+            std::cout << "in display_residue_distortions() with " << gdc.geometry_distortion.size()
+                      << " distortions" << std::endl;
+
 	    for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) {
 	       coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
 	       if (rest.restraint_type == coot::BOND_RESTRAINT) {
@@ -3103,14 +3109,19 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     double d = sqrt((p2-p1).lengthsq());
 		     double distortion = d - rest.target_value;
 		     double pen_score = fabs(distortion/rest.sigma);
-		     coot::colour_holder ch(distortion, 0.1, 5, "");
-		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						p1.x(), p1.y(), p1.z(),
-						p2.x(), p2.y(), p2.z());
+		     coot::colour_holder ch(distortion, 0.1, 5, true, "");
+                     ch.scale_intensity(0.5);
+                     const unsigned int n_slices = 16;
+                     float line_radius = 0.1f;
+                     std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(p1)),
+                                                              glm::vec3(coord_orth_to_glm(p2)));
+                     obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true);
 		  }
 	       }
 
 	       if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+                  n_angles++;
+                  // if (n_angles > 1) continue;
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
@@ -3121,25 +3132,15 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
 		     double angle = clipper::Util::rad2d(angle_rad);
 		     double distortion = fabs(angle - rest.target_value);
-		     coot::colour_holder ch(distortion, 0.1, 5, "");
+		     coot::colour_holder ch(distortion, 0.1, 5, true, "");
+                     ch.scale_intensity(0.6);
 
 		     try {
-			float radius = 0.5;
-			float radius_inner = 0.06;
-			coot::arc_info_type angle_info(at_1, at_2, at_3);
-			to_generic_object_add_arc(new_obj, ch.hex().c_str(),
-						  radius, radius_inner,
-						  angle_info.start,
-						  angle_info.end,
-						  angle_info.start_point.x(),
-						  angle_info.start_point.y(),
-						  angle_info.start_point.z(),
-						  angle_info.start_dir.x(),
-						  angle_info.start_dir.y(),
-						  angle_info.start_dir.z(),
-						  angle_info.normal.x(),
-						  angle_info.normal.y(),
-						  angle_info.normal.z());
+			float radius = 0.66;
+			float radius_inner = 0.1; // should match bond line_radius
+			coot::arc_info_type arc_angle_info(at_1, at_2, at_3);
+                        meshed_generic_display_object::arc_t arc(arc_angle_info, radius, radius_inner, ch);
+                        obj.add_arc(arc);
 		     }
 		     catch (const std::runtime_error &rte) {
 			std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -3160,7 +3161,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     clipper::Coord_orth bl_2 = 0.6 * pc + 0.4 * p2;
 		     clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
 		     double distortion = sqrt(fabs(gdc.geometry_distortion[i].distortion_score));
-		     coot::colour_holder ch(distortion, 0.1, 5, "");
+		     coot::colour_holder ch(distortion, 0.1, 5, true, "");
 		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
 						bl_1.x(), bl_1.y(), bl_1.z(),
 						bl_2.x(), bl_2.y(), bl_2.z());
@@ -3206,6 +3207,8 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		  }
 	       }
 	    }
+            Material material;
+            obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
 	    set_display_generic_object(new_obj, 1);
 	    graphics_draw();
 	 }
@@ -3492,13 +3495,22 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
 	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
 	 int point_size = 2;
-	 if (type == "vdw-surface") point_size = 1;
+         Material material;
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    const std::string &col = v[i].col;
-	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	    const std::string &colour_string = v[i].col;
+            coot::colour_holder ch = colour_map[colour_string];
+            if (type == "vdw-surface") {
+               point_size = 1;
+               if (false) {
+                  ch = colour_values_from_colour_name("#ffc3a0");
+                  ch.scale_intensity(0.5);
+                  material.shininess = 5.0;
+                  material.specular_strength = 0.2;
+               }
+            }
+	    to_generic_object_add_point_internal(obj, colour_string, ch, point_size, v[i].pos);
 	 }
          // now setup() that mesh
-         Material material;
          g.generic_display_objects[obj].mesh.setup(&g.shader_for_moleculestotriangles, material);
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj, 1); // a function with no redraw

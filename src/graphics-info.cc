@@ -2753,10 +2753,10 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
 
 void
 graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_point,
-   const coot::Cartesian &end_point,
-   const double &radius_1,
-   const double &radius_2,
-   int n_ring_atoms) const {
+                                                const coot::Cartesian &end_point,
+                                                const double &radius_1,
+                                                const double &radius_2,
+                                                int n_ring_atoms) const {
 #if 0
    double top =  0.2;
    double base = 0.2;
@@ -2778,24 +2778,24 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       //
       coot::Cartesian normal = bond_frag * (1.0/height);
       if (normal.z() > 0.9999) {
-    // std::cout << "      no rotation needed" << normal << std::endl;
+         // std::cout << "      no rotation needed" << normal << std::endl;
       } else {
 
-    double cos_theta_y = normal.z();
-    double theta_y_rad = acos(cos_theta_y);
-    double theta_z_rad = atan2(normal.y(), normal.x());
-    double theta_z = clipper::Util::rad2d(theta_z_rad);
-    double theta_y = clipper::Util::rad2d(theta_y_rad);
-    glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
-    glRotated(theta_y, 0, 1, 0); //   ditto.
+         double cos_theta_y = normal.z();
+         double theta_y_rad = acos(cos_theta_y);
+         double theta_z_rad = atan2(normal.y(), normal.x());
+         double theta_z = clipper::Util::rad2d(theta_z_rad);
+         double theta_y = clipper::Util::rad2d(theta_y_rad);
+         glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
+         glRotated(theta_y, 0, 1, 0); //   ditto.
       }
 
       glTranslated(0, 0, 1.3 * height);
       if (n_ring_atoms == 5)
-    // this makes the ring brighter.  I don't know why.
-    glScalef(0.95, 0.95, 0.48);
+         // this makes the ring brighter.  I don't know why.
+         glScalef(0.95, 0.95, 0.48);
       else
-    glScalef(1.1, 1.1, 0.55);
+         glScalef(1.1, 1.1, 0.55);
       glutSolidTorus(radius_1, radius_2, 20, 32);
       glPopMatrix();
    }
@@ -2804,11 +2804,11 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
 
 void
 graphics_info_t::graphics_object_internal_arc(float start_angle,
-         float end_angle,
-         const coot::Cartesian &start_point,
-         const coot::Cartesian &start_dir,
-         const coot::Cartesian &normal,
-         float r, float radius_inner) {
+                                              float end_angle,
+                                              const coot::Cartesian &start_point,
+                                              const coot::Cartesian &start_dir,
+                                              const coot::Cartesian &normal,
+                                              float radius, float radius_inner) {
 
 #if 0
    glPushMatrix();

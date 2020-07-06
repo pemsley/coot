@@ -29,8 +29,10 @@ namespace coot {
       }
       colour_holder(const std::string &hex_colour_string);
       colour_holder(double value, double min, double max,
+                    bool use_deuteranomaly_mode,
 		    const std::string &dum); // somewhere between green and red
       std::string hex() const;
+      void scale_intensity(float scale);
       friend std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
    };
    std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
