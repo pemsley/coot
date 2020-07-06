@@ -1314,14 +1314,13 @@ GtkWidget *my_gtkglarea(GtkWidget *vbox) {
 void
 graphics_info_t::setup_lights() {
 
-   // not your old style lights
-
    lights_info_t light;
-   light.position = glm::vec4(-2.0f, -1.0f, 5.0f, 1.0f);
-   light.direction = glm::normalize(glm::vec3(0,0,1));
+   light.position = glm::vec4(-2.0f, 2.0f, 5.0f, 1.0f);
+   light.direction = glm::normalize(glm::vec3(0.5, 0, 1.0));
    graphics_info_t::lights[0] = light;
-   light.position = glm::vec4( 3.0f, -2.0f, 4.0f, 1.0f);
-   light.direction = glm::normalize(glm::vec3(1,0,0));
+
+   light.position = glm::vec4(3.0f, -2.0f, 4.0f, 1.0f);
+   light.direction = glm::normalize(glm::vec3(0.5, 0.5, 1.0));
    // graphics_info_t::lights[1] = light;
 }
 

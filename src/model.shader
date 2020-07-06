@@ -85,52 +85,56 @@ float get_fog_amount(float depth_in) {
 
 void main() {
 
-  float specular_strength = 1.0; // 1.5 is very shiny
-  vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
+   float specular_strength = 1.0; // 1.5 is very shiny
+   vec4 specular_light_colour = vec4(0.7, 0.7, 0.7, 1.0);
 
-  // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
+   // a light direction of 0,0,1 is good for fresnelly outlining (well, it used to be)
 
-  vec3 light_dir = normalize(light_sources[0].direction_in_molecule_coordinates_space);
-  float dp = dot(normal_transfer, light_dir);
-  dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
+   vec3 light_dir = normalize(light_sources[0].direction_in_molecule_coordinates_space);
+   float dp = dot(normal_transfer, light_dir);
+   dp = max(dp, 0.0); // no negative dot products for diffuse for now, also, zero is avoided.
 
-  float m = clamp(gl_FragCoord.z, 0.0f, 1.0f);
+   // we can't have specular lights where there is no diffuse light
+   if (dp <= 0.0)
+      specular_strength = 0.0;
+
+   float m = clamp(gl_FragCoord.z, 0.0f, 1.0f);
 
 
-  float fog_amount = get_fog_amount(gl_FragCoord.z);
+   float fog_amount = get_fog_amount(gl_FragCoord.z);
 
-  vec4 bg_col = background_colour; // needed?
+   vec4 bg_col = background_colour; // needed?
 
-  vec3 eye_pos_3 =  eye_position.xyz; // where is this set? divide by eye_position.w?
+   vec3 eye_pos_3 =  eye_position.xyz; // where is this set? divide by eye_position.w?
 
-  vec3 view_dir = eye_pos_3 - frag_pos;
-  view_dir = normalize(view_dir);
+   vec3 view_dir = eye_pos_3 - frag_pos;
+   view_dir = normalize(view_dir);
 
-  vec3 norm_2 = normal_transfer;
-  norm_2 = normalize(norm_2);
-  vec3 reflect_dir = reflect(-light_dir, norm_2);
-  float dp_view_reflect = dot(view_dir, reflect_dir);
-  dp_view_reflect = max(dp_view_reflect, 0.0);
-  // when the exponent is low, the specular_strength needs to be reduced
-  // a low exponent means lots of the map is specular (around the edges)
-  float spec = pow(dp_view_reflect, 16.62);
-  vec4 col_specular = specular_strength * spec * specular_light_colour;
+   vec3 norm_2 = normal_transfer;
+   norm_2 = normalize(norm_2);
+   vec3 reflect_dir = reflect(-light_dir, norm_2);
+   float dp_view_reflect = dot(view_dir, reflect_dir);
+   dp_view_reflect = max(dp_view_reflect, 0.0);
+   // when the exponent is low, the specular_strength needs to be reduced
+   // a low exponent means lots of the map is specular (around the edges)
+   float spec = pow(dp_view_reflect, 16.62);
+   vec4 col_specular = specular_strength * spec * specular_light_colour;
 
-  vec4 colour_local = colour_transfer;
+   vec4 colour_local = colour_transfer;
 
-  vec4 col_1 = colour_local;  // ambient
-  float ambient_strength = 0.2;
-  vec4 col_2 = colour_local * dp;
-  vec4 col_3 = col_1 * ambient_strength + 0.8 * col_2 + col_specular;
+   vec4 col_1 = colour_local;  // ambient
+   float ambient_strength = 0.2;
+   vec4 col_2 = colour_local * dp;
+   vec4 col_3 = col_1 * ambient_strength + 0.8 * col_2 + col_specular;
 
-  if (! do_diffuse_lighting)
-     col_3 = col_1;
+   if (! do_diffuse_lighting)
+      col_3 = col_1;
 
-  vec4 col_4 = col_3;
+   vec4 col_4 = col_3;
 
-  if (do_depth_fog)
-     col_4 = mix(col_3, bg_col, fog_amount);
+   if (do_depth_fog)
+      col_4 = mix(col_3, bg_col, fog_amount);
 
-  out_col = col_4;
+   out_col = col_4;
 
 }
