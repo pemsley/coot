@@ -1379,6 +1379,8 @@ int draw_mesh_state(int imol, int mesh_index);
 
 void set_map_material_specular(int imol, float specular_strength, float shininess);
 
+void set_model_material_specular(int imol, float specular_strength, float shininess);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

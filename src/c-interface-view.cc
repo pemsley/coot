@@ -215,6 +215,16 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 
 }
 
+void set_model_material_specular(int imol, float specular_strength, float shininess) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.material_for_models.specular_strength = specular_strength;
+      m.material_for_models.shininess         = shininess;
+      graphics_draw();
+   }
+}
+
    
 
 /*  ----------------------------------------------------------------------- */

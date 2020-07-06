@@ -2968,6 +2968,7 @@ public:        //                      public
                                                                             // the adjustment handler.
 
    Material material_for_maps;
+   Material material_for_models;
 
    // using current contour level,
    // return world coordinates and normals

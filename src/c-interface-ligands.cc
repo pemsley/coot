@@ -3489,6 +3489,8 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       colour_map["royalblue" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("royalblue");
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      Material material;
+      material.specular_strength *= 0.5;
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
@@ -3501,7 +3503,6 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
          else
             g.generic_display_objects[obj_index].clear();
 	 int point_size = 2;
-         Material material;
 	 for (unsigned int i=0; i<v.size(); i++) {
 	    const std::string &colour_string = v[i].col;
             coot::colour_holder ch = colour_map[colour_string];
@@ -3537,7 +3538,6 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
                                                   glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
          obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true);
       }
-      Material material;
       obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
       set_display_generic_object(clashes_obj_index, 1);
    }
@@ -3632,6 +3632,8 @@ void coot_all_atom_contact_dots(int imol) {
       colour_map["grey"      ] = colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = colour_values_from_colour_name("magenta");
 
+      Material material;
+      material.specular_strength *= 0.4;
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
@@ -3652,7 +3654,6 @@ void coot_all_atom_contact_dots(int imol) {
             coot::colour_holder ch = colour_map[colour_string];
 	    to_generic_object_add_point_internal(obj_index, colour_string, ch, point_size, v[i].pos);
 	 }
-         Material material;
          g.generic_display_objects[obj_index].mesh.setup(&g.shader_for_moleculestotriangles, material);
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj_index, 1); // should be a function with no redraw
@@ -3673,7 +3674,6 @@ void coot_all_atom_contact_dots(int imol) {
                                                           glm::vec3(coord_orth_to_glm(c.clashes[i].second))),
                           clash_col, line_radius, n_slices, true, true);
       }
-      Material material;
       obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
       set_display_generic_object_simple(clashes_obj_index, 1);
       graphics_draw();

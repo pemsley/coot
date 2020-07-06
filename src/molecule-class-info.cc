@@ -1906,6 +1906,8 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 		<< " is difference map " << is_diff_map << " swapcol: " << swap_difference_map_colours
 		<< std::endl;
 
+   material_for_maps.specular_strength = 0.0; // non-shiny maps by default.
+
    // unset coordinates, this is not a set of coordinates:
    atom_sel.n_selected_atoms = 0;
    atom_sel.mol = 0;  // tested (in set_undo_molecule()) to see if this

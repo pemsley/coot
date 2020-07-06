@@ -108,6 +108,8 @@ graphics_info_t::draw_generic_objects() {
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_moleculestotriangles;
 
+      glDisable(GL_BLEND);
+
       bool do_depth_fog = true;
       for (unsigned int i=0; i<generic_display_objects.size(); i++) {
          meshed_generic_display_object &obj = generic_display_objects.at(i);

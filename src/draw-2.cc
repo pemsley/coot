@@ -679,9 +679,22 @@ graphics_info_t::draw_model_molecules() {
             const lights_info_t &light = it->second;
             shader.setup_light(light_idx, light, view_rotation);
          }
+         err = glGetError();
+         if (err) std::cout << "   error draw_model_molecules() post-lights "
+                            << shader.name << " with err " << err << std::endl;
+
+
+         // --- material ---
+
+         const Material &material = m.material_for_models;
+         shader.set_vec4_for_uniform( "material.ambient",   material.ambient);
+         shader.set_vec4_for_uniform( "material.diffuse",   material.diffuse);
+         shader.set_vec4_for_uniform( "material.specular",  material.specular);
+         shader.set_float_for_uniform("material.shininess", material.shininess);
+         shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
 
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() post-lights glDrawElements() "
+         if (err) std::cout << "   error draw_model_molecules() post-material "
                             << shader.name << " with err " << err << std::endl;
  
          // draw with the vertex count, not the index count.
@@ -1320,8 +1333,8 @@ graphics_info_t::setup_lights() {
    graphics_info_t::lights[0] = light;
 
    light.position = glm::vec4(3.0f, -2.0f, 4.0f, 1.0f);
-   light.direction = glm::normalize(glm::vec3(0.5, 0.5, 1.0));
-   // graphics_info_t::lights[1] = light;
+   light.direction = glm::normalize(glm::vec3(-1.0, 0.5, 1.0));
+   graphics_info_t::lights[1] = light;
 }
 
 void
