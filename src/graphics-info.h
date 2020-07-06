@@ -3614,30 +3614,6 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
-#if 0 // old style - keep for reference (for now).
-   // ------- generic object interface ------
-   static std::vector<coot::old_generic_display_object_t> *generic_objects_p;
-   int new_generic_object_number(const std::string &name) {
-     coot::old_generic_display_object_t o(name);
-     generic_objects_p->push_back(o);
-     int r = generic_objects_p->size() -1;
-     return r;
-   }
-   static int generic_object_index(const std::string &n) {
-     int index = -1;
-     int nobjs = generic_objects_p->size();
-     for (int iobj=0; iobj<nobjs; iobj++) {
-       if ((*generic_objects_p)[iobj].name == n) {
-	 if (!(*generic_objects_p)[iobj].is_closed_flag) {
-	   index = iobj;
-	   break;
-	 }
-       }
-     }
-     return index;
-   }
-#endif
-
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {

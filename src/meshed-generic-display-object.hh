@@ -113,6 +113,10 @@ public:
    };
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
+   std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+      wrapped_make_octasphere(unsigned int num_subdivisions, const glm::vec3 &position,
+                              float radius, const glm::vec4 &col);
    int imol;
    int get_imol() const { return imol; }
    bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }

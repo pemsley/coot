@@ -3474,6 +3474,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       colour_map["sky"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("sky");
       colour_map["sea"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("sea");
       colour_map["greentint" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("greentint");
+      colour_map["darkpurple"] = coot::old_generic_display_object_t::colour_values_from_colour_name("darkpurple");
       colour_map["green"     ] = coot::old_generic_display_object_t::colour_values_from_colour_name("green");
       colour_map["orange"    ] = coot::old_generic_display_object_t::colour_values_from_colour_name("orange");
       colour_map["orangered" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("orangered");
@@ -3521,15 +3522,11 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj];
       coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
       float line_radius = 0.062f;
+      const unsigned int n_slices = 16;
       for (unsigned int i=0; i<c.clashes.size(); i++) {
-
-         // Do I really want to go through this C interface?
-
-         const unsigned int n_slices = 16;
          std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
                                                   glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
          obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true);
-
       }
       Material material;
       obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
@@ -3610,46 +3607,66 @@ void coot_all_atom_contact_dots(int imol) {
 
       // for quick colour lookups.
       std::map<std::string, coot::colour_holder> colour_map;
-      colour_map["blue"      ] = coot::old_generic_display_object_t::colour_values_from_colour_name("blue");
-      colour_map["sky"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("sky");
-      colour_map["sea"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("sea");
-      colour_map["greentint" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("greentint");
-      colour_map["green"     ] = coot::old_generic_display_object_t::colour_values_from_colour_name("green");
-      colour_map["orange"    ] = coot::old_generic_display_object_t::colour_values_from_colour_name("orange");
-      colour_map["orangered" ] = coot::old_generic_display_object_t::colour_values_from_colour_name("orangered");
-      colour_map["yellow"    ] = coot::old_generic_display_object_t::colour_values_from_colour_name("yellow");
-      colour_map["yellowtint"] = coot::old_generic_display_object_t::colour_values_from_colour_name("yellowtint");
-      colour_map["red"       ] = coot::old_generic_display_object_t::colour_values_from_colour_name("red");
-      colour_map["#55dd55"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("#55dd55");
-      colour_map["hotpink"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("hotpink");
-      colour_map["grey"      ] = coot::old_generic_display_object_t::colour_values_from_colour_name("grey");
-      colour_map["magenta"   ] = coot::old_generic_display_object_t::colour_values_from_colour_name("magenta");
+      colour_map["blue"      ] = colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = colour_values_from_colour_name("greentint");
+      colour_map["green"     ] = colour_values_from_colour_name("green");
+      colour_map["darkpurple"] = colour_values_from_colour_name("darkpurple");
+      colour_map["orange"    ] = colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = colour_values_from_colour_name("magenta");
 
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
+	 int obj_index = g.generic_object_index(obj_name);
+         if (obj_index == -1)
+            obj_index = new_generic_object_number_for_molecule(obj_name, imol);
+         else
+            g.generic_display_objects[obj_index].clear();
 	 std::string col = "#445566";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
+	 if (type == "vdw-surface") continue; // for testing - if this line is included - catatonia on proteins
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    const std::string &col_inner = v[i].col;
-	    to_generic_object_add_point_internal(obj, col_inner, colour_map[col_inner], point_size, v[i].pos);
+	    const std::string &colour_string = v[i].col;
+            coot::colour_holder ch = colour_map[colour_string];
+	    to_generic_object_add_point_internal(obj_index, colour_string, ch, point_size, v[i].pos);
 	 }
+         Material material;
+         g.generic_display_objects[obj_index].mesh.setup(&g.shader_for_moleculestotriangles, material);
 	 if (type != "vdw-surface")
-	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
+	    set_display_generic_object_simple(obj_index, 1); // should be a function with no redraw
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
+      int clashes_obj_index = g.generic_object_index(clashes_name);
+      if (clashes_obj_index == -1)
+         clashes_obj_index = new_generic_object_number_for_molecule(clashes_name, imol);
+      else
+         g.generic_display_objects[clashes_obj_index].clear();
+      meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
+      coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
+      float line_radius = 0.062f;
+      const unsigned int n_slices = 16;
       for (unsigned int i=0; i<c.clashes.size(); i++) {
-	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
-				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
-				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
+         obj.add_cylinder(std::pair<glm::vec3, glm::vec3>(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
+                                                          glm::vec3(coord_orth_to_glm(c.clashes[i].second))),
+                          clash_col, line_radius, n_slices, true, true);
       }
-      set_display_generic_object_simple(clashes_obj, 1);
+      Material material;
+      obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+      set_display_generic_object_simple(clashes_obj_index, 1);
       graphics_draw();
    }
 }

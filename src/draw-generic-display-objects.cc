@@ -112,8 +112,19 @@ graphics_info_t::draw_generic_objects() {
       for (unsigned int i=0; i<generic_display_objects.size(); i++) {
          meshed_generic_display_object &obj = generic_display_objects.at(i);
 	 if (obj.mesh.draw_this_mesh) {
-            obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
-                          bg_col, do_depth_fog);
+            bool draw_it = true;
+            if (! obj.is_intermediate_atoms_object()) {
+               int imol_for_mesh = obj.get_imol();
+               if (is_valid_model_molecule(imol_for_mesh))
+                  if (! molecules[imol_for_mesh].draw_it)
+                     draw_it = false;
+               if (is_valid_map_molecule(imol_for_mesh))
+                  if (! molecules[imol_for_mesh].draw_it_for_map)
+                     draw_it = false;
+            }
+            if (draw_it)
+               obj.mesh.draw(&shader, mvp, view_rotation, lights, eye_position,
+                             bg_col, do_depth_fog);
          }
       }
    }

@@ -2010,7 +2010,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 	    colour = "hotpink";
 	 } else {
 	    type = "H-bond";
-	    colour = "greentint";
+	    colour = "darkpurple";
 	 }
       }
    } else {
@@ -2096,6 +2096,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
 	 } else {
 	    type = "H-bond";
 	    colour = "greentint";
+	    colour = "darkpurple";
 	 }
       }
    } else {
@@ -2109,6 +2110,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
 	    } else {
 	       type = "H-bond";
 	       colour = "greentint";
+	       colour = "darkpurple";
 	    }
 	 }
       }

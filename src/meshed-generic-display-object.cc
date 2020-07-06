@@ -35,10 +35,43 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
    glm::vec4 col(colour_in.red, colour_in.green, colour_in.blue, 1.0);
    glm::vec3 position = coord_orth_to_glm(coords_in);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-      oct = make_octasphere(num_subdivisions, position, radius, col);
+      oct = wrapped_make_octasphere(num_subdivisions, position, radius, col);
    mesh.import(oct);
 
 }
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+meshed_generic_display_object::wrapped_make_octasphere(unsigned int num_subdivisions,
+                                                       const glm::vec3 &position,
+                                                       float radius,
+                                                       const glm::vec4 &col) {
+
+   std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > >::iterator it;
+
+   unsigned int map_index = num_subdivisions + static_cast<int> (radius * 100.0f);
+   it = origin_octasphere_map.find(map_index);
+   if (it != origin_octasphere_map.end()) {
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct = it->second;
+      for (unsigned int i=0; i<oct.first.size(); i++) {
+         s_generic_vertex &v(oct.first[i]);
+         v.pos += position;
+         v.color = col;
+      }
+      return oct;
+   } else {
+      glm::vec3 origin(0,0,0);
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct =
+         make_octasphere(num_subdivisions, origin, radius, col);
+      origin_octasphere_map[map_index] = oct;
+      for (unsigned int i=0; i<oct.first.size(); i++) {
+         s_generic_vertex &v(oct.first[i]);
+         v.pos += position;
+         v.color = col;
+      }
+      return oct;
+   }
+}
+
 
 void
 meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3 > &start_end,
@@ -285,90 +318,96 @@ colour_values_from_colour_name(const std::string &c) {
             colour.green = 0.8;
             colour.blue  = 0.05;
          } else {
-            if (c == "greentint") {
-               colour.red = 0.45;
-               colour.green = 0.63;
-               colour.blue = 0.45;
+            if (c == "greentint") {  // old Hydrogen-bond colour
+               colour.red = 0.3;
+               colour.green = 0.35;
+               colour.blue = 0.3;
             } else {
-               if (c == "sea") {
-                  colour.red = 0.1;
-                  colour.green = 0.6;
-                  colour.blue = 0.6;
+               if (c == "darkpurple") { // new Hydrogen-bond colour
+                  colour.red   = 0.38;
+                  colour.green = 0.05;
+                  colour.blue  = 0.4;
                } else {
-                  if (c == "yellow") {
-                     colour.red = 0.8;
-                     colour.green = 0.8;
-                     colour.blue = 0.0;
+                  if (c == "sea") {
+                     colour.red = 0.1;
+                     colour.green = 0.6;
+                     colour.blue = 0.6;
                   } else {
-                     if (c == "yellowtint") {
-                        colour.red = 0.65;
-                        colour.green = 0.65;
-                        colour.blue = 0.4;
+                     if (c == "yellow") {
+                        colour.red = 0.8;
+                        colour.green = 0.8;
+                        colour.blue = 0.0;
                      } else {
-                        if (c == "orange") {
-                           colour.red = 0.9;
-                           colour.green = 0.6;
-                           colour.blue = 0.1;
+                        if (c == "yellowtint") {
+                           colour.red = 0.65;
+                           colour.green = 0.65;
+                           colour.blue = 0.4;
                         } else {
-                           if (c == "red") {
+                           if (c == "orange") {
                               colour.red = 0.9;
-                              colour.green = 0.1;
+                              colour.green = 0.6;
                               colour.blue = 0.1;
                            } else {
-                              if (c == "hotpink") {
+                              if (c == "red") {
                                  colour.red = 0.9;
-                                 colour.green = 0.2;
-                                 colour.blue = 0.6;
+                                 colour.green = 0.1;
+                                 colour.blue = 0.1;
                               } else {
-                                 if (c == "pink") {
+                                 if (c == "hotpink") {
                                     colour.red = 0.9;
-                                    colour.green = 0.3;
-                                    colour.blue = 0.3;
+                                    colour.green = 0.2;
+                                    colour.blue = 0.6;
                                  } else {
-                                    if (c == "cyan") {
-                                       colour.red = 0.1;
-                                       colour.green = 0.7;
-                                       colour.blue = 0.7;
+                                    if (c == "pink") {
+                                       colour.red = 0.9;
+                                       colour.green = 0.3;
+                                       colour.blue = 0.3;
                                     } else {
-                                       if (c == "aquamarine") {
+                                       if (c == "cyan") {
                                           colour.red = 0.1;
-                                          colour.green = 0.8;
-                                          colour.blue = 0.6;
+                                          colour.green = 0.7;
+                                          colour.blue = 0.7;
                                        } else {
-                                          if (c == "forestgreen") {
-                                             colour.red   = 0.6;
+                                          if (c == "aquamarine") {
+                                             colour.red = 0.1;
                                              colour.green = 0.8;
-                                             colour.blue  = 0.1;
+                                             colour.blue = 0.6;
                                           } else {
-                                             if (c == "yellowgreen") {
+                                             if (c == "forestgreen") {
                                                 colour.red   = 0.6;
                                                 colour.green = 0.8;
-                                                colour.blue  = 0.2;
+                                                colour.blue  = 0.1;
                                              } else {
-                                                if (c == "goldenrod") {
-                                                   colour.red   = 0.85;
-                                                   colour.green = 0.65;
-                                                   colour.blue  = 0.12;
+                                                if (c == "yellowgreen") {
+                                                   colour.red   = 0.6;
+                                                   colour.green = 0.8;
+                                                   colour.blue  = 0.2;
                                                 } else {
-                                                   if (c == "orangered") {
-                                                      colour.red   = 0.9;
-                                                      colour.green = 0.27;
-                                                      colour.blue  = 0.0;
+                                                   if (c == "goldenrod") {
+                                                      colour.red   = 0.85;
+                                                      colour.green = 0.65;
+                                                      colour.blue  = 0.12;
                                                    } else {
-                                                      if (c == "magenta") {
-                                                         colour.red   = 0.7;
-                                                         colour.green = 0.2;
-                                                         colour.blue  = 0.7;
+                                                      if (c == "orangered") {
+                                                         colour.red   = 0.9;
+                                                         colour.green = 0.27;
+                                                         colour.blue  = 0.0;
                                                       } else {
-                                                         if (c == "cornflower") {
-                                                            colour.red   = 0.38;
-                                                            colour.green = 0.58;
-                                                            colour.blue  = 0.93;
+                                                         if (c == "magenta") {
+                                                            colour.red   = 0.7;
+                                                            colour.green = 0.2;
+                                                            colour.blue  = 0.7;
                                                          } else {
-                                                            if (c == "royalblue") {
-                                                               colour.red   = 0.25;
-                                                               colour.green = 0.41;
-                                                               colour.blue  = 0.88;
+                                                            if (c == "cornflower") {
+                                                               colour.red   = 0.38;
+                                                               colour.green = 0.58;
+                                                               colour.blue  = 0.93;
+                                                            } else {
+                                                               if (c == "royalblue") {
+                                                                  colour.red   = 0.25;
+                                                                  colour.green = 0.41;
+                                                                  colour.blue  = 0.88;
+                                                               }
                                                             }
                                                          }
                                                       }
