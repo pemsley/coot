@@ -3095,6 +3095,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
             gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 	    int new_obj = new_generic_object_number(name.c_str());
             meshed_generic_display_object &obj = g.generic_display_objects[new_obj];
+            obj.attach_to_molecule(imol);
             std::cout << "in display_residue_distortions() with " << gdc.geometry_distortion.size()
                       << " distortions" << std::endl;
 
@@ -3494,7 +3495,11 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = "Molecule ";
 	 obj_name += coot::util::int_to_string(imol) + ": " + type;
-	 int obj = new_generic_object_number_for_molecule(obj_name, imol);
+	 int obj_index = g.generic_object_index(obj_name);
+         if (obj_index == -1)
+            obj_index = new_generic_object_number_for_molecule(obj_name, imol);
+         else
+            g.generic_display_objects[obj_index].clear();
 	 int point_size = 2;
          Material material;
 	 for (unsigned int i=0; i<v.size(); i++) {
@@ -3509,17 +3514,21 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
                   material.specular_strength = 0.2;
                }
             }
-	    to_generic_object_add_point_internal(obj, colour_string, ch, point_size, v[i].pos);
+	    to_generic_object_add_point_internal(obj_index, colour_string, ch, point_size, v[i].pos);
 	 }
          // now setup() that mesh
-         g.generic_display_objects[obj].mesh.setup(&g.shader_for_moleculestotriangles, material);
+         g.generic_display_objects[obj_index].mesh.setup(&g.shader_for_moleculestotriangles, material);
 	 if (type != "vdw-surface")
-	    set_display_generic_object_simple(obj, 1); // a function with no redraw
+	    set_display_generic_object_simple(obj_index, 1); // a function with no redraw
       }
       std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
       clashes_name += " clashes";
-      int clashes_obj = new_generic_object_number_for_molecule(clashes_name, imol);
-      meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj];
+      int clashes_obj_index = g.generic_object_index(clashes_name);
+      if (clashes_obj_index == -1)
+         clashes_obj_index = new_generic_object_number_for_molecule(clashes_name, imol);
+      else
+         g.generic_display_objects[clashes_obj_index].clear();
+      meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
       coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
       float line_radius = 0.062f;
       const unsigned int n_slices = 16;
@@ -3530,7 +3539,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       }
       Material material;
       obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
-      set_display_generic_object(clashes_obj, 1);
+      set_display_generic_object(clashes_obj_index, 1);
    }
 }
 

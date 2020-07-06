@@ -557,12 +557,6 @@ void attach_generic_object_to_molecule(int object_number, int imol) {
 
 
 
-// remove this
-void set_display_generic_objects_as_solid(int state) {
-   // graphics_info_t::display_generic_objects_as_solid_flag = state;
-} 
-
-
 /*! \brief print to the console the name and display status of the
   generic display objects */
 void generic_object_info() {
