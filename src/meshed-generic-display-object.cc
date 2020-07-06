@@ -31,7 +31,7 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
                                          const clipper::Coord_orth &coords_in) {
 
    unsigned int num_subdivisions = 3;
-   float radius = 0.403 * size_in; // changing the scaling is fun
+   float radius = 0.03 * size_in; // changing the scaling is fun
    glm::vec4 col(colour_in.red, colour_in.green, colour_in.blue, 1.0);
    glm::vec3 position = coord_orth_to_glm(coords_in);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
@@ -391,7 +391,7 @@ colour_values_from_colour_name(const std::string &c) {
    }
 
 //    std::cout << "debug:: in colour_values_from_colour_name from colour " << c
-	     << " we assign colour values "
+// 	     << " we assign colour values "
 // 	     << colour[0] << " "
 // 	     << colour[1] << " "
 // 	     << colour[2] << "\n";

@@ -5743,13 +5743,10 @@ on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
 }
 
 void
-generic_objects_dialog_table_add_object_internal(const meshed_generic_display_object &gdo,
-						 GtkWidget *dialog,
-						 GtkWidget *table,
-						 int io) {
-
-   std::cout << "something here for generic_objects_dialog_table_add_object_internal "
-             << table << std::endl;
+generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_object &gdo,
+                                                GtkWidget *dialog,
+                                                GtkWidget *grid,
+                                                int io) {
 
    if (! gdo.mesh.is_closed()) {
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
@@ -5766,8 +5763,9 @@ generic_objects_dialog_table_add_object_internal(const meshed_generic_display_ob
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      gtk_grid_attach (GTK_GRID (table), label,       0, 1, 1, 1);
-      gtk_grid_attach (GTK_GRID (table), checkbutton, 1, 2, 1, 1);
+      // grid child left top width height
+      gtk_grid_attach (GTK_GRID (grid), label,       0, io, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, io, 1, 1);
 
       if (gdo.mesh.draw_this_mesh)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
@@ -5790,10 +5788,10 @@ generic_objects_dialog_table_add_object_internal(const meshed_generic_display_ob
 // the given object number.
 //
 void
-generic_objects_dialog_table_add_object_internal(const coot::old_generic_display_object_t &gdo,
-						 GtkWidget *dialog,
-						 GtkWidget *table,
-						 int io) {
+generic_objects_dialog_grid_add_object_internal(const coot::old_generic_display_object_t &gdo,
+                                                GtkWidget *dialog,
+                                                GtkWidget *grid,
+                                                int io) {
 
    if (! gdo.is_closed_flag) {
 
@@ -5801,7 +5799,7 @@ generic_objects_dialog_table_add_object_internal(const coot::old_generic_display
       std::string label_str = gdo.name;
       GtkWidget *label = gtk_label_new(label_str.c_str());
 
-      std::cout << "generic_objects_dialog_table_add_object_internal() set alignment" << std::endl;
+      std::cout << "generic_objects_dialog_grid_add_object_internal() set alignment" << std::endl;
       // gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
 
       std::string stub = "generic_object_" + coot::util::int_to_string(io);
@@ -5814,15 +5812,15 @@ generic_objects_dialog_table_add_object_internal(const coot::old_generic_display
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      gtk_grid_attach (GTK_GRID (table), label,
-                       0, 1, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), label, 0, 1, 1, 1);
+
       // (GtkAttachOptions) (GTK_FILL),
       // (GtkAttachOptions) (0), 8, 0); // pad-x pad-y
 
-      gtk_grid_attach (GTK_GRID (table), checkbutton,
-                       1, 2, 1, 1);
-                       // 		(GtkAttachOptions) (GTK_FILL),
-                       // (GtkAttachOptions) (0), 0, 0);
+      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, 2, 1, 1);
+
+      // (GtkAttachOptions) (GTK_FILL),
+      // (GtkAttachOptions) (0), 0, 0);
 
       if (gdo.is_displayed_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
@@ -5845,18 +5843,17 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
    GtkWidget *w = create_generic_objects_dialog();
    g.generic_objects_dialog = w;
 
-   GtkWidget *generic_objects_dialog_table = lookup_widget(w, "generic_objects_dialog_table");
+   GtkWidget *generic_objects_viewport = lookup_widget(w, "generic_objects_viewport");
+   // 20200706-PE I think that a GtkListBox would look nicer.  This will do for now.
+   GtkWidget *generic_objects_dialog_grid = gtk_grid_new();
+   gtk_widget_show(generic_objects_dialog_grid);
+   gtk_container_add(GTK_CONTAINER(generic_objects_viewport), generic_objects_dialog_grid);
 
-   if (generic_objects_dialog_table) {
-
+   if (generic_objects_dialog_grid) {
       unsigned int n_objs = g.generic_display_objects.size();
-
-      // auto now.
-      // gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
-
       for (unsigned int io=0; io<n_objs; io++) {
 	 const meshed_generic_display_object &gdo = g.generic_display_objects.at(io);
-	 generic_objects_dialog_table_add_object_internal(gdo, w, generic_objects_dialog_table, io);
+	 generic_objects_dialog_grid_add_object_internal(gdo, w, generic_objects_dialog_grid, io);
       }
    }
    return w;
@@ -5870,14 +5867,14 @@ int add_generic_display_object(const meshed_generic_display_object &gdo) {
    int n_objs = g.generic_display_objects.size();
    g.generic_display_objects.push_back(gdo);
    if (g.generic_objects_dialog) {
-      GtkWidget *table = lookup_widget(g.generic_objects_dialog, "generic_objects_dialog_table");
+      GtkWidget *table = lookup_widget(g.generic_objects_dialog, "generic_objects_dialog_grid");
       if (table) {
          // auto resize now
 	 // gtk_table_resize(GTK_TABLE(table), n_objs+1, 2);
-	 generic_objects_dialog_table_add_object_internal(gdo,
-							  g.generic_objects_dialog,
-							  table,
-							  n_objs);
+	 generic_objects_dialog_grid_add_object_internal(gdo,
+                                                         g.generic_objects_dialog,
+                                                         table,
+                                                         n_objs);
       }
    }
    return n_objs;

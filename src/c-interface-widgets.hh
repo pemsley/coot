@@ -73,10 +73,10 @@ void on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *but
 							    gpointer         user_data);
 /* and... */
 void
-generic_objects_dialog_table_add_object_internal(const meshed_generic_display_object &gdo,
-						 GtkWidget *dialog,
-						 GtkWidget *table,
-						 int io);
+generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_object &gdo,
+                                                GtkWidget *dialog,
+                                                GtkWidget *grid,
+                                                int io);
 
 /* return a new object number (so that we can set it to be displayed). */
 int add_generic_display_object(const coot::old_generic_display_object_t &gdo);

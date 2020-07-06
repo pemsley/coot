@@ -11392,8 +11392,8 @@ create_run_refmac_dialog (void)
   GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
-  GtkWidget *refmac_dialog_phases_combobox;
   GtkWidget *label648;
+  GtkWidget *refmac_dialog_phases_combobox;
   GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
@@ -28728,8 +28728,7 @@ create_generic_objects_dialog (void)
   GtkWidget *hbox433;
   GtkWidget *generic_objects_display_all_togglebutton;
   GtkWidget *generic_objects_scrolledwindow;
-  GtkWidget *viewport24;
-  GtkWidget *generic_objects_dialog_table;
+  GtkWidget *generic_objects_viewport;
   GtkWidget *hbox431;
   GtkWidget *generic_objects_close_all_button;
   GtkWidget *alignment158;
@@ -28760,13 +28759,9 @@ create_generic_objects_dialog (void)
   gtk_widget_show (generic_objects_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (dialog_vbox131), generic_objects_scrolledwindow, TRUE, TRUE, 0);
 
-  viewport24 = gtk_viewport_new (NULL, NULL);
-  gtk_widget_show (viewport24);
-  gtk_container_add (GTK_CONTAINER (generic_objects_scrolledwindow), viewport24);
-
-  generic_objects_dialog_table = gtk_table_new (3, 2, FALSE);
-  gtk_widget_show (generic_objects_dialog_table);
-  gtk_container_add (GTK_CONTAINER (viewport24), generic_objects_dialog_table);
+  generic_objects_viewport = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (generic_objects_viewport);
+  gtk_container_add (GTK_CONTAINER (generic_objects_scrolledwindow), generic_objects_viewport);
 
   hbox431 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_show (hbox431);
@@ -28823,8 +28818,7 @@ create_generic_objects_dialog (void)
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox433, "hbox433");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_display_all_togglebutton, "generic_objects_display_all_togglebutton");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_scrolledwindow, "generic_objects_scrolledwindow");
-  GLADE_HOOKUP_OBJECT (generic_objects_dialog, viewport24, "viewport24");
-  GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_dialog_table, "generic_objects_dialog_table");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_viewport, "generic_objects_viewport");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox431, "hbox431");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_close_all_button, "generic_objects_close_all_button");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, alignment158, "alignment158");

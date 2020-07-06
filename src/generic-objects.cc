@@ -365,14 +365,14 @@ int new_generic_object_number(const std::string &name_string) {
    int n_new = g.new_generic_object_number(name_string);
 
    if (g.generic_objects_dialog) {
-      GtkWidget *table = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
-                                       "generic_objects_dialog_table");
-      if (table) {
+      GtkWidget *grid = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
+                                      "generic_objects_dialog_grid");
+      if (grid) {
          const meshed_generic_display_object &gdo = g.generic_display_objects[n_new];
-         generic_objects_dialog_table_add_object_internal(gdo,
-                                                          g.generic_objects_dialog,
-                                                          table,
-                                                          n_new);
+         generic_objects_dialog_grid_add_object_internal(gdo,
+                                                         g.generic_objects_dialog,
+                                                         grid,
+                                                         n_new);
       }
    }
    return n_new;

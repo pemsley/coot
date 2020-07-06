@@ -60144,19 +60144,12 @@ Bumps</property>
 	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	  <child>
-	    <widget class="GtkViewport" id="viewport24">
+	    <widget class="GtkViewport" id="generic_objects_viewport">
 	      <property name="visible">True</property>
 	      <property name="shadow_type">GTK_SHADOW_IN</property>
 
 	      <child>
-		<widget class="GtkTable" id="generic_objects_dialog_table">
-		  <property name="visible">True</property>
-		  <property name="n_rows">3</property>
-		  <property name="n_columns">2</property>
-		  <property name="homogeneous">False</property>
-		  <property name="row_spacing">0</property>
-		  <property name="column_spacing">0</property>
-		</widget>
+		<placeholder/>
 	      </child>
 	    </widget>
 	  </child>
