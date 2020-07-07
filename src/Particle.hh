@@ -27,6 +27,7 @@ public:
    void remove_old_particles();
    void create_particle(const glm::vec3 &p);
    unsigned int size() const { return particles.size(); }
+   bool empty() const { return (particles.size() == 0); }
 
 };
 

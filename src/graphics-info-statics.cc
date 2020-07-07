@@ -38,6 +38,7 @@ Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
+Shader graphics_info_t::shader_for_particles;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;

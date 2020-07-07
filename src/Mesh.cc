@@ -617,8 +617,10 @@ Mesh::setup_instancing_buffers(unsigned int n_particles) {
    err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
    unsigned int n_triangles = triangle_vertex_indices.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (false)
-      std::cout << "debug:: glBufferData for index buffer_id " << index_buffer_id
+   if (true)
+      std::cout << "debug:: setup_instancing_buffers() particles: "
+                << "vao" << vao
+                << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_STATIC_DRAW);
@@ -840,9 +842,15 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
          glm::vec3 delta_0(0.0001, 0.0001, 0.0001);
          glm::vec3 delta_1(0.0001, 0.0001, 0.0001);
          glm::vec3 delta_2(0.0001, 0.0001, 0.0001);
-         if (p0.x < 0) delta_0.x *= -1.0; if (p0.y < 0) delta_0.y *= -1.0; if (p0.z < 0) delta_0.z *= -1.0;
-         if (p1.x < 0) delta_1.x *= -1.0; if (p1.y < 0) delta_1.y *= -1.0; if (p1.z < 0) delta_1.z *= -1.0;
-         if (p2.x < 0) delta_2.x *= -1.0; if (p2.y < 0) delta_2.y *= -1.0; if (p2.z < 0) delta_2.z *= -1.0;
+         if (p0.x < 0) delta_0.x *= -1.0;
+         if (p0.y < 0) delta_0.y *= -1.0;
+         if (p0.z < 0) delta_0.z *= -1.0;
+         if (p1.x < 0) delta_1.x *= -1.0;
+         if (p1.y < 0) delta_1.y *= -1.0;
+         if (p1.z < 0) delta_1.z *= -1.0;
+         if (p2.x < 0) delta_2.x *= -1.0;
+         if (p2.y < 0) delta_2.y *= -1.0;
+         if (p2.z < 0) delta_2.z *= -1.0;
          tmp_normals.push_back(p0+delta_0);
          tmp_normals.push_back(p1+delta_1);
          tmp_normals.push_back(p0+delta_0);
@@ -892,6 +900,10 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 void
 Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
 
+   if (false)
+      std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
+                << triangle_vertex_indices.size() << std::endl;
+
    // this can happen when all the particles have life 0 - and have been removed.
    if (n_instances == 0) return;
    if (triangle_vertex_indices.empty()) return;
@@ -899,7 +911,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    shader_p->Use();
    glBindVertexArray(vao);
    GLenum err = glGetError();
-   if (err) std::cout << "   error draw_particles() " << shader_p->name
+   if (err) std::cout << "error draw_particles() " << shader_p->name
                       << " glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
@@ -916,14 +928,15 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    glEnableVertexAttribArray(3); // instanced model/particle translations (time varying)
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
-   err = glGetError(); if (err) std::cout << "   error:: " << shader_p->name
-                                          << " draw() post mvp uniform " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error:: draw_particles() " << shader_p->name
+                      << " draw() post mvp uniform " << err << std::endl;
 
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    unsigned int n_verts = 3 * triangle_vertex_indices.size();
-   if (false)
+   if (true)
       std::cout << "draw_particles() " << name << " with shader " << shader_p->name
                 << " drawing n_instances " << n_instances << std::endl;
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);

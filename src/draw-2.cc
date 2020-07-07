@@ -25,10 +25,6 @@
 #include "cc-interface-scripting.hh"
 #include "cylinder-with-rotation-translation.hh"
 
-// header
-// glm::mat4 get_view_rotation();
-// glm::vec3 get_eye_position();
-
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
 gint idle_contour_function(gpointer data);
@@ -268,6 +264,70 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    return mvp;
 }
 
+
+glm::vec3
+get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
+
+   glm::vec4 z_p(0.0f, 1.0f, 0.0f, 1.0f);
+   glm::vec4 r = z_p * mouse_quat_mat;
+   glm::vec3 r3(r);
+   return r3;
+}
+
+// static
+glm::mat4
+graphics_info_t::get_particle_mvp() {
+
+   float w = static_cast<float>(graphics_info_t::graphics_x_size);
+   float h = static_cast<float>(graphics_info_t::graphics_y_size);
+   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
+   float sr = screen_ratio;
+
+   glm::mat4 model_matrix(1.0);
+
+   float z = graphics_info_t::zoom * 0.04;
+   GLfloat near = -0.1 * zoom * clipping_front;
+   GLfloat far  =  0.3 * zoom * clipping_back;
+   std::cout << "near and far " << near << " " << far << std::endl;
+
+   glm::mat4 proj = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
+                               -0.3f*zoom,    0.3f*zoom,
+                               near, far);
+
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
+   view_matrix = glm::translate(view_matrix, -rc);
+   
+   glm::mat4 mvp = proj * view_matrix * model_matrix;
+
+   if (graphics_info_t::perspective_projection_flag) {
+
+      float fov = 35.0; // degrees, the smaller this value, the more we seem to be
+                        // "zoomed in."
+      float screen_ratio = 1.0;
+      float z_front = 0.1;
+      float z_back = 160;
+      // glm::mat4 quat_mat(mouse_button_info.quat);
+      glm::mat4 quat_mat = glm::toMat4(glm_quat);
+
+      glm::vec3 ep_ori = get_world_space_eye_position();
+      glm::vec3 rc = get_rotation_centre();
+      glm::vec3 ep = ep_ori + rc; // is this right?
+      glm::vec3 up = get_camera_up_direction(quat_mat);
+      view_matrix = glm::lookAt(ep, rc, up);
+      for (unsigned int i=0; i<3; i++)
+         for (unsigned int j=0; j<3; j++)
+            view_matrix[i][j] = 0.0f;
+      for (unsigned int j=0; j<3; j++)
+         view_matrix[j][j] = 1.0f;
+      proj = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
+      mvp = proj * view_matrix * model_matrix;
+   }
+
+   return mvp;
+}
+
+
 // can we work out the eye position without needing to unproject? (because that depends
 // on get_molecule_mvp()...
 //
@@ -401,6 +461,34 @@ graphics_info_t::setup_map_uniforms(Shader *shader_p,
                                           << err << std::endl;
 
 }
+
+Mesh mesh_for_particles("mesh-for-particles");
+int n_particles = 100;
+particle_container_t particles;
+
+bool do_tick_particles = false;
+bool do_tick_spin = false;
+
+gboolean
+glarea_tick_func(GtkWidget *widget,
+                 GdkFrameClock *frame_clock,
+                 gpointer data) {
+
+   if (do_tick_particles) {
+      if (particles.empty()) {
+         do_tick_particles = false;
+         return FALSE;
+      } else {
+         particles.update_particles();
+         mesh_for_particles.update_instancing_buffer_data(particles);
+      }
+   }
+
+   gtk_widget_queue_draw(widget); // needed?             
+
+   return TRUE;
+}
+
 
 
 void
@@ -1166,6 +1254,17 @@ graphics_info_t::draw_molecular_triangles() {
 #endif
 }
 
+// static
+void
+graphics_info_t::draw_particles() {
+
+   if (! particles.empty()) {
+      glm::mat4 mvp_particle = get_particle_mvp();
+      mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
+   }
+
+}
+
 void
 graphics_info_t::draw_molecules() {
 
@@ -1182,6 +1281,8 @@ graphics_info_t::draw_molecules() {
    draw_generic_objects();
 
    // transparent things...
+
+   draw_particles();
 
    draw_map_molecules(true);
 
@@ -1399,11 +1500,14 @@ on_glarea_realize(GtkGLArea *glarea) {
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(glarea), TRUE);
 
    glEnable(GL_DEPTH_TEST);
-   // glEnable(GL_CULL_FACE); // if I enable this, then I get to see th back side
-                              // of the bonds (and atoms, possibly) It's a weird look
 
-   // glEnable(GL_BLEND);
-   // glEnable(GL_LINE_SMOOTH);
+   // At some stage, enable this.  Currently (I think) the winding on the atoms is the wrong
+   // way around - replace with octaspheres and octahemispheres.
+   // I have just now changed the winding on the "solid" map triangles - and now it looks
+   // fine.
+   // 
+   // glEnable(GL_CULL_FACE); // if I enable this, then I get to see the back side
+                              // of the atoms. It's a weird look.
 
    // Make antialised lines
    if (false) {
@@ -1414,15 +1518,12 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.setup_lights();
 
-   // Martin's Molecular triangles
-   // setup_molecular_triangles();
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
+   particles.make_particles(n_particles, g.get_rotation_centre());
+   mesh_for_particles.setup_instancing_buffers(particles.size());
 
-#if !defined(USE_GUILE) && !defined(USE_PYTHON)
-   // handle_command_line_data(cld);
-#endif
-
-   err = glGetError(); if (true) std::cout << "on_glarea_realize() --end-- with err " << err
-                                           << std::endl;
+   err = glGetError();
+   if (err) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
 
    g.setup_key_bindings();
 }
@@ -1948,8 +2049,12 @@ graphics_info_t::setup_key_bindings() {
                    g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
                    graphics_info_t::idle_function_spin_rock_token = -1;
                 } else {
-                   int toi = g_timeout_add(5, view_spin_func, GINT_TO_POINTER(66));
-                   graphics_info_t::idle_function_spin_rock_token = toi;
+
+                   do_tick_spin = true;
+                   int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+
+                   // this is not a good name if we are storing a generic tick function id.
+                   graphics_info_t::idle_function_spin_rock_token = spin_tick_id;
                 }
                 return gboolean(TRUE);
              };
@@ -2002,6 +2107,24 @@ graphics_info_t::setup_key_bindings() {
 
    auto l21 = []() { graphics_info_t g; g.try_label_unlabel_active_atom(); return gboolean(TRUE); };
 
+   auto l22 = []() {
+                 std::cout << "We have " << particles.size() << " particles " << std::endl;
+                 if (particles.empty()) {
+                    graphics_info_t g;
+                    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?             
+                    glm::vec3 rc = g.get_rotation_centre();
+                    std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
+                    particles.make_particles(n_particles, rc);
+                 }
+                 // passing user_data and Notify function at the end
+                 if (! do_tick_particles) {
+                    do_tick_particles = true;
+                    int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+                    graphics_info_t::idle_function_spin_rock_token = new_tick_id;
+                 }
+                 return gboolean(TRUE);
+             };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -2024,6 +2147,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
 
    // control keys
 
@@ -2137,7 +2261,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
      if (true)
-        std::cout << "key-binding for key " << it->first.gdk_key << " "
+        std::cout << "key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
    } else {

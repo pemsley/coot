@@ -9,14 +9,14 @@
 
 void
 Particle::update() {
-   float v_scale = 0.09;
+   float v_scale = 0.009;
    glm::vec3 delta = v_scale * velocity;
    position += delta;
    velocity *= 0.994f;
-   colour.w *= 0.99;
+   // colour.w *= 0.99;
    colour.g += 0.01;
-   colour.r -= 0.01;
-   // colour.b += 0.004;
+   colour.r -= 0.002;
+   colour.b += 0.004;
    life -= 0.18;
 }
 
@@ -50,14 +50,17 @@ particle_container_t::make_particles(unsigned int n_particles, const glm::vec3 &
           p0 = 2.0 * random() - 1.0;
           p1 = 2.0 * random() - 1.0;
       }
-      float s = 0.92;
-      glm::vec3 pos(s * p0, s * p1, s * p2);
+      float s_pos = 1.92;
+      float s_vel = 11.1;
+      glm::vec3 pos(s_pos * p0, s_pos * p1, s_pos * p2);
       pos += rotation_centre;
       float v0 = p0;
       float v1 = p1;
       float v2 = p2;
-      glm::vec4 col(0.99, 0.2, 0.2, 1.0);
-      glm::vec3 vel(v0, v1, v2);
+      glm::vec4 col(0.66, 0.66, 0.2, 1.0);
+      glm::vec3 vel(s_vel * v0, s_vel * v1, s_vel * v2);
+      std::cout << "Particle " << i << " " << glm::to_string(pos) << "\tvelocity " << glm::to_string(vel) << " \t"
+                << glm::to_string(col) << std::endl;
       Particle p(pos, vel, col, 10.0f - 9.0f * random());
       particles.push_back(p);
    }
