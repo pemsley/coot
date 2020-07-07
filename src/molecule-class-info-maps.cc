@@ -1070,7 +1070,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         int *indices_for_triangles = new int[n_indices_for_triangles];
+         int *indices_for_triangles = new int[n_indices_for_triangles]; // d
          int idx_for_triangles = 0;
 
          if (true) {
@@ -1078,9 +1078,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
                int idx_base_for_triangles = idx_base_for_triangles_vec[i];
                for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                  // note change of winding
+                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                   indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
-                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
                   idx_for_triangles++;
 
                   // as we install these we should find out where the triangles centres are (or maybe before now)
@@ -1093,9 +1094,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                   const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
                   int idx_base_for_triangles = idx_base_for_triangles_vec[i];
                   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-                     indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                     indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                      indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
-                     indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                     indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
                      idx_for_triangles++;
                   }
                }
