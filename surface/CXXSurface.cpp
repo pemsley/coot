@@ -23,9 +23,12 @@
 #include "CXXTriangle.h"
 #include "CXXSphereFlatTriangle.h"
 
+
+
+
 CXX_mot::CXXSurface::CXXSurface()
 {
-	init();
+   init();
 }
 
 CXX_mot::CXXSurface::~CXXSurface(){
@@ -582,34 +585,42 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
     std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >contactMap;
     CXXBall::ballContacts(vdwBallPntrs, contextBallPntrs, contactMap);	
     std::cout << "Established contact map\n";
-	
+
     //Start up with reentrant Prbes separated per-atom...removes one locking state
     //for multi-threadig
     std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > > splitReentrantProbes;
     splitReentrantProbes.resize(nSelAtoms);
-	
     CXXSphereElement unitSphereAtOrigin(CXXCoord(0.,0.,0.), 1., delta);
-	
 
+#ifdef __GNUC__
+#if (__GNUC__ == 9)
 #pragma omp parallel for default(none) shared(selHnd, nSelAtoms, SelAtom, probeRadius, delta, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
-    // #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
-	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
-		mmdb::PAtom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();		
-		if (!(atomNr%100) || atomNr==nSelAtoms-1) {
+
+#else
+    #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
+#endif
+
+#else
+    #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
+#endif
+
+    for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
+       mmdb::PAtom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();
+       if (!(atomNr%100) || atomNr==nSelAtoms-1) {
+
 #pragma omp critical(cout)
-			cout << "Dealing with atom number " <<atomNr <<endl;
-		}
-		double radiusOfAtom1 = getAtomRadius(centralAtom);
-        CXXNewHood theNewHood;
-        theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
-        
-		//We have precalculated neighbours of the central atom, and now can use that 
+          cout << "Dealing with atom number " <<atomNr <<endl;
+       }
+       double radiusOfAtom1 = getAtomRadius(centralAtom);
+       CXXNewHood theNewHood;
+       theNewHood.initWith(centralAtom, radiusOfAtom1, probeRadius);
+
+       //We have precalculated neighbours of the central atom, and now can use that 
 		//to our advantage
 		std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > &neighbours = contactMap[vdwBallPntrs[atomNr]];
 		for (unsigned int sphereAtomNr = 0; sphereAtomNr < neighbours.size(); sphereAtomNr++) {
 			theNewHood.addBall(*neighbours[sphereAtomNr]);
 		}
-		
 		//Find the non-hidden segments of the circles
 		theNewHood.findSegments();
         CXXSurface elementSurface;
