@@ -113,36 +113,36 @@ get_input_details(int argc, char **argv) {
 
       switch (ch) {
       case 0:
-	 if (optarg) {
+	 if (coot_optarg) {
 	    std::string arg_str = long_options[option_index].name;
 
 	    if (arg_str == "pdbin") {
-	       inputs.input_pdb_file_name = optarg;
+	       inputs.input_pdb_file_name = coot_optarg;
 	    }
 	    if (arg_str == "pdbout") {
-	       inputs.output_pdb_file_name = optarg;
+	       inputs.output_pdb_file_name = coot_optarg;
 	    }
 	    if (arg_str == "mapin") {
-	       inputs.map_file_name = optarg;
+	       inputs.map_file_name = coot_optarg;
 	    }
 	    if (arg_str == "hklin") {
-	       inputs.mtz_file_name = optarg;
+	       inputs.mtz_file_name = coot_optarg;
 	    }
 	    if (arg_str == "chain-id") {
-	       inputs.chain_id = optarg;
+	       inputs.chain_id = coot_optarg;
 	    }
 	    if (arg_str == "resno") {
-	       inputs.res_no = coot::util::string_to_int(optarg);
+	       inputs.res_no = coot::util::string_to_int(coot_optarg);
 	    }
 	    if (arg_str == "res-no") {
-	       inputs.res_no = coot::util::string_to_int(optarg);
+	       inputs.res_no = coot::util::string_to_int(coot_optarg);
 	    }
 	    if (arg_str == "weight") {
-	       inputs.map_weight = coot::util::string_to_float(optarg);
+	       inputs.map_weight = coot::util::string_to_float(coot_optarg);
 	    }
 	    if (arg_str == "n-samples") {
 	       try {
-		  inputs.map_weight = coot::util::string_to_int(optarg);
+		  inputs.map_weight = coot::util::string_to_int(coot_optarg);
 	       }
 	       catch (const std::runtime_error &rte) {
 		  std::cout << "WARNING:: parsing n-samples " << rte.what() << std::endl;

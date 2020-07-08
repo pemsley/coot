@@ -102,38 +102,38 @@ int main(int argc, char **argv) {
 	 switch(ch) {
 
 	 case 0:
-	    if (optarg) {
+	    if (coot_optarg) {
 	       std::string arg_str = long_options[option_index].name;
 
 	       std::cout << "arg_str (loop) " << arg_str << std::endl;
 
 	       if (arg_str == "pdbin") {
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       }
 	       if (arg_str == "mapin") {
-		  map_file_name = optarg;
+		  map_file_name = coot_optarg;
 		  std::cout << "debug:: setting map_file_name to " << map_file_name << std::endl;
 	       }
 	       if (arg_str == "pdbout") {
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       }
 	       if (arg_str == "hklin") {
-		  hklin_file_name = optarg;
+		  hklin_file_name = coot_optarg;
 	       }
 	       if (arg_str == "f") {
-		  f_col_label = optarg;
+		  f_col_label = coot_optarg;
 	       }
 	       if (arg_str == "phi") {
-		  phi_col_label = optarg;
+		  phi_col_label = coot_optarg;
 	       }
 	       if (arg_str == "chain-id") {
-		  chain_id = optarg;
+		  chain_id = coot_optarg;
 	       }
 	       if (arg_str == "res-no") {
-		  res_no_str = optarg;
+		  res_no_str = coot_optarg;
 	       }
 	       if (arg_str == "sequence-file") {
-		  sequence_file_name = optarg;
+		  sequence_file_name = coot_optarg;
 	       }
 	       if (arg_str == "debug") {
 		  debugging = true;

@@ -93,46 +93,46 @@ int main(int argc, char **argv) {
       while ( -1 != 
 	      (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) { 
 
-// 	 if (optarg)
-// 	    std::cout << "DEBUG:: index " << option_index << " " << optarg << std::endl;
+// 	 if (coot_optarg)
+// 	    std::cout << "DEBUG:: index " << option_index << " " << coot_optarg << std::endl;
 // 	 else 
-// 	    std::cout << "DEBUG:: index " << option_index << " null optarg" << std::endl;
+// 	    std::cout << "DEBUG:: index " << option_index << " null coot_optarg" << std::endl;
 
 	 switch(ch) { 
 
 	    // long arguments, no ch
 	 case 0:
 	    // std::cout << "processing... " << long_options[option_index].name << std::endl;
-	    if (optarg) {
+	    if (coot_optarg) {
 	       
 	       std::string arg_str = long_options[option_index].name;
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       }
 	       if (arg_str == "x") {
 		  have_x_flag = 1;
-		  x = atof(optarg);
+		  x = atof(coot_optarg);
 	       }
 	       if (arg_str == "y") {
 		  have_y_flag = 1;
-		  y = atof(optarg);
+		  y = atof(coot_optarg);
 	       }
 	       if (arg_str == "z") {
 		  have_z_flag = 1;
-		  z = atof(optarg);
+		  z = atof(coot_optarg);
 	       }
 	       
 	    } else { 
-	       // long arg, no optarg
+	       // long arg, no coot_optarg
 	       std::string arg_str = long_options[option_index].name;
 	       if (arg_str == "strand") {
 		  do_strand = 1;
@@ -142,54 +142,54 @@ int main(int argc, char **argv) {
 
 	    // 1-char args:
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 
 	 case 'x':
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       //std::cout << "processing... x " << std::endl;
 	       have_x_flag = 1;
-	       x = atof(optarg);
+	       x = atof(coot_optarg);
 	       //std::cout << "set value of x " <<  x << std::endl;
 	    } else {
-	       //std::cout << "no optarg for x!" << std::endl;
+	       //std::cout << "no coot_optarg for x!" << std::endl;
 	    } 
 	    
 	 case 'y':
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       //std::cout << "processing... y " << std::endl;
 	       have_y_flag = 1;
-	       y = atof(optarg);
+	       y = atof(coot_optarg);
 	       // std::cout << "set value of y " <<  y << std::endl;
 	    } else { 
-	       //std::cout << "no optarg for y!" << std::endl;
+	       //std::cout << "no coot_optarg for y!" << std::endl;
 	    } 
 	    
 	 case 'z':
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       //std::cout << "processing... z " << std::endl;
 	       have_z_flag = 1;
-	       //std::cout << "seting value of z from " <<  optarg << std::endl;
-	       z = atof(optarg);
+	       //std::cout << "seting value of z from " <<  coot_optarg << std::endl;
+	       z = atof(coot_optarg);
 	       //std::cout << "set value of z " <<  z << std::endl;
 	    } else {
-	       //std::cout << "no optarg for z!" << std::endl;
+	       //std::cout << "no coot_optarg for z!" << std::endl;
 	    } 
 	    
 	 default:
-	    std::cout << "default optarg: " << optarg << std::endl;
+	    std::cout << "default coot_optarg: " << coot_optarg << std::endl;
 	    break;
 	 }
       }

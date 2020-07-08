@@ -136,10 +136,10 @@ main(int argc, char **argv) {
 	 switch(ch) {
 	    
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 
-// 	       std::cout << "DEBUG:: " << option_index << " " << strlen(optarg) << std::endl;
-// 	       std::cout << " " << optarg << std::endl;
+// 	       std::cout << "DEBUG:: " << option_index << " " << strlen(coot_optarg) << std::endl;
+// 	       std::cout << " " << coot_optarg << std::endl;
 // 	       std::cout << "   ch:: " << ch << std::endl;
 	 
 	       std::string arg_str = long_options[option_index].name;
@@ -147,67 +147,67 @@ main(int argc, char **argv) {
 	       // std::cout << " considering arg_str :" << arg_str << ":\n";
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "pdb") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "sigma") {
-		  sigma_str = optarg;
+		  sigma_str = coot_optarg;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "absolute") {
-		  absolute_string = optarg;
+		  absolute_string = coot_optarg;
 		  set_absolute = 1;
 		  n_used_args += 2;
 	       } 
 	       if (arg_str == "clusters") {
-		  n_cluster_string = optarg;
+		  n_cluster_string = coot_optarg;
 		  n_used_args += 2;
 	       }
 
 	       if (arg_str == "samples") { 
-		  wiggly_ligand_n_samples = atoi(optarg);
+		  wiggly_ligand_n_samples = atoi(coot_optarg);
 		  n_used_args += 2;
 	       }
 
 	       if (arg_str == "dictionary") { 
-		  cif_file_name = optarg;
+		  cif_file_name = coot_optarg;
 		  n_used_args += 2;
 	       }
 
 	       if (arg_str == "sampling-factor") { 
-		  map_sampling_factor_str = optarg;
+		  map_sampling_factor_str = coot_optarg;
 		  n_used_args += 2;
 	       }
 
 	       if (arg_str == "fit-fraction") { 
-		  fit_frac_str = optarg;
+		  fit_frac_str = coot_optarg;
 		  n_used_args += 2;
 	       }
 	       
 	       if (arg_str == "script") { 
-		  coot_ligands_script_file_name = optarg;
+		  coot_ligands_script_file_name = coot_optarg;
 		  n_used_args += 2;
 	       }
 
 	       if (arg_str == "pos-x" || arg_str == "pos-y" || arg_str == "pos-z") {
 		  try {
-		     float v = coot::util::string_to_float(optarg);
+		     float v = coot::util::string_to_float(coot_optarg);
 		     if (arg_str == "pos-x")
 			pos_x = std::pair<bool, float> (1, v);
 		     if (arg_str == "pos-y")
@@ -244,37 +244,37 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 's':
-	    sigma_str = optarg;
+	    sigma_str = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 case 'c':
-	    n_cluster_string = optarg;
+	    n_cluster_string = coot_optarg;
 	    n_used_args += 2;
 	    break;
 	    
 	 default:
-	    std::cout << "default optarg: " << optarg << std::endl;
+	    std::cout << "default coot_optarg: " << coot_optarg << std::endl;
 	    break;
 	 }
       }

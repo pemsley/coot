@@ -168,42 +168,42 @@ main(int argc, char *argv[]) {
       switch(ch) {
 
       case 0:
-         if (optarg) {
+         if (coot_optarg) {
             std::string arg_str = long_options[option_index].name;
 
             if (arg_str == "pdbin") {
-               pdb_file_name = optarg;
+               pdb_file_name = coot_optarg;
                n_used_args += 2;
             }
             if (arg_str == "pdbin2") {
-               pdb_file_name2 = optarg;
+               pdb_file_name2 = coot_optarg;
                is_kleywegt_plot_flag = 1;
                n_used_args += 2;
             }
             if (arg_str == "selection") {
-               selection = optarg;
+               selection = coot_optarg;
                n_used_args += 2;
             }
             if (arg_str == "selection2") {
-               selection2 = optarg;
+               selection2 = coot_optarg;
                is_kleywegt_plot_flag = 1;
                n_used_args += 2;
             }
             if (arg_str == "chain") {
-               chain_id = optarg;
+               chain_id = coot_optarg;
                n_used_args += 2;
             }
             if (arg_str == "chain2") {
-               chain_id2 = optarg;
+               chain_id2 = coot_optarg;
                is_kleywegt_plot_flag = 1;
                n_used_args += 2;
             }
             if (arg_str == "edit") {
-               edit_res_no = coot::util::string_to_int(optarg);
+               edit_res_no = coot::util::string_to_int(coot_optarg);
                n_used_args += 2;
             }
             if (arg_str == "blocksize") {
-               block_size = coot::util::string_to_float(optarg);
+               block_size = coot::util::string_to_float(coot_optarg);
                n_used_args += 2;
             }
          } else {
@@ -230,42 +230,42 @@ main(int argc, char *argv[]) {
          break;
 
       case 'i':
-         pdb_file_name = optarg;
+         pdb_file_name = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'j':
-         pdb_file_name2 = optarg;
+         pdb_file_name2 = coot_optarg;
          n_used_args += 2;
          break;
 
       case 's':
-         selection = optarg;
+         selection = coot_optarg;
          n_used_args += 2;
          break;
 
       case 't':
-         selection2 = optarg;
+         selection2 = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'c':
-         chain_id = optarg;
+         chain_id = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'd':
-         chain_id2 = optarg;
+         chain_id2 = coot_optarg;
          n_used_args += 2;
          break;
 
       case 'e':
-         edit_res_no = coot::util::string_to_int(optarg);
+         edit_res_no = coot::util::string_to_int(coot_optarg);
          n_used_args += 2;
          break;
 
       case 'b':
-         block_size = coot::util::string_to_float(optarg);
+         block_size = coot::util::string_to_float(coot_optarg);
          n_used_args += 2;
          break;
 
@@ -294,7 +294,7 @@ main(int argc, char *argv[]) {
          break;
 
       default:
-         std::cout << "default optarg: " << optarg << std::endl;
+         std::cout << "default coot_optarg: " << coot_optarg << std::endl;
          break;
       }
    }

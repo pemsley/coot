@@ -126,44 +126,44 @@ main(int argc, char **argv) {
 	 switch(ch) { 
 	    
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       } 
 	       if (arg_str == "pdbout") { 
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       } 
 	       if (arg_str == "sigma") {
-		  sigma_str = optarg;
+		  sigma_str = coot_optarg;
 	       }
 	       if (arg_str == "mapin") {
-		  map_file_name = optarg;
+		  map_file_name = coot_optarg;
 	       }
 	       if (arg_str == "min-dist") {
-		  min_dist_str = optarg;
+		  min_dist_str = coot_optarg;
 	       }
 	       if (arg_str == "max-dist") {
-		  max_dist_str = optarg;
+		  max_dist_str = coot_optarg;
 	       }
 	       if (arg_str == "flood-atom-radius") {
 		  try {
 		     flood_atom_mask_radius =
-			coot::util::string_to_float(optarg);
+			coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::exception &e) {
 		     std::cout << "argument for --flood_atom_mask_radius"
-			       << " is not a number: " << optarg
+			       << " is not a number: " << coot_optarg
 			       << std::endl;
 		     exit(1);
 		  } 
@@ -171,11 +171,11 @@ main(int argc, char **argv) {
                if (arg_str == "water-to-protein-max-dist") {
 		  try {
 		     water_to_protein_max_dist =
-			coot::util::string_to_float(optarg);
+			coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::exception &e) {
 		     std::cout << "argument for --water-to-protein-max-dist"
-			       << " is not a number: " << optarg
+			       << " is not a number: " << coot_optarg
 			       << std::endl;
 		     exit(1);
 		  } 
@@ -183,11 +183,11 @@ main(int argc, char **argv) {
                if (arg_str == "water-to-protein-min-dist") {
 		  try {
 		     water_to_protein_min_dist =
-			coot::util::string_to_float(optarg);
+			coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::exception &e) {
 		     std::cout << "argument for --water-to-protein-min-dist"
-			       << " is not a number: " << optarg
+			       << " is not a number: " << coot_optarg
 			       << std::endl;
 		     exit(1);
 		  } 
@@ -210,27 +210,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    break;
 	    
 	 case 'o':
-	    output_pdb = optarg;
+	    output_pdb = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 	    
 	 case 's':
-	    sigma_str = optarg;
+	    sigma_str = coot_optarg;
 	    break;
 
 	 case 'e':
