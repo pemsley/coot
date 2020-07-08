@@ -34,11 +34,12 @@ namespace coot {
       // are centred on the origin.
       std::map<std::string, std::vector<std::vector<clipper::Coord_orth> > > reference_fragments;
       void fill_reference_fragments();
+      bool boxes_have_been_resized = false;
       std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > > boxes; // reference
       std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > > boxes_for_testing; // this pdb
       std::vector<mmdb::Residue *> helical_residues; // fill this before calling calculate_daca()
       void fill_helix_flags(mmdb::Model *model_p, mmdb::Manager *mol);
-      clipper::RTop_orth
+      std::pair<bool, clipper::RTop_orth>  // return status also, as this can fail.
       get_frag_to_reference_rtop(const std::string &res_name,
                                  const unsigned int &frag_idx,
                                  const std::vector<mmdb::Atom *> &fragment_atoms) const;
@@ -60,9 +61,10 @@ namespace coot {
       bool atom_is_neighbour_mainchain(mmdb::Atom *at, mmdb::Residue *reference_residue_p) const;
       void debug_boxes(const std::string &debug_prefix="") const;
       void compare_boxes() const;
+      void presize_boxes(mode_t mode=REFERENCE);
 
    public:
-      daca() { fill_reference_fragments(); }
+      daca() { fill_reference_fragments(); boxes_have_been_resized = false; }
       void write_tables_using_reference_structures_from_dir(const std::string &input_pdb_files_dir_name,
                                                             const std::string &output_tables_dir);
       void read_tables(const std::string &dir);

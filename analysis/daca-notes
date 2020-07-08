@@ -56,3 +56,11 @@ Wed  1 Jul 19:38:53 BST 2020
 
    Bug in ARG fragments - probably everywhere.
 
+
+----
+Wed  8 Jul 10:41:50 BST 2020
+
+sub.sh multi-daca.sh
+[wait]
+./coot-daca consolidate splits/table* consolidated
+

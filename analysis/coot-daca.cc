@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
       if (mode == "score") {
          if (argc > 2) {
             std::string pdb_file_name(argv[2]);
-            daca.read_tables("reference_tables"); // not a dash!
+            daca.read_tables("consolidated"); // not a dash!
             daca.score_molecule(pdb_file_name);
          }
       }
