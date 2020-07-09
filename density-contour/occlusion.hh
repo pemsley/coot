@@ -5,15 +5,15 @@
 
 namespace coot {
 
-	class occlusion_triangle {
-		bool occlusion_is_set;
+        class occlusion_triangle {
+           bool occlusion_is_set;
            public:
-		int idx_1, idx_2, idx3;
-		clipper::Coord_orth mid_point;
-                float surface_area;
-                clipper::Coord_orth normal; // normalized normal
-		float occlusion_factor;
-	};
+           int idx_1, idx_2, idx3;
+           clipper::Coord_orth mid_point;
+           float surface_area;
+           clipper::Coord_orth normal; // normalized normal
+           float occlusion_factor;
+         };
 
          class augmented_position {
          public:
@@ -27,7 +27,7 @@ namespace coot {
          };
 
         // this presumes that the surface area and the normal have been calculated/set for the triangles
-	void set_occlusions(std::vector<occlusion_triangle> &tris, const std::vector<clipper::Coord_orth> &positions);
+        void set_occlusions(std::vector<occlusion_triangle> &tris, const std::vector<clipper::Coord_orth> &positions);
         void set_lower_left_and_range(const std::vector<occlusion_triangle> &tris, const std::vector<clipper::Coord_orth> &positions,
                                       float brick_size,
                                       clipper::Coord_orth *lower_left_p, int *brick_range_p);
