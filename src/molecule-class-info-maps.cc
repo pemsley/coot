@@ -517,8 +517,6 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       if (n_reams < 1) n_reams = 1;
 
       for (int ii=0; ii<n_reams; ii++) {
-         std::cout << "creating a thread gensurf_and_add_vecs_threaded_workpackage with is_em_map "
-                   << is_em_map << std::endl;
          threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
                                        &xmap, contour_level, dy_radius, centre,
                                        isample_step, ii, n_reams, is_em_map,
