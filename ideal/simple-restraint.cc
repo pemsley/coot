@@ -7767,9 +7767,10 @@ coot::restraints_container_t::copy_from(const coot::restraints_container_t &rest
 #ifdef HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
    // thread pool!
-      //
+   //
    thread_pool_p = rest_in.thread_pool_p;
    n_threads = rest_in.n_threads;
+
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #endif // HAVE_CXX_THREAD
    
@@ -7782,4 +7783,30 @@ coot::restraints_container_t::df_by_thread_results_size() const {
 }
 #endif
 
+
+// maybe this should have its own file
+
+// Because this is used for "celebration", I think that the Rama score
+// should be analysed (used as a filter) even if it is not used for
+// refinement.  Otherwise we could get celebration for a model with
+// Rama outliers - and that would be misleading for most people (not
+// me).
+//
+bool
+coot::refinement_results_t::hooray() const {
+
+   bool status = true;
+   for (unsigned int i=0; i<lights.size(); i++) {
+      const refinement_lights_info_t &light = lights[i];
+      std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
+      float crit_value = 1.4;
+      if (light.name == "Trans_peptide")
+         crit_value = 3.0;
+      if (light.value > crit_value) {
+         std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
+         status = false;
+      }
+   }
+   return status;
+}
 #endif // HAVE_GSL
