@@ -603,8 +603,6 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 					  int iream_start, int n_reams,
 					  bool is_em_map) {
 
-   // std::cout << "------ start GenerateSurface_from_Xmap() " << n_reams << std::endl;
-
 #ifdef ANALYSE_CONTOURING_TIMING
    auto tp_0 = std::chrono::high_resolution_clock::now();
 #endif
@@ -830,11 +828,12 @@ CIsoSurface<T>::GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
 template <class T>
 coot::density_contour_triangles_container_t
 CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
-					    T tIsoLevel,
-					    float box_radius, // half length
-					    coot::Cartesian centre_point,
-					    int isample_step,
-                  int iream_start, int n_reams, bool is_em_map) {
+                                            T tIsoLevel,
+                                            float box_radius, // half length
+                                            coot::Cartesian centre_point,
+                                            int isample_step,
+                                            int iream_start, int n_reams,
+                                            bool is_em_map) {
 
    coot::density_contour_triangles_container_t tri_con;
 
@@ -850,6 +849,14 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    // When it comes to writing out the lines/triangles, we will need to add
    // the offset of the bottom left hand corner.
    //
+
+
+   double max_x=0, max_y=0, max_z=0;
+   if (is_em_map) {
+      max_x = crystal_map.cell().descr().a();
+      max_y = crystal_map.cell().descr().b();
+      max_z = crystal_map.cell().descr().c();
+   }
 
    clipper::Coord_orth centre( centre_point.get_x(), centre_point.get_y(),
 			       centre_point.get_z() );
@@ -961,6 +968,7 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
    tri_con.normals.resize(max_index+1);
 
    //
+
    unsigned nt_for_index = 0;
    for (unsigned int nt=0; nt < m_nTriangles; nt++) {
 
@@ -1004,6 +1012,17 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       // Don't add this triangle if it's outside the sphere
       //
       if ((tri.mid_point-centre).lengthsq() > radius_sqd) valid_co = false;
+
+      if (valid_co) {
+         if (is_em_map) {
+            if (tri.mid_point.x() < 0) valid_co = false;
+            if (tri.mid_point.y() < 0) valid_co = false;
+            if (tri.mid_point.z() < 0) valid_co = false;
+            if (tri.mid_point.x() > max_x) valid_co = false;
+            if (tri.mid_point.y() > max_y) valid_co = false;
+            if (tri.mid_point.z() > max_z) valid_co = false;
+         }
+      }
 
       // If you want to bring back "all" triangles, test on true
       if (valid_co) {
