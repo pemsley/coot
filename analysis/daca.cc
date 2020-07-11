@@ -10,21 +10,30 @@
 #include "daca.hh"
 
 coot::daca::box_index_t::box_index_t(const clipper::Coord_orth &pos) {
-   double box_width = 1.0;
+   box_width = 1.0;
    idx_x = floor(pos.x()/box_width);
    idx_y = floor(pos.y()/box_width);
    idx_z = floor(pos.z()/box_width);
-
 }
 
 // the reverse of the above - make a point in the middle of the box
 clipper::Coord_orth
 coot::daca::box_index_t::coord_orth() const {
-   double box_width = 1.0;
    double x = static_cast<double>(idx_x) * box_width + 0.5 * box_width;
    double y = static_cast<double>(idx_y) * box_width + 0.5 * box_width;
    double z = static_cast<double>(idx_z) * box_width + 0.5 * box_width;
    return clipper::Coord_orth(x,y,z);
+}
+
+float
+coot::daca::box_index_t::d_squared() const {
+   clipper::Coord_orth pt = coord_orth();
+   return (pt.x() * pt.x() + pt.y() * pt.y() + pt.z() * pt.z());
+}
+
+float
+coot::daca::box_index_t::d() const {
+   return sqrtf(d_squared());
 }
 
 bool
@@ -36,6 +45,29 @@ coot::daca::box_index_t::operator<(const coot::daca::box_index_t &other) const {
    if (other.idx_z < idx_z) return true;
    if (other.idx_z > idx_z) return false;
    return false;
+}
+
+
+float
+coot::daca::gompertz_scale(const float &dist_squared) {
+
+   float box_width = 1.0; // should match the box width of the box_index_t.
+                          // Should be transfered?
+
+   std::map<float, float>::const_iterator it = envelope_distance_map.find(dist_squared);
+   if (it != envelope_distance_map.end()) {
+      return it->second;
+   } else {
+      float x = sqrtf(dist_squared);
+      const float m = 9.2 * box_width; // 9.2 not 8.0 - for better tailing off of the function
+      const float a = 1.0;
+      const float b = 7.0;
+      const float c = 1.0;
+      float g = a * exp(-b * exp(-c * (m - x)));
+      envelope_distance_map[dist_squared] = g;
+      return g;
+   }
+
 }
 
 
@@ -206,6 +238,10 @@ coot::daca::make_typed_atoms(mmdb::Model *model_p, const coot::protein_geometry 
 std::vector<std::vector<std::string> >
 coot::daca::atom_names_for_fragments(const std::string &res_name) const {
    std::vector<std::vector<std::string> > v;
+
+   std::vector<std::string> all{" CA ", " C  ", " O  "};
+   v.push_back(all);
+
    if (res_name == "GLY") {
       std::vector<std::string> s{" N  ", " C  ", " CA "};
       v.push_back(s);
@@ -287,6 +323,16 @@ coot::daca::atom_names_for_fragments(const std::string &res_name) const {
       std::vector<std::string> s2{" CA ", " CB ", " CG "};
       std::vector<std::string> s3{" CB ", " CG ", " SD "};
       std::vector<std::string> s4{" CG ", " SD ", " CE "};
+      v.push_back(s1);
+      v.push_back(s2);
+      v.push_back(s3);
+      v.push_back(s4);
+   }
+   if (res_name == "MSE") {
+      std::vector<std::string> s1{" N  ", " C  ", " CA ", " CB "};
+      std::vector<std::string> s2{" CA ", " CB ", " CG "};
+      std::vector<std::string> s3{" CB ", " CG ", " SD "};
+      std::vector<std::string> s4{" CG ", " SE ", " CE "};
       v.push_back(s1);
       v.push_back(s2);
       v.push_back(s3);
@@ -455,14 +501,59 @@ coot::daca::add_to_box(mode_t mode,
    if (is_helical_flag) box_key = residue_type + "-helical";
 
    if (mode == REFERENCE) {
-      boxes[box_key][frag_index][atom_type][box_index] += counts;
+
+      std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::const_iterator it =
+         boxes.find(box_key);
+      if (it == boxes.end()) {
+         std::cout << "error in boxes " << box_key << std::endl;
+      } else {
+         boxes[box_key][frag_index][atom_type][box_index] += counts;
+      }
    }
 
    if (mode == ANALYSIS) {
       if (frag_index >= boxes_for_testing[residue_type].size())
-         boxes_for_testing[box_key].resize(5);
+         boxes_for_testing[box_key].resize(6);
       boxes_for_testing[box_key][frag_index][atom_type][box_index] += counts;
    }
+
+}
+
+int
+coot::daca::get_reference_counts(const std::string &residue_type,
+                                 bool is_helical_flag,
+                                 unsigned int frag_index,
+                                 const box_index_t &box_index,
+                                 const std::string &atom_type) const {
+
+   int score = -1; // not found
+   std::string box_key = residue_type + "-non-helical";
+   if (is_helical_flag) box_key = residue_type + "-helical";
+
+   std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::const_iterator it =
+      boxes.find(box_key);
+   if (it == boxes.end()) // should never happen
+       return score;
+   const std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &frag_boxes = it->second;
+   std::map<std::string, std::map<box_index_t, unsigned int> >::const_iterator it_typed_box =
+      frag_boxes[frag_index].find(atom_type);
+   if (it_typed_box != frag_boxes[frag_index].end()) {
+      std::map<box_index_t, unsigned int>::const_iterator it_box = it_typed_box->second.find(box_index);
+      if (it_box != it_typed_box->second.end()) {
+         score = it_box->second;
+      } else {
+         std::cout << "Miss " << box_key << " " << frag_index << " " << atom_type << " "
+                   << std::setw(2) << box_index.idx_x << " "
+                   << std::setw(2) << box_index.idx_y << " "
+                   << std::setw(2) << box_index.idx_z << " "
+                   << std::endl;
+      }
+   } else {
+      std::cout << "Miss:: " << box_key << " atom type " << atom_type << std::endl;
+   }
+
+   return score;
+
 }
 
 void
@@ -701,7 +792,8 @@ void
 coot::daca::presize_boxes(mode_t mode) {
 
    std::vector<std::string> types = { "GLY", "ALA", "CYS", "ASP", "GLU", "PHE", "HIS", "ILE", "LYS", "LEU",
-                                      "MET", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR"};
+                                      "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP",
+                                      "TYR"};
 
    if (mode == REFERENCE) {
       boxes_have_been_resized = true;
@@ -709,7 +801,7 @@ coot::daca::presize_boxes(mode_t mode) {
          const std::vector<std::string> h_types = {"-helical", "-non-helical"};
          for (auto h : h_types) {
             std::string key = type + h;
-            boxes[key].resize(5);
+            boxes[key].resize(6);
          }
       }
    }
@@ -718,7 +810,7 @@ coot::daca::presize_boxes(mode_t mode) {
          const std::vector<std::string> h_types = {"-helical", "-non-helical"};
          for (auto h : h_types) {
             std::string key = type + h;
-            boxes_for_testing[key].resize(5);
+            boxes_for_testing[key].resize(6);
          }
       }
    }
@@ -726,10 +818,12 @@ coot::daca::presize_boxes(mode_t mode) {
 
 #include "geometry/main-chain.hh"
 
-void
+int
 coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                            const std::vector<std::pair<mmdb::Atom *, std::string> > &typed_atoms,
                            coot::daca::mode_t mode) {
+
+   bool print_scores = true;
 
    // brain-dead distance search (sad face)
 
@@ -739,6 +833,8 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
    double dd_crit = d_crit * d_crit;
 
    presize_boxes();
+
+   int reference_counts = 0;
 
    std::string res_name(reference_residue_p->GetResName());
    int reference_residue_seqnum = reference_residue_p->GetSeqNum();
@@ -764,11 +860,13 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
             clipper::Coord_orth frag_centre(sum * m);
             // Get the RTop that transforms the fragment to a reference
             // fragment at the origin.
-            std::pair<bool, clipper::RTop_orth> frag_to_reference_rtop_pair = get_frag_to_reference_rtop(res_name, ifrag, atom_vec);
+            std::pair<bool, clipper::RTop_orth> frag_to_reference_rtop_pair =
+               get_frag_to_reference_rtop(res_name, ifrag, atom_vec);
             if (! frag_to_reference_rtop_pair.first) continue;
             const clipper::RTop_orth &frag_to_reference_rtop = frag_to_reference_rtop_pair.second;
             for (unsigned int ita=0; ita<typed_atoms.size(); ita++) {
                mmdb::Atom *at = typed_atoms[ita].first;
+               const std::string &atom_type = typed_atoms[ita].second;
 
                // don't consider atoms in this residue, of course
                if (at->residue == reference_residue_p)
@@ -795,7 +893,31 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                         bool helical_flag = false;
                         if (std::find(helical_residues.begin(), helical_residues.end(), reference_residue_p) != helical_residues.end())
                         helical_flag = true;
-                        add_to_box(mode, res_name, helical_flag, ifrag, box_index, typed_atoms[ita].second);
+                        if (mode == REFERENCE)
+                           add_to_box(mode, res_name, helical_flag, ifrag, box_index, typed_atoms[ita].second);
+                        if (mode == ANALYSIS) {
+                           // what reference score do we have for this box
+                           std::string box_key = res_name + "-non-helical";
+                           if (helical_flag) box_key = res_name + "-helical";
+                           int counts = get_reference_counts(res_name, helical_flag, ifrag, box_index, typed_atoms[ita].second);
+                           if (counts > 0) {
+                              reference_counts += counts;
+                              if (print_scores)
+                                 std::cout << "Score " << residue_spec_t(reference_residue_p) << " "
+                                           << box_key << " " << ifrag << " " << " " << atom_spec_t(at) << " " << atom_type << " "
+                                           << std::setw(2) << box_index.idx_x << " "
+                                           << std::setw(2) << box_index.idx_y << " "
+                                           << std::setw(2) << box_index.idx_z << " "
+                                           << counts << "\n";
+                           } else {
+                              std::cout << "Miss " << residue_spec_t(reference_residue_p) << " "
+                                        << box_key << " " << ifrag << " " << " " << atom_spec_t(at) << " " << atom_type << " "
+                                        << std::setw(2) << box_index.idx_x << " "
+                                        << std::setw(2) << box_index.idx_y << " "
+                                        << std::setw(2) << box_index.idx_z << " "
+                                        << std::endl;
+                           }
+                        }
                      }
                   }
                }
@@ -809,6 +931,7 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
                    << std::endl;
       }
    }
+   return reference_counts;
 }
 
 void
@@ -855,6 +978,7 @@ void
 coot::daca::score_molecule(const std::string &pdb_file_name) {
 
    std::cout << "score_molecule() " << pdb_file_name << std::endl;
+   int score = 0;
    if (coot::file_exists(pdb_file_name)) {
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, false);
       if (asc.read_success) {
@@ -877,14 +1001,18 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                   if (residue_p) {
                      std::string res_name(residue_p->GetResName());
+                     int res_number = residue_p->GetSeqNum();
                      if (res_name == "HOH") continue;
                      if (! util::is_standard_amino_acid_name(res_name)) continue;
-                     calculate_daca(residue_p, ta, ANALYSIS);
+                     int daca_score = calculate_daca(residue_p, ta, ANALYSIS);
+                     score += daca_score;
+                     std::cout << "residue_number " << res_number << " score " << daca_score
+                               << " daca_sum_score " << score << "\n";
                   }
                }
             }
 
-            compare_boxes();
+            //compare_boxes();
          }
       }
    } else {
@@ -913,7 +1041,7 @@ coot::daca::compare_boxes() const {
             std::map<box_index_t, unsigned int>::const_iterator it_2;
             for (it_2=m2.begin(); it_2!=m2.end(); it_2++) {
                const box_index_t &bi = it_2->first;
-               int count_analysis = it_2->second;
+               const unsigned int &count_analysis = it_2->second;
                n_daca++;
 
                // does there exist a reference count for that?
@@ -963,3 +1091,143 @@ coot::daca::compare_boxes() const {
              << " sum " << sum << std::endl;
 }
 
+
+void
+coot::daca::normalize() {
+
+   // iterators not const because we want to modify the contents of the boxes
+   //
+   std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
+   for (it =boxes.begin(); it!=boxes.end(); it++) {
+      const std::string &res_name_with_ss(it->first);
+      std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
+      for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
+         std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
+         std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
+         for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
+            const std::string &atom_type = it_1->first;
+            std::map<box_index_t, unsigned int> &m2(it_1->second);
+            unsigned int n_count_sum = 0;
+            std::map<box_index_t, unsigned int>::const_iterator it_2;
+            for (it_2=m2.begin(); it_2!=m2.end(); it_2++) {
+               const box_index_t &bi = it_2->first;
+               const unsigned int &counts = it_2->second;
+               n_count_sum += counts;
+            }
+
+            if (false)
+               std::cout << "normalize " << res_name_with_ss << " "
+                         << "frag-index " << idx_frag << " "
+                         << "atom_type " << atom_type << " "
+                         << n_count_sum << std::endl;
+            float scale_factor = static_cast<int>(1000000.0/static_cast<float>(n_count_sum));
+            std::map<box_index_t, unsigned int>::iterator it_counts;
+            for (it_counts=m2.begin(); it_counts!=m2.end(); it_counts++) {
+               unsigned int counts = it_counts->second;
+               it_counts->second = static_cast<int>(scale_factor * static_cast<float>(counts));
+            }
+         }
+      }
+   }
+}
+
+// as in the verb
+void
+coot::daca::envelope() {
+
+   std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
+   for (it =boxes.begin(); it!=boxes.end(); it++) {
+      const std::string &res_name_with_ss(it->first);
+      std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
+      for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
+         std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
+         std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
+         for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
+            const std::string &atom_type = it_1->first;
+            std::map<box_index_t, unsigned int> &m2(it_1->second);
+            unsigned int n_count_sum = 0;
+            std::map<box_index_t, unsigned int>::iterator it_2;
+            for (it_2=m2.begin(); it_2!=m2.end(); it_2++) {
+               const box_index_t &bi = it_2->first;
+               const unsigned int &counts = it_2->second;
+               unsigned int c = counts;
+               float dd = bi.d_squared();
+               float scale_factor = gompertz_scale(dd);
+               it_2->second = static_cast<int>(scale_factor * static_cast<float>(counts));
+               if (false) // checking that the scaling is sane
+                  std::cout << "d " << sqrt(dd) << " scale " << scale_factor << " " << c
+                            << " " << it_2->second << std::endl;
+            }
+         }
+      }
+   }
+}
+
+void
+coot::daca::smooth() {
+
+   std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
+
+   std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >
+      copy_boxes = boxes;
+
+   for (it=boxes.begin(); it!=boxes.end(); it++) {
+      const std::string &res_name_with_ss(it->first);
+      std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
+      for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
+         std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
+         std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
+         for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
+            const std::string &atom_type = it_1->first;
+            std::map<box_index_t, unsigned int> &m2(it_1->second);
+            unsigned int n_count_sum = 0;
+            std::map<box_index_t, unsigned int>::const_iterator it_2;
+            for (it_2=m2.begin(); it_2!=m2.end(); it_2++) {
+               const box_index_t &bi = it_2->first;
+               const unsigned int &counts = it_2->second;
+               float d = bi.d();
+               const int box_idx_min = -8;
+               const int box_idx_max =  7;
+               for (int delta_x = -1; delta_x <= 1; delta_x++) {
+                  for (int delta_y = -1; delta_y <= 1; delta_y++) {
+                     for (int delta_z = -1; delta_z <= 1; delta_z++) {
+                        if ((delta_x == 0) && (delta_y == 0) && (delta_z == 0)) {
+                           // do nothing
+                        } else {
+                           int idx_neighb_x = bi.idx_x + delta_x;
+                           int idx_neighb_y = bi.idx_y + delta_y;
+                           int idx_neighb_z = bi.idx_z + delta_z;
+                           if (idx_neighb_x >= box_idx_min) {
+                              if (idx_neighb_x <= box_idx_max) {
+                                 if (idx_neighb_y >= box_idx_min) {
+                                    if (idx_neighb_y <= box_idx_max) {
+                                       if (idx_neighb_z >= box_idx_min) {
+                                          if (idx_neighb_z <= box_idx_max) {
+                                             box_index_t neighb_box_index(idx_neighb_x, idx_neighb_y, idx_neighb_z);
+                                             int contrib = static_cast<int>(0.125 * static_cast<float>(counts));
+                                             copy_boxes[res_name_with_ss][idx_frag][atom_type][neighb_box_index] += contrib;
+                                          }
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   boxes = copy_boxes;
+}
+
+
+void
+coot::daca::cook() {
+
+   smooth();
+   envelope();
+   normalize();
+}

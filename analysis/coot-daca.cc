@@ -22,15 +22,24 @@ int main(int argc, char **argv) {
          std::vector<std::string> input_dirs;
          std::string output_tables_dir(argv[argc-1]); // the last arg
          for(int i=2; i<argc-1; i++) {
-            input_dirs.push_back(argv[i]); // don't use dashes in the directory names
+            input_dirs.push_back(argv[i]);
          }
          if (input_dirs.empty()) {
             std::cout << "no input directories" << std::endl;
          } else {
             // happy path
             daca.read_many_tables(input_dirs);
+            daca.cook();
             std::cout << "consolidate mode write directory " << output_tables_dir << std::endl;
             daca.write_tables(output_tables_dir);
+         }
+      }
+
+      if (mode == "cook") {
+         if (argc == 3) {
+            std::string tables_dir = argv[2];
+            daca.read_tables("consolidated"); // not a dash!
+            daca.cook();
          }
       }
 
