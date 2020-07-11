@@ -1953,7 +1953,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                         if (false)
                            std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
                                      << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
-				  << " with type " << lt.first << " and order switch " << lt.second
+                                     << " with type " << lt.first << " and order switch " << lt.second
                                      << std::endl;
 			bool fixed_1 = (fixed_atom_flags_set.find(i)   != fixed_atom_flags_set.end());
 			bool fixed_2 = (fixed_atom_flags_set.find(*it) != fixed_atom_flags_set.end());
