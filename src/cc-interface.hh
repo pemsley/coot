@@ -1568,6 +1568,9 @@ PyObject *map_contours(int imol, float contour_level);
 // \}
 #endif // USE_PYTHON
 
+//! \brief enable radial map colouring
+void set_radial_map_colouring_enabled(int imol, int state);
+
 //! \brief radial map colouring centre
 void set_radial_map_colouring_centre(int imol, float x, float y, float z);
 

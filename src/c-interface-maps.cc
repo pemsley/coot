@@ -2546,6 +2546,15 @@ void go_to_map_molecule_centre(int imol_map) {
    }
 }
 
+//! \brief enable radial map colouring
+void set_radial_map_colouring_enabled(int imol, int state) {
+
+   if (is_valid_map_molecule(imol))
+      graphics_info_t::molecules[imol].set_radial_map_colouring_do_radial_colouring(state);
+
+   graphics_draw();
+}
+
 
 //! \brief radial map colouring centre
 void set_radial_map_colouring_centre(int imol, float x, float y, float z) {
