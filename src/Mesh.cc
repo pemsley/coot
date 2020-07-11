@@ -936,7 +936,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    unsigned int n_verts = 3 * triangle_vertex_indices.size();
-   if (true)
+   if (false)
       std::cout << "draw_particles() " << name << " with shader " << shader_p->name
                 << " drawing n_instances " << n_instances << std::endl;
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);

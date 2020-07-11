@@ -514,19 +514,24 @@ graphics_info_t::refinement_loop_threaded() {
       graphics_info_t::saved_dragged_refinement_results = rr;
 
       if (rr.progress == GSL_SUCCESS) {
-	 graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
-	 rr = graphics_info_t::saved_dragged_refinement_results;
-	 continue_threaded_refinement_loop = false;
+         graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
+         rr = graphics_info_t::saved_dragged_refinement_results;
+         continue_threaded_refinement_loop = false;
+         if (rr.hooray()) {
+            graphics_info_t g;
+            g.setup_draw_for_particles();
+         }
+
       } else {
-	 if (rr.progress == GSL_FAILURE) {
-	    graphics_info_t::continue_update_refinement_atoms_flag = false;
-	    continue_threaded_refinement_loop = false;
-	 } else {
-	    if (rr.progress == GSL_ENOPROG) {
-	       graphics_info_t::continue_update_refinement_atoms_flag = false;
-	       continue_threaded_refinement_loop = false;
-	    }
-	 }
+         if (rr.progress == GSL_FAILURE) {
+            graphics_info_t::continue_update_refinement_atoms_flag = false;
+            continue_threaded_refinement_loop = false;
+         } else {
+            if (rr.progress == GSL_ENOPROG) {
+               graphics_info_t::continue_update_refinement_atoms_flag = false;
+               continue_threaded_refinement_loop = false;
+            }
+         }
       }
 
       graphics_info_t::threaded_refinement_loop_counter++;

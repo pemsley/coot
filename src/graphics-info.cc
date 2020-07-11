@@ -162,22 +162,22 @@ GdkColor colour_by_distortion(float dist) {
       col.green = 0;
    } else {
       if (dist < 1.4 /* was 2.0 before Tickle-fix */) {
-    col.red   = 0;
-    col.green = 55535;
+         col.red   = 0;
+         col.green = 55535;
       } else {
-    if (dist < 2.2 /* was 5.0 */ ) {
-       col.red   = 55000;
-       col.green = 55000;
-       // col.blue  = 22000;
-      } else {
-       if (dist < 3.0 /* was 8.0 */ ) {
-          col.red   = 64000;
-          col.green = 32000;
-       } else {
-          col.red   = 65535;
-          col.green = 0;
-       }
-    }
+         if (dist < 2.2 /* was 5.0 */ ) {
+            col.red   = 55000;
+            col.green = 55000;
+            // col.blue  = 22000;
+         } else {
+            if (dist < 3.0 /* was 8.0 */ ) {
+               col.red   = 64000;
+               col.green = 32000;
+            } else {
+               col.red   = 65535;
+               col.green = 0;
+            }
+         }
       }
    }
    return col;

@@ -3877,8 +3877,8 @@ molecule_class_info_t::make_bonds_type_checked() {
 
     // --- bonds ---
 
-    float pbw = 5.0;
-    float radius = 0.12f * bond_width/pbw;
+    float pbw = 3.0;
+    float radius = 0.07f * bond_width/pbw;
     for (int i=0; i<bonds_box.num_colours; i++) {
        graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 

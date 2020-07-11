@@ -278,29 +278,39 @@ get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
 glm::mat4
 graphics_info_t::get_particle_mvp() {
 
-   float w = static_cast<float>(graphics_info_t::graphics_x_size);
-   float h = static_cast<float>(graphics_info_t::graphics_y_size);
+   float w = static_cast<float>(graphics_x_size);
+   float h = static_cast<float>(graphics_y_size);
    float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
    float sr = screen_ratio;
 
    glm::mat4 model_matrix(1.0);
 
-   float z = graphics_info_t::zoom * 0.04;
+   float z = zoom * 0.04;
    GLfloat near = -0.1 * zoom * clipping_front;
    GLfloat far  =  0.3 * zoom * clipping_back;
-   std::cout << "near and far " << near << " " << far << std::endl;
 
    glm::mat4 proj = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
                                -0.3f*zoom,    0.3f*zoom,
                                near, far);
 
-   glm::vec3 rc = graphics_info_t::get_rotation_centre();
-   glm::mat4 view_matrix = glm::toMat4(graphics_info_t::glm_quat);
-   view_matrix = glm::translate(view_matrix, -rc);
-   
+   glm::vec3 rc = get_rotation_centre();
+   glm::mat4 view_matrix = glm::toMat4(glm_quat);
+   // view_matrix = glm::translate(view_matrix, -rc);
+   if (true) {
+      glm::mat3 rot_mat(view_matrix);
+      if (false)
+         std::cout << "   view " << glm::to_string(view_matrix)
+                   << "\nrot_mat " << glm::to_string(rot_mat) << std::endl;
+      glm::mat3 tt = glm::transpose(rot_mat);
+      glm::vec4 trans = view_matrix[3];
+      view_matrix = glm::mat4(1.0f);
+      // view_matrix = glm::mat4(tt);
+      // view_matrix = glm::translate(view_matrix, rc);
+   }
+
    glm::mat4 mvp = proj * view_matrix * model_matrix;
 
-   if (graphics_info_t::perspective_projection_flag) {
+   if (perspective_projection_flag) {
 
       float fov = 35.0; // degrees, the smaller this value, the more we seem to be
                         // "zoomed in."
@@ -1260,6 +1270,7 @@ graphics_info_t::draw_particles() {
 
    if (! particles.empty()) {
       glm::mat4 mvp_particle = get_particle_mvp();
+      glm::mat4 mvp = get_molecule_mvp();
       mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
    }
 
@@ -2010,7 +2021,7 @@ graphics_info_t::translate_in_screen_z(float step_size) {
    glm::vec3 delta_uv = normalize(delta);
 
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
-   glm::vec3 step = 0.001 * step_size * zoom * delta_uv;
+   glm::vec3 step = 0.005 * step_size * zoom * delta_uv;
 
    if (true) // debug
       std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
@@ -2018,6 +2029,23 @@ graphics_info_t::translate_in_screen_z(float step_size) {
 
    add_to_rotation_centre(step);
 
+}
+
+void
+graphics_info_t::setup_draw_for_particles() {
+   graphics_info_t g;
+   if (particles.empty()) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+      glm::vec3 rc = g.get_rotation_centre();
+      std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
+      particles.make_particles(n_particles, rc);
+   }
+   // passing user_data and Notify function at the end
+   if (! do_tick_particles) {
+      do_tick_particles = true;
+      int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+      graphics_info_t::idle_function_spin_rock_token = new_tick_id;
+   }
 }
 
 void
@@ -2108,21 +2136,9 @@ graphics_info_t::setup_key_bindings() {
    auto l21 = []() { graphics_info_t g; g.try_label_unlabel_active_atom(); return gboolean(TRUE); };
 
    auto l22 = []() {
-                 std::cout << "We have " << particles.size() << " particles " << std::endl;
-                 if (particles.empty()) {
-                    graphics_info_t g;
-                    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?             
-                    glm::vec3 rc = g.get_rotation_centre();
-                    std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
-                    particles.make_particles(n_particles, rc);
-                 }
-                 // passing user_data and Notify function at the end
-                 if (! do_tick_particles) {
-                    do_tick_particles = true;
-                    int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-                    graphics_info_t::idle_function_spin_rock_token = new_tick_id;
-                 }
-                 return gboolean(TRUE);
+                  graphics_info_t g;
+                  g.setup_draw_for_particles();
+                  return gboolean(TRUE);
              };
 
    // Note to self, Space and Shift Space are key *Release* functions
@@ -2253,7 +2269,6 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (event->state & GDK_SHIFT_MASK) g.shift_is_pressed = true;
    if (event->keyval == GDK_KEY_Shift_L) g.shift_is_pressed = true;
 
-
    keyboard_key_t kbk(event->keyval, control_is_pressed_flag);
 
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
@@ -2267,7 +2282,6 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    } else {
       std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
    }
-
 
    // fix the type here
    if (int(event->keyval) == graphics_info_t::update_go_to_atom_from_current_residue_key) {

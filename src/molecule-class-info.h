@@ -3398,7 +3398,10 @@ public:        //                      public
    void set_radial_map_colouring_invert(bool invert_state);
    void set_radial_map_colouring_saturation(float saturation);
    void set_radial_map_colouring_do_radial_colouring(bool state) {
-      radial_map_colouring_do_radial_colouring = state;
+      if (state != radial_map_colouring_do_radial_colouring) {
+         radial_map_colouring_do_radial_colouring = state;
+         update_map();
+      }
    }
    bool radial_map_colouring_do_radial_colouring;
    clipper::Coord_orth radial_map_colour_centre;

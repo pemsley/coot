@@ -3064,6 +3064,7 @@ public:
    static void draw_generic_objects_solid();
    static void draw_generic_text();
    static void draw_particles();
+   void setup_draw_for_particles();
    void clear_simple_distances();
    void clear_last_simple_distance();
    static GtkWidget *geometry_dialog;
