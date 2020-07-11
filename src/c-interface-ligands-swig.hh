@@ -98,7 +98,7 @@ double kolmogorov_smirnov_vs_normal_py(PyObject *l1, double mean, double std_dev
 PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2);
 #endif
 
-// Returning void ATM.  We shoud return an interesting object at some
+// Returning void ATM.  We should return an interesting object at some
 // stage. Perhaps a coot::geometry_distortion_info_container_t?
 //
 double

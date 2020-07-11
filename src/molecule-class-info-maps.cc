@@ -44,6 +44,10 @@
 #include <sys/stat.h>
 
 #include <string>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
@@ -534,7 +538,23 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads[ii].join();
       }
 
+      if (is_dynamically_transformed_map_flag) {
+         for (unsigned int ii=0; ii<draw_vector_sets.size(); ii++) {
+            // needs the type changing?       FIXME
+            // dynamically_transform(draw_vector_sets[ii]);
+         }
+      }
+
+      // post_process_map_triangles();
+
       setup_glsl_map_rendering(); // turn tri_con into buffers.
+
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp =
+         make_map_mesh();
+
+      // Mesh gm(vp);
+      // meshes.push_back(gm);
+      // meshes.back().setup() here?
 
 
 /*
@@ -648,11 +668,132 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    }
 }
 
-// static
+
 void
-molecule_class_info_t::depth_sort() {
+molecule_class_info_t::post_process_map_triangles() {
+
+   // average the normals of the vertices that are close.
+   // note std::vector<coot::density_contour_triangles_container_t> draw_vector_sets;
+
+   double min_dist = 0.03;
+   double min_dist_sqrd = min_dist * min_dist;
+   unsigned int n_reset = 0;
+
+   for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
+      coot::density_contour_triangles_container_t &tri_con_i = draw_vector_sets[i];
+      for (unsigned int ii=0; ii<tri_con_i.points.size(); ii++) {
+         const clipper::Coord_orth &pt_i = tri_con_i.points[ii];
+         std::vector<clipper::Coord_orth> neighb_normals;
+         for (unsigned int j=0; j<draw_vector_sets.size(); j++) {
+            const coot::density_contour_triangles_container_t &tri_con_j = draw_vector_sets[j];
+            for (unsigned int jj=0; jj<tri_con_j.points.size(); jj++) {
+               if (i == j && ii == jj ) continue;
+               const clipper::Coord_orth &pt_j = tri_con_j.points[jj];
+               double dd = (pt_i-pt_j).lengthsq();
+               if (dd < min_dist_sqrd) {
+                  neighb_normals.push_back(tri_con_j.normals[jj]);
+               }
+            }
+         }
+         if (! neighb_normals.empty()) {
+            clipper::Coord_orth sum = tri_con_i.normals[ii];
+            for (unsigned int in=0; in<neighb_normals.size(); in++)
+               sum += neighb_normals[in];
+            tri_con_i.normals[ii] = clipper::Coord_orth(sum.unit());
+            n_reset++;
+         }
+      }
+   }
+
+   std::cout << "DEBUG:: n_reset " << n_reset << std::endl;
 
 }
+
+void
+molecule_class_info_t::setup_map_cap(Shader *shader_p,
+                                     const clipper::Coord_orth &base_point, // Bring it into this class.
+                                     const clipper::Coord_orth &x_axis_uv, // Of the cap plane, of course.
+                                     const clipper::Coord_orth &y_axis_uv,
+                                     double x_axis_step_size,
+                                     double y_axis_step_size,
+                                     unsigned int n_x_axis_points,
+                                     unsigned int n_y_axis_points) {
+
+   // this line is completely vital! - But do I want gtk_gl_area_attach_buffers(gl_area) ?
+   //
+   gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   GLenum err = glGetError(); if (err) std::cout << "error in setup_map_cap() -- start -- " << err << std::endl;
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > map_cap =
+      make_map_cap(base_point, x_axis_uv, y_axis_uv, x_axis_step_size, y_axis_step_size,
+                   n_x_axis_points, n_y_axis_points);
+
+   shader_p->Use();
+   Material material;
+
+   // What was I trying to do here?
+   // graphical_molecule gm;
+   // graphical_molecule gm_cap(map_cap.first, map_cap.second);
+   // gm.setup_simple_triangles(shader_p, material);
+   // graphical_molecules.push_back(gm);
+   // graphical_molecules.push_back(gm_cap);
+
+   Mesh gm_cap(map_cap);
+   meshes.push_back(gm_cap);
+   meshes.back().setup(shader_p, material);
+
+}
+
+
+// there are called molecular meshes now
+void
+molecule_class_info_t::mesh_draw_normals(const glm::mat4 &mvp) {
+
+   bool do_all = false;
+   // there are molecular meshes now
+   const float s = 0.1;
+   if (do_all) {
+      for (unsigned int i=0; i<meshes.size(); i++) {
+         meshes[i].draw_normals(mvp, s);
+      }
+   } else {
+      meshes.back().draw_normals(mvp, s);
+   }
+}
+
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecule_class_info_t::make_map_mesh() {
+
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+   std::vector<s_generic_vertex> &vertices = vp.first;
+   std::vector<g_triangle> &triangles = vp.second;
+
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      // vertices
+      int idx_base = vertices.size();
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+         glm::vec3 p( tri_con.points[i].x(),  tri_con.points[i].y(),  tri_con.points[i].z());
+         glm::vec3 n(tri_con.normals[i].x(), tri_con.normals[i].y(), tri_con.normals[i].z());
+         glm::vec4 c(0.5, 0.5, 0.5, 1.0);
+         s_generic_vertex g(p,n,c);
+         vertices.push_back(g);
+      }
+      // triangles
+      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+         g_triangle t(tri_con.point_indices[i].pointID[0] + idx_base,
+                      tri_con.point_indices[i].pointID[1] + idx_base,
+                      tri_con.point_indices[i].pointID[2] + idx_base);
+         if (triangles.size() < 10000)
+            triangles.push_back(t);
+      }
+   }
+   return vp;
+}
+
+
 
 void
 molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_position) {
@@ -668,6 +809,7 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
       map_triangle_centres[i].second.back_front_projection_distance = dd;
    }
 
+   // this sign needs checking.
    auto map_triangle_sorter = [](const std::pair<int, TRIANGLE> &t1,
                                  const std::pair<int, TRIANGLE> &t2) {
                                  return (t1.second.back_front_projection_distance > t2.second.back_front_projection_distance);
@@ -676,7 +818,6 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
    std::sort(map_triangle_centres.begin(), map_triangle_centres.end(), map_triangle_sorter);
 
    unsigned int n_triangle_centres = map_triangle_centres.size();
-   // std::cout << "compare these: " << n_indices_for_triangles << " " << 3 * n_triangle_centres << std::endl;
 
    int *indices_for_triangles = new int[3 * n_triangle_centres];
    for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
@@ -713,6 +854,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
    if (true) { // real map
 
+      bool first_time = true;
+      if (n_vertices_for_map_VertexArray > 0)
+         first_time = false;
+
       unsigned int sum_tri_con_points = 0;
       unsigned int sum_tri_con_normals = 0;
       unsigned int sum_tri_con_triangles = 0;
@@ -724,8 +869,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          if (false) {
             std::cout << "------------------ setup_glsl_map_rendering() here A ------------" << std::endl;
-            std::cout << "------------------ setup_glsl_map_rendering() here B ------------" << tri_con.point_indices.size() << " triangles" << std::endl;
-            std::cout << "------------------ setup_glsl_map_rendering() here C ------------" << tri_con.normals.size() << " normals" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here B ------------"
+                      << tri_con.point_indices.size() << " triangles" << std::endl;
+            std::cout << "------------------ setup_glsl_map_rendering() here C ------------"
+                      << tri_con.normals.size() << " normals" << std::endl;
          }
 
          sum_tri_con_points    += tri_con.points.size();
@@ -927,7 +1074,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         int *indices_for_triangles = new int[n_indices_for_triangles];
+         int *indices_for_triangles = new int[n_indices_for_triangles]; // d
          int idx_for_triangles = 0;
 
          if (true) {
@@ -935,9 +1082,10 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);
                int idx_base_for_triangles = idx_base_for_triangles_vec[i];
                for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                  // note change of winding
+                  indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                   indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
-                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                  indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
                   idx_for_triangles++;
 
                   // as we install these we should find out where the triangles centres are (or maybe before now)
@@ -950,9 +1098,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                   const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
                   int idx_base_for_triangles = idx_base_for_triangles_vec[i];
                   for (std::size_t i=0; i<tri_con.point_indices.size(); i++) {
-                     indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
+                     indices_for_triangles[3*idx_for_triangles  ] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
                      indices_for_triangles[3*idx_for_triangles+1] = idx_base_for_triangles + tri_con.point_indices[i].pointID[1];
-                     indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[2];
+                     indices_for_triangles[3*idx_for_triangles+2] = idx_base_for_triangles + tri_con.point_indices[i].pointID[0];
                      idx_for_triangles++;
                   }
                }
@@ -1057,13 +1205,25 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          glGenVertexArrays(1, &m_VertexArrayID_for_map);
          GLenum err = glGetError();
+         if (err) std::cout << "############## in setup_glsl_map_rendering() error trying to bind vertex array "
+                            << m_VertexArrayID_for_map << std::endl;
          glBindVertexArray(m_VertexArrayID_for_map);
+         err = glGetError();
+         if (err) std::cout << "############## in setup_glsl_map_rendering() error glBindVertexArray() "
+                            << m_VertexArrayID_for_map << std::endl;
          err = glGetError();
 
          // positions
-         glGenBuffers(1, &m_VertexBufferID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         if (first_time) {
+            glGenBuffers(1, &m_VertexBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_VertexBufferID);
+            glGenBuffers(1, &m_VertexBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
+         }
          glBindBuffer(GL_ARRAY_BUFFER, m_VertexBufferID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
@@ -1080,9 +1240,16 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
          // normals
-         glGenBuffers(1, &m_NormalBufferID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         if (first_time) {
+            glGenBuffers(1, &m_NormalBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_NormalBufferID);
+            glGenBuffers(1, &m_NormalBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
+         }
          glBindBuffer(GL_ARRAY_BUFFER, m_NormalBufferID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
@@ -1098,9 +1265,16 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
          // colours
-         glGenBuffers(1, &m_ColourBufferID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         if (first_time) {
+            glGenBuffers(1, &m_ColourBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_ColourBufferID);
+            glGenBuffers(1, &m_ColourBufferID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
+         }
          glBindBuffer(GL_ARRAY_BUFFER, m_ColourBufferID);
          err = glGetError();
          // std::cout << "setup_glsl_map_rendering() glBindBuffer() err " << err << std::endl;
@@ -1116,36 +1290,55 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
          // indices for map lines
-         glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() " << err << std::endl;
+         if (first_time) {
+            glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() A-path " << err << std::endl;
+         } else {
+            glDeleteBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+            glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() B-path " << err << std::endl;
+         }
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_lines_ID);
          err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+         if (err) std::cout << "setup_glsl_map_rendering() glBindBuffer() " << err << std::endl;
+
          // Note to self: is n_vertices_for_VertexArray correct here?
 
-         if (use_line_hash)
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_lines_added * 2,
-                         &indices_for_lines[0], GL_STATIC_DRAW);
-         else
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_lines,
-                         &indices_for_lines[0], GL_STATIC_DRAW);
+         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_lines,
+                      &indices_for_lines[0], GL_STATIC_DRAW);
          err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
-
+         if (err) std::cout << "error:: setup_glsl_map_rendering() glBufferData() m_indexbuffer_for_map_lines_id "
+                            << err << std::endl;
 
          // indices for map triangles
 
-         glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID " << err << std::endl;
-         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
-         err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles " << err << std::endl;
+         if (first_time) {
+            glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+            err = glGetError();
+            if (err)
+               std::cout << "setup_glsl_map_rendering() glGenBuffers() for m_IndexBuffer_for_triangles_ID "
+                         << err << std::endl;
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles A-path " << err << std::endl;
+         } else {
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() pre glBindBuffer() for triangles B-path " << err << std::endl;
+            glDeleteBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+            glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
+            err = glGetError();
+            if (err) std::cout << "setup_glsl_map_rendering() glBindBuffer() for triangles B-path " << err << std::endl;
+         }
+
          glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
                       &indices_for_triangles[0], GL_STATIC_DRAW);
          err = glGetError();
-         // std::cout << "setup_glsl_map_rendering() glBufferData() " << err << std::endl;
+         if (err)
+            std::cout << "setup_glsl_map_rendering() glBufferData() m_IndexBuffer_for_map_triangles_ID"
+                      << err << std::endl;
 
          delete [] points;
          delete [] indices_for_lines;
@@ -1155,7 +1348,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       }
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
+      // std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
    }
 
    if (false)
@@ -1193,6 +1386,7 @@ molecule_class_info_t::position_to_colour_using_other_map(const clipper::Coord_o
       }
 
       c = fraction_to_colour(f);
+      // std::cout << "fraction " << f << " col " << c.red << " " << c.green << " " << c.blue << std::endl;
    } else {
       return c;
    }
@@ -1398,21 +1592,11 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
 // modify v
 void
-molecule_class_info_t::dynamically_transform(coot::CartesianPairInfo v) {
+molecule_class_info_t::dynamically_transform(coot::density_contour_triangles_container_t *dctc) {
 
-   int s = v.size;
-   for (int i=0; i<s; i++) {
-      clipper::Coord_orth c1(v.data[i].getStart().x(),
-			     v.data[i].getStart().y(),
-			     v.data[i].getStart().z());
-      clipper::Coord_orth c2(v.data[i].getFinish().x(),
-			     v.data[i].getFinish().y(),
-			     v.data[i].getFinish().z());
-      clipper::Coord_orth ct1 = c1.transform(map_ghost_info.rtop);
-      clipper::Coord_orth ct2 = c2.transform(map_ghost_info.rtop);
-      v.data[i] = coot::CartesianPair(coot::Cartesian(ct1.x(), ct1.y(), ct1.z()),
-				coot::Cartesian(ct2.x(), ct2.y(), ct2.z()));
-   }
+   int s = dctc->points.size();
+   for (int i=0; i<s; i++)
+      dctc->points[i] = dctc->points[i].transform(map_ghost_info.rtop);
 
 }
 
@@ -4447,7 +4631,8 @@ molecule_class_info_t::fraction_to_colour(float fraction) {
    GdkRGBA col;
    float sat = radial_map_colour_saturation;
    coot::colour_t cc(0.6+0.4*sat, 0.6-0.6*sat, 0.6-0.6*sat);
-   cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
+   // cc.rotate(1.05 * fraction); // blue end is a bit purple/indigo
+   cc.rotate(0.66 * fraction);
    col.red   = cc.col[0];
    col.green = cc.col[1];
    col.blue  = cc.col[2];
@@ -4475,7 +4660,8 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
    } else {
       // we need to tell the glsl colour setup to use value_to_colour() (which uses our table)
       // (not done yet).
-      colour_map_using_other_map_flag = true;
+      colour_map_using_other_map_flag = true; // tell the triangle generator to use a function to get the colour
+                                              // (position_to_colour_using_other_map(co))
       other_map_for_colouring_p = &xmap;
       other_map_for_colouring_min_value = table_bin_start;
       other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;

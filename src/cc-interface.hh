@@ -318,12 +318,16 @@ colour_map_by_other_map(int imol_map, int imol_map_used_for_colouring);
 void
 colour_map_by_other_map_py(int imol_map, int imol_map_used_for_colouring, float table_bin_start, float table_bin_size,
                            PyObject *colour_table_list);
-#endif
 
 PyObject *export_molecule_as_x3d(int imol);
 
+#endif
+
 void
 colour_map_by_other_map_turn_off(int imol_map);
+
+void
+add_density_map_cap();
 
 
 //! \name Multi-Residue Torsion
@@ -734,7 +738,7 @@ SCM residues_near_residue(int imol, SCM residue_in_scm, float radius);
 //!
 SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 
-//! \brief resdiues near residue
+//! \brief residues near residue
 //!
 //! @return residues within radius of pos (x,y,z) position
 //!
@@ -742,6 +746,10 @@ SCM residues_near_residues_scm(int imol, SCM residues_in, float radius);
 //! pos is a list of 3 numbers.  (get imol from active-atom)
 //!
 SCM residues_near_position_scm(int imol, SCM pos, float radius);
+
+//! \brief label the closest atoms in the residues that neighbour residue_spec
+//!
+void label_closest_atoms_in_neighbour_residues_scm(int imol, SCM residue_spec_scm, float radius);
 
 #endif	/* USE_GUILE */
 
@@ -868,6 +876,10 @@ PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radiu
 //! closer than radius Angstroems to the given position.
 //!
 PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
+
+//! \brief label the closest atoms in the residues that neighbour residue_spec
+//!
+void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *residue_spec_py, float radius);
 
 //! \brief return a Python object for the bonds
 //
@@ -1344,7 +1356,30 @@ void set_use_fog(short int state);
 //! \brief query use fog
 int use_fog_state();
 
+//! \brief set use ourline
+void set_use_outline(short int state);
 
+//! \brief query use outline
+int use_outline_state();
+
+//! \brief set the map shininess
+void set_map_shininess(int imol, float shininess);
+
+//! \brief set the map specular strength
+void set_map_specular_strength(int imol, float specular_strength);
+
+void set_draw_normals(short int state);
+
+int draw_normals_state();
+
+void set_draw_mesh(int imol, int mesh_index, short int state);
+
+// return -1 on unable to lookup mesh
+int draw_mesh_state(int imol, int mesh_index);
+
+void set_map_material_specular(int imol, float specular_strength, float shininess);
+
+void set_model_material_specular(int imol, float specular_strength, float shininess);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
@@ -1532,6 +1567,9 @@ int handle_drag_and_drop_string(const std::string &uri);
 PyObject *map_contours(int imol, float contour_level);
 // \}
 #endif // USE_PYTHON
+
+//! \brief enable radial map colouring
+void set_radial_map_colouring_enabled(int imol, int state);
 
 //! \brief radial map colouring centre
 void set_radial_map_colouring_centre(int imol, float x, float y, float z);

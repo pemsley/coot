@@ -398,11 +398,11 @@ graphics_info_t::save_accept_reject_dialog_window_position(GtkWidget *acc_rej_di
    // Refine something
    // Close the window using WM delete window
    // Press return in Graphics window (globjects:key_press_event() GDK_Return case)
-   // 
+   //
    // So, we need to set graphics_info_t::accept_reject_dialog to NULL
    // when we get a WM delete event on the Accept/Reject box
-   
-   if (acc_rej_dialog) { 
+
+   if (acc_rej_dialog) {
       gint upositionx, upositiony;
       // if (acc_rej_dialog->window) {
       if (true) { // no access to window
@@ -514,19 +514,24 @@ graphics_info_t::refinement_loop_threaded() {
       graphics_info_t::saved_dragged_refinement_results = rr;
 
       if (rr.progress == GSL_SUCCESS) {
-	 graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
-	 rr = graphics_info_t::saved_dragged_refinement_results;
-	 continue_threaded_refinement_loop = false;
+         graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
+         rr = graphics_info_t::saved_dragged_refinement_results;
+         continue_threaded_refinement_loop = false;
+         if (rr.hooray()) {
+            graphics_info_t g;
+            g.setup_draw_for_particles();
+         }
+
       } else {
-	 if (rr.progress == GSL_FAILURE) {
-	    graphics_info_t::continue_update_refinement_atoms_flag = false;
-	    continue_threaded_refinement_loop = false;
-	 } else {
-	    if (rr.progress == GSL_ENOPROG) {
-	       graphics_info_t::continue_update_refinement_atoms_flag = false;
-	       continue_threaded_refinement_loop = false;
-	    }
-	 }
+         if (rr.progress == GSL_FAILURE) {
+            graphics_info_t::continue_update_refinement_atoms_flag = false;
+            continue_threaded_refinement_loop = false;
+         } else {
+            if (rr.progress == GSL_ENOPROG) {
+               graphics_info_t::continue_update_refinement_atoms_flag = false;
+               continue_threaded_refinement_loop = false;
+            }
+         }
       }
 
       graphics_info_t::threaded_refinement_loop_counter++;
@@ -736,19 +741,24 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(g
 
       graphics_info_t g; // 37 nanoseconds
 
-      if (graphics_info_t::threaded_refinement_needs_to_accept_moving_atoms) {
+      if (threaded_refinement_needs_to_accept_moving_atoms) {
          g.accept_moving_atoms(); // calls clear_up_moving_atoms() which deletes last_restraints
       }
 
-      if (graphics_info_t::threaded_refinement_needs_to_clear_up) {
-         std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
-                   << std::endl;
+      if (threaded_refinement_needs_to_clear_up) {
+         if (false)
+            std::cout << "---------- in regenerate_intermediate_atoms_bonds_timeout_function() clear up moving atoms! "
+                      << std::endl;
          g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
          g.clear_moving_atoms_object();
+         if (accept_reject_dialog_docked_flag == coot::DIALOG) {
+	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
+	       gtk_widget_destroy(accept_reject_dialog);
+         }
       }
 
       // no need to do this if Esc is pressed.
-      if (! graphics_info_t::refinement_immediate_replacement_flag)
+      if (! refinement_immediate_replacement_flag)
          g.check_and_warn_inverted_chirals_and_cis_peptides();
    }
 
@@ -1731,7 +1741,7 @@ graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidu
 
       bool embed_in_chain_flag = false; // don't put r in a chain in deep_copy_this_residue()
                                         // because we put r in a chain here.
-      r = coot::deep_copy_this_residue_old_style(SelResidues[ires], altconf, whole_res_flag, 
+      r = coot::deep_copy_this_residue_old_style(SelResidues[ires], altconf, whole_res_flag,
                                                  atom_index_udd, embed_in_chain_flag);
       if (r) {
 	 chain->AddResidue(r);
@@ -3280,19 +3290,41 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		  // if (terminus_type == "C" || terminus_type == "MC")
 		  //    molecules[imol_moving_atoms].move_O_atom_of_added_to_residue(res_p, chain_id);
 
-		  graphics_draw();
-	       }
-	    }
-	 }
+                  graphics_draw();
+               }
+            }
+         }
       }
    }
    return state;
 }
 
+void
+graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &chain_id, int res_no) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "WARNING:: wrong model " << imol << std::endl;
+      return;
+   }
+
+   mmdb::Residue *residue_p = molecules[imol].get_residue(chain_id, res_no, "");
+   if (! residue_p) {
+      std::cout << "WARNING:: missing-residue" << chain_id << " " << res_no << std::endl;
+   } else {
+      std::string term_type = "";
+      mmdb::Residue *r_p = molecules[imol].get_residue(chain_id, res_no-1, "");
+      mmdb::Residue *r_n = molecules[imol].get_residue(chain_id, res_no+1, "");
+      if (r_p  && ! r_n) term_type = "C";
+      if (r_n  && ! r_p) term_type = "N";
+      if (!r_n && ! r_p) term_type = "MC";
+      execute_simple_nucleotide_addition(imol, term_type, residue_p, chain_id);
+   }
+}
+
 
 void
-graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type,
-						    mmdb::Residue *res_p, const std::string &chain_id) {
+graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
+                                                    mmdb::Residue *res_p, const std::string &chain_id) {
 
 
    // If it's RNA beam it in in ideal A form,
@@ -3309,7 +3341,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 
    if (term_type == "not-terminal-residue") {
       std::cout << "That was not a terminal residue (check for neighbour solvent residues maybe) "
-		<< coot::residue_spec_t(res_p) << std::endl;
+                << coot::residue_spec_t(res_p) << std::endl;
       add_status_bar_text("That was not a terminal residue.");
    } else {
 
@@ -4475,7 +4507,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
    //
    // get rid of this function (needs a test)
    bool embed_in_chain_flag = false;
-   mmdb::Residue *tres = coot::deep_copy_this_residue_old_style(residue, 
+   mmdb::Residue *tres = coot::deep_copy_this_residue_old_style(residue,
 						 std::string(at_rot->altLoc),
 						 0, atom_index_udd, embed_in_chain_flag);
    if (!tres) {

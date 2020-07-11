@@ -12778,3 +12778,31 @@ on_simple_refmac_filechooserdialog_response
    gtk_widget_destroy(GTK_WIDGET(dialog));
 
 }
+
+void
+on_label_neighbours1_activate          (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  label_neighbours();
+
+}
+
+
+void
+on_python_window_entry_activate        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+
+}
+
+
+gboolean
+on_python_window_entry_key_press_event (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  return FALSE;
+}
+

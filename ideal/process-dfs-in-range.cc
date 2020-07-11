@@ -20,9 +20,11 @@
 void
 coot::restraints_container_t::make_df_restraints_indices() {
 
-   std::cout << "---------------------------------------------------------------" << std::endl;
-   std::cout << "            make_df_restraints_indices() " << size() << std::endl;
-   std::cout << "---------------------------------------------------------------" << std::endl;
+   if (false) {
+      std::cout << "---------------------------------------------------------------" << std::endl;
+      std::cout << "            make_df_restraints_indices() " << size() << std::endl;
+      std::cout << "---------------------------------------------------------------" << std::endl;
+   }
 
    // does restraints index vectors and df_by_thread_results
 

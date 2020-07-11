@@ -7,10 +7,12 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
+
 #include "coords/Cartesian.h"
 #include "gl-matrix.h"
 
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
+#include "meshed-generic-display-object.hh"
 
 #include "coot-colour.hh"
 
@@ -147,7 +149,8 @@ namespace coot {
       float clipping;
       float atom_radius;
       float ortho_left, ortho_right, ortho_bottom, ortho_top;
-      std::vector<coot::generic_display_object_t> display_objects;
+      // std::vector<coot::old_generic_display_object_t> display_objects;
+      std::vector<meshed_generic_display_object> display_objects;
       std::vector<std::pair<std::string, clipper::Coord_orth> > labels;
       colour_t atom_label_colour;
       std::string font_size_string;
@@ -214,14 +217,23 @@ namespace coot {
       void set_raster3d_enable_shadows(bool state) {
 	 raster3d_enable_shadows = state;
       } 
-      
-      void add_display_objects(const std::vector<coot::generic_display_object_t> &display_objects_in) {
-	 for (unsigned int i=0; i<display_objects_in.size(); i++) {
-	    display_objects.push_back(display_objects_in[i]);
-	 } 
+
+      // remove this?
+      // void add_display_objects(const std::vector<coot::old_generic_display_object_t> &display_objects_in) {
+      // }
+
+      // remove this?
+      // void add_display_object(const coot::old_generic_display_object_t &display_object_in) {
+      // }
+
+      void add_generic_display_objects(const std::vector<meshed_generic_display_object> &dos) {
+         for (unsigned int i=0; i<dos.size(); i++) {
+            display_objects.push_back(dos[i]);
+         }
       }
-      void add_display_object(const coot::generic_display_object_t &display_object_in) {
-	 display_objects.push_back(display_object_in);
+
+      void add_generic_display_objects(const meshed_generic_display_object &disp_obj) {
+         display_objects.push_back(disp_obj);
       }
 
       void add_label(const std::pair<std::string, clipper::Coord_orth> &label) {

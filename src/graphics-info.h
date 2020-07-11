@@ -104,7 +104,6 @@ struct FT_character {
 #include "coot-utils/coot-coord-extras.hh"
 
 #include "positioned-widgets.h"
-#include "geometry-graphs.hh"
 
 #include "coot-database.hh"
 
@@ -131,7 +130,7 @@ struct FT_character {
 
 #include "framebuffer.hh"
 
-#include "gl-lights-info.hh"
+#include "lights-info.hh"
 
 // #include "Transform.hh"
 // #include "Camera.hh"
@@ -160,7 +159,9 @@ namespace coot {
 
 enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
+
+#include "meshed-generic-display-object.hh"
 
 
 namespace coot {
@@ -640,9 +641,9 @@ class graphics_info_t {
 				     const coot::Cartesian &normal,
 				     float radius, float radius_inner);
 
-   void graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec);
+   void graphics_object_internal_dodec(const coot::old_generic_display_object_t::dodec_t &dodec);
 
-   void graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec);
+   void graphics_object_internal_pentakis_dodec(const coot::old_generic_display_object_t::pentakis_dodec_t &penta_dodec);
 
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
@@ -811,11 +812,12 @@ class graphics_info_t {
       }
       return gr;
    }
+#endif // HAVE_GSL
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
    std::vector<coot::geometry_distortion_info_container_t>
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
-#endif // HAVE_GSL
-#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    int  check_if_in_regularize_define(GdkEventButton *event);
    int  check_if_in_refine_define(GdkEventButton *event);
@@ -1081,6 +1083,8 @@ public:
 
    static short int do_lighting_flag;
    static bool do_flat_shading_for_solid_density_surface;
+
+   static bool sequence_view_is_docked_flag;
 
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
@@ -1542,6 +1546,8 @@ public:
 
    // if the imol for moving atoms is imol, delete the moving atoms (called from close_molecule)
    void clear_up_moving_atoms_maybe(int imol);
+
+   void delete_pointers_to_map_in_other_molecules(int imol_map);
 
    // 0: never run it
    // 1: ask to run it
@@ -2060,7 +2066,7 @@ public:
    static void draw_moving_atoms_peptide_markup();
    static void draw_moving_atoms_atoms(bool against_a_dark_background);
    static void draw_moving_atoms_restraints_graphics_object();
-   std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
+   std::vector<coot::old_generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
@@ -2101,6 +2107,7 @@ public:
    // sequence view
    static GtkWidget **sequence_view_is_displayed;
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
+   GtkWidget * get_sequence_view_is_displayed(int imol) const;
    static int nsv_canvas_pixel_limit;
 
    // Geometry Graphs:
@@ -2438,7 +2445,8 @@ public:
 				     const std::string &res_type,
 				     short int immediate_addition_flag);
    void execute_simple_nucleotide_addition(int imol, const std::string &term_type,
-					   mmdb::Residue *res_p, const std::string &chain_id);
+                                           mmdb::Residue *res_p, const std::string &chain_id);
+   void execute_simple_nucleotide_addition(int imol, const std::string &chain_id, int res_no);
 
    static short int add_terminal_residue_immediate_addition_flag;
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
@@ -3055,6 +3063,8 @@ public:
    static void draw_generic_objects_simple();
    static void draw_generic_objects_solid();
    static void draw_generic_text();
+   static void draw_particles();
+   void setup_draw_for_particles();
    void clear_simple_distances();
    void clear_last_simple_distance();
    static GtkWidget *geometry_dialog;
@@ -3083,7 +3093,7 @@ public:
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
-   short int rotate_intermediate_atoms_maybe(short int axis, double angle);
+   short int rotate_intermediate_atoms_maybe(unsigned int widget_height, unsigned int widget_width);
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
    // axis: 0 for Z, 1 for X.
@@ -3606,30 +3616,25 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
-   // ------- generic object interface ------
-   static std::vector<coot::generic_display_object_t> *generic_objects_p;
-   int new_generic_object_number(const std::string &name) {
-     coot::generic_display_object_t o(name);
-     generic_objects_p->push_back(o);
-     int r = generic_objects_p->size() -1;
-     return r;
-   }
    static GtkWidget *generic_objects_dialog;
-
-   static int generic_object_index(const std::string &n) {
-     int index = -1;
-     int nobjs = generic_objects_p->size();
-     for (int iobj=0; iobj<nobjs; iobj++) {
-       if ((*generic_objects_p)[iobj].name == n) {
-	 if (!(*generic_objects_p)[iobj].is_closed_flag) {
-	   index = iobj;
-	   break;
-	 }
-       }
-     }
+   static std::vector<meshed_generic_display_object> generic_display_objects;
+   int new_generic_object_number(const std::string &name) {
+      generic_display_objects.push_back(Mesh(name));
+      return generic_display_objects.size() - 1;
+   }
+   static int generic_object_index(const std::string &name) {
+      int index = -1;
+      int nobjs = generic_display_objects.size();
+      for (int iobj=0; iobj<nobjs; iobj++) {
+         if (generic_display_objects[iobj].mesh.name == name) {
+            if (!generic_display_objects[iobj].mesh.this_mesh_is_closed) {
+               index = iobj;
+               break;
+            }
+         }
+      }
      return index;
    }
-
 
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
@@ -3674,7 +3679,7 @@ public:
    static float probe_dots_on_chis_molprobity_radius;
 
    // a text string and a handle (so that it can be removed)
-   static std::vector<coot::generic_text_object_t> *generic_texts_p;
+   static std::vector<coot::old_generic_text_object_t> *generic_texts_p;
 
    // -- move molecule here
    static int move_molecule_here_molecule_number;
@@ -4031,6 +4036,9 @@ string   static std::string sessionid;
    static glm::vec3 get_rotation_centre() {
      return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
    }
+   static clipper::Coord_orth get_rotation_centre_co() {
+      return clipper::Coord_orth(rotation_centre_x, rotation_centre_y, rotation_centre_z);
+   }
    static void add_to_rotation_centre(const glm::vec3 &offset) {
      rotation_centre_x += offset.x;
      rotation_centre_y += offset.y;
@@ -4061,13 +4069,16 @@ string   static std::string sessionid;
    static GLuint textureColorbuffer_blur;
    static GLuint hud_text_array_buffer_id;
    static Shader shader_for_maps;
+   static Shader shader_for_map_caps;
    static Shader shader_for_models;
+   static Shader shader_for_moleculestotriangles;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
    static Shader shader_for_hud_text;
    static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
+   static Shader shader_for_particles;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static framebuffer screen_framebuffer;
@@ -4075,9 +4086,12 @@ string   static std::string sessionid;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;
    static float screen_z_far_perspective;
-   static bool do_ambient_occlusion_flag;
-   static bool do_depth_blur_flag;
-   static bool do_depth_fog_flag;
+   static bool shader_do_ambient_occlusion_flag;
+   static bool shader_do_depth_blur_flag;
+   static bool shader_do_depth_fog_flag;
+   static bool shader_do_outline_flag;
+   static bool draw_normals_flag;
+
    // ---------------------------------------------
    void init_shaders();
 
@@ -4088,13 +4102,14 @@ string   static std::string sessionid;
    void init_buffers();
    void init_hud_text();
    static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
+   static glm::mat4 get_particle_mvp();
    static glm::mat4 get_model_view_matrix();
    static glm::vec3 get_world_space_eye_position();
    static glm::vec4 unproject(float z);
    static glm::vec4 unproject(float x, float y, float z);
-   static glm::vec3 unproject_to_world_coordinates(glm::vec3 &projected_coords);
+   static glm::vec3 unproject_to_world_coordinates(const glm::vec3 &projected_coords);
    static glm::mat4 get_view_rotation();
-   static void setup_map_uniforms(const Shader &shader, // in the draw loop
+   static void setup_map_uniforms(Shader *shader_p, // in the draw loop
                                   const glm::mat4 &mvp,
                                   const glm::mat4 &view_rotation,
                                   float density_surface_opacity);
@@ -4107,10 +4122,11 @@ string   static std::string sessionid;
                                          const glm::mat4 &view_rotation);
    static void draw_molecular_triangles();
    static void draw_molecules();
+   static void draw_meshes();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
-   void set_do_ambient_occlusion(bool s) { do_ambient_occlusion_flag = true; } // caller redraws
+   void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 
    void reset_frame_buffers(int width, int height);
    void setup_lights();
@@ -4221,7 +4237,7 @@ string   static std::string sessionid;
 
    // Lights
    //
-   static std::map<unsigned int, gl_lights_info_t> lights;
+   static std::map<unsigned int, lights_info_t> lights;
 };
 
 

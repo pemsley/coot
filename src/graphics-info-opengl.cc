@@ -27,11 +27,14 @@ graphics_info_t::init_shaders() {
       it->get().set_default_directory(d);
 
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
    shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
    shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::TEXT_3D);
+   shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_particles.init("particles.shader", Shader::Entity_t::MODEL);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
@@ -73,11 +76,18 @@ graphics_info_t::unproject(float x, float y, float z) {
 
 }
 
+// projected_coords are in clip space, so mouse position will have to be converted.
+//
 // static
 glm::vec3
-graphics_info_t::unproject_to_world_coordinates(glm::vec3 &projected_coords) {
+graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coords) {
 
-   glm::vec4 c = unproject(projected_coords.x, projected_coords.y, projected_coords.z);
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 vp_inv = glm::inverse(mvp);
+   glm::vec4 screenPos = glm::vec4(projected_coords, 1.0f);
+   glm::vec4 c = vp_inv * screenPos;
+
+   std::cout << "debug:: unproject_to_world_coordinates() c " << glm::to_string(c) << std::endl;
    double oow = 1.0/c.w;
    return glm::vec3(c.x * oow, c.y * oow, c.z * oow);
 

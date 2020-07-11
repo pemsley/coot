@@ -9395,14 +9395,14 @@ in PyInit_coot_gui_api() returing module 0x7fa9847def90
 INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
 INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
 INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
-Python 3.8.2 (default, May 17 2020, 01:35:28) 
+Python 3.8.2 (default, May 17 2020, 01:35:28)
 [GCC 9.2.1 20191008] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import _coot
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ImportError: /home/paule/Projects/coot/git/coot-gtk3/build/src/.libs/_coot.so: undefined symbol: n_models
->>> 
+>>>
 
 penelope coot-gtk3/build/src> nm .libs/coot-bin | grep n_models
 00000000000ce800 T n_models
@@ -9427,10 +9427,80 @@ in PyInit_coot_gui_api() returing module 0x7fbaf1d5b318
 INFO:: Using Standard CCP4 Refmac dictionary from CLIBD_MON: /home/paule/ccp4/ccp4-7.0/lib/data/monomers/
 INFO:: Reading coordinate file: /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb
 INFO:: file /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/share/coot/standard-residues.pdb has been read.
-Python 3.6.5 (default, Mar 29 2020, 05:23:17) 
+Python 3.6.5 (default, Mar 29 2020, 05:23:17)
 [GCC 9.2.1 20191008] on linux
+
+   delete all *coot* in site-packages. Try again.
 
 
 Fri 10 Apr 10:49:21 BST 2020
 
    o 3tib is a good structure for adding carbohydrates (tutorial)
+
+----
+Sat 23 May 03:05:12 BST
+
+python -m ensurepip --default-pip
+python -m pip install --upgrade pip setuptools wheel
+
+https://packaging.python.org/tutorials/installing-packages/
+
+# use that to install pycairo
+pip3 install  pycairo
+now we are ready to install PyGObject?
+
+
+----
+Mon 15 Jun 09:28:20 BST 2020
+
+   Fresnel and related:
+
+---
+Wed 20 May 17:37:12 BST 2020
+
+   to install pip from python
+
+   python -m ensurepip --default-pip
+
+---
+Wed 20 May 19:11:11 BST 2020
+
+   http://click2drug.org/ for interesting applications
+
+---
+Mon 25 May 2020 11:13:41 BST
+
+   o How does ChimeraX do model morphing?
+     https://www.rbvi.ucsf.edu/chimera/data/sbgrid-apr2017/cryomovie.html
+
+---
+Thu  4 Jun 10:53:57 BST 2020
+
+   The test-out-of-the-box build for hal is on teraraid
+
+---
+Tue  9 Jun 20:34:17 BST 2020
+
+   other than NED
+   NASA/IPAC Extragalactic Database: ned.ipac.caltech.edu
+   there is
+   The Extragalactic Distance Database (EDD)
+   http://edd.ifa.hawaii.edu/
+
+---
+Mon 15 Jun 08:57:41 BST 2020
+
+    ERRAT notes and improvement:
+
+    https://yeateslab.mbi.ucla.edu/structure-validation/
+
+    One weakness of the program was a high sensitivity to small
+    deviations in atomic positions, owing mainly to the discontinuous
+    nature of the error function arising from the distance
+    cutoff. Around 2002, another undergraduate student Dennis Obukov,
+    rewrote ERRAT with a continuous distance weighting scheme, which
+    led to more stable and robust behavior.
+
+---
+
+   https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/

@@ -53,90 +53,193 @@
 exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
+                GtkWidget *vbox,
 		bool use_graphics_interface_in) {
 
    // This is weird (isn't it?)
    //
    std::cout << "nsv weird" << std::endl;
    points_max = 22500;
-   nsv(mol, molecule_name, molecule_number_in, use_graphics_interface_in);
+   current_highlight_residue = 0;
+   nsv(mol, molecule_name, molecule_number_in, vbox, use_graphics_interface_in, points_max);
 }
+
+gint
+exptl::nsv::close_docked_sequence_view(GtkWidget *menu_item, GdkEventButton *event) {
+
+   // the scrolled window is the widget that is packed into the paned widget
+
+   GtkWidget *scrolled_window = GTK_WIDGET(g_object_get_data(G_OBJECT(menu_item), "scrolled_window"));
+   gtk_widget_destroy(scrolled_window);
+
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(scrolled_window), "imol"));
+   set_sequence_view_is_displayed(0, imol);
+   return TRUE;
+};
+
+// static
+gboolean
+exptl::nsv::on_canvas_button_press(GtkWidget      *canvas,
+                                   GdkEventButton *event,
+                                   gpointer        data) {
+
+   if (event->button == 3) {
+      GtkWidget *scrolled_window = static_cast<GtkWidget *>(data);
+      GtkWidget *menu = gtk_menu_new();
+      GtkWidget *item = gtk_menu_item_new_with_label("Close");
+      g_object_set_data(G_OBJECT(item), "scrolled_window", scrolled_window);
+      g_signal_connect (G_OBJECT (item), "activate",
+                        G_CALLBACK(close_docked_sequence_view), NULL);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+      gtk_widget_show(menu);
+      gtk_widget_show(item);
+      // const GdkEvent *trigger_event = NULL;
+      // use gtk_menu_popup_at_pointer?
+      gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 0,
+                     (event != NULL) ? event->time
+                     : gtk_get_current_event_time());
+   }
+   return TRUE;
+}
+
 
 exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
+                GtkWidget *main_window_vbox,
 		bool use_graphics_interface_in,
 		int canvas_pixel_limit) {
+
+   // if main_window_vbox is not null, then put this widget into the vbox rather than
+   // create a new window.
+
+   // Consider a vertical GtkPaned, which gives the user a drag-widget to resize the
+   // sequence.
+   // The glarea widget and the sequence will be the widgets in the pane.
+   // According to docs, the pane should not be apparent if the sequence is not docked.
+
+   GtkWidget *paned = lookup_widget(main_window_vbox, "main_window_vpaned");
+   bool make_top_level_dialog = true;
+   if (main_window_vbox) make_top_level_dialog = false;
+   if (paned) {
+      GtkWidget *pane_child_1 = gtk_paned_get_child1(GTK_PANED(paned));
+      if (pane_child_1) {
+         std::cout << "Something already here!" << std::endl;
+         make_top_level_dialog = true;
+      }
+   }
 
    molecule_number = molecule_number_in;
    use_graphics_interface_flag = use_graphics_interface_in;
    points_max = canvas_pixel_limit;
+   current_highlight_residue = 0;
 
-   GtkWidget *top_lev = gtk_dialog_new();
-   gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
-   gtk_window_set_title(GTK_WINDOW(top_lev), "Coot Sequence View");
-   GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
+   GtkWidget *top_lev = 0;
+   GtkWidget *container_vbox = 0;
+
+   if (make_top_level_dialog) {
+      top_lev = gtk_dialog_new();
+      gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev); // huh?
+      gtk_window_set_title(GTK_WINDOW(top_lev), "Coot Sequence View");
+      GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
+      container_vbox = vbox;
+      std::string label_string = "Molecule Number ";
+      label_string += coot::util::int_to_string(molecule_number_in);
+      label_string += ": ";
+      label_string += molecule_name;
+      GtkWidget *name_label = gtk_label_new(label_string.c_str());
+      gtk_widget_show(GTK_WIDGET(name_label));
+      gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
+   }
+
 #ifdef HAVE_GOOCANVAS
    canvas = goo_canvas_new();
    g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL); // needed for tooltips
 
    canvas_group = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+
 #else
    canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
 #endif
 
-   std::string label_string = "Molecule Number ";
-   label_string += coot::util::int_to_string(molecule_number_in);
-   label_string += ": ";
-   label_string += molecule_name;
-   GtkWidget *name_label = gtk_label_new(label_string.c_str());
-
-   gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
+   if (make_top_level_dialog) {
+      gtk_box_pack_start(GTK_BOX(container_vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
+      gtk_widget_set_size_request(top_lev, 120, 70);
+   } else {
+      gtk_widget_set_size_request(scrolled_window, -1, 70);
+      // if the sequence view is docked then we use to use panes
+      gtk_paned_add1(GTK_PANED(paned), scrolled_window);
+   }
+
+   g_object_set_data(G_OBJECT(scrolled_window), "imol", GINT_TO_POINTER(molecule_number));
+
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
 					 GTK_WIDGET(canvas));
-   
-   GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
-   GtkWidget *aa = GTK_DIALOG(top_lev)->action_area;
-   gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
 
-   gtk_signal_connect(GTK_OBJECT(close_button), "clicked",
-		      GTK_SIGNAL_FUNC(on_nsv_close_button_clicked), NULL);
+   if (make_top_level_dialog) {
+      GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
+      GtkWidget *aa = GTK_DIALOG(top_lev)->action_area;
+      gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
 
-   gtk_signal_connect(GTK_OBJECT(top_lev), "destroy",
-		      GTK_SIGNAL_FUNC(on_nsv_dialog_destroy), top_lev);
+      gtk_signal_connect(GTK_OBJECT(close_button), "clicked",
+                         GTK_SIGNAL_FUNC(on_nsv_close_button_clicked), NULL);
+
+      gtk_signal_connect(GTK_OBJECT(top_lev), "destroy",
+                         GTK_SIGNAL_FUNC(on_nsv_dialog_destroy), top_lev);
+      gtk_widget_show(close_button);
+      gtk_widget_show(aa); // needed?
+      gtk_widget_show(top_lev);
+   }
 
    // used on destroy
-   gtk_object_set_user_data(GTK_OBJECT(top_lev),
-			    GINT_TO_POINTER(molecule_number));
+   gtk_object_set_user_data(GTK_OBJECT(top_lev), GINT_TO_POINTER(molecule_number));
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
    sequence_letter_background_colour = "white";
    int y_size_initial = setup_canvas(mol);
 
-   gtk_window_set_default_size(GTK_WINDOW(top_lev), 700, y_size_initial + 100);
-		      
+   //  gtk_window_set_default_size(GTK_WINDOW(top_lev), 1700, y_size_initial + 100);
+   gtk_widget_set_size_request(top_lev, 799, y_size_initial + 100);
+
    if (use_graphics_interface_flag) { 
-      gtk_widget_show(aa);
-      gtk_widget_show(close_button);
-      gtk_widget_show(GTK_WIDGET(name_label));
       gtk_widget_show(GTK_WIDGET(canvas));
       gtk_widget_show(scrolled_window);
-      gtk_widget_show(top_lev);
    }
 
    // set_sequence_view_is_displayed(canvas, molecule_number) is run
    // by nsv() (currently that's its name)
+
+
+   // Do I want to open all of these to capture a simple right-mouse press?
+   //
+   gtk_widget_add_events(GTK_WIDGET(scrolled_window),
+                         GDK_EXPOSURE_MASK      |
+                         GDK_BUTTON_PRESS_MASK  |
+                         GDK_BUTTON_RELEASE_MASK|
+                         GDK_SCROLL_MASK        |
+                         GDK_POINTER_MOTION_MASK|
+                         GDK_KEY_PRESS_MASK     |
+                         GDK_KEY_RELEASE_MASK   |
+                         GDK_POINTER_MOTION_HINT_MASK);
+
+   g_signal_connect(GTK_OBJECT(scrolled_window), "button_press_event",
+                    G_CALLBACK(on_canvas_button_press), scrolled_window);
+
+   // how about capturing a scroll event here also?
+
 }
 
 // static 
 void
 exptl::nsv::on_nsv_close_button_clicked(GtkButton *button,
 					gpointer user_data) {
-   
+
    GtkWidget *window = lookup_widget(GTK_WIDGET(button), "nsv_dialog");
+   if (! window) {
+      std::cout << "ERROR:: window not found in on_nsv_close_button_clicked()" << std::endl;
+   }
    gtk_widget_destroy(window);
 }
 
@@ -176,7 +279,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
    if (! scrolled_window)
       return 0;
-   
+
    if (! mol)
       return 0;
 
@@ -490,7 +593,6 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
          txt_letter_group = goo_canvas_group_new(canvas_group, NULL);
 
          GooCanvasItem *rect_item;
-
          rect_item = goo_canvas_rect_new(txt_letter_group,
                                          x1, y1,
                                          x2-x1,
@@ -500,14 +602,15 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                          "can-focus", TRUE,
                                          NULL);
 
+         rect_residue_map[residue_p] = rect_item;
+
          // Save the rectangle to be able to change the bg of the letter later.
          g_object_set_data(G_OBJECT(txt_letter_group), "rect", rect_item);
 
 	 g_object_set(G_OBJECT(txt_letter_group), "tooltip", label.c_str(), NULL);
 
 #else
-    GtkCanvasItem *rect_item;
-
+         GtkCanvasItem *rect_item;
 	 rect_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 					 GNOME_TYPE_CANVAS_RECT,
 					 "x1", x1,
@@ -520,8 +623,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 	 so->obj = rect_item;
 	 canvas_item_vec.push_back(rect_item);
 
-    gtk_signal_connect(GTK_OBJECT(rect_item), "event",
-			    GTK_SIGNAL_FUNC(rect_event), so);
+         g_signal_connect(G_OBJECT(rect_item), "event", GCALLBACK(rect_event), so);
 #endif
 
 #ifdef HAVE_GOOCANVAS
@@ -548,6 +650,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                     "font", fixed_font_str.c_str(),
                                     "can-focus", FALSE,
                                     NULL);
+
     g_signal_connect(G_OBJECT(txt_letter_group), "enter_notify_event",
                      G_CALLBACK(rect_notify_event), this);
     g_signal_connect(G_OBJECT(txt_letter_group), "leave_notify_event",
@@ -616,14 +719,14 @@ exptl::nsv::clear_canvas() {
 #ifndef HAVE_GOOCANVAS
 // static
 gint
-exptl::nsv::letter_event (GtkObject *obj,
-			  GdkEvent *event,
-			  gpointer data) {
+exptl::nsv::letter_event(GtkObject *obj,
+                         GdkEvent *event,
+                         gpointer data) {
 
    // path for mouse motion callback when we are compiled with gtkcanvas, not goocanvas.
 
-   // use static cast here (if this code is ever run again :-))
-   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
+   exptl::nsv::spec_and_object spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
 
    // I had been checking on mouse motion (it seems).  But lots of
    // mouse motion causes many calls to set_go_to_atom_from_spec()
@@ -631,9 +734,8 @@ exptl::nsv::letter_event (GtkObject *obj,
    // So, only go to an atom on button release.
    // 
 
-   // std::cout << "event type: " << event->type << std::endl;
+   std::cout << "debug:: letter_event(): letter event of type: " << event->type << std::endl;
 
-   // if (event->motion.state & GDK_BUTTON1_MASK) {
    if (event->type == GDK_BUTTON_RELEASE) {
       set_go_to_atom_molecule(spec_obj.mol_no);
       set_go_to_atom_from_spec(spec_obj.atom_spec);
@@ -658,8 +760,10 @@ exptl::nsv::letter_event (GtkObject *obj,
 gboolean
 exptl::nsv::rect_notify_event (GooCanvasItem *item,
                                GooCanvasItem *target,
-                               GdkEventCrossing *event,
+                               GdkEvent *event,
                                gpointer data) {
+
+   std::cout << "rect_notify_event for item " << item << std::endl;
 
    GooCanvasItem *rect;
    rect = static_cast<GooCanvasItem *> (g_object_get_data(G_OBJECT(item), "rect"));
@@ -680,17 +784,16 @@ exptl::nsv::rect_notify_event (GooCanvasItem *item,
 
 gboolean
 exptl::nsv::rect_button_event(GooCanvasItem *item,
-                            GooCanvasItem *target,
-                            GdkEventButton *event,
-                            gpointer data)
+                              GooCanvasItem *target,
+                              GdkEventButton *event,
+                              gpointer data) {
 
-{
-
-   // std::cout << "box clicked" << std::endl;
-   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
+   std::cout << "rect button event" << std::endl;
+   exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
    set_go_to_atom_molecule(spec_obj.mol_no);
    set_go_to_atom_from_spec(spec_obj.atom_spec);
-   return FALSE;
+   return TRUE; // this has been handled.
 }
 
 #else
@@ -699,11 +802,14 @@ gint
 exptl::nsv::rect_event (GtkObject *obj,
 			GdkEvent *event,
 			gpointer data) {
-   
-   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
-   // if (event->motion.state & GDK_BUTTON1_MASK) {
+
+   std::cout << "debug:: rect_event(): " << std::endl;
+
+   exptl::nsv::spec_and_object *spec_obj_p = static_cast<exptl::nsv::spec_and_object *>(data);
+   exptl::nsv::spec_and_object spec_obj = *spec_obj_p;
+
    if (event->type == GDK_BUTTON_RELEASE) {
-      // std::cout << "box clicked" << std::endl;
+      std::cout << "rect button release " << std::endl;
       set_go_to_atom_molecule(spec_obj.mol_no);
       set_go_to_atom_from_spec(spec_obj.atom_spec);
       
@@ -719,7 +825,7 @@ exptl::nsv::rect_event (GtkObject *obj,
 	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(obj), "fill_color", "grey85", NULL);
       } 
    } 
-   return 1;
+   return TRUE;
 }
 #endif
 
@@ -1347,6 +1453,32 @@ exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
    case mmdb::SSE_None   : s = "black";       break;
    } 
    return s;
+}
+
+void
+exptl::nsv::highlight_residue(mmdb::Residue *residue_p) {
+
+#ifdef HAVE_GOOCANVAS
+   std::map<mmdb::Residue *, GooCanvasItem *>::const_iterator it;
+   it = rect_residue_map.find(residue_p);
+   if (it != rect_residue_map.end()) {
+      GooCanvasItem *rect = it->second;
+      if (GOO_IS_CANVAS_ITEM(rect)) {
+         g_object_set(rect, "fill_color", "orange", NULL);
+      }
+      if (current_highlight_residue != residue_p) {
+         it = rect_residue_map.find(current_highlight_residue);
+         if (it != rect_residue_map.end()) {
+            GooCanvasItem *rect_prev = it->second;
+            if (GOO_IS_CANVAS_ITEM(rect_prev)) {
+               g_object_set(rect_prev, "fill_color", "grey95", NULL);
+            }
+         }
+      }
+      current_highlight_residue = residue_p;
+   }
+#endif HAVE_GOOCANVAS
+
 }
 
 

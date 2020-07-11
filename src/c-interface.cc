@@ -499,7 +499,7 @@ void updating_refmac_refinement_files(const char *updating_refmac_refinement_fil
 #else
    std::cout << "ERROR:: updating_refmac_refinement_files() is just a stub - needs CXX11"
 	     << std::endl;
-#endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES   
+#endif // MAKE_UPDATING_REFMAC_REFINEMENT_MOLECULES
 }
 
 int updating_refmac_refinement_json_timeout_function(gpointer data) {
@@ -752,7 +752,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
-	 
+
 	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size()
 		   << " types with no dictionary " << std::endl;
 
@@ -956,7 +956,8 @@ void hardware_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *gl_area = graphics_info_t::glareas[0];
+	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in hardware_stereo_mode!\n";
 	 } else {
@@ -1013,7 +1014,8 @@ void zalman_stereo_mode() {
       if (graphics_info_t::display_mode != coot::HARDWARE_STEREO_MODE) {
 	 int previous_mode = graphics_info_t::display_mode;
 	 graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *gl_area = graphics_info_t::glareas[0];
+	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in zalman_stereo_mode!\n";
 	 } else {
@@ -1065,17 +1067,12 @@ void mono_mode() {
          int x_size = gtk_widget_get_allocated_width(gl_widget);
          int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
-	 GtkWidget *vbox = lookup_widget(graphics_info_t::get_main_window(), "vbox1");
+         GtkWidget *gl_area = graphics_info_t::glareas[0];
+	 GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 if (!vbox) {
 	    std::cout << "ERROR:: failed to get vbox in mono mode!\n";
 	 } else {
 	    short int try_hardware_stereo_flag = 0;
-	    //BL says:: and we switch the lists_maps back to normal
-            //          for windows users; seems to be necessary at the moment
-#ifdef WINDOWS_MINGW
-	    set_display_lists_for_maps(1);
-	    //	    std::cout << "BL DEBUG:: set_display_map_disabled!!!!\n";
-#endif // WINDOWS_MINGW
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
 	       std::cout << "INFO:: switch to mono_mode succeeded\n";
@@ -2947,8 +2944,8 @@ void set_colour_by_chain(int imol) {
    add_to_history_typed(cmd, args);
 }
 
-void set_colour_by_chain_goodsell_mode(int imol) { 
-   
+void set_colour_by_chain_goodsell_mode(int imol) {
+
    if (is_valid_model_molecule(imol)) {
       std::set<int> s; // dummy
       short int f = graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag;
@@ -6069,8 +6066,14 @@ symmetry_operators_to_xHM_py(PyObject *symmetry_operators) {
 void
 scale_zoom_internal(float f) {
 
+   // now we filter out unusual/erroneous changes in zoom
+
    graphics_info_t g;
-   g.zoom *= fabs(f);
+   if (f > 0.0)
+      if (f < 1.8)
+         if (f > 0.5)
+            g.zoom *= f;
+
 }
 
 void scale_zoom(float f) {
@@ -6767,6 +6770,9 @@ void post_python_scripting_window() {
      PyRun_SimpleString("coot_gui()");
 
   } else {
+
+#if 0 // what does this block do? Is it relevant today?
+
      // we don't get a proper status from python_gui_loaded_flag so
      // lets check again here whether MAPVIEW_GUI_DIR was defined.
      char *t;
@@ -6779,14 +6785,17 @@ void post_python_scripting_window() {
         std::cout << "COOT_PYTHON_DIR  was not defined - cannot open ";
         std::cout << "scripting window" << std::endl;
      }
-// so let's load the usual window!!
-  GtkWidget *window;
-  GtkWidget *python_entry;
-  window = create_python_window();
+#endif
 
-  python_entry = lookup_widget(window, "python_window_entry");
-  setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
-  gtk_widget_show(window);
+
+     // so let's load the usual window!!
+     GtkWidget *window;
+     GtkWidget *python_entry;
+     window = create_python_window();
+
+     python_entry = lookup_widget(window, "python_window_entry");
+     setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+     gtk_widget_show(window);
   }
 
   // clear the entry here
@@ -7115,7 +7124,7 @@ run_python_script(const char *filename_in) {
 #ifdef USE_PYTHON
 
    std::string s = coot::util::intelligent_debackslash(filename_in);
-#if 0 // as it was for Python2  
+#if 0 // as it was for Python2
    std::string simple = "execfile(";
    simple += single_quote(s);
    simple += ")";

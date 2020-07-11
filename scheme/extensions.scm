@@ -56,6 +56,12 @@
 	 (water-coordination-gui)))
 
       (add-simple-coot-menu-menuitem
+       menu "Atom Overlaps"
+       (lambda ()
+         (using-active-atom
+          (molecule-atom-overlaps-gui aa-imol))))
+
+      (add-simple-coot-menu-menuitem
        menu "Validation Outliers"
        (lambda ()
            (using-active-atom

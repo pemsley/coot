@@ -49,6 +49,8 @@
 #include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
 
+#include "geometry/bonded-quad.hh"
+
 namespace coot {
 
    static std::string b_factor_bonds_scale_handle_name;
@@ -238,11 +240,24 @@ public:
    // this is a bit of a weird construction
    bool radius_for_atom_should_be_big(mmdb::Atom *atom_p) const {
 
-      // you might like to add other tests here.
+      // 20190822-PE: you might like to add other tests here.
+      // 20200608-PE: I did!
       mmdb::Residue *r = atom_p->GetResidue();
       if (r) {
          std::string res_name = r->GetResName();
          if (res_name == "HOH")
+            return true;
+         if (res_name == "CA")
+            return true;
+         if (res_name == "MG")
+            return true;
+         if (res_name == "IOD")
+            return true;
+         if (res_name == "CL")
+            return true;
+         if (res_name == "NA")
+            return true;
+         if (res_name == "K")
             return true;
       }
       return false;
@@ -646,24 +661,29 @@ class Bond_lines_container {
 		       int model_number,
 		       int atom_index_1,
 		       int atom_index_2,
-		       int atom_colour_type);
+		       int atom_colour_type,
+                       coot::my_atom_colour_map_t *atom_colour_map_p);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // We pass udd_atom_index_handle because we need the atom index (not residue atom index) for
    // using no_bonds_to_these_atoms
-   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms,
+                        int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
 			int udd_atom_index_handle,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
-			bool is_deloc=0);
+			bool is_deloc=false);
    // used by above, can throw an exception
    clipper::Coord_orth get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int imol, int imodel, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms,
+                        int atom_colour_type,
+                        coot::my_atom_colour_map_t *atom_colour_map_p,
 			int udd_atom_index_handle,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
    bool have_dictionary;
+   bool use_deuteranomaly_mode;
    const coot::protein_geometry *geom;
    enum { NOT_HALF_BOND, HALF_BOND_FIRST_ATOM, HALF_BOND_SECOND_ATOM };
 
@@ -728,11 +748,101 @@ class Bond_lines_container {
 							const coot::Cartesian &atom_1,
 							const coot::Cartesian &atom_2,
 							int uddHnd);
+
+   void do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
+                                                   int imol,
+                                                   int draw_hydrogens_flag,
+                                                   bool draw_missing_loops_flag,
+                                                   short int change_c_only_flag,
+                                                   bool do_goodsell_colour_mode);
+
+   void add_residue_monomer_bonds(const std::map<std::string, std::vector<mmdb::Residue *> > &residue_monomer_map,
+                                  int imol, int model_number,
+                                  int atom_colour_type,
+                                  int udd_atom_index_handle,
+                                  int udd_bond_handle,
+                                  int draw_hydrogens_flag,
+                                  bool do_goodsell_colour_mode);
+
+   void do_colour_by_dictionary_and_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
+                                                                int imol,
+                                                                int draw_hydrogens_flag,
+                                                                bool draw_missing_loops_flag,
+                                                                bool do_goodsell_colour_mode);
+   // and the bonds between the above monomers
+   void add_polymer_bonds(const atom_selection_container_t &asc,
+                          int atom_colour_type,
+                          int draw_hydrogens_flag,
+                          bool draw_missing_loops_flag,
+                          bool do_goodsell_colour_mode);
+   void add_peptide_bonds(const atom_selection_container_t &asc,
+                          int atom_colour_type,
+                          int draw_hydrogens_flag,
+                          bool do_goodsell_colour_mode);
+   void add_phosphodiester_bonds(const atom_selection_container_t &asc,
+                                 int atom_colour_type,
+                                 int draw_hydrogens_flag,
+                                 bool do_goodsell_colour_mode);
+   void add_carbohydrate_bonds(const atom_selection_container_t &asc, // oh. Tricky.
+                               int atom_colour_type,
+                               int draw_hydrogens_flag,
+                               bool do_goodsell_colour_mode);
+   void add_polymer_bonds_generic(const atom_selection_container_t &asc,
+                                  int atom_colour_type,
+                                  int draw_hydrogens_flag,
+                                  const std::string &res_1_atom_name, // in "res1"
+                                  const std::string &res_2_atom_name, // in "res2"
+                                  bool allow_het_group_link_bond,
+                                  bool do_goodsell_colour_mode);
+   void add_SS_bonds(const atom_selection_container_t &asc,
+                     int atom_colour_type,
+                     int draw_hydrogens_flag,
+                     bool do_goodsell_colour_mode);
+   void add_link_bonds(const atom_selection_container_t &asc,
+                       int atom_colour_type,
+                       int draw_hydrogens_flag,
+                       bool do_goodsell_colour_mode);
+
+   // the atoms have been added in order 0 is bonded to 1, 1 is bonded to 2, 2 is bonded to 3 etc.
+   // and there is a double bond between 0 and 1, 2 and 3, and 4 to 5. Or maybe we could explicitly
+   // add that to the the ring_atoms data.
+   void draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                         int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                         int udd_atom_index_handle);
+   // this calls the above function
+   void draw_phenyl_ring_outer(mmdb::Residue *residue_p, int model_number,
+                               int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                               int udd_atom_index_handle);
+   void draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms, int imodel,
+                       int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                       int udd_atom_index_handle);
+   void draw_trp_ring_outer(mmdb::Residue *residue_p, int model_number,
+                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                            int udd_atom_index_handle);
+   void draw_GA_rings_outer(mmdb::Residue *residue_p, int model_number,
+                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                            int udd_atom_index_handle);
+   void draw_CUT_ring_outer(mmdb::Residue *residue_p, int model_number,
+                            int atom_colour_type, coot::my_atom_colour_map_t *atom_colour_map_p,
+                            int udd_atom_index_handle);
+   void draw_het_group_rings(mmdb::Residue *residue_p,
+                             const std::vector<bonded_quad_atom_names> &bonded_quad_atom_names,
+                             int model_number, int atom_colour_type,
+                             coot::my_atom_colour_map_t *atom_colour_map,
+                             int udd_atom_index_handle);
+   void draw_bonded_quad_atoms_rings(const std::vector<bonded_quad_atoms> &ring_atoms,
+                             int imodel, int atom_colour_type,
+                             coot::my_atom_colour_map_t *atom_colour_map_p,
+                             int udd_atom_index_handle);
    
+   std::vector<std::pair<std::string, std::string> >
+   get_aromatic_bonds(const coot::dictionary_residue_restraints_t &restraints) const;
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds_with_thinning_flag(bool thinning_flag) const;
-   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_found_bond_handle, int udd_atom_index_handle);
+   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues,
+                               int imol, int atom_colour_t, short int have_udd_atoms,
+                               int udd_found_bond_handle, int udd_atom_index_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints,
 				   int udd_atom_index_handle, int col);
    // pass a list of atom name that are part of the aromatic ring system.
@@ -758,6 +868,8 @@ class Bond_lines_container {
    // we can put other things here
    void init() {
       rotamer_probability_tables_p = NULL;
+      do_sticks_for_waters = false;
+      use_deuteranomaly_mode = false;
    }
    
 
@@ -898,6 +1010,7 @@ public:
       have_dictionary = 0;
       for_GL_solid_model_rendering = 0;
       udd_has_ca_handle = -1;
+      do_sticks_for_waters = true;
       init();
       if (bonds.size() == 0) { 
 	 for (int i=0; i<13; i++) { // 13 colors now in bond_colours
@@ -1134,6 +1247,7 @@ public:
 					   const std::vector <symmetry_atom_bond> &sabv,
 					   const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 
+   void set_use_deuteranomaly_mode() { use_deuteranomaly_mode = true; }
 
 };
 

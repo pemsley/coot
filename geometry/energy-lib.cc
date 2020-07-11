@@ -443,7 +443,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 
    bool debug = false;  // before debugging this, is ener_lib.cif being
 		        // read correctly?
-   
+
    // this is heavy!
    // 
    std::pair<bool, dictionary_residue_restraints_t> r =

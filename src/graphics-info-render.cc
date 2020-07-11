@@ -69,7 +69,7 @@ graphics_info_t::raster3d(std::string filename) {
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
 
-   rt.add_display_objects(*generic_objects_p);
+   rt.add_generic_display_objects(generic_display_objects);
    rt.set_raster3d_enable_shadows(raster3d_enable_shadows);
    bool is_bb = background_is_black_p();
    coot::colour_t atom_label_colour(font_colour.red, font_colour.green, font_colour.blue);
@@ -138,7 +138,7 @@ graphics_info_t::povray(std::string filename) {
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
 
-   rt.add_display_objects(*generic_objects_p);
+   rt.add_generic_display_objects(generic_display_objects);
 
    // So where is the "eye"? We have to do an unproject:
    int x0 = allocation.width/2;
@@ -231,7 +231,7 @@ graphics_info_t::renderman(std::string filename) {
 		       0.3*zoom*aspect_ratio,
 		       -0.3*zoom, 0.3*zoom);
 
-   rt.add_display_objects(*generic_objects_p);
+   rt.add_generic_display_objects(generic_display_objects);
 
    std::cout << "Generating raytrace molecule objects..." << std::endl;
    for (int imol=0; imol<n_molecules(); imol++) {
@@ -696,10 +696,15 @@ coot::raytrace_info_t::set_ortho_params(float left, float right, float bottom, f
 } 
 
 
+void 
+meshed_generic_display_object::raster3d(std::ofstream &render_stream) const {
+
+   std::cout << "soemthing here: raster3d()" << std::endl;
+}
 
 
 void 
-coot::generic_display_object_t::raster3d(std::ofstream &render_stream) const {
+coot::old_generic_display_object_t::raster3d(std::ofstream &render_stream) const {
 
    if (! is_closed_flag) {
       if (is_displayed_flag) {

@@ -1,7 +1,7 @@
 
-#ifdef HAVE_CXX_THREAD
 #include <thread>
-#endif // HAVE_CXX_THREAD
+
+#include "utils/coot-utils.hh"
 #include "utils/split-indices.hh"
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"
@@ -105,13 +105,14 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 	       double size = 0.5;
 	       clipper::Coord_orth pos = coot::co(ra.second);
 	       double z = 0;
-	       coot::colour_holder col(z, 0.0, 1.0, std::string(""));
+               bool use_deuteranomaly_mode = false;
+	       coot::colour_holder col(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
 	       if (pr.state == coot::rotamer_probability_info_t::OK) {
 		  // pr is high, z low, -> green
 		  // pr is ~0, z is ~1 -> red
 		  z = 1.0 - sqrt(sqrt(pr.probability*0.01));
 		  // args fraction, min, max, dummy-not-colour-triple-flag
-		  col = coot::colour_holder(z, 0.0, 1.0, std::string(""));
+		  col = coot::colour_holder(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
 	       }
 	       if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
 		  col = coot::colour_holder("#bb22bb"); // purple

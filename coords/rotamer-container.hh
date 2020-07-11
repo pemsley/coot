@@ -1,6 +1,6 @@
 
 #ifndef ROTAMER_CONTAINER_HH
-#include "utils/coot-utils.hh"
+#include "utils/colour-holder.hh"
 
 class rotamer_markup_container_t {
 

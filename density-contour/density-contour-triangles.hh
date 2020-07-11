@@ -13,11 +13,15 @@ typedef std::map<unsigned int, POINT3DID> ID2POINT3DID;
 class TRIANGLE {
 public:
    unsigned int pointID[3];
+   bool reject_this; // set in post-processing
    clipper::Coord_orth mid_point;
    double back_front_projection_distance;
    clipper::Coord_orth normal_for_flat_shading;
    bool operator<(const TRIANGLE &t) const {
       return (back_front_projection_distance < t.back_front_projection_distance);
+   }
+   TRIANGLE() {
+      reject_this = false;
    }
 };
 
@@ -31,6 +35,7 @@ namespace coot {
       void depth_sort(const clipper::Coord_orth &back_plane_point,
                       const clipper::Coord_orth &front_plane_point);
       void calculate_normals(); // average normals on shared points
+      void remove_small_triangles();
       bool empty() const { return (points.empty()); }
       void clear() {
          points.clear();

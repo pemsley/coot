@@ -1012,8 +1012,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 	 // 20180628-PE - no more async
 	 // get the electron density values now.
-	 distortion += electron_density_score_from_restraints(v, restraints_p);
 
+         if (restraints_p->include_map_terms())
+            distortion += electron_density_score_from_restraints(v, restraints_p);
 
 	 /*
 

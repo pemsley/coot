@@ -212,8 +212,9 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    boxes.push_back(std::pair<std::string, std::string>("Chirals",                "chirals"));
    boxes.push_back(std::pair<std::string, std::string>("Non-bonded", "non_bonded_contacts"));
    boxes.push_back(std::pair<std::string, std::string>("Rama",                      "rama"));
+   boxes.push_back(std::pair<std::string, std::string>("Trans-Pep",            "trans_pep"));
 
-   GtkWidget *frame;
+   GtkWidget *frame = 0;
    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) {
       frame = lookup_widget(window, "accept_reject_lights_frame_docked");
    } else {
@@ -226,11 +227,12 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
    // i.e. we need to first loop over the boxes and then over the ref_results
    // I hope this is ok. Otherwise I have to doublicate code
    // this solution here may be slightly slower
+
    for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
 
+      const std::string &distortion_type_string = boxes[ibox].first;
       std::string widget_name = "accept_reject_label_for_box_";
       widget_name += boxes[ibox].second;
-      // if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED) ...
       GtkWidget *w = lookup_widget(frame, widget_name.c_str());
 
       // here comes the hiding
@@ -238,7 +240,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
       //    gtk_widget_hide(w);
 
       for (unsigned int i_rest_type=0; i_rest_type<ref_results.lights.size(); i_rest_type++) {
-         if (ref_results.lights[i_rest_type].name == boxes[ibox].first) {
+         if (ref_results.lights[i_rest_type].name == distortion_type_string) {
             if (w) {
 	       gtk_widget_show(w);
                gtk_widget_set_size_request(w, 20, -1);
@@ -258,7 +260,6 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 
 	    // we do not add labels for the docked box
 	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-
 	       std::string label_name = boxes[ibox].second + "_label"; // needs fixing
 	       GtkWidget *label = lookup_widget(frame, label_name.c_str());
 	       gtk_label_set_text(GTK_LABEL(label), ref_results.lights[i_rest_type].label.c_str());
@@ -281,6 +282,8 @@ void set_colour_accept_reject_event_box(GtkWidget *label, GdkColor *col) {
 
    // sigh - use css.
    // std::cout << "set_colour_accept_reject_event_box() set the label colour here " << std::endl;
+
+   // gtk_widget_override_background_color(label, col);
 
    gtk_widget_modify_bg(label, GTK_STATE_NORMAL, col);
 }
@@ -3280,6 +3283,21 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
    }
 #endif // HAVE_GTK_CANVAS
 }
+
+GtkWidget *
+graphics_info_t::get_sequence_view_is_displayed(int imol) const {
+
+   GtkWidget *w = 0;
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+   if (is_valid_model_molecule(imol))
+       w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+
+#endif
+   return w;
+}
+
+
 
 void
 graphics_info_t::unset_geometry_dialog_distance_togglebutton() {

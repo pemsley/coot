@@ -21,7 +21,8 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
       std::cout << "--------------------- start screen_framebuffer " << name
                 << " init() err is " << err << std::endl;
 
-   generate_framebuffer_object(width, height, attachment_index_color_texture); // try 2 * width here for multisampling at some stage
+   generate_framebuffer_object(width, height, attachment_index_color_texture); // try 2 * width here for
+                                                                               // multisampling at some stage
 
 }
 

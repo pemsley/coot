@@ -288,6 +288,7 @@ coot_fix_nomenclature_errors_SOURCES = \
 coot_bin_SOURCES = \
 	main.cc 		 \
 	atom-pull.hh		 \
+	array-2d.hh		 \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
@@ -418,6 +419,8 @@ coot_bin_SOURCES = \
         curlew.hh                \
 	cylinder.hh		 \
 	cylinder.cc		 \
+	cylinder-with-rotation-translation.hh	 \
+	cylinder-with-rotation-translation.cc	 \
 	data-pair-remover.hh     \
         density-results-container-t.hh \
         dots-representation.hh   \
@@ -431,8 +434,8 @@ coot_bin_SOURCES = \
 	flev.cc                  \
         framebuffer.cc           \
         framebuffer.hh           \
-	generic-display-object.hh\
-	generic-display-object.cc\
+	old-generic-display-object.hh\
+	old-generic-display-object.cc\
 	generic-objects.cc   	 \
         generic-display-objects-c.h \
 	generic-vertex.hh	 \
@@ -497,6 +500,9 @@ coot_bin_SOURCES = \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
         map-statistics.hh        \
+	Mesh.cc Mesh.hh          \
+	meshed-generic-display-object.hh \
+	meshed-generic-display-object.cc \
 	merge-molecule-results-info-t.hh \
 	model-composition-statistics.hh \
 	molecule-class-info.cc 	 \
@@ -517,18 +523,24 @@ coot_bin_SOURCES = \
         molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-string.cc 	\
-	molecule-class-info-patterson.cc \
-	molecule-class-info-ncs.cc 	\
-	molecule-class-info-mol-tris.cc 	\
+	molecule-class-info-patterson.cc   \
+	molecule-class-info-ncs.cc         \
+	molecule-class-info-mol-tris.cc	   \
 	molecule-class-info-widget-work.cc \
-	molecule-class-info-geometry.cc \
+	molecule-class-info-geometry.cc    \
+	molecular-mesh-generator.cc \
+	molecular-mesh-generator-mol-tris.cc \
+	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
+	oct.cc oct.hh            \
 	pisa-interface.hh	 \
         pick.hh pick.cc		 \
 	positioned-widgets.h     \
 	pre-load.hh              \
+	prideout-octasphere.hh   \
+	prideout-octasphere.cc   \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
@@ -536,6 +548,7 @@ coot_bin_SOURCES = \
 	python-classes.cc	 \
 	python-classes.hh	 \
 	python-3-interface.hh 	 \
+	Particle.cc Particle.hh  \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \

@@ -153,7 +153,7 @@ coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
-std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::old_generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> graphics_info_t::views;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
@@ -467,7 +467,8 @@ int graphics_info_t::n_molecules_max = 60;
 // int graphics_info_t::n_molecules = 0; // gets incremented on pdb reading
 
 // generic display objects, gets set in init.
-std::vector<coot::generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+// std::vector<coot::old_generic_display_object_t> *graphics_info_t::generic_objects_p = NULL;
+std::vector<meshed_generic_display_object> graphics_info_t::generic_display_objects;
 bool graphics_info_t::display_generic_objects_as_solid_flag = 0;
 bool graphics_info_t::display_environment_graphics_object_as_solid_flag = 0;
 GtkWidget *graphics_info_t::generic_objects_dialog = NULL;
@@ -2188,11 +2189,18 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 //    area.width  = widget->allocation.width;
 //    area.height = widget->allocation.height;
 
+   GtkAllocation allocation;
+   gint width;
+   gint height;
+   gtk_widget_get_allocation (widget, &allocation);
+   width = allocation.width;
+   height = allocation.height;
+
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    GdkModifierType my_button3_mask = info.gdk_button3_mask();
 
-   GdkModifierType state;                                                    
+   GdkModifierType state;
    short int button_was_pressed = 0;
 
    if (event->is_hint) {
@@ -2280,9 +2288,6 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		  // intermediate-atom-screen-z-rotate not a single
 		  // atom move.
 
-// 		  std::cout << "Moving single atom " << x_as_int << " "
-// 				<< y_as_int << " " << x << " " << y << std::endl;
-
 		  info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
 		  // info.move_atom_pull_target_position(x_as_int ,y_as_int);
 
@@ -2312,11 +2317,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	       // info.in_moving_atoms_drag_atom_mode_flag test
 
 	       bool handled_non_atom_drag_event = false;
-	       x_diff = x - info.GetMouseBeginX();
-	       y_diff = y - info.GetMouseBeginY();
-	       handled_non_atom_drag_event =
-		  info.rotate_intermediate_atoms_maybe(0, x_diff * 0.01);
-	       info.rotate_intermediate_atoms_maybe(1, y_diff * 0.01);
+           handled_non_atom_drag_event = info.rotate_intermediate_atoms_maybe(width, height);
 
 	       if (! handled_non_atom_drag_event) {
 

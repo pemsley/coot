@@ -3247,7 +3247,7 @@ lbg_info_t::init(GtkBuilder *builder) {
    //
    if (use_graphics_interface_flag) {
       if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) {
-	 gtk_widget_show(pe_test_function_button);
+         gtk_widget_show(pe_test_function_button);
       }
    }
 
@@ -3257,9 +3257,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef USE_PYTHON
    // all, with QED
-
-
-   std::cout << "--------------------- debug here with silicos_it_qed_default_func " << silicos_it_qed_default_func << std::endl;
 
    if (! silicos_it_qed_default_func) { // set in init
       gtk_widget_hide(lbg_qed_hbox);
@@ -4947,6 +4944,8 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
       try {
          if (get_drug_mdl_file_function_pointer) {
+            std::cout << "DEBUG:: Using get_drug_mdl_file_function_pointer" << std::endl;
+            // this could fail for SSL reasons. Try to dig out the libcurl error
             std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
             if (file_name.empty()) {
                std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
@@ -4963,11 +4962,20 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
    }
 
-   if (status == false) {
+   if (!status) {
+
+      // If we have failed so far, try again with lidia.fetch.
+      // But import rdkit first so that import.fetch doesn't crash - !
+      std::cout << "DEBUG:: --- start import rdkit/lidia.fetch --- " << std::endl;
+      PyObject *pName_rdkit = PyString_FromString("rdkit");
+      std::cout << "DEBUG:: --- we have pName_rdkit --- " << pName_rdkit << std::endl;
+      PyObject *pModule = PyImport_Import(pName_rdkit);
+      if (! pModule) return;
+      std::cout << "DEBUG:: --- we have imported rdkit --- " << pName_rdkit << std::endl;
 
       PyObject *pName = PyString_FromString("lidia.fetch");
-      std::cout << "DEBUG:: Here with lidia.fetch pName " << pName << std::endl;
-      PyObject *pModule = PyImport_Import(pName);
+      std::cout << "DEBUG:: with lidia.fetch pName " << pName << std::endl;
+      pModule = PyImport_Import(pName);
       if (pModule == NULL) {
          std::cout << "NULL pModule" << std::endl;
       } else {
@@ -4975,20 +4983,25 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
          PyObject *pDict = PyModule_GetDict(pModule);
          if (! PyDict_Check(pDict)) {
-            std::cout << "pDict is not a dict" << std::endl;
+            std::cout << "DEBUG:: pDict is not a dict" << std::endl;
          } else {
 
             PyObject *pFunc = PyDict_GetItemString(pDict, "fetch_molecule");
             if (PyCallable_Check(pFunc)) {
+               std::cout << "DEBUG:: fetch_molecule is a callable function" << std::endl;
                PyObject *arg_list = PyTuple_New(1);
                PyObject *drug_name_py = PyString_FromString(drug_name.c_str());
                PyTuple_SetItem(arg_list, 0, drug_name_py);
+               std::cout << "DEBUG:: fetch_molecule called with arg " << drug_name << std::endl;
                PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+               std::cout << "DEBUG:: fetch_molecule got result " << result_py << std::endl;
 
                if (result_py) {
 
                   if (PyString_Check(result_py)) {
+                     std::cout << "fetch_molecule result was a string " << std::endl;
                      std::string file_name = PyString_AsString(result_py);
+                     std::cout << "fetch_molecule result was a file_name " << file_name << std::endl;
 
                      try {
                         bool sanitize = true;
@@ -5079,8 +5092,8 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 	 } else {
 	    if (PyCallable_Check(pFunc)) {
 	       extracted_func = pFunc;
-	       if (1)
-		  std::cout << "found " << module_name << " " << function_name << " function"
+	       if (true)
+		  std::cout << "DEBUG:: found " << module_name << " " << function_name << " function"
 			    << std::endl;
 	    }
 	 }

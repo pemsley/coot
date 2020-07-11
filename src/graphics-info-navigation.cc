@@ -283,6 +283,8 @@ graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window
 
 }
 
+#include "nsv.hh"
+
 // direction is either "next" or "previous"
 //
 int
@@ -336,32 +338,43 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
       }
 
       if (atom_index != -1) {
-         mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
-         go_to_atom_chain_       = next_atom->GetChainID();
-         go_to_atom_atom_name_   = next_atom->name;
-         go_to_atom_residue_     = next_atom->GetSeqNum();
-         go_to_atom_inscode_     = next_atom->GetInsCode();
-         go_to_atom_atom_altLoc_ = next_atom->altLoc;
+          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
 
-         // now update the widget with the new values of the above (like
-         // c-interface:goto_near_atom_maybe())
+          go_to_atom_chain_       = next_atom->GetChainID();
+          go_to_atom_atom_name_   = next_atom->name;
+          go_to_atom_residue_     = next_atom->GetSeqNum();
+          go_to_atom_inscode_     = next_atom->GetInsCode();
+          go_to_atom_atom_altLoc_ = next_atom->altLoc;
 
-         if (go_to_atom_window) {
-            update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-            // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
-            // 						 "go_to_atom_residue_tree");
-            // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
-         }
+          // now update the widget with the new values of the above (like
+          // c-interface:goto_near_atom_maybe())
 
-         try_centre_from_new_go_to_atom();
+          if (go_to_atom_window) {
+              update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+              // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+              // 						 "go_to_atom_residue_tree");
+              // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
+          }
+          try_centre_from_new_go_to_atom();
 
-         // Update the graphics (glarea widget):
-         //
-         update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
-                                             // and show something in the statusbar
-         std::string ai;
-         ai = atom_info_as_text_for_statusbar(atom_index, imol);
-         add_status_bar_text(ai);
+          // Update the graphics (glarea widget):
+          //
+          update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
+          // and show something in the statusbar
+          std::string ai;
+          ai = atom_info_as_text_for_statusbar(atom_index, imol);
+          add_status_bar_text(ai);
+
+          mmdb::Residue *residue_p = next_atom->residue;
+          if (residue_p) {
+              GtkWidget *svc = get_sequence_view_is_displayed(imol);
+#if GTK3_CAN_DO_SEQUENCE_VIEW
+              if (svc) {
+                  exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+                  nsv->highlight_residue(residue_p);
+              }
+#endif
+          }
       }
    }
    return 1;
@@ -733,7 +746,7 @@ graphics_info_t::update_go_to_atom_window_on_new_mol() {
 
    if (go_to_atom_window) {
 
-      // GtkWidget *option_menu = lookup_widget(GTK_WIDGET(go_to_atom_window), 
+      // GtkWidget *option_menu = lookup_widget(GTK_WIDGET(go_to_atom_window),
       //                                        "go_to_atom_molecule_optionmenu");
 
       GtkWidget *combobox = lookup_widget(go_to_atom_window, "go_to_atom_molecule_combobox");
@@ -1159,33 +1172,6 @@ int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const s
    return status;
 }
 
-
-
-// do it if have intermediate atoms and ctrl is pressed.
-//
-// axis: 0 for Z, 1 for X.
-//
-short int
-graphics_info_t::rotate_intermediate_atoms_maybe(short int axis, double angle) {
-
-
-   short int handled_flag = 0;
-
-   if (rot_trans_rotation_origin_atom) {
-      if (moving_atoms_asc) {
-	 if (moving_atoms_asc->n_selected_atoms > 0) {
-	    if (control_is_pressed) {
-	       if (axis == 0)
-		  rotate_intermediate_atoms_round_screen_z(angle);
-	       else
-		  rotate_intermediate_atoms_round_screen_x(angle);
-	       handled_flag = 1;
-	    }
-	 }
-      }
-   }
-   return handled_flag;
-}
 
 
 // --- unapply symmetry to current view, (we are looking at

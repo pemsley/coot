@@ -64,11 +64,13 @@ namespace exptl {
 	 int mol_no;
 	 GnomeCanvasItem *obj;
 	 coot::atom_spec_t atom_spec;
+         coot::residue_spec_t residue_spec;
 	 int position_number;
   	 spec_and_object(int molecule_number_in, coot::atom_spec_t &spec_in,
 			 int position_number_in) { 
 	    mol_no = molecule_number_in;
 	    atom_spec = spec_in;
+            residue_spec = coot::residue_spec_t(atom_spec);
 	    position_number = position_number_in;
 	 } 
 	 void add_rect_attribs(GnomeCanvasItem *rect_item_in) { 
@@ -83,9 +85,12 @@ namespace exptl {
 #ifdef HAVE_GOOCANVAS
       GooCanvasItem *canvas_group;
       GtkWidget *canvas;
+      std::map<mmdb::Residue *, GooCanvasItem *> rect_residue_map;
+      mmdb::Residue *current_highlight_residue;
 #else
       GnomeCanvas *canvas;
 #endif
+      
       // return the canvas y size
       int setup_canvas(mmdb::Manager *mol);
       std::vector<chain_length_residue_units_t> get_residue_counts(mmdb::Manager *mol) const;
@@ -98,7 +103,7 @@ namespace exptl {
 #ifdef HAVE_GOOCANVAS
       static gboolean rect_notify_event (GooCanvasItem *item,
                                          GooCanvasItem *target,
-                                         GdkEventCrossing *event,
+                                         GdkEvent *event,
                                          gpointer data);
       static gboolean rect_button_event (GooCanvasItem *item,
                                         GooCanvasItem *target,
@@ -122,15 +127,17 @@ namespace exptl {
       void helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_offet);
       void helix_single_inner(int i_turn_number, double x_start, double y_start, double hexix_scale);
       void strand(mmdb::Chain *, int resno_low, int resno_high, double x_offset, double y_offset, double scale);
-      
+
    public:
       nsv(mmdb::Manager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
+          GtkWidget *main_window_vbox,
 	  bool use_graphics_interface);
       nsv(mmdb::Manager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
+          GtkWidget *main_window_vbox,
 	  bool use_graphics_interface,
 	  int canvas_pixel_limit);
       void regenerate(mmdb::Manager *mol);
@@ -138,6 +145,16 @@ namespace exptl {
       // default is 22500 
       void set_points_max(int v) { points_max = v; }
       std::string sequence_letter_background_colour;
+
+      // is this used?
+      static gboolean on_canvas_button_press(GtkWidget      *canvas,
+                                             GdkEventButton *event,
+                                             gpointer        data);
+      // used for the docked sequence view.
+      static gint close_docked_sequence_view(GtkWidget *menu_item, GdkEventButton *event);
+
+      // JED feature request 
+      void highlight_residue(mmdb::Residue *residue_p);
    };
 }
 

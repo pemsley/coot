@@ -24,7 +24,7 @@ EXTRA_DIST = notes Makefile.simple
 
 pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh \
    dict-utils.hh dict-mismatches.hh energy-lib.hh match-results.hh hb-types.hh main-chain.hh \
-   residue-and-atom-specs.hh chem_mods.hh mol-utils.hh mol-utils-2.hh
+   residue-and-atom-specs.hh chem_mods.hh mol-utils.hh mol-utils-2.hh bonded-quad.hh
 
 pkgincludedir = $(includedir)/coot/geometry
 

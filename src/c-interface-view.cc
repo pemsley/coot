@@ -116,37 +116,116 @@ int use_perspective_projection_state() {
 //! \brief set use ambient occlusion
 void set_use_ambient_occlusion(short int state) {
    // user interface is set_use_xxx
-   graphics_info_t::do_ambient_occlusion_flag = state;
+   graphics_info_t g;
+   g.set_do_ambient_occlusion(state);
    graphics_draw();
 }
 
 //! \brief query use ambient occlusion
 int use_ambient_occlusion_state() {
-   return graphics_info_t::do_ambient_occlusion_flag;
+   return graphics_info_t::shader_do_ambient_occlusion_flag;
 }
 
 //! \brief set use depth blur
 void set_use_depth_blur(short int state) {
-   graphics_info_t::do_depth_blur_flag = state;
+   graphics_info_t::shader_do_depth_blur_flag = state;
    graphics_draw();
 }
 //! \brief query use depth blur
 int use_depth_blur_state() {
-   return graphics_info_t::do_depth_blur_flag;
+   return graphics_info_t::shader_do_depth_blur_flag;
 }
-
 
 
 //! \brief set use fog
 void set_use_fog(short int state) {
-   graphics_info_t::do_depth_fog_flag = state;
+   graphics_info_t::shader_do_depth_fog_flag = state;
    graphics_draw();
 }
 
 //! \brief query use fog
 int use_fog_state() {
-   return graphics_info_t::do_depth_fog_flag;
+   return graphics_info_t::shader_do_depth_fog_flag;
 }
+
+void set_use_outline(short int state) {
+   graphics_info_t g;
+   g.shader_do_outline_flag = state;
+   graphics_draw();
+}
+
+int use_outline_state() {
+   graphics_info_t g;
+   return g.shader_do_outline_flag;
+}
+
+void set_map_shininess(int imol, float shininess) {
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].shader_shininess = shininess;
+      graphics_draw();
+   }
+}
+
+void set_map_specular_strength(int imol, float specular_strength) {
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].shader_specular_strength = specular_strength;
+      graphics_draw();
+   }
+}
+
+void set_draw_normals(short int state) {
+
+   graphics_info_t::draw_normals_flag = state;
+   graphics_draw();
+
+}
+
+int  draw_normals_state() {
+   return graphics_info_t::draw_normals_flag;
+}
+
+
+void set_draw_mesh(int imol, int mesh_index, short int state) {
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      int size = graphics_info_t::molecules[imol].meshes.size();
+      if (mesh_index >= 0 && mesh_index < size) {
+         graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh = state;
+      }
+   }
+}
+
+int draw_mesh_state(int imol, int mesh_index) {
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      int size = graphics_info_t::molecules[imol].meshes.size();
+      if (mesh_index >= 0 && mesh_index < size) {
+         return graphics_info_t::molecules[imol].meshes[mesh_index].draw_this_mesh;
+      }
+   }
+   return -1;
+}
+
+void set_map_material_specular(int imol, float specular_strength, float shininess) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.material_for_maps.specular_strength = specular_strength;
+      m.material_for_maps.shininess         = shininess;
+      graphics_draw();
+   }
+
+}
+
+void set_model_material_specular(int imol, float specular_strength, float shininess) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.material_for_models.specular_strength = specular_strength;
+      m.material_for_models.shininess         = shininess;
+      graphics_draw();
+   }
+}
+
+   
 
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */

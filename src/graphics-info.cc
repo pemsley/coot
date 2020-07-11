@@ -162,22 +162,22 @@ GdkColor colour_by_distortion(float dist) {
       col.green = 0;
    } else {
       if (dist < 1.4 /* was 2.0 before Tickle-fix */) {
-    col.red   = 0;
-    col.green = 55535;
+         col.red   = 0;
+         col.green = 55535;
       } else {
-    if (dist < 2.2 /* was 5.0 */ ) {
-       col.red   = 55000;
-       col.green = 55000;
-       // col.blue  = 22000;
-      } else {
-       if (dist < 3.0 /* was 8.0 */ ) {
-          col.red   = 64000;
-          col.green = 32000;
-       } else {
-          col.red   = 65535;
-          col.green = 0;
-       }
-    }
+         if (dist < 2.2 /* was 5.0 */ ) {
+            col.red   = 55000;
+            col.green = 55000;
+            // col.blue  = 22000;
+         } else {
+            if (dist < 3.0 /* was 8.0 */ ) {
+               col.red   = 64000;
+               col.green = 32000;
+            } else {
+               col.red   = 65535;
+               col.green = 0;
+            }
+         }
       }
    }
    return col;
@@ -2333,10 +2333,10 @@ graphics_info_t::draw_rotamer_probability_object() {
 }
 
 // can this be const?
-std::vector<coot::generic_display_object_t::dodec_t>
+std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
 
-   std::vector<coot::generic_display_object_t::dodec_t> dodecs;
+   std::vector<coot::old_generic_display_object_t::dodec_t> dodecs;
    if (regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_rotamer_markups > 0) {
          dodec d;
@@ -2351,7 +2351,7 @@ graphics_info_t::get_rotamer_dodecs() {
             clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
             double size = 0.52;
             pos -= screen_y * double(1.5 * size * 22.0/double(graphics_info_t::zoom));
-            coot::generic_display_object_t::dodec_t dodec(d, size, pos);
+            coot::old_generic_display_object_t::dodec_t dodec(d, size, pos);
             dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
             dodecs.push_back(dodec);
          }
@@ -2753,10 +2753,10 @@ graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_poin
 
 void
 graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_point,
-   const coot::Cartesian &end_point,
-   const double &radius_1,
-   const double &radius_2,
-   int n_ring_atoms) const {
+                                                const coot::Cartesian &end_point,
+                                                const double &radius_1,
+                                                const double &radius_2,
+                                                int n_ring_atoms) const {
 #if 0
    double top =  0.2;
    double base = 0.2;
@@ -2778,24 +2778,24 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       //
       coot::Cartesian normal = bond_frag * (1.0/height);
       if (normal.z() > 0.9999) {
-    // std::cout << "      no rotation needed" << normal << std::endl;
+         // std::cout << "      no rotation needed" << normal << std::endl;
       } else {
 
-    double cos_theta_y = normal.z();
-    double theta_y_rad = acos(cos_theta_y);
-    double theta_z_rad = atan2(normal.y(), normal.x());
-    double theta_z = clipper::Util::rad2d(theta_z_rad);
-    double theta_y = clipper::Util::rad2d(theta_y_rad);
-    glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
-    glRotated(theta_y, 0, 1, 0); //   ditto.
+         double cos_theta_y = normal.z();
+         double theta_y_rad = acos(cos_theta_y);
+         double theta_z_rad = atan2(normal.y(), normal.x());
+         double theta_z = clipper::Util::rad2d(theta_z_rad);
+         double theta_y = clipper::Util::rad2d(theta_y_rad);
+         glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
+         glRotated(theta_y, 0, 1, 0); //   ditto.
       }
 
       glTranslated(0, 0, 1.3 * height);
       if (n_ring_atoms == 5)
-    // this makes the ring brighter.  I don't know why.
-    glScalef(0.95, 0.95, 0.48);
+         // this makes the ring brighter.  I don't know why.
+         glScalef(0.95, 0.95, 0.48);
       else
-    glScalef(1.1, 1.1, 0.55);
+         glScalef(1.1, 1.1, 0.55);
       glutSolidTorus(radius_1, radius_2, 20, 32);
       glPopMatrix();
    }
@@ -2804,11 +2804,11 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
 
 void
 graphics_info_t::graphics_object_internal_arc(float start_angle,
-         float end_angle,
-         const coot::Cartesian &start_point,
-         const coot::Cartesian &start_dir,
-         const coot::Cartesian &normal,
-         float r, float radius_inner) {
+                                              float end_angle,
+                                              const coot::Cartesian &start_point,
+                                              const coot::Cartesian &start_dir,
+                                              const coot::Cartesian &normal,
+                                              float radius, float radius_inner) {
 
 #if 0
    glPushMatrix();
@@ -2949,7 +2949,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 }
 
 void
-graphics_info_t::graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec) {
+graphics_info_t::graphics_object_internal_dodec(const coot::old_generic_display_object_t::dodec_t &dodec) {
 
 #if 0
    glPushMatrix();
@@ -4415,6 +4415,7 @@ graphics_info_t::set_bond_thickness(int imol, float t) {
       if (imol >= 0) {
     if (graphics_info_t::molecules[imol].has_model()) {
        molecules[imol].set_bond_thickness(t);
+       molecules[imol].make_bonds_type_checked();
        graphics_draw();
     }
       }
@@ -5357,7 +5358,7 @@ graphics_info_t::draw_generic_text() {
 
 // static
 coot::colour_holder
-coot::generic_display_object_t::colour_values_from_colour_name(const std::string &c) {
+coot::old_generic_display_object_t::colour_values_from_colour_name(const std::string &c) {
 
    coot::colour_holder colour;
    colour.red = 0.4;
@@ -6278,4 +6279,24 @@ graphics_info_t::sfcalc_genmap(int imol_model,
          }
       }
    }
+}
+
+
+// household function - maybe make a separate file for this sort of function?
+void
+graphics_info_t::delete_pointers_to_map_in_other_molecules(int imol_map) {
+
+   if (is_valid_map_molecule(imol_map)) { // it is at the moment, not for long though!
+      clipper::Xmap<float> *xmap_p = &molecules[imol_map].xmap;
+      for (int i=0; i<n_molecules(); i++) {
+         if (is_valid_map_molecule(i)) {
+            if (molecules[i].other_map_for_colouring_p) {
+               if (molecules[i].other_map_for_colouring_p == xmap_p) {
+                  molecules[i].turn_off_other_map_for_colouring();
+               }
+            }
+         }
+      }
+   }
+
 }

@@ -6279,17 +6279,23 @@ create_python_window (void)
 {
   GtkWidget *python_window;
   GtkWidget *vbox41;
+  GtkWidget *python_window_entry;
   GtkWidget *scrolledwindow4;
   GtkWidget *python_window_text;
-  GtkWidget *python_window_entry;
 
   python_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_container_set_border_width (GTK_CONTAINER (python_window), 10);
-  gtk_window_set_title (GTK_WINDOW (python_window), "window2");
+  gtk_window_set_title (GTK_WINDOW (python_window), "Python Shell");
+  gtk_window_set_type_hint (GTK_WINDOW (python_window), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   vbox41 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_widget_show (vbox41);
   gtk_container_add (GTK_CONTAINER (python_window), vbox41);
+
+  python_window_entry = gtk_entry_new ();
+  gtk_widget_show (python_window_entry);
+  gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
+  gtk_widget_set_size_request (python_window_entry, 350, -1);
 
   scrolledwindow4 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow4);
@@ -6303,16 +6309,19 @@ create_python_window (void)
   gtk_text_view_set_editable (GTK_TEXT_VIEW (python_window_text), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (python_window_text), GTK_WRAP_WORD);
 
-  python_window_entry = gtk_entry_new ();
-  gtk_widget_show (python_window_entry);
-  gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
+  g_signal_connect ((gpointer) python_window_entry, "activate",
+                    G_CALLBACK (on_python_window_entry_activate),
+                    NULL);
+  g_signal_connect ((gpointer) python_window_entry, "key_press_event",
+                    G_CALLBACK (on_python_window_entry_key_press_event),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (python_window, python_window, "python_window");
   GLADE_HOOKUP_OBJECT (python_window, vbox41, "vbox41");
+  GLADE_HOOKUP_OBJECT (python_window, python_window_entry, "python_window_entry");
   GLADE_HOOKUP_OBJECT (python_window, scrolledwindow4, "scrolledwindow4");
   GLADE_HOOKUP_OBJECT (python_window, python_window_text, "python_window_text");
-  GLADE_HOOKUP_OBJECT (python_window, python_window_entry, "python_window_entry");
 
   return python_window;
 }
@@ -11383,8 +11392,8 @@ create_run_refmac_dialog (void)
   GtkWidget *refmac_dialog_rfree_combobox;
   GtkWidget *refmac_dialog_phases_hbox;
   GtkWidget *label649;
-  GtkWidget *refmac_dialog_phases_combobox;
   GtkWidget *label648;
+  GtkWidget *refmac_dialog_phases_combobox;
   GtkWidget *refmac_dialog_fom_combobox;
   GtkWidget *refmac_dialog_hl_hbox;
   GtkWidget *label650;
@@ -28719,8 +28728,7 @@ create_generic_objects_dialog (void)
   GtkWidget *hbox433;
   GtkWidget *generic_objects_display_all_togglebutton;
   GtkWidget *generic_objects_scrolledwindow;
-  GtkWidget *viewport24;
-  GtkWidget *generic_objects_dialog_table;
+  GtkWidget *generic_objects_viewport;
   GtkWidget *hbox431;
   GtkWidget *generic_objects_close_all_button;
   GtkWidget *alignment158;
@@ -28751,13 +28759,9 @@ create_generic_objects_dialog (void)
   gtk_widget_show (generic_objects_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (dialog_vbox131), generic_objects_scrolledwindow, TRUE, TRUE, 0);
 
-  viewport24 = gtk_viewport_new (NULL, NULL);
-  gtk_widget_show (viewport24);
-  gtk_container_add (GTK_CONTAINER (generic_objects_scrolledwindow), viewport24);
-
-  generic_objects_dialog_table = gtk_table_new (3, 2, FALSE);
-  gtk_widget_show (generic_objects_dialog_table);
-  gtk_container_add (GTK_CONTAINER (viewport24), generic_objects_dialog_table);
+  generic_objects_viewport = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (generic_objects_viewport);
+  gtk_container_add (GTK_CONTAINER (generic_objects_scrolledwindow), generic_objects_viewport);
 
   hbox431 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
   gtk_widget_show (hbox431);
@@ -28814,8 +28818,7 @@ create_generic_objects_dialog (void)
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox433, "hbox433");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_display_all_togglebutton, "generic_objects_display_all_togglebutton");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_scrolledwindow, "generic_objects_scrolledwindow");
-  GLADE_HOOKUP_OBJECT (generic_objects_dialog, viewport24, "viewport24");
-  GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_dialog_table, "generic_objects_dialog_table");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_viewport, "generic_objects_viewport");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox431, "hbox431");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_close_all_button, "generic_objects_close_all_button");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, alignment158, "alignment158");
