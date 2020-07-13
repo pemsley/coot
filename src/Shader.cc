@@ -260,7 +260,19 @@ void Shader::set_more_uniforms_for_molecular_triangles() {
    // put more uniforms here
 }
 
-void Shader::parse(const std::string &file_name) {
+#include <sys/stat.h>
+
+void Shader::parse(const std::string &file_name_in) {
+
+   std::string file_name = file_name_in;
+   bool file_exists = true;
+   struct stat buffer;
+   if (stat (name.c_str(), &buffer) != 0) file_exists = false;
+
+   if (! file_exists)
+      if (! default_directory.empty())
+         file_name = default_directory + "/" + file_name;
+
    std::ifstream f(file_name.c_str());
    if (f) {
       VertexSource.clear();
