@@ -17,6 +17,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_origin_cube,
                                                            shader_for_hud_text,
                                                            shader_for_atom_labels,
+                                                           shader_for_moleculestotriangles,
                                                            shader_for_screen,
                                                            shader_for_blur};
    std::string p = coot::package_data_dir();

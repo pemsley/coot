@@ -46,7 +46,7 @@ long graphics_info_t::frame_counter_at_last_display = 0;
 std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
 glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
-float graphics_info_t::screen_z_near_perspective =  83.0;
+float graphics_info_t::screen_z_near_perspective =  73.0; // was 83
 float graphics_info_t::screen_z_far_perspective  = 125.0;
 
 std::map<unsigned int, lights_info_t> graphics_info_t::lights;
