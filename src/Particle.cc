@@ -28,6 +28,7 @@ particle_container_t::remove_old_particles() {
                   };
 
    particles.erase(std::remove_if(particles.begin(), particles.end(), remover), particles.end());
+   std::cout << "in remove_old_particles() particles.size() " << particles.size() << std::endl;
 }
 
 float

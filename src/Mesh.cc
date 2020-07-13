@@ -559,9 +559,10 @@ Mesh::setup_instanced_octahemispheres(Shader *shader_p,
 }
 
 
-// instancing buffer for particles
+// instancing buffer for particles. Make *space* for n_particles, but set
+// n_instances = 0.
 void
-Mesh::setup_instancing_buffers(unsigned int n_particles) {
+Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
 
    // we want to allocate space for n_particles instances, but until the particles
    // are created, and the particle bufffer data updated, we don't want to draw
@@ -591,8 +592,11 @@ Mesh::setup_instancing_buffers(unsigned int n_particles) {
    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
+   // I shouldn't need to make 2 buffers (ie. 2 calls to glBufferData) here!
+   // Look at how the Mesh for ribbons does it.
+
    // instanced colours
-   glGenBuffers(2, &inst_colour_buffer_id);
+   glGenBuffers(1, &inst_colour_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
    // glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(Particle), &(particles.particles[0]), GL_DYNAMIC_DRAW);
    glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
@@ -600,6 +604,7 @@ Mesh::setup_instancing_buffers(unsigned int n_particles) {
    // Particle: position, velocity, colour - skip over position and velocity
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(2, 1);
 
    // instanced translations
    glGenBuffers(1, &inst_model_translation_buffer_id);
@@ -900,7 +905,7 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 void
 Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
 
-   if (false)
+   if (true)
       std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
                 << triangle_vertex_indices.size() << std::endl;
 
@@ -1135,9 +1140,9 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    unsigned int n_mats = mats.size();
    // std::cout << "subbufferdata " << n_mats * 4 * sizeof(glm::vec4) << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER,    0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats     * sizeof(glm::vec4), &(colours[0]));
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * sizeof(glm::vec4), &(colours[0]));
 }
 
 void

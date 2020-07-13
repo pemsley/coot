@@ -107,7 +107,7 @@ public:
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats);
 
    // void setup_instancing_buffers(const particle_container_t &particles);
-   void setup_instancing_buffers(unsigned int n_particles); // setup the buffer, don't add data
+   void setup_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
    void update_instancing_buffer_data(const particle_container_t &particles);
    
    void fill_rama_balls(); // make up some balls
@@ -121,6 +121,7 @@ public:
    void flatten_triangles(); // needs implementation (will generate new vertices).
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
+   bool have_instances() const { return (n_instances > 0); }
 
 };
 

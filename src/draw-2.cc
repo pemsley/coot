@@ -472,6 +472,9 @@ graphics_info_t::setup_map_uniforms(Shader *shader_p,
 
 }
 
+
+// Make these be part of graphics_info_t
+
 Mesh mesh_for_particles("mesh-for-particles");
 int n_particles = 100;
 particle_container_t particles;
@@ -492,6 +495,15 @@ glarea_tick_func(GtkWidget *widget,
          particles.update_particles();
          mesh_for_particles.update_instancing_buffer_data(particles);
       }
+   }
+
+   if (do_tick_spin) {
+      float delta = 0.002;
+      glm::vec3 EulerAngles(0, delta, 0);
+      glm::quat quat_delta(EulerAngles);
+      glm::quat normalized_quat_delta(glm::normalize(quat_delta));
+      glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
+      graphics_info_t::glm_quat = glm::normalize(product);
    }
 
    gtk_widget_queue_draw(widget); // needed?             
@@ -1269,9 +1281,11 @@ void
 graphics_info_t::draw_particles() {
 
    if (! particles.empty()) {
-      glm::mat4 mvp_particle = get_particle_mvp();
-      glm::mat4 mvp = get_molecule_mvp();
-      mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
+      if (mesh_for_particles.have_instances()) {
+         glm::mat4 mvp_particle = get_particle_mvp();
+         glm::mat4 mvp = get_molecule_mvp();
+         mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
+      }
    }
 
 }
@@ -1531,7 +1545,7 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
    particles.make_particles(n_particles, g.get_rotation_centre());
-   mesh_for_particles.setup_instancing_buffers(particles.size());
+   mesh_for_particles.setup_instancing_buffers_for_particles(particles.size());
 
    err = glGetError();
    if (err) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
@@ -1557,7 +1571,7 @@ graphics_info_t::render(GtkGLArea *glarea) {
    GLenum err = glGetError();
    if (err) std::cout << "render() start " << err << std::endl;
 
-   // is this needed?
+   // is this needed? - does the context ever change?
    gtk_gl_area_make_current(glarea);
    err = glGetError(); if (err) std::cout << "render() post gtk_gl_area_make_current() " << err << std::endl;
 
@@ -2072,17 +2086,17 @@ graphics_info_t::setup_key_bindings() {
    auto l5 = []() { graphics_info_t g; g.blob_under_pointer_to_screen_centre(); return gboolean(TRUE); };
 
    auto l6 = []() {
-                if (graphics_info_t::idle_function_spin_rock_token != -1) {
+                if (idle_function_spin_rock_token != -1) {
                    std::cout << "Removing the idle function\n";
-                   g_idle_remove_by_data(GINT_TO_POINTER(66)); // just a kludge for the moment
-                   graphics_info_t::idle_function_spin_rock_token = -1;
+                   gtk_widget_remove_tick_callback(glareas[0], idle_function_spin_rock_token);
+                   idle_function_spin_rock_token = -1;
                 } else {
 
                    do_tick_spin = true;
                    int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
 
                    // this is not a good name if we are storing a generic tick function id.
-                   graphics_info_t::idle_function_spin_rock_token = spin_tick_id;
+                   idle_function_spin_rock_token = spin_tick_id;
                 }
                 return gboolean(TRUE);
              };
