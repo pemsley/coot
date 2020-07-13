@@ -3121,6 +3121,7 @@ echo ../../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       SHELL=/bin/bash \
+      PYTHON=python3 \
       --with-modern-language-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
@@ -3135,6 +3136,7 @@ echo ../../coot/configure $coot_prefix \
 bash ../../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       SHELL=/bin/bash \
+      PYTHON=python3 \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-modern-language-tools   \
       --with-boost=$install_top_dir  \
