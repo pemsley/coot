@@ -412,22 +412,8 @@ script_version=5.30
 # At the moment, if you build with Gtk2, you build with python, hence $build_type 
 # is the same thing.
 # 
-if [ "$1" = "no-python" ] ; then 
-   ENABLE_PYTHON_COOT=no
-   ENABLE_GUILE_COOT=yes
-   build_type=gtk3
-else 
-   if [ "$1" = "no-guile" ] ; then 
-      ENABLE_PYTHON_COOT=yes
-      ENABLE_GUILE_COOT=no
-      build_type=gtk2-noguile
-   else
-      ENABLE_PYTHON_COOT=yes
-      ENABLE_GUILE_COOT=yes
-      build_type=gtk3-python
-   fi
-fi
 
+build_type=gtk3 # python is implicit - we will do guile when we can.
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -903,9 +889,9 @@ fi
 # It's a logical mess.
 #
 if test "$build_coot_prerelease" = 1 ; then
-   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk3-python/bin:$PATH
+   PATH=${AUTOBUILD_INSTALLED}-pre-release-gtk3/bin:$PATH
 else 
-   PATH=$AUTOBUILD_INSTALLED-gtk3-python/bin:$PATH
+   PATH=$AUTOBUILD_INSTALLED-gtk3/bin:$PATH
 fi 
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
 PATH=$PATH:/etc:/usr/etc
@@ -926,7 +912,8 @@ fi
 mkdir -p $LOGS
 
 
-shared_static_flag="--disable-shared"
+shared_static_flag="--disable-shared" # huh?
+shared_static_flag="--disable-static"
 shared_lib_ext=so
 systype=unknown 
 
@@ -1423,6 +1410,7 @@ if [ ! -d "$AUTOBUILD_BUILD" ] ; then
 fi
    
 
+start_dir=$PWD
 cd $AUTOBUILD_BUILD
 if [ $? -ne 0 ] ; then
 	echo $AUTOBUILD_BUILD failed for some reason. Now in `pwd`
@@ -1629,7 +1617,10 @@ else
       python_spec_flags="MACOSX_DEPLOYMENT_TARGET=$os_minor_version"
    fi
 fi
-PATH=$install_top_dir/bin:$PATH
+
+
+# this should not be needed
+export PATH=$install_top_dir/bin:$PATH
 
 
 # we need to export this for net-http, because it doesn't set
@@ -1761,11 +1752,10 @@ build_goocanvas=
 build_python=
 build_pygobject=
 build_guile_gtk=
-build_freeglut=0
 build_glib=
 build_readline=
 build_curl=
-build_libidn2=
+build_libidn=
 
 
 
@@ -1803,16 +1793,16 @@ else
    build_curl=1
 fi
 
-# ---- test system libidn2 -------------------------------
-if [ -e /usr/lib/libidn2.so ] ; then
-   if [ -e /usr/lib/libidn2.la ] ; then
+# ---- test system libidn -------------------------------
+if [ -e /usr/lib/libidn.so ] ; then
+   if [ -e /usr/lib/libidn.la ] ; then
       echo system has libidn devel
    else
-      if [ -e $install_top_dir/lib/libidn2.la ] ; then
-         echo installation has libidn2.la
+      if [ -e $install_top_dir/lib/libidn.la ] ; then
+         echo installation has libidn.la
       else
-         echo neither system nor installation has libidn2.la, libcurl should be built also
-         build_libidn2=1
+         echo neither system nor installation has libidn.la, libcurl should be built also
+         build_libidn=1
          build_curl=1
       fi
    fi
@@ -1827,7 +1817,7 @@ else
          echo installation has libidn2
       else
          echo installation does not have libidn2, libcurl should be built also
-         build_libidn2=1
+         build_libidn=1
          build_curl=1
       fi
    fi
@@ -1930,27 +1920,6 @@ else
 fi
 
 
-
-# freeglut
-# for dir in ${dir_list} ; do
-if [ "$OS" = Darwin ] ; then 
-   if [ -e /opt/X11/lib/libglut.dylib ] ; then 
-      build_freeglut=
-   fi
-fi 
-if test -e ${install_top_dir}/include/GL/freeglut_std.h ; then
-   echo installation has Freeglut
-   build_freeglut=
-   glut_prefix="--with-glut-prefix=${install_top_dir}"
-fi
-# done
-
-if test -n "$build_freeglut" ; then
-   echo freeglut should be built
-   build_freeglut=1
-   glut_prefix="--with-glut-prefix=$install_top_dir"
-fi
-
 build_libtool=1
 if test -e ${install_top_dir}/lib/libltdl.so.3 ; then
     build_libtool=
@@ -1976,125 +1945,6 @@ else
 fi
 
 
-# ========== guile etc ==========
-# FIXME indent
-
-if [ $ENABLE_GUILE_COOT = yes ] ; then 
-
-# using install_top_dir's libgmp causes selinux problems on some systems.  Therefore, if 
-# libgmp-dev is installed in the system lib dir /usr/$acl_libdirstem/libgmp.so.la we should 
-# use that rather than building.  Users of that build will have to install their own libgmp 
-# then. So be it.
-
-build_gmp=1
-if test -e ${install_top_dir}/lib/libgmp.so.3 ; then
-    echo installation has gmp
-    build_gmp=
-else 
-    if test -e ${install_top_dir}/lib/libgmp.la ; then
-       echo installation has gmp
-       build_gmp=
-    else
-       echo gmp should be built
-    fi
-fi
-
-
-build_readline=1
-#
-# guile dependency readline.  chihiro has bad build in
-# guile-1.6.7/guile-readline/readline.c:107 'rl_pending_input' undeclared
-# So installation needs to build readline (sigh).
-#
-if test -e ${install_top_dir}/include/readline/chardefs.h ; then
-    build_readline=
-fi
-
-if test -z "$build_readline" ; then
-    echo installation has readline
-else 
-    echo readline needs to be built
-fi
-
-
-# Darwin currently has guile-1.6 and guile (which is an older version)
-# we want to use guile-1.6 if it exists.
-
-# This need to be fixed for Macs I guess.  We need 1.8.3 not 1.6
-#
-# echo guile-1.6-config will fail on non-fink non-mac systems
-# guile-1.6-config --version
-# if test $? = 0 ; then
-#    echo linking in fink 1.6 guile...
-#    rm -f $install_top_dir/bin/guile
-#    rm -f $install_top_dir/bin/guile-config
-#    rm -f $install_top_dir/bin/guile-snarf
-#    ln -s /sw/bin/guile-1.6        $install_top_dir/bin/guile
-#    ln -s /sw/bin/guile-1.6-config $install_top_dir/bin/guile-config
-#    ln -s /sw/bin/guile-1.6-snarf  $install_top_dir/bin/guile-snarf
-# fi
-
-echo atempting to run installed guile-config \(this may fail, that\'s OK\).
-
-$install_top_dir/bin/guile-config --version
-
-if $install_top_dir/bin/guile-config --version ; then 
-
-    # We have a seen a situation somehow where bin/guile-config is installed 
-    # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
-    # 
-    if test -e $install_top_dir/include/libguile.h ; then
-	echo installation has guile
-	build_guile=
-    else 
-       echo no include/libguile.h. guile     should be built
-       echo no include/libguile.h. guile-gtk should be built
-       build_guile_gtk=1
-       build_guile=1
-    fi
-else
-   echo guile-config failed. guile should be built
-   build_guile=1
-fi
-
-# guile-gui
-if test -f $install_top_dir/share/guile/gui/paren-match.scm ; then
-    echo installation has guile-gui
-    build_guile_gui=
-else 
-    echo guile-gui needs to be installed
-    build_guile_gui=1
-fi
-
-
-# guile-lib 
-if test -f $install_top_dir/share/guile/site/sxml/simple.scm ; then
-    echo installation has guile-lib
-    build_guile_lib=
-else 
-    build_guile_lib=1
-    echo guile-lib needs to be installed
-fi
-
-
-
-# do we have greg? 
-
-# LD_LIBRARY_PATH has been set by now
-echo testing for greg using `which guile`
-$install_top_dir/bin/guile -c '(use-modules (ice-9 greg))'
-status=$?
-echo guile greg status $status
-if test $status = 0 ; then
-   echo installation has greg
-   build_greg=
-else
-   echo greg should be built
-   build_greg=1
-fi
-
-fi #  ENABLE_GUILE_COOT
-
 # ============= python ================
 #
 # python_version is the filename of the python executable.  For python
@@ -2108,62 +1958,13 @@ if [ $OS = Darwin ] ; then
    pver=3.6.5
 fi
 
-if [ $ENABLE_PYTHON_COOT = yes ] ; then
-   $install_top_dir/bin/python -V
-   if test $? != 0 ; then
-      echo python should be built
-      # note to self pygobject replaces pygtk for python3/gtk3
-      build_python=1
-      build_pygobject=1
-   else
-      python_version_installed=`python -V 2>&1`
-      python_target_version="Python $pver"
 
-      case "$python_version_installed" in
-          "$python_target_version")
-            echo installation has python, $python_version_installed
-            which python
-            build_python=
-	    build_pygtk=
-            ;;
-          *)
-            echo python $python_version_installed installed but not up to date...
-            echo python  should be built
-            build_python=1
-            build_pygobject=1
-            build_pygtk=1
-            ;;
-      esac
-   fi
-fi
-
-# test for pygobject
-if [ $ENABLE_PYTHON_COOT = yes ] ; then
-   if test -z "$build_pygobject" ; then
-      # this directory/file test needs fixing
-      if test -e $install_top_dir/include/pygtk-3.29/pygobject.h ; then
-         echo installation has pygobject
-        build_pygobject=
-      else
-         echo pygobject NOT exists, pygobject should be built
-         build_pygobject=1
-         build_pygtk=1
-      fi      
-   fi
+# set build_pygobject here
+if [ ! -e $install_top_dir/include/pygobject-3.0/pygobject.h ] ; then
+    build_pygobject=1
 fi
 
 
-# test for pygtk
-if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-   if test -z "$build_pygtk" ; then
-      if test -e $install_top_dir/lib/pygtk/2.0/pygtk-demo.py ; then
-         echo pygtk demo exists, no build pygtk
-      else 
-         echo pygtk demo NOT exists, pygtk should be built
-         build_pygtk=1
-      fi      
-   fi
-fi
 
 # force the GSL config to be in $install_top_dir, rather than
 # potenially getting it from the system
@@ -2371,6 +2172,12 @@ fi
 # But, let's not do that any more.
 # build_clipper=
 # build_ccp4c= 
+
+if $install_top_dir/bin/python3 -V ; then
+   echo we have python3
+else
+   build_python=1
+fi
 
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
@@ -2654,63 +2461,18 @@ fi
 
 
 
-# freeglut
-if test -n "$build_freeglut" ; then
-    echo BUILDING freeglut:
-${WGET} $extras_place/freeglut-2.4.0.tar.gz
-(
-date
-pwd
-save_CFLAGS="$CFLAGS"
-CFLAGS="$CFLAGS -I/usr/X11R6/include"
-export CFLAGS
-gzip -dc ${AUTOBUILD_SOURCES}/freeglut-2.4.0.tar.gz | tar xf -
-cd freeglut-2.4.0
-
-# On 64 bit redhat 4, we need to use /usr/X11R6/lib64, not /usr/X11R6/lib.
-echo INFO:: MACHTYPE is $MACHTYPE
-echo INFO:: systype is $systype
-if [ "$systype" = x86_64-rhel-4 ] ; then
-    echo patching freeglut configure for lib64.
-    cp configure configure.orig
-    if sed -i -e 's?/usr/X11R6/lib?/usr/X11R6/lib64?' configure ; then
-       echo patching went OK.
-    else 
-	echo patching failed.
-	my_exit 1
-    fi
-fi
-
-./configure $generic_prefix --disable-warnings 
-build_status=$?
-echo INFO:: freeglut configure status $build_status
-if [ $build_status -eq 0 ] ; then
-   $MAKE
-   build_status=$?
-   echo INFO:: freeglut make status $build_status
-   if [ $build_status -eq 0 ] ; then
-      echo INFO:: freeglut make installing...
-      $MAKE install
-      glut_prefix="--with-glut-prefix=$install_top_dir"
-      echo INFO:: setting glut_prefix to $glut_prefix
-   fi
-fi
-CFLAGS="$save_CFLAGS"
-export CFLAGS
-) >  $HOSTLOGDIR/05-freeglut.txt 2>&1
-else
-   echo not building freeglut:
-fi
-
-
 ###############################################################################
 ##########         build python and friends                       #############
 ###############################################################################
 
 # So that python is found when it is installed:
 #
-PATH=$install_top_dir/bin:$PATH
-export PATH
+
+#this should not be needed
+export PATH=$install_top_dir/bin:$PATH
+
+echo path pre-python - do we have the wrong pip qm
+echo $PATH
 
 # python
 #
@@ -2721,21 +2483,22 @@ if test -n "$build_python" ; then
    # hacking in --no-check-certificate is not the right way to do it.
    # This is a problem with old(?) wgets.  In future, we should remove this.
    if ${WGET} --no-check-certificate http://www.python.org/ftp/python/$pver/Python-$pver.tgz ; then 
-     echo got Python-$pver.tgz
+      echo got Python-$pver.tgz
    else
-     echo problem getting Python-$pver.tgz
+      echo problem getting Python-$pver.tgz
    fi
    (
    date
+   echo building in: $PWD
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
 
    cd Python-$pver
 
    # --with-ensurepip=install
-   echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
+   echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags
    # 
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --enable-shared $python_lib_flags $python_spec_flags ; then
+   if ./configure $generic_prefix --with-ensurepip=install --enable-shared $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
@@ -2744,39 +2507,13 @@ if test -n "$build_python" ; then
    fi
    ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
-   # We need these otherwise python moans about not finding the libraries.
-   #
-   # 20140903 I have my doubts this is true now.  Comment out
-   #
-   # echo setting PYTHONHOME
-   # PYTHONHOME=$install_top_dir
-   # export PYTHONHOME
-   # echo PYTHONHOME is now $PYTHONHOME
+   (
+   which pip3
+   pip3 install --upgrade pip
+   # pip3 install pycairo
+   # pip3 install pygobject
+   ) >  $HOSTLOGDIR/07aa-pip-upgrade.txt 2>&1
 
-   echo post linking python to $python_version
-   #
-   if [ ! -e $install_top_dir/bin/$python_version ] ; then
-	echo Oops\!  $python_version does not exist.
-	# only python dependencies from  now on
-	echo exiting...
-	my_exit 2
-   fi
-   if [ -e $install_top_dir/bin/python ] ; then
-	echo removing old python
-	rm $install_top_dir/bin/python
-   fi
-   current_dir=`pwd`
-   cd $install_top_dir/bin
-   echo linking new...
-   ln -s $python_version python
-   if [ $? -ne 0 ] ; then
-	echo Opps: failed: ln -s $install_top_dir/bin/$python_version \
-		                 $install_top_dir/bin/python 
-   fi
-   cd $current_dir
-   echo done python linking.
-   # now we have "python" in our path - no need to rehash - 
-   # clever old Bourne shell (or do I mean bash?).
 else
     echo not building python:
 fi
@@ -2833,11 +2570,12 @@ if test -n "$build_pygobject" ; then
       ${WGET} $d/gobject-introspection-$gobject_introspection_version.tar.xz
       tar xf ${AUTOBUILD_SOURCES}/gobject-introspection-$gobject_introspection_version.tar.xz
       cd gobject-introspection-$gobject_introspection_version
+      echo ./configure --prefix=$install_top_dir PYTHON=python3
       ./configure --prefix=$install_top_dir PYTHON=python3
       if $MAKE ; then
          $MAKE install
       fi
-   fi ) > $HOSTLOGDIR/07a-gobject-introspection.txt 2>&1
+   fi ) > $HOSTLOGDIR/07b-gobject-introspection.txt 2>&1
 
    # pycairo is a dependency of pygobject.  Is this gtk2 stuff?
    echo BUILDING pycairo:
@@ -2863,15 +2601,17 @@ if test -n "$build_pygobject" ; then
          cd -
       fi
    fi
-   ) > $HOSTLOGDIR/07b-pycairo.txt 2>&1
+   ) > $HOSTLOGDIR/07c-pycairo.txt 2>&1
 
    echo BUILDING pygobject:
    echo BUILDING pygobject: 2>&1
    #
    pygobject_major_minor_version=3.29
    pygobject_major_minor_version=3.30
+   pygobject_major_minor_version=3.36
    pygobject_version=3.29.1
    pygobject_version=3.30.5
+   pygobject_version=3.36.1
 
    (
    date
@@ -2882,17 +2622,19 @@ if test -n "$build_pygobject" ; then
          skip_build=true
       fi
    fi
-   echo skip_build for gobject is $skip_build
+   echo skip_build for pygobject is $skip_build
 
    if [ $skip_build = false ] ; then
-      echo trying to untar ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz 
+
+      ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
+      echo trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz 
       if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then 
          gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
          cd PyGObject-$pygobject_version
          ### python setup.py build
          ### python setup.py install
-         echo which python
-         which python
+         echo which python3
+         which python3
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
          unset LD_LIBRARY_PATH
@@ -2910,7 +2652,7 @@ if test -n "$build_pygobject" ; then
       fi
    else
       echo skip build of gobject
-   fi ) > $HOSTLOGDIR/07b-pygobject.txt 2>&1
+   fi ) > $HOSTLOGDIR/07d-pygobject.txt 2>&1
 else 
    echo not building pygobject:
 fi
@@ -3011,287 +2753,6 @@ if test -n "$build_readline" ; then
 else 
     echo not building readline:
 fi 
-
-
-# $ guile
-# Backtrace:
-# In unknown file:
-#    ?: 133* [#<procedure #f ()>]
-#    ?: 134* [load-file #<primitive-procedure primitive-load> ...]
-#    ?: 135* [save-module-excursion #<procedure #f ()>]
-#    ?: 136  (let (# #) (dynamic-wind # thunk #))
-#    ?: 137  [dynamic-wind #<procedure #f ()> #<procedure #f ()> #<procedure #f ()>]
-#    ?: 138* [#<procedure #f ()>]
-#    ?: 139* [primitive-load "/home/xxx/autobuild/Linux-host-pre-release-gtk2-python/share/guile/1.8/ice-9/debug.scm"]
-# In /home/xxx/autobuild/Linux-host-pre-release-gtk2-python/share/guile/1.8/ice-9/debug.scm:
-#   22: 140* (define-module (ice-9 debug) :export ...)
-# In unknown file:
-#    ?: 141* [copy-tree ...
-#    ?: 142* [apply #<procedure #f args> (# :export #)]
-#    ?: 143  [#<procedure #f args> (ice-9 debug) :export ...]
-#    ?: 144  (quasiquote (eval-case (# #) (else #)))
-#    ?: 145* [compile-define-module-args (# :export #)]
-#    ?: 146  [loop ((quote #)) (:export (frame-number->index trace untrace ...))]
-#      ...
-#    ?: 147  [loop ((quote (ice-9 debug))) ...
-#    ?: 148* [cons ...
-#    ?: 149* [keyword-like-symbol->keyword :export]
-#    ?: 150  [symbol->keyword ...
-#    ?: 151* [string->symbol ...
-#    ?: 152* (substring (symbol->string sym) 1)
-#
-# then compile guile with -O (it defaults to -O2 if you do not add this, I think)
-# 20130910 force -O2 for every target.
-
-# <unnamed port>: In expression (substring (symbol->string sym) 1):
-# <unnamed port>: Stack overflow
-
-if test -n "$build_guile" ; then 
-    echo BUILDING guile:
-#
-
-guile_version=1.8.8
-guile_version_dir=$guile_version
-if test "$OS" = "Darwin" ; then
-   guile_version=1.8.8-marcin-fix
-fi
-
-# mirror has gone/moved.
-# ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-# ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-# ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-# Marcin-fix version
-${WGET} $extras_place/guile-${guile_version}.tar.gz
-${WGET} $extras_place/guile-1.8.7-updated.patch
-${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
-
-
-# if debian, unset LD_LIBRARY_PATH and set it back again when done.
-if [ "$dist_name" = "debian" ] ; then
-   llp_save=$LD_LIBRARY_PATH
-   unset LD_LIBRARY_PATH
-   extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save"
-fi
-
-if [ $OS = Darwin ] ; then
-   extra_flags_for_darwin="--disable-rpath --disable-error-on-warning --enable-silent-rules --enable-shared --disable-static"
-fi
-
-( 
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
-cd guile-${guile_version_dir}
-# we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
-
-# note that for guile's guile-readline module to compile correctly,
-# ncurses-dev needs to be installed (that is on this Fed 15 machine,
-# at least - I presume others also).
-
-if [ "$need_guile_unused_values_patch" = true ] ; then 
-   # 20130820-PE Ubuntu 12.04 also needs -Wno-unused-result
-   additional_unused_arg="-Wno-unused-but-set-variable -Wno-unused-result"
-else
-   additional_unused_arg=
-fi
-
-# arg to guile's configure
-./configure $generic_prefix \
-     $extra_flags_for_darwin \
-     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O -Wno-deprecated-declarations" \
-     LDFLAGS=-L$install_top_dir/lib \
-     CPPFLAGS=-P \
-     $extra_flags_for_debian
-
-# Multilib fix for procedures.txt
-echo =========== post-configure patching threads.doc ====================
-perl -pi -e 's|threads.doc||' `find . -name Makefile`
-if [ "$need_guile_unused_values_patch" = true ] ; then 
-   echo =========== post-configure patching for unused-values ====================
-   patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.7-updated.patch
-else
-   echo not applying guile unused values patch
-fi
-# fedora 24 doesn't like the parethenses around a particular if expression
-# gcc 6.1.1 - harmless for others
-#
-patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.8-gc-segment.c.patch
-
-echo =========== make ====================
-$MAKE
-status=$?
-if [ "$status" != 0 ] ; then 
-    echo guile make failed.
-    guile_build_status=$status
-    exit 2
-else
-   echo 1 ---------------------------------------------------------------------
-   echo '                               ' make install
-   echo 1 ---------------------------------------------------------------------
-   $MAKE install
-fi 
-
-# Debian gawk work-around
-if [ "$dist_name" = "debian" ] ; then
-   export LD_LIBRARY_PATH=$llp_save
-fi 
-
-exit $status
-) > $HOSTLOGDIR/11-guile.txt 2>&1
-# -> 1: command not found
-if [ ! $? = 0 ] ; then
-   echo guile build failed
-fi
-# outer
-else 
-    echo not building guile:
-fi 
-
-
-if test -n "$build_greg" ; then 
-    echo building greg:
-    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/greg-2.0.0-pe.tar.gz
-    ${WGET} $extras_place/greg-2.0.0-pe.tar.gz
-    (
-    date 
-    gzip -dc ${AUTOBUILD_SOURCES}/greg-2.0.0-pe.tar.gz | tar xf -
-    cd  greg-2.0.0-pe
-    ./configure $generic_prefix
-    $MAKE
-    $MAKE install
-
-    ) > $HOSTLOGDIR/11c-greg.txt 2>&1
-else
-    echo not building greg:
-fi
-
-
-echo bypass guile_gtk
-build_guile_gtk=
-if test -n "$build_guile_gtk" ; then 
-    echo BUILDING guile-gtk:
-   #
-   guile_gtk_version=2.1
-   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-$guile_gtk_version.tar.gz
-   # now, if we have gtk version 2.4 then we need guile-gtk patches.
-   gtk_minor_version=`awk -F '[()]' '/define GTK_MINOR_VERSION/ {print $(NF-1)} ' /usr/include/gtk-2.0/gtk/gtkversion.h`
-   if [ "$gtk_minor_version" = "4" ] ; then
-       echo guile-gtk needs to be patched, gtk MINOR version is 4.
-       apply_guile_gtk_patches=1
-       # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
-       ${WGET} $extras_place/guile-gtk-2.1-for-gtk-2.4.patch
-   else 
-       echo GTK minor version is good enough for guile_gtk, $gtk_minor_version
-   fi
-   (
-   date
-   pwd
-   gzip -dc ${AUTOBUILD_SOURCES}/guile-gtk-$guile_gtk_version.tar.gz | tar xf -
-   cd guile-gtk-$guile_gtk_version
-   if [ "$apply_guile_gtk_patches" = 1 ]; then
-       echo patch -p0 ..from.. ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
-       patch -p0 < ${AUTOBUILD_SOURCES}/guile-gtk-2.1-for-gtk-2.4.patch
-   else 
-       echo info:: not patching guile-gtk for gtk 2.4
-   fi 
-   ./configure $generic_prefix --without-gtkgl --with-glade=no
-   # now patch the libtool if needed:
-   # fix ulong if needed:
-   # sed 's/(ulong)/(unsigned long)/g' guile-gtk.c > tmp.c
-   # mv tmp.c guile-gtk.c
-
-   # apply gtk_dialog_get_response_for_widget fix up if needed
-   if [ $gtk_new_enough_for_guilegtk = false ] ; then
-       echo fixing up guile-gtk
-       cp gtk-glue.c glue.tmp.c
-       awk '
-   $0 !~ " gtk_dialog_get_response_for_widget" 
-   / gtk_dialog_get_response_for_widget/ { print "  cr_ret = 0;"; }
-   ' glue.tmp.c > gtk-glue.c
-   fi
-
-   # make not MAKE (using multiprocessors seems to fail).
-   make
-   status=$?
-   guile_gtk_status=$status
-   if [ "$guile_gtk_status" != 0 ] ; then 
-       echo Oooops guile-gtk make failed
-   else   
-       echo 1 -------------------------------------------------------------------------
-       echo '                                ' make install
-       echo 1 -------------------------------------------------------------------------
-       # $MAKE install
-       make install
-   fi ) > $HOSTLOGDIR/12-guile-gtk.txt 2>&1
-else
-    echo not building guile-gtk:
-fi
-
-if test -n "$build_guile_gui" ; then 
-   echo BUILDING guile-gui:
-#
-# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
-# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui.patch
-# ${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-0.3.tar.gz
-${WGET} $extras_place/guile-gui-0.3.tar.gz
-#
-# guile-gui-patch-post-neil.patch is the same as
-# neil-jerram.guile-gui.patch except guile-gui-patch-post-neil.patch
-# has the correct file names.  Hmm...
-#
-# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-patch-post-neil.patch
-( 
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/guile-gui-0.3.tar.gz | tar xf -
-# patch -p0 < ${AUTOBUILD_SOURCES}/neil-jerram.guile-gui.patch # this is for 0.2
-cd guile-gui-0.3
-./configure $generic_prefix
-$MAKE install
-) > $HOSTLOGDIR/13-guile-gui.txt 2>&1
-else 
-    echo not building guile-gui:
-fi
-
-# on Darwin, I have to cd to $install_top_dir/lib and 
-# ln -s libgreg.2.0.0.dylib   libgreg.so
-# ln -s libguilegtk-2.0.dylib libguilegtk-2.0.so
-
-if [ $OS = Darwin ] ; then
-   cd $install_top_dir/lib
-   if [ -e libgreg.2.0.0.dylib ] ; then
-      ln -s libgreg.2.0.0.dylib   libgreg.so
-   fi
-   if [ -e libguilegtk-2.0.dylib ] ; then
-      ln -s libguilegtk-2.0.dylib libguilegtk-2.0.so
-   fi
-   cd -
-fi
-
-if test -n "$build_guile_lib" ; then
-   echo BUILDING guile-lib:
-#
-guile_lib_version=0.1.6
-guile_lib_version=0.2.1
-# guile-lib has moved
-# ${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
-# ${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
-${WGET} $extras_place/guile-lib-$guile_lib_version.tar.gz
-
-( 
-date
-pwd
-gzip -dc ${AUTOBUILD_SOURCES}/guile-lib-$guile_lib_version.tar.gz | tar xf -
-cd guile-lib-$guile_lib_version
-# the prefix for guile-lib must be the prefix of guile, or else the sxml and 
-# other library files will not be found
-./configure $generic_prefix
-$MAKE
-$MAKE install
-) > $HOSTLOGDIR/14-guile-lib.txt 2>&1
-else 
-    echo not building guile-lib
-fi
 
 
 ###############################################################################
@@ -3417,8 +2878,6 @@ fi
 ##########         build boost                                    #############
 ###############################################################################
 
-echo 444444444444444444444444444444444444444444444444444444444444444444444444
-
 build_boost=true
 test_for_already_installed_dependencies=true
 
@@ -3477,8 +2936,6 @@ if [ "$build_boost" = true ] ; then
    fi
    ) > $HOSTLOGDIR/16-boost.log
 fi
-
-echo done boost 444444444444444444444444444444444444444444444444444444444444444444444444
 
 
 #################################################################
@@ -3547,6 +3004,8 @@ else
           gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
           cd Raster3D_$raster3d_version
 
+          pwd
+          echo make linux
           make linux # FIXME for Darwin
 
           # compiling libgd so that render links against it depend on libjpeg-turbo-devel
@@ -3568,18 +3027,23 @@ else
              Makefile.incl
           fi
 
-          if $MAKE render ; then
+          # race condition? list.mod
+          echo make render
+          if make render ; then
+             echo $MAKE prefix=$install_top_dir install
   	     make prefix=$install_top_dir install
 	     # did that work?  I doubt it. Let's do it by hand
              if [ ! -e $install_top_dir/bin/render ] ; then
   	        cp render $install_top_dir/bin/
              fi
+          else
+             echo make render failed
           fi
           cd -
        else
           echo $install_top_dir/bin/render already exists, no build
        fi
-       ) > $HOSTLOGDIR/15-raster3d.txt
+       ) > $HOSTLOGDIR/15-raster3d.txt 2>&1
    fi
 fi
 
@@ -3588,51 +3052,8 @@ fi
 ##########         get Coot                                       #############
 ###############################################################################
 #
-echo BUILDING coot: version $coot_version, guile=$ENABLE_GUILE_COOT, python=$ENABLE_PYTHON_COOT
-if [ "$build_coot_prerelease" != 1 ] ; then 
-   # normal release coot
-   ${WGET} $release_server_dir/$coot_version.tar.gz 
-   if [ ! $? = 0 ] ; then
-      echo failed to wget $coot_version.tar.gz   
-      my_exit 2 wget-fail-coot-source
-   fi 
-   # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
-else 
-   # If we are building pre-release coot_source_tar_file is set only if we can find 
-   # a pre-release source tar in the pre-release directory, otherwise it is not set
-   if [ -n "$coot_source_tar_file" ] ; then 
-      ${WGET} $coot_source_tar_file
-      if [ ! $? = 0 ] ; then
-         echo failed to wget $coot_source_tar_file
-         my_exit 2 wget-fail-coot-source
-      fi 
-   else 
-      # compile release code then:
-      echo compile RELEASE code then, getting $release_server_dir/$coot_version.tar.gz
-      ${WGET} $release_server_dir/$coot_version.tar.gz
-      if [ ! $? = 0 ] ; then
-         echo failed to wget $release_server_dir/$coot_version.tar.gz
-         my_exit 2 wget-fail-coot-source
-      fi 
-   fi
-   coot_revision=`echo $coot_version | awk '{a=$1; i=index(a,"revision"); print substr(a,i)}'`
-   # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
-fi
-
-echo using coot version $coot_version
-ls -ls ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
-if [ -e ${AUTOBUILD_SOURCES}/$coot_version.tar.gz ] ; then
-   echo good ${AUTOBUILD_SOURCES}/$coot_version.tar.gz exists
-else 
-   echo badness ${AUTOBUILD_SOURCES}/$coot_version.tar.gz does not exist.
-   echo nothing left to do then.  Goodbye.
-   my_exit 2 $coot_version.tar.gz not found
-fi
 date
 pwd
-gzip -dc ${AUTOBUILD_SOURCES}/$coot_version.tar.gz | tar xf -
-coot_dir_name=`echo $coot_version | sed 's/-revision.*//'`
-cd $coot_dir_name
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -3641,54 +3062,13 @@ if test -n "$gtk_installed" ; then
     coot_extra_args="$coot_extra_args --with-gtk-prefix=$install_top_dir"
 fi
 
-if [ "$ENABLE_GUILE_COOT" != "no" ] ; then 
-    guile_scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
-    guile_scripting="--with-guile"
-fi
-
-# if ENABLE_PYTHON_COOT is not set, then we choose a day of the week
-# to build a python version.
-
-# if ENABLE_PYTHON_COOT is set, then if it is set to 0 or no then we
-# do not build a python version, otherwise we do build a python
-# version
-
-if [ -n "$ENABLE_PYTHON_COOT" ] ; then 
-    # it was set to something
-    if [ "$ENABLE_PYTHON_COOT" != "0" ] ; then 
-       if [ "$ENABLE_PYTHON_COOT" != "no" ] ; then 
-          python_scripting='--with-python --with-pygobject'
-       fi
-    fi
-else 
-    # if ENABLE_PYTHON_COOT was not set, then turn on python scripting
-    python_scripting='--with-python --with-pygobject'
-fi
-
-# no longer makes sense now that python is in by default
-# else 
-#    time_date=`date`
-#    if [ ${time_date:0:3} = "Sun" ] ; then
-#       scripting='--with-python'
-#    fi
-#    if [ ${time_date:0:3} = "Sun" ] ; then
-#       scripting='--with-python'
-#   fi
-# fi
-
 
 ###############################################################################
 ##########         build Coot                                     #############
 ###############################################################################
 #
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
+echo BUILDING coot
 
-# set the python tag outside the compile/install sub-shell.
-if [ "$ENABLE_PYTHON_COOT" = "no" ] ; then 
-   python_tag=
-else 
-   python_tag=-python
-fi
 (
 
 # 20091001 should not be needed.
@@ -3705,61 +3085,45 @@ fi
 
 #     $architecture is not set for Mac OS X.
 coot_optim_args=
-if [ "$architecture" = x86_64 ] ; then 
-   # This could well be too general a test, certainly on 64 bit CentOS 5 we need this, 
-   # and possibly on 64 bit Gutsy.
-
-   # There is a problem quoting this, e.g.
-   # coot_optim_args="CXXFLAGS='\"-g -O\"'" fails in configure
-   #coot_optim_args="CXXFLAGS=-gO"
-   #coot_optim_args="CXXFLAGS=\"-g -O\""
-
-
-   export CXXFLAGS="-g -O"
-   #   unset CXXFLAGS
-fi
-
+export CXXFLAGS="-g -O "
 
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
-if finger ; then
-   cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
-   coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
-else
-   coot_build_info_string="build-host: $HOST on: $cbis_d"
-fi
-
-# We no longer need this because clipper is found using pkg-config
-#     --with-clipper-prefix=$install_top_dir 
-
-if [ $OS = Darwin ] ; then
-   if [ -d /opt/X11 ] ; then
-      export CPPFLAGS=-I/opt/X11/include
-      # I think this is needed for COOT_OPENGL_LIBS to be correctly found/set in configure.ac on Mac
-      extra_args_for_darwin="LIBS=-L/opt/X11/lib"
-   fi
-fi
+coot_build_info_string="build-host: $HOST on: $cbis_d"
 
 if [ ! -z "$libintl_cflags" ] ; then
    CFLAGS=$libintl_cflags
    CPPFLAGS="$CPPFLAGS $libintl_cflags"
 fi
 
-echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
+cd $start_dir
+if [ ! -d build-coot ] ; then
+   mkdir build-coot
+fi
+cd build-coot
+
+echo From git repo now
 echo building in: $PWD
 echo CFLAGS: $CFLAGS
 echo CXXFLAGS: $CXXFLAGS
 echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
 echo PATH: $PATH
-echo using this guile:
-which guile
 
-# note that guile_scripting no longer adds guile-gtk
-echo ./configure $coot_prefix \
-       --with-fftw-prefix=$install_top_dir  \
-      $goocanvas_args     \
-      $glut_prefix        \
+# think about ligand extras at some stage
+
+# this is picking up my working repo at the moment.
+#
+# For external use, we need to have used git checkout for
+# the gtk3 branch, have run autogen.sh
+# and have placed that directory somewhere sensible relative to here
+
+echo ../../coot/configure $coot_prefix \
+      --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
+      SHELL=/bin/bash \
+      --with-modern-language-tools   \
+      --with-boost=$install_top_dir  \
+      --with-python=$install_top_dir \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
@@ -3768,11 +3132,13 @@ echo ./configure $coot_prefix \
       $coot_extra_args    \
       $extra_args_for_darwin
 
-./configure $coot_prefix \
-       --with-fftw-prefix=$install_top_dir  \
-      $goocanvas_args     \
-      $glut_prefix        \
+bash ../../coot/configure $coot_prefix \
+      --with-fftw-prefix=$install_top_dir  \
+      SHELL=/bin/bash \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
+      --with-modern-language-tools   \
+      --with-boost=$install_top_dir  \
+      --with-python=$install_top_dir \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
@@ -3781,24 +3147,6 @@ echo ./configure $coot_prefix \
       $coot_extra_args    \
       $extra_args_for_darwin
 
-# these are no longer used
-#         --with-mmdb-prefix=$install_top_dir 
-#       --with-ssmlib-prefix=$install_top_dir 
-
-# consider adding -DCOOT_SYS_TYPE=systype (or something like that)
-# here, so that coot --version-info/full returns it.
-
-# HACK out libtool updating for coot
-#if [ "$update_libtool" = 1 ] ; then
-#   echo need to update libtool here $PWD
-#   cp $install_top_dir/bin/libtool .
-#else 
-#   echo NO need to update libtool $PWD
-#fi
-
-# 20091001 should not be needed
-# rm src/coot_wrap_guile_pre.cc
-# rm src/coot_wrap_python_pre.cc
 
 $MAKE
 status=$?
@@ -3936,8 +3284,8 @@ if [ "$run_tests" = true ] ; then
        rp=0
    fi
 
-
-   gtk2=-gtk2
+   # all gtk3 versions have python. No need for the python tag then
+   gtk_version=-gtk3
    if ( [ $r = 0 ] && [ $rp = 0 ] ); then
       echo ========================
       echo '   ' first coot test passed
@@ -3955,8 +3303,8 @@ if [ "$run_tests" = true ] ; then
                # original full fat:
                # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}${gtk2}.tar.gz
                # slimmed:
-               bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-               holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+               bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${gtk_version}.tar.gz
+               holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${gtk_version}.tar.gz
 
        	       make_tar $(basename $slim_dir) $holding_tar_file
 
@@ -3993,7 +3341,7 @@ if [ "$run_tests" = true ] ; then
 
                   # update the description of the latest binary tar file for
                   # this build-type.
-                  binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
+                  binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${gtk_version}-latest.txt
 	          echo $coot_version > $binary_type_latest
 
                   # update the ChangeLog, README and RELEASE-NOTES
