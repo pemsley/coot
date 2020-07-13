@@ -610,13 +610,9 @@ coot_bin_SOURCES = \
 	new-centre.hh            \
         json.hpp
 
-if COOT_USE_PYTHON
-   EXTRA_DIST += coot_wrap_python_pre.cc
-endif
-if COOT_USE_PYTHON
-   dist_python_PYTHON = coot.py coot.pth
-endif
 
+EXTRA_DIST += coot_wrap_python_pre.cc
+dist_python_PYTHON = coot.py coot.pth
 
 # testcartesian_SOURCES = testcartesian.cc
 
