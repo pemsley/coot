@@ -1303,6 +1303,8 @@ graphics_info_t::draw_molecules() {
 
    draw_map_molecules(false); // transparency
 
+   draw_unit_cells();
+
    draw_generic_objects();
 
    // transparent things...
@@ -1310,6 +1312,17 @@ graphics_info_t::draw_molecules() {
    draw_particles();
 
    draw_map_molecules(true);
+
+}
+
+void
+graphics_info_t::draw_unit_cells() {
+
+   glm::mat4 mvp = get_molecule_mvp();
+   for (int ii=n_molecules()-1; ii>=0; ii--) {
+      molecule_class_info_t &m = molecules[ii];
+      m.draw_unit_cell(&shader_for_lines, mvp);
+   }
 
 }
 

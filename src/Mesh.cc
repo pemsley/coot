@@ -408,6 +408,7 @@ Mesh::setup_debugging_instancing_buffers() {
 
    n_instances = inst_trans_matrices.size();
 
+   // has the vao been genvertexarrayed before this is called?
    glBindVertexArray(vao);
 
    glGenBuffers(1, &inst_colour_buffer_id);

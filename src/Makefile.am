@@ -495,6 +495,7 @@ coot_bin_SOURCES = \
 	key-bindings.cc		 \
 	key-bindings.hh		 \
         manipulation-modes.hh    \
+	LinesMesh.cc LinesMesh.hh \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh 	 \
 	lbg-callbacks-outer.cc 	 \

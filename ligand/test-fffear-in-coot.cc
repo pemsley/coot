@@ -100,35 +100,35 @@ main(int argc, char **argv) {
 	 switch(ch) {
 
 	 case 0:
-	    if (optarg) { 
+	    if (coot_optarg) { 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "pdbin") { 
-		  pdb_file_name = optarg;
+		  pdb_file_name = coot_optarg;
 	       } 
 	       if (arg_str == "pdbout") { 
-		  output_pdb = optarg;
+		  output_pdb = coot_optarg;
 	       } 
 	       if (arg_str == "hklin") { 
-		  mtz_filename = optarg;
+		  mtz_filename = coot_optarg;
 	       } 
 	       if (arg_str == "f") { 
-		  f_col = optarg;
+		  f_col = coot_optarg;
 	       } 
 	       if (arg_str == "phi") {
-		  phi_col = optarg;
+		  phi_col = coot_optarg;
 	       } 
 	       if (arg_str == "mapin") {
-		  map_file_name = optarg;
+		  map_file_name = coot_optarg;
 	       }
 	       if (arg_str == "mapout") {
-		  map_out_file_name = optarg;
+		  map_out_file_name = coot_optarg;
 	       }
 	       if (arg_str == "resolution") {
-		  resolution_string = optarg;
+		  resolution_string = coot_optarg;
 	       }
 	       if (arg_str == "angle-step") {
-		  angle_step = atof(optarg);
+		  angle_step = atof(coot_optarg);
 	       }
 	       
 	    } else { 
@@ -139,27 +139,27 @@ main(int argc, char **argv) {
 	    break;
 
 	 case 'i':
-	    pdb_file_name = optarg;
+	    pdb_file_name = coot_optarg;
 	    break;
 	    
 	 case 'o':
-	    output_pdb = optarg;
+	    output_pdb = coot_optarg;
 	    break;
 	    
 	 case 'h':
-	    mtz_filename = optarg;
+	    mtz_filename = coot_optarg;
 	    break;
 	    
 	 case 'f':
-	    f_col = optarg;
+	    f_col = coot_optarg;
 	    break;
 	    
 	 case 'p':
-	    phi_col = optarg;
+	    phi_col = coot_optarg;
 	    break;
 
 	 case 'r':
-	    resolution = atof(optarg);
+	    resolution = atof(coot_optarg);
 	    
 	 default:
 	    break;

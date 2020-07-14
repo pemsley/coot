@@ -1819,7 +1819,6 @@ void  do_edit_copy_fragment() {
       // then executed and all has to reside within exec as we cannot have
       // multiple line statements in python... lets try
       std::string cmd = "exec(\'def atom_selection_from_fragment_func(imol, text, button_state): \\n \\t jmol = new_molecule_by_atom_selection(imol, text) \\n \\t if button_state: move_molecule_to_screen_centre(jmol) \\n \\t return valid_model_molecule_qm(jmol) \\ngeneric_chooser_and_entry_and_check_button(\"From which molecule shall we copy the fragment?\", \"Atom selection for fragment\", \"//A/1-10\", \"Move new molecule here?\", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)\')";
-//                         exec('def atom_selection_from_fragment_func(imol, text, button_state): \n \t jmol = new_molecule_by_atom_selection(imol, text) \n \t if button_state: move_molecule_to_screen_centre(jmol) \n \t return valid_model_molecule_qm(jmol) \ngeneric_chooser_and_entry_and_check_button("From which molecule shall we copy the fragment?", "Atom selection for fragment", "//A/1-10", "Move new molecule here?", lambda imol, text, button_state: atom_selection_from_fragment_func(imol, text, button_state), False)')
       safe_python_command(cmd);
    }
 #endif // PYTHON

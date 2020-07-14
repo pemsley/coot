@@ -51,7 +51,6 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include <glm/glm.hpp>
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
 #include <CXXClasses/Camera.h>
@@ -61,7 +60,6 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include <CXXClasses/MyMolecule.h>
 #include <CXXClasses/RepresentationInstance.h>
 #include <CXXClasses/MolecularRepresentationInstance.h>
-#endif
 #endif
 
 #include "clipper/ccp4/ccp4_map_io.h"
@@ -264,6 +262,7 @@ namespace coot {
 #include "cylinder.hh"
 
 #include "Mesh.hh"
+#include "LinesMesh.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -1016,9 +1015,15 @@ public:        //                      public
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
    void draw_anisotropic_atoms();
-   void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
-   void draw_map_unit_cell(const coot::colour_holder &cell_colour);
-   void draw_unit_cell_internal(float rsc[8][3]);
+
+   // void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
+   // void draw_map_unit_cell(const coot::colour_holder &cell_colour);
+   // void draw_unit_cell_internal(float rsc[8][3]);
+
+   LinesMesh lines_mesh_for_cell;
+   void setup_unit_cell(Shader *shader_p);
+   void draw_unit_cell(Shader *shader_p, const glm::mat4 &mvp);
+
    void draw_dots();
    // return the status of whether or not the dots were cleared.
    bool clear_dots(int dots_handle);

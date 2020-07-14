@@ -367,10 +367,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
          graphics_info_t::molecules[ii].draw_dots();
 
          // Draw Unit cell maybe.
-         graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
+         // graphics_info_t::molecules[ii].draw_coord_unit_cell(graphics_info_t::cell_colour);
 
          // Draw Map unit cell maybe;
-         graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
+         // graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
 
          //
          graphics_info_t::molecules[ii].draw_skeleton(is_bb);

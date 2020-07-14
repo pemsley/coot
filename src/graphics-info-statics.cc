@@ -38,6 +38,7 @@ Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
+Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_particles;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
@@ -46,7 +47,7 @@ long graphics_info_t::frame_counter_at_last_display = 0;
 std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
 
 glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
-float graphics_info_t::screen_z_near_perspective =  73.0; // was 83
+float graphics_info_t::screen_z_near_perspective =  76.0; // was 83
 float graphics_info_t::screen_z_far_perspective  = 125.0;
 
 std::map<unsigned int, lights_info_t> graphics_info_t::lights;
