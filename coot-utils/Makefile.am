@@ -39,7 +39,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
-	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh \
+	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh arc-info.hh \
 	coot_shiftfield.h shiftfield.h
 
 
