@@ -135,11 +135,11 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 			      clipper::Coord_orth c = a3 - centre;
 			      double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
 
-			      chiral_atom = coot::atom_spec_t(res->GetChainID(),
-							      res->GetSeqNum(),
-							      res->GetInsCode(),
-							      res->GetAtom(iatc)->name,
-							      res->GetAtom(iatc)->altLoc);
+			      chiral_atom = atom_spec_t(res->GetChainID(),
+                                                        res->GetSeqNum(),
+                                                        res->GetInsCode(),
+                                                        res->GetAtom(iatc)->name,
+                                                        res->GetAtom(iatc)->altLoc);
 
 			      if (cv*chiral_restraint.volume_sign < 0) {
 // 				 std::cout << "DEBUG:: " << res->name << " "
