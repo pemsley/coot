@@ -3116,7 +3116,9 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
                      float line_radius = 0.1f;
                      std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(p1)),
                                                               glm::vec3(coord_orth_to_glm(p2)));
-                     obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true);
+                     obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,
+                                      meshed_generic_display_object::ROUNDED_CAP,
+                                      meshed_generic_display_object::ROUNDED_CAP);
 		  }
 	       }
 
@@ -3536,7 +3538,9 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       for (unsigned int i=0; i<c.clashes.size(); i++) {
          std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
                                                   glm::vec3(coord_orth_to_glm(c.clashes[i].second)));
-         obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true);
+         obj.add_cylinder(pos_pair, clash_col, line_radius, n_slices, true, true,
+                          meshed_generic_display_object::ROUNDED_CAP,
+                          meshed_generic_display_object::ROUNDED_CAP);
       }
       obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
       set_display_generic_object(clashes_obj_index, 1);
@@ -3672,7 +3676,10 @@ void coot_all_atom_contact_dots(int imol) {
       for (unsigned int i=0; i<c.clashes.size(); i++) {
          obj.add_cylinder(std::pair<glm::vec3, glm::vec3>(glm::vec3(coord_orth_to_glm(c.clashes[i].first)),
                                                           glm::vec3(coord_orth_to_glm(c.clashes[i].second))),
-                          clash_col, line_radius, n_slices, true, true);
+                          clash_col, line_radius, n_slices, true, true,
+                          meshed_generic_display_object::ROUNDED_CAP,
+                          meshed_generic_display_object::ROUNDED_CAP);
+
       }
       obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
       set_display_generic_object_simple(clashes_obj_index, 1);

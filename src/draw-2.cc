@@ -1305,6 +1305,8 @@ graphics_info_t::draw_molecules() {
 
    draw_unit_cells();
 
+   draw_environment_graphics_object();
+
    draw_generic_objects();
 
    // transparent things...
@@ -1314,6 +1316,47 @@ graphics_info_t::draw_molecules() {
    draw_map_molecules(true);
 
 }
+
+
+// This does (draws) symmetry too.
+//
+// static
+void
+graphics_info_t::draw_environment_graphics_object() {
+
+#if 0   
+   graphics_info_t g;
+   if (is_valid_model_molecule(mol_no_for_environment_distances)) {
+      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
+      g.environment_graphics_object_internal(environment_object_bonds_box);
+      if (g.show_symmetry)
+         g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
+      }
+   }
+#endif
+
+   if (is_valid_model_molecule(mol_no_for_environment_distances)) {
+      molecule_class_info_t &m = molecules[mol_no_for_environment_distances];
+      if (m.is_displayed_p()) {
+         if (environment_show_distances) {
+            glm::mat4 mvp = get_molecule_mvp();
+            glm::vec3 eye_position = get_world_space_eye_position();
+            glm::mat4 view_rotation = get_view_rotation();
+            glm::vec4 bg_col(background_colour, 1.0);
+
+            bool do_depth_fog = true;
+            mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
+                                                     mvp, view_rotation,
+                                                     lights, eye_position, bg_col,
+                                                     do_depth_fog);
+
+            if (show_symmetry) {
+            }
+         }
+      }
+   }
+}
+
 
 void
 graphics_info_t::draw_unit_cells() {

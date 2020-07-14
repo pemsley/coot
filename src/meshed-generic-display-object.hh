@@ -5,6 +5,8 @@
 #include "utils/coot-utils.hh"  // for colour_holder
 #include "utils/dodec.hh"
 
+#include "coords/graphical-bonds-container.hh"
+
 // How many ways of specifying a colour does an application need?
 // At least 3, it turns out.
 #include "Mesh.hh"
@@ -112,11 +114,13 @@ public:
       coot::colour_holder col;
    };
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
+   meshed_generic_display_object() { imol = UNDEFINED; }
    meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
       wrapped_make_octasphere(unsigned int num_subdivisions, const glm::vec3 &position,
                               float radius, const glm::vec4 &col);
+   void init(const graphical_bonds_container &bonds_box, bool background_is_black_flag);
    int imol;
    int get_imol() const { return imol; }
    bool is_valid_imol() { return imol != INTERMEDIATE_ATOMS && imol != UNDEFINED; }
@@ -131,10 +135,14 @@ public:
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
+
+   // I need to say which cap type, flat or rounded.
+   enum cap_type { FLAT_CAP, ROUNDED_CAP };
    void add_cylinder(const std::pair<glm::vec3, glm::vec3> &start_end,
                      coot::colour_holder &col, float line_radius,
                      unsigned int n_slices,
-                     bool cap_start, bool cap_end);
+                     bool cap_start, bool cap_end,
+                     cap_type start_cap_type, cap_type end_cap_type);
    void add_point(const coot::colour_holder &colour_in,
                   const std::string &colour_name,
                   const int &size_in,

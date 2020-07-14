@@ -1,5 +1,7 @@
 
 #ifndef ROTAMER_CONTAINER_HH
+#define ROTAMER_CONTAINER_HH
+
 #include "utils/colour-holder.hh"
 
 class rotamer_markup_container_t {

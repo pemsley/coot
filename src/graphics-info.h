@@ -3616,6 +3616,7 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+   static meshed_generic_display_object mesh_for_environment_distances;
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {

@@ -348,6 +348,7 @@ void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string nam
       }
    }
 
+   // where is setup() called for features_obj?
    int n_new = add_generic_display_object(features_obj);
    attach_generic_object_to_molecule(n_new, imol);
    set_display_generic_object(n_new, 1);

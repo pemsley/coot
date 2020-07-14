@@ -111,7 +111,9 @@ void to_generic_object_add_cylinder(int object_number,
    graphics_info_t g;
    if (is_valid_generic_display_object_number(object_number)) {
       meshed_generic_display_object &obj = g.generic_display_objects[object_number];
-      obj.add_cylinder(p, col, line_radius, n_slices, cap_start, cap_end);
+      obj.add_cylinder(p, col, line_radius, n_slices, cap_start, cap_end,
+                       meshed_generic_display_object::FLAT_CAP,
+                       meshed_generic_display_object::FLAT_CAP);
    }
 }
 
