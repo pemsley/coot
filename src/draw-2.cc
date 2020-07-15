@@ -242,6 +242,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       float fov = 50.0/zoom; // degrees
       if (fov > 50.0) fov = 50.0;
       fov = 35.0;
+      fov = 30.0;
 
       glm::mat4 projection_matrix_persp = glm::perspective(glm::radians(fov),
                                                            screen_ratio,
