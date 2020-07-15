@@ -218,6 +218,10 @@ void Shader::set_uniform_locations() {
       hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5d: " << err << std::endl;
    }
+   if (entity_type == Entity_t::TEXT_3D) {
+      atom_label_projection_uniform_location = glGetUniformLocation_internal("projection");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6a: " << err << std::endl;
+   }
 }
 
 
