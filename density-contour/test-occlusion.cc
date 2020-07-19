@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
       positions.resize(tri_con.points.size());
       unsigned int n = tri_con.points.size();
       for (unsigned int i=0; i<n; i++) {
-         const clipper::Coord_orth pos  = tri_con.points[i];
-         const clipper::Coord_orth norm = tri_con.normals[i];
+         const clipper::Coord_orth &pos  = tri_con.points[i];
+         const clipper::Coord_orth &norm = tri_con.normals[i];
          positions[i] = coot::augmented_position(pos, norm);
       }
       auto tp_4 = std::chrono::high_resolution_clock::now();

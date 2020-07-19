@@ -4,8 +4,8 @@
 #define DENSITY_CONTOUR_TRIANGLES_HH
 
 struct POINT3DID {
-	unsigned int newID;
-	float x, y, z;
+   unsigned int newID;
+   float x, y, z;
 };
 
 typedef std::map<unsigned int, POINT3DID> ID2POINT3DID;
@@ -29,7 +29,7 @@ namespace coot {
      std::vector<clipper::Coord_orth> normals; // for Gouraud shading
      std::vector<TRIANGLE> point_indices;
      void depth_sort(const clipper::Coord_orth &back_plane_point,
-		     const clipper::Coord_orth &front_plane_point);
+     const clipper::Coord_orth &front_plane_point);
      void calculate_normals(); // average normals on shared points
   };
 

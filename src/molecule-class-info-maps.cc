@@ -316,17 +316,17 @@ molecule_class_info_t::update_map_internal() {
 
    if (has_xmap()) {
       if (is_EM_map())
-	 radius = graphics_info_t::box_radius_em;
+         radius = graphics_info_t::box_radius_em;
 
       if (false)
-	 std::cout << "in update_map_internal() " << radius << " vs x "
-		   << graphics_info_t::box_radius_xray << " em "
-		   << graphics_info_t::box_radius_em << " is-em: "
-		   << is_EM_map() << std::endl;
+         std::cout << "in update_map_internal() " << radius << " vs x "
+           << graphics_info_t::box_radius_xray << " em "
+           << graphics_info_t::box_radius_em << " is-em: "
+           << is_EM_map() << std::endl;
 
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-			 graphics_info_t::RotationCentre_y(),
-			 graphics_info_t::RotationCentre_z());
+                         graphics_info_t::RotationCentre_y(),
+                         graphics_info_t::RotationCentre_z());
 
       try {
          update_map_triangles(radius, rc);  // NXMAP-FIXME
