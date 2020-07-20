@@ -1991,7 +1991,41 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
       unlabel_atom(atom_index);
    } else {
       labelled_atom_index_list.push_back(atom_index);
+      add_mesh_for_atom_label(atom_index);
    }
+}
+
+void
+molecule_class_info_t::add_mesh_for_atom_label(int atom_index) {
+
+   // maybe atom labels should have their own mesh type.
+   Mesh mesh;
+
+   mmdb::Atom *at = atom_sel.atom_selection[atom_index];
+   glm::vec3 atom_position = coord_orth_to_glm(coot::co(at));
+
+   std::vector<glm::vec3> q_vertices = { glm::vec3(0,0,0),
+                                         glm::vec3(1,0,0),
+                                         glm::vec3(1,1,0),
+                                         glm::vec3(0,1,0) };
+   std::vector<g_triangle> triangles;
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(0,2,3));
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   std::vector<s_generic_vertex> vertices(4);
+   glm::vec3 n(0,0,1);
+   for (unsigned int i=0; i<4; i++) {
+      vertices[i].pos = atom_position + q_vertices[i];
+      vertices[i].normal = n;
+      vertices[i].color = glm::vec4(0.6, 0.6, 0.6, 1.0);
+   }
+
+   Material material;
+   Shader &shader = graphics_info_t::shader_for_moleculestotriangles;
+   mesh.import(vertices, triangles);
+   mesh.setup(&shader, material);
+   meshes.push_back(mesh);
 }
 
 // int

@@ -517,9 +517,11 @@ graphics_info_t::refinement_loop_threaded() {
          graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
          rr = graphics_info_t::saved_dragged_refinement_results;
          continue_threaded_refinement_loop = false;
-         if (rr.hooray()) {
-            graphics_info_t g;
-            g.setup_draw_for_particles();
+         if (false) { // too crashy at the moment.
+            if (rr.hooray()) {
+               graphics_info_t g;
+               g.setup_draw_for_particles();
+            }
          }
 
       } else {

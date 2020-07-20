@@ -3426,6 +3426,8 @@ public:        //                      public
 
    std::vector<Mesh> meshes;
 
+   void add_mesh_for_atom_label(int atom_index);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

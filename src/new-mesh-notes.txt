@@ -2,8 +2,8 @@
 
 Have you really filled the vertices and indices?
 
-Call gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-   before setup():
+Call this before setup():
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
 Use() the shader in setup().
 

@@ -1,6 +1,6 @@
 
-#ifndef GENERIC_VERTEX
-#define GENERIC_VERTEX
+#ifndef GENERIC_VERTEX_HH
+#define GENERIC_VERTEX_HH
 
 #define GLM_ENABLE_EXPERIMENTAL // needed?
 #include <glm/glm.hpp>
@@ -31,3 +31,4 @@ public:
 
 
 #endif
+

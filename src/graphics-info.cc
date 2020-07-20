@@ -4239,7 +4239,7 @@ graphics_info_t::apply_undo() {
    } else {
       if (umol == -1) {
     std::cout << "There are no molecules with modifications "
-      << "that can be undone" << std::endl;
+              << "that can be undone" << std::endl;
       } else {
 
     std::string cwd = coot::util::current_working_dir();

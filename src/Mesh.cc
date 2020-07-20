@@ -15,6 +15,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "cylinder.hh"
+
+// Get rid of this at some stage - needs thinking about meshed objects
 #include "old-generic-display-object.hh"
 
 void
@@ -1147,7 +1149,15 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
 }
 
 void
-Mesh::update_instancing_buffer_data(const particle_container_t &particles) {
+Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
+
+   unsigned int n_mats = mats.size();
+   glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
+}
+
+void
+Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &particles) {
 
    n_instances = particles.size();
    if (false)

@@ -494,7 +494,7 @@ glarea_tick_func(GtkWidget *widget,
          return FALSE;
       } else {
          particles.update_particles();
-         mesh_for_particles.update_instancing_buffer_data(particles);
+         mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
       }
    }
 
@@ -887,6 +887,7 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
       glm::vec3 pp(projected_point);
       render_atom_label(shader_for_atom_labels, label, pp, 1.0, label_colour);
    }
+   glDisable(GL_BLEND);
 
 }
 
@@ -1383,6 +1384,16 @@ graphics_info_t::draw_meshes() {
 
    bool do_depth_fog = true;
 
+   //std::cout << "mvp diag "
+   // << mvp[0][0] << " " << mvp[1][1] << " " << mvp[2][2] << std::endl;
+
+   glm::mat3 vrm(glm::toMat4(graphics_info_t::glm_quat));
+   glm::mat3 vrmt = glm::transpose(vrm);
+   glm::mat3 p = vrmt * vrm;
+
+   // Yes, identity matrix
+   // std::cout << "p: " << glm::to_string(p) << std::endl;
+
    if (draw_meshes) { //local, debugging
       bool have_meshes_to_draw = false;
       for (int i=n_molecules()-1; i>=0; i--) {
@@ -1859,7 +1870,7 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
       if (! handled) {
          if (was_a_double_click) {
-            pick_info nearest_atom_index_info = atom_pick_gtk3();
+            pick_info nearest_atom_index_info = g.atom_pick_gtk3(false);
             if (nearest_atom_index_info.success == GL_TRUE) {
                int im = nearest_atom_index_info.imol;
                g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
@@ -1886,7 +1897,7 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
    if (event->state & GDK_BUTTON2_MASK) {
       graphics_info_t g;
-      pick_info nearest_atom_index_info = atom_pick_gtk3();
+      pick_info nearest_atom_index_info = g.atom_pick_gtk3(false);
       double delta_x = g.GetMouseClickedX() - event->x;
       double delta_y = g.GetMouseClickedY() - event->y;
       if (std::abs(delta_x) < 10.0) {

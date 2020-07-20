@@ -149,12 +149,6 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 // glm::mat4 get_molecule_mvp();
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
-// Put these in graphics_info_t
-pick_info
-atom_pick_gtk3() {
-   graphics_info_t g;
-   return g.atom_pick_gtk3(false);
-}
 
 // Put these in graphics_info_t. Move this function into graphics-info-pick.cc
 pick_info
@@ -227,14 +221,20 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
          }
       }
    }
+   if (p_i.success) {
+      mmdb::Atom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
+      std::cout << "INFO:: picked atom: " << coot::atom_spec_t(at) << std::endl;
+   }
    return p_i;
 }
+
 
 // event can be null. if so Crtl key press check is not made.
 pick_info
 atom_pick(GdkEventButton *event) {
 
-   return atom_pick_gtk3();
+   graphics_info_t g;
+   return g.atom_pick_gtk3(false);
 }
 
 
