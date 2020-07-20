@@ -10,7 +10,6 @@
 #include "Material.hh"
 #include "Particle.hh"
 
-
 class Mesh {
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
    Material material;

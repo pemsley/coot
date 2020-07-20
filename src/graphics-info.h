@@ -60,17 +60,7 @@
 #include <CXXClasses/RendererGLSL.hpp>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-struct FT_character {
-   GLuint     TextureID;  // ID handle of the glyph texture
-   glm::ivec2 Size;       // Size of glyph
-   glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
-    FT_Pos     Advance;    // Offset to advance to next glyph
-};
-
+#include "ft-character.hh"
 
 #include "clipper/core/xmap.h"
 
@@ -4083,8 +4073,6 @@ string   static std::string sessionid;
    static Shader shader_for_particles;
    static long frame_counter;
    static long frame_counter_at_last_display;
-   static framebuffer screen_framebuffer;
-   static framebuffer blur_framebuffer;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;
    static float screen_z_far_perspective;
@@ -4093,6 +4081,9 @@ string   static std::string sessionid;
    static bool shader_do_depth_fog_flag;
    static bool shader_do_outline_flag;
    static bool draw_normals_flag;
+   static framebuffer screen_framebuffer;
+   static framebuffer blur_framebuffer;
+   static unsigned int framebuffer_scale;
 
    // ---------------------------------------------
    void init_shaders();

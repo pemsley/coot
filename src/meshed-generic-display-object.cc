@@ -8,6 +8,9 @@
 #include <epoxy/glx.h>
 #endif
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include "meshed-generic-display-object.hh"
 #include "oct.hh"
 #include "graphics-info.h"

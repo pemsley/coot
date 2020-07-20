@@ -625,7 +625,7 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
    unsigned int n_triangles = triangle_vertex_indices.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (true)
+   if (false)
       std::cout << "debug:: setup_instancing_buffers() particles: "
                 << "vao" << vao
                 << " glBufferData for index buffer_id " << index_buffer_id
@@ -908,7 +908,7 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 void
 Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
 
-   if (true)
+   if (false)
       std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
                 << triangle_vertex_indices.size() << std::endl;
 
@@ -1103,7 +1103,7 @@ Mesh::draw(Shader *shader_p,
       // before making a new VAO?
 
       if (false)
-         std::cout << "debug:: mesh: " << name << " shader " << shader_p->name
+         std::cout << "debug:: Mesh::draw() " << name << " shader " << shader_p->name
                    << " vao " << vao
                    << " drawing " << n_verts << " triangle vertices"  << std::endl;
 
@@ -1146,14 +1146,6 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * sizeof(glm::vec4), &(colours[0]));
-}
-
-void
-Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
-
-   unsigned int n_mats = mats.size();
-   glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
 }
 
 void
@@ -1318,22 +1310,24 @@ Mesh::setup_camera_facing_outline() {
 void
 Mesh::setup_camera_facing_quad() {
 
-   // for particles that have a texture rendered on them
+   float scale_x = 0.4; // pass?
+   float scale_y = 0.2;
 
-   // float s = 0.1;
-   // glm::vec3 n(0,0,1);
-   // glm::vec4 c(0.4, 0.4, 0.4, 0.4);
-   // s_generic_vertex g0(s * glm::vec3(-1,-1, 0), n, c);
-   // s_generic_vertex g1(s * glm::vec3(-1, 1, 0), n, c);
-   // s_generic_vertex g2(s * glm::vec3( 1, 1, 0), n, c);
-   // s_generic_vertex g3(s * glm::vec3( 1,-1, 0), n, c);
-   // vertices.push_back(g0);
-   // vertices.push_back(g1);
-   // vertices.push_back(g2);
-   // vertices.push_back(g3);
-   // triangle_vertex_indices.push_back(g_triangle(0,3,2));
-   // triangle_vertex_indices.push_back(g_triangle(0,2,1));
-   // setup_buffers();
+   glm::vec3 n(0,0,1);
+   glm::vec4 col(1.0, 1.0, 1.0, 1.0);
+
+   vertices.clear();
+   triangle_vertex_indices.clear();
+
+   vertices.push_back(s_generic_vertex(glm::vec3( scale_x,  scale_y, 0.0f), n, col));
+   vertices.push_back(s_generic_vertex(glm::vec3(-scale_x,  scale_y, 0.0f), n, col));
+   vertices.push_back(s_generic_vertex(glm::vec3(-scale_x, -scale_y, 0.0f), n, col));
+   vertices.push_back(s_generic_vertex(glm::vec3( scale_x, -scale_y, 0.0f), n, col));
+
+   triangle_vertex_indices.push_back(g_triangle(0,1,2));
+   triangle_vertex_indices.push_back(g_triangle(2,3,0));
+
+   setup_buffers();
 
 }
 

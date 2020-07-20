@@ -2,6 +2,8 @@
 #include <iostream>
 #include <epoxy/gl.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/ext.hpp>
 #include "LinesMesh.hh"
 
 // should this have its own header?

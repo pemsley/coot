@@ -11,6 +11,7 @@ framebuffer::framebuffer() {
    filled = false;
 }
 
+// caller does the scaling for width and heigh
 void
 framebuffer::init(int width, int height, unsigned int attachment_index_color_texture, const std::string &name_in) {
 
@@ -21,8 +22,12 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
       std::cout << "--------------------- start screen_framebuffer " << name
                 << " init() err is " << err << std::endl;
 
-   generate_framebuffer_object(width, height, attachment_index_color_texture); // try 2 * width here for
-                                                                               // multisampling at some stage
+   generate_framebuffer_object(width, height,
+                               attachment_index_color_texture); // try 2 * width here for
+                                                                // supersampling at some stage
+
+   err = glGetError();
+   if (err) std::cout << "done framebuffer::init() with error " << err << std::endl;
 
 }
 
@@ -46,7 +51,12 @@ framebuffer::tear_down() {
 
 void
 framebuffer::bind() {
+   // GLint local_fbo;
+   // glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
+   // std::cout << "Here in framebuffer::bind() pre  with local_fbo binding " << local_fbo << std::endl;
    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+   // glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
+   // std::cout << "Here in framebuffer::bind() post with local_fbo binding " << local_fbo << std::endl;
 }
 
 void
@@ -100,7 +110,8 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
       filled = true;
    }
 
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() " << name << " end err is " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() " << name
+                                          << " end err is " << err << std::endl;
 
 }
 

@@ -435,6 +435,7 @@ coot_bin_SOURCES = \
 	flev.cc                  \
         framebuffer.cc           \
         framebuffer.hh           \
+	ft-character.hh \
 	old-generic-display-object.hh\
 	old-generic-display-object.cc\
 	generic-objects.cc   	 \
@@ -537,6 +538,7 @@ coot_bin_SOURCES = \
 	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
 	oct.cc oct.hh            \
+	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
         pick.hh pick.cc		 \
 	positioned-widgets.h     \
@@ -567,7 +569,9 @@ coot_bin_SOURCES = \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
 	screen-utils.cc		 \
-        sound.cc \
+	screendump-tga.hh        \
+	screendump-tga.cc        \
+        sound.cc                 \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
@@ -578,15 +582,18 @@ coot_bin_SOURCES = \
 	Shader.cc Shader.hh      \
 	startup-scripts.hh       \
 	support.c support.h      \
+	select-atom-info.hh      \
 	sound.hh                 \
 	startup-scripts.hh       \
+	stb_image.h stb_image.c  \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \
+	Texture.cc Texture.hh    \
+	TextureMesh.cc TextureMesh.hh \
 	trackball.c trackball.h  \
 	triangle-extras.h        \
-	select-atom-info.hh      \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
