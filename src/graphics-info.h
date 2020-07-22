@@ -895,7 +895,6 @@ public:
    enum { USE_PYTHON_STATE_COMMANDS = 2, USE_SCM_STATE_COMMANDS = 1 };
 
    //
-   void initialize_molecules() { }
 
    void init();
 
