@@ -62,5 +62,40 @@ Wed  8 Jul 10:41:50 BST 2020
 
 sub.sh multi-daca.sh
 [wait]
-./coot-daca consolidate splits/table* consolidated
+./coot-daca consolidate splits/table* consolidated [take about a minute, 29 table directories each of ~10m lines]
+
+
+---
+Wed  8 Jul 19:46:04 BST 2020
+
+
+4 -rw------- 1 paule paule  36 Jul  8 13:48 daca-analyse-final.sh
+4 -rw------- 1 paule paule  38 Jul  8 13:47 daca-analyse-cycle-0.sh
+
+use plot-2.r to plot the distributions
+
+----
+Thu  9 Jul 23:17:30 BST 2020
+
+
+grep residue_number daca-analyse-A-chain-0-cycle.log > cycle-0.tab
+grep residue_number daca-analyse-A-chain-final.log > final.tab
+
+
+a = read.table('final.tab')
+b = read.table('cycle-0.tab')
+plot(a$V2, a$V4, xlab="Residue Number", ylab="DACA Score Sum", main="DACA Score Sum for 1eoi, A chain")
+points(b$V2, b$V4, pch=19)
+
+nct = c('Final', 'Cycle 0')
+legend(150, 2000000, nct, pch=c(1,19))
+
+
+
+----
+Thu  9 Jul 23:22:56 BST 2020
+
+   need to normalize:
+
+   so sum of values for each atom type for each box_key needs to be 1.0 (or 1 million)?
 

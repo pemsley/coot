@@ -593,7 +593,7 @@ int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, c
     CXXSphereElement unitSphereAtOrigin(CXXCoord(0.,0.,0.), 1., delta);
 
 #ifdef __GNUC__
-#if (__GNUC__ == 9)
+#if (__GNUC__ >= 9)
 #pragma omp parallel for default(none) shared(selHnd, nSelAtoms, SelAtom, probeRadius, delta, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
 
 #else

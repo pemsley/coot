@@ -1466,6 +1466,7 @@ pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releas
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/pre-releases/
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases
 pre_release_server_dir=https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/0.9-pre
+pre_release_server_dir=https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases
 #
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
@@ -1485,7 +1486,7 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-echo doing the awk
+echo doing the awk on the html $pre_release_files_html
 awk ' /a href=.*.tar.gz/ {split($2, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' $pre_release_files_html
 
 coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {split($2, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \

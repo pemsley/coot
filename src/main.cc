@@ -369,17 +369,10 @@ main (int argc, char *argv[]) {
    // 
    change_directory_maybe();
 
-  
-   // allocate some memory for the molecules
-   //
-   std::cout << "initalize graphics molecules...";
-   std::cout.flush();
-   initialize_graphics_molecules();
-   std::cout << "done." << std::endl;
-	
+
 #if !defined(USE_GUILE) && !defined(USE_PYTHON)
    handle_command_line_data(cld);  // and add a flag if listener
-   // should be started.
+                                   // should be started.
 #endif
   
    // which gets looked at later in c_inner_main's make_port_listener_maybe()

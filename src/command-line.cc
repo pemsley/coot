@@ -73,12 +73,12 @@
 
 
 command_line_data
-parse_command_line(int argc, char ** argv ) { 
+parse_command_line(int argc, char ** argv ) {
 
    command_line_data cld;
 
-   optind = 0; // reset the (global) extern because
-	       // parse_command_line() is/can be called more once.
+   coot_optind = 0; // reset the (global) extern because
+	            // parse_command_line() is/can be called more once.
 
    int ch; 
 
