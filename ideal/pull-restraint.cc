@@ -161,7 +161,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
    double dist_sq = (current_pos-rest.atom_pull_target_pos).lengthsq();
 
    if (harmonic_restraint) {
-      double sigma = 0.03; // (slightly refined) guess, copy below
+      double sigma = 0.02; // (slightly refined) guess, copy below and in process_dfs_target_position
       double weight = 1.0/(sigma*sigma);
       // return weight * dist * dist;
       return weight * dist_sq;
@@ -210,7 +210,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
       const simple_restraint &rest = (*restraints_p)[i];
       if (rest.restraint_type == TARGET_POS_RESTRAINT) {
          if (rest.is_closed) continue;
-	 double sigma = 0.03; // change as above in distortion score
+	 double sigma = 0.02; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 
 // 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
