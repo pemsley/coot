@@ -43,6 +43,18 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
 
 }
 
+void
+meshed_generic_display_object::add_arrow(const arrow_t &arrow) {
+
+   unsigned int n_slices = 8;
+   float arrow_radius = 0.1;
+   std::pair<glm::vec3, glm::vec3 > start_end(coord_orth_to_glm(arrow.start_point),
+                                              coord_orth_to_glm(arrow.end_point));
+   add_cylinder(start_end, arrow.col, arrow.radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);
+
+}
+
+
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 meshed_generic_display_object::wrapped_make_octasphere(unsigned int num_subdivisions,
                                                        const glm::vec3 &position,
@@ -108,7 +120,7 @@ meshed_generic_display_object::init(const graphical_bonds_container &bonds_box,
 
 void
 meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3 > &start_end,
-                                            coot::colour_holder &col, float line_radius,
+                                            const coot::colour_holder &col, float line_radius,
                                             unsigned int n_slices,
                                             bool cap_start, bool cap_end,
                                             cap_type start_cap_type, cap_type end_cap_type) {
@@ -141,6 +153,44 @@ meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3
    mesh.import(c.vertices, c.triangle_indices_vec);
 
 }
+
+void
+meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &start_end,
+                                        const coot::colour_holder &col, float base_radius, float top_radius,
+                                        unsigned int n_slices,
+                                        bool cap_start, bool cap_end,
+                                        cap_type start_cap_type, cap_type end_cap_type) {
+
+   float h = glm::distance(start_end.first, start_end.second);
+   cylinder c(start_end, base_radius, top_radius, h, n_slices, 2);
+   glm::vec4 colour(col.red, col.green, col.blue, 1.0f);
+   if (false)
+      std::cout << "add_cone: " << glm::to_string(start_end.first) << " "
+                << glm::to_string(start_end.second)
+                << " base_radius " << base_radius << " top_radius " << top_radius << " "
+                << c.vertices.size() << " " << c.triangle_indices_vec.size()
+                << " with height " << h << std::endl;
+
+   if (cap_start) {
+      if (start_cap_type == FLAT_CAP)
+         c.add_flat_start_cap();
+      if (start_cap_type == ROUNDED_CAP)
+         c.add_octahemisphere_start_cap();
+
+   }
+   if (cap_end) {
+      if (end_cap_type == FLAT_CAP)
+         c.add_flat_end_cap();
+      if (end_cap_type == ROUNDED_CAP)
+         c.add_octahemisphere_end_cap();
+   }
+
+   for (unsigned int i=0; i<c.vertices.size(); i++)
+      c.vertices[i].color = colour;
+   mesh.import(c.vertices, c.triangle_indices_vec);
+
+}
+
 
 
 void

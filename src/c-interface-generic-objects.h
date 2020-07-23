@@ -116,6 +116,17 @@ void to_generic_object_add_arc(int object_number,
 			       float normal_y1, 
 			       float normal_z1);
 
+void
+to_generic_object_add_arrow(int object_number,
+                            const char *colour_name,
+                            float stem_radius,
+                            float from_x1,
+                            float from_y1,
+                            float from_z1,
+                            float to_x2,
+                            float to_y2,
+                            float to_z2);
+
 void to_generic_object_add_dodecahedron(int object_number,
 					const char *colour,
 					float radius,

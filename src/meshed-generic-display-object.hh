@@ -22,6 +22,20 @@ glm::vec3 coord_orth_to_glm(const clipper::Coord_orth &co);
 
 class meshed_generic_display_object {
 public:
+   class arrow_t {
+   public:
+      arrow_t() { fract_head_size = 0.3;}
+      arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
+         start_point = pt1;
+         end_point = pt2;
+         fract_head_size = 0.3;
+      }
+      clipper::Coord_orth start_point;
+      clipper::Coord_orth end_point;
+      float fract_head_size;
+      coot::colour_holder col; // use this type of colour because we use cylinder
+      float radius;
+   };
    class sphere_t {
    public:
       sphere_t() {}
@@ -135,14 +149,20 @@ public:
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);
+   void add_arrow(const arrow_t &arrow);
 
    // I need to say which cap type, flat or rounded.
    enum cap_type { FLAT_CAP, ROUNDED_CAP };
    void add_cylinder(const std::pair<glm::vec3, glm::vec3> &start_end,
-                     coot::colour_holder &col, float line_radius,
+                     const coot::colour_holder &col, float line_radius,
                      unsigned int n_slices,
                      bool cap_start, bool cap_end,
                      cap_type start_cap_type, cap_type end_cap_type);
+   void add_cone(const std::pair<glm::vec3, glm::vec3> &start_end,
+                 const coot::colour_holder &col, float base_radius, float top_radius,
+                 unsigned int n_slices,
+                 bool cap_start, bool cap_end,
+                 cap_type start_cap_type, cap_type end_cap_type);
    void add_point(const coot::colour_holder &colour_in,
                   const std::string &colour_name,
                   const int &size_in,

@@ -1031,7 +1031,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
                if (arrow_head_length > bl_pull)
                   arrow_head_length = bl_pull;
                glm::vec3 b_uv = glm::normalize(b);
-               float bl_stick = bl_pull - arrow_head_length;
+               float bl_stick = bl;
                if (bl_stick < 0.0) bl_stick = 0.0;
 
                // coot::Cartesian meeting_point = pt_start_c + b_uv * bl_stick;
