@@ -1450,7 +1450,8 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    if (cube_type == VIEW_CENTRAL_CUBE) {
       mvp = glm::translate(mvp, rc);
-      glm::vec3 sc(0.2f, 0.2f, 0.2f);
+      float s = rotation_centre_cube_size;
+      glm::vec3 sc(s,s,s);
       mvp = glm::scale(mvp, sc);
    }
    if (cube_type == ORIGIN_CUBE) {
