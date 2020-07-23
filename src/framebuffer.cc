@@ -22,6 +22,8 @@ framebuffer::init(int width, int height, unsigned int attachment_index_color_tex
       std::cout << "--------------------- start screen_framebuffer " << name
                 << " init() err is " << err << std::endl;
 
+   std::cout << "debug:: calling generate_framebuffer_object() " << name
+             << " with " << width << " " << height << std::endl;
    generate_framebuffer_object(width, height,
                                attachment_index_color_texture); // try 2 * width here for
                                                                 // supersampling at some stage
@@ -57,6 +59,8 @@ framebuffer::bind() {
    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
    // glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
    // std::cout << "Here in framebuffer::bind() post with local_fbo binding " << local_fbo << std::endl;
+   GLenum err = glGetError();
+   if (err) std::cout << "framebuffer::bind() " << name << " fbo " << fbo << " err is " << err << std::endl;
 }
 
 void
@@ -72,13 +76,16 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
 
    glGenFramebuffers(1, &fbo);
    GLenum err = glGetError();
-   if (err) std::cout << "--------------------- start generate_framebuffer_object() " << name << " err is " << err << std::endl;
+   if (err) std::cout << "--------------------- start generate_framebuffer_object() " << name
+                      << " err is " << err << std::endl;
    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() A  " << name << " err is " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() A  " << name
+                                          << " err is " << err << std::endl;
 
    generate_colourtexture(width, height);
    generate_depthtexture( width, height);
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() B  " << name << " err is " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() B  "
+                                          << name << " err is " << err << std::endl;
 
    // unsigned int attachment_index_color_texture = 0;
 
@@ -86,9 +93,11 @@ framebuffer::generate_framebuffer_object(unsigned int width, unsigned int height
    // 0 is the mipmap level. 0 is the heightest
 
    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + attachment_index_color_texture, texture_colour, 0);
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() C  " << name << " err is " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "--------------------- generate_framebuffer_object() C  " << name << " err is " << err << std::endl;
    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture_depth, 0);
-   err = glGetError(); if (err) std::cout << "--------------------- generate_framebuffer_object() D  " << name << " err is " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "--------------------- generate_framebuffer_object() D  " << name << " err is " << err << std::endl;
 
    // add attachments
    drawbuffer.push_back(GL_COLOR_ATTACHMENT0 + attachment_index_color_texture);

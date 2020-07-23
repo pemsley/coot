@@ -1046,7 +1046,7 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
       gpointer user_data = 0;
       smooth_scroll_current_step = 0;
       smooth_scroll_delta = coot::Cartesian(xd, yd, zd);
-      if (true) {
+      if (false) {
          std::cout << "in smooth_scroll_maybe_sinusoidal_acceleration() with set smooth_scroll_delta "
                    << smooth_scroll_delta << " length " << smooth_scroll_delta.amplitude()
                    << std::endl;
