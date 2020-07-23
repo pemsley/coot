@@ -2362,22 +2362,6 @@ graphics_info_t::get_rotamer_dodecs() {
 
 
 
-// This does (draws) symmetry too.
-//
-// static
-void
-graphics_info_t::draw_environment_graphics_object() {
-
-   graphics_info_t g;
-   if (is_valid_model_molecule(mol_no_for_environment_distances)) {
-      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
-      g.environment_graphics_object_internal(environment_object_bonds_box);
-      if (g.show_symmetry)
-         g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
-      }
-   }
-}
-
 // static
 void
 graphics_info_t::picked_intermediate_atom_graphics_object() {
@@ -2422,61 +2406,61 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 
       if (env_bonds_box.num_colours > 0) {
 
-    graphical_bonds_lines_list<graphics_line_t> ll;
-    coot::Cartesian text_pos;
-    float dist;
+         graphical_bonds_lines_list<graphics_line_t> ll;
+         coot::Cartesian text_pos;
+         float dist;
 
-    float dark_bg_cor = 0.0;
-    if (! background_is_black_p())
-       dark_bg_cor = 0.29;
+         float dark_bg_cor = 0.0;
+         if (! background_is_black_p())
+            dark_bg_cor = 0.29;
 
-    glLineStipple (1, 0x00FF);
-    for (int i=0; i< env_bonds_box.num_colours; i++) {
+         glLineStipple (1, 0x00FF);
+         for (int i=0; i< env_bonds_box.num_colours; i++) {
 
-       bool display_these_distances_flag = 1;
-       if (i==0)
-          if (!environment_distances_show_bumps)
-     display_these_distances_flag = 0;
-       if (i==1)
-          if (!environment_distances_show_h_bonds)
-     display_these_distances_flag = 0;
+            bool display_these_distances_flag = 1;
+            if (i==0)
+               if (!environment_distances_show_bumps)
+                  display_these_distances_flag = 0;
+            if (i==1)
+               if (!environment_distances_show_h_bonds)
+                  display_these_distances_flag = 0;
 
-       if (display_these_distances_flag) {
-          ll = env_bonds_box.bonds_[i]; // lightweight
-          float it = float(i);
-          if (it > 1.0)
-     it = 1.0;
+            if (display_these_distances_flag) {
+               ll = env_bonds_box.bonds_[i]; // lightweight
+               float it = float(i);
+               if (it > 1.0)
+                  it = 1.0;
 
-          // now we want to draw out our bonds in various colour,
-          // according to if they have a carbon or not.
-          //
-          glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
-          // These get turned off and set to 1 when writing stroke characters
-          glEnable(GL_LINE_STIPPLE);
-          glLineWidth(2.0);
+               // now we want to draw out our bonds in various colour,
+               // according to if they have a carbon or not.
+               //
+               glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
+               // These get turned off and set to 1 when writing stroke characters
+               glEnable(GL_LINE_STIPPLE);
+               glLineWidth(2.0);
 
-          glBegin(GL_LINES);
-          for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
-     const coot::CartesianPair &pair = ll.pair_list[j].positions;
-     glVertex3f(pair.getStart().get_x(),
-        pair.getStart().get_y(),
-        pair.getStart().get_z());
-     glVertex3f(pair.getFinish().get_x(),
-        pair.getFinish().get_y(),
-        pair.getFinish().get_z());
-          }
-          glEnd();
+               glBegin(GL_LINES);
+               for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
+                  const coot::CartesianPair &pair = ll.pair_list[j].positions;
+                  glVertex3f(pair.getStart().get_x(),
+                             pair.getStart().get_y(),
+                             pair.getStart().get_z());
+                  glVertex3f(pair.getFinish().get_x(),
+                             pair.getFinish().get_y(),
+                             pair.getFinish().get_z());
+               }
+               glEnd();
 
-          for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
-     const coot::CartesianPair &pair = ll.pair_list[j].positions;
-     text_pos = pair.getFinish().mid_point(pair.getStart()) +
-        coot::Cartesian(0.0, 0.1, 0.1);
-     dist = (pair.getStart() - pair.getFinish()).amplitude();
-     printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
-          }
-       }
-    }
-    glDisable(GL_LINE_STIPPLE);
+               for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
+                  const coot::CartesianPair &pair = ll.pair_list[j].positions;
+                  text_pos = pair.getFinish().mid_point(pair.getStart()) +
+                     coot::Cartesian(0.0, 0.1, 0.1);
+                  dist = (pair.getStart() - pair.getFinish()).amplitude();
+                  printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
+               }
+            }
+         }
+         glDisable(GL_LINE_STIPPLE);
       }
    }
 }
@@ -3062,6 +3046,13 @@ graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
 
    environment_object_bonds_box =
       molecules[imol].make_environment_bonds_box(atom_index, geom_p);
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   mesh_for_environment_distances.init(environment_object_bonds_box,
+                                       background_is_black_p());
+   Material material;
+   mesh_for_environment_distances.mesh.setup(&shader_for_moleculestotriangles, material);   
+
 }
 
 void
@@ -4248,7 +4239,7 @@ graphics_info_t::apply_undo() {
    } else {
       if (umol == -1) {
     std::cout << "There are no molecules with modifications "
-      << "that can be undone" << std::endl;
+              << "that can be undone" << std::endl;
       } else {
 
     std::string cwd = coot::util::current_working_dir();

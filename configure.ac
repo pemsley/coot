@@ -293,13 +293,6 @@ if test -n "$RDKIT_LIBS" ; then
    esac
 fi
 
-dnl =========================== GooCanvas ================================
-
-AM_PATH_GOOCANVAS
-# give something for the preprocessor to chew on...
-if test "$GOOCANVAS_CFLAGS" != "" ; then
-   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
-fi
 
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",

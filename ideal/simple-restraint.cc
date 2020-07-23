@@ -2831,7 +2831,7 @@ coot::restraints_container_t::make_restraints(int imol,
       restraints_usage_flag = JUST_RAMAS;
    }
 
-   if (n_atoms) {
+   if (n_atoms > 0) {
 
       mark_OXT(geom);
       make_monomer_restraints(imol, geom, do_residue_internal_torsions);
@@ -3824,7 +3824,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(int imol,
 
    sum.report(do_residue_internal_torsions);
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "created " << size() << " restraints" << std::endl;
+      std::cout << "INFO:: by_linear() created " << size() << " restraints" << std::endl;
       std::cout << std::endl;
    }
    return iret; // return 1 on success.  Hmm... how is this set? (and subsequently used?)
@@ -3853,8 +3853,7 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
    } 
 
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "INFO:: created " << size() << " restraints" << std::endl;
-      std::cout << std::endl;
+      std::cout << "INFO:: from_res_vec() created " << size() << " monomer restraints " << std::endl;
       if (print_summary)
 	 sum.report(do_residue_internal_torsions);
    }
@@ -7613,6 +7612,7 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
 void
 coot::restraints_container_t::info() const {
 
+   std::cout << "INFO:: There are " << n_atoms << " atoms" << std::endl;
    std::cout << "INFO:: There are " << size() << " restraints" << std::endl;
 
    for (unsigned int i=0; i< restraints_vec.size(); i++) {

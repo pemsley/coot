@@ -1551,179 +1551,53 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
    }
 }
 
-
-
-//
 void
-molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colour) {
+molecule_class_info_t::setup_unit_cell(Shader *shader_p) {
 
-   // Don't display if we have closed this molecule
-   // (perhaps use (atom_sel.mol==NULL) instead?) (no).
+   // modify the reference
+   auto setup = [] (LinesMesh &lines_mesh_for_cell,
+                    const clipper::Cell &cell,
+                    Shader *shader_p) {
+                   lines_mesh_for_cell = LinesMesh(cell);
+                   lines_mesh_for_cell.setup(shader_p);
+                };
 
-   // (same test as has_model()):
-   if (atom_sel.n_selected_atoms > 0) {
+   if (lines_mesh_for_cell.empty()) {
 
-      if (show_unit_cell_flag == 1) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-	 if (draw_it) {
+      if (atom_sel.mol) {
+         mmdb::realtype mmdb_cell[6];
+         mmdb::realtype vol;
+         int orthcode;
+         atom_sel.mol->GetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+                               mmdb_cell[3], mmdb_cell[4], mmdb_cell[5],
+                               vol, orthcode);
+         clipper::Cell cell(clipper::Cell_descr(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
+                                                clipper::Util::d2rad(mmdb_cell[3]),
+                                                clipper::Util::d2rad(mmdb_cell[4]),
+                                                clipper::Util::d2rad(mmdb_cell[5])));
+         setup(lines_mesh_for_cell, cell, shader_p);
+      }
 
-	    if (have_unit_cell == 1) {
-
-	       glLineWidth(2.0);
-	       glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
-
-	       float corners[8][3] = {
-		  {0,0,0}, //0
-		  {0,0,1}, //1
-		  {0,1,0}, //2
-		  {0,1,1}, //3
-		  {1,0,0}, //4
-		  {1,0,1}, //5
-		  {1,1,0}, //6
-		  {1,1,1}};//7
-
-	       mmdb::realtype x_orth, y_orth, z_orth;
-	       // rsc = real_space_corners
-	       float rsc[8][3];
-
-	       for (int ii=0; ii<8; ii++) {
-
-		  atom_sel.mol->Frac2Orth(corners[ii][0], corners[ii][1], corners[ii][2],
-					  x_orth, y_orth, z_orth);
-
-		  rsc[ii][0] = x_orth;
-		  rsc[ii][1] = y_orth;
-		  rsc[ii][2] = z_orth;
-	       }
-
-	       draw_unit_cell_internal(rsc);
-	    }
-	 }
+      if (! xmap.is_null()) {
+         setup(lines_mesh_for_cell, xmap.cell(), shader_p);
       }
    }
+
 }
 
-//
 void
-molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour) {
+molecule_class_info_t::draw_unit_cell(Shader *shader_p,
+                                      const glm::mat4 &mvp) {
 
-   if (has_xmap()) {
-      if (show_unit_cell_flag == 1) {
-
-	 if (draw_it_for_map) {
-
-	    // rsc = real_space_corners
-	    float rsc[8][3];
-
-	    glLineWidth(2.0);
-	    glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
-
-	    float corners[8][3] = {
-	       {0,0,0}, //0
-	       {0,0,1}, //1
-	       {0,1,0}, //2
-	       {0,1,1}, //3
-	       {1,0,0}, //4
-	       {1,0,1}, //5
-	       {1,1,0}, //6
-	       {1,1,1}};//7
-
-	    for (int ii=0; ii<8; ii++) {
-
-	       clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
-
-	       clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
-
-	       rsc[ii][0] = c_o.x();
-	       rsc[ii][1] = c_o.y();
-	       rsc[ii][2] = c_o.z();
-	    }
-	    draw_unit_cell_internal(rsc);
-	 }
+   if (draw_it || draw_it_for_map) {
+      if (show_unit_cell_flag) { // should be draw_it_for_unit_cell
+         if (lines_mesh_for_cell.empty())
+            setup_unit_cell(shader_p);
+         lines_mesh_for_cell.draw(shader_p, mvp);
       }
    }
-}
-
-//
-void
-molecule_class_info_t::draw_unit_cell_internal(float rsc[8][3]) {
-
-   std::vector<coot::CartesianPair> p;
-
-   // bottom left connections
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
-      coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
-      coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[0][0], rsc[0][1], rsc[0][2]),
-      coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-
-   // top right front connections
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
-      coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
-      coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[6][0], rsc[6][1], rsc[6][2]),
-      coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-
-   // from 5
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
-      coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
-      coot::Cartesian(rsc[4][0], rsc[4][1], rsc[4][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[5][0], rsc[5][1], rsc[5][2]),
-      coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
-
-   // from 3
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
-      coot::Cartesian(rsc[1][0], rsc[1][1], rsc[1][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
-      coot::Cartesian(rsc[7][0], rsc[7][1], rsc[7][2])));
-
-   p.push_back(coot::CartesianPair(coot::Cartesian(rsc[3][0], rsc[3][1], rsc[3][2]),
-      coot::Cartesian(rsc[2][0], rsc[2][1], rsc[2][2])));
-
-   float x1, y1, z1;
-   float x2, y2, z2;
-   glBegin(GL_LINES);
-   for (unsigned i=0; i<p.size(); i++) {
-//       glVertex3f(p[i].getStart().x(),  p[i].getStart().y(),  p[i].getStart().z());
-//       glVertex3f(p[i].getFinish().x(), p[i].getFinish().y(), p[i].getFinish().z());
-      coot::Cartesian diff = p[i].getFinish() - p[i].getStart();
-      for (float j=0.0; j<0.999; j+=0.1) {
-    x1 = p[i].getStart().x() + (j)*diff.x();
-    y1 = p[i].getStart().y() + (j)*diff.y();
-    z1 = p[i].getStart().z() + (j)*diff.z();
-    x2 = p[i].getStart().x() + (j+0.1)*diff.x();
-    y2 = p[i].getStart().y() + (j+0.1)*diff.y();
-    z2 = p[i].getStart().z() + (j+0.1)*diff.z();
-
-    glVertex3f(x1, y1, z1);
-    glVertex3f(x2, y2, z2);
-      }
-   }
-   glEnd();
-
-
-    // add a label
-// 	 glColor3f(1.0, 1.0, 1.0);
-// 	 glColor3f(1.0, 0.2, 1.0);
-   // glRasterPos3f(-1.6, -1.6,-1.6);
-   graphics_info_t::printString("0", -1.6, -1.6,-1.6);
-   // glRasterPos3f(rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
-   graphics_info_t::printString("C", rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
-   // glRasterPos3f(rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
-   graphics_info_t::printString("B", rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
-   // glRasterPos3f(rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
-   graphics_info_t::printString("A", rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
-
 
 }
 
@@ -2117,7 +1991,41 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
       unlabel_atom(atom_index);
    } else {
       labelled_atom_index_list.push_back(atom_index);
+      add_mesh_for_atom_label(atom_index);
    }
+}
+
+void
+molecule_class_info_t::add_mesh_for_atom_label(int atom_index) {
+
+   // maybe atom labels should have their own mesh type.
+   Mesh mesh;
+
+   mmdb::Atom *at = atom_sel.atom_selection[atom_index];
+   glm::vec3 atom_position = coord_orth_to_glm(coot::co(at));
+
+   std::vector<glm::vec3> q_vertices = { glm::vec3(0,0,0),
+                                         glm::vec3(1,0,0),
+                                         glm::vec3(1,1,0),
+                                         glm::vec3(0,1,0) };
+   std::vector<g_triangle> triangles;
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(0,2,3));
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   std::vector<s_generic_vertex> vertices(4);
+   glm::vec3 n(0,0,1);
+   for (unsigned int i=0; i<4; i++) {
+      vertices[i].pos = atom_position + q_vertices[i];
+      vertices[i].normal = n;
+      vertices[i].color = glm::vec4(0.6, 0.6, 0.6, 1.0);
+   }
+
+   Material material;
+   Shader &shader = graphics_info_t::shader_for_moleculestotriangles;
+   mesh.import(vertices, triangles);
+   mesh.setup(&shader, material);
+   meshes.push_back(mesh);
 }
 
 // int
@@ -3877,8 +3785,8 @@ molecule_class_info_t::make_bonds_type_checked() {
 
     // --- bonds ---
 
-    float pbw = 3.0;
-    float radius = 0.07f * bond_width/pbw;
+    float radius = 0.025f * bond_width;
+    if (is_intermediate_atoms_molecule) radius *= 1.8f;
     for (int i=0; i<bonds_box.num_colours; i++) {
        graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 

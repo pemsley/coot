@@ -9,6 +9,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
 
    float sphere_radius = 0.105; // how big should atoms be?
    float radius_scale = 0.2 * bond_width; // arbs
+   if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
    // atom_scale = 1.45;
 
    std::vector<vertex_with_rotation_translation> v1;

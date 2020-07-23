@@ -97,6 +97,24 @@ void orient_view(int imol,
    }
 }
 
+#include "screendump-tga.hh"
+
+/*  ----------------------------------------------------------------------- */
+/*                  Mew Screendump                                          */
+/*  ----------------------------------------------------------------------- */
+void screendump_tga(const std::string &file_name) {
+
+   graphics_info_t g;
+   GtkAllocation allocation = g.get_glarea_allocation();
+   int w = allocation.width;
+   int h = allocation.height;
+   int scale_factor = g.framebuffer_scale;
+   screendump_tga_internal(file_name, w, h, scale_factor,
+                           graphics_info_t::screen_framebuffer);
+
+}
+
+
 /*  ----------------------------------------------------------------------- */
 /*                         perspective,blur,AO on/off */
 /*  ----------------------------------------------------------------------- */

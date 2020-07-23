@@ -1216,7 +1216,6 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
                      // Filter out SS bonds that are to SGs that have links - The Joosten Filter
                      if (non_peptide_close_link_info.first != "SS") {
-                        std::cout << "-------- assigning BB link_type to " << non_peptide_close_link_info.first << std::endl;
                         link_type = non_peptide_close_link_info.first;
                         order_switch_flag = non_peptide_close_link_info.second;
                      } else {

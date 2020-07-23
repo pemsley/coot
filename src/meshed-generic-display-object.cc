@@ -8,6 +8,9 @@
 #include <epoxy/glx.h>
 #endif
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>  // to_string()
+
 #include "meshed-generic-display-object.hh"
 #include "oct.hh"
 #include "graphics-info.h"
@@ -72,23 +75,67 @@ meshed_generic_display_object::wrapped_make_octasphere(unsigned int num_subdivis
    }
 }
 
+void
+meshed_generic_display_object::init(const graphical_bonds_container &bonds_box,
+                                    bool background_is_black_flag) {
+
+   mesh.clear();
+   for (int i=0; i<bonds_box.num_colours; i++) {
+      unsigned int n_slices = 16;
+      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
+      bool do_thinning = ll.thin_lines_flag;
+      float dark_bg_cor = 0.0;
+      if (! background_is_black_flag)
+         dark_bg_cor = 0.29;
+      float fidx = static_cast<float>(i);
+      coot::colour_holder col (0.8-dark_bg_cor, 0.8-0.4*fidx-dark_bg_cor, 0.4+0.5*fidx-dark_bg_cor);
+      unsigned int n_segments = 8;
+      for (int j=0; j< ll.num_lines; j++) {
+         glm::vec3 s = cartesian_to_glm(ll.pair_list[j].positions.getStart());
+         glm::vec3 e = cartesian_to_glm(ll.pair_list[j].positions.getFinish());
+         glm::vec3 delta = e - s;
+         glm::vec3 delta_frag = (1.0f / static_cast<float>(n_segments)) * delta;
+         for(unsigned int iseg=0; iseg<n_segments; iseg++) {
+            glm::vec3 pos_1 = s + static_cast<float>(iseg) * delta_frag;
+            glm::vec3 pos_2 = pos_1 + 0.5f * delta_frag;
+            std::pair<glm::vec3, glm::vec3> start_end(pos_1, pos_2);
+            add_cylinder(start_end, col, 0.06, n_slices, true, true, FLAT_CAP, FLAT_CAP);
+         }
+      }
+   }
+}
+
 
 void
 meshed_generic_display_object::add_cylinder(const std::pair<glm::vec3, glm::vec3 > &start_end,
                                             coot::colour_holder &col, float line_radius,
                                             unsigned int n_slices,
-                                            bool cap_start, bool cap_end) {
+                                            bool cap_start, bool cap_end,
+                                            cap_type start_cap_type, cap_type end_cap_type) {
 
    float h = glm::distance(start_end.first, start_end.second);
    cylinder c(start_end, line_radius, line_radius, h, n_slices, 2);
    glm::vec4 colour(col.red, col.green, col.blue, 1.0f);
    if (false)
-      std::cout << "add_cylinder: " << glm::to_string(start_end.first) << " " << glm::to_string(start_end.second) << " "
-                << c.vertices.size() << " " << c.triangle_indices_vec.size() << " with height " << h << std::endl;
-   // c.add_flat_start_cap();
-   // c.add_flat_end_cap();
-   c.add_octahemisphere_start_cap();
-   c.add_octahemisphere_end_cap();
+      std::cout << "add_cylinder: " << glm::to_string(start_end.first) << " "
+                << glm::to_string(start_end.second) << " "
+                << c.vertices.size() << " " << c.triangle_indices_vec.size()
+                << " with height " << h << std::endl;
+
+   if (cap_start) {
+      if (start_cap_type == FLAT_CAP)
+         c.add_flat_start_cap();
+      if (start_cap_type == ROUNDED_CAP)
+         c.add_octahemisphere_start_cap();
+
+   }
+   if (cap_end) {
+      if (end_cap_type == FLAT_CAP)
+         c.add_flat_end_cap();
+      if (end_cap_type == ROUNDED_CAP)
+         c.add_octahemisphere_end_cap();
+   }
+
    for (unsigned int i=0; i<c.vertices.size(); i++)
       c.vertices[i].color = colour;
    mesh.import(c.vertices, c.triangle_indices_vec);

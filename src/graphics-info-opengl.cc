@@ -17,6 +17,8 @@ graphics_info_t::init_shaders() {
                                                            shader_for_origin_cube,
                                                            shader_for_hud_text,
                                                            shader_for_atom_labels,
+                                                           shader_for_moleculestotriangles,
+                                                           shader_for_lines,
                                                            shader_for_screen,
                                                            shader_for_blur};
    std::string p = coot::package_data_dir();
@@ -34,6 +36,7 @@ graphics_info_t::init_shaders() {
    shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::TEXT_3D);
    shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_particles.init("particles.shader", Shader::Entity_t::MODEL);
 
    // we use the above to make an image/texture in the framebuffer and use then

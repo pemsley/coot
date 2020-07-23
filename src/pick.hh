@@ -86,7 +86,7 @@ enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND, PICK_ATOM_
 pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
 
 
-pick_info atom_pick_gtk3(); // and that wraps the below function:
+// pick_info atom_pick_gtk3(); // and that wraps the below function:
 
 // Now in graphics_info_t
 // pick_info atom_pick_gtk3(bool intermediate_atoms_only_flag);

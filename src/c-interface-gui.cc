@@ -2348,7 +2348,7 @@ void toggle_environment_show_distances(GtkToggleButton *button) {
       gtk_widget_set_sensitive(label_atom_check_button, TRUE);
       gtk_widget_set_sensitive(distance_type_frame, TRUE);
 
-      std::pair<int, int> r =  g.get_closest_atom();
+      std::pair<int, int> r = g.get_closest_atom();
       if (r.first >= 0) {
 	 g.mol_no_for_environment_distances = r.second;
 	 g.update_environment_distances_maybe(r.first, r.second);

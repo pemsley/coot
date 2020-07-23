@@ -14,6 +14,7 @@
 #include <glm/gtx/string_cast.hpp>  // to_string()
 #include <glm/gtx/rotate_vector.hpp> // for orientation
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
 #include <CXXClasses/Camera.h>
@@ -23,6 +24,7 @@
 #include <CXXClasses/RepresentationInstance.h>
 #include <CXXClasses/MolecularRepresentationInstance.h>
 #include <CXXClasses/VertexColorNormalPrimitive.h>
+#endif
 
 #include "molecular-mesh-generator.hh"
 
@@ -1061,8 +1063,10 @@ molecular_mesh_generator_t::get_worm_mesh(std::string pdb_file_name) {
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol) {
-   
+
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
 
    int imodel = 1;
    mmdb::Model *model_p = mol->GetModel(imodel);
@@ -1125,6 +1129,8 @@ molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol
          }
       }
    }
+
+#endif // USE_MOLECULES_TO_TRIANGLES
 
    return vp;
 }

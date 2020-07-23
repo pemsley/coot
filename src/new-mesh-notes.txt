@@ -1,0 +1,29 @@
+
+
+Have you really filled the vertices and indices?
+
+Call this before setup():
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+Use() the shader in setup().
+
+In setup():
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+
+   And set the offsets correctly for glVertexAttribPointer(), e.g.:
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
+                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+
+   Attribute 2 has size 4.
+
+In draw():
+   glEnableVertexAttribArray(0);
+   glEnableVertexAttribArray(1);
+   glEnableVertexAttribArray(2);
+
+In draw():
+   Don't forget to send over the mvp:
+   glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+

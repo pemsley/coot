@@ -79,11 +79,14 @@ Shader::close() {
 void
 Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
    GLuint err = glGetError();
-   if (err) std::cout << "set_int_for_uniform() start err " << err << std::endl;
+   if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name << " start err " << err << std::endl;
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
-   err = glGetError(); if (err) std::cout << "set_int_for_uniform() A err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name
+                                          << " A err " << err << std::endl;
    glUniform1i(loc,value);
-   err = glGetError(); if (err) std::cout << "set_int_for_uniform() B err " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name
+                                          << " B glUniform1i for loc: " << loc << " value: "
+                                          << value << " err " << err << std::endl;
 }
 
 void
@@ -218,6 +221,10 @@ void Shader::set_uniform_locations() {
       hud_projection_uniform_location           = glGetUniformLocation_internal("projection");
       err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 5d: " << err << std::endl;
    }
+   if (entity_type == Entity_t::TEXT_3D) {
+      atom_label_projection_uniform_location = glGetUniformLocation_internal("projection");
+      err = glGetError(); if (err) std::cout << "error:: set_uniform_locations() error 6a: " << err << std::endl;
+   }
 }
 
 
@@ -260,7 +267,19 @@ void Shader::set_more_uniforms_for_molecular_triangles() {
    // put more uniforms here
 }
 
-void Shader::parse(const std::string &file_name) {
+#include <sys/stat.h>
+
+void Shader::parse(const std::string &file_name_in) {
+
+   std::string file_name = file_name_in;
+   bool file_exists = true;
+   struct stat buffer;
+   if (stat (name.c_str(), &buffer) != 0) file_exists = false;
+
+   if (! file_exists)
+      if (! default_directory.empty())
+         file_name = default_directory + "/" + file_name;
+
    std::ifstream f(file_name.c_str());
    if (f) {
       VertexSource.clear();

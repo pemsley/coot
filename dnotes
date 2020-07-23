@@ -9379,6 +9379,14 @@ Fri 15 May 13:24:21 BST 2020
    ninja install
 
 
+   example:
+   prfx=/home/paule/autobuild/Linux-penelope-pre-release-gtk3
+   meson -Dprefix=$prfx build
+   ninja
+   ninja install
+   # now we can use Gtk in python!
+
+
 ---
 Sun 17 May 03:08:44 BST 2020
 

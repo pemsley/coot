@@ -196,18 +196,18 @@ int main(int argc, char **argv) {
 	    
 	 case 0:
 
-	    if (optarg) { 
+	    if (coot_optarg) { 
 
 	       std::string arg_str = long_options[option_index].name;
 
 	       if (arg_str == "metric") {
-		  metric_str = optarg;
+		  metric_str = coot_optarg;
 	       } 
 	       if (arg_str == "database") {
-		  database_name = optarg;
+		  database_name = coot_optarg;
 	       } 
 	       if (arg_str == "value") {
-		  value_str = optarg;
+		  value_str = coot_optarg;
 	       }
 
 	    } else {
@@ -226,15 +226,15 @@ int main(int argc, char **argv) {
 	    break;
 
 	 case 'm':
-	    metric_str = optarg;
+	    metric_str = coot_optarg;
 	    break;
 	    
 	 case 'd':
-	    database_name = optarg;
+	    database_name = coot_optarg;
 	    break;
 	    
 	 case 'v':
-	    value_str = optarg;
+	    value_str = coot_optarg;
 	    break;
 	    
 	 case 'h':
@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
 	    break;
 	    
 	 default:
-	    std::cout << "default optarg: " << optarg << std::endl;
+	    std::cout << "default coot_optarg: " << coot_optarg << std::endl;
 	    break;
 	 }
       }

@@ -1,4 +1,7 @@
 
+#ifndef COORDS_RAMACHANDRAN_CONTAINER_HH
+#define COORDS_RAMACHANDRAN_CONTAINER_HH
+
 #include "clipper/core/ramachandran.h"
 
 class ramachandrans_container_t {
@@ -33,3 +36,4 @@ public:
 #endif
 };
 
+#endif // COORDS_RAMACHANDRAN_CONTAINER_HH

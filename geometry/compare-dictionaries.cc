@@ -19,13 +19,7 @@
  * 02110-1301, USA
  */
 
-#ifdef __GNU_LIBRARY__
 #include "compat/coot-getopt.h"
-#else
-#define __GNU_LIBRARY__
-#include "compat/coot-getopt.h"
-#undef __GNU_LIBRARY__
-#endif
 
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
@@ -181,7 +175,9 @@ void print_help(std::string cmd) {
       "        --include-hydrogens (default: geometry excludes hydrogens)\n" << 
       std::endl;
    
-} 
+}
+
+
 
 int main(int argc, char **argv) {
 
@@ -228,44 +224,44 @@ int main(int argc, char **argv) {
 	 switch(ch) {
 	    
 	 case 0:
-	    if (optarg) {
+	    if (coot_optarg) {
 	       std::string arg_str = long_options[option_index].name;
 	       if (arg_str == "type")
-		  type = optarg;
+		  type = coot_optarg;
 	       if (arg_str == "dict-1")
-		  file_name_1 = optarg;
+		  file_name_1 = coot_optarg;
 	       if (arg_str == "dict-2")
-		  file_name_2 = optarg;
+		  file_name_2 = coot_optarg;
 	       if (arg_str == "bond-length-tol") { 
 		  try {
-		     bond_length_tolerance = coot::util::string_to_float(optarg);
+		     bond_length_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 	       if (arg_str == "bond-length-esd-tol") { 
 		  try {
-		     bond_esd_tolerance = coot::util::string_to_float(optarg);
+		     bond_esd_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 	       if (arg_str == "angle-tol") { 
 		  try {
-		     angle_tolerance = coot::util::string_to_float(optarg);
+		     angle_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 	       if (arg_str == "angle-esd-tol") { 
 		  try {
-		     angle_esd_tolerance = coot::util::string_to_float(optarg);
+		     angle_esd_tolerance = coot::util::string_to_float(coot_optarg);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "bad number " << optarg << std::endl;
+		     std::cout << "bad number " << coot_optarg << std::endl;
 		  }
 	       }
 

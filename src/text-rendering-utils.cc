@@ -10,13 +10,6 @@
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
-// GLEW
-// #define GLEW_STATIC
-// #include <GL/glew.h>
-
-// GLFW
-// #include <GLFW/glfw3.h>
-
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,7 +24,6 @@
 
 // Properties
 // const GLuint WIDTH = 800, HEIGHT = 600;
-
 
 // these are shared for HUD text and atom labels - I am not sure that that's a good idea.
 GLuint VAO_for_text, VBO_for_text;

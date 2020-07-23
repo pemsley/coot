@@ -10,7 +10,6 @@
 #include "Material.hh"
 #include "Particle.hh"
 
-
 class Mesh {
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
    Material material;
@@ -107,8 +106,8 @@ public:
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats);
 
    // void setup_instancing_buffers(const particle_container_t &particles);
-   void setup_instancing_buffers(unsigned int n_particles); // setup the buffer, don't add data
-   void update_instancing_buffer_data(const particle_container_t &particles);
+   void setup_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
+   void update_instancing_buffer_data_for_particles(const particle_container_t &particles);
    
    void fill_rama_balls(); // make up some balls
    void add_one_ball(float scale, const glm::vec3 &centre);
@@ -121,6 +120,7 @@ public:
    void flatten_triangles(); // needs implementation (will generate new vertices).
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
+   bool have_instances() const { return (n_instances > 0); }
 
 };
 

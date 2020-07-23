@@ -27,8 +27,10 @@ class molecular_mesh_generator_t {
    void add_to_mesh(std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > *vp, // update vp
                     const std::vector<s_generic_vertex> &gv, std::vector<g_triangle> &tris) const;
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance> mol_rep_inst);
+#endif
    int get_max_resno_for_polymer(mmdb::Chain *chain_p) const;
    std::vector<std::pair<std::string, std::string> > selection_colours;
 

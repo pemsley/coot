@@ -15,6 +15,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "cylinder.hh"
+
+// Get rid of this at some stage - needs thinking about meshed objects
 #include "old-generic-display-object.hh"
 
 void
@@ -408,6 +410,7 @@ Mesh::setup_debugging_instancing_buffers() {
 
    n_instances = inst_trans_matrices.size();
 
+   // has the vao been genvertexarrayed before this is called?
    glBindVertexArray(vao);
 
    glGenBuffers(1, &inst_colour_buffer_id);
@@ -559,9 +562,10 @@ Mesh::setup_instanced_octahemispheres(Shader *shader_p,
 }
 
 
-// instancing buffer for particles
+// instancing buffer for particles. Make *space* for n_particles, but set
+// n_instances = 0.
 void
-Mesh::setup_instancing_buffers(unsigned int n_particles) {
+Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
 
    // we want to allocate space for n_particles instances, but until the particles
    // are created, and the particle bufffer data updated, we don't want to draw
@@ -591,8 +595,11 @@ Mesh::setup_instancing_buffers(unsigned int n_particles) {
    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
+   // I shouldn't need to make 2 buffers (ie. 2 calls to glBufferData) here!
+   // Look at how the Mesh for ribbons does it.
+
    // instanced colours
-   glGenBuffers(2, &inst_colour_buffer_id);
+   glGenBuffers(1, &inst_colour_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
    // glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(Particle), &(particles.particles[0]), GL_DYNAMIC_DRAW);
    glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
@@ -600,6 +607,7 @@ Mesh::setup_instancing_buffers(unsigned int n_particles) {
    // Particle: position, velocity, colour - skip over position and velocity
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(2, 1);
 
    // instanced translations
    glGenBuffers(1, &inst_model_translation_buffer_id);
@@ -617,7 +625,7 @@ Mesh::setup_instancing_buffers(unsigned int n_particles) {
    err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
    unsigned int n_triangles = triangle_vertex_indices.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (true)
+   if (false)
       std::cout << "debug:: setup_instancing_buffers() particles: "
                 << "vao" << vao
                 << " glBufferData for index buffer_id " << index_buffer_id
@@ -1095,7 +1103,7 @@ Mesh::draw(Shader *shader_p,
       // before making a new VAO?
 
       if (false)
-         std::cout << "debug:: mesh: " << name << " shader " << shader_p->name
+         std::cout << "debug:: Mesh::draw() " << name << " shader " << shader_p->name
                    << " vao " << vao
                    << " drawing " << n_verts << " triangle vertices"  << std::endl;
 
@@ -1135,13 +1143,13 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    unsigned int n_mats = mats.size();
    // std::cout << "subbufferdata " << n_mats * 4 * sizeof(glm::vec4) << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER,    0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats     * sizeof(glm::vec4), &(colours[0]));
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * sizeof(glm::vec4), &(colours[0]));
 }
 
 void
-Mesh::update_instancing_buffer_data(const particle_container_t &particles) {
+Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &particles) {
 
    n_instances = particles.size();
    if (false)
@@ -1302,22 +1310,24 @@ Mesh::setup_camera_facing_outline() {
 void
 Mesh::setup_camera_facing_quad() {
 
-   // for particles that have a texture rendered on them
+   float scale_x = 0.4; // pass?
+   float scale_y = 0.2;
 
-   // float s = 0.1;
-   // glm::vec3 n(0,0,1);
-   // glm::vec4 c(0.4, 0.4, 0.4, 0.4);
-   // s_generic_vertex g0(s * glm::vec3(-1,-1, 0), n, c);
-   // s_generic_vertex g1(s * glm::vec3(-1, 1, 0), n, c);
-   // s_generic_vertex g2(s * glm::vec3( 1, 1, 0), n, c);
-   // s_generic_vertex g3(s * glm::vec3( 1,-1, 0), n, c);
-   // vertices.push_back(g0);
-   // vertices.push_back(g1);
-   // vertices.push_back(g2);
-   // vertices.push_back(g3);
-   // triangle_vertex_indices.push_back(g_triangle(0,3,2));
-   // triangle_vertex_indices.push_back(g_triangle(0,2,1));
-   // setup_buffers();
+   glm::vec3 n(0,0,1);
+   glm::vec4 col(1.0, 1.0, 1.0, 1.0);
+
+   vertices.clear();
+   triangle_vertex_indices.clear();
+
+   vertices.push_back(s_generic_vertex(glm::vec3( scale_x,  scale_y, 0.0f), n, col));
+   vertices.push_back(s_generic_vertex(glm::vec3(-scale_x,  scale_y, 0.0f), n, col));
+   vertices.push_back(s_generic_vertex(glm::vec3(-scale_x, -scale_y, 0.0f), n, col));
+   vertices.push_back(s_generic_vertex(glm::vec3( scale_x, -scale_y, 0.0f), n, col));
+
+   triangle_vertex_indices.push_back(g_triangle(0,1,2));
+   triangle_vertex_indices.push_back(g_triangle(2,3,0));
+
+   setup_buffers();
 
 }
 

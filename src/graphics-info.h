@@ -60,17 +60,7 @@
 #include <CXXClasses/RendererGLSL.hpp>
 #endif // USE_MOLECULES_TO_TRIANGLES
 
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
-struct FT_character {
-   GLuint     TextureID;  // ID handle of the glyph texture
-   glm::ivec2 Size;       // Size of glyph
-   glm::ivec2 Bearing;    // Offset from baseline to left/top of glyph
-    FT_Pos     Advance;    // Offset to advance to next glyph
-};
-
+#include "ft-character.hh"
 
 #include "clipper/core/xmap.h"
 
@@ -3616,6 +3606,7 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+   static meshed_generic_display_object mesh_for_environment_distances;
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {
@@ -4078,11 +4069,10 @@ string   static std::string sessionid;
    static Shader shader_for_atom_labels;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
+   static Shader shader_for_lines;
    static Shader shader_for_particles;
    static long frame_counter;
    static long frame_counter_at_last_display;
-   static framebuffer screen_framebuffer;
-   static framebuffer blur_framebuffer;
    static bool perspective_projection_flag;
    static float screen_z_near_perspective;
    static float screen_z_far_perspective;
@@ -4091,6 +4081,9 @@ string   static std::string sessionid;
    static bool shader_do_depth_fog_flag;
    static bool shader_do_outline_flag;
    static bool draw_normals_flag;
+   static framebuffer screen_framebuffer;
+   static framebuffer blur_framebuffer;
+   static unsigned int framebuffer_scale;
 
    // ---------------------------------------------
    void init_shaders();
@@ -4123,6 +4116,7 @@ string   static std::string sessionid;
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
+   static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);

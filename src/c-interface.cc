@@ -3025,7 +3025,10 @@ void set_show_unit_cells_all(short int istate) {
 	 graphics_info_t::molecules[imol].show_unit_cell_flag = istate;
       }
    }
+
+   std::cout << "calling graphics_draw()" << std::endl;
    graphics_draw();
+
    std::string cmd = "set-show-unit-cells-all";
    std::vector<coot::command_arg_t> args;
    args.push_back(istate);

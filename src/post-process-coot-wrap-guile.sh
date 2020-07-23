@@ -1,4 +1,11 @@
 
+
+
+if [ -z "$BASH_VERSINFO" ] ; then
+    echo wrong shell
+    exit 1
+fi
+
 function add_ifdefs { 
 
 pre_tmp=$1

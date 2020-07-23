@@ -1,6 +1,8 @@
 
 // Mesh generation code for MolecularTriangles
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+
 #include <memory>
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
@@ -298,3 +300,6 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
    return vp;
 
 }
+
+#endif
+
