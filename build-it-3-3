@@ -2057,40 +2057,6 @@ else
    build_libgnomecanvas=1
 fi
 
-# ##############################################################
-#   test for goocanvas
-# ##############################################################
-
-if [ "$build_goocanvas" = "" ] ; then
-
-    # has it been installed?
-    #
-    if [ -e "${install_top_dir}/include/goocanvas-1.0/goocanvaswidget.h" ] ; then
-	build_goocanvas=no
-        goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
-    fi
-
-    # is it compilable? (do we have the right gtk (etc) version?)
-    #
-    if pkg-config gtk+-2.0 --atleast-version 2.12 ; then
-       echo goocanvas: recent enough gtk+ version
-       if pkg-config cairo --atleast-version 1.4 ; then
-          echo goocanvas: recent enough cairo version
-          # yes, compilable
-          goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
-       else
-          echo goocanvas: Cairo is too old.  Goocanvas needs cairo 1.4 or later. You have:
-	  pkg-config cairo --modversion
-	  build_goocanvas=no
-       fi
-    else 
-       echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
-       pkg-config gtk+-2.0 --modversion
-       build_goocanvas=no
-    fi
-fi
-echo goocanvas:  goocanvas_args set to $goocanvas_args
-
 
 # test for mmdb: Does mmdb_model.h exist, and if it does, does it
 # contain MMDBF_IgnoreHash.  If not, then build mmdb.
