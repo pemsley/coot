@@ -1352,6 +1352,16 @@ int test_interface_residues(int argc, char **argv) {
 
 }
 
+#include "fib-sphere.hh"
+void
+test_fibonacci() {
+
+   std::vector<clipper::Coord_orth> pts = coot::fibonacci_sphere(50);
+   for (unsigned int i=0; i<50; i++)
+      std::cout << "spherical " << pts[i].x() << " " << pts[i].y() << " " << pts[i].z() << "\n";
+
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1441,8 +1451,11 @@ int main(int argc, char **argv) {
    if (false)
       test_flip(argc, argv);
 
-   if (true)
+   if (false)
       test_interface_residues(argc, argv);
+
+   if (true)
+      test_fibonacci();
 
    return 0;
 }
