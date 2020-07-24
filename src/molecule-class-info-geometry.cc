@@ -1,13 +1,14 @@
 
 #include "molecule-class-info.h"
-#include "utils/dodec.hh"
+
+#include "oct.hh"
 
 // We can think about a more efficient interface when this one works
 //
 std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const {
 
-   float sphere_radius = 0.105; // how big should atoms be?
+   float sphere_radius = 0.085; // how big should atoms be?
    float radius_scale = 0.2 * bond_width; // arbs
    if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
    // atom_scale = 1.45;
@@ -16,66 +17,54 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
    std::vector<g_triangle> v2;
 
    bool against_a_dark_background = true;
-   pentakis_dodec d(1.0);
+   glm::vec3 origin(0,0,0);
+   unsigned int num_subdivisions = 2; // 2 should be the default?
+   if (is_intermediate_atoms_molecule)
+      num_subdivisions = 1;
+   float radius = 1;
+   glm::vec4 col(0.5, 0.5, 0.5, 0.5);
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+      make_octasphere(num_subdivisions, origin, radius, col);
+
+   // first count the number of atoms so that we can resize the vertices v1:
+   unsigned int n_atoms = 0;
+   for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++)
+      n_atoms += bonds_box.consolidated_atom_centres[icol].num_points;
+   v1.reserve(n_atoms * octaball.first.size());
+   v2.reserve(n_atoms * octaball.second.size());
+   glm::mat4 unit_matrix(1.0f);
+
    unsigned int atom_idx = 0; // running index so that the indices for the triangles can be calculated
    for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-      // set_bond_colour_by_mol_no(icol, against_a_dark_background); // this function is const ATM.
+      glm::vec4 atom_col = index_to_colour[icol];
       for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-
          const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
          float sphere_scale = radius_scale * ai.radius_scale * 1.18;
-
          if (ai.is_hydrogen_atom) // this should be set already (in the generator). Is it?
             sphere_scale = 0.5;
 
-         if (true) {
-            const coot::Cartesian &at_pos = ai.position;
+         glm::vec3 atom_position = cartesian_to_glm(ai.position);
+         unsigned int idx_base = v1.size();
 
-            for (unsigned int i=0; i<20; i++) { // dodec vertices
-               const clipper::Coord_orth &pt = d.d.get_point(i);
-               vertex_with_rotation_translation gv;
-               gv.model_rotation_matrix = glm::mat3(1.0f); // identity
-               gv.model_translation = glm::vec3(sphere_radius * sphere_scale * pt.x(),
-                                                sphere_radius * sphere_scale * pt.y(),
-                                                sphere_radius * sphere_scale * pt.z());
-               gv.pos = glm::vec3(at_pos.x(), at_pos.y(), at_pos.z());
-               gv.normal = glm::normalize(glm::vec3(gv.model_translation));
-               gv.colour = index_to_colour[icol];
-               v1.push_back(gv);
-            }
-
-            for (unsigned int i=0; i<12; i++) { // dodec faces
-               const clipper::Coord_orth &pv = d.pyrimid_vertices[i];
-               vertex_with_rotation_translation gv;
-               gv.model_rotation_matrix = glm::mat3(1.0f); // identity
-               gv.model_translation = glm::vec3(sphere_radius * sphere_scale * pv.x(),
-                                                sphere_radius * sphere_scale * pv.y(),
-                                                sphere_radius * sphere_scale * pv.z());
-               gv.pos = glm::vec3(at_pos.x(), at_pos.y(), at_pos.z());
-               gv.normal = glm::normalize(glm::vec3(gv.model_translation));
-               gv.colour = index_to_colour[icol];
-               v1.push_back(gv);
-            }
-
-            // make the pyrimid triangles, with the tips being the pyramid vertices
-            for (unsigned int i=0; i<12; i++) {
-
-               // pyramid vertices are at the centre of every face
-               std::vector<unsigned int> f_indices = d.d.face(i);
-
-               for(unsigned int j=0; j<5; j++) {
-                  unsigned int j_next = j+1;
-                  if (j == 4) j_next = 0;
-                  unsigned int t_idx_1 = 32 * atom_idx + f_indices[j];
-                  unsigned int t_idx_2 = 32 * atom_idx + f_indices[j_next];
-                  unsigned int t_idx_3 = 32 * atom_idx + 20 + i;
-                  g_triangle t(t_idx_1, t_idx_2, t_idx_3);
-                  v2.push_back(t);
-               }
-            }
-            atom_idx++;
+         for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
+            vertex_with_rotation_translation vertex(octaball.first[ibv], sphere_radius * sphere_scale);
+            vertex.colour = atom_col;
+            vertex.model_rotation_matrix = unit_matrix;  // for now
+            vertex.model_translation = atom_position;
+            v1.push_back(vertex);
          }
+         std::vector<g_triangle> octaball_triangles = octaball.second;
+         for (unsigned int ii=0; ii<octaball_triangles.size(); ii++)
+            octaball_triangles[ii].rebase(idx_base);
+         v2.insert(v2.end(), octaball_triangles.begin(), octaball_triangles.end());
+
+         atom_idx++;
       }
    }
+
+   // about 200,000 vertices for tutorial modern with subdivision 2
+   // std::cout << "returning from make_generic_vertices_for_atoms() with sizes "
+   // << v1.size() << " " << v2.size() << std::endl;
+
    return std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >(v1, v2);
 }

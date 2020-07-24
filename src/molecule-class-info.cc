@@ -3728,12 +3728,11 @@ molecule_class_info_t::make_bonds_type_checked() {
       std::cout << "--- make_bonds_type_checked() done " << std::endl;
 }
 
- void
-    molecule_class_info_t::make_glsl_bonds_type_checked() {
+ void molecule_class_info_t::make_glsl_bonds_type_checked() {
 
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-    unsigned int n_slices = 10;
+    unsigned int n_slices = 16;
     unsigned int n_stacks = 2;
 
     std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
@@ -3785,7 +3784,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
     // --- bonds ---
 
-    float radius = 0.025f * bond_width;
+    float radius = 0.02f * bond_width;
     if (is_intermediate_atoms_molecule) radius *= 1.8f;
     for (int i=0; i<bonds_box.num_colours; i++) {
        graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
