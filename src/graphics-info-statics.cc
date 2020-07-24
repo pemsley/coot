@@ -108,4 +108,4 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
-unsigned int graphics_info_t::framebuffer_scale = 2; // on supersampling by default.
+unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
