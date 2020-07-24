@@ -1991,7 +1991,9 @@ molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
       unlabel_atom(atom_index);
    } else {
       labelled_atom_index_list.push_back(atom_index);
-      add_mesh_for_atom_label(atom_index);
+
+      std::cout << "molecule_class_info_t::add_to_labelled_atom_list - add TextureMesh here"
+                << std::endl;
    }
 }
 
