@@ -76,7 +76,6 @@ void to_generic_object_add_line(int object_number,
       if (object_number_u < g.generic_display_objects.size()) {
          std::pair<glm::vec3, glm::vec3> p(coord_orth_to_glm(x1), coord_orth_to_glm(x2));
          meshed_generic_display_object &obj = g.generic_display_objects[object_number];
-         std::cout << "adding line to obj" << std::endl;
          float radius = 0.3;
          unsigned int n_slices = 12;
          coot::colour_holder col = colour_values_from_colour_name(colour_name);
