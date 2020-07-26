@@ -99,6 +99,12 @@ public:
    void setup_camera_facing_hex();
    void setup_camera_facing_polygon(unsigned int n_sides = 8);
 
+   void setup_rtsc_instancing(Shader *shader_p,
+                              const std::vector<glm::mat4> &mats,
+                              const std::vector<glm::vec4> &colours,
+                              unsigned int n_instances_in,
+                              const Material &material_in);
+
    // when the position, orientation and colour change:
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                       const std::vector<glm::vec4> &colours);

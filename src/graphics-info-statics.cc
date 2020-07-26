@@ -40,6 +40,7 @@ Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_particles;
+Shader graphics_info_t::shader_for_instanced_cylinders; // better name needed? used for boids
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
@@ -109,3 +110,16 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
 unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
+
+
+bool graphics_info_t::do_tick_particles = false;
+bool graphics_info_t::do_tick_spin = false;
+bool graphics_info_t::do_tick_boids = false;
+int graphics_info_t::n_particles = 300;
+Mesh graphics_info_t::mesh_for_particles;
+particle_container_t graphics_info_t::particles;
+
+fun::boids_container_t graphics_info_t::boids;
+Mesh graphics_info_t::mesh_for_boids;
+LinesMesh graphics_info_t::lines_mesh_for_boids_box;
+

@@ -15,7 +15,7 @@ class LinesMesh {
    GLuint buffer_id;
    GLuint index_buffer_id;
 public:
-   LinesMesh() {}
+   LinesMesh() { index_buffer_id = 999999; }
    // e.g. a box will have 8 vertices and 12 * 2 indices
    LinesMesh(const std::vector<s_generic_vertex> &vertices_in,
              const std::vector<unsigned int> &indices_in) : vertices(vertices_in), indices(indices_in) {}

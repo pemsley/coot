@@ -290,6 +290,7 @@ coot_bin_SOURCES = \
 	main.cc 		 \
 	atom-pull.hh		 \
 	array-2d.hh		 \
+	boids.hh boids.cc	 \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \

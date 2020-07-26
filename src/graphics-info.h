@@ -114,6 +114,8 @@
 #endif // HAVE_CURL_H
 #endif
 
+#include "boids.hh"
+
 #include "graphics-ligand-view.hh"
 
 #include "restraints-editor.hh"
@@ -3054,6 +3056,7 @@ public:
    static void draw_generic_objects_solid();
    static void draw_generic_text();
    static void draw_particles();
+   static void draw_boids();
    void setup_draw_for_particles();
    void clear_simple_distances();
    void clear_last_simple_distance();
@@ -4071,6 +4074,7 @@ string   static std::string sessionid;
    static Shader shader_for_blur;
    static Shader shader_for_lines;
    static Shader shader_for_particles;
+   static Shader shader_for_instanced_cylinders;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
@@ -4233,6 +4237,23 @@ string   static std::string sessionid;
    // Lights
    //
    static std::map<unsigned int, lights_info_t> lights;
+
+   // Mesh mesh_for_particles("mesh-for-particles");
+   // int n_particles = 100;
+   static Mesh mesh_for_particles;
+   static int n_particles;
+   static particle_container_t particles;
+
+   static Mesh mesh_for_boids; // with instancing
+   static fun::boids_container_t boids;
+   static LinesMesh lines_mesh_for_boids_box;
+   void setup_draw_for_boids();
+
+   static bool do_tick_particles;
+   static bool do_tick_spin;
+   static bool do_tick_boids;
+   
+   
 };
 
 
