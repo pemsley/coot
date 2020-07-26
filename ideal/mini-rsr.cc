@@ -390,7 +390,7 @@ main(int argc, char **argv) {
 	    }
 
 	    // the bool is to annotate for "fixed" residue - here nothing is fixed.
-	    // 
+	    //
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
 	    if (inputs.chain_id.empty())

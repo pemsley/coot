@@ -4,8 +4,8 @@
 #define DENSITY_CONTOUR_TRIANGLES_HH
 
 struct POINT3DID {
-	unsigned int newID;
-	float x, y, z;
+   unsigned int newID;
+   float x, y, z;
 };
 
 typedef std::map<unsigned int, POINT3DID> ID2POINT3DID;
@@ -26,6 +26,7 @@ public:
 };
 
 namespace coot {
+
 
    class density_contour_triangles_container_t {
    public:

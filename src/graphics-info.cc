@@ -96,7 +96,6 @@
 
 #include "geometry/dict-utils.hh"
 
-
 // return a vector of the current valid map molecules
 std::vector<int>
 graphics_info_t::valid_map_molecules() const {

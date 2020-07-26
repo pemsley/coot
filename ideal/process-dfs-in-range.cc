@@ -1180,7 +1180,7 @@ coot::process_dfs_target_position(const coot::simple_restraint &restraint,
 
    if (restraint.is_closed) return;
 
-   double sigma = 0.03;
+   double sigma = 0.02;
    int idx = 3*(restraint.atom_index_1);
 
    bool harmonic_restraint = true;
