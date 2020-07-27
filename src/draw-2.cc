@@ -915,46 +915,54 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
          shader.Use();
-         GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
-                                                       << err << std::endl;
+         GLuint err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
+                            << err << std::endl;
 
          glBindVertexArray(m.m_VertexArray_for_model_ID);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glBindVertexArray() "
+         if (err) std::cout << "   error draw_intermediate_atoms() glBindVertexArray() "
                             << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
          // should not be needed?
          glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
-         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
+         err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() v "
+                            << err << std::endl;
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
-         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() i " << err << std::endl;
+         err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() i "
+                            << err << std::endl;
 
          GLuint mvp_location           = shader.mvp_uniform_location;
          GLuint view_rotation_location = shader.view_rotation_uniform_location;
 
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() pre mvp " << err << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() pre mvp "
+                            << err << std::endl;
          glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() for mvp "
+                            << err << std::endl;
          glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation " << err << std::endl;
-         // std::cout << glm::to_string(mvp) << std::endl;
-         // std::cout << glm::to_string(view_rotation) << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() "
+                            << "for view_rotation " << err << std::endl;
 
          GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
          glm::vec4 bgc(background_colour, 1.0);
          glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
+         if (err) std::cout << "error draw_model_molecules() glUniform4fv() for background "
+                            << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep = glm::vec4(get_world_space_eye_position(), 1.0);
-         glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+         glm::vec3 ep = get_world_space_eye_position();
+         glUniform3fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniform4fv() for eye position "
+                            << err << std::endl;
 
          shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
 
