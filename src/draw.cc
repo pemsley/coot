@@ -59,6 +59,8 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 gint
 draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
+#if 0 // historical reasons - remove this function when useless
+
    // std::cout << "draw_mono() with widget " << widget << std::endl;
 
    if ((event-1) != 0) {
@@ -494,6 +496,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
    gdkglext_finish_frame(widget);
+
+#endif
    return TRUE;
 }
 

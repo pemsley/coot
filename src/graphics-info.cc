@@ -314,52 +314,6 @@ graphics_info_t::background_is_black_p() {
 void
 graphics_info_t::draw_anti_aliasing() {
 
-   // Bernie code?
-   //
-   // PE 20090426 JB reports a crash here (I'm guessing it's here -
-   // top of the stack was the callback
-   // on_background_white1_activate()).  Can't reproduce crash.
-   //
-   // I did however change to using background_is_black_p().
-
-  // first for stereo
-  if (glareas.size() == 2) {
-    if (make_current_gl_context(glareas[1])) {
-      if (do_anti_aliasing_flag) {
-         // should we also add a (quality) hint here?
-         glEnable(GL_LINE_SMOOTH);
-         glEnable(GL_BLEND);
-         if (background_is_black_p()) {
-            glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
-         } else {
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-         }
-      } else {
-         glDisable(GL_LINE_SMOOTH);
-         glDisable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-      }
-    }
-  }
-  // normal path
-  if (glareas[0]) {
-    if (make_current_gl_context(glareas[0])) {
-      if (do_anti_aliasing_flag) {
-   glEnable(GL_LINE_SMOOTH);
-   glEnable(GL_BLEND);
-   if (background_is_black_p()) {
-     glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
-   } else {
-     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-   }
-      } else {
-   glDisable(GL_LINE_SMOOTH);
-   glDisable(GL_BLEND);
-   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA); // Thanks Stuart McN.
-      }
-      graphics_draw();
-    }
-  }
 }
 
 // This addresses the "everything is an INH" problem.

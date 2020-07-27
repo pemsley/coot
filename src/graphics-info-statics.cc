@@ -79,6 +79,10 @@ bool graphics_info_t::draw_normals_flag = false;
 // static
 void
 graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) {
+
+   // what does this do now?
+
+#if 0
    if (glareas.empty()) return;
    if (display_mode_use_secondary_p()) {
       if (gl_context_current_request_index == GL_CONTEXT_SECONDARY) {
@@ -103,6 +107,7 @@ graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) 
 	 }
       }
    }
+#endif
 }
 
 bool graphics_info_t::draw_missing_loops_flag = true;

@@ -984,17 +984,6 @@ public:
      return r;
    }
 
-   /* OpenGL functions can be called only if make_current returns true */
-   static int make_current_gl_context(GtkWidget *widget) {
-
-#if 0   // Old GTK-GL interface
-     GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
-     GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-     return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
-#endif
-     return 0;
-   }
-
 
    enum {GL_CONTEXT_MAIN = 0, GL_CONTEXT_SECONDARY = 1};
 

@@ -7882,50 +7882,15 @@ void translate_scene_z(int nsteps) {
 void set_background_colour(double red, double green, double blue) {
 
    graphics_info_t g;
-
-   if (g.use_graphics_interface_flag) {
-      if(g.glareas.size() == 2) {
-         g.make_current_gl_context(g.glareas[1]);
-         glClearColor(red,green,blue,1.0);
-         g.background_colour[0] = red;
-         g.background_colour[1] = green;
-         g.background_colour[2] = blue;
-         // glFogfv(GL_FOG_COLOR, g.background_colour);
-      }
-      g.make_current_gl_context(g.glareas[0]);
-      glClearColor(red,green,blue,1.0);
-      g.background_colour[0] = red;
-      g.background_colour[1] = green;
-      g.background_colour[2] = blue;
-      // glFogfv(GL_FOG_COLOR, g.background_colour);
-      if (g.do_anti_aliasing_flag) {
-         // update the antialias?!
-         g.draw_anti_aliasing();
-      }
-      graphics_draw();
-   }
+   g.background_colour[0] = red;
+   g.background_colour[1] = green;
+   g.background_colour[2] = blue;
+   graphics_draw();
 }
 
 void
 redraw_background() {
-
-   graphics_info_t g;
-
-   double red   = g.background_colour[0];
-   double green = g.background_colour[1];
-   double blue  = g.background_colour[2];
-   if (g.use_graphics_interface_flag && !background_is_black_p()) {
-      if(g.glareas.size() == 2) {
-         g.make_current_gl_context(g.glareas[1]);
-         glClearColor(red,green,blue,1.0);
-         // glFogfv(GL_FOG_COLOR, g.background_colour);
-      }
-      g.make_current_gl_context(g.glareas[0]);
-      glClearColor(red,green,blue,1.0);
-      // glFogfv(GL_FOG_COLOR, g.background_colour);
-      graphics_draw();
-   }
-
+   graphics_draw();
 }
 
 int background_is_black_p() {
