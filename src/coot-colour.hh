@@ -2,12 +2,6 @@
 #ifndef COOT_COLOUR_HH
 #define COOT_COLOUR_HH
 
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#else
-#   include <GL/gl.h>
-#endif
-
 namespace coot { 
    class colour_t {
       void init(float r, float g, float b) {
@@ -23,7 +17,6 @@ namespace coot {
       colour_t() { init(0.5, 0.5, 0.5); }
       colour_t(float r, float g, float b) { init(r,g,b); }
       void set(float r, float g, float b) { init(r,g,b); }
-      void glcolor() const { glColor3f(col[0], col[1], col[2]); }
       float &operator[](const unsigned int &idx) { return col[idx]; }
       const float &operator[](const unsigned int &idx) const { return col[idx]; }
       void rotate(float f);

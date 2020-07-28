@@ -22,9 +22,6 @@ Texture::init(const std::string &file_name) {
    }
 
    glGenTextures(1, &m_texture_handle);
-   if (true)
-      std::cout << "########################## Read Texture from " << file_name << " gen texture id "
-                << m_texture_handle << std::endl;
    glBindTexture(GL_TEXTURE_2D, m_texture_handle);
 
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

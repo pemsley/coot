@@ -36,12 +36,8 @@
 
 // need gtk things
 #include <gtk/gtk.h>
+#include <epoxy/gl.h>
 
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#else
-#   include <GL/gl.h>
-#endif
 
 // Yesterday's OpenGL interface
 // #include <gdk/gdkglconfig.h>

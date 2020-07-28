@@ -48,11 +48,10 @@
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
 
+#include "graphics-info.h"
 #include "interface.h"
 
 #include "molecule-class-info.h"
-
-#include "graphics-info.h"
 
 #include "utils/coot-utils.hh"
 

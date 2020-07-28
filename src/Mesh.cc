@@ -519,9 +519,8 @@ Mesh::setup_instanced_cylinders(Shader *shader_p,
                                 const Material &material_in,
                                 const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours) {
 
-   GLenum err = glGetError();
-   if (err) std::cout << "   error setup_instanced_cylinders() -- start -- " << err << std::endl;
-
+   GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_cylinders() -- start -- "
+                                                 << err << std::endl;
    is_instanced = true;
    is_instanced_with_rts_matrix = true;
 
@@ -995,6 +994,8 @@ Mesh::draw(Shader *shader_p,
            const glm::vec4 &background_colour,
            bool do_depth_fog) {
 
+   // std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << std::endl;
+
    if (! draw_this_mesh) return;
 
    unsigned int n_triangles = triangle_vertex_indices.size();
@@ -1044,14 +1045,20 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_float_for_uniform("material.shininess", material.shininess);
    shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
 
-   // std::cout << "sent material.shininess " << material.shininess << std::endl;
-   // std::cout << "sent material.specular_strength " << material.specular_strength << std::endl;
-
    if (false) {
-      std::cout << "debug:: draw(): " << shader_p->name << " material.ambient "   << glm::to_string(material.ambient) << std::endl;
-      std::cout << "debug:: draw(): " << shader_p->name << " material.diffuse "   << glm::to_string(material.diffuse) << std::endl;
-      std::cout << "debug:: draw(): " << shader_p->name << " material.specular "  << glm::to_string(material.specular) << std::endl;
-      std::cout << "debug:: draw(): " << shader_p->name << " material.shininess " << material.shininess << std::endl;
+      std::cout << "debug:: draw(): " << shader_p->name << " material.ambient "
+                << glm::to_string(material.ambient) << std::endl;
+      std::cout << "debug:: draw(): " << shader_p->name << " material.diffuse "
+                << glm::to_string(material.diffuse) << std::endl;
+      std::cout << "debug:: draw(): " << shader_p->name << " material.specular "
+                << glm::to_string(material.specular) << std::endl;
+      std::cout << "debug:: draw(): " << shader_p->name << " material.shininess "
+                << material.shininess << std::endl;
+      std::cout << name << " " << shader_p->name << " sent material.shininess "
+                << material.shininess << std::endl;
+      std::cout << name << " " << shader_p->name << " sent material.specular_strength "
+                << material.specular_strength << std::endl;
+
    }
 
    err = glGetError();

@@ -41,25 +41,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#if 0 // old OpenGL interface
-#include <gdk/gdkglconfig.h>
-#include <gtk/gtkgl.h>
-#endif
-
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#   include <OpenGL/glu.h>
-#else
-#   include <GL/gl.h>
-#   include <GL/glu.h>
-#endif
-
-// #include <GL/glut.h> // needed for wirecube and wiresphere.
-
-#ifdef WINDOWS_MINGW
-// in windows we need these for some newer openGL functions
-#include <GL/glext.h>
-#endif // WINDOWS_MINGW
+#include <epoxy/gl.h>
 
 #include "compat/sleep-fixups.h"
 

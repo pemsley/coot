@@ -46,6 +46,7 @@ cylinder::cylinder(const std::pair<glm::vec3, glm::vec3> &pos_pair,
    float one_over_n_slices = 1.0/static_cast<float>(n_slices);
    float one_over_n_stacks = 1.0/static_cast<float>(n_stacks-1);
    float height_step = height/static_cast<float>(n_stacks);
+
    for (unsigned int i_stack=0; i_stack<=n_stacks; i_stack++) {
       for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
          float z_this = i_stack * height_step;

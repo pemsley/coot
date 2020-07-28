@@ -8,8 +8,21 @@
 #include <vector>
 #include <chrono>
 #include <string>
+#include <memory>
 #include <map>
 #include <mmdb2/mmdb_manager.h>
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
+#include <CXXClasses/VertexColorNormalPrimitive.h>
+#endif
 
 #include "generic-vertex.hh"
 #include "g_triangle.hh"

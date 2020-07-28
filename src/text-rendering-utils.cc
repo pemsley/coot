@@ -14,16 +14,24 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/ext.hpp>
 
 // FreeType
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#ifdef THIS_IS_HMT
+#else
 #include "graphics-info.h"
+#endif
+
 #include "Shader.hh"
 
 // Properties
 // const GLuint WIDTH = 800, HEIGHT = 600;
+
+#include "ft-character.hh"
 
 // these are shared for HUD text and atom labels - I am not sure that that's a good idea.
 GLuint VAO_for_text, VBO_for_text;
@@ -31,7 +39,8 @@ GLuint VAO_for_text, VBO_for_text;
 void debug_ft_characters() {
 
    std::map<GLchar, FT_character>::const_iterator it;
-   for (it=graphics_info_t::ft_characters.begin(); it!=graphics_info_t::ft_characters.end(); it++) {
+   std::map<GLchar, FT_character> &ft_characters = graphics_info_t::ft_characters;
+   for (it=ft_characters.begin(); it!=ft_characters.end(); it++) {
       std::cout << "debug ft_characters " << it->first << " " << it->second.TextureID << std::endl;
    }
 
@@ -91,6 +100,8 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
     // Activate corresponding render state
     GLenum err = glGetError(); if (err) std::cout << "RenderText start err " << err << std::endl;
 
+    std::map<GLchar, FT_character> &ft_characters = graphics_info_t::ft_characters;
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     shader.Use();
@@ -106,9 +117,9 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
     for (c = text.begin(); c != text.end(); c++) {
         err = glGetError(); if (err) std::cout << "RenderText loop start for " << *c << " " << err << std::endl;
         // const FT_character &ch = ft_characters[*c];
-        std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
-        if (it == graphics_info_t::ft_characters.end()) {
-           std::cout << "Failed to lookup for " << *c << std::endl;
+        std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*c);
+        if (it == ft_characters.end()) {
+           std::cout << "RenderText() Failed to lookup for " << *c << std::endl;
            continue;
         };
         const FT_character &ch = it->second;
@@ -154,6 +165,12 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 void render_atom_label(Shader &shader, std::string text, glm::vec3 projected_point,
                        GLfloat scale, glm::vec3 color) {
 
+   return;
+   std::cout << "---------- render_atom_label() " << text << " " << glm::to_string(projected_point)
+             << std::endl;
+
+   std::map<GLchar, FT_character> &ft_characters = graphics_info_t::ft_characters;
+
    // need to pass widget width and height, I think.
 
    // Activate corresponding render state
@@ -165,6 +182,7 @@ void render_atom_label(Shader &shader, std::string text, glm::vec3 projected_poi
    err = glGetError(); if (err) std::cout << "error:: render_atom_label A0 " << err << std::endl;
    // GLuint loc = glGetUniformLocation(shader.get_program_id(), "textColour");
    // GLuint loc = shader.atom_label_textColour_uniform_location;
+
    glm::vec3 atom_colour(color.x, color.y, color.z);
    shader.set_vec3_for_uniform("textColour", atom_colour);
    err = glGetError(); if (err) std::cout << "error:: render_atom_label A1 " << err << std::endl;
@@ -188,9 +206,9 @@ void render_atom_label(Shader &shader, std::string text, glm::vec3 projected_poi
       err = glGetError(); if (err) std::cout << "render_atom_label loop start for "
                                              << *c << " " << err << std::endl;
       // const FT_character &ch = ft_characters[*c];
-      std::map<GLchar, FT_character>::const_iterator it = graphics_info_t::ft_characters.find(*c);
-      if (it == graphics_info_t::ft_characters.end()) {
-         std::cout << "Failed to lookup for " << *c << std::endl;
+      std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*c);
+      if (it == ft_characters.end()) {
+         std::cout << "render_atom_label(): Failed to lookup for " << *c << std::endl;
          continue;
       };
       const FT_character &ch = it->second;

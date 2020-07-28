@@ -75,6 +75,7 @@
 #include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
 
+#include "graphics-info.h"
 #include "interface.h"
 
 #include "molecule-class-info.h"
@@ -87,7 +88,6 @@
 #include "ligand/ideal-rna.hh"
 #include "ligand/residue_by_phi_psi.hh"
 
-#include "graphics-info.h"
 #include "rotate-translate-modes.hh"
 #include "ideal/torsion-bonds.hh"
 

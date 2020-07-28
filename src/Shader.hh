@@ -2,6 +2,7 @@
 #ifndef SHADER_HH
 #define SHADER_HH
 
+#include <epoxy/gl.h>
 #include "lights-info.hh"
 
 #include <map>

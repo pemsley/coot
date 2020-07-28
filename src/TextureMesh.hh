@@ -37,6 +37,7 @@ public:
    void import(const IndexedModel &ind_model, float scale);
    void setup_camera_facing_quad(const Shader &shader);
    void setup_buffers();
+   void set_colour(const glm::vec4 &col_in);
    void draw(Shader *shader,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
@@ -46,6 +47,7 @@ public:
              bool do_depth_fog);
    void draw_atom_label(const std::string &atom_label,
                         const glm::vec3 &atom_label_position,
+                        const glm::vec4 &text_colour, // set using subbufferdata
                         Shader *shader,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation_matrix,
