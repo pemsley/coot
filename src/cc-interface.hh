@@ -351,6 +351,10 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
 //! \}
 
 
+// Where should this go?
+void import_bild(const std::string &file_name);
+
+
 /*  ------------------------------------------------------------------------ */
 /*                         merge fragments                                   */
 /*  ------------------------------------------------------------------------ */
