@@ -65,7 +65,9 @@ int setup_hud_text(int widget_width, int widget_height, Shader &shader, bool for
       GLuint projection_uniform_location = shader.atom_label_projection_uniform_location;
       glUniformMatrix4fv(projection_uniform_location, 1, GL_FALSE, glm::value_ptr(projection));
 
-      err = glGetError(); if (err) std::cout << "RenderText Aa " << err << std::endl;
+      err = glGetError();
+      if (err) std::cout << "error in setup_hud_text() RenderText Aa " << err << std::endl;
+
    } else {
       GLuint projection_uniform_location = shader.hud_projection_uniform_location;
       glUniformMatrix4fv(projection_uniform_location, 1, GL_FALSE, glm::value_ptr(projection));

@@ -3012,6 +3012,7 @@ graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
    Material material;
    mesh_for_environment_distances.mesh.setup(&shader_for_moleculestotriangles, material);
 
+   labels.clear(); // remove everything
    add_distance_labels_for_environment_distances();
 
 }
