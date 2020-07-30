@@ -34,12 +34,29 @@ void main() {
 
 uniform sampler2D text;
 uniform bool do_depth_fog;
+uniform bool is_perspective_projection;
 uniform vec4 background_colour;
 
 in vec4 colour_transfer;
 in vec2 texCoord_transfer;
 
 out vec4 outputColor;
+
+float get_fog_amount(float depth_in) {
+
+   // text is a bit wispy already.
+   // Do don't fade it out with depth too heavily
+   
+   if (! is_perspective_projection) {
+      return 0.6 * depth_in;
+   } else {
+      // needs tweaking
+      float d = depth_in;
+      float d4 = d * d * d * d;
+      return d4;
+   }
+
+}
 
 void main() {
 
@@ -48,6 +65,10 @@ void main() {
 
    vec4 sampled = texture(text, texCoord_transfer);
    sampled = vec4(1.0, 1.0, 1.0, sampled.r);
-   outputColor = colour_transfer * sampled;
+   float fog_amount = 0.0;
+   if (do_depth_fog)
+      fog_amount = get_fog_amount(gl_FragCoord.z);
+   vec4 col = colour_transfer * sampled;
+   outputColor = (1.0 - fog_amount) * col;
 
 }

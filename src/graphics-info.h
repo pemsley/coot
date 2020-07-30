@@ -4109,7 +4109,7 @@ string   static std::string sessionid;
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();
    static void draw_intermediate_atoms();
-   static void draw_molecule_atom_labels(const molecule_class_info_t &m,
+   static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_molecular_triangles();

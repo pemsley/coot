@@ -715,7 +715,7 @@ graphics_info_t::draw_model_molecules() {
    Shader &shader = graphics_info_t::shader_for_models;
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 
-      const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+      molecule_class_info_t &m = graphics_info_t::molecules[ii];
       if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
       if (! m.draw_it) continue;
 
@@ -826,7 +826,7 @@ graphics_info_t::draw_model_molecules() {
 }
 
 void
-graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
+graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
 
@@ -835,7 +835,7 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
    // put a triangle or square where the atom label should be, facing the camera
    // "billboarding"
 
-   glm::vec3 label_colour(font_colour.red, font_colour.green, font_colour.blue);
+   glm::vec4 label_colour(font_colour.red, font_colour.green, font_colour.blue, 1.0);
 
    if (false) { // test label
       // Put atom label test at 42, 9, 13
@@ -867,25 +867,13 @@ graphics_info_t::draw_molecule_atom_labels(const molecule_class_info_t &m,
    if (! widget) return;
    gtk_widget_get_allocation(widget, &allocation);
 
-   for (int ii=0; ii<n_atoms_to_label ; ii++) {
-      std::pair<std::string, clipper::Coord_orth> lab_pos =
-         m.make_atom_label_string(ii, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-      const clipper::Coord_orth &co = lab_pos.second;
-      const std::string &label = lab_pos.first;
-      if (false)
-         std::cout << "Atom label at " << co.format() << " "
-                   << coot::util::single_quote(lab_pos.first) << std::endl;
+   // this doesn't seem sensibly arranged.
+   glm::vec3 unused(0,0,0);
+   m.draw_atom_labels(brief_atom_labels_flag,
+                      seg_ids_in_atom_labels_flag,
+                      label_colour,
+                      mvp, view_rotation, unused);
 
-      glm::vec3 point(co.x(), co.y(), co.z());
-      glm::vec4 projected_point = mvp * glm::vec4(point, 1.0);
-      // convert axes from -1 -> 1 to 0 -> 1
-      projected_point.x = 0.5 * (projected_point.x + 1.0f);
-      projected_point.y = 0.5 * (projected_point.y + 1.0f);
-      projected_point.x *= allocation.width;
-      projected_point.y *= allocation.height;
-      glm::vec3 pp(projected_point);
-      render_atom_label(shader_for_atom_labels, label, pp, 1.0, label_colour);
-   }
    glDisable(GL_BLEND);
 
 }
@@ -1304,7 +1292,6 @@ graphics_info_t::draw_molecules() {
 
    // opaque things
 
-   draw_model_molecules();
    draw_intermediate_atoms();
    draw_atom_pull_restraints();
 
@@ -1319,6 +1306,12 @@ graphics_info_t::draw_molecules() {
    draw_generic_objects();
 
    draw_boids();
+
+   // this is the last opaque thing to be drawn because the atom labels are blended.
+   // It should be easy to break out the atom label code into its own function. That
+   // might be better.
+   //
+   draw_model_molecules();
 
    // transparent things...
 
@@ -1335,7 +1328,7 @@ graphics_info_t::draw_molecules() {
 void
 graphics_info_t::draw_environment_graphics_object() {
 
-#if 0   
+#if 0   // old... keep for reference (for a while)
    graphics_info_t g;
    if (is_valid_model_molecule(mol_no_for_environment_distances)) {
       if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
@@ -1373,8 +1366,9 @@ graphics_info_t::draw_environment_graphics_object() {
                   const glm::vec3 &position = labels[i].position;
                   const glm::vec4 &colour   = labels[i].colour;
                    tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
-                                                   mvp, view_rotation, lights, eye_position,
-                                                   bg_col, do_depth_fog);
+                                                    mvp, view_rotation, lights, eye_position,
+                                                    bg_col, do_depth_fog,
+                                                    perspective_projection_flag);
                }
             }
 

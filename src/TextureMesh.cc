@@ -128,7 +128,9 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
                              const std::map<unsigned int, lights_info_t> &lights,
                              const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                              const glm::vec4 &background_colour,
-                             bool do_depth_fog) {
+                             bool do_depth_fog,
+                             bool is_perspective_projection) {
+
    if (! draw_this_mesh) return;
 
    unsigned int n_triangles = triangles.size();
@@ -171,6 +173,10 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    err = glGetError();
    if (err) std::cout << "error:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
                       << " post do_depth_fog " << err << std::endl;
+   shader_p->set_bool_for_uniform("is_perspective_projection", is_perspective_projection);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
+                      << " post is_perspective_projection " << err << std::endl;
 
    if (vao == 99999999)
       std::cout << "You forget to setup this mesh " << name << " " << shader_p->name << std::endl;

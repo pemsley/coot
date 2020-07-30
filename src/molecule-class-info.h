@@ -706,7 +706,12 @@ public:        //                      public
 			  int brief_atom_labels_flag,
 			  short int seg_ids_in_atom_labels_flag) const;
 
-   void draw_atom_label(int atom_index, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_label(int atom_index, int brief_atom_labels_flag,
+                        short int seg_ids_in_atom_labels_flag,
+                        const glm::vec4 &atom_label_colour,
+                        const glm::mat4 &mvp,
+                        const glm::mat4 &view_rotation,
+                        const glm::vec3 &eye_position);
 
    // don't count the mainchain of the peptide-linked residues
    //
@@ -998,7 +1003,12 @@ public:        //                      public
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
    void make_glsl_bonds_type_checked();
 
-   void draw_atom_labels(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_labels(int brief_atom_labels_flag,
+                         short int seg_ids_in_atom_labels_flag,
+                         const glm::vec4 &atom_label_colour,
+                         const glm::mat4 &mvp,
+                         const glm::mat4 &view_rotation,
+                         const glm::vec3 &eye_position);
 
    //
    void update_molecule_after_additions(); // cleanup, new
@@ -3421,7 +3431,6 @@ public:        //                      public
 
    std::vector<Mesh> meshes;
 
-   void add_mesh_for_atom_label(int atom_index);
 
 };
 

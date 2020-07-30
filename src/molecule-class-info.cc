@@ -779,10 +779,13 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 void
 molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
-                                        short int seg_ids_in_atom_labels_flag) {
+                                        short int seg_ids_in_atom_labels_flag,
+                                        const glm::vec4 &atom_label_colour,
+                                        const glm::mat4 &mvp,
+                                        const glm::mat4 &view_rotation,
+                                        const glm::vec3 &eye_position) {
 
    if (draw_it) {
-
       if (has_model()) {
 
          // keep a list of atoms that have labels (either in graphics_info
@@ -796,7 +799,9 @@ molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
 
          // also remove labels from atom indexes list of over the end.
          for (int ii=0; ii<n_atoms_to_label ; ii++)
-            draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+            draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag,
+                            seg_ids_in_atom_labels_flag, atom_label_colour,
+                            mvp, view_rotation, eye_position);
 
          n_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -1985,65 +1990,16 @@ molecule_class_info_t::dotted_chopped_name() const {
 void
 molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
+   // this is quite passive. Caller does the atom label drawing.
+
    // note initialization n_labelled_atoms is 0;
    //
    if (is_in_labelled_list(atom_index) == 1) {
       unlabel_atom(atom_index);
    } else {
       labelled_atom_index_list.push_back(atom_index);
-
-      std::cout << "molecule_class_info_t::add_to_labelled_atom_list - add TextureMesh here"
-                << std::endl;
    }
 }
-
-void
-molecule_class_info_t::add_mesh_for_atom_label(int atom_index) {
-
-   // maybe atom labels should have their own mesh type.
-   Mesh mesh;
-
-   mmdb::Atom *at = atom_sel.atom_selection[atom_index];
-   glm::vec3 atom_position = coord_orth_to_glm(coot::co(at));
-
-   std::vector<glm::vec3> q_vertices = { glm::vec3(0,0,0),
-                                         glm::vec3(1,0,0),
-                                         glm::vec3(1,1,0),
-                                         glm::vec3(0,1,0) };
-   std::vector<g_triangle> triangles;
-   triangles.push_back(g_triangle(0,1,2));
-   triangles.push_back(g_triangle(0,2,3));
-
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-   std::vector<s_generic_vertex> vertices(4);
-   glm::vec3 n(0,0,1);
-   for (unsigned int i=0; i<4; i++) {
-      vertices[i].pos = atom_position + q_vertices[i];
-      vertices[i].normal = n;
-      vertices[i].color = glm::vec4(0.6, 0.6, 0.6, 1.0);
-   }
-
-   Material material;
-   Shader &shader = graphics_info_t::shader_for_moleculestotriangles;
-   mesh.import(vertices, triangles);
-   mesh.setup(&shader, material);
-   meshes.push_back(mesh);
-}
-
-// int
-// molecule_class_info_t::labelled_atom(int i) {
-
-//    return labelled_atom_index_list[i];
-
-// }
-
-
-// Olde Pointere Stuff.  Delete when you feel it should go.
-// int
-// molecule_class_info_t::max_labelled_atom() {
-
-//    return n_labelled_atoms;
-// }
 
 
 // or as we would say in lisp: rember
@@ -2056,8 +2012,8 @@ molecule_class_info_t::unlabel_atom(int atom_index) {
    std::vector<int>::iterator it;
    for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
       if ( *it == atom_index) {
-    labelled_atom_index_list.erase(it);
-    break;
+         labelled_atom_index_list.erase(it);
+         break;
       }
    }
 }
@@ -3405,33 +3361,31 @@ molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
 void
 molecule_class_info_t::draw_atom_label(int atom_index,
                                        int brief_atom_labels_flag,
-                                       short int seg_ids_in_atom_labels_flag) {
+                                       short int seg_ids_in_atom_labels_flag,
+                                       const glm::vec4 &atom_label_colour,
+                                       const glm::mat4 &mvp,
+                                       const glm::mat4 &view_rotation,
+                                       const glm::vec3 &eye_position) {
 
    if (has_model()) {
-
       if (atom_index < atom_sel.n_selected_atoms) {
-
-         mmdb::PAtom atom = (atom_sel.atom_selection)[atom_index];
-
+         mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
          if (atom) {
+            std::string label = make_atom_label_string(atom, brief_atom_labels_flag,
+                                                       seg_ids_in_atom_labels_flag);
+            graphics_info_t g;
 
-            std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-
-            // GLfloat white[3] = { 1.0, 1.0, 1.0 };
-            GLfloat pink[3] =  { graphics_info_t::font_colour.red,
-                                 graphics_info_t::font_colour.green,
-                                 graphics_info_t::font_colour.blue };
-
-            // glClear(GL_COLOR_BUFFER_BIT);
-            glColor3fv(pink);
-            // glShadeModel (GL_FLAT);
-
-            // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-            graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
+            glm::vec3 position(atom->x, atom->y, atom->z);
+            g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
+                                               &g.shader_for_atom_labels, mvp, view_rotation,
+                                               g.lights, eye_position,
+                                               glm::vec4(g.background_colour, 1.0),
+                                               g.shader_do_depth_blur_flag,
+                                               g.perspective_projection_flag);
 
          }
       } else {
-         std::cout << "INFO:: trying to label atom out of range: "
+         std::cout << "INFO:: draw_atom_label() trying to label atom out of range: "
                    << atom_index << " " << atom_sel.n_selected_atoms
                    << " Removing label\n";
          unlabel_atom(atom_index);
