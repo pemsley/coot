@@ -29,13 +29,14 @@ class TextureMesh {
    std::vector<TextureMeshVertex> vertices;
    std::vector<g_triangle> triangles;
    std::string name;
-   Shader shader;
 
 public:
-   TextureMesh() { draw_this_mesh = true; }
+   TextureMesh() { draw_this_mesh = true; vao = 99999999; index_buffer_id = 99999999; }
+   TextureMesh(const std::string &n) { name = n;
+      draw_this_mesh = true; vao = 99999999; index_buffer_id = 99999999; }
    bool draw_this_mesh;
    void import(const IndexedModel &ind_model, float scale);
-   void setup_camera_facing_quad(const Shader &shader);
+   void setup_camera_facing_quad(Shader *shader_p);
    void setup_buffers();
    void set_colour(const glm::vec4 &col_in);
    void draw(Shader *shader,

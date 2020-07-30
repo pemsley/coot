@@ -93,16 +93,21 @@ void
 Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
 
    GLuint err = glGetError();
-   if (err) std::cout << "error:: Shader::set_bool_for_uniform() " << uniform_name << " start err " << err << std::endl;
+   if (err)
+      std::cout << "error:: Shader::set_bool_for_uniform() " << name << " "
+                << uniform_name << " start err " << err << std::endl;
+
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
    // std::cout << "set_bool_for_uniform() got loc " << loc << std::endl;
    err = glGetError();
-   if (err) std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " A err "
-                      << err << std::endl;
+   if (err)
+      std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " A err "
+                << err << std::endl;
    glUniform1i(loc, value);
    err = glGetError();
-   if (err) std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " B err "
-                      << err << std::endl;
+   if (err)
+      std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " B err "
+                << err << std::endl;
 }
 
 

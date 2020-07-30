@@ -3,31 +3,51 @@
 
 #version 330 core
 
-layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
+layout(location = 0) in vec3 position;  // quad position (around the origin)
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec4 colour;
+layout(location = 3) in vec2 texCoord;
 
-out vec2 TexCoords;
+uniform mat4 mvp;
+uniform mat4 view_rotation;
+uniform vec3 label_position;
 
-uniform mat4 projection;
+out vec4 colour_transfer;
+out vec2 texCoord_transfer;
 
-void main()
-{
-   gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
-   TexCoords = vertex.zw;
+void main() {
+
+   float scale = 0.00016;
+   mat4 t = transpose(view_rotation);
+   vec4 pos_down = scale * vec4(position, 1.0);
+   vec4 p = pos_down + vec4(label_position, 1.0) * t;
+   gl_Position = mvp * t * vec4(p);
+   colour_transfer = colour;
+   texCoord_transfer = texCoord;
+
 }
+
 
 #shader fragment
 
 #version 330 core
 
-in vec2 TexCoords;
-out vec4 colour;
-
 uniform sampler2D text;
-uniform vec3 textColour;
+uniform bool do_depth_fog;
+uniform vec4 background_colour;
 
-void main()
-{
-   vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
-   gl_FragDepth = 0.0; // does this do anything?
-   colour = vec4(textColour, 1.0) * sampled;
+in vec4 colour_transfer;
+in vec2 texCoord_transfer;
+
+out vec4 outputColor;
+
+void main() {
+
+   // This is for text in an image
+   // vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
+
+   vec4 sampled = texture(text, texCoord_transfer);
+   sampled = vec4(1.0, 1.0, 1.0, sampled.r);
+   outputColor = colour_transfer * sampled;
+
 }

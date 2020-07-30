@@ -1036,12 +1036,14 @@ Mesh::draw(Shader *shader_p,
                       << " -- start -- " << err << std::endl;
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
+
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
    if (err) std::cout << "error:: " << shader_p->name << " draw() post mvp uniform "
                       << err << std::endl;
-   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &mouse_based_rotation_matrix[0][0]);
 
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE,
+                      &mouse_based_rotation_matrix[0][0]);
    err = glGetError();
    if (err) std::cout << "error:: Mesh::draw() " << name << " " << shader_p->name
                       << " draw() post view rotation uniform " << err << std::endl;

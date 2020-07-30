@@ -1318,11 +1318,11 @@ graphics_info_t::draw_molecules() {
 
    draw_generic_objects();
 
+   draw_boids();
+
    // transparent things...
 
    draw_particles();
-
-   draw_boids();
 
    draw_map_molecules(true);
 
@@ -1355,13 +1355,33 @@ graphics_info_t::draw_environment_graphics_object() {
             glm::mat4 view_rotation = get_view_rotation();
             glm::vec4 bg_col(background_colour, 1.0);
 
-            bool do_depth_fog = true;
+            bool do_depth_fog = shader_do_depth_fog_flag;
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
                                                      mvp, view_rotation,
                                                      lights, eye_position, bg_col,
                                                      do_depth_fog);
 
+            Shader *shader_p = &shader_for_atom_labels;
+
+            GLenum err = glGetError();
+            if (err) std::cout << "error draw_environment_graphics_object() before labela err "
+                               << err << std::endl;
+
+            if (! labels.empty()) {
+               for (unsigned int i=0; i<labels.size(); i++) {
+                  const std::string &label  = labels[i].label;
+                  const glm::vec3 &position = labels[i].position;
+                  const glm::vec4 &colour   = labels[i].colour;
+                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
+                                                   mvp, view_rotation, lights, eye_position,
+                                                   bg_col, do_depth_fog);
+               }
+            }
+
             if (show_symmetry) {
+
+               // Fill me.
+
             }
          }
       }
@@ -1629,6 +1649,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    if (err) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
 
    g.mesh_for_particles.set_name("mesh for particles");
+
+   g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
 
    g.setup_key_bindings();
 }

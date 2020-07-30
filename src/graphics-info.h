@@ -110,6 +110,8 @@
 #endif // HAVE_CURL_H
 #endif
 
+#include "TextureMesh.hh"
+
 #include "boids.hh"
 
 #include "graphics-ligand-view.hh"
@@ -119,6 +121,8 @@
 #include "framebuffer.hh"
 
 #include "lights-info.hh"
+
+#include "atom-label-info.hh"
 
 // #include "Transform.hh"
 // #include "Camera.hh"
@@ -2369,6 +2373,11 @@ public:
    // private?
    void update_environment_graphics_object(int atom_index, int imol);
    void update_symmetry_environment_graphics_object(int atom_index, int imol);
+   void add_distance_labels_for_environment_distances();
+   static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
+   static TextureMesh tmesh_for_labels;
+
+   void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
    //
    static short int dynamic_map_resampling;

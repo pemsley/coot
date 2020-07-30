@@ -15,10 +15,14 @@ class LinesMesh {
    GLuint buffer_id;
    GLuint index_buffer_id;
 public:
-   LinesMesh() { index_buffer_id = 999999; }
+   LinesMesh() { index_buffer_id = 999999; buffer_id = 999999; vao = 999999; }
    // e.g. a box will have 8 vertices and 12 * 2 indices
    LinesMesh(const std::vector<s_generic_vertex> &vertices_in,
-             const std::vector<unsigned int> &indices_in) : vertices(vertices_in), indices(indices_in) {}
+             const std::vector<unsigned int> &indices_in) : vertices(vertices_in), indices(indices_in) {
+      index_buffer_id = 999999;
+      buffer_id = 999999;
+      vao = 999999;
+   }
    LinesMesh(const clipper::Cell &cell);
    std::vector<s_generic_vertex> vertices;
    std::vector<unsigned int> indices;

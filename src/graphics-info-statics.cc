@@ -128,3 +128,5 @@ fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
+std::vector<atom_label_info_t> graphics_info_t::labels;
+TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
