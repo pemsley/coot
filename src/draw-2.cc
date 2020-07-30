@@ -1031,7 +1031,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
                if (arrow_head_length > bl_pull)
                   arrow_head_length = bl_pull;
                glm::vec3 b_uv = glm::normalize(b);
-               float bl_stick = bl_pull - arrow_head_length;
+               float bl_stick = bl;
                if (bl_stick < 0.0) bl_stick = 0.0;
 
                // coot::Cartesian meeting_point = pt_start_c + b_uv * bl_stick;
@@ -1531,6 +1531,8 @@ graphics_info_t::setup_lights() {
    graphics_info_t::lights[1] = light;
 }
 
+#include "screendump-tga.hh"
+
 void
 on_glarea_realize(GtkGLArea *glarea) {
 
@@ -1549,10 +1551,8 @@ on_glarea_realize(GtkGLArea *glarea) {
    // gdk/x11/gdkglcontext-x11.c
    // glXGetConfig(dpy, &visual_list[0], GLX_SAMPLE_BUFFERS_ARB, &gl_info[i].num_multisample);
 
-
    // glEnable(GL_MULTISAMPLE); // seems not to work at the moment. Needs work on the GTK->OpenGL interface 
-   err = glGetError();
-   err = glGetError(); if (err) std::cout << "on_glarea_realize() A1 err " << err << std::endl;
+
 
    graphics_info_t g;
    g.init_shaders();
@@ -1565,7 +1565,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    err = glGetError(); std::cout << "start on_glarea_realize() err is " << err << std::endl;
 
    unsigned int index_offset = 0;
-   graphics_info_t::screen_framebuffer.init(w,h, index_offset, "screen/occlusion");
+   graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
    err = glGetError(); if (err) std::cout << "start on_glarea_realize() post screen_framebuffer init() err is "
                                           << err << std::endl;
    index_offset = 1;
@@ -1624,15 +1624,16 @@ on_glarea_realize(GtkGLArea *glarea) {
 gboolean
 on_glarea_render(GtkGLArea *glarea) {
 
-   return graphics_info_t::render(glarea);
+   return graphics_info_t::render(false); // not to screendump framebuffer.
 
 }
 
 gboolean
-graphics_info_t::render(GtkGLArea *glarea) {
+graphics_info_t::render(bool to_screendump_framebuffer) {
 
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
-   gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
@@ -1640,23 +1641,25 @@ graphics_info_t::render(GtkGLArea *glarea) {
    if (err) std::cout << "render() start " << err << std::endl;
 
    // is this needed? - does the context ever change?
-   gtk_gl_area_make_current(glarea);
-   err = glGetError(); if (err) std::cout << "render() post gtk_gl_area_make_current() " << err << std::endl;
+   gtk_gl_area_make_current(gl_area);
+   err = glGetError(); if (err) std::cout << "render() post gtk_gl_area_make_current() err " << err << std::endl;
 
+   glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
+   err = glGetError(); if (err) std::cout << "render() post glViewport() err " << err << std::endl;
    screen_framebuffer.bind();
-   err = glGetError(); if (err) std::cout << "render() post screen_buffer bind() " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "render() post screen_framebuffer bind() err " << err << std::endl;
 
    glEnable(GL_DEPTH_TEST);
 
-   {
+   { //  ------------------- render scene ----------------------------
       const glm::vec3 &bg = graphics_info_t::background_colour;
-      glClearColor (bg[0], bg[1], bg[2], 1.0);
+      glClearColor (bg[0], bg[1], bg[2], 1.0); // what difference does this make?
       err = glGetError(); if (err) std::cout << "render() B err " << err << std::endl;
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       err = glGetError(); if (err) std::cout << "render() C err " << err << std::endl;
 
-      draw_central_cube(glarea);
-      draw_origin_cube(glarea);
+      draw_central_cube(gl_area);
+      draw_origin_cube(gl_area);
       err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
 
       draw_molecules();
@@ -1664,106 +1667,73 @@ graphics_info_t::render(GtkGLArea *glarea) {
       glBindVertexArray(0); // here is not the place to call this.
    }
 
+   if (to_screendump_framebuffer) {
 
-   graphics_info_t::blur_framebuffer.bind();
-   // glDisable(GL_DEPTH_TEST);
+      glDisable(GL_DEPTH_TEST);
+      unsigned int sf = framebuffer_scale;
+      glViewport(0, 0, sf * w, sf *h);
+      framebuffer screendump_framebuffer;
+      unsigned int index_offset = 0;
+      screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
+      screendump_framebuffer.bind();
+      render_scene_to_base_framebuffer();
+      gtk_gl_area_attach_buffers(gl_area);
+      screendump_tga_internal("new-framebuffer-dump.tga", w, h, sf, screendump_framebuffer.get_fbo());
+
+   } else {
+      glViewport(0, 0, w, h);
+      // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
+      gtk_gl_area_attach_buffers(gl_area);
+      render_scene_to_base_framebuffer();
+   }
+
    glEnable(GL_DEPTH_TEST);
 
-   // Screen shader (ambient occlusion)
 
-   {
-
-      bool do_ambient_occlusion = shader_do_ambient_occlusion_flag;
-      graphics_info_t::shader_for_screen.Use();
-      glBindVertexArray(screen_quad_vertex_array_id);
-
-      // glClearColor(0.5, 0.2, 0.2, 1.0);
-      const glm::vec3 &bg = graphics_info_t::background_colour;
-      glClearColor(bg[0], bg[1], bg[2], 1.0);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-      GLuint pid = graphics_info_t::shader_for_screen.get_program_id();
-      glActiveTexture(GL_TEXTURE0 + 1);
-      glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_colour());
-      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1);
-      glActiveTexture(GL_TEXTURE0 + 2);
-      glBindTexture(GL_TEXTURE_2D, graphics_info_t::screen_framebuffer.get_texture_depth());
-      glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2);
-      err = glGetError(); if (err) std::cout << "on_glarea_render() D err " << err << std::endl;
-      graphics_info_t::shader_for_screen.set_bool_for_uniform("do_ambient_occlusion", do_ambient_occlusion);
-
-      glDrawArrays(GL_TRIANGLES, 0, 6);
-      err = glGetError(); if (err) std::cout << "on_glarea_render() E err " << err << std::endl;
-   }
-
-   // use this, rather than glBindFramebuffer(GL_FRAMEBUFFER, 0); ... just Gtk things.
-   gtk_gl_area_attach_buffers(glarea);
-   glEnable(GL_DEPTH_TEST);
-
-   // z-blur shader
-   {
-      graphics_info_t::shader_for_blur.Use();
-      glBindVertexArray(graphics_info_t::blur_quad_vertex_array_id);
-
-      glClearColor(0.5, 0.2, 0.2, 1.0);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      Shader &shader = graphics_info_t::shader_for_blur;
-
-      shader.set_float_for_uniform("zoom", zoom);
-      // glUniform1f(shader.zoom_uniform_location, graphics_info_t::zoom);
-      err = glGetError(); if (err) std::cout << "on_glarea_render() blur-A err " << err << std::endl;
-      // glUniform1i(shader.is_perspective_projection_uniform_location, perspective_projection_flag);
-      shader.set_bool_for_uniform("is_perspective_projection", perspective_projection_flag);
-      err = glGetError(); if (err) std::cout << "   on_glarea_render() blur-A2 error " << std::endl;
-
-      GLuint pid = graphics_info_t::shader_for_blur.get_program_id();
-      glActiveTexture(GL_TEXTURE0 + 1);
-      glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_colour());
-      glUniform1i(glGetUniformLocation(pid, "screenTexture"), 1); // was 1
-      glActiveTexture(GL_TEXTURE0 + 2);
-      glBindTexture(GL_TEXTURE_2D, graphics_info_t::blur_framebuffer.get_texture_depth());
-      glUniform1i(glGetUniformLocation(pid, "screenDepth"), 2); // was 2
-      err = glGetError(); if (err) std::cout << "on_glarea_render() blur-B err " << err << std::endl;
-      shader.set_bool_for_uniform("do_depth_blur", graphics_info_t::shader_do_depth_blur_flag);
-      shader.set_bool_for_uniform("do_outline", graphics_info_t::shader_do_outline_flag);
-
-      glDrawArrays(GL_TRIANGLES, 0, 6);
-      err = glGetError(); if (err) std::cout << "on_glarea_render() blur-C err " << err << std::endl;
-   }
-
-
-   if (true) { //test to check if there is HUD text to draw, don't enter here if
-               // it is not needed.
-
-      // True HUD text (not atom labels) should be added *after* blurring (and here we are).
-      // Currently, we don't see it.
-      glDisable(GL_DEPTH_TEST); // needed because HUD text gets put at z=1.0 (it seems).
-      draw_hud_text(w, h, shader_for_hud_text);
-      err = glGetError(); if (err) std::cout << "render() post-draw-text err " << err << std::endl;
-   }
-
-   graphics_info_t::frame_counter++;
-   if (graphics_info_t::frame_draw_queue.size() > 0) {
-      std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
-      std::chrono::time_point<std::chrono::system_clock> queue_time = graphics_info_t::frame_draw_queue.front();
-      graphics_info_t::frame_draw_queue.pop();
-      auto delta_time = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - queue_time).count();
-      if (false)
-         std::cout << "INFO:: ---------- Timing check frame " << delta_time << " milliseconds" << " queue size "
-                   << graphics_info_t::frame_draw_queue.size() << std::endl;
-   }
-
-   glFlush();
    return FALSE;
 }
 
 void
+graphics_info_t::render_scene_to_base_framebuffer() {
+
+   glEnable(GL_DEPTH_TEST);
+   shader_for_screen.Use();
+   glBindVertexArray(screen_quad_vertex_array_id);
+
+   const glm::vec3 &bg = background_colour;
+   glClearColor(bg[0], bg[1], bg[2], 1.0); // this can be seen
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+   GLuint pid = shader_for_screen.get_program_id();
+   glActiveTexture(GL_TEXTURE0 + 0);
+   glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_colour());
+   glActiveTexture(GL_TEXTURE0 + 1);
+   glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_depth());
+   shader_for_screen.set_int_for_uniform("screenTexture", 0);
+   shader_for_screen.set_int_for_uniform("screenDepth", 1);
+   GLenum err = glGetError(); if (err) std::cout << "render() D err " << err << std::endl;
+   shader_for_screen.set_bool_for_uniform("do_ambient_occlusion", shader_do_ambient_occlusion_flag);
+   shader_for_screen.set_bool_for_uniform("do_outline", shader_do_outline_flag);
+
+   glDrawArrays(GL_TRIANGLES, 0, 6);
+   err = glGetError(); if (err) std::cout << "render() E err " << err << std::endl;
+
+}
+
+
+void
 graphics_info_t::reset_frame_buffers(int width, int height) {
+
    graphics_info_t g;
+   unsigned int sf = framebuffer_scale;
    unsigned int index_offset = 0;
-   g.screen_framebuffer.init(width, height, index_offset, "screen");
-   index_offset = 1;
-   g.blur_framebuffer.init(width, height, index_offset, "blur");
+   std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
+             << width << " x " << height << std::endl;
+   g.screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
+   GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
+
+   // index_offset = 0;
+   // g.blur_framebuffer.init(width, height, index_offset, "blur");
 }
 
 void
@@ -1774,6 +1744,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_y_size = height;
    setup_hud_text(width, height, g.shader_for_hud_text, false);
    setup_hud_text(width, height, g.shader_for_atom_labels, true); // change the function name
+
    g.reset_frame_buffers(width, height);
 }
 
@@ -1796,14 +1767,16 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       }
    }
 
-   if (! g.molecules[imol_scroll].is_displayed_p()) {
-      // don't scroll the map if the map is not displayed. Scroll the
-      // map that *is* displayed
-      std::vector<int> dm = g.displayed_map_imols();
-      if (dm.size() > 0)
-         imol_scroll = dm[0];
+   if (g.is_valid_map_molecule(imol_scroll)) {
+      if (! g.molecules[imol_scroll].is_displayed_p()) {
+         // don't scroll the map if the map is not displayed. Scroll the
+         // map that *is* displayed
+         std::vector<int> dm = g.displayed_map_imols();
+         if (dm.size() > 0)
+            imol_scroll = dm[0];
+      }
    }
- 
+
    if (g.is_valid_map_molecule(imol_scroll)) {
       // use direction
       if (direction == 1)

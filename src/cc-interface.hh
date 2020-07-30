@@ -1334,6 +1334,7 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 /*                  Mew Screendump                                          */
 /*  ----------------------------------------------------------------------- */
 void screendump_tga(const std::string &file_name);
+void set_framebuffer_scale_factor(unsigned int sf);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Mew Graphics Control                                    */

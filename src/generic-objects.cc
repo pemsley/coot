@@ -25,6 +25,9 @@
 #include "python-3-interface.hh"
 #endif
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #include "compat/coot-sysdep.h"
 
 #include <iostream>
@@ -68,10 +71,21 @@ void to_generic_object_add_line(int object_number,
    std::string c(colour_name);
    coot::colour_holder colour = colour_values_from_colour_name(c);
    if (object_number >= 0) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       unsigned int object_number_u(object_number);
       if (object_number_u < g.generic_display_objects.size()) {
+         std::pair<glm::vec3, glm::vec3> p(coord_orth_to_glm(x1), coord_orth_to_glm(x2));
          meshed_generic_display_object &obj = g.generic_display_objects[object_number];
-         obj.add_line(colour, c, line_width, coords);
+         std::cout << "adding line to obj" << std::endl;
+         float radius = 0.3;
+         unsigned int n_slices = 12;
+         coot::colour_holder col = colour_values_from_colour_name(colour_name);
+         obj.add_cylinder(p, col, radius, n_slices, true, true,
+                          meshed_generic_display_object::FLAT_CAP,
+                          meshed_generic_display_object::FLAT_CAP);
+
+         Material material;
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
       } else {
          std::cout << "BAD object_number in to_generic_object_add_line"
                    << " out of range high" << object_number << std::endl;
@@ -283,6 +297,77 @@ void to_generic_object_add_arc(int object_number,
 
    } else {
       std::cout << "BAD object_number in to_generic_object_add_arc: "
+                << object_number << std::endl;
+   }
+}
+
+void
+to_generic_object_add_arrow(int object_number,
+                            const char *colour_name,
+                            float stem_radius,
+                            float from_x1,
+                            float from_y1,
+                            float from_z1,
+                            float to_x2,
+                            float to_y2,
+                            float to_z2) {
+
+   // pass this?
+   float arrow_head_length = 4 * stem_radius;
+
+   float radius = stem_radius;
+
+   clipper::Coord_orth x1(from_x1, from_y1, from_z1);
+   clipper::Coord_orth x2(to_x2, to_y2, to_z2);
+
+   graphics_info_t g;
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> coords(x1, x2);
+
+   std::string c(colour_name);
+   coot::colour_holder colour = colour_values_from_colour_name(c);
+   if (object_number >= 0) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      unsigned int object_number_u(object_number);
+      if (object_number_u < g.generic_display_objects.size()) {
+         std::pair<glm::vec3, glm::vec3> p(coord_orth_to_glm(x1), coord_orth_to_glm(x2));
+         const glm::vec3 &pt_start_g = p.first;
+         const glm::vec3 &pt_end_g   = p.second;
+         meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+         unsigned int n_slices = 24;
+         coot::colour_holder col = colour_values_from_colour_name(colour_name);
+
+         // we have to think about the positioning of the head and the stick
+         glm::vec3 b = p.second - p.first;
+         float bl_input = glm::distance(b, glm::vec3(0,0,0));
+         float bl = bl_input - arrow_head_length;
+         if (arrow_head_length > bl_input)
+            arrow_head_length = bl_input;
+         glm::vec3 b_uv = glm::normalize(b);
+         float bl_stick = bl;
+         if (bl_stick < 0.0) bl_stick = 0.0;
+
+         glm::vec3 meeting_point = pt_start_g + b_uv * bl_stick;
+         std::pair<glm::vec3, glm::vec3> pp_stick(pt_start_g, meeting_point);
+         std::pair<glm::vec3, glm::vec3> pp_cone(pt_end_g, meeting_point);
+
+         obj.add_cylinder(pp_stick, col, radius, n_slices, true, false,
+                          meshed_generic_display_object::FLAT_CAP,
+                          meshed_generic_display_object::FLAT_CAP);
+
+         float base_radius = radius * 2.0f;
+         float top_radius = 0.0f;
+         obj.add_cone(pp_cone, col, base_radius, top_radius, n_slices, false, true,
+                      meshed_generic_display_object::FLAT_CAP,
+                      meshed_generic_display_object::FLAT_CAP);
+
+         Material material;
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+      } else {
+         std::cout << "BAD object_number in to_generic_object_add_line"
+                   << " out of range high" << object_number << std::endl;
+      }
+   } else {
+      std::cout << "BAD object_number (out of range low) in to_generic_object_add_line"
                 << object_number << std::endl;
    }
 }

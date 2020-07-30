@@ -53,9 +53,7 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
    float one_over_n_stacks = 1.0/static_cast<float>(n_stacks-1);
    float height_step = height/static_cast<float>(n_stacks);
    for (unsigned int i_stack=0; i_stack<=n_stacks; i_stack++) {
-      // std::cout << "i_stack " << i_stack << std::endl;
       for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
-         // std::cout << "   i_slice " << i_slice << std::endl;
          float z_this = i_stack * height_step;
          if (i_stack == n_stacks) z_this = height;
          float theta_this = 2.0 * pi * static_cast<float>(i_slice) * one_over_n_slices;
