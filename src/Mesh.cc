@@ -21,6 +21,9 @@
 
 void
 Mesh::init() {
+
+   clear();
+   first_time = true;
    is_instanced = false;
    is_instanced_with_rts_matrix = false;
    use_blending = false;
@@ -80,6 +83,7 @@ Mesh::import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triang
                                   indexed_vertices.end());
    for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
       triangle_vertex_indices[i].rebase(idx_base);
+
 }
 
 void
@@ -436,13 +440,24 @@ Mesh::setup_buffers() {
    if (triangle_vertex_indices.empty()) return;
    if (vertices.empty()) return;
 
-   glGenVertexArrays (1, &vao);
+   if (first_time) {
+      glGenVertexArrays (1, &vao);
+      first_time = false;
+   }
    glBindVertexArray (vao);
 
-   glGenBuffers(1, &buffer_id);
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+
+   if (first_time) {
+      glGenBuffers(1, &buffer_id);
+      glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+   } else {
+      glDeleteBuffers(1, &buffer_id);
+      glGenBuffers(1, &buffer_id);
+      glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+   }
 
    // position
    glEnableVertexAttribArray(0);
@@ -462,18 +477,29 @@ Mesh::setup_buffers() {
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
    }
 
-   glGenBuffers(1, &index_buffer_id);
-   GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
    unsigned int n_triangles = triangle_vertex_indices.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
+
+   if (first_time) {
+      glGenBuffers(1, &index_buffer_id);
+      GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+      err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   } else {
+      glDeleteBuffers(1, &index_buffer_id);
+      glGenBuffers(1, &index_buffer_id);
+      GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
+      err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   }
+
    if (false)
       std::cout << "debug:: glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
+
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_STATIC_DRAW);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
 
    glDisableVertexAttribArray (0);
    glDisableVertexAttribArray (1);

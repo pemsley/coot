@@ -23,6 +23,7 @@ class Mesh {
    GLuint normals_vao;
    GLuint normals_buffer_id;
    GLuint normals_colour_buffer_id;
+   bool first_time;
    void init();
 
 public:
