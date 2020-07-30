@@ -326,6 +326,7 @@ molecule_class_info_t::update_map_internal() {
          radius = graphics_info_t::box_radius_em;
 
       if (false)
+
           std::cout << "in update_map_internal() " << radius << " vs x "
                     << graphics_info_t::box_radius_xray << " em "
                     << graphics_info_t::box_radius_em << " is-em: "
@@ -336,8 +337,6 @@ molecule_class_info_t::update_map_internal() {
                          graphics_info_t::RotationCentre_z());
 
       update_map_triangles(radius, rc);
-
-      // 20200312-PE do stereo stuff here - removed for now.
 
    }
 }

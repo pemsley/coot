@@ -18,7 +18,7 @@
 #endif
 
 void
-TextureMesh::setup_camera_facing_quad(const Shader &sh) {
+TextureMesh::setup_camera_facing_quad(Shader *shader_p) {
 
    float scale_x = 4.4; // pass?
    float scale_y = 1.2;
@@ -28,8 +28,7 @@ TextureMesh::setup_camera_facing_quad(const Shader &sh) {
    // scale_x = 0.00001;
    // scale_y = 0.00001;
 
-   shader = sh;
-   shader.Use();
+   shader_p->Use();
 
    draw_this_mesh = true;
 
@@ -50,6 +49,14 @@ TextureMesh::setup_camera_facing_quad(const Shader &sh) {
 
    setup_buffers();
 
+}
+
+void
+TextureMesh::set_colour(const glm::vec4 &col_in) {
+
+   for (unsigned int i=0; i<vertices.size(); i++) {
+      vertices[i].color = col_in;
+   }
 }
 
 void
@@ -114,6 +121,7 @@ TextureMesh::setup_buffers() {
 void
 TextureMesh::draw_atom_label(const std::string &atom_label,
                              const glm::vec3 &atom_label_position,
+                             const glm::vec4 &text_colour, // set using glBufferSubData
                              Shader *shader_p,
                              const glm::mat4 &mvp,
                              const glm::mat4 &view_rotation_matrix,
@@ -137,31 +145,50 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
 
+   shader_p->set_vec3_for_uniform("label_position", atom_label_position);
+
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+                      << " post set label_position " << err << std::endl;
+
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+                      << " post set mvp " << err << std::endl;
+
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
+
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+                      << " post set view rotation " << err << std::endl;
+
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_atom_label() :" << name << ": " << shader_p->name
+                      << " post background_colour " << err << std::endl;
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
    err = glGetError();
-   if (err) std::cout << "   error:: " << name << " " << shader_p->name << " draw() post uniforms "
-                      << err << std::endl;
+   if (err) std::cout << "error:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
+                      << " post do_depth_fog " << err << std::endl;
 
    if (vao == 99999999)
       std::cout << "You forget to setup this mesh " << name << " " << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
    err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_name << " " << name
+   if (err) std::cout << "error TextureMesh::draw_atom_label()) " << shader_name << " " << name
                       << " glBindVertexArray() vao " << vao << " with GL err "
                       << err << std::endl;
 
    glActiveTexture(GL_TEXTURE0);
-   err = glGetError(); if (err) std::cout << "error:: render_atom_label A3 " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_atom_label() A3 " << err << std::endl;
 
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
+   err = glGetError(); if (err) std::cout << "error TextureMesh::draw_atom_label() glBindBuffer() v "
                                           << err << std::endl;
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() i "
+   err = glGetError(); if (err) std::cout << "error TextureMesh::draw_atom_label() glBindBuffer() i "
                                           << err << std::endl;
 
    glEnableVertexAttribArray(0);
@@ -186,14 +213,14 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
 
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-   shader.Use();
+
    err = glGetError(); if (err) std::cout << "error:: render_atom_label A0 " << err << std::endl;
 
 #if THIS_IS_HMT
    std::map<GLchar, FT_character> &ft_characters = display_info_t::ft_characters;
-#else   
+#else
    std::map<GLchar, FT_character> &ft_characters = graphics_info_t::ft_characters;
-#endif   
+#endif
 
    std::string::const_iterator c; // call this it_c
    for (c = atom_label.begin(); c != atom_label.end(); c++) {
@@ -227,6 +254,9 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
          std::cout << "texture_mesh_vertices 3 " << glm::to_string(texture_mesh_vertices[3].position) << std::endl;
          std::cout << "here with w " << w << " and h " << h << std::endl;
       }
+
+      for (unsigned int i=0; i<4; i++)
+         texture_mesh_vertices[i].color = text_colour;
 
       for (unsigned int i=0; i<4; i++)
          texture_mesh_vertices[i].position += glm::vec3(xpos, ypos, 0.0f);
@@ -308,7 +338,6 @@ TextureMesh::draw(Shader *shader_p,
    if (err) std::cout << "   error:: " << shader_p->name << " draw() post view rotation uniform "
                       << err << std::endl;
 
-
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
 
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
@@ -323,6 +352,17 @@ TextureMesh::draw(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "   error draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
+
+   // this lights block can be in it's own function (same as Mesh)
+   std::map<unsigned int, lights_info_t>::const_iterator it;
+   unsigned int light_idx = 0;
+   it = lights.find(light_idx);
+   if (it != lights.end())
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
+   light_idx = 1;
+   it = lights.find(light_idx);
+   if (it != lights.end())
+      shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    if (vao == 99999999)
       std::cout << "You forget to setup this mesh " << name << " "

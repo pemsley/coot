@@ -3113,7 +3113,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		     coot::colour_holder ch(distortion, 0.1, 5, true, "");
                      ch.scale_intensity(0.5);
                      const unsigned int n_slices = 16;
-                     float line_radius = 0.1f;
+                     float line_radius = 0.104f;  // more than 0.103 (atoms)
                      std::pair<glm::vec3, glm::vec3> pos_pair(glm::vec3(coord_orth_to_glm(p1)),
                                                               glm::vec3(coord_orth_to_glm(p2)));
                      obj.add_cylinder(pos_pair, ch, line_radius, n_slices, true, true,

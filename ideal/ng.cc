@@ -231,14 +231,12 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
 //
 void
 coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::protein_geometry &geom,
-								std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
-								std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p,
-								bool do_rama_plot_restraints,
-								bool do_trans_peptide_restraints) {
+                                                                std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_vector_map_p,
+                                                                std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p,
+                                                                bool do_rama_plot_restraints,
+                                                                bool do_trans_peptide_restraints) {
 
    bool debug = false;
-
-   std::cout << "INFO:: making flanking restraints" << std::endl;
 
    link_restraints_counts flank_restraints("flank");
 
@@ -248,33 +246,33 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
    // residues_vec contains residue 20
    //
    // fixed_neighbours_set are the (fixed) neighbours of residue 20.
-   // 
+   //
    // mol contains residue 20 and the residues around it (made by the function that
    // creates the restraints object)
 
-   if (false) { // debugging
+   if (debug) { // debugging
       std::cout << "########## make_flanking_atoms_restraints_ng() residue_link_count_map size "
-		<< residue_link_vector_map_p->size() << std::endl;
+                << residue_link_vector_map_p->size() << std::endl;
       std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator it;
       for (it=residue_link_vector_map_p->begin();
-	        it!=residue_link_vector_map_p->end(); it++) {
-	      std::cout << "        residue_link_vector_map key: "
-		             << residue_spec_t(it->first) << " " << std::endl;
+                it!=residue_link_vector_map_p->end(); it++) {
+              std::cout << "        residue_link_vector_map key: "
+                             << residue_spec_t(it->first) << " " << std::endl;
       }
    }
 
-   if (false) {
+   if (debug) {
       std::cout << "####### make_flanking_atoms_restraints_ng() debugging fixed_neighbours_set() " << std::endl;
       std::map<mmdb::Residue *, std::set<mmdb::Residue *> >::const_iterator it;
       for (it=fixed_neighbours_set.begin(); it!=fixed_neighbours_set.end(); it++) {
-	      mmdb::Residue *residue_p = it->first;
-	      std::cout << "\n\n...fixed-neighbour for residue " << residue_spec_t(residue_p) << std::endl;
-	      const std::set<mmdb::Residue *> &s = it->second;
-	      std::set<mmdb::Residue *>::const_iterator its;
-	      for (its=s.begin(); its!=s.end(); its++) {
-	         mmdb::Residue *neighb = *its;
-	         std::cout << "      neighb: " << residue_spec_t(neighb) << " " << neighb << std::endl;
-	      }
+              mmdb::Residue *residue_p = it->first;
+              std::cout << "\n\n...fixed-neighbour for residue " << residue_spec_t(residue_p) << " index " << residue_p->index << std::endl;
+              const std::set<mmdb::Residue *> &s = it->second;
+              std::set<mmdb::Residue *>::const_iterator its;
+              for (its=s.begin(); its!=s.end(); its++) {
+                 mmdb::Residue *neighb = *its;
+                 std::cout << "      neighb: " << residue_spec_t(neighb) << " " << neighb << " index " << neighb->index << std::endl;
+              }
       }
       std::cout << "####### done make_flanking_atoms_restraints_ng() debugging fixed_neighbours_set() " << std::endl;
    }
@@ -286,98 +284,96 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
       unsigned int n_link_for_residue = 0;
       std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm = residue_link_vector_map_p->find(residue_p);
       if (itm != residue_link_vector_map_p->end()) {
-	      n_link_for_residue = itm->second.size();
+         n_link_for_residue = itm->second.size();
       }
 
       // was it polymer-linked at both ends? (we've only made _polymer_ links so far)
       //
       if (n_link_for_residue < 2) {
 
-	      int index_for_residue;
-	      residue_p->GetUDData(idx_reference_index_handle, index_for_residue);
-	      const std::set<mmdb::Residue *> &s = it->second;
-	      std::set<mmdb::Residue *>::const_iterator its;
-	      for (its=s.begin(); its!=s.end(); its++) {
-	         mmdb::Residue *neighb = *its;
+         int index_for_residue;
+         residue_p->GetUDData(idx_reference_index_handle, index_for_residue);
+         const std::set<mmdb::Residue *> &s = it->second;
+         std::set<mmdb::Residue *>::const_iterator its;
+         for (its=s.begin(); its!=s.end(); its++) {
+            mmdb::Residue *neighb = *its;
 
-	         // Let's say that we refine residue 21,22,23.
-	         // Residue 21 needs to be flanking-linked to residue 20.
-	         // fixed_neighbours_set can contain residue
-	         // 22 as a neighbour of 21. We don't want to link 22 to 21 here.
-	         // because we have done it in the polymer function. Let's
-	         // see if we can find 21-22 here in residue_link_vector_map.
-	         //
-	         // If we are refining just one residue, there will be nothing in the
-	         // residue_link_vector_map, so only skip this one (continue)
-	         // if we can find the key and the neighb is in the vector (set) of
-	         // residues to whicih this residue is already linked.
+            // Let's say that we refine residue 21,22,23.
+            // Residue 21 needs to be flanking-linked to residue 20.
+            // fixed_neighbours_set can contain residue
+            // 22 as a neighbour of 21. We don't want to link 22 to 21 here.
+            // because we have done it in the polymer function. Let's
+            // see if we can find 21-22 here in residue_link_vector_map.
+            //
+            // If we are refining just one residue, there will be nothing in the
+            // residue_link_vector_map, so only skip this one (continue)
+            // if we can find the key and the neighb is in the vector (set) of
+            // residues to whicih this residue is already linked.
 
-		 if (neighb->chain != residue_p->chain) continue;
+            if (neighb->chain != residue_p->chain) continue;
 
-		 // this kills links for insertion codes, but also kills links
-		 // across gaps (this is the feature that we want).
-		 //
-		 int rn_1 = neighb->GetSeqNum();
-		 int rn_2 = residue_p->GetSeqNum();
-		 int rn_delta = abs(rn_2 - rn_1);
-		 if (rn_delta != 1) {
-          std::string ins_1(residue_p->GetInsCode());
-          std::string ins_2(neighb->GetInsCode());
-			 if (ins_1.empty())
-			    if (ins_2.empty())
-                continue;
-		 }
+            // this kills links for insertion codes, but also kills links
+            // across gaps (this is the feature that we want).
+            //
+            int rn_1 = neighb->GetSeqNum();
+            int rn_2 = residue_p->GetSeqNum();
+            int rn_delta = abs(rn_2 - rn_1);
+            if (rn_delta != 1) {
+               std::string ins_1(residue_p->GetInsCode());
+               std::string ins_2(neighb->GetInsCode());
+               if (ins_1.empty())
+                  if (ins_2.empty())
+                     continue;
+            }
 
-	         std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
-	         itm = residue_link_vector_map_p->find(residue_p);
-	         if (itm != residue_link_vector_map_p->end())
-	            if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
-		       continue;
+            std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
+            itm = residue_link_vector_map_p->find(residue_p);
+            if (itm != residue_link_vector_map_p->end())
+               if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
+                  continue;
 
-	         int index_for_neighb;
-	         neighb->GetUDData(idx_reference_index_handle, index_for_neighb);
+            int index_delta = neighb->index - residue_p->index;
 
-	         int index_delta = index_for_neighb - index_for_residue;
-	         if (index_delta == -1 || index_delta == 1) {
-	         // std::cout << "        fixed neigb: " << residue_spec_t(*its) << std::endl;
+            if (index_delta == -1 || index_delta == 1) {
+               // std::cout << "        fixed neigb: " << residue_spec_t(*its) << std::endl;
 
-	         std::pair<bool, mmdb::Residue *> pair_1(true,  neighb);
-	         std::pair<bool, mmdb::Residue *> pair_2(false, residue_p);
+               std::pair<bool, mmdb::Residue *> pair_1(true,  neighb);
+               std::pair<bool, mmdb::Residue *> pair_2(false, residue_p);
 
-	         // if this is a link onto the N of this residue, then we need
-	         // to call try_make_peptide_link_ng with the arguments the other way
-	         // around
-	         //
-	         if (index_delta == 1) std::swap(pair_1, pair_2);
+               // if this is a link onto the N of this residue, then we need
+               // to call try_make_peptide_link_ng with the arguments the other way
+               // around
+               //
+               if (index_delta == 1) std::swap(pair_1, pair_2);
 
-	         if (false)
-		         std::cout << "         making flanking-peptide link: "
-			                << residue_spec_t(pair_1.second) << " fixed: " << pair_1.first << "  "
-			                << residue_spec_t(pair_2.second) << " fixed: " << pair_2.first << "  "
-			                << std::endl;
+               if (debug)
+                  std::cout << "         making flanking-peptide link: "
+                            << residue_spec_t(pair_1.second) << " fixed: " << pair_1.first << "  "
+                            << residue_spec_t(pair_2.second) << " fixed: " << pair_2.first << "  "
+                            << std::endl;
 
-		 std::pair<bool, link_restraints_counts> link_result =
-		    try_make_peptide_link_ng(geom,
-					     pair_1,
-					     pair_2,
-					     do_rama_plot_restraints,
-					     do_trans_peptide_restraints);
+               std::pair<bool, link_restraints_counts> link_result =
+                  try_make_peptide_link_ng(geom,
+                                           pair_1,
+                                           pair_2,
+                                           do_rama_plot_restraints,
+                                           do_trans_peptide_restraints);
 
-		 if (! link_result.first)
-		    link_result = try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
+               if (! link_result.first)
+                  link_result = try_make_phosphodiester_link_ng(geom, pair_1, pair_2);
 
-		 if (link_result.first) {
-		    flank_restraints.add(link_result.second);
-		    (*residue_link_vector_map_p)[residue_p].push_back(neighb);
-		    (*residue_link_vector_map_p)[neighb   ].push_back(residue_p);
+               if (link_result.first) {
+                  flank_restraints.add(link_result.second);
+                  (*residue_link_vector_map_p)[residue_p].push_back(neighb);
+                  (*residue_link_vector_map_p)[neighb   ].push_back(residue_p);
 
-		    std::pair<mmdb::Residue *, mmdb::Residue *> p1(residue_p, neighb);
-		    std::pair<mmdb::Residue *, mmdb::Residue *> p2(neighb, residue_p);
-		    residue_pair_link_set_p->insert(p1);
-		    residue_pair_link_set_p->insert(p2);
-	       }
-	    }
-	 }
+                  std::pair<mmdb::Residue *, mmdb::Residue *> p1(residue_p, neighb);
+                  std::pair<mmdb::Residue *, mmdb::Residue *> p2(neighb, residue_p);
+                  residue_pair_link_set_p->insert(p1);
+                  residue_pair_link_set_p->insert(p2);
+               }
+            }
+         }
       }
    }
 
@@ -386,8 +382,8 @@ coot::restraints_container_t::make_flanking_atoms_restraints_ng(const coot::prot
 
 void
 coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
-							const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
-							const coot::protein_geometry &geom) {
+                                                        const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set,
+                                                        const coot::protein_geometry &geom) {
 
    // (1) Find rama_triples from residues_vec
    // (2) Find rama_triples from flanking residues
@@ -401,15 +397,15 @@ coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Res
    for (int i=1; i<n_residues; i++) {
 
       if (residues_vec_size > (i+1)) {
-	 mmdb::Residue *residue_prev_p = residues_vec[i-1].second;
-	 mmdb::Residue *residue_this_p = residues_vec[i  ].second;
-	 mmdb::Residue *residue_next_p = residues_vec[i+1].second;
-	 std::string link_type("TRANS");             /* we need to transfer link_type too! */
-	 rama_triple_t triple(residues_vec[i-1].second,
-			      residues_vec[i  ].second,
-			      residues_vec[i+1].second,
-			      link_type, false, false, false);
-	 add_rama(triple, geom);
+         mmdb::Residue *residue_prev_p = residues_vec[i-1].second;
+         mmdb::Residue *residue_this_p = residues_vec[i  ].second;
+         mmdb::Residue *residue_next_p = residues_vec[i+1].second;
+         std::string link_type("TRANS");             /* we need to transfer link_type too! */
+         rama_triple_t triple(residues_vec[i-1].second,
+                              residues_vec[i  ].second,
+                              residues_vec[i+1].second,
+                              link_type, false, false, false);
+         add_rama(triple, geom);
       }
    }
 
@@ -421,60 +417,60 @@ coot::restraints_container_t::make_rama_plot_restraints(const std::map<mmdb::Res
       unsigned int n_link_for_residue = 0;
       std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm = residue_link_vector_map.find(residue_p);
       if (itm != residue_link_vector_map.end()) {
-	 n_link_for_residue = itm->second.size();
+         n_link_for_residue = itm->second.size();
       }
 
       // was it polymer-linked at both ends?
       //
       if (n_link_for_residue != 2) {
 
-	 mmdb::Residue *residue_prev_p = 0;
-	 mmdb::Residue *residue_next_p = 0;
+         mmdb::Residue *residue_prev_p = 0;
+         mmdb::Residue *residue_next_p = 0;
 
-	 int index_for_residue = residue_p->index;
-	 const std::set<mmdb::Residue *> &s = it->second;
-	 std::set<mmdb::Residue *>::const_iterator its;
-	 for (its=s.begin(); its!=s.end(); its++) {
-	    mmdb::Residue *neighb = *its;
+         int index_for_residue = residue_p->index;
+         const std::set<mmdb::Residue *> &s = it->second;
+         std::set<mmdb::Residue *>::const_iterator its;
+         for (its=s.begin(); its!=s.end(); its++) {
+            mmdb::Residue *neighb = *its;
 
-	    // see notes in make_flanking_atoms_restraints_ng()
+            // see notes in make_flanking_atoms_restraints_ng()
 
-	    std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
-	    itm = residue_link_vector_map.find(residue_p);
-	    if (itm != residue_link_vector_map.end()) {
-	       if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
-		  continue;
-	    }
+            std::map<mmdb::Residue *, std::vector<mmdb::Residue *> >::const_iterator itm;
+            itm = residue_link_vector_map.find(residue_p);
+            if (itm != residue_link_vector_map.end()) {
+               if (std::find(itm->second.begin(), itm->second.end(), neighb) != itm->second.end())
+                  continue;
+            }
 
-	    if (residue_p->chain != neighb->chain)
-	       continue;
+            if (residue_p->chain != neighb->chain)
+               continue;
 
-	    int index_for_neighb = neighb->index;
-	    int index_delta = index_for_neighb - index_for_residue;
-	    if (index_delta == -1)
-	       std::cout << "        found upstream fixed neigb: " << residue_spec_t(*its) << std::endl;
-	    if (index_delta == 1)
-	       std::cout << "        found downstream fixed neigb: " << residue_spec_t(*its) << std::endl;
+            int index_for_neighb = neighb->index;
+            int index_delta = index_for_neighb - index_for_residue;
+            if (index_delta == -1)
+               std::cout << "        found upstream fixed neigb: " << residue_spec_t(*its) << std::endl;
+            if (index_delta == 1)
+               std::cout << "        found downstream fixed neigb: " << residue_spec_t(*its) << std::endl;
 
-	    if (residue_prev_p && residue_next_p) {
+            if (residue_prev_p && residue_next_p) {
 
-	       bool fixed_prev = true;
-	       bool fixed_next = true;
-	       std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_1(residue_prev_p, residue_p);
-	       std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_2(residue_p, residue_next_p);
-	       if (residue_pair_link_set.find(test_pair_1) != residue_pair_link_set.end())
-		  fixed_prev = false;
-	       if (residue_pair_link_set.find(test_pair_2) != residue_pair_link_set.end())
-		  fixed_next = false;
-	       std::string link_type("TRANS");             /* we need to transfer link_type too! */
-	       rama_triple_t triple(residue_prev_p,
-				    residue_p,
-				    residue_next_p,
-				    link_type, fixed_prev, false, fixed_next);
-	       add_rama(triple, geom);
-	       break;
-	    }
-	 }
+               bool fixed_prev = true;
+               bool fixed_next = true;
+               std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_1(residue_prev_p, residue_p);
+               std::pair<mmdb::Residue *, mmdb::Residue *> test_pair_2(residue_p, residue_next_p);
+               if (residue_pair_link_set.find(test_pair_1) != residue_pair_link_set.end())
+                  fixed_prev = false;
+               if (residue_pair_link_set.find(test_pair_2) != residue_pair_link_set.end())
+                  fixed_next = false;
+               std::string link_type("TRANS");             /* we need to transfer link_type too! */
+               rama_triple_t triple(residue_prev_p,
+                                    residue_p,
+                                    residue_next_p,
+                                    link_type, fixed_prev, false, fixed_next);
+               add_rama(triple, geom);
+               break;
+            }
+         }
       }
    }
 }

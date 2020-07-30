@@ -56,6 +56,7 @@
 #include "skeleton/graphical_skel.h"
 
 
+#include "graphics-info.h"
 #include "interface.h"
 
 #include "molecule-class-info.h"
@@ -77,7 +78,6 @@
 #include "ligand/richardson-rotamer.hh"
 #endif
 #include "ligand/ligand.hh"
-#include "graphics-info.h"
 
 #include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"

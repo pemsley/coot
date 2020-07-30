@@ -154,7 +154,7 @@ public:
    // I need to say which cap type, flat or rounded.
    enum cap_type { FLAT_CAP, ROUNDED_CAP };
    void add_cylinder(const std::pair<glm::vec3, glm::vec3> &start_end,
-                     const coot::colour_holder &col, float line_radius,
+                     const coot::colour_holder &col, float radius,
                      unsigned int n_slices,
                      bool cap_start, bool cap_end,
                      cap_type start_cap_type, cap_type end_cap_type);

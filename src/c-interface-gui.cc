@@ -2791,7 +2791,7 @@ set_model_toolbar_docked_position(int state) {
     GtkWidget *handle = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
 				       "model_fit_refine_toolbar_handlebox");
     GtkWidget *vbox    = lookup_widget(GTK_WIDGET(graphics_info_t::glarea),
-				       "vbox1");
+				       "main_window_vbox");  // was "vbox1"
     GtkWidget *toolbar = lookup_widget(handle, "model_toolbar");
     GtkWidget *vsep    = lookup_widget(handle, "model_toolbar_vsep_toolitem");
     GtkWidget *hsep    = lookup_widget(handle, "model_toolbar_hsep_toolitem");

@@ -474,37 +474,36 @@ graphics_info_t::setup_map_uniforms(Shader *shader_p,
 }
 
 
-// Make these be part of graphics_info_t
-
-Mesh mesh_for_particles("mesh-for-particles");
-int n_particles = 100;
-particle_container_t particles;
-
-bool do_tick_particles = false;
-bool do_tick_spin = false;
-
 gboolean
 glarea_tick_func(GtkWidget *widget,
                  GdkFrameClock *frame_clock,
                  gpointer data) {
 
-   if (do_tick_particles) {
-      if (particles.empty()) {
-         do_tick_particles = false;
+   if (graphics_info_t::do_tick_particles) {
+      if (graphics_info_t::particles.empty()) {
+         graphics_info_t::do_tick_particles = false;
          return FALSE;
       } else {
-         particles.update_particles();
-         mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
+         graphics_info_t::particles.update_particles();
+         graphics_info_t::mesh_for_particles.update_instancing_buffer_data_for_particles(graphics_info_t::particles);
       }
    }
 
-   if (do_tick_spin) {
+   if (graphics_info_t::do_tick_spin) {
       float delta = 0.002;
       glm::vec3 EulerAngles(0, delta, 0);
       glm::quat quat_delta(EulerAngles);
       glm::quat normalized_quat_delta(glm::normalize(quat_delta));
       glm::quat product = normalized_quat_delta * graphics_info_t::glm_quat;
       graphics_info_t::glm_quat = glm::normalize(product);
+   }
+   
+   if (graphics_info_t::do_tick_boids) {
+      graphics_info_t::boids.update();
+      std::vector<glm::mat4> mats(graphics_info_t::boids.size());
+      for (unsigned int ii=0; ii<graphics_info_t::boids.size(); ii++)
+         mats[ii] = graphics_info_t::boids[ii].make_mat();
+      graphics_info_t::mesh_for_boids.update_instancing_buffer_data(mats);
    }
 
    gtk_widget_queue_draw(widget); // needed?             
@@ -764,18 +763,18 @@ graphics_info_t::draw_model_molecules() {
          // std::cout << glm::to_string(view_rotation) << std::endl;
 
          GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-         glm::vec4 bgc(graphics_info_t::background_colour, 1.0);
+         glm::vec4 bgc(background_colour, 1.0);
          glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep(get_world_space_eye_position(), 1.0);
-         glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+         glm::vec3 ep(get_world_space_eye_position());
+         glUniform3fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+         if (err) std::cout << "   error draw_model_molecules() glUniform3fv() for eye position " << err << std::endl;
 
-         shader.set_bool_for_uniform("do_depth_fog", graphics_info_t::shader_do_depth_fog_flag);
+         shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
          shader.set_bool_for_uniform("do_diffuse_lighting", true); // false for demo c.f. old style graphics
 
          err = glGetError();
@@ -916,46 +915,54 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
          shader.Use();
-         GLuint err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glUseProgram() "
-                                                       << err << std::endl;
+         GLuint err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
+                            << err << std::endl;
 
          glBindVertexArray(m.m_VertexArray_for_model_ID);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glBindVertexArray() "
+         if (err) std::cout << "   error draw_intermediate_atoms() glBindVertexArray() "
                             << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
          // should not be needed?
          glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
-         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() v " << err << std::endl;
+         err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() v "
+                            << err << std::endl;
          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_model_ID);
-         err = glGetError(); if (err) std::cout << "   error draw_model_molecules() glBindBuffer() i " << err << std::endl;
+         err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() i "
+                            << err << std::endl;
 
          GLuint mvp_location           = shader.mvp_uniform_location;
          GLuint view_rotation_location = shader.view_rotation_uniform_location;
 
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() pre mvp " << err << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() pre mvp "
+                            << err << std::endl;
          glUniformMatrix4fv(mvp_location, 1, GL_FALSE, &mvp[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for mvp " << err << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() for mvp "
+                            << err << std::endl;
          glUniformMatrix4fv(view_rotation_location, 1, GL_FALSE, &view_rotation[0][0]);
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniformMatrix4fv() for view_rotation " << err << std::endl;
-         // std::cout << glm::to_string(mvp) << std::endl;
-         // std::cout << glm::to_string(view_rotation) << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniformMatrix4fv() "
+                            << "for view_rotation " << err << std::endl;
 
          GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
          glm::vec4 bgc(background_colour, 1.0);
          glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for background " << err << std::endl;
+         if (err) std::cout << "error draw_model_molecules() glUniform4fv() for background "
+                            << err << std::endl;
 
          GLuint eye_position_uniform_location = shader.eye_position_uniform_location;
-         glm::vec4 ep = glm::vec4(get_world_space_eye_position(), 1.0);
-         glUniform4fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
+         glm::vec3 ep = get_world_space_eye_position();
+         glUniform3fv(eye_position_uniform_location, 1, glm::value_ptr(ep));
          err = glGetError();
-         if (err) std::cout << "   error draw_model_molecules() glUniform4fv() for eye position " << err << std::endl;
+         if (err) std::cout << "error draw_intermediate_atoms() glUniform4fv() for eye position "
+                            << err << std::endl;
 
          shader.set_bool_for_uniform("do_depth_fog", shader_do_depth_fog_flag);
 
@@ -1311,6 +1318,8 @@ graphics_info_t::draw_molecules() {
 
    draw_generic_objects();
 
+   draw_boids();
+
    // transparent things...
 
    draw_particles();
@@ -1346,13 +1355,33 @@ graphics_info_t::draw_environment_graphics_object() {
             glm::mat4 view_rotation = get_view_rotation();
             glm::vec4 bg_col(background_colour, 1.0);
 
-            bool do_depth_fog = true;
+            bool do_depth_fog = shader_do_depth_fog_flag;
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
                                                      mvp, view_rotation,
                                                      lights, eye_position, bg_col,
                                                      do_depth_fog);
 
+            Shader *shader_p = &shader_for_atom_labels;
+
+            GLenum err = glGetError();
+            if (err) std::cout << "error draw_environment_graphics_object() before labela err "
+                               << err << std::endl;
+
+            if (! labels.empty()) {
+               for (unsigned int i=0; i<labels.size(); i++) {
+                  const std::string &label  = labels[i].label;
+                  const glm::vec3 &position = labels[i].position;
+                  const glm::vec4 &colour   = labels[i].colour;
+                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
+                                                   mvp, view_rotation, lights, eye_position,
+                                                   bg_col, do_depth_fog);
+               }
+            }
+
             if (show_symmetry) {
+
+               // Fill me.
+
             }
          }
       }
@@ -1450,7 +1479,8 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    if (cube_type == VIEW_CENTRAL_CUBE) {
       mvp = glm::translate(mvp, rc);
-      glm::vec3 sc(0.2f, 0.2f, 0.2f);
+      float s = rotation_centre_cube_size;
+      glm::vec3 sc(s,s,s);
       mvp = glm::scale(mvp, sc);
    }
    if (cube_type == ORIGIN_CUBE) {
@@ -1612,11 +1642,15 @@ on_glarea_realize(GtkGLArea *glarea) {
    g.setup_lights();
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
-   particles.make_particles(n_particles, g.get_rotation_centre());
-   mesh_for_particles.setup_instancing_buffers_for_particles(particles.size());
+   g.particles.make_particles(g.n_particles, g.get_rotation_centre());
+   g.mesh_for_particles.setup_instancing_buffers_for_particles(g.particles.size());
 
    err = glGetError();
    if (err) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
+
+   g.mesh_for_particles.set_name("mesh for particles");
+
+   g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
 
    g.setup_key_bindings();
 }
@@ -2104,6 +2138,102 @@ graphics_info_t::setup_draw_for_particles() {
 }
 
 void
+graphics_info_t::setup_draw_for_boids() {
+
+   if (boids.size() == 0) {
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+
+      unsigned int n_boids = 30;
+      boids.make_boids(n_boids);
+
+      meshed_generic_display_object m;
+      coot::colour_holder col(0.4, 0.5, 0.6);
+      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(0.95,0,0), glm::vec3(-0.95,0,0));
+      m.add_cone(start_end, col, 1.0, 0.0, 12, false, true,
+                 meshed_generic_display_object::FLAT_CAP,
+                 meshed_generic_display_object::FLAT_CAP);
+      mesh_for_boids = m.mesh;
+
+      std::vector<glm::mat4>    mats(n_boids);
+      std::vector<glm::vec4> colours(n_boids);
+      for (unsigned int i=0; i<n_boids; i++) {
+         const fun::boid boid = boids[i];
+         mats[i] = glm::mat4(1.0f);
+         colours[i] = glm::vec4(0.2, 0.6, 0.4, 1.0);
+      }
+      Material material;
+      mesh_for_boids.setup_rtsc_instancing(&shader_for_instanced_cylinders,
+                                           mats, colours, n_boids, material);
+
+      do_tick_boids = true;
+      int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+
+      // boids box
+
+      std::vector<s_generic_vertex> vertices;
+      std::vector<unsigned int> indices;
+      glm::vec3 n(0,0,1);
+      glm::vec4 c(0.3f, 0.3f, 0.3f, 1.0f);
+      float boids_box_lim = boids.boids_box_limit;
+
+      float corners[8][3] = {
+                          {0,0,0}, //0
+                          {0,0,1}, //1
+                          {0,1,0}, //2
+                          {0,1,1}, //3
+                          {1,0,0}, //4
+                          {1,0,1}, //5
+                          {1,1,0}, //6
+                          {1,1,1}};//7
+      for (unsigned int i=0; i<8; i++) {
+         for (unsigned int j=0; j<3; j++) {
+            corners[i][j] *= 2.0f;
+            corners[i][j] -= 1.0;
+            corners[i][j] *= boids_box_lim;
+         }
+      }
+      for (unsigned int ii=0; ii<8; ii++)
+         vertices.push_back(s_generic_vertex(glm::vec3(corners[ii][0],corners[ii][1],corners[ii][2]), n, c));
+
+      indices.push_back(0); indices.push_back(1);
+      indices.push_back(1); indices.push_back(3);
+      indices.push_back(3); indices.push_back(2);
+      indices.push_back(2); indices.push_back(0);
+
+      indices.push_back(4); indices.push_back(5);
+      indices.push_back(5); indices.push_back(7);
+      indices.push_back(7); indices.push_back(6);
+      indices.push_back(6); indices.push_back(4);
+
+      indices.push_back(0); indices.push_back(4);
+      indices.push_back(1); indices.push_back(5);
+      indices.push_back(2); indices.push_back(6);
+      indices.push_back(3); indices.push_back(7);
+
+      lines_mesh_for_boids_box = LinesMesh(vertices, indices);
+      lines_mesh_for_boids_box.setup(&shader_for_lines);
+   }
+}
+
+
+void
+graphics_info_t::draw_boids() {
+
+   if (boids.size() > 0) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      mesh_for_boids.draw(&shader_for_instanced_cylinders,
+                          mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                          shader_do_depth_fog_flag);
+
+      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp);
+   }
+}
+
+
+void
 graphics_info_t::move_forwards() {
    // these are the other way round in perspective - that's interesting.
    translate_in_screen_z(1.0);
@@ -2196,6 +2326,22 @@ graphics_info_t::setup_key_bindings() {
                   return gboolean(TRUE);
              };
 
+   // boids
+   auto l23 = [] () {
+                 graphics_info_t g;
+                 if (! graphics_info_t::do_tick_boids)
+                    graphics_info_t::do_tick_boids = true;
+                 else
+                    graphics_info_t::do_tick_boids = false;
+
+                 g.setup_draw_for_boids();
+
+                 if (! graphics_info_t::do_tick_boids)
+                    std::cout << "--------- key press ----------- do_tick_boids "
+                           << graphics_info_t::do_tick_boids << std::endl;
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -2219,6 +2365,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
 
    // control keys
 

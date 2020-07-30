@@ -58,12 +58,12 @@
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 // #include <GL/glut.h>  // for some reason...  // Eh?
 
+#include "graphics-info.h"
 #include "interface.h"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "molecule-class-info.h"
 
-#include "graphics-info.h"
 #include "manipulation-modes.hh"
 
 // #include "coot-utils.hh"

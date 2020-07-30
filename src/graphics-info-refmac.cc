@@ -72,6 +72,7 @@
 #include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
 
+#include "graphics-info.h"
 #include "interface.h"
 
 #include "molecule-class-info.h"
@@ -84,7 +85,6 @@
 
 #include "globjects.h"
 #include "ligand/ligand.hh"
-#include "graphics-info.h"
 
 #include "ligand/dunbrack.hh"
 

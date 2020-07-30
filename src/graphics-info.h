@@ -36,12 +36,8 @@
 
 // need gtk things
 #include <gtk/gtk.h>
+#include <epoxy/gl.h>
 
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#else
-#   include <GL/gl.h>
-#endif
 
 // Yesterday's OpenGL interface
 // #include <gdk/gdkglconfig.h>
@@ -114,6 +110,10 @@
 #endif // HAVE_CURL_H
 #endif
 
+#include "TextureMesh.hh"
+
+#include "boids.hh"
+
 #include "graphics-ligand-view.hh"
 
 #include "restraints-editor.hh"
@@ -121,6 +121,8 @@
 #include "framebuffer.hh"
 
 #include "lights-info.hh"
+
+#include "atom-label-info.hh"
 
 // #include "Transform.hh"
 // #include "Camera.hh"
@@ -980,17 +982,6 @@ public:
        r = 1;
      }
      return r;
-   }
-
-   /* OpenGL functions can be called only if make_current returns true */
-   static int make_current_gl_context(GtkWidget *widget) {
-
-#if 0   // Old GTK-GL interface
-     GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
-     GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
-     return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
-#endif
-     return 0;
    }
 
 
@@ -2382,6 +2373,11 @@ public:
    // private?
    void update_environment_graphics_object(int atom_index, int imol);
    void update_symmetry_environment_graphics_object(int atom_index, int imol);
+   void add_distance_labels_for_environment_distances();
+   static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
+   static TextureMesh tmesh_for_labels;
+
+   void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
    //
    static short int dynamic_map_resampling;
@@ -3054,6 +3050,7 @@ public:
    static void draw_generic_objects_solid();
    static void draw_generic_text();
    static void draw_particles();
+   static void draw_boids();
    void setup_draw_for_particles();
    void clear_simple_distances();
    void clear_last_simple_distance();
@@ -4071,6 +4068,7 @@ string   static std::string sessionid;
    static Shader shader_for_blur;
    static Shader shader_for_lines;
    static Shader shader_for_particles;
+   static Shader shader_for_instanced_cylinders;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
@@ -4233,6 +4231,23 @@ string   static std::string sessionid;
    // Lights
    //
    static std::map<unsigned int, lights_info_t> lights;
+
+   // Mesh mesh_for_particles("mesh-for-particles");
+   // int n_particles = 100;
+   static Mesh mesh_for_particles;
+   static int n_particles;
+   static particle_container_t particles;
+
+   static Mesh mesh_for_boids; // with instancing
+   static fun::boids_container_t boids;
+   static LinesMesh lines_mesh_for_boids_box;
+   void setup_draw_for_boids();
+
+   static bool do_tick_particles;
+   static bool do_tick_spin;
+   static bool do_tick_boids;
+   
+   
 };
 
 

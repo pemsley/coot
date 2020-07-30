@@ -12,6 +12,8 @@ glm::vec3 coord_orth_to_glm(const clipper::Coord_orth &co);
 
 LinesMesh::LinesMesh(const clipper::Cell &cell) {
 
+   index_buffer_id = 999999;
+
    float corners[8][3] = {
                           {0,0,0}, //0
                           {0,0,1}, //1

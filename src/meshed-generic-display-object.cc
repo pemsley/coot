@@ -164,6 +164,8 @@ meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &s
    float h = glm::distance(start_end.first, start_end.second);
    cylinder c(start_end, base_radius, top_radius, h, n_slices, 2);
    glm::vec4 colour(col.red, col.green, col.blue, 1.0f);
+
+   // are your start and end points where you think they are?
    if (false)
       std::cout << "add_cone: " << glm::to_string(start_end.first) << " "
                 << glm::to_string(start_end.second)
@@ -187,6 +189,7 @@ meshed_generic_display_object::add_cone(const std::pair<glm::vec3, glm::vec3> &s
 
    for (unsigned int i=0; i<c.vertices.size(); i++)
       c.vertices[i].color = colour;
+
    mesh.import(c.vertices, c.triangle_indices_vec);
 
 }

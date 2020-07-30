@@ -43,7 +43,7 @@ void screendump_tga_internal(std::string tga_file,
    short int sfh = static_cast<short int>(sf * widget_height);
    short int TGAhead[] = {0, 2, 0, 0, 0, 0, sfw, sfh, 24};
 
-   std::cout << "error:: screendump_tga application image: scaling " << sf << " " << w << " x " << h
+   std::cout << "screendump_tga application image: scaling " << sf << " " << w << " x " << h
              << " to " << tga_file << std::endl;
 
 #if THIS_IS_HMT
@@ -52,7 +52,8 @@ void screendump_tga_internal(std::string tga_file,
 #else
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 #endif
-   err = glGetError(); if (err) std::cout << "error:: screendump_tga_internal() post-attach " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error:: screendump_tga_internal() post-attach " << err << std::endl;
 
    GLint local_fbo;
    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
@@ -67,17 +68,22 @@ void screendump_tga_internal(std::string tga_file,
    std::cout << "debug:: post-bind with local_fbo binding " << local_fbo << std::endl;
 
    std::cout << "debug:: Using framebuffer fbo " << framebuffer_obj << std::endl;
-   glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK);
-   err = glGetError(); if (err) std::cout << "error:: screendump_tga_internal() post-set readbuffer " << err << std::endl;
+
+   glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK); // this often errors
+   err = glGetError();
+   if (err) std::cout << "error:: screendump_tga_internal() post-set glnamedreadbuffer "
+                      << err << std::endl;
 
    glReadPixels(0, 0, sf * w, sf * h, GL_BGR, GL_UNSIGNED_BYTE, pixel_data);
-   err = glGetError(); if (err) std::cout << "error:: screendump_tga_internal() post-glReadpixels " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "error:: screendump_tga_internal() post-glReadpixels "
+                                          << err << std::endl;
    fwrite(&TGAhead, sizeof(TGAhead), 1, output_file);
    fwrite(pixel_data, 3 * sf * sf * w * h, 1, output_file); // 3 components
    fclose(output_file);
    delete [] pixel_data;
 
-   std::cout << "INFO:: screendump_tga done, wrote " << 3 * sf * sf * w * h << " bytes" << std::endl;
+   std::cout << "INFO:: screendump_tga sf " << sf << " " << w << "x" << h
+             << " wrote " << 3 * sf * sf * w * h << " bytes" << std::endl;
 
 }
 

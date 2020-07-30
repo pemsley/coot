@@ -41,12 +41,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 //#include "mmdb-extras.h"
 //#include "mmdb.h"
 
-// display list GLuint
-#if __APPLE__
-#   include <OpenGL/gl.h>
-#else
-#   include <GL/gl.h>
-#endif
+#include <epoxy/gl.h>
 
 #include <glm/glm.hpp>
 

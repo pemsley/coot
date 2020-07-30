@@ -34,10 +34,11 @@ graphics_info_t::init_shaders() {
    shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
-   shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::TEXT_3D);
+   shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::MODEL);
    shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_particles.init("particles.shader", Shader::Entity_t::MODEL);
+   shader_for_instanced_cylinders.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.

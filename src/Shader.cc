@@ -93,16 +93,21 @@ void
 Shader::set_bool_for_uniform(const std::string &uniform_name, bool value) {
 
    GLuint err = glGetError();
-   if (err) std::cout << "error:: Shader::set_bool_for_uniform() " << uniform_name << " start err " << err << std::endl;
+   if (err)
+      std::cout << "error:: Shader::set_bool_for_uniform() " << name << " "
+                << uniform_name << " start err " << err << std::endl;
+
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
    // std::cout << "set_bool_for_uniform() got loc " << loc << std::endl;
    err = glGetError();
-   if (err) std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " A err "
-                      << err << std::endl;
+   if (err)
+      std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " A err "
+                << err << std::endl;
    glUniform1i(loc, value);
    err = glGetError();
-   if (err) std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " B err "
-                      << err << std::endl;
+   if (err)
+      std::cout << "ERROR:: " << name << " Shader::set_bool_for_uniform() " << uniform_name << " B err "
+                << err << std::endl;
 }
 
 
@@ -387,7 +392,8 @@ Shader::setup_light(unsigned int light_index, const lights_info_t &light,
    glm::vec4 p4_wc(glm::vec3(p4_i / p4_i.w), 1.0);
 
    err = glGetError();
-   if (err) std::cout << "error setup_light() " << name << " A " << err << std::endl;
+   if (err) std::cout << "error setup_light() " << light_index << " "
+                      << name << " A " << err << std::endl;
 
    if (false)
       std::cout << "sending light direction_in_molecule_coordinates_space orig: "
@@ -403,6 +409,7 @@ Shader::setup_light(unsigned int light_index, const lights_info_t &light,
    a = s + ".direction_in_molecule_coordinates_space";
    set_vec3_for_uniform(a, glm::vec3(p4));
    err = glGetError();
-   if (err) std::cout << "error setup_light() " << name << " -- end -- " << err << std::endl;
+   if (err) std::cout << "error setup_light() " << light_index << " "
+                      << name << " -- end -- " << err << std::endl;
 
 }

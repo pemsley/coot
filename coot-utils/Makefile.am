@@ -38,9 +38,10 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
 	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
-	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
+	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh \
+	strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh arc-info.hh \
-	coot_shiftfield.h shiftfield.h cis-peptide-info.hh
+	coot_shiftfield.h shiftfield.h cis-peptide-info.hh fib-sphere.hh
 
 
 
@@ -70,7 +71,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
-	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc
+	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc
 
 
 
