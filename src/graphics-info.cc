@@ -2992,39 +2992,6 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 #endif
 }
 
-// gettext problems!
-// #include <iomanip>
-
-void
-graphics_info_t::add_distance_labels_for_environment_distances() {
-
-   bool background_is_black_flag = background_is_black_p();
-   for (int i=0; i<environment_object_bonds_box.num_colours; i++) {
-      float dark_bg_cor = 0.0;
-      if (! background_is_black_flag)
-         dark_bg_cor = 0.29;
-      float fidx = static_cast<float>(i);
-      coot::colour_holder col(0.8-dark_bg_cor, 0.8-0.4*fidx-dark_bg_cor, 0.4+0.5*fidx-dark_bg_cor);
-      graphical_bonds_lines_list<graphics_line_t> &ll = environment_object_bonds_box.bonds_[i];
-      for (int j=0; j< ll.num_lines; j++) {
-         glm::vec3 s = cartesian_to_glm(ll.pair_list[j].positions.getStart());
-         glm::vec3 e = cartesian_to_glm(ll.pair_list[j].positions.getFinish());
-         float d = glm::distance(s,e);
-         glm::vec3 mid_point = 0.5f * (s + e);
-         glm::vec3 offset_mid_point = mid_point + glm::vec3(0.15, 0.05, 0.05);
-         std::ostringstream ss;
-         // ss << std::setprecision(3) << std::fixed << d;
-         ss << std::fixed << d;
-         std::string text(ss.str());
-
-         glm::vec4 ccol(col.red, col.green, col.blue, 1.0);
-         add_label(text, offset_mid_point, 0.8f * ccol);
-
-      }
-   }
-}
-
-
 
 void
 graphics_info_t::add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c) {
