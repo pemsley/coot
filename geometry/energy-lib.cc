@@ -685,13 +685,18 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	      it_1->second.hb_type == coot::HB_HYDROGEN) &&
 	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
 	      it_2->second.hb_type == coot::HB_BOTH)) {
-	    r.second -= 0.24; // was 0.4
-	    // actual hydrogens to acceptors can be shorter still
-	    if (it_1->second.hb_type == coot::HB_HYDROGEN) {
-	       r.second -= 0.14; // was 0.2
-	    }
+            if (extended_atoms_mode) {
+               r.second -= 0.24; // was 0.4
+            } else {
+               // actual hydrogens to acceptors can be shorter still
+               if (it_1->second.hb_type == coot::HB_HYDROGEN)
+               r.second -= 0.38; // was 0.4
+            }
             done_hb_shorten = true;
-	 }
+	 } else {
+            if (it_1->second.hb_type == coot::HB_HYDROGEN)
+               r.second += 0.08; //  experimental
+         }
 
          if (! done_hb_shorten) {
 	    if ((it_2->second.hb_type == coot::HB_DONOR ||
@@ -699,12 +704,18 @@ coot::protein_geometry::get_nbc_dist_v2(const std::string &energy_type_1,
 	         it_2->second.hb_type == coot::HB_HYDROGEN) &&
 	        (it_1->second.hb_type == coot::HB_ACCEPTOR ||
 	         it_1->second.hb_type == coot::HB_BOTH)) {
-	       r.second -= 0.24; // was 0.4
-	       // as above
-	       if (it_1->second.hb_type == coot::HB_HYDROGEN) {
-	          r.second -= 0.14;
-	       }
+               if (extended_atoms_mode) {
+                  r.second -= 0.24; // was 0.4
+               } else {
+                  // as above
+                  // actual hydrogens to acceptors can be shorter still
+                  if (it_2->second.hb_type == coot::HB_HYDROGEN)
+                     r.second -= 0.38; // was 0.4
+               }
 	    }
+	 } else {
+            if (it_2->second.hb_type == coot::HB_HYDROGEN)
+               r.second += 0.08; //  experimental
 	 }
 
          r.first = true;
