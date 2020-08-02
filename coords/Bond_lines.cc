@@ -53,6 +53,17 @@ Bond_lines::Bond_lines(const graphics_line_t &line) {
    points.push_back(line);
 }
 
+// we can put other things here
+void
+Bond_lines_container::init() {
+
+   // std::cout << "init() " << std::endl;
+   rotamer_probability_tables_p = NULL;
+   do_sticks_for_waters = false;
+   use_deuteranomaly_mode = false;
+}
+
+
 // We arrange things like this because the other constructor now uses
 // construct_from_asc() too.
 //
@@ -115,6 +126,17 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   bool do_rota_markup,
 					   bool do_sticks_for_waters_in,
 					   coot::rotamer_probability_tables *tables_p) : no_bonds_to_these_atoms(no_bonds_to_these_atoms_in) {
+
+
+   if (false) {
+      std::cout << "######################## Bond_lines_container::Bond_lines_container() A "
+                << SelAtom.mol << " " << no_bonds_to_these_atoms_in.size() << std::endl;
+      std::cout << "--------------------- no bonds to these atoms ------------------"  << std::endl;
+      std::set<int>::const_iterator it;
+      for(it=no_bonds_to_these_atoms_in.begin(); it!=no_bonds_to_these_atoms_in.end(); it++) {
+         std::cout << "  " << *it << std::endl;
+      }
+   }
 
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -216,6 +238,9 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
 					   Bond_lines_container::bond_representation_type by_occ) {
+
+   std::cout << "######################## Bond_lines_container::Bond_lines_container() B "
+             << std::endl;
 
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
@@ -4030,19 +4055,20 @@ Bond_lines_container::addBond(int col,
    // std::cout << "debug in addBond() " << no_bonds_to_these_atoms.size() << std::endl;
 
    // duck out if both of these atoms are in the no-bonds to these atoms set
+   //
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) {
       if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end()) {
 	 if (false)
-	    std::cout << "debug::: addBond() ducking out with " << atom_index_1 << " " << atom_index_2 << " "
-		      << no_bonds_to_these_atoms.size() << std::endl;
+	    std::cout << "debug::: addBond() ducking out with " << atom_index_1 << " " << atom_index_2
+                      << " set size: " << no_bonds_to_these_atoms.size() << std::endl;
 	 return;
       }
    }
 
    if (false)
       if (no_bonds_to_these_atoms.size() > 0)
-         std::cout << "debug in addBond() atom indices " << atom_index_1 << " " << atom_index_2 << " not found in no_bonds_to_these_atoms"
-		   << std::endl;
+         std::cout << "debug in addBond() atom indices " << atom_index_1 << " " << atom_index_2
+                   << " not found in no_bonds_to_these_atoms" << std::endl;
 
    coot::CartesianPair pair(start,end);
    if (col >= int(bonds.size())) {

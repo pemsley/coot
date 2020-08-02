@@ -484,12 +484,7 @@ class Bond_lines_container {
    //
    int get_user_defined_col_index(mmdb::Atom *at, int udd_handle) const;
 
-   // we can put other things here
-   void init() {
-      rotamer_probability_tables_p = NULL;
-      do_sticks_for_waters = false;
-      use_deuteranomaly_mode = false;
-   }
+   void init();
    
 
 public:
