@@ -11,10 +11,21 @@ public:
    glm::vec3 pos;
    glm::vec3 normal; // normalized on input
    glm::vec4 color;  // make this "colour"
-   s_generic_vertex(const glm::vec3 pos_in,
-                    const glm::vec3 norm_in,
-                    const glm::vec4 col_in) : pos(pos_in), normal(norm_in), color(col_in)  {}
+   s_generic_vertex(const glm::vec3 &pos_in,
+                    const glm::vec3 &norm_in,
+                    const glm::vec4 &col_in) : pos(pos_in), normal(norm_in), color(col_in)  {}
    s_generic_vertex() {}
+};
+
+// for instanced objects (those animated/moving) the position in molecular space
+// and the colour is dictacted by the instancing matrices (and colours)
+// We don't need to create them here.
+class position_normal_vertex {
+public:
+   glm::vec3 pos; // based around the origin
+   glm::vec3 normal; // normalized on input
+   position_normal_vertex(const glm::vec3 &pos_in, const glm::vec3 &norm_in) : pos(pos_in), normal(norm_in) {}
+   position_normal_vertex() {}
 };
 
 class vertex_with_rotation_translation {

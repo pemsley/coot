@@ -432,6 +432,7 @@ coot_bin_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	eyes.cc eyes.hh		 \
 	flev.hh			 \
 	flev.cc                  \
         framebuffer.cc           \

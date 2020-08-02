@@ -14,6 +14,7 @@ public:
    g_triangle() {} // for resize
    unsigned int point_id[3];
    unsigned int &operator[] (const unsigned int &i) { return point_id[i]; }
+   const unsigned int &operator[] (const unsigned int &i) const { return point_id[i]; }
    void rebase(const unsigned int &idx_base) {
       for (unsigned int i=0; i<3; i++) {
          point_id[i] += idx_base;

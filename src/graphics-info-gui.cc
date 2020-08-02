@@ -176,7 +176,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
       // now set the position, if it was set:
 
-      if (true)
+      if (false)
 	 std::cout << "Here...... outer "
 		   << graphics_info_t::accept_reject_dialog_x_position
 		   << " "
