@@ -76,7 +76,7 @@ coot::raytrace_info_t::add_geometry_objects(const std::vector<coot::simple_dista
                            clipper::Coord_orth p1 = p_start + fracs * (p_end - p_start);
                            clipper::Coord_orth p2 = p_start + fracn * (p_end - p_start);
                            std::pair<clipper::Coord_orth, clipper::Coord_orth> from_to(p1, p2);
-                           colour_holder col(0.5, 0.75, 0.5);
+                           colour_holder col(0.4, 0.65, 0.4);
                            std::string colour_name = "lightblue";
                            int width = 4;
                            gdo.add_line(col, colour_name, width, from_to);
