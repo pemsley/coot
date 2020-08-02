@@ -269,6 +269,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 						    bool have_udd_atoms,
 						    int udd_done_bond_handle) {
 
+   n_atoms_in_atom_selection = asc.n_selected_atoms;
    mmdb::Contact *contact = NULL;
    int ncontacts = 0;
    long i_contact_group = 1;
@@ -4027,7 +4028,13 @@ Bond_lines_container::addBond(int col,
    // if (no_bonds_to_these_atoms.size() > 0)
    // std::cout << "debug in addBond() " << no_bonds_to_these_atoms.size() << std::endl;
 
+   // if the atom selection has the same size as no_bonds_to_these_atoms then we don't want
+   // to draw any bonds
+   //
+   if (no_bonds_to_these_atoms.size() == n_atoms_in_atom_selection) return;
+
    // duck out if both of these atoms are in the no-bonds to these atoms set
+   //
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) {
       if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end()) {
 	 if (false)
