@@ -73,8 +73,6 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc
 
 
-
-
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
 #    $(CLIPPER_LIBS) $(MMDB_LIBS)
