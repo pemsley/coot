@@ -6915,6 +6915,8 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 
       time_string = dir;
 
+      std::cout << "debug A " << time_string << std::endl;
+
       // unix dependent logic here:  Don't know how to do this on other systems...
       // We want a filename proceeded by a directory name:
       // i.e. we end up with something like
@@ -6926,21 +6928,12 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       if (g.unpathed_backup_file_names_flag) {
          clean_name = name_for_display_manager();
       }
-      // convert "/" to "_"
-      int slen = clean_name.length();
-      for (int i=0; i<slen; i++)
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW)
-// BL says: we change /, \ and : to _ in windows
-         if (clean_name[i] == '/' || clean_name[i] == '\\'
-                             || clean_name[i] == ':')
-            clean_name[i] = '_';
-#else
-      if (clean_name[i] == '/')
-         clean_name[i] = '_';
-#endif // win32 things
 
       time_string += clean_name;
       time_string += "_";
+
+      std::cout << "debug B clean_name: " << clean_name << std::endl;
+      std::cout << "debug B " << time_string << std::endl;
 
       // add in the time component:
 
@@ -6955,16 +6948,22 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       decolonify = true;
 #endif
 
-      if (decolonify) {
-         // we just convert the : to _
-         for (int i=0; i<l; i++) {
-            if (chars_time[i] == ':') {
+      // convert "/" to "_"
+      int slen = clean_name.length();
+      for (int i=0; i<slen; i++) {
+         if (clean_name[i] == '/')
+            clean_name[i] = '_';
+         if (clean_name[i] == '\\')
+            clean_name[i] = '_';
+         if (decolonify)
+            if (chars_time[i] == ':')
                 chars_time[i] = '_';
-            }
-         }
       }
 
+      std::cout << "debug C " << time_string << std::endl;
+      std::cout << "debug C chars_time: " << chars_time << std::endl;
       time_string += chars_time;
+      std::cout << "debug D " << time_string << std::endl;
 
       // strip off the trailing newline:
       slen = time_string.length();
@@ -6990,7 +6989,9 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
 #endif // MINGW
 #endif // other win32
 
+      std::cout << "debug E " << time_string << std::endl;
       time_string += "_modification_";
+      std::cout << "debug F " << time_string << std::endl;
 
       save_time_string = time_string; // why do we do this?  Ah, because we want the
                                       // time to calculated at the start:
@@ -7007,6 +7008,8 @@ molecule_class_info_t::save_molecule_filename(const std::string &dir) {
       } else {
 	 time_string += ".res";
       }
+
+      std::cout << "debug G " << time_string << std::endl;
 
 #if defined(_MSC_VER)
       // we can do now too (I hope for all of them?!?)

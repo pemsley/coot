@@ -12,6 +12,8 @@
 
 #include "generic-display-object.hh"
 
+#include "simple-distance-object.hh"
+
 #include "coot-colour.hh"
 
 namespace coot { 
@@ -223,6 +225,8 @@ namespace coot {
       void add_display_object(const coot::generic_display_object_t &display_object_in) {
 	 display_objects.push_back(display_object_in);
       }
+
+      void add_geometry_objects(const std::vector<coot::simple_distance_object_t> &sdov);
 
       void add_label(const std::pair<std::string, clipper::Coord_orth> &label) {
 	 labels.push_back(label);

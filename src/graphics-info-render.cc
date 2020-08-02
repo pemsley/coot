@@ -41,6 +41,79 @@
 #include "ccp4mg-utils/ppmutil.h"
 
 
+void
+coot::raytrace_info_t::add_geometry_objects(const std::vector<coot::simple_distance_object_t> &sdov) {
+
+   int ndist = sdov.size();
+   double dist;
+   graphics_info_t g;
+
+   if (ndist > 0) {
+      generic_display_object_t gdo("distance-geometry");
+      gdo.is_displayed_flag = true;
+      for (int i=0; i<ndist; i++) {
+	 if (g.is_valid_model_molecule(sdov[i].imol_start)) {
+	    if (g.is_valid_model_molecule(sdov[i].imol_end)) {
+	       if (g.molecules[sdov[i].imol_start].is_displayed_p()) {
+		  if (g.molecules[sdov[i].imol_end].is_displayed_p()) {
+
+                     clipper::Coord_orth p_start(sdov[i].start_pos.x(),
+                                                 sdov[i].start_pos.y(),
+                                                 sdov[i].start_pos.z());
+                     clipper::Coord_orth p_end(sdov[i].end_pos.x(),
+                                               sdov[i].end_pos.y(),
+                                               sdov[i].end_pos.z());
+
+                     float dash_density = 5.0;
+                     float ll = clipper::Coord_orth::length(p_start, p_end);
+                     int n_dashes = int(dash_density * ll);
+                     bool visible = true;
+
+                     for (int idash=0; idash<(n_dashes-1); idash++) {
+                        if (visible) {
+                           float fracs = float(idash)/float(n_dashes);
+                           float fracn = float(idash+1)/float(n_dashes);
+                           clipper::Coord_orth p1 = p_start + fracs * (p_end - p_start);
+                           clipper::Coord_orth p2 = p_start + fracn * (p_end - p_start);
+                           std::pair<clipper::Coord_orth, clipper::Coord_orth> from_to(p1, p2);
+                           colour_holder col(0.5, 0.75, 0.5);
+                           std::string colour_name = "lightblue";
+                           int width = 4;
+                           gdo.add_line(col, colour_name, width, from_to);
+                           display_objects.push_back(gdo);
+                        }
+                        visible = !visible;
+                     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      for (int i=0; i<ndist; i++) {
+	 if (g.is_valid_model_molecule(sdov[i].imol_start)) {
+	    if (g.is_valid_model_molecule(sdov[i].imol_end)) {
+	       if (g.molecules[sdov[i].imol_start].is_displayed_p()) {
+		  if (g.molecules[sdov[i].imol_end].is_displayed_p()) {
+                     clipper::Coord_orth text_pos = sdov[i].start_pos +
+			0.5 * (sdov[i].end_pos - sdov[i].start_pos +
+                               clipper::Coord_orth(0.0, 0.1, 0.1));
+		     dist = clipper::Coord_orth::length(sdov[i].start_pos, sdov[i].end_pos);
+                     std::string s = coot::util::float_to_string(dist);
+                     std::pair<std::string, clipper::Coord_orth> p(s, text_pos);
+                     add_label(p); // This is drawn in atom colour - which is not ideal.
+                                   // Previous to the addition of this function,
+                                   // the only thing with labels were atoms.
+                                   // Fix another time.
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
 // raster3d
 short int
 graphics_info_t::raster3d(std::string filename) {
@@ -56,7 +129,7 @@ graphics_info_t::raster3d(std::string filename) {
    if (glarea) {
       width = glarea->allocation.width;
       height = glarea->allocation.height;
-   } 
+   }
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    width, height,
 			    clipping_front,
@@ -69,6 +142,7 @@ graphics_info_t::raster3d(std::string filename) {
    rt.set_view_matrix(m);
 
    rt.add_display_objects(*generic_objects_p);
+   rt.add_geometry_objects(*distance_object_vec); // distances
    rt.set_raster3d_enable_shadows(raster3d_enable_shadows);
    bool is_bb = background_is_black_p();
    coot::colour_t atom_label_colour(font_colour.red, font_colour.green, font_colour.blue);
@@ -79,7 +153,7 @@ graphics_info_t::raster3d(std::string filename) {
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
 
-      if (molecules[imol].is_displayed_p()) { 
+      if (molecules[imol].is_displayed_p()) {
 	 if (molecules[imol].has_model()) {
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
 	 }
@@ -89,7 +163,7 @@ graphics_info_t::raster3d(std::string filename) {
 	 if (molecules[imol].has_xmap()) {  // NXMAP-FIXME
 	    // map and skeleton
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
-	    if (molecules[imol].is_difference_map_p()) { 
+	    if (molecules[imol].is_difference_map_p()) {
 	       rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
 	    }
 	 }
@@ -103,7 +177,6 @@ graphics_info_t::raster3d(std::string filename) {
 	    std::pair<std::string, clipper::Coord_orth> s = molecules[imol].make_atom_label_string(i, al_flag, sid_flag);
 	    rt.add_label(s);
 	 }
-	 
       }
    }
    std::cout << "Rendering raytrace..." << std::endl;
@@ -126,7 +199,7 @@ graphics_info_t::povray(std::string filename) {
    background.col[2] = background_colour[2];
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    glarea->allocation.width,
-			    glarea->allocation.height, 
+			    glarea->allocation.height,
 			    clipping_front,
 			    raster3d_bond_thickness,
 			    raster3d_bone_thickness,
@@ -185,7 +258,7 @@ graphics_info_t::povray(std::string filename) {
    std::cout << "INFO:: Wrote raytrace input file." << std::endl;
 
    return istate;
-} 
+}
 
 
 // Renderman format:  (Fun 20090215)
@@ -606,7 +679,6 @@ void
 coot::raytrace_info_t::render_generic_objects(std::ofstream &render_stream) const {
 
    for (unsigned int i=0; i<display_objects.size(); i++) {
-      std::cout << " generic object number : " << i << std::endl;
       display_objects[i].raster3d(render_stream);
    }
 }
@@ -698,6 +770,8 @@ coot::raytrace_info_t::set_ortho_params(float left, float right, float bottom, f
 
 void 
 coot::generic_display_object_t::raster3d(std::ofstream &render_stream) const {
+
+   // Make sure that you have set is_displayed_flag for your generic_display_object_t
 
    if (! is_closed_flag) {
       if (is_displayed_flag) {
