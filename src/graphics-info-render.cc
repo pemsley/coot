@@ -40,7 +40,7 @@
 
 #include "ccp4mg-utils/ppmutil.h"
 
-#include "generic-display-object.hh"
+#include "old-generic-display-object.hh"
 
 
 void

@@ -582,6 +582,7 @@ coot_bin_SOURCES = \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
 	Shader.cc Shader.hh      \
+        simple-distance-object.hh \
 	startup-scripts.hh       \
 	support.c support.h      \
 	select-atom-info.hh      \
