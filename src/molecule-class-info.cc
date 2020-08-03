@@ -6905,146 +6905,62 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 // Backup filename: return a stub.
 //
 std::string
-molecule_class_info_t::save_molecule_filename(const std::string &dir) {
+molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
 
-   std::string time_string = save_time_string;
+   auto replace_char = [] (const std::string &s, char a) {
+                          std::string r = s;
+                          int slen = s.length();
+                          for (int i=0; i<slen; i++) {
+                             if (r[i] == a)
+                                r[i] = '_';
+                          }
+                          return r;
+                       };
+
    graphics_info_t g;
+   bool decolonify = g.decoloned_backup_file_names_flag;
+   std::string t_name_1 = name_;
+   if (g.unpathed_backup_file_names_flag)
+      t_name_1 = name_for_display_manager();
+   std::cout << "debug:: in get_save_molecule_filename(): t_name_1 " << t_name_1 << std::endl;
+   std::string t_name_2 = replace_char(t_name_1, '/');
+   std::cout << "debug:: in get_save_molecule_filename(): t_name_2 " << t_name_2 << std::endl;
 
-   if ((history_index == 0) ||
-       history_index != max_history_index) {
-
-      time_string = dir;
-
-      std::cout << "debug A " << time_string << std::endl;
-
-      // unix dependent logic here:  Don't know how to do this on other systems...
-      // We want a filename proceeded by a directory name:
-      // i.e. we end up with something like
-      // "coot-backup/a.pdb_Tues_Aug_19_20:16:00_2003_modification_0.mmdbbin"
-
-      time_string += "/";
-
-      std::string clean_name = name_;
-      if (g.unpathed_backup_file_names_flag) {
-         clean_name = name_for_display_manager();
-      }
-
-      time_string += clean_name;
-      time_string += "_";
-
-      std::cout << "debug B clean_name: " << clean_name << std::endl;
-      std::cout << "debug B " << time_string << std::endl;
-
-      // add in the time component:
-
+   if (save_time_string.empty()) {
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
       int l = strlen(chars_time);
-
-      bool decolonify = g.decoloned_backup_file_names_flag;
-
-#ifdef WINDOWS_MINGW
-      decolonify = true;
-#endif
-
-      // convert "/" to "_"
-      int slen = clean_name.length();
-      for (int i=0; i<slen; i++) {
-         if (clean_name[i] == '/')
-            clean_name[i] = '_';
-         if (clean_name[i] == '\\')
-            clean_name[i] = '_';
-         if (decolonify)
-            if (chars_time[i] == ':')
-                chars_time[i] = '_';
+      save_time_string = chars_time;
+      if (! save_time_string.empty()) {
+         std::string::size_type l = save_time_string.length();
+         save_time_string = save_time_string.substr(0, l-1);
       }
-
-      std::cout << "debug C " << time_string << std::endl;
-      std::cout << "debug C chars_time: " << chars_time << std::endl;
-      time_string += chars_time;
-      std::cout << "debug D " << time_string << std::endl;
-
-      // strip off the trailing newline:
-      slen = time_string.length();
-      if (slen > 2)
-         time_string = time_string.substr(0,slen-1);
-
-      // convert spaces to underscores
-      //
-      for (unsigned int i=0; i<time_string.length(); i++)
-	 if (time_string[i] == ' ')
-	    time_string[i] = '_';
-
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
-
-      // convert : to underscores in windows
-      //
-#ifndef WINDOWS_MINGW
-      // BL say: nonsense since we would transform the directory C: here.
-      // we have done it before already
-      for (int i=0; i<time_string.length(); i++)
-	 if (time_string[i] == ':')
-	    time_string[i] = '_';
-#endif // MINGW
-#endif // other win32
-
-      std::cout << "debug E " << time_string << std::endl;
-      time_string += "_modification_";
-      std::cout << "debug F " << time_string << std::endl;
-
-      save_time_string = time_string; // why do we do this?  Ah, because we want the
-                                      // time to calculated at the start:
-                                      // and use that as a stub.
-
-      time_string += g.int_to_string(history_index);
-      //time_string += ".mmdbbin";
-      if (! is_from_shelx_ins_flag) {
-	 if (coot::is_mmcif_filename(name_)) {
-	    time_string += ".cif";
-	 } else {
-	    time_string += ".pdb";
-	 }
-      } else {
-	 time_string += ".res";
-      }
-
-      std::cout << "debug G " << time_string << std::endl;
-
-#if defined(_MSC_VER)
-      // we can do now too (I hope for all of them?!?)
-      // lets be save and only assume WINDOWS_MINGW can do it
-      // maybe we can just deal with it using the compress_flag rather
-      // than hard coding?
-#else
-      if (! is_from_shelx_ins_flag) {
-        if (g.backup_compress_files_flag) {
-          time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
-        }
-      }
-#endif
-
-   } else {
-      // (this is not the first save molecule that we have done)
-
-      // add to the stub that we have previously generated.
-      //
-      time_string += g.int_to_string(history_index);
-      if (! is_from_shelx_ins_flag)
-	 time_string += ".pdb";
-      else
-	 time_string += ".res";
-#if defined(_MSC_VER)
-      // same here
-#else
-      if (! is_from_shelx_ins_flag) {
-        if (g.backup_compress_files_flag) {
-          time_string += ".gz";
-        }
-      }
-#endif
+      save_time_string = replace_char(save_time_string, ' ');
+      save_time_string = replace_char(save_time_string, '/');
+      if (decolonify)
+         save_time_string = replace_char(save_time_string, ':');
    }
-   return time_string;
+   std::string time_string = save_time_string;
+   std::cout << "debug:: in get_save_molecule_filename(): time_string " << time_string << std::endl;
+   std::string t_name_3 = t_name_2 + "_" + time_string;
+
+   std::string index_string = coot::util::int_to_string(history_index);
+   std::string t_name_4 = t_name_3 + "_modification_" + index_string;
+
+   std::string extension = ".pdb";
+   if (coot::is_mmcif_filename(name_))
+      extension = ".cif";
+   if (is_from_shelx_ins_flag)
+      extension = ".res";
+   if (g.backup_compress_files_flag)
+      extension += ".gz";
+
+   std::string t_name_5 = t_name_4 + extension;
+
+   std::string save_file_name = coot::util::append_dir_file(dir, t_name_5);
+   return save_file_name;
+
 }
 
 // Return like mkdir: mkdir returns zero on success, or -1 if an  error  occurred
@@ -7087,6 +7003,7 @@ molecule_class_info_t::make_backup() { // changes history details
 	    env_var = NULL;
 	 }
       }
+
       if (env_var)
 	 backup_dir = env_var;
 
@@ -7113,20 +7030,17 @@ molecule_class_info_t::make_backup() { // changes history details
 
 	 if (dirstat == 0) {
 	    // all is hunkey-dorey.  Directory exists.
-	    std::string backup_file_name = save_molecule_filename(backup_dir);
- 	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
 
-#if defined(_MSC_VER)
-            // and again, although not used any more!?
-	    mmdb::byte gz = mmdb::io::GZM_NONE;
-#else
+	    std::string backup_file_name = get_save_molecule_filename(backup_dir);
+ 	    std::cout << "INFO:: backup file name " << backup_file_name << std::endl;
+
 	    mmdb::byte gz;
 	    if (g.backup_compress_files_flag) {
 	       gz = mmdb::io::GZM_ENFORCE;
 	    } else {
 	       gz = mmdb::io::GZM_NONE;
 	    }
-#endif
+
 	    // Writing out a modified binary mmdb like this results in the
 	    // file being unreadable (crash in mmdb read).
 	    //
@@ -7154,7 +7068,7 @@ molecule_class_info_t::make_backup() { // changes history details
 	    history_index++;
 	 }
       } else {
-	 std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"
+	 std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
 		   << std::endl;
       }
    } else {
