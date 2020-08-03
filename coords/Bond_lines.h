@@ -484,6 +484,11 @@ class Bond_lines_container {
    //
    int get_user_defined_col_index(mmdb::Atom *at, int udd_handle) const;
 
+   // There will be a conflict here because in this branch (gtk3) I have moved out the function
+   // and in the refinement branch I have added to the in-line version of the function.  We want
+   // the addition (n_atoms_in_atom_selection) to go in to the function in Bond_lines.cc - and
+   // keep this as it is (not innlined).
+   //
    void init();
    
 
