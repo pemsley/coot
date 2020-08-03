@@ -329,7 +329,7 @@ class molecule_class_info_t {
 
    // saving temporary files (undo)
    //
-   std::string save_molecule_filename(const std::string &dir);
+   std::string get_save_molecule_filename(const std::string &dir);
    int make_backup(); // changes history details
    int make_maybe_backup_dir(const std::string &filename) const;
    bool backup_this_molecule;

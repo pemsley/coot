@@ -155,6 +155,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "meshed-generic-display-object.hh"
 
+#include "simple-distance-object.hh"
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -250,27 +251,6 @@ namespace coot {
       clipper::Coord_orth p2;
       clipper::Coord_orth p3;
    };
-
-
-   class simple_distance_object_t {
-   public:
-     clipper::Coord_orth start_pos;
-     clipper::Coord_orth end_pos;
-     int imol_start;
-     int imol_end;
-     simple_distance_object_t(int imol1,
-			      const clipper::Coord_orth &start,
-			      int imol2,
-			      const clipper::Coord_orth &end) {
-       start_pos = start;
-       end_pos = end;
-       imol_start = imol1;
-       imol_end = imol2;
-     }
-     friend std::ostream& operator<<(std::ostream &s, simple_distance_object_t o);
-   };
-   std::ostream& operator<<(std::ostream &s, simple_distance_object_t o);
-
 
    class intermediate_atom_distance_t {
      Cartesian static_position;

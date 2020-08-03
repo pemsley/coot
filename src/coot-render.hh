@@ -14,6 +14,8 @@
 #include "old-generic-display-object.hh"
 #include "meshed-generic-display-object.hh"
 
+#include "simple-distance-object.hh"
+
 #include "coot-colour.hh"
 
 namespace coot { 
@@ -32,11 +34,11 @@ namespace coot {
          Cartesian begin_pos;
          Cartesian end_pos;
          double bond_thickness;
-	 bond_t (const Cartesian &b, const Cartesian &e, double bt) {
-	    begin_pos = b;
-	    end_pos = e;
-	    bond_thickness = bt;
-	 }
+         bond_t (const Cartesian &b, const Cartesian &e, double bt) {
+            begin_pos = b;
+            end_pos = e;
+            bond_thickness = bt;
+         }
       };
 
       class coloured_bonds_container_t {
@@ -47,31 +49,31 @@ namespace coot {
 
       class ball_t {
       public:
-	 Cartesian pos;
-	 colour_t colour;
-	 double radius;
-	 ball_t(const Cartesian &p, const colour_t c_in, double r) {
-	    pos = p;
-	    colour = c_in;
-	    radius = r;
-	 }
+         Cartesian pos;
+         colour_t colour;
+         double radius;
+         ball_t(const Cartesian &p, const colour_t c_in, double r) {
+            pos = p;
+            colour = c_in;
+            radius = r;
+         }
       };
 
       class extra_line_representation {
       public:
-	 Cartesian p1;
-	 Cartesian p2;
-	 colour_t c;
-	 double thickness;
-	 extra_line_representation(const Cartesian &p1_in,
-				   const Cartesian &p2_in,
-				   const colour_t &col_in,
-				   const double &t) {
-	    p1 = p1_in;
-	    p2 = p2_in;
-	    c = col_in;
-	    thickness = t;
-	 }
+         Cartesian p1;
+         Cartesian p2;
+         colour_t c;
+         double thickness;
+         extra_line_representation(const Cartesian &p1_in,
+                                   const Cartesian &p2_in,
+                                   const colour_t &col_in,
+                                   const double &t) {
+            p1 = p1_in;
+            p2 = p2_in;
+            c = col_in;
+            thickness = t;
+         }
       };
 
       colour_t bones_colour;
@@ -89,29 +91,29 @@ namespace coot {
       std::string molecule_name;
       int molecule_number;
       void render_molecule(std::ofstream &render_stream,
-			   float bond_thickness,
-			   float atom_radius,
-			   float density_thickness,
-			   float bone_thickness);
+                           float bond_thickness,
+                           float atom_radius,
+                           float density_thickness,
+                           float bone_thickness);
       void renderman_molecule(std::ofstream &render_stream,
-			      float bond_thickness,
-			      float atom_radius,
-			      float density_thickness,
-			      float bone_thickness);
+                              float bond_thickness,
+                              float atom_radius,
+                              float density_thickness,
+                              float bone_thickness);
       void povray_molecule(std::ofstream &render_stream,
-			   float bond_thickness,
-			   float density_thickness,
-			   float atom_radius,
-			   float zoom,
-			   const Cartesian &view_centre,
-			   const Cartesian &front_clipping_plane_point);
+                           float bond_thickness,
+                           float density_thickness,
+                           float atom_radius,
+                           float zoom,
+                           const Cartesian &view_centre,
+                           const Cartesian &front_clipping_plane_point);
       void add_extra_representation_line(const Cartesian &c1, const Cartesian &c2,
-					 const colour_t &c, const double &thick) {
-	 extra_line_representation el(c1, c2, c, thick);
-	 velr.push_back(el);
+                                         const colour_t &c, const double &thick) {
+         extra_line_representation el(c1, c2, c, thick);
+         velr.push_back(el);
       }
       void add_ball(const ball_t &b) {
-	 balls.push_back(b);
+         balls.push_back(b);
       } 
    };
 
@@ -119,18 +121,18 @@ namespace coot {
    public: 
       class quat_container {
       public:
-	 double q0;
-	 double q1;
-	 double q2;
-	 double q3;
-	 quat_container(float q[4]) {
-	    q0 = q[0];	    q1 = q[1];
-	    q2 = q[2];	    q3 = q[3];
-	 }
-	 quat_container() {
-	    q0 = 0; q1 = 0;
-	    q2 = 0; q3 = 0;
-	 }
+         double q0;
+         double q1;
+         double q2;
+         double q3;
+         quat_container(float q[4]) {
+            q0 = q[0];            q1 = q[1];
+            q2 = q[2];            q3 = q[3];
+         }
+         quat_container() {
+            q0 = 0; q1 = 0;
+            q2 = 0; q3 = 0;
+         }
       }; 
 
    private:
@@ -168,55 +170,56 @@ namespace coot {
       bool raster3d_enable_shadows;
       
       raytrace_info_t(Cartesian centre_view_in, float zoom_in,
-		      const colour_t &background_in,
-		      int window_width_in,
-		      int window_height_in,
-		      float clipping_in,
-		      float bond_thickness_in,
-		      float bone_thickness_in,
-		      float atom_radius_in,
-		      float density_thickness_in) {
-	 view_centre = centre_view_in;
-	 zoom = zoom_in;
-	 background = background_in;
-	 window_width = window_width_in;
-	 window_height = window_height_in;
-	 quality = 8;
-	 bond_thickness = bond_thickness_in;
-	 bone_thickness = bone_thickness_in;
-	 density_thickness = density_thickness_in;
-	 clipping = clipping_in;
-	 atom_radius = atom_radius_in;
-	 raster3d_enable_shadows = 1;
-	 font_size_string = "4";
+                      const colour_t &background_in,
+                      int window_width_in,
+                      int window_height_in,
+                      float clipping_in,
+                      float bond_thickness_in,
+                      float bone_thickness_in,
+                      float atom_radius_in,
+                      float density_thickness_in) {
+         view_centre = centre_view_in;
+         zoom = zoom_in;
+         background = background_in;
+         window_width = window_width_in;
+         window_height = window_height_in;
+         quality = 8;
+         bond_thickness = bond_thickness_in;
+         bone_thickness = bone_thickness_in;
+         density_thickness = density_thickness_in;
+         clipping = clipping_in;
+         atom_radius = atom_radius_in;
+         raster3d_enable_shadows = 1;
+         font_size_string = "4";
       }
       void set_view_matrix(GL_matrix view_matrix_in) {
-	 view_matrix = view_matrix_in;
+         view_matrix = view_matrix_in;
       }
 
       void set_quaternion(float f[4]) {
-	 view_quat = quat_container(f);
+         view_quat = quat_container(f);
       }
       
       void set_camera_location(const Cartesian &camera_in) {
-	 camera_location = camera_in;
+         camera_location = camera_in;
       }
 
       void set_front_clipping_plane_point(const Cartesian &fcpp) {
-	 front_clipping_plane_point = fcpp;
+         front_clipping_plane_point = fcpp;
       }
 
       void set_atom_label_colour(const colour_t &c) {
-	 atom_label_colour = c;
+         atom_label_colour = c;
       }
 
       void set_font_size(const std::string &font_size_in) {
-	 font_size_string = font_size_in;
+         font_size_string = font_size_in;
       }
 
       void set_raster3d_enable_shadows(bool state) {
-	 raster3d_enable_shadows = state;
+         raster3d_enable_shadows = state;
       } 
+
 
       // remove this?
       // void add_display_objects(const std::vector<coot::old_generic_display_object_t> &display_objects_in) {
@@ -236,8 +239,21 @@ namespace coot {
          display_objects.push_back(disp_obj);
       }
 
+
+      // merge confusion                 
+      // void add_display_objects(const std::vector<coot::generic_display_object_t> &display_objects_in) {
+      //    for (unsigned int i=0; i<display_objects_in.size(); i++) {
+      //       display_objects.push_back(display_objects_in[i]);
+      //    } 
+      // }
+      // void add_display_object(const coot::generic_display_object_t &display_object_in) {
+      //    display_objects.push_back(display_object_in);
+      // }
+
+      void add_geometry_objects(const std::vector<coot::simple_distance_object_t> &sdov);
+
       void add_label(const std::pair<std::string, clipper::Coord_orth> &label) {
-	 labels.push_back(label);
+         labels.push_back(label);
       }
 
       colour_t get_label_colour() const { return atom_label_colour; }

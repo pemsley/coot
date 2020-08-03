@@ -167,6 +167,7 @@ class Bond_lines_container {
    float b_factor_scale;
    bool for_GL_solid_model_rendering;
    bool do_sticks_for_waters;
+   int n_atoms_in_atom_selection; // for fast not-in-no-bonds-to-these-atoms check
 
    // we rely on SelAtom.atom_selection being properly constucted to
    // contain all atoms
@@ -484,11 +485,6 @@ class Bond_lines_container {
    //
    int get_user_defined_col_index(mmdb::Atom *at, int udd_handle) const;
 
-   // There will be a conflict here because in this branch (gtk3) I have moved out the function
-   // and in the refinement branch I have added to the in-line version of the function.  We want
-   // the addition (n_atoms_in_atom_selection) to go in to the function in Bond_lines.cc - and
-   // keep this as it is (not innlined).
-   //
    void init();
    
 

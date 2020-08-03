@@ -304,7 +304,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       glMatrixMode(GL_MODELVIEW);
 
-
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
 
