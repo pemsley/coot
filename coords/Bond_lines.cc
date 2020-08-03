@@ -74,6 +74,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    if (tables_p)
       rotamer_probability_tables_p = tables_p;
 
@@ -122,6 +123,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    b_factor_scale = 1.0;
    have_dictionary = 0;
    init();
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    if (tables_p)
       rotamer_probability_tables_p = tables_p;
    if (geom_in) {
@@ -157,6 +159,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
    init();
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    int model_number = 0; // all models
    bool do_rama_markup = false;
    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
@@ -178,6 +181,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    // 0 is is_from_symmetry_flag
    int model_number = 0; // all models
    bool do_rama_markup = false;
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    construct_from_asc(SelAtom, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number, do_rama_markup);
 }
 
@@ -199,6 +203,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
    b_factor_scale = 1.0;
    have_dictionary = 0;
    init();
+   n_atoms_in_atom_selection = asc.n_selected_atoms;
    if (geom_in) {
       geom = geom_in;
       have_dictionary = 1;
@@ -225,6 +230,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
    init();
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    float max_dist = 1.71;
    int model_number = 0; // all models
    bool do_rama_markup = false;
@@ -2446,6 +2452,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
 
    int ncontacts;
    mmdb::Contact *contact = NULL;
@@ -2699,6 +2706,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    for_GL_solid_model_rendering = 0;
    have_dictionary = 0;
    init();
+   n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
 
    b_factor_scale = 1.0;
    if (bonds.size() == 0) {
@@ -4031,7 +4039,9 @@ Bond_lines_container::addBond(int col,
    // if the atom selection has the same size as no_bonds_to_these_atoms then we don't want
    // to draw any bonds
    //
-   if (no_bonds_to_these_atoms.size() == n_atoms_in_atom_selection) return;
+   if (static_cast<int>(no_bonds_to_these_atoms.size()) == n_atoms_in_atom_selection)
+      if (n_atoms_in_atom_selection > 0)
+         return;
 
    // duck out if both of these atoms are in the no-bonds to these atoms set
    //
@@ -6233,10 +6243,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		     element1 = at1->element;
 		     element2 = at2->element;
 		     if ( (draw_hydrogens_flag == 1) ||
-
 			  // (element1 != " H" && element1 != " D" &&
 			  //  element2 != " H" && element2 != " D") ) {
-
 			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) {
 
 			coot::Cartesian atom_1(at1->x, at1->y, at1->z);
