@@ -866,7 +866,7 @@ coot::atom_overlaps_container_t::contact_dots_for_overlaps() const {
    double clash_dist = 0.4;
 
    std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(450); // dot density
-   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(370); // less than above
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(270); // less than above
 
    for (unsigned int i=0; i<overlaps.size(); i++) {
 
@@ -890,7 +890,7 @@ coot::atom_overlaps_container_t::contact_dots_for_overlaps() const {
       for (unsigned int j=0; j<sphere_points.size(); j++) {
 
          const clipper::Coord_orth &pt(sphere_points[j]);
-         clipper::Coord_orth pt_at_surface = pt + pt_at_1;
+         clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
          double d_sqrd = (pt_at_2 - pt_at_surface).lengthsq();
 
          // std::cout << "comparing " << sqrt(d_sqrd) << " vs " << sqrt(r_2_plus_prb_squard)
@@ -1068,7 +1068,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 	 if (pscontact) {
 
             std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(450);
-            std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(370); // less than above
+            std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(270); // less than above
 
 	    // which atoms are close to which other atoms?
 	    std::map<int, std::vector<int> > contact_map; // these atoms can have nbc interactions
@@ -1114,7 +1114,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
                for (unsigned int j=0; j<sphere_points.size(); j++) {
                   
                   const clipper::Coord_orth &pt(sphere_points[j]);
-                  clipper::Coord_orth pt_at_surface = pt + pt_at_1;
+                  clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
                   bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
 
                   bool draw_it_2 = ! is_inside_an_env_atom_to_which_its_bonded(iat,
@@ -1337,7 +1337,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
    }
 
    std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(450); // dot density
-   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(370); // less than above
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(270); // less than above
 
    if (n_contacts > 0) {
       if (pscontact) {
@@ -1410,7 +1410,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
             
             for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
                const clipper::Coord_orth &pt(sphere_points_for_atom[j]);
-               clipper::Coord_orth pt_at_surface = pt + pt_at_1;
+               clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
 
                if (false)
                   std::cout << "pt_at_surface "
@@ -1735,7 +1735,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
    double dot_density = dot_density_in;
 
    std::vector<clipper::Coord_orth>   sphere_points = fibonacci_sphere(450); // dot density
-   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(370); // less than above
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(270); // less than above
 
    std::vector<clipper::Coord_orth> sphere_points_for_atom = sphere_points;
    if (std::string(at->element) == " H")
@@ -1745,7 +1745,7 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 
    for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
       const clipper::Coord_orth &pt(sphere_points_for_atom[j]);
-      clipper::Coord_orth pt_at_surface = pt + pt_at_1;
+      clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
 
       if (false) // yes these are points on a full sphere
          std::cout << "pt_at_surface "

@@ -874,7 +874,7 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
 
                // don't consider peptide neighbour mainchain
                int res_no_delta = at->residue->GetSeqNum() - reference_residue_seqnum;
-               if (fabs(res_no_delta) < 2)
+               if (std::abs(res_no_delta) < 2)
                   if (at->residue->chain == reference_residue_p->chain)
                      if (is_main_chain_p(at))
                         continue;
