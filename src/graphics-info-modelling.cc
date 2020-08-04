@@ -559,8 +559,9 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // (with success?).
 
    if (restraints_lock) {
-      std::cout << "debug:: thread_for_refinement_loop_threaded() restraints locked by "
-                << restraints_locking_function_name << std::endl;
+      if (false)
+         std::cout << "debug:: thread_for_refinement_loop_threaded() restraints locked by "
+                   << restraints_locking_function_name << std::endl;
       return;
    } else {
 

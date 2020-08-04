@@ -656,84 +656,66 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 void
 graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 
-   // screen_x and screen_y are the current mouse positions.
-   // Let's get a 3d position for those.
-   // Let's also get a 3d position for the starting position also, then
-   // we can generate a delta to be applied to the current atom position.
+   // outut in the range -1 to +1
+   auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {
+                                        double fsc = static_cast<double>(screen_coord);
+                                        double fd = static_cast<double>(dimension);
+                                        double f = fsc/fd;
+                                        return 2.0 * f - 1.0;
+                                     };
 
-   bool debug = false;
+             if (false)
+                std::cout << "screen_x " << screen_x << " screen_y " << screen_y
+                          << " delta " << screen_x - mouse_begin.first  << " "
+                          << " delta " << screen_y - mouse_begin.second << " "
+                          << std::endl;
 
-   glm::vec4 glm_front_now = unproject(screen_x, screen_y, -1.0); // correct?
-   glm::vec4 glm_back_now  = unproject(screen_x, screen_y,  1.0);
+   double delta_x = screen_x - mouse_begin.first;
+   double delta_y = screen_y - mouse_begin.second;
 
-   double oow_f_now = 1.0/glm_front_now.w;
-   double oow_b_now = 1.0/glm_back_now.w;
+   GtkAllocation allocation = get_glarea_allocation();
+   int iw = allocation.width;
+   int ih = allocation.height;
 
-   coot::Cartesian front(glm_front_now.x * oow_f_now, glm_front_now.y * oow_f_now, glm_front_now.z * oow_f_now);
-   coot::Cartesian back(glm_back_now.x * oow_b_now, glm_back_now.y * oow_b_now, glm_back_now.z * oow_b_now);
+   double mx_now =  mouse_coords_to_clip_space(screen_x, iw);
+   double my_now = -mouse_coords_to_clip_space(screen_y, ih);
+
+   glm::vec3   back_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now,  1.0));
+   glm::vec3  front_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now, -1.0));
 
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
-   coot::Cartesian c_at(at->x, at->y, at->z);
-   coot::Cartesian fb = back - front;
-   coot::Cartesian  h = c_at - front;
+   glm::vec3 atom_position(at->x, at->y, at->z);
 
-   float d_fb = fb.length();
-   float d_h  =  h.length();
+   // I *do* need know where the pointer is in 3d space - not just where the delta
 
-   if (debug) {
-      // the dot product should not be negative
-      std::cout << "move_atom_pull_target_position() front " << front << std::endl;
-      std::cout << "move_atom_pull_target_position()  c_at " << c_at << std::endl;
-      std::cout << "move_atom_pull_target_position()  back " << back << std::endl;
-      std::cout << "move_atom_pull_target_position() "
-                << " coot::dot_product(fb, h) " << coot::dot_product(fb, h)
-                << std::endl;
-   }
+   glm::vec3 front_to_atom = atom_position - front_now;
+   glm::vec3 front_to_atom_uv = glm::normalize(front_to_atom);
+   glm::vec3 front_to_back = back_now - front_now;
+   glm::vec3 front_to_back_uv =  glm::normalize(front_to_back);
+   float dp = glm::dot(front_to_back_uv, front_to_atom_uv);
+   float cos_angle_between_front_to_back_and_front_to_atom = dp;
 
-   double cos_theta = coot::dot_product(fb, h)/(d_fb*d_h);
-   double d = d_h * cos_theta;
-   float z_depth = d/d_fb;
+   float angle_between_front_to_back_and_front_to_atom = acos(dp);
+   // distance between front and atom position
+   float d_f_a_p = glm::distance(front_now, atom_position);
+   float d_b_a_p = glm::distance(back_now,  atom_position);
+   float d_f_b   = glm::distance(front_now, back_now);
 
-   // currently z_depth is 0. to 1. Remap that to -1 -> 1
-   z_depth = 2.0f * z_depth - 1.0f;
-   if (z_depth >  1.0) z_depth =  1.0;
-   if (z_depth < -1.0) z_depth = -1.0;
+   if (false)
+      std::cout << "dp " << dp << " d_f_a_p " << d_f_a_p << " d_b_a_p " << d_b_a_p << std::endl;
 
-   glm::vec4 current_mouse_real_world = unproject(screen_x, screen_y, z_depth);
-   glm::vec4 glm_current_atom_pos(at->x, at->y, at->z, 1.0);
-   float oo_cmwc_w = 1.0/current_mouse_real_world.w;
-   clipper::Coord_orth c_pos(current_mouse_real_world.x * oo_cmwc_w,
-			     current_mouse_real_world.y * oo_cmwc_w,
-			     current_mouse_real_world.z * oo_cmwc_w);
+   // the magic :-) Pythagoras in action.
+   glm::vec3 mouse_now = front_now + (back_now - front_now) * d_f_a_p * cos_angle_between_front_to_back_and_front_to_atom / d_f_b;
 
-   atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), c_pos);
+   glm::vec3 new_position = mouse_now;
+   clipper::Coord_orth new_position_c(new_position.x, new_position.y, new_position.z);
 
-   if (debug) {
-
-      clipper::Coord_orth delta(coot::co(at) - c_pos);
-      std::cout << "move_atom_pull_target_position() unproject() called with "
-                << screen_x << " " << screen_y << " " << z_depth << " from "
-                << d << "/" << d_fb << std::endl;
-      std::cout << "move_atom_pull_target_position() atom_pull.status: "
-		<< atom_pull_local.get_status() << " "
-		<< " atom pull:: idx " << moving_atoms_currently_dragged_atom_index << " "
-                << "front " << front << " back " << back << std::endl;
-      std::cout << "move_atom_pull_target_position() from atom current position "
-		<< coot::co(at).format() << " to " << glm::to_string(current_mouse_real_world)
-                << " delta " << delta.format() << std::endl;
-   }
-
-   continue_threaded_refinement_loop = false;
-   while (restraints_lock) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2)); // not sure about the delay
-   }
-
-   // add to or replace in atom_pulls (for representation)
+   atom_pull_info_t atom_pull_local = atom_pull_info_t(coot::atom_spec_t(at), new_position_c);
    add_or_replace_current(atom_pull_local);
-   //
-   last_restraints->add_atom_pull_restraint(atom_pull_local.spec, c_pos);
+   last_restraints->add_atom_pull_restraint(atom_pull_local.spec, new_position_c);
    thread_for_refinement_loop_threaded();
-   graphics_draw();  // needed
+
+   graphics_draw();
 }
 
 void graphics_info_t::add_or_replace_current(const atom_pull_info_t &atom_pull_in) {
