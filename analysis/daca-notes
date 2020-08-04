@@ -99,3 +99,33 @@ Thu  9 Jul 23:22:56 BST 2020
 
    so sum of values for each atom type for each box_key needs to be 1.0 (or 1 million)?
 
+
+----
+Wed 22 Jul 09:46:13 BST 2020
+
+awk -f compare-whatif-and-coot-daca.awk tm-A-chain-out-of-register-helix.tab > compare-whatif-and-coot-daca-tm-with-out-of-register-helix.table
+
+> a = read.table('compare-whatif-and-coot-daca-tm-with-out-of-register-helix.table')
+> plot(a$V8, a$V4, xlab="Whatif DACA", ylab="Coot DACA", main="Comparison of DACA Scores")
+
+-> No correlation. Sigh.
+
+
+
+----
+Wed 22 Jul 21:21:23 BST 2020
+
+  Robbie Chat:
+
+  [Read the paper again :-)]
+  calculate the solvent exposure of the residue (does this match Whatif?)
+  What is the relation of the DACA score to the solvent-exposedness?
+
+  Check the normalization is doing what you think it is - helices are scoring high?
+  Check a few more structures to see if it is consitent?
+
+  Try normalizing by fragment-voxel normalizing over atom types. Currently we have
+  normalization by fragment-atom type normalizing over voxels. Normalization should
+  happen after smoothing.
+  
+
