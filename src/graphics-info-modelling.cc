@@ -2987,7 +2987,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 					      mmdb::Residue *res_p,
 					      const std::string &chain_id,
 					      const std::string &res_type_in,
-					      short int immediate_addition_flag) {
+					      bool immediate_addition_flag) {
 
    int state = 0;
 

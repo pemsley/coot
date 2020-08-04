@@ -2336,6 +2336,14 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l24 = [] () {
+                 // using the C API
+                 // do_add_terminal_residue(1); // waits for user click :-)
+                 graphics_info_t g;
+                 g.add_terminal_residue_using_active_atom();
+                 return gboolean(TRUE);
+      };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -2360,6 +2368,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
 
    // control keys
 

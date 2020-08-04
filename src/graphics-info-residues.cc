@@ -499,6 +499,32 @@ graphics_info_t::eigen_flip_active_residue() {
 }
 
 
+// static
+void
+graphics_info_t::add_terminal_residue_using_active_atom() {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+
+   if (aa_spec_pair.first) {
+      int imol = aa_spec_pair.second.first;
+      coot::atom_spec_t &spec = aa_spec_pair.second.second;
+      mmdb::Atom *at = molecules[imol].get_atom(spec);
+      mmdb::Residue *residue_p = at->GetResidue();
+      if (residue_p) {
+         int atom_indx = -1;
+         if (at->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, atom_indx) == mmdb::UDDATA_Ok) {
+            std::string terminus_type = g.molecules[imol].get_term_type(atom_indx);
+            std::string res_type = "ALA"; // elsewhere we are more clever than this.
+            std::string chain_id = spec.chain_id;
+            execute_add_terminal_residue(imol, terminus_type, residue_p, chain_id, res_type, true);
+         }
+      }
+   }
+}
+
+
+
 
 // do it if have intermediate atoms and ctrl is pressed.
 //

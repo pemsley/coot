@@ -2406,10 +2406,11 @@ public:
    // return success status: 1 for success
    int execute_add_terminal_residue(int imol,
 				     const std::string &terminus,
-				     mmdb::Residue *res_p,
+				     mmdb::Residue *residue_p,
 				     const std::string &chain_id,
 				     const std::string &res_type,
-				     short int immediate_addition_flag);
+				     bool immediate_addition_flag);
+   void add_terminal_residue_using_active_atom(); // wraps above
    void execute_simple_nucleotide_addition(int imol, const std::string &term_type,
                                            mmdb::Residue *res_p, const std::string &chain_id);
    void execute_simple_nucleotide_addition(int imol, const std::string &chain_id, int res_no);
