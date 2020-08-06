@@ -4427,7 +4427,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 		        graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 		        int iat_1 = -1;
 		        int iat_2 = -1;
-		        addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2);
+		        addBond(col, cp.getStart(), cp.getFinish(), cc, imod, iat_1, iat_2, true, true);
 		     }
 
 		     if (lp.first) {
