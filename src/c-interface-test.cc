@@ -413,7 +413,23 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
+
    if (true) {
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         bool show_stub_flag = true;
+         GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
+         gtk_widget_show(widget);
+         g.in_mutate_auto_fit_define = 0;
+         g.residue_type_chooser_auto_fit_flag = 1;
+         g.pick_pending_flag = 0;
+      }
+   }
+
+
+   if (false) {
       int imol_model     = scm_to_int(i_scm);
       int imol_with_data = scm_to_int(j_scm);
       if (is_valid_model_molecule(imol_model)) {

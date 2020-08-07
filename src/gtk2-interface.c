@@ -10042,6 +10042,7 @@ create_residue_type_chooser_window (void)
   GtkWidget *residue_type_chooser_TRP;
   GtkWidget *residue_type_chooser_TYR;
   GtkWidget *residue_type_chooser_VAL;
+  GtkWidget *residue_type_chooser_entry;
   GtkTooltips *tooltips;
 
   tooltips = gtk_tooltips_new ();
@@ -10149,6 +10150,12 @@ create_residue_type_chooser_window (void)
   gtk_widget_show (residue_type_chooser_VAL);
   gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_VAL, FALSE, FALSE, 2);
 
+  residue_type_chooser_entry = gtk_entry_new ();
+  gtk_widget_show (residue_type_chooser_entry);
+  gtk_box_pack_start (GTK_BOX (vbox62), residue_type_chooser_entry, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, residue_type_chooser_entry, "Type the single letter code the \"Enter\" to execute", NULL);
+  gtk_entry_set_invisible_char (GTK_ENTRY (residue_type_chooser_entry), 8226);
+
   g_signal_connect ((gpointer) residue_type_chooser_stub_checkbutton, "toggled",
                     G_CALLBACK (on_residue_type_chooser_stub_checkbutton_toggled),
                     NULL);
@@ -10215,6 +10222,9 @@ create_residue_type_chooser_window (void)
   g_signal_connect ((gpointer) residue_type_chooser_VAL, "clicked",
                     G_CALLBACK (on_residue_type_chooser_VAL_clicked),
                     NULL);
+  g_signal_connect ((gpointer) residue_type_chooser_entry, "key_press_event",
+                    G_CALLBACK (on_residue_type_chooser_entry_key_press_event),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (residue_type_chooser_window, residue_type_chooser_window, "residue_type_chooser_window");
@@ -10242,8 +10252,10 @@ create_residue_type_chooser_window (void)
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_TRP, "residue_type_chooser_TRP");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_TYR, "residue_type_chooser_TYR");
   GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_VAL, "residue_type_chooser_VAL");
+  GLADE_HOOKUP_OBJECT (residue_type_chooser_window, residue_type_chooser_entry, "residue_type_chooser_entry");
   GLADE_HOOKUP_OBJECT_NO_REF (residue_type_chooser_window, tooltips, "tooltips");
 
+  gtk_widget_grab_focus (residue_type_chooser_entry);
   return residue_type_chooser_window;
 }
 

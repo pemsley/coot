@@ -5394,6 +5394,10 @@ void setup_mutate_auto_fit(short int state);
 
 void do_mutation(const char *type, short int is_stub_flag);
 
+/*! \brief display a dialog that allows the choice of residue type to which to mutate
+ */
+void mutate_active_residue();
+
 /* auto-mutate stuff */
 short int progressive_residues_in_chain_check(const char *chain_id, int imol);
 
@@ -5465,6 +5469,9 @@ void do_base_mutation(const char *type);
 /*! \brief set a flag saying that the residue chosen by mutate or
   auto-fit mutate should only be added as a stub (mainchain + CB) */
 void set_residue_type_chooser_stub_state(short int istat);
+
+void handle_residue_type_chooser_entry_chose_type(const char *entry_text, short int stub_mode);
+
 
 /* \} */
 

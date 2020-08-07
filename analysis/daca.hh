@@ -84,6 +84,7 @@ namespace coot {
       void compare_boxes() const;
       void presize_boxes(mode_t mode=REFERENCE);
       void normalize();
+      void normalize_v2();
       void envelope();
       void smooth();
 

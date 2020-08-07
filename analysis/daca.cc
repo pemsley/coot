@@ -1142,6 +1142,64 @@ coot::daca::normalize() {
    }
 }
 
+void
+coot::daca::normalize_v2() {
+
+   // this version normalizes every grid point over every atom type
+   //
+
+   // iterators not const because we want to modify the contents of the boxes
+   //
+
+   std::vector<box_index_t> box_indices_vec;
+
+   int e = 6;
+   for (int ix=-e; ix<e; ix++) {
+      for (int iy=-e; iy<e; iy++) {
+         for (int iz=-e; iz<e; iz++) {
+            box_index_t bi(ix,iy,iz);
+            box_indices_vec.push_back(bi);
+         }
+      }
+   }
+
+
+   std::cout << "box_indices_vec size() " << box_indices_vec.size()   << std::endl;
+   for (unsigned int i=0; i<box_indices_vec.size(); i++) {
+
+      unsigned int sum_counts = 0;
+      unsigned int n_hits = 0;
+      std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
+      for (it=boxes.begin(); it!=boxes.end(); it++) {
+         const std::string &res_name_with_ss(it->first);
+         std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
+         for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
+            std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
+            std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
+
+            for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
+               const std::string &atom_type = it_1->first;
+               std::map<box_index_t, unsigned int> &m2(it_1->second);
+               std::map<box_index_t, unsigned int>::const_iterator it_2 = m2.find(box_indices_vec[i]);
+               if (it_2 != m2.end()) {
+                  n_hits++;
+                  const unsigned int &counts = it_2->second;
+                  sum_counts += counts;
+               }
+            }
+         }
+      }
+
+      std::cout << "box "
+                << box_indices_vec[i].idx_x << " "
+                << box_indices_vec[i].idx_y << " "
+                << box_indices_vec[i].idx_z << " "
+                << sum_counts << " n_hits " << n_hits << std::endl;
+   }
+}
+
+// 2aaa get the pdb redo model, build on this and check with privateer.
+
 // as in the verb
 void
 coot::daca::envelope() {
@@ -1447,5 +1505,5 @@ coot::daca::cook() {
 
    smooth();
    envelope();
-   normalize();
+   normalize_v2();
 }
