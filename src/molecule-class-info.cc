@@ -6922,9 +6922,7 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
    std::string t_name_1 = name_;
    if (g.unpathed_backup_file_names_flag)
       t_name_1 = name_for_display_manager();
-   std::cout << "debug:: in get_save_molecule_filename(): t_name_1 " << t_name_1 << std::endl;
    std::string t_name_2 = replace_char(t_name_1, '/');
-   std::cout << "debug:: in get_save_molecule_filename(): t_name_2 " << t_name_2 << std::endl;
 
    if (save_time_string.empty()) {
       time_t t;
@@ -6942,7 +6940,6 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
          save_time_string = replace_char(save_time_string, ':');
    }
    std::string time_string = save_time_string;
-   std::cout << "debug:: in get_save_molecule_filename(): time_string " << time_string << std::endl;
    std::string t_name_3 = t_name_2 + "_" + time_string;
 
    std::string index_string = coot::util::int_to_string(history_index);
