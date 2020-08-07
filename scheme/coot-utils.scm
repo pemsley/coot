@@ -2471,6 +2471,22 @@
 	      (string=? rn "TPO")))))
 
   ;;
+  (define (is-nucleotide? imol chain-id res-no)
+    (let ((rn (residue-name imol chain-id res-no "")))
+      (if (not (string? rn))
+	  #f
+	  (or (string=? rn "G")
+              (string=? rn "A")
+              (string=? rn "T")
+              (string=? rn "U")
+              (string=? rn "C")
+              (string=? rn "DG")
+              (string=? rn "DA")
+              (string=? rn "DT")
+              (string=? rn "C")))))
+
+
+  ;;
   (define (overlap-by-main-chain imol-mov chain-id-mov res-no-mov ins-code-mov
 				 imol-ref chain-id-ref res-no-ref ins-code-ref)
 
@@ -2481,6 +2497,70 @@
 				   (list chain-id-mov res-no-mov ins-code-mov atom-name "")))
 	      (list " CA " " N  " " C  "))  ;; PDBv3 FIXME
     (apply-lsq-matches imol-ref imol-mov))
+
+  (define (is-purine? res-name)
+    (or (string=? res-name "G")
+        (string=? res-name "A")
+        (string=? res-name "DA")
+        (string=? res-name "DG")))
+
+  (define (is-pyrimidine? res-name)
+    (or (string=? res-name "C")
+        (string=? res-name "A")
+        (string=? res-name "T")
+        (string=? res-name "DC")
+        (string=? res-name "DT")))
+
+  (define (overlap-by-base imol-mov chain-id-mov res-no-mov ins-code-mov
+                           imol-ref chain-id-ref res-no-ref ins-code-ref)
+
+    (format #t "debug:: in overlap-by-base:: ---------------- imol-mov: ~s imol-ref: ~s~%" imol-mov imol-ref)
+    (clear-lsq-matches)
+    ;; G and A
+
+    (let ((rn-1 (residue-name imol-mov chain-id-mov res-no-mov ins-code-mov))
+          (rn-2 (residue-name imol-ref chain-id-ref res-no-ref ins-code-ref))
+          (purine-set (list " N9 " " N7 " " C5 " " N1 " " N3 "))
+          (pyrimidine-set (list " N1 " " C5 " " N3 "))
+          (purine->pyrimidine-set (list " N1 " " C2 " " N3 "))
+          (pyrimidine->purine-set (list " N9 " " C4 " " N5 ")))
+
+      (let ((atom-list-1 '())
+            (atom-list-2 '()))
+
+        (if (is-purine? rn-1)
+            (if (is-purine? rn-2)
+                (begin
+                  (set! atom-list-1 purine-set)
+                  (set! atom-list-2 purine-set))))
+    
+        (if (is-pyrimidine? rn-1)
+            (if (is-pyrimidine? rn-2)
+                (begin
+                  (set! atom-list-1 pyrimidine-set)
+                  (set! atom-list-2 pyrimidine-set))))
+
+        (if (is-pyrimidine? rn-1)
+            (if (is-purine? rn-2)
+                (begin
+                  (set! atom-list-1 pyrimidine->purine-set)
+                  (set! atom-list-2 purine->pyrimidine-set))))
+        
+        (if (is-purine? rn-1)
+            (if (is-pyrimidine? rn-2)
+                (begin
+                  (set! atom-list-1 purine->pyrimidine-set)
+                  (set! atom-list-2 pyrimidine->purine-set))))
+        
+        (for-each (lambda (atom-name-1 atom-name-2)
+                    (add-lsq-atom-pair (list chain-id-ref res-no-ref ins-code-ref atom-name-1 "")
+                                       (list chain-id-mov res-no-mov ins-code-mov atom-name-2 "")))
+                  atom-list-1
+                  atom-list-2)
+
+        (format #t "applying matches~%~!")
+        (apply-lsq-matches imol-ref imol-mov)
+        (format #t "done matches~%~!"))))
 
   ;; get-monomer-and-dictionary, now we check to see if we have a
   ;; molecule already loaded that matches this residue, if we have,
@@ -2523,28 +2603,39 @@
 		(overlap-by-main-chain imol-ligand "A" 1 "" imol chain-id-in resno "")
 		(overlap-ligands imol-ligand imol chain-id-in resno))
 
-	    (match-ligand-torsions imol-ligand imol chain-id-in resno)
+            (if (and (is-nucleotide? imol-ligand "A" 1)
+                     (is-nucleotide? imol chain-id-in resno))
+		(overlap-by-base imol-ligand "A" 1 "" imol chain-id-in resno "")
+		(overlap-ligands imol-ligand imol chain-id-in resno))
+
+            (if (not (is-nucleotide? imol-ligand "A" 1))
+                (match-ligand-torsions imol-ligand imol chain-id-in resno))
 	    (delete-residue imol chain-id-in resno "")
 	    (let* ((new-chain-id-info (merge-molecules (list imol-ligand) imol))
 		   (nov (format #t "DEBUG:: ------ new-chain-id-info: ~s~%" new-chain-id-info)))
 	      (let ((merge-status (car new-chain-id-info)))
+                ;; merge-status is sometimes a spec, sometimes a chain-id pair
 		(format #t "DEBUG:: ------ merge-status: ~s~%" merge-status)
 		(if (= merge-status 1)
 		    (let* ((new-res-spec (car (car (cdr new-chain-id-info))))
 			   (new-chain-id (residue-spec->chain-id new-res-spec)))
+		      (format #t "debug:: ------ new-chain-id-info: ~s~%" new-chain-id-info)
+		      (format #t "debug:: ------ new-chain-id: ~s~%" new-chain-id)
 		      (format #t "debug:: ------ new-res-spec: ~s~%" new-res-spec)
 		      (format #t "debug:: ------ change-residue-number to ~s~%" resno)
-		      (change-residue-number imol
-					     (residue-spec->chain-id new-res-spec)
-					     (residue-spec->res-no   new-res-spec)
-					     (residue-spec->ins-code new-res-spec)
-					     resno "")
+
+ 		      (change-residue-number imol
+                                             (residue-spec->chain-id new-res-spec)
+                                             (residue-spec->res-no   new-res-spec)
+                                             (residue-spec->ins-code new-res-spec)
+                                             resno "")
+
+                      ;; (change-residue-number imol new-chain-id 1 "" resno "")
 
 		      (format #t "debug:: ------ chain ids : ~s ~s~%" new-chain-id chain-id-in)
+                      
 		      (if (not (string=? new-chain-id chain-id-in))
-			  (change-chain-id imol new-chain-id chain-id-in 1
-					   (residue-spec->res-no new-res-spec)
-					   (residue-spec->res-no new-res-spec)))
+                          (change-chain-id imol new-chain-id chain-id-in 1 resno resno)) ;; 1 means "use range"
 
 		      (let ((replacement-state (refinement-immediate-replacement-state))
 			    (imol-map (imol-refinement-map)))
