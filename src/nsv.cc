@@ -1479,7 +1479,7 @@ exptl::nsv::highlight_residue(mmdb::Residue *residue_p) {
       }
       current_highlight_residue = residue_p;
    }
-#endif HAVE_GOOCANVAS
+#endif // HAVE_GOOCANVAS
 
 }
 

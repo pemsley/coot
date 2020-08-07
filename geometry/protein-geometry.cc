@@ -2830,6 +2830,9 @@ coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const 
 // 
 // Return in pair.first the state of the match and in .second, the
 // list of atoms that do not match the dictionary.
+//
+//  function name: do_the_atom_names_match_the_dictionary?() - it is a question
+//  not an imperative.
 // 
 std::pair<bool, std::vector<std::string> >
 coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
@@ -2857,7 +2860,7 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 		   << ":" << std::endl;
       } 
    }
-   
+
    for (int i=0; i<n_residue_atoms; i++) {
 
       if (! residue_atoms[i]->isTer()) { 
@@ -2879,9 +2882,11 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 	    }
 	 }
 	 if (! found) {
-	    if (residue_atom_name != " OXT") { 
-	       atom_name_vec.push_back(residue_atom_name);
-	       status = 0;
+	    if (residue_atom_name != " OXT") {
+               if (std::find(atom_name_vec.begin(), atom_name_vec.end(), residue_atom_name) == atom_name_vec.end()) {
+                  atom_name_vec.push_back(residue_atom_name);
+               }
+               status = false;
 	    }
 	 }
       }
@@ -2904,8 +2909,7 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 					       bool apply_bond_distance_check) const {
 
    std::string res_name(residue_p->GetResName());
-   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
-      get_monomer_restraints(res_name, imol);
+   std::pair<bool, dictionary_residue_restraints_t> restraints = get_monomer_restraints(res_name, imol);
 
    if (restraints.first) {
       return atoms_match_dictionary(residue_p, check_hydrogens_too_flag,
@@ -2920,14 +2924,14 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 // return a pair, overall status, and vector of pairs of residue names and
 // atom names that dont't match.
 //
-std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
 coot::protein_geometry::atoms_match_dictionary(int imol,
 					       const std::vector<mmdb::Residue *> &residues,
 					       bool check_hydrogens_too_flag,
 					       bool apply_bond_distance_check) const {
 
    bool status = true;
-   std::vector<std::pair<std::string, std::vector<std::string> > > p;
+   std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > p;
    
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string res_name(residues[ires]->GetResName());
@@ -2939,8 +2943,8 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 				   check_hydrogens_too_flag,
 				   apply_bond_distance_check,
 				   restraints.second);
-	 if (r.first == 0) {
-	    std::pair<std::string, std::vector<std::string> > p_bad(res_name, r.second);
+	 if (r.first == false) {
+	    std::pair<mmdb::Residue *, std::vector<std::string> > p_bad(residues[ires], r.second);
 	    p.push_back(p_bad);
 	    status = 0;
 	 }
@@ -2948,7 +2952,7 @@ coot::protein_geometry::atoms_match_dictionary(int imol,
 	 std::cout << "ERROR:: atoms_match_dictionary() --- no restraints" << std::endl;
       }
    }
-   return std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > > (status, p);
+   return std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > > (status, p);
 }
 
 bool
@@ -4297,7 +4301,8 @@ coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int
 	       if (residue_p) {
 		  std::string residue_name = residue_p->GetResName();
 		  if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name))
-		     v.push_back(residue_name);
+                     if (std::find(v.begin(), v.end(), residue_name) == v.end())
+                        v.push_back(residue_name);
 	       }
 	    }
 	 }
@@ -4310,6 +4315,12 @@ bool
 coot::protein_geometry::read_extra_dictionaries_for_molecule(mmdb::Manager *mol, int imol, int *read_number_p) {
 
    std::vector<std::string> v = residue_names_with_no_dictionary(mol, imol);
+   if (false) {
+      std::cout << "-------------- debug residue names with no dictionary " << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) {
+         std::cout << "           " << v[i] << std::endl;
+      }
+   }
    bool success = true;
    for (std::size_t i=0; i<v.size(); i++) {
       const std::string &rn = v[i];

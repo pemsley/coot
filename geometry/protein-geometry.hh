@@ -1852,7 +1852,7 @@ namespace coot {
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.
       //
-      std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+      std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
       atoms_match_dictionary(int imol, const std::vector<mmdb::Residue *> &residues,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check) const;

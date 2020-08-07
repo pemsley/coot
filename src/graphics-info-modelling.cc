@@ -314,7 +314,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    mol->DeleteSelection(selHnd);
 
-   std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+   std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
       icheck_atoms = Geom_p()->atoms_match_dictionary(imol_for_atoms, residues, check_hydrogens_too_flag, false);
 
    if (! icheck_atoms.first) {
@@ -1267,7 +1267,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
 	    bool check_hydrogens_too_flag = false;
-	    std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+	    std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
 	       icheck_atoms = Geom_p()->atoms_match_dictionary(imol, residues, check_hydrogens_too_flag, false);
 
 	    if (! icheck_atoms.first) {
