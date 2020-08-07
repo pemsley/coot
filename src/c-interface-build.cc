@@ -1628,6 +1628,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
 		g.residue_type_selection_was_user_picked_residue_range = false;
 		coot::refinement_results_t rr =
 		   g.refine_residues_vec(imol, residues, alt_conf, mol);
+                g.conditionally_wait_for_refinement_to_finish();
 		rv = g.refinement_results_to_py(rr);
 	     }
           }
