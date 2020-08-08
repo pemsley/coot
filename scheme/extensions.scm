@@ -62,6 +62,11 @@
           (molecule-atom-overlaps-gui aa-imol))))
 
       (add-simple-coot-menu-menuitem
+       menu "Pepflips from Difference Map..."
+       (lambda ()
+         (pepflips-by-difference-map-gui)))
+
+      (add-simple-coot-menu-menuitem
        menu "Validation Outliers"
        (lambda ()
            (using-active-atom

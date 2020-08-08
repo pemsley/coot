@@ -1572,6 +1572,21 @@
       (gtk-widget-show-all window)
       (list inside-vbox window)))
 
+
+(define (dialog-box-of-buttons-from-specs window-name geometry imol specs)
+
+  (let ((buttons (map (lambda(spec)
+                        (let ((label (residue-spec->string spec))
+                              (cbf (lambda ()
+                                     (set-go-to-atom-molecule imol)
+                                     (set-go-to-atom-chain-residue-atom-name
+                                      (residue-spec->chain-id spec)
+                                      (residue-spec->res-no spec) " C  "))))
+                          (list label cbf)))
+                      specs)))
+    (dialog-box-of-buttons window-name geometry buttons " Close ")))
+
+
 ;; This is exported outside of the box-of-buttons gui because the
 ;; clear-and-add-back function (e.g. from using the check button)
 ;; also needs to add buttons - let's not duplicate that code.
@@ -3733,6 +3748,67 @@
 	       (update-water-results imol n d)))))
 
       (gtk-widget-show-all window)))
+
+
+;; interface to the difference-map based pepflip finder
+(define (pepflips-by-difference-map-gui)
+
+  (define (fill-option-menu-with-difference-map-options menu)
+    (fill-option-menu-with-mol-options menu is-difference-map?))
+
+  (let* ((window (gtk-window-new 'toplevel))
+         (chooser-label "Difference map")
+	 (label (gtk-label-new chooser-label))
+	 (vbox (gtk-vbox-new #f 6))
+	 (hbox-buttons (gtk-hbox-new #f 5))
+         (hbox-sigma (gtk-hbox-new #f 5))
+	 (menu-map (gtk-menu-new))
+	 (menu-coords (gtk-menu-new))
+	 (option-menu-map    (gtk-option-menu-new))
+	 (option-menu-coords (gtk-option-menu-new))
+         (n-sigma-label (gtk-label-new "N-sigma cut-off"))
+         (n-sigma-entry (gtk-entry-new))
+	 (ok-button (gtk-button-new-with-label "  OK  "))
+	 (cancel-button (gtk-button-new-with-label " Cancel "))
+	 (h-sep (gtk-hseparator-new))
+	 (model-mol-list (fill-option-menu-with-coordinates-mol-options menu-coords))
+	 (map-mol-list (fill-option-menu-with-difference-map-options menu-map)))
+    (gtk-window-set-default-size window 370 100)
+    (gtk-container-add window vbox)
+    (gtk-box-pack-start vbox label #f #f 5)
+    (gtk-box-pack-start vbox option-menu-map    #t #t 6)
+    (gtk-box-pack-start vbox option-menu-coords #t #t 6)
+    (gtk-box-pack-start hbox-sigma n-sigma-label #f #f 6)
+    (gtk-box-pack-start hbox-sigma n-sigma-entry #f #f 6)
+    (gtk-box-pack-start vbox hbox-sigma  #t #f 6)
+    (gtk-box-pack-start vbox h-sep #t #f 2)
+    (gtk-box-pack-start vbox hbox-buttons #f #f 5)
+    (gtk-box-pack-start hbox-buttons ok-button #t #f 5)
+    (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
+    
+    (gtk-option-menu-set-menu option-menu-map    menu-map)
+    (gtk-option-menu-set-menu option-menu-coords menu-coords)
+    (gtk-entry-set-text n-sigma-entry "4.0")
+
+    (gtk-signal-connect cancel-button "clicked" (lambda () (gtk-widget-destroy window)))
+    (gtk-signal-connect ok-button "clicked"
+                        (lambda ()
+                          (let* ((imol-coords 0)
+                                 (imol-map 2)
+                                 (n-sigma-str (gtk-entry-get-text n-sigma-entry))
+                                 (n-sigma (string->number n-sigma-str)))
+                            (let ((specs (pepflip-using-difference-map-scm imol-coords imol-map n-sigma)))
+                              (format #t "dialog for specs\n")
+                              (format #t "specs: ~s~%" specs)
+                              (if (null? specs)
+                                  (info-dialog "No pepflips found")
+                                  (dialog-box-of-buttons-from-specs "Potential Pepflip"
+                                                                    (cons 240 170)
+                                                                    imol-coords specs))
+                              (gtk-widget-destroy window)))))
+
+    (gtk-widget-show-all window)))
+
 
 
 ;; return a list, or #f (e.g. if not in same chain and molecule)

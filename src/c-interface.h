@@ -4920,6 +4920,15 @@ void pepflip(int imol, const char *chain_id, int resno, const char *inscode,
 	     const char *altconf);
 int pepflip_intermediate_atoms();
 int pepflip_intermediate_atoms_other_peptide();
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM pepflip_using_difference_map_scm(int imol_coords, int imol_difference_map, float n_sigma);
+#endif
+#ifdef USE_PYTHON
+PyObject *pepflip_using_difference_map_py(int imol_coords, int imol_difference_map, float n_sigma);
+#endif
+#endif
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
