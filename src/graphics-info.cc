@@ -5373,8 +5373,7 @@ graphics_info_t::draw_geometry_objects() {
 		     text_pos = d[i].start_pos +
 			0.5 * ( d[i].end_pos - d[i].start_pos +
 				clipper::Coord_orth(0.0, 0.1, 0.1));
-		     dist = clipper::Coord_orth::length( d[i].start_pos,
-							 d[i].end_pos);
+		     dist = clipper::Coord_orth::length( d[i].start_pos, d[i].end_pos);
 		     printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
 		  }
 	       }
