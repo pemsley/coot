@@ -8072,7 +8072,6 @@ void
 on_delete_item_dialog_destroy          (GtkWidget       *object,
                                         gpointer         user_data)
 {
-
    clear_pending_delete_item();
    clear_pending_picks();
    normal_cursor();

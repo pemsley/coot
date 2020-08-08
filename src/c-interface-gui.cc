@@ -1949,15 +1949,18 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
       GtkWindow *main_window = GTK_WINDOW(main_window_widget);
       gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       if (widget_type == COOT_DELETE_WINDOW) {
+
 	 bool done_set_pos = false;
 	 if (graphics_info_t::delete_item_widget_x_position > -100) {
 	    if (graphics_info_t::delete_item_widget_y_position > -100) {
 
-	       std::cout << "GTK-FIXME no gtk_widget_set_uposition C" << std::endl;
+               gtk_window_move(GTK_WINDOW(window),
+                               graphics_info_t::delete_item_widget_x_position,
+                               graphics_info_t::delete_item_widget_y_position);
 
-// 	       gtk_widget_set_uposition(window,
-// 					graphics_info_t::delete_item_widget_x_position,
-// 					graphics_info_t::delete_item_widget_y_position);
+               // 	       gtk_widget_set_uposition(window,
+               // 					graphics_info_t::delete_item_widget_x_position,
+               // 					graphics_info_t::delete_item_widget_y_position);
 	       done_set_pos = true;
 	    }
 	 }
