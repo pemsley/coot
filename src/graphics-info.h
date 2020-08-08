@@ -2855,6 +2855,8 @@ public:
    static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
    static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *widget);
 
+   void add_picked_atom_info_to_status_bar(int imol, int atom_index);
+
    // crosshairs
    static short int draw_crosshairs_flag;
    void crosshairs_text() const;

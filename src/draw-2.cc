@@ -1875,6 +1875,7 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
             if (nearest_atom_index_info.success == GL_TRUE) {
                int im = nearest_atom_index_info.imol;
                g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+               g.add_picked_atom_info_to_status_bar(im, nearest_atom_index_info.atom_index);
                g.graphics_draw();
             }
          }
@@ -1905,7 +1906,9 @@ on_glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
          if (std::abs(delta_y) < 10.0) {
             if (nearest_atom_index_info.success == GL_TRUE) {
                g.setRotationCentre(nearest_atom_index_info.atom_index,
-				                       nearest_atom_index_info.imol);
+                                   nearest_atom_index_info.imol);
+               g.add_picked_atom_info_to_status_bar(nearest_atom_index_info.imol,
+                                                    nearest_atom_index_info.atom_index);
             }
          }
       }
