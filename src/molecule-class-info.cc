@@ -3738,6 +3738,19 @@ molecule_class_info_t::make_bonds_type_checked() {
     for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
        triangles[k].rebase(idx_base);
 
+    // --- bad CA-CA loop distances
+    if (bonds_box.n_bad_CA_CA_dist_spots > 0) {
+       idx_base = vertices.size();
+       idx_tri_base = triangles.size();
+       std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > bad_CA_CA_bits =
+          make_generic_vertices_for_bad_CA_CA_distances();
+
+       vertices.insert(vertices.end(), bad_CA_CA_bits.first.begin(), bad_CA_CA_bits.first.end());
+       triangles.insert(triangles.end(), bad_CA_CA_bits.second.begin(), bad_CA_CA_bits.second.end());
+       for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+          triangles[k].rebase(idx_base);
+    }
+
     // --- bonds ---
 
     float radius = 0.02f * bond_width;
