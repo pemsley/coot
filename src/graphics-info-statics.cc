@@ -20,4 +20,4 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
-float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 8.0;
+float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;

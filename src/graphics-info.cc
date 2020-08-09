@@ -1746,6 +1746,8 @@ graphics_info_t::pull_restraint_neighbour_displacement_change_max_radius(bool up
          last_restraints->set_use_proportional_editing(true);
          last_restraints->pull_restraint_neighbour_displacement_max_radius =
             pull_restraint_neighbour_displacement_max_radius;
+      } else {
+         last_restraints->set_use_proportional_editing(false);
       }
    }
 }
