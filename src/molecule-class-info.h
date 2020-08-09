@@ -1106,6 +1106,8 @@ public:        //                      public
 
    mmdb::Atom *get_atom(int idx) const;
 
+   bool have_atom_close_to_position(const coot::Cartesian &pos) const;
+
    // return the maximum residue number in the chain. first of false means failure to do so.
    //
    std::pair<bool,int> max_res_no_in_chain(mmdb::Chain *chain_p) const;
