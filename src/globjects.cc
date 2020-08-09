@@ -3947,13 +3947,6 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
       // std::cout << "Nothing doin' at the moment" << std::endl;
    }
 
-   if (event->button == 4) {
-      handle_scroll_density_level_event(1); // up
-   }
-
-   if (event->button == 5) {
-      handle_scroll_density_level_event(0); // down
-   }
    return TRUE;
 }
 
@@ -4084,16 +4077,24 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 
    graphics_info_t info;
-   bool handled = 0;
+   bool handled = false;
    if (info.control_is_pressed) {
       if (info.shift_is_pressed) {
 	 if (event->direction == GDK_SCROLL_UP)
 	    change_model_molecule_representation_mode(1);
 	 if (event->direction == GDK_SCROLL_DOWN)
 	    change_model_molecule_representation_mode(0);
-	 handled = 1;
+	 handled = true;
       } else {
-	 // std::cout << "shift is not pressed" << std::endl;
+         // maybe we change the proportional editing (pull atom neighbour displacement) radiu
+         if (true) {
+            bool dir = true;
+            if (event->direction == GDK_SCROLL_DOWN)
+               dir = false;
+            info.pull_restraint_neighbour_displacement_change_max_radius(dir);
+            info.graphics_draw();
+            handled = true;
+         }
       }
    } else {
       // std::cout << "control is not pressed " << std::endl;

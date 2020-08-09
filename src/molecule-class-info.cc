@@ -6449,6 +6449,49 @@ molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &
 // ----------------------------------------------------------------------
 //               Pointer Atoms
 // ----------------------------------------------------------------------
+
+bool
+molecule_class_info_t::have_atom_close_to_position(const coot::Cartesian &pos) const {
+
+   bool r = false;
+
+   float close_d = 0.5;
+   float close_d_squared = close_d * close_d;
+   if (atom_sel.mol) {
+      for(int imod = 1; imod <= atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float dd =
+                           (pos.x() - at->x) * (pos.x() - at->x) +
+                           (pos.y() - at->y) * (pos.y() - at->y) +
+                           (pos.z() - at->z) * (pos.z() - at->z);
+                        if (dd < close_d_squared) {
+                           r = true;
+                           break;
+                        }
+                     }
+                  }
+                  if (r) break;
+               }
+               if (r) break;
+            }
+            if (r) break;
+         }
+      }
+   }
+   return r;
+}
+
 void
 molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 
@@ -6543,109 +6586,120 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
       if (type == "Water") {
 
-    // special rule for water: we add a water to a water chain if
-    // possible
+         // special rule for water: we add a water to a water chain if
+         // possible
 
-    atom_p->SetAtomName(" O  ");
-    atom_p->SetElementName(" O");
-    res_p->SetResName("HOH");
+         atom_p->SetAtomName(" O  ");
+         atom_p->SetElementName(" O");
+         res_p->SetResName("HOH");
 
-    mmdb::Chain *w = water_chain();
-    int wresno = 1;
+         mmdb::Chain *w = water_chain();
+         int wresno = 1;
 
-    if (w) {
-       // remove a TER atom if it exists on the last residue
-       // prior to insertion of a new residue.
-       remove_TER_on_last_residue(w);
+         bool ok_to_add = true;
+         if (have_atom_close_to_position(pos))
+            ok_to_add = false;
 
-       // Now add atom to chain w.
-       std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
-       if (wresno_pair.first) {
-          wresno = wresno_pair.second;
-       } else {
-          wresno = 1;
-       }
-       res_p->seqNum = wresno;
-       res_p->AddAtom(atom_p);
-       w->AddResidue(res_p);
-       std::cout << atom_p << " added to molecule" << std::endl;
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
+         if (! ok_to_add) {
+            std::cout << "WARNING:: new atom addition blocked by nearby atom" << std::endl;
+            graphics_info_t g;
+            g.add_status_bar_text("WARNING:: new atom addition blocked by nearby atom");
+         } else {
 
-    } else {
-       // There was no water chain
-       res_p->AddAtom(atom_p);
-       std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
-       if (!pre_existing_chain_flag) {
-          chain_p->SetChainID(mol_chain_id.second.c_str());
-          atom_sel.mol->GetModel(1)->AddChain(chain_p);
-       }
-       res_p->seqNum = 1; // start of a new chain.
-       chain_p->AddResidue(res_p);
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
-    }
+            if (w) {
+               // remove a TER atom if it exists on the last residue
+               // prior to insertion of a new residue.
+               remove_TER_on_last_residue(w);
+
+               // Now add atom to chain w.
+               std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
+               if (wresno_pair.first) {
+                  wresno = wresno_pair.second;
+               } else {
+                  wresno = 1;
+               }
+               res_p->seqNum = wresno;
+               res_p->AddAtom(atom_p);
+               w->AddResidue(res_p);
+               std::cout << atom_p << " added to molecule" << std::endl;
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel = make_asc(atom_sel.mol);
+               have_unsaved_changes_flag = 1;
+               make_bonds_type_checked();
+
+            } else {
+               // There was no water chain
+               res_p->AddAtom(atom_p);
+               std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
+               if (!pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+               }
+               res_p->seqNum = 1; // start of a new chain.
+               chain_p->AddResidue(res_p);
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel = make_asc(atom_sel.mol);
+               have_unsaved_changes_flag = 1;
+               make_bonds_type_checked();
+            }
+         }
       } else {
 
-  	 // Not water
-    std::string element = "";
+         // Not water
+         std::string element = "";
 
-    if (mol_chain_id.first || pre_existing_chain_flag) {
+         if (mol_chain_id.first || pre_existing_chain_flag) {
 
-       if (bits.filled) {
-          bits.SetAtom(atom_p, res_p);
+            if (bits.filled) {
+               bits.SetAtom(atom_p, res_p);
 
-          res_p->AddAtom(atom_p);
-          std::cout << atom_p << " added to molecule" << std::endl;
-          if (! pre_existing_chain_flag) {
-             chain_p->SetChainID(mol_chain_id.second.c_str());
-            atom_sel.mol->GetModel(1)->AddChain(chain_p);
-          }
-          std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
-          int previous_max = 0;
-          if (ires_prev_pair.first) { // was not an empty chain
-             previous_max =  ires_prev_pair.second;
-            res_p->seqNum = previous_max + 1;
-          } else {
+               res_p->AddAtom(atom_p);
+               std::cout << atom_p << " added to molecule" << std::endl;
+               if (! pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+               }
+               std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+               int previous_max = 0;
+               if (ires_prev_pair.first) { // was not an empty chain
+                  previous_max =  ires_prev_pair.second;
+                  res_p->seqNum = previous_max + 1;
+               } else {
 
-     // was an empty chain.  Handle the shelx case:
+                  // was an empty chain.  Handle the shelx case:
 
-     if (! is_from_shelx_ins_flag) {
-        res_p->seqNum = 1 ; // start of a new chain.
-     } else {
-        // in a shelx molecule, we can't make the residue
-        // number 1 because there are no chains.  We need to
-        // make the residue number bigger than the biggest
-        // residue number so far.
-        ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
-        if (ires_prev_pair.first) {
-           res_p->seqNum = ires_prev_pair.second + 1;
-        } else {
-           res_p->seqNum = 1;
-        }
-     }
-          }
-       }
+                  if (! is_from_shelx_ins_flag) {
+                     res_p->seqNum = 1 ; // start of a new chain.
+                  } else {
+                     // in a shelx molecule, we can't make the residue
+                     // number 1 because there are no chains.  We need to
+                     // make the residue number bigger than the biggest
+                     // residue number so far.
+                     ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
+                     if (ires_prev_pair.first) {
+                        res_p->seqNum = ires_prev_pair.second + 1;
+                     } else {
+                        res_p->seqNum = 1;
+                     }
+                  }
+               }
+            }
 
        // Add this element to the sfac (redundancy check in the addition function
-       if (is_from_shelx_ins_flag) {
-          shelxins.add_sfac(element);
-       }
-       chain_p->AddResidue(res_p);
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
-    } else {
-       std::cout << "WARNING:: Can't find new chain for new atom\n";
-    }
+            if (is_from_shelx_ins_flag) {
+               shelxins.add_sfac(element);
+            }
+            chain_p->AddResidue(res_p);
+            atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+            atom_sel.mol->FinishStructEdit();
+            atom_sel = make_asc(atom_sel.mol);
+            have_unsaved_changes_flag = 1;
+            make_bonds_type_checked();
+         } else {
+            std::cout << "WARNING:: Can't find new chain for new atom\n";
+         }
       } // type was water, or not
 
    } else {
@@ -7151,6 +7205,7 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
    if (g.unpathed_backup_file_names_flag)
       t_name_1 = name_for_display_manager();
    std::string t_name_2 = replace_char(t_name_1, '/');
+   std::string t_name_3 = replace_char(t_name_2, ' ');
 
    if (save_time_string.empty()) {
       time_t t;
@@ -7168,10 +7223,10 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
          save_time_string = replace_char(save_time_string, ':');
    }
    std::string time_string = save_time_string;
-   std::string t_name_3 = t_name_2 + "_" + time_string;
+   std::string t_name_4 = t_name_3 + "_" + time_string;
 
    std::string index_string = coot::util::int_to_string(history_index);
-   std::string t_name_4 = t_name_3 + "_modification_" + index_string;
+   std::string t_name_5 = t_name_4 + "_modification_" + index_string;
 
    std::string extension = ".pdb";
    if (coot::is_mmcif_filename(name_))
@@ -7181,9 +7236,9 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
    if (g.backup_compress_files_flag)
       extension += ".gz";
 
-   std::string t_name_5 = t_name_4 + extension;
+   std::string t_name_6 = t_name_5 + extension;
 
-   std::string save_file_name = coot::util::append_dir_file(dir, t_name_5);
+   std::string save_file_name = coot::util::append_dir_file(dir, t_name_6);
    return save_file_name;
 
 }

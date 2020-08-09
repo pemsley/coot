@@ -538,41 +538,88 @@ graphics_info_t::rotate_intermediate_atoms_maybe(unsigned int width, unsigned in
    short int handled_flag = 0;
 
    if (moving_atoms_asc) {
-      if (moving_atoms_asc->n_selected_atoms > 0) {
-         if (control_is_pressed) {
-            handled_flag = true;
-            bool sane_deltas = true;
-            if (mouse_current_x - GetMouseBeginX() >  80) sane_deltas = false;
-            if (mouse_current_x - GetMouseBeginX() < -80) sane_deltas = false;
-            if (mouse_current_y - GetMouseBeginY() >  80) sane_deltas = false;
-            if (mouse_current_y - GetMouseBeginY() < -80) sane_deltas = false;
-            if (sane_deltas) {
-               clipper::Coord_orth mac = moving_atoms_centre();
-               float spin_quat[4];
-               trackball(spin_quat,
-                         (2.0*GetMouseBeginX() - width) /width,
-                         (height - 2.0*GetMouseBeginY())/height,
-                         (2.0*mouse_current_x - width)  /width,
-                         (height -  2.0*mouse_current_y)/height,
-                         get_trackball_size() );
-               GL_matrix m;
-               m.from_quaternion(spin_quat);
-               clipper::Mat33<double> m33 = m.to_clipper_mat();
-               clipper::Coord_orth zero(0,0,0);
-               for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-                  mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
-                  clipper::Coord_orth origin_based_pos = coot::co(at) - mac;
-                  clipper::RTop_orth rtop(m33, zero);
-                  clipper::Coord_orth new_pos = origin_based_pos.transform(rtop);
-                  new_pos += mac;
-                  at->x = new_pos.x(); at->y = new_pos.y(); at->z = new_pos.z();
+      if (! last_restraints) { // we don't want this to happen during refinement
+         if (moving_atoms_asc->n_selected_atoms > 0) {
+            if (control_is_pressed) {
+               handled_flag = true;
+               bool sane_deltas = true;
+               if (mouse_current_x - GetMouseBeginX() >  80) sane_deltas = false;
+               if (mouse_current_x - GetMouseBeginX() < -80) sane_deltas = false;
+               if (mouse_current_y - GetMouseBeginY() >  80) sane_deltas = false;
+               if (mouse_current_y - GetMouseBeginY() < -80) sane_deltas = false;
+
+               clipper::RTop_orth screen_matrix;
+               clipper::RTop_orth screen_matrix_transpose;
+
+#if 0
+               {
+                  coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+                  coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+                  coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+                  coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+
+                  coot::Cartesian screen_x = (right - centre);
+                  // coot::Cartesian screen_y = (top   - centre);
+                  coot::Cartesian screen_y = (centre - top);
+                  coot::Cartesian screen_z = (front - centre);
+
+                  screen_x.unit_vector_yourself();
+                  screen_y.unit_vector_yourself();
+                  screen_z.unit_vector_yourself();
+
+                  float mat[16];
+                  mat[ 0] = screen_x.x(); mat[ 1] = screen_x.y(); mat[ 2] = screen_x.z();
+                  mat[ 4] = screen_y.x(); mat[ 5] = screen_y.y(); mat[ 6] = screen_y.z();
+                  mat[ 8] = screen_z.x(); mat[ 9] = screen_z.y(); mat[10] = screen_z.z();
+
+                  mat[ 3] = 0; mat[ 7] = 0; mat[11] = 0;
+                  mat[12] = 0; mat[13] = 0; mat[14] = 0; mat[15] = 1;
+
+                  screen_matrix.rot()(0,0) = screen_x.x();
+                  screen_matrix.rot()(0,1) = screen_x.y();
+                  screen_matrix.rot()(0,2) = screen_x.z();
+                  screen_matrix.rot()(1,0) = screen_y.x();
+                  screen_matrix.rot()(1,1) = screen_y.y();
+                  screen_matrix.rot()(1,2) = screen_y.z();
+                  screen_matrix.rot()(2,0) = screen_z.x();
+                  screen_matrix.rot()(2,1) = screen_z.y();
+                  screen_matrix.rot()(2,2) = screen_z.z();
+                  screen_matrix.trn()[0] = 0.0;
+                  screen_matrix.trn()[1] = 0.0;
+                  screen_matrix.trn()[2] = 0.0;
+                  screen_matrix_transpose.rot() = screen_matrix.rot().transpose();
                }
-	       Bond_lines_container bonds(*moving_atoms_asc, true);
-	       regularize_object_bonds_box.clear_up();
-	       regularize_object_bonds_box = bonds.make_graphical_bonds();
-               graphics_draw();
+
+               if (sane_deltas) {
+                  clipper::Coord_orth mac = moving_atoms_centre();
+                  float spin_quat[4];
+                  trackball(spin_quat,
+                            (2.0*mouse_current_x - width)  /width,
+                            (height -  2.0*mouse_current_y)/height,
+                            (2.0*GetMouseBeginX() - width) /width,
+                            (height - 2.0*GetMouseBeginY())/height,
+                            get_trackball_size() );
+                  GL_matrix m;
+                  m.from_quaternion(spin_quat);
+                  clipper::Mat33<double> m33 = m.to_clipper_mat();
+                  clipper::Coord_orth zero(0,0,0);
+                  for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+                     mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+                     clipper::Coord_orth origin_based_pos = coot::co(at) - mac;
+                     clipper::RTop_orth rtop(m33, zero);
+                     clipper::RTop_orth combined(screen_matrix_transpose * rtop * screen_matrix);
+                     clipper::Coord_orth new_pos = origin_based_pos.transform(combined);
+                     new_pos += mac;
+                     at->x = new_pos.x(); at->y = new_pos.y(); at->z = new_pos.z();
+                  }
+                  Bond_lines_container bonds(*moving_atoms_asc, true);
+                  regularize_object_bonds_box.clear_up();
+                  regularize_object_bonds_box = bonds.make_graphical_bonds();
+                  graphics_draw();
+               }
+#endif
             }
-	 }
+         }
       }
    }
    return handled_flag;

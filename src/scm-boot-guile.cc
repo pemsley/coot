@@ -58,8 +58,6 @@
 
 void inner_main(void *closure, int argc, char **argv) {
 
-   std::cout << "------------------------- inner_main() start " << std::endl;
-
   short int use_graphics_flag = use_graphics_interface_state();
 
   SWIG_init();   
@@ -142,10 +140,6 @@ void inner_main(void *closure, int argc, char **argv) {
      try_load_scheme_extras_dir();
      try_load_dot_coot_and_preferences();
   }
-
-
-  std::cout << "------------------------- inner_main() about to handle_command_line_data_argc_argv "
-            << std::endl;
 
   /* now handle the command line data */
    handle_command_line_data_argc_argv(argc, argv);

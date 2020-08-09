@@ -250,7 +250,6 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
    coot::Cartesian front(f.x, f.y, f.z);
    coot::Cartesian back(b.x, b.y, b.z);
 
-   std::cout << "---- here in pick_intermediate_atom() " << front << " " << back << std::endl;
    short int pick_mode = PICK_ATOM_ALL_ATOM;
    return pick_atom_from_atom_selection(SelAtom, -1, front, back, pick_mode, 0);
 }

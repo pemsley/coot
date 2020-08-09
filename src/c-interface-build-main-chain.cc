@@ -819,4 +819,55 @@ int add_nucleotide(int imol, const char *chain_id, int res_no) {
 
 }
 
+#include "coot-utils/pepflip-using-difference-map.hh"
 
+#ifdef USE_GUILE
+SCM pepflip_using_difference_map_scm(int imol_coords, int imol_difference_map, float n_sigma) {
+
+   SCM r = SCM_EOL;
+
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_difference_map)) {
+         graphics_info_t g;
+         if (g.molecules[imol_difference_map].is_difference_map_p()) {
+            const clipper::Xmap<float> &diff_xmap = g.molecules[imol_difference_map].xmap;
+            mmdb::Manager *mol = g.molecules[imol_coords].atom_sel.mol;
+            coot::pepflip_using_difference_map pf(mol, diff_xmap);
+            std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+            for (std::size_t i=0; i<flips.size(); i++) {
+               SCM flip_scm = residue_spec_to_scm(flips[i]);
+               r = scm_cons(flip_scm, r);
+	    }
+	 }
+      }
+   }
+
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *pepflip_using_difference_map_py(int imol_coords, int imol_difference_map, float n_sigma) {
+
+   PyObject *o = PyList_New(0);
+
+   if (is_valid_model_molecule(imol_coords)) {
+      if (is_valid_map_molecule(imol_difference_map)) {
+         graphics_info_t g;
+         if (g.molecules[imol_difference_map].is_difference_map_p()) {
+            const clipper::Xmap<float> &diff_xmap = g.molecules[imol_difference_map].xmap;
+            mmdb::Manager *mol = g.molecules[imol_coords].atom_sel.mol;
+            coot::pepflip_using_difference_map pf(mol, diff_xmap);
+            std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+            if (flips.size() > 0) {
+               o = PyList_New(flips.size());
+               for (std::size_t i=0; i<flips.size(); i++) {
+                  PyList_SetItem(o, i, residue_spec_to_py(flips[i]));
+               }
+            }
+	 }
+      }
+   }
+   return o;
+}
+#endif

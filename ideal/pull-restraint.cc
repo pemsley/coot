@@ -30,6 +30,8 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
             it->is_closed = false; // if it had been closed before, it's active again
             if (is_different)
                needs_reset = true;
+            if (use_proportional_editing)
+               pull_restraint_displace_neighbours(at, pos, pull_restraint_neighbour_displacement_max_radius);
 	    restraints_lock = false; // unlocked
             if (false) // debugging
                std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
@@ -128,6 +130,42 @@ coot::restraints_container_t::clear_all_atom_pull_restraints() {
 
 bool coot::target_position_eraser(const simple_restraint &r) {
    return (r.restraint_type == restraint_type_t(TARGET_POS_RESTRAINT));
+}
+
+
+void
+coot::restraints_container_t::pull_restraint_displace_neighbours(mmdb::Atom *pull_atom,
+                                                                 const clipper::Coord_orth &new_pull_atom_target_position, float radius) {
+
+   // proportional by default - pass this parameter?
+   bool use_top_hat_function = false;
+
+   clipper::Coord_orth atom_current_position = co(pull_atom);
+   clipper::Coord_orth delta = new_pull_atom_target_position - atom_current_position;
+   float f = 0.5;
+   clipper::Coord_orth displacement = f * delta;
+   float r_squared = radius * radius;
+
+   for (int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = atom[iat];
+      if (fixed_atom_indices.find(iat) == fixed_atom_indices.end()) { // not fixed
+         float d_squared =
+            (at->x - pull_atom->x) * (at->x - pull_atom->x) +
+            (at->y - pull_atom->y) * (at->y - pull_atom->y) +
+            (at->z - pull_atom->z) * (at->z - pull_atom->z);
+         if (d_squared < r_squared) {
+            float d = sqrt(d_squared);
+            float ff = 1.0f - d/radius;
+            if (ff < 0) ff = 0;
+            float sf = sqrt(ff);
+            if (use_top_hat_function)
+               sf = 1.0;
+            at->x += sf * f * delta.x();
+            at->y += sf * f * delta.y();
+            at->z += sf * f * delta.z();
+         }
+      }
+   }
 }
 
 

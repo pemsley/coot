@@ -315,7 +315,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    mol->DeleteSelection(selHnd);
 
-   std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+   std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
       icheck_atoms = Geom_p()->atoms_match_dictionary(imol_for_atoms, residues, check_hydrogens_too_flag, false);
 
    if (! icheck_atoms.first) {
@@ -1180,7 +1180,13 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       do_rama_restraints,
 						       true, true, make_auto_h_bond_restraints_flag,
 						       pseudo_bonds_type);
-   // link and flank args default true
+                                                       // link and flank args default true
+
+   if (pull_restraint_neighbour_displacement_max_radius > 1.99) {
+      last_restraints->set_use_proportional_editing(true);
+      last_restraints->pull_restraint_neighbour_displacement_max_radius =
+         pull_restraint_neighbour_displacement_max_radius;
+   }
 
    last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
    last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
@@ -1341,7 +1347,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
 	    bool check_hydrogens_too_flag = false;
-	    std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
+	    std::pair<bool, std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > >
 	       icheck_atoms = Geom_p()->atoms_match_dictionary(imol, residues, check_hydrogens_too_flag, false);
 
 	    if (! icheck_atoms.first) {

@@ -380,8 +380,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // atom pull restraint
       // graphics_info_t::draw_atom_pull_restraint();
 
+
       // regularize object
       // graphics_info_t::draw_moving_atoms_graphics_object(is_bb); gone
+
+      // and the pull restraint neighbour displacement radius (maybe)
+      graphics_info_t::draw_pull_restraint_neighbour_displacement_max_radius_circle();
 
       // restraints for regularize/moving atoms object
       graphics_info_t::draw_moving_atoms_restraints_graphics_object();

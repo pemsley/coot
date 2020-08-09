@@ -4821,3 +4821,9 @@ gboolean
 on_python_window_entry_key_press_event (GtkWidget       *widget,
                                         GdkEventKey     *event,
                                         gpointer         user_data);
+
+gboolean
+on_residue_type_chooser_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data);

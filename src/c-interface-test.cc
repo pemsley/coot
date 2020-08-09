@@ -407,13 +407,51 @@ int test_function(int i, int j) {
 #include "ligand/richardson-rotamer.hh"
 
 #include "coot-utils/cablam-markup.hh"
+#include "coot-utils/pepflip-using-difference-map.hh"
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
+
    if (true) {
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+	 int imol_map = scm_to_int(i_scm);
+	 if (is_valid_map_molecule(imol_map)) {
+	    graphics_info_t g;
+	    if (g.molecules[imol_map].is_difference_map_p()) {
+	       const clipper::Xmap<float> &diff_xmap = g.molecules[imol_map].xmap;
+	       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	       coot::pepflip_using_difference_map pf(mol, diff_xmap);
+	       float n_sigma = 4.0;
+	       std::vector<coot::residue_spec_t> flips = pf.get_suggested_flips(n_sigma);
+	       for (std::size_t i=0; i<flips.size(); i++) {
+		  std::cout << i << " " << flips[i] << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (false) {
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+         int imol = pp.second.first;
+         bool show_stub_flag = true;
+         GtkWidget *widget = g.wrapped_create_residue_type_chooser_window(show_stub_flag);
+         gtk_widget_show(widget);
+         g.in_mutate_auto_fit_define = 0;
+         g.residue_type_chooser_auto_fit_flag = 1;
+         g.pick_pending_flag = 0;
+      }
+   }
+
+
+   if (false) {
       int imol_model     = scm_to_int(i_scm);
       int imol_with_data = scm_to_int(j_scm);
       if (is_valid_model_molecule(imol_model)) {

@@ -130,3 +130,6 @@ LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
+
+float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
+

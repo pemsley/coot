@@ -1680,6 +1680,26 @@ graphics_info_t::run_post_set_rotation_centre_hook_py() {
 #endif
 
 
+void
+graphics_info_t::pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down) {
+
+   if (up_or_down)
+      pull_restraint_neighbour_displacement_max_radius -= 1.0;
+   else
+      pull_restraint_neighbour_displacement_max_radius += 1.0;
+
+   if (last_restraints) {
+      if (pull_restraint_neighbour_displacement_max_radius > 1.99) {
+         last_restraints->set_use_proportional_editing(true);
+         last_restraints->pull_restraint_neighbour_displacement_max_radius =
+            pull_restraint_neighbour_displacement_max_radius;
+      } else {
+         last_restraints->set_use_proportional_editing(false);
+      }
+   }
+}
+
+
 
 void
 graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_in) {
@@ -4850,6 +4870,63 @@ graphics_info_t::add_flash_bond(const std::pair<clipper::Coord_orth, clipper::Co
 
 
 
+
+
+// and the pull restraint neighbour displacement radius (mabye)
+void graphics_info_t::draw_pull_restraint_neighbour_displacement_max_radius_circle() {
+
+   if (control_is_pressed) {
+      if (pull_restraint_neighbour_displacement_max_radius > 1.0) {
+         if (moving_atoms_displayed_p()) {
+
+#if 0 // OpenGL v1
+            // there should be a function for this?
+            clipper::Coord_orth rc(RotationCentre_x(), RotationCentre_y(), RotationCentre_z());
+
+            coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+            coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+            coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+            coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+
+            coot::Cartesian screen_x = (right - centre);
+            coot::Cartesian screen_y = (top   - centre);
+            coot::Cartesian screen_z = (front - centre);
+
+            screen_x.unit_vector_yourself();
+            screen_y.unit_vector_yourself();
+            screen_z.unit_vector_yourself();
+
+            clipper::Coord_orth screen_x_co(screen_x.x(), screen_x.y(), screen_x.z());
+            clipper::Coord_orth screen_y_co(screen_y.x(), screen_y.y(), screen_y.z());
+
+            glColor3f(0.6, 0.6, 0.6);
+            glLineWidth(1.0);
+            glBegin(GL_LINES); // call this after unproject_xyz().
+            for (unsigned int i=0; i<50; i++) {
+               float theta_this = 0.02 * static_cast<float>(i)   * M_PI * 2.0;
+               float theta_next = 0.02 * static_cast<float>(i+1) * M_PI * 2.0;
+               float stt = sinf(theta_this);
+               float ctt = cosf(theta_this);
+               float stn = sinf(theta_next);
+               float ctn = cosf(theta_next);
+               float r = pull_restraint_neighbour_displacement_max_radius;
+
+               clipper::Coord_orth p1 = r * ctt * screen_x_co + r * stt * screen_y_co;
+               clipper::Coord_orth p2 = r * ctn * screen_x_co + r * stn * screen_y_co;
+
+               p1 += rc;
+               p2 += rc;
+
+               glVertex3f(p1.x(), p1.y(), p1.z());
+               glVertex3f(p2.x(), p2.y(), p2.z());
+            }
+            glEnd();
+#endif
+         }
+      }
+   }
+}
+
 // Question to self? Have I locked the restraints before I call this?
 //
 void
@@ -5087,39 +5164,38 @@ graphics_info_t::draw_geometry_objects() {
 
       const std::vector<coot::simple_distance_object_t> &d = *distance_object_vec;
       for (int i=0; i<ndist; i++) {
-    if (is_valid_model_molecule(d[i].imol_start)) {
-       if (is_valid_model_molecule(d[i].imol_end)) {
-          if (molecules[d[i].imol_start].is_displayed_p()) {
-     if (molecules[d[i].imol_end].is_displayed_p()) {
-        glVertex3d( d[i].start_pos.x(),
-    d[i].start_pos.y(),
-    d[i].start_pos.z());
-        glVertex3d( d[i].end_pos.x(),
-    d[i].end_pos.y(),
-    d[i].end_pos.z());
-     }
-          }
-       }
-    }
+         if (is_valid_model_molecule(d[i].imol_start)) {
+            if (is_valid_model_molecule(d[i].imol_end)) {
+               if (molecules[d[i].imol_start].is_displayed_p()) {
+                  if (molecules[d[i].imol_end].is_displayed_p()) {
+                     glVertex3d( d[i].start_pos.x(),
+                                 d[i].start_pos.y(),
+                                 d[i].start_pos.z());
+                     glVertex3d( d[i].end_pos.x(),
+                                 d[i].end_pos.y(),
+                                 d[i].end_pos.z());
+                  }
+               }
+            }
+         }
       }
       glEnd();
       glDisable(GL_LINE_STIPPLE);
 
       for (int i=0; i<ndist; i++) {
-    if (is_valid_model_molecule(d[i].imol_start)) {
-       if (is_valid_model_molecule(d[i].imol_end)) {
-          if (molecules[d[i].imol_start].is_displayed_p()) {
-     if (molecules[d[i].imol_end].is_displayed_p()) {
-        text_pos = d[i].start_pos +
-   0.5 * ( d[i].end_pos - d[i].start_pos +
-   clipper::Coord_orth(0.0, 0.1, 0.1));
-        dist = clipper::Coord_orth::length( d[i].start_pos,
-    d[i].end_pos);
-        printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
-     }
-          }
-       }
-    }
+         if (is_valid_model_molecule(d[i].imol_start)) {
+            if (is_valid_model_molecule(d[i].imol_end)) {
+               if (molecules[d[i].imol_start].is_displayed_p()) {
+                  if (molecules[d[i].imol_end].is_displayed_p()) {
+                     text_pos = d[i].start_pos +
+                        0.5 * ( d[i].end_pos - d[i].start_pos +
+                                clipper::Coord_orth(0.0, 0.1, 0.1));
+                     dist = clipper::Coord_orth::length( d[i].start_pos, d[i].end_pos);
+                     printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
+                  }
+               }
+            }
+         }
       }
 
 
