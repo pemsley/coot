@@ -1337,9 +1337,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
    }
 
    int n_sphere_points        = static_cast<int>(dot_density_in * 900);
-   int n_sphere_points_for_H = static_cast<int>(dot_density_in * 540);
-   std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(n_sphere_points);
-   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(n_sphere_points_for_H); // less than above
+   int n_sphere_points_for_H  = static_cast<int>(dot_density_in * 440);
+   std::vector<clipper::Coord_orth>   sphere_points = fibonacci_sphere(n_sphere_points);
+   std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(n_sphere_points_for_H);
 
    if (n_contacts > 0) {
       if (pscontact) {
@@ -1736,14 +1736,14 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
    clipper::Coord_orth pt_at_1 = co(at);
    double dot_density = dot_density_in;
 
-   int n_sphere_points        = static_cast<int>(dot_density_in * 900);
-   int n_sphere_points_for_H = static_cast<int>(dot_density_in * 540);
+   int n_sphere_points       = static_cast<int>(dot_density_in * 900);
+   int n_sphere_points_for_H = static_cast<int>(dot_density_in * 440);
 
    // Yikes! We don't need to calculate these for every atom! They can be pre-calculated
    // at the time of construction of this object - and made into a const variable ref that is passed to
    // this function.
    //
-   std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(n_sphere_points);
+   std::vector<clipper::Coord_orth>   sphere_points = fibonacci_sphere(n_sphere_points);
    std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(n_sphere_points_for_H); // less than above
 
    std::vector<clipper::Coord_orth> sphere_points_for_atom;
