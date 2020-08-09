@@ -3975,6 +3975,11 @@ string   static std::string sessionid;
    /*! \brief shiftfield xyz refinement */
    void shiftfield_xyz_factor_refinement(int imol);
 
+   // if pull_restraint_neighbour_displacement_max_radius < 1.5 (say) then
+   // turn off proportional editing.
+   static float pull_restraint_neighbour_displacement_max_radius;
+   void pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down); // change above
+   static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

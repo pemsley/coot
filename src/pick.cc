@@ -380,8 +380,13 @@ coot::Cartesian unproject_xyz(int x, int y, float screen_z) {
    //printf ("Coordinates at cursor are (%4d, %4d)\n", x, realy);
    gluUnProject (x_as_double, realy_as_double, screen_z, 
 		 mvmatrix, projmatrix, viewport, &wx, &wy, &wz); 
-   // printf ("World coords at z=%f are (%f, %f, %f)\n", 
-   // screen_z, wx, wy, wz);
+
+   // you called glBegin(GL_LINES) before unprojecting, didn't you? :-)
+   if (false) {
+      std::cout << "unproject results in "
+                << x_as_double << " " << realy_as_double << " " << screen_z << std::endl;
+      std::cout << "unproject results out " << wx << " " << wy << " " << wz << std::endl;
+   }
 
    return coot::Cartesian(wx, wy, wz);
 }

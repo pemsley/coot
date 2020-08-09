@@ -539,8 +539,17 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    log_cosh_target_distance_scale_factor = 3000.0;
    convert_plane_restraints_to_improper_dihedral_restraints_flag = false; // as it was in 2019.
 
+   use_proportional_editing = false;
+   pull_restraint_neighbour_displacement_max_radius = 10.0; // make this a member of the class
+
    init_neutron_occupancies();
 }
+
+void
+coot::restraints_container_t::set_use_proportional_editing(bool state) {
+   use_proportional_editing = state;
+}
+
 
 void
 coot::restraints_container_t::set_has_hydrogen_atoms_state() {

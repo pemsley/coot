@@ -1106,7 +1106,13 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 						       do_rama_restraints,
 						       true, true, make_auto_h_bond_restraints_flag,
 						       pseudo_bonds_type);
-   // link and flank args default true
+                                                       // link and flank args default true
+
+   if (pull_restraint_neighbour_displacement_max_radius > 1.99) {
+      last_restraints->set_use_proportional_editing(true);
+      last_restraints->pull_restraint_neighbour_displacement_max_radius =
+         pull_restraint_neighbour_displacement_max_radius;
+   }
 
    last_restraints->set_geman_mcclure_alpha(geman_mcclure_alpha);
    last_restraints->set_lennard_jones_epsilon(graphics_info_t::lennard_jones_epsilon);
