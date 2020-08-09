@@ -194,8 +194,9 @@ void curlew() {
                      }
                   }
 
-                  std::cout << "DEBUG:: n_already_installed: " << n_already_installed
-                           << " n_available " << n_available << std::endl;
+                  if (false)
+                     std::cout << "DEBUG:: n_already_installed: " << n_already_installed
+                               << " n_available " << n_available << std::endl;
 
                   for(unsigned int iround=0; iround<2; iround++) {
                      for (std::size_t i=0; i<ls.size(); i++) {
@@ -322,15 +323,18 @@ void curlew() {
 #endif // BUILD_CURLEW
 }
 
-void curlew_install_extension(GtkWidget *w, gpointer data) {
+void curlew_install_extension(GtkWidget *install_button, gpointer data) {
 
-   gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
-   gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
+   gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(install_button), "file-name"));
+   gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(install_button), "checksum"));
    if (file_name_cstr) {
       if (checksum_cstr) {
          std::string fn(file_name_cstr);
          std::string checksum(checksum_cstr);
-         curlew_install_extension_file(fn, checksum);
+         GtkWidget *uninstall_button = GTK_WIDGET(g_object_get_data(G_OBJECT(install_button), "uninstall_button"));
+         std::cout << "debug:: curlew_install_extension() uninstall_button " << uninstall_button << std::endl;
+         // on success, we will need to swap the visibility of the buttons
+         curlew_install_extension_file(fn, checksum, install_button, uninstall_button);
       } else {
          std::cout << "Null thing in curlew_install_extension" << std::endl;
       }
@@ -406,7 +410,7 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
          gtk_misc_set_alignment (GTK_MISC(icon_widget), 0, 0.5);
       }
    } else {
-      std::cout << "No icon in item " << std::endl;
+      std::cout << "No icon in item " << file_name << std::endl;
       icon_widget = gtk_label_new("  ----");
    }
    gtk_widget_set_usize(icon_widget, 50, -1);
@@ -453,13 +457,20 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    char *checksum_copy = new char[checksum.size() +1];
    strcpy(checksum_copy, checksum.c_str());
    g_object_set_data(G_OBJECT(  install_button), "checksum",  (gpointer) checksum_copy);
+   g_object_set_data(G_OBJECT(  install_button), "uninstall_button", uninstall_button);
 
    GdkColor color_green;
    GdkColor color_blue;
-   gdk_color_parse ("#aabbaa", &color_green);
-   gdk_color_parse ("#99aabb", &color_blue);
-   gtk_widget_modify_bg(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, &color_green);
-   gtk_widget_modify_bg(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, &color_blue);
+   gdk_color_parse ("green", &color_green);
+   gdk_color_parse ("blue", &color_blue);
+
+   if (true) {
+      // I think that  the buttons need to be in an event box. then I can set
+      // the colour of the background on the eventbox
+      // https://stackoverflow.com/questions/13307162/changing-the-color-of-button-in-gtk-with-c-language-using-gcc
+      gtk_widget_modify_bg(GTK_WIDGET(  install_button), GTK_STATE_NORMAL, &color_green);
+      gtk_widget_modify_bg(GTK_WIDGET(uninstall_button), GTK_STATE_NORMAL, &color_blue);      
+   }
 
    gtk_container_add(GTK_CONTAINER(  install_frame),   install_button);
    gtk_container_add(GTK_CONTAINER(uninstall_frame), uninstall_button);
