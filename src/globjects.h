@@ -147,4 +147,6 @@ void keypad_translate_xyz(short int axis, short int direction);
 
 void test_object();
 
+gint idle_contour_function(gpointer data);
+
 #endif // GLOBJECTS_H

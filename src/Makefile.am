@@ -457,6 +457,7 @@ coot_bin_SOURCES = \
 	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
+	graphics-info-draw.cc    \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
