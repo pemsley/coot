@@ -1530,6 +1530,13 @@ molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &
    return something_deleted;
 }
 
+short int
+molecule_class_info_t::delete_residue_sidechain(const coot::residue_spec_t &rs) {
+
+   return delete_residue_sidechain(rs.chain_id, rs.res_no, rs.ins_code);
+}
+
+
 
 short int
 molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,

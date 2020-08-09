@@ -1673,6 +1673,8 @@ public:        //                      public
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
+   short int delete_residue_sidechain(const coot::residue_spec_t &rs);
+
    bool delete_atom(const std::string &chain_id,
 		    int resno,
 		    const std::string &ins_code,
