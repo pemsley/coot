@@ -3476,19 +3476,12 @@ graphics_info_t::int_to_string(int i) {
 
 std::string
 graphics_info_t::float_to_string(float f) {
-   char s[100];
-   // initial s, stop valgrind complaining
-   for (int i=0; i<100; i++) s[i]=0;
-   snprintf(s,99,"%5.2f",f);
-   return std::string(s);
+   return coot::util::float_to_string(f);
 }
 
 std::string
 graphics_info_t::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
-   char s[100];
-   for (int i=0; i<100; i++) s[i]=0;
-   snprintf(s,99,"%7.4f",f); // haha, FIXME. (use n_dec_pl, not 4)
-   return std::string(s);
+   return coot::util::float_to_string_using_dec_pl(f, n_dec_pl);
 }
 
 
