@@ -370,7 +370,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
             GtkWidget *svc = get_sequence_view_is_displayed(imol);
             if (svc) {
                exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
-               nsv->highlight_residue(residue_p);
+               if (nsv)
+                  nsv->highlight_residue(residue_p);
             }
          }
       }
