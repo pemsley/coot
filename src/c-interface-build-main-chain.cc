@@ -841,6 +841,7 @@ SCM pepflip_using_difference_map_scm(int imol_coords, int imol_difference_map, f
 	 }
       }
    }
+   r = scm_reverse(r);
 
    return r;
 }
