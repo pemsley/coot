@@ -3793,8 +3793,10 @@
     (gtk-signal-connect cancel-button "clicked" (lambda () (gtk-widget-destroy window)))
     (gtk-signal-connect ok-button "clicked"
                         (lambda ()
-                          (let* ((imol-coords 0)
-                                 (imol-map 2)
+                          (let* ((imol-coords (get-option-menu-active-molecule
+                                               option-menu-coords model-mol-list))
+                                 (imol-map (get-option-menu-active-molecule
+                                            option-menu-map map-mol-list))
                                  (n-sigma-str (gtk-entry-get-text n-sigma-entry))
                                  (n-sigma (string->number n-sigma-str)))
                             (let ((specs (pepflip-using-difference-map-scm imol-coords imol-map n-sigma)))

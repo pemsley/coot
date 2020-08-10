@@ -5917,7 +5917,8 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
 // 20200302 Be'er Sheva new style extension installation
 // Put these in c-interface-curlew?
 void
-curlew_install_extension_file(const std::string &file_name, const std::string &checksum) {
+curlew_install_extension_file(const std::string &file_name, const std::string &checksum,
+                              GtkWidget *install_button, GtkWidget *uninstall_button) {
 
    if (!file_name.empty()) {
 
@@ -5953,9 +5954,15 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                   if (status != 0) {
                      std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
                   } else {
-                     std::cout << "debug:: renaming successful" << std::endl;
-                     std::cout << "INFO:: run_script called on " << preferences_file_name << std::endl;
+                     std::cout << "debug:: BB renaming successful" << std::endl;
+                     std::cout << "debug:: BB run_script() called on " << preferences_file_name << std::endl;
                      run_script(preferences_file_name.c_str());
+
+                     std::cout << "hiding install_button " << install_button << std::endl;
+                     gtk_widget_hide(install_button);
+                     std::cout << "show uninstall_button  " << uninstall_button << std::endl;
+                     gtk_widget_show(uninstall_button);
+                     
                   }
                } else {
                   std::cout << "No HOME env var" << std::endl;
@@ -6010,20 +6017,24 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
       for (int i=0; i<n_extensions; i++) {
 	 std::string cb_name = "curlew_selected_check_button_";
 	 cb_name += coot::util::int_to_string(i);
+	 std::string uninstall_button_name = "curlew_uninstall_button_";
+	 uninstall_button_name += coot::util::int_to_string(i);
 	 std::string hbox_name = "curlew_extension_hbox_";
 	 hbox_name += coot::util::int_to_string(i);
-	 GtkWidget *w = lookup_widget(curlew_dialog, cb_name.c_str());
-	 GtkWidget *hbox = lookup_widget(curlew_dialog, hbox_name.c_str());
 
-	 if (w) {
-	    int status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w));
+	 GtkWidget *check_button     = lookup_widget(curlew_dialog, cb_name.c_str());
+	 GtkWidget *uninstall_button = lookup_widget(curlew_dialog, uninstall_button_name.c_str());
+	 GtkWidget *hbox             = lookup_widget(curlew_dialog, hbox_name.c_str());
+
+	 if (check_button) {
+	    int status = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_button));
 	    if (status) { // selected for download/install
-	       if (false)
-		  std::cout << "Got w " << w << " for i " << cb_name << " " << status
+	       if (true)
+		  std::cout << "Got check_button " << check_button << " for i " << cb_name << " " << status
 		            <<std::endl;
 
-               gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "file-name"));
-               gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(w), "checksum"));
+               gchar *file_name_cstr = static_cast<gchar *> (g_object_get_data(G_OBJECT(check_button), "file-name"));
+               gchar *checksum_cstr  = static_cast<gchar *> (g_object_get_data(G_OBJECT(check_button), "checksum"));
 
                if (file_name_cstr) {
 
@@ -6063,9 +6074,15 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 				 if (status != 0) {
 				    std::cout << "WARNING:: rename status " << status << " failed to install " << file_name << std::endl;
 				 } else {
-                                    std::cout << "debug:: renaming successful" << std::endl;
-				    std::cout << "run_script on " << preferences_file_name << std::endl;
+                                    std::cout << "debug:: AA  renaming successful" << std::endl;
+				    std::cout << "debug:: AA run_script() on " << preferences_file_name << std::endl;
 				    run_script(preferences_file_name.c_str());
+
+                                    std::cout << "hiding check_button " << check_button << std::endl;
+                                    gtk_widget_hide(check_button);
+                                    std::cout << "show uninstall_button  " << uninstall_button << std::endl;
+                                    gtk_widget_show(uninstall_button);
+                                    
 				    // make the hbox insensitive
 				    if (hbox) {
 				       gtk_widget_set_sensitive(hbox, FALSE);
