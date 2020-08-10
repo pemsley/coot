@@ -142,7 +142,8 @@ graphics_info_t::raster3d(std::string filename) {
                             raster3d_atom_radius,
                             raster3d_density_thickness);
    GL_matrix m;
-   m.from_quaternion(quat);
+   // m.from_quaternion(quat);
+   std::cout << "in raster3d fixme - use glm_quat"  << std::endl;
    rt.set_view_matrix(m);
 
    rt.add_generic_display_objects(generic_display_objects);
@@ -210,7 +211,8 @@ graphics_info_t::povray(std::string filename) {
 			    raster3d_atom_radius,
 			    raster3d_density_thickness);
    GL_matrix m;
-   m.from_quaternion(quat);
+   std::cout << "FIXME:: in povray() - use glm_quat"  << std::endl;
+   //    m.from_quaternion(quat);
    rt.set_view_matrix(m);
 
    rt.add_generic_display_objects(generic_display_objects);
@@ -293,9 +295,10 @@ graphics_info_t::renderman(std::string filename) {
                             raster3d_atom_radius,
                             raster3d_density_thickness);
    GL_matrix m;
-   m.from_quaternion(quat);
+   std::cout << "in renderman fixme - use glm_quat"  << std::endl;
+   // m.from_quaternion(quat);
    rt.set_view_matrix(m);
-   rt.set_quaternion(quat);
+   // rt.set_quaternion(quat);
 
    float aspect_ratio = 1.3;
    if (use_graphics_interface_flag) { 

@@ -1145,8 +1145,8 @@ public:
    static int map_line_width;
 
    static double mouse_current_x, mouse_current_y;
-   static float* quat;  // rotation quaternion, allocatated [4]
-   static float* baton_quat;
+   // static float* quat;  // rotation quaternion, allocatated [4]
+   // static float* baton_quat;
 
    static int mouse_just_cliked; // delete this?
    static float zoom;

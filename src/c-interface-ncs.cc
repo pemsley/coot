@@ -822,6 +822,11 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 
    if (is_valid_model_molecule(imol)) {
 
+#if 0
+
+      // we don't use quat - but we do use glm::quat glm_quat - so this
+      // function could be rewritten one day.
+
       short int forward_flag = 1; // emulate previous behaviour.  Not
 				  // sure that this is what is needed.
       coot::util::quaternion q(graphics_info_t::quat[0],
@@ -852,6 +857,7 @@ void apply_ncs_to_view_orientation(int imol, const char *current_chain, const ch
 	 graphics_info_t::quat[3] = vq.q3;
       }
       graphics_draw();
+#endif
    } 
 }
 
@@ -866,6 +872,11 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 
    if (is_valid_model_molecule(imol)) {
       
+#if 0
+
+      // we don't use quat - but we do use glm::quat glm_quat - so this
+      // function could be rewritten one day.
+
       coot::util::quaternion q(graphics_info_t::quat[0],
 			       graphics_info_t::quat[1],
 			       graphics_info_t::quat[2],
@@ -909,6 +920,7 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 
       }
       graphics_draw();
+#endif
    } 
 }
 

@@ -1232,6 +1232,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
 
 
    if (r) {
+#if 0   // needs glm_quat version
       coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
       coot::util::quaternion q(quat[0],quat[1],quat[2],quat[3]);
       clipper::Mat33<double> current_view_mat = q.matrix();
@@ -1243,7 +1244,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       quat[3] = vq.q3;
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
-
+#endif
       graphics_draw();
    }
    return r;

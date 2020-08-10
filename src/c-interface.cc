@@ -3972,22 +3972,28 @@ void print_view_matrix() { 		/* print the view matrix */
 
    graphics_info_t g;
    GL_matrix m;
-   m.from_quaternion(g.quat);
+   // m.from_quaternion(g.quat);
+   std::cout << "FIXME:: use glm::quat " << std::endl;
    std::cout << "View Matrix:" << std::endl;
    m.print_matrix();
 }
 
 float get_view_matrix_element(int row, int col) {
 
+   // delete this function
+
    graphics_info_t g;
    GL_matrix m;
-   m.from_quaternion(g.quat);
+   std::cout << "FIXME:: use glm::quat " << std::endl;
+   //  m.from_quaternion(g.quat);
    return m.matrix_element(row, col);
 }
 
 
 float get_view_quaternion_internal(int element) {
 
+   // delete this function
+#if 0
    if ((element >= 0) &&
        (element < 4)) {
       return graphics_info_t::quat[element];
@@ -3996,6 +4002,8 @@ float get_view_quaternion_internal(int element) {
 		<< " returning dummy -9999" << std::endl;
       return -9999;
    }
+#endif
+   return 0;
 }
 
 void set_view_quaternion(float i, float j, float k, float l) {
@@ -4004,10 +4012,12 @@ void set_view_quaternion(float i, float j, float k, float l) {
    double mag=sqrt(mag2);
 
    if (fabs(mag) > 0.5) {
+#if 0 // use glm::quat glm_quat if you want to do this
       graphics_info_t::quat[0] = i/mag;
       graphics_info_t::quat[1] = j/mag;
       graphics_info_t::quat[2] = k/mag;
       graphics_info_t::quat[3] = l/mag;
+#endif
       graphics_draw();
    } else {
       std::cout << "Bad view quaternion" << std::endl;
@@ -7755,6 +7765,7 @@ int brief_atom_labels_state() {
 /* stepsize in degrees */
 void rotate_y_scene(int nsteps, float stepsize) {
 
+#if 0
    // 20101108 [Gatwick airport] Note: there is code in orient_view()
    // that presumes (with good reason) that this actually rotates the
    // view by nstep*stepsize*2
@@ -7770,11 +7781,13 @@ void rotate_y_scene(int nsteps, float stepsize) {
      add_quats(spin_quat, g.quat, g.quat);
      graphics_draw();
    }
+#endif
 }
 
 /* stepsize in degrees */
 void rotate_x_scene(int nsteps, float stepsize) {
 
+#if 0
   float spin_quat[4];
    graphics_info_t g;
 
@@ -7785,12 +7798,14 @@ void rotate_x_scene(int nsteps, float stepsize) {
      add_quats(spin_quat, g.quat, g.quat);
      graphics_draw();
    }
+#endif
 }
 
 void rotate_z_scene(int nsteps, float stepsize) {
 
    // c.f globjects.cc:do_screen_z_rotate()
    //
+#if 0
 
    float spin_quat[4];
    graphics_info_t g;
@@ -7802,6 +7817,7 @@ void rotate_z_scene(int nsteps, float stepsize) {
       add_quats(spin_quat, g.quat, g.quat);
       graphics_draw();
    }
+#endif
 }
 
 /*! \brief Bells and whistles rotation
@@ -7816,6 +7832,7 @@ void rotate_z_scene(int nsteps, float stepsize) {
 void spin_zoom_trans(int axis, int nsteps, float stepsize, float zoom_by,
 		     float x_rel, float y_rel, float z_rel) {
 
+#if 0
    float spin_quat[4];
    graphics_info_t g;
    float tbs =  g.get_trackball_size();
@@ -7859,6 +7876,7 @@ void spin_zoom_trans(int axis, int nsteps, float stepsize, float zoom_by,
       graphics_draw();
    }
    graphics_info_t::smooth_scroll = sss;
+#endif
 }
 
 void translate_scene_x(int nsteps) {
@@ -8778,78 +8796,54 @@ void go_to_view(SCM view) {
       // What is the current view:
       //
       std::string name("Current Position");
+#if 0
       float quat[4];
       for (int i=0; i<4; i++)
 	 quat[i] = graphics_info_t::quat[i];
       coot::Cartesian rc = g.RotationCentre();
       float zoom = graphics_info_t::zoom;
       coot::view_info_t view_c(quat, rc, zoom, name);
-
+#endif
 
       // view_target is where we want to go
       float quat_target[4];
       SCM quat_scm = scm_list_ref(view, SCM_MAKINUM(0));
       SCM len_quat_scm = scm_length(quat_scm);
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
       int len_quat = scm_to_int(len_quat_scm);
-#else
-      int len_quat = gh_scm2int(len_quat_scm);
-#endif
+
       if (len_quat == 4) {
 	 SCM q0_scm = scm_list_ref(quat_scm, SCM_MAKINUM(0));
 	 SCM q1_scm = scm_list_ref(quat_scm, SCM_MAKINUM(1));
 	 SCM q2_scm = scm_list_ref(quat_scm, SCM_MAKINUM(2));
 	 SCM q3_scm = scm_list_ref(quat_scm, SCM_MAKINUM(3));
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+
 	 quat_target[0] = scm_to_double(q0_scm);
 	 quat_target[1] = scm_to_double(q1_scm);
 	 quat_target[2] = scm_to_double(q2_scm);
 	 quat_target[3] = scm_to_double(q3_scm);
-#else
-	 quat_target[0] = gh_scm2double(q0_scm);
-	 quat_target[1] = gh_scm2double(q1_scm);
-	 quat_target[2] = gh_scm2double(q2_scm);
-	 quat_target[3] = gh_scm2double(q3_scm);
-#endif
 
 	 SCM rc_target_scm = scm_list_ref(view, SCM_MAKINUM(1));
 	 SCM len_rc_target_scm = scm_length(rc_target_scm);
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
+
 	 int len_rc_target = scm_to_int(len_rc_target_scm);
-#else
-	 int len_rc_target = gh_scm2int(len_rc_target_scm);
-#endif
+
 	 if (len_rc_target == 3) {
 
 	    SCM centre_x = scm_list_ref(rc_target_scm, SCM_MAKINUM(0));
 	    SCM centre_y = scm_list_ref(rc_target_scm, SCM_MAKINUM(1));
 	    SCM centre_z = scm_list_ref(rc_target_scm, SCM_MAKINUM(2));
 
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	    double x = scm_to_double(centre_x);
 	    double y = scm_to_double(centre_y);
 	    double z = scm_to_double(centre_z);
-#else
-	    double x = gh_scm2double(centre_x);
-	    double y = gh_scm2double(centre_y);
-	    double z = gh_scm2double(centre_z);
-#endif
+
 	    coot::Cartesian rc_target(x,y,z);
 
 	    SCM target_zoom_scm = scm_list_ref(view, SCM_MAKINUM(2));
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	    double zoom_target = scm_to_double(target_zoom_scm);
-#else
-	    double zoom_target = gh_scm2double(target_zoom_scm);
-#endif
 
 	    SCM name_target_scm = scm_list_ref(view, SCM_MAKINUM(3));
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 	    std::string name_target = scm_to_locale_string(name_target_scm);
-#else
-	    std::string name_target = SCM_STRING_CHARS(name_target_scm);
-#endif
-
 	    coot::view_info_t view_target(quat_target, rc_target, zoom_target, name_target);
 
 	    // do the animation

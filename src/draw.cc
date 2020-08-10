@@ -226,8 +226,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // Scene Rotation
       GL_matrix m;
-      m.from_quaternion(graphics_info_t::quat); // consider a constructor.
-      glMultMatrixf(m.get());
+
+      // no quat
+      //  m.from_quaternion(graphics_info_t::quat); // consider a constructor.
+      //       glMultMatrixf(m.get());
 
       // Translate the scene to the the view centre
       // i.e. the screenrotation center is at (X(), Y(), Z())
@@ -667,39 +669,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 
-   bool draw_old = false;
-   if (draw_old) {
-      // tinker with graphics_info_t::quat, rotate it left, draw it,
-      // rotate it right, draw it.
-      graphics_info_t g; // is this a slow thing?
-      float tbs =  g.get_trackball_size();
-      float spin_quat[4];
-      // 0.0174 = 1/(2*pi)
-      trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-      add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-      // draw right:
-      glDrawBuffer(GL_BACK_RIGHT);
-      draw_mono(widget, event, IN_STEREO_HARDWARE_STEREO);
-
-      trackball(spin_quat, 0, 0, 2.0*g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-      add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-
-      // draw left:
-      glDrawBuffer(GL_BACK_LEFT);
-      draw_mono(widget, event, IN_STEREO_HARDWARE_STEREO);
-
-      // reset the viewing angle:
-      trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
-      add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
-      graphics_info_t::which_eye = graphics_info_t::FRONT_EYE;
-
-      // show it
-#if 0 // OpenGL interface
-      GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable(widget);
-      gdk_gl_drawable_swap_buffers(gldrawable);
-#endif
-   } else {
+   if (true) {
 
       // do the skew thing in draw_mono() depending on which stereo eye.
 
@@ -726,6 +696,8 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
 }
 
 gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
+
+#if 0
 
    // tinker with graphics_info_t::quat, rotate it left, draw it,
    // rotate it right, draw it.
@@ -808,44 +780,23 @@ gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
    trackball(spin_quat, 0, 0, -g.hardware_stereo_angle_factor*0.0358, 0.0, tbs);
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
+#endif
+
    return TRUE;
 }
 
 
 #include "c-interface-generic-objects.h"
 
-coot::Cartesian eye_position() {
-
-   // eye position is the screen centre rotated by graphics_info_t::quat matrix
-   // and translated by a length related to graphics_info_t::zoom
-
-   coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-         graphics_info_t::RotationCentre_y(),
-         graphics_info_t::RotationCentre_z());
-
-   float dist = 0.5 * graphics_info_t::zoom;
-
-   GL_matrix glm;
-   clipper::Coord_orth eye_dir(0,0,1);
-   glm.from_quaternion(graphics_info_t::quat);
-   clipper::Mat33<double> m = glm.to_clipper_mat();
-
-   clipper::Coord_orth rot_dir(m * eye_dir);
-   coot::Cartesian rot_dir_c(rot_dir.x(), rot_dir.y(), rot_dir.z());
-
-   coot::Cartesian eye_position(rc + rot_dir_c * dist);
-
-   return eye_position;
-}
 
 void
 debug_eye_position(GtkWidget *widget) {
 
    coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-         graphics_info_t::RotationCentre_y(),
-         graphics_info_t::RotationCentre_z());
+                      graphics_info_t::RotationCentre_y(),
+                      graphics_info_t::RotationCentre_z());
 
-   coot::Cartesian ep = eye_position();
+   coot::Cartesian ep(0,0,0); // needs a fix up if you want to resurect this functionn
 
    coot::Cartesian pt((ep + rc) * 0.5);
 
@@ -855,4 +806,5 @@ debug_eye_position(GtkWidget *widget) {
 
    to_generic_object_add_point(go, "red", 4, pt.x(), pt.y(), pt.z());
    set_display_generic_object(go, 1);
+
 }
