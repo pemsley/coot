@@ -432,8 +432,13 @@ coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    return std::string(s);
 #endif
 
+   // a valgrind error here means that the f that you passed to this function was not
+   // initialized.
+
    std::stringstream s;
-   s << std::fixed << std::setprecision(n_dec_pl) << f;
+   s << std::fixed;
+   s << std::setprecision(n_dec_pl);
+   s << f;
    std::string ss = s.str();
    return ss;
 
