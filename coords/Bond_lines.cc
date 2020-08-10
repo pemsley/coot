@@ -4209,7 +4209,9 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 
 void
 Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
-				 mmdb::Chain *chain_p, mmdb::Residue *residue_prev, mmdb::Residue *residue_this,
+				 mmdb::Chain *chain_p,
+                                 mmdb::Residue *residue_prev,
+                                 mmdb::Residue *residue_this,
 				 int udd_atom_index_handle,
 				 int udd_fixed_during_refinement_handle) {
 
@@ -4383,6 +4385,27 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 		     }
 		  }
 	       }
+
+               // Are C of previous and N of next close as in a peptide bond?
+               // Then we don't want to draw a loop
+               {
+                  bool C_and_N_are_close = false;
+                  mmdb::Atom *C_prev = residue_prev->GetAtom(" C  ");
+                  mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
+                  if (C_prev) {
+                     if (N_this) {
+                        float dist_sqrd =
+                           (C_prev->x - N_this->x) * (C_prev->x - N_this->x) +
+                           (C_prev->y - N_this->y) * (C_prev->y - N_this->y) +
+                           (C_prev->z - N_this->z) * (C_prev->z - N_this->z);
+                        if (dist_sqrd < 2.5)
+                           C_and_N_are_close = true;
+                     }
+                  }
+                  if (C_and_N_are_close)
+                     loop_is_possible = false;
+               }
+               
 
                if (loop_is_possible) {
 
