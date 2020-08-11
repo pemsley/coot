@@ -5333,6 +5333,7 @@ graphics_molecule_bond_type(int imol) {
 }
 
 void change_model_molecule_representation_mode(int up_or_down) {
+
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       int imol = pp.second.first;

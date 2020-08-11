@@ -1281,6 +1281,8 @@ public:
    //
    static int scroll_wheel_map;
 
+   void contour_level_scroll_scrollable_map(int direction);
+
    // a static utility function (excised for portability)
    static std::string add_dir_file(const std::string &dirname, const std::string &filename);
 

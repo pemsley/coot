@@ -2036,3 +2036,42 @@ graphics_info_t::setup_key_bindings() {
 
 }
 
+
+void
+graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
+   
+   int imol_scroll = scroll_wheel_map;
+   if (! is_valid_map_molecule(imol_scroll)) {
+
+      std::vector<int> dm = displayed_map_imols();
+      if (std::find(dm.begin(), dm.end(), imol_scroll) == dm.end()) {
+         if (dm.size() > 0)
+            imol_scroll = dm[0];
+      }
+   }
+
+   if (is_valid_map_molecule(imol_scroll)) {
+      if (! molecules[imol_scroll].is_displayed_p()) {
+         // don't scroll the map if the map is not displayed. Scroll the
+         // map that *is* displayed
+         std::vector<int> dm = displayed_map_imols();
+         if (dm.size() > 0)
+            imol_scroll = dm[0];
+      }
+   }
+
+   if (is_valid_map_molecule(imol_scroll)) {
+      // use direction
+      if (direction == 1)
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == -1)
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+      int contour_idle_token = g_idle_add(idle_contour_function, glareas[0]);
+      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+                << molecules[imol_scroll].contour_level << std::endl;
+      set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
+      display_density_level_this_image = 1;
+
+      graphics_draw(); // queue
+   }
+}
