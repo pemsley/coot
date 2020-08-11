@@ -100,7 +100,7 @@ namespace coot {
 	 it = dots.find("small-overlap");
 	 if (it != dots.end()) r -= 0.1 * it->second.size();
 	 it = dots.find("big-overlap");
-	 if (it != dots.end()) r -= it->second.size();
+	 if (it != dots.end()) r -= 0.6 * it->second.size();
 	 r -= clashes.size();
 	 return r;
       }
@@ -318,7 +318,7 @@ namespace coot {
       void make_overlaps();
       void make_all_atom_overlaps();
       void contact_dots_for_overlaps() const; // old
-      atom_overlaps_dots_container_t contact_dots_for_ligand();
+      atom_overlaps_dots_container_t contact_dots_for_ligand(double dot_density_in = 1.02);
       // this should be a vector or derived symmetry_atom class really.
       std::vector<atom_overlap_t> symmetry_contacts(float d);
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,

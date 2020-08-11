@@ -283,29 +283,7 @@ class graphical_bonds_container {
       cis_peptide_markups = NULL;
    }
       
-   void add_colour(const  std::vector<graphics_line_t> &a ) {
-      
-      graphical_bonds_lines_list<graphics_line_t> *new_bonds_ =
-	 new graphical_bonds_lines_list<graphics_line_t>[num_colours+1];
-      if ( bonds_ != NULL ) {
-	 for (int i = 0; i < num_colours; i++ ) new_bonds_[i] = bonds_[i];
-	 delete[] bonds_;
-      }
-      bonds_ = new_bonds_;
-      // bonds_[num_colours].pair_list = new coot::CartesianPair[(a.size())];
-      bonds_[num_colours].pair_list = new graphics_line_t[(a.size())];
-      bonds_[num_colours].num_lines = a.size();
-
-      // copy over
-      for(unsigned int i=0; i<a.size(); i++) { 
-	 bonds_[num_colours].pair_list[i] = a[i];
-      }
-      num_colours++;
-
-      symmetry_bonds_ = NULL;
-      symmetry_has_been_created = 0; 
-   }
-
+   void add_colour(const std::vector<graphics_line_t> &a);
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_bad_CA_CA_dist_spots(const std::vector<coot::Cartesian> &spots);
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
