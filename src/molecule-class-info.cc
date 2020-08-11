@@ -736,155 +736,163 @@ molecule_class_info_t::draw_anisotropic_atoms() {
 }
 
 coot::colour_t
-molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
 
    coot::colour_t rgb;
 
    if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(i);
+      set_bond_colour(colour_index); // really?
    } else {
-      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
-      float rotation_size = bonds_colour_map_rotation/360.0;
 
-//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
-// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
+      float rotation_size = bonds_colour_map_rotation/360.0;
 
       // rotation_size typically then: 2*32/360 = 0.178
 
-      while (rotation_size > 1.0) { // no more black bonds?
-	 rotation_size -= 1.0;
-      }
-      if (against_a_dark_background) {
-
-	 if (false)
-	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-		      << " green "   << GREEN_BOND << " "
-		      << " blue "    << BLUE_BOND << " "
-		      << " red "     << RED_BOND << " "
-		      << " yellow "  << YELLOW_BOND << " "
-		      << " grey "    << GREY_BOND << " "
-		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
-		      << " magenta " << MAGENTA_BOND << " "
-		      << std::endl;
-
-	 switch (i) {
-	 case CARBON_BOND:
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb = bespoke_carbon_atoms_colour;
-	    } else {
-	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-	    }
-	    break;
-	 case YELLOW_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	    // replaced in mmdb-extras.h
-	    //       case white:
-	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-	    // 	 break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 default:
-	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-	    rgb.rotate(i*26.0/360.0);
-	 }
-
+      if (colour_index >= 50) {
+         int ii = colour_index - 50;
+         rgb[0] = 0.8; rgb[1] = 0.4; rgb[2] = 0.4;
+         if (ii > 0)
+	    rgb.rotate(float(ii*43.0/360.0));
+         // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
+         // << colour_index << " " << rgb << std::endl;
       } else {
 
-	 // against a white background.  Less pale, darker, more saturated.
+         while (rotation_size > 1.0) { // no more black bonds?
+            rotation_size -= 1.0;
+         }
 
-	 switch (i) {
-	 case YELLOW_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
+         if (against_a_dark_background) {
 
-	 default:
-	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-	    // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	    rgb.rotate(i*26.0/360.0);
-	 }
-      }
+            if (false)
+               std::cout << "get_bond_colour_by_mol_no() idx: " << colour_index << " vs "
+                         << " green "   << GREEN_BOND << " "
+                         << " blue "    << BLUE_BOND << " "
+                         << " red "     << RED_BOND << " "
+                         << " yellow "  << YELLOW_BOND << " "
+                         << " grey "    << GREY_BOND << " "
+                         << " H-grey "  << HYDROGEN_GREY_BOND << " "
+                         << " magenta " << MAGENTA_BOND << " "
+                         << std::endl;
 
-      // "correct" for the +1 added in the calculation of the rotation
-      // size.
-      // 21. is the default colour map rotation
+            switch (colour_index) {
+            case CARBON_BOND:
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+               }
+               break;
+            case YELLOW_BOND:
+               rgb[0] = 0.6; rgb[1] =  0.98; rgb[2] =  0.2;
+               break;
+            case BLUE_BOND:
+               rgb[0] = 0.4; rgb[1] =  0.4; rgb[2] =  1.0;
+               break;
+            case RED_BOND:
+               rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+               break;
+            case GREEN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+               break;
+            case GREY_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+               break;
+            case HYDROGEN_GREY_BOND:
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               break;
+               // replaced in mmdb-extras.h
+               //       case white:
+               // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
+               // 	 break;
+            case MAGENTA_BOND:
+               rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+               break;
+            case ORANGE_BOND:
+               rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+               break;
+            case CYAN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+               break;
+            case DARK_GREEN_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               break;
+            case DARK_ORANGE_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               break;
+            case DARK_BROWN_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+            default:
+               rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+               rgb.rotate(colour_index*26.0/360.0);
+            }
 
-      rgb.rotate(float(1.0 - 21.0/360.0));
+         } else {
 
-      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == CARBON_BOND) {
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb = bespoke_carbon_atoms_colour;
-	    } else {
-	       rgb.rotate(rotation_size);
-	    }
-	 }
-      } else {
-	 rgb.rotate(rotation_size);
+            // against a white background.  Less pale (more saturated) and darker.
+
+            switch (colour_index) {
+            case YELLOW_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+               break;
+            case BLUE_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+               break;
+            case RED_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+               break;
+            case GREEN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+               break;
+            case GREY_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
+               break;
+            case HYDROGEN_GREY_BOND:
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               break;
+            case MAGENTA_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+               break;
+            case ORANGE_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+            case CYAN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+               break;
+            case DARK_GREEN_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               break;
+            case DARK_ORANGE_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               break;
+            case DARK_BROWN_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+
+            default:
+               rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
+               // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+               rgb.rotate(colour_index*26.0/360.0);
+            }
+         }
+
+         // "correct" for the +1 added in the calculation of the rotation
+         // size.
+         // 21. is the default colour map rotation
+
+         rgb.rotate(float(1.0 - 21.0/360.0));
+
+         if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
+            if (colour_index == CARBON_BOND) {
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb.rotate(rotation_size);
+               }
+            }
+         } else {
+            rgb.rotate(rotation_size);
+         }
       }
    }
    return rgb;
@@ -895,182 +903,10 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 //
 // not const because bond_colour_internal is set.
 void
-molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+molecule_class_info_t::set_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
 
-   if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(i);
-   } else {
-      std::vector<float> rgb(3);
-      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
-      float rotation_size = bonds_colour_map_rotation/360.0;
-
-//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
-// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
-
-      // rotation_size typically then: 2*32/360 = 0.178
-
-      while (rotation_size > 1.0) { // no more black bonds?
-	 rotation_size -= 1.0;
-      }
-      if (against_a_dark_background) {
-
-	 if (false)
-	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-		      << " green "   << GREEN_BOND << " "
-		      << " blue "    << BLUE_BOND << " "
-		      << " red "     << RED_BOND << " "
-		      << " yellow "  << YELLOW_BOND << " "
-		      << " grey "    << GREY_BOND << " "
-		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
-		      << " magenta " << MAGENTA_BOND << " "
-		      << std::endl;
-
-	 switch (i) {
-	 case CARBON_BOND:
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb[0] = bespoke_carbon_atoms_colour[0];
-	       rgb[1] = bespoke_carbon_atoms_colour[1];
-	       rgb[2] = bespoke_carbon_atoms_colour[2];
-	    } else {
-	       if (i == 0) {
-		  if (imol_no == 0) {
-		     rgb[0] = 0.8; rgb[1] =  0.5; rgb[2] =  0.1;
-		  } else {
-		     rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-		  }
-	       } else {
-		  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-	       }
-	    }
-	    break;
-	 case YELLOW_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	    // replaced in mmdb-extras.h
-	    //       case white:
-	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-	    // 	 break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-
-	 default:
-	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	 }
-
-      } else {
-
-	 // against a white background.  Less pale, darker, more saturated.
-
-	 switch (i) {
-	 case YELLOW_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-
-	 default:
-	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	 }
-      }
-
-      // "correct" for the +1 added in the calculation of the rotation
-      // size.
-      // 21. is the default colour map rotation
-      rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
-
-      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == CARBON_BOND) {
-
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       bond_colour_internal[0] = bespoke_carbon_atoms_colour[0];
-	       bond_colour_internal[1] = bespoke_carbon_atoms_colour[1];
-	       bond_colour_internal[2] = bespoke_carbon_atoms_colour[2];
-	    } else {
-	       std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-	       bond_colour_internal = rgb_new;
-	    }
-	    if (graphics_info_t::use_graphics_interface_flag)
-	       glColor3f(bond_colour_internal[0],
-			 bond_colour_internal[1],
-			 bond_colour_internal[2]);
-	 } else {
-	    bond_colour_internal = rgb;
-	    if (graphics_info_t::use_graphics_interface_flag)
-	       glColor3f(rgb[0],rgb[1], rgb[2]);
-	 }
-      } else {
-//  	 std::cout << "DEBUG: rotating coordinates colour map by "
-//  		   << rotation_size * 360.0 << " degrees " << std::endl;
-	 std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-	 bond_colour_internal = rgb_new;
-	 if (graphics_info_t::use_graphics_interface_flag)
-	    glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
-      }
-   }
+   coot::colour_t col = get_bond_colour_by_mol_no(colour_index, against_a_dark_background);
+   glColor3f(col.col[0], col.col[1], col.col[2]);
 }
 
 void
@@ -1094,6 +930,8 @@ molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_
 //
 void
 molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type) {
+
+   std::cout << "set_bond_colour_by_colour_wheel_position() " << i << std::endl;
 
    std::vector<float> rgb(3);
    rgb[0] = 0.2f; rgb[1] =  0.2f; rgb[2] =  0.8f; // blue
@@ -2359,6 +2197,10 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
+      if (false)
+         std::cout << "----------- in display_bonds() here with i "
+                   << i << " num_lines " << bonds_box.bonds_[i].num_lines << std::endl;
+
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
       if (bonds_box.bonds_[i].thin_lines_flag) {
@@ -2371,15 +2213,6 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    glLineWidth(30.0f * p_bond_width / zsc);
 	 else
 	    glLineWidth(p_bond_width);
-      }
-
-      // 20180210 molecules from simulation trajectories can have lots of bonds
-      // Let's by-pass this test.
-      if (false) {
-	 if (bonds_box.bonds_[i].num_lines > 1024000) {
-	    std::cout << "Fencepost heuristic failure bonds_box.bonds_[i].num_lines "
-		      << bonds_box.bonds_[i].num_lines << std::endl;
-	 }
       }
 
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
@@ -2553,6 +2386,7 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
             // Note that this delta for atom interacts with the highlight.
             //
             for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+               if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
                if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
                   set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
                } else {
@@ -2649,6 +2483,7 @@ molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_cont
 	       glBegin(GL_POINTS);
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 
+                  if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
 		  coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
 		  cc.brighter(1.15);
 		  glColor3f(cc[0], cc[1], cc[2]);

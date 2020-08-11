@@ -67,37 +67,26 @@ namespace coot {
 			COLOUR_BY_B_FACTOR=7,
 			COLOUR_BY_USER_DEFINED_COLOURS=8 };
 
-  class my_atom_colour_map_t {
+   class my_atom_colour_map_t {
+   public:
+      my_atom_colour_map_t() {
+         atom_colour_map.resize(50, "---");
+      }
+      std::vector<std::string> atom_colour_map;
 
-    public:
-    std::vector<std::string> atom_colour_map;
-     unsigned int index_for_chain(const std::string &chain_id) {
-       unsigned int isize = atom_colour_map.size();
-       for (unsigned int i=0; i<isize; i++) {
-	  if (atom_colour_map[i] == chain_id) {
-	     return i;
-	  }
-       }
-       atom_colour_map.push_back(chain_id);
-       if (isize == HYDROGEN_GREY_BOND) {
-	  atom_colour_map[isize] = "skip-hydrogen-grey-colour-for-chain";
-	  atom_colour_map.push_back(chain_id);
-	  isize++;
-       }
-       return isize;
-    }
-    // These colours ranges need to be echoed in the GL bond drawing
-    // routine.
-    int index_for_rainbow(float wheel_colour) {
-       return int(30.0*wheel_colour);
-    }
-    int index_for_occupancy(float wheel_colour) {
-       return int(5.0*wheel_colour);
-    }
-    int index_for_b_factor(float wheel_colour) {
-       return int(30.0*wheel_colour);
-    }
-  };
+      unsigned int index_for_chain(const std::string &chain_id);
+      // These colours ranges need to be echoed in the GL bond drawing
+      // routine.
+      int index_for_rainbow(float wheel_colour) {
+         return int(30.0*wheel_colour);
+      }
+      int index_for_occupancy(float wheel_colour) {
+         return int(5.0*wheel_colour);
+      }
+      int index_for_b_factor(float wheel_colour) {
+         return int(30.0*wheel_colour);
+      }
+   };
 
    class model_bond_atom_info_t {
       std::vector<mmdb::PAtom> hydrogen_atoms_;
@@ -463,30 +452,10 @@ class graphical_bonds_container {
       n_cis_peptide_markups = 0;
       cis_peptide_markups = NULL;
    }
+
+   // This function used by skeletonization (and nothing else)
+   void add_colour(const  std::vector<graphics_line_t> &a);
       
-   void add_colour(const  std::vector<graphics_line_t> &a ) {
-      
-      graphical_bonds_lines_list<graphics_line_t> *new_bonds_ =
-	 new graphical_bonds_lines_list<graphics_line_t>[num_colours+1];
-      if ( bonds_ != NULL ) {
-	 for (int i = 0; i < num_colours; i++ ) new_bonds_[i] = bonds_[i];
-	 delete[] bonds_;
-      }
-      bonds_ = new_bonds_;
-      // bonds_[num_colours].pair_list = new coot::CartesianPair[(a.size())];
-      bonds_[num_colours].pair_list = new graphics_line_t[(a.size())];
-      bonds_[num_colours].num_lines = a.size();
-
-      // copy over
-      for(unsigned int i=0; i<a.size(); i++) { 
-	 bonds_[num_colours].pair_list[i] = a[i];
-      }
-      num_colours++;
-
-      symmetry_bonds_ = NULL;
-      symmetry_has_been_created = 0; 
-   }
-
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_bad_CA_CA_dist_spots(const std::vector<coot::Cartesian> &spots);
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
@@ -759,6 +728,7 @@ class Bond_lines_container {
    void add_residue_monomer_bonds(const std::map<std::string, std::vector<mmdb::Residue *> > &residue_monomer_map,
                                   int imol, int model_number,
                                   int atom_colour_type,
+                                  coot::my_atom_colour_map_t *atom_colour_map_p,
                                   int udd_atom_index_handle,
                                   int udd_bond_handle,
                                   int draw_hydrogens_flag,
