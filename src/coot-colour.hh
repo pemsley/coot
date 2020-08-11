@@ -2,6 +2,9 @@
 #ifndef COOT_COLOUR_HH
 #define COOT_COLOUR_HH
 
+#include <vector>
+#include <glm/glm.hpp>
+
 namespace coot { 
    class colour_t {
       void init(float r, float g, float b) {
@@ -30,6 +33,9 @@ namespace coot {
 	 for (unsigned int idx=0; idx<3; idx++)
 	    if (col[idx] > 1.0)
 	       col[idx] = 1.0;
+      }
+      glm::vec4 to_glm() const {
+         return glm::vec4(col[0], col[1], col[2], 1.0f);
       }
    };
    std::ostream& operator<<(std::ostream &s, colour_t col);

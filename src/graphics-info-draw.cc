@@ -1047,16 +1047,16 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17c\n";
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17d\n";
       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17e\n";
       glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17f\n";
 
       // translate position, 3, size 3 floats
       glEnableVertexAttribArray(3);

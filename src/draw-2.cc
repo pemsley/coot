@@ -208,9 +208,9 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    if (control_is_pressed) {
       if (shift_is_pressed){
          if (direction == 1)
-            change_model_molecule_representation_mode(1);
-         else 
             change_model_molecule_representation_mode(-1);
+         else
+            change_model_molecule_representation_mode(1);
          handled = true;
       }
    }
