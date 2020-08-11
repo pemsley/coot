@@ -1806,6 +1806,7 @@ namespace coot {
 				 bool do_trans_peptide_restraints,
 				 std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
 				 std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
+      bool N_and_C_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
 
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
 								       std::pair<bool, mmdb::Residue *> res_1,
