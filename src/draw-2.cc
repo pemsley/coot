@@ -494,14 +494,14 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
 
+   bool found = false;
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
      if (true)
         std::cout << "key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
-   } else {
-      std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
+     found =  true;
    }
 
    // fix the type here
@@ -510,8 +510,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       handled = TRUE;
    }
 
+   if (! found)
+      if (! handled)
+         std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
+
    graphics_info_t::graphics_draw(); // queue
-   // gtk_widget_queue_draw(widget);
 
    return handled;
 

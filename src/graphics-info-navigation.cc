@@ -365,17 +365,18 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
          ai = atom_info_as_text_for_statusbar(atom_index, imol);
          add_status_bar_text(ai);
 
+#if GTK3_CAN_DO_SEQUENCE_VIEW
          mmdb::Residue *residue_p = next_atom->residue;
          if (residue_p) {
             GtkWidget *svc = get_sequence_view_is_displayed(imol);
-#if GTK3_CAN_DO_SEQUENCE_VIEW
+
             if (svc) {
                exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
                if (nsv)
                   nsv->highlight_residue(residue_p);
             }
-#endif
          }
+#endif
       }
    }
    return 1;
