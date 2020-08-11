@@ -2112,6 +2112,8 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
 
+      std::cout << std::setprecision(3);
+
       if (r_type == CHIRAL_VOLUME_RESTRAINT) {
          mmdb::Atom *at_c = atom[rest.atom_index_centre];
          std::cout << "INFO:: Model: Bad Chiral Volume: "
