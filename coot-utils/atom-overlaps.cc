@@ -1020,9 +1020,8 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 
 
 coot::atom_overlaps_dots_container_t
-coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
+coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
 
-   double dot_density_in = 1.05;
    atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
 
@@ -1104,10 +1103,6 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 
 	       mmdb::Atom *cr_at = ligand_residue_atoms[iat];
 	       clipper::Coord_orth pt_at_1 = co(cr_at);
-
-	       double dot_density = dot_density_in;
-	       if (std::string(cr_at->element) == " H")
-		  dot_density *=0.66; // so that surface dots on H atoms don't appear (weirdly) more fine
 
 	       double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
