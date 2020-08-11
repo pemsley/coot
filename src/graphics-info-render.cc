@@ -40,6 +40,82 @@
 
 #include "ccp4mg-utils/ppmutil.h"
 
+#include "old-generic-display-object.hh"
+
+
+void
+coot::raytrace_info_t::add_geometry_objects(const std::vector<coot::simple_distance_object_t> &sdov) {
+
+   int ndist = sdov.size();
+   double dist;
+   graphics_info_t g;
+
+   if (ndist > 0) {
+      meshed_generic_display_object mgdo;
+      mgdo.mesh.draw_this_mesh = true;
+      mgdo.mesh.set_name("distance-geometry");
+      for (int i=0; i<ndist; i++) {
+	 if (g.is_valid_model_molecule(sdov[i].imol_start)) {
+	    if (g.is_valid_model_molecule(sdov[i].imol_end)) {
+	       if (g.molecules[sdov[i].imol_start].is_displayed_p()) {
+		  if (g.molecules[sdov[i].imol_end].is_displayed_p()) {
+
+                     clipper::Coord_orth p_start(sdov[i].start_pos.x(),
+                                                 sdov[i].start_pos.y(),
+                                                 sdov[i].start_pos.z());
+                     clipper::Coord_orth p_end(sdov[i].end_pos.x(),
+                                               sdov[i].end_pos.y(),
+                                               sdov[i].end_pos.z());
+
+                     float dash_density = 5.0;
+                     float ll = clipper::Coord_orth::length(p_start, p_end);
+                     int n_dashes = int(dash_density * ll);
+                     bool visible = true;
+
+                     for (int idash=0; idash<(n_dashes-1); idash++) {
+                        if (visible) {
+                           float fracs = float(idash)/float(n_dashes);
+                           float fracn = float(idash+1)/float(n_dashes);
+                           clipper::Coord_orth p1 = p_start + fracs * (p_end - p_start);
+                           clipper::Coord_orth p2 = p_start + fracn * (p_end - p_start);
+                           std::pair<clipper::Coord_orth, clipper::Coord_orth> from_to(p1, p2);
+                           colour_holder col(0.4, 0.65, 0.4);
+                           std::string colour_name = "lightblue";
+                           int width = 4;
+                           mgdo.add_line(col, colour_name, width, from_to);
+                           display_objects.push_back(mgdo);
+                        }
+                        visible = !visible;
+                     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      for (int i=0; i<ndist; i++) {
+	 if (g.is_valid_model_molecule(sdov[i].imol_start)) {
+	    if (g.is_valid_model_molecule(sdov[i].imol_end)) {
+	       if (g.molecules[sdov[i].imol_start].is_displayed_p()) {
+		  if (g.molecules[sdov[i].imol_end].is_displayed_p()) {
+                     clipper::Coord_orth text_pos = sdov[i].start_pos +
+			0.5 * (sdov[i].end_pos - sdov[i].start_pos +
+                               clipper::Coord_orth(0.0, 0.1, 0.1));
+		     dist = clipper::Coord_orth::length(sdov[i].start_pos, sdov[i].end_pos);
+                     std::string s = coot::util::float_to_string(dist);
+                     std::pair<std::string, clipper::Coord_orth> p(s, text_pos);
+                     add_label(p); // This is drawn in atom colour - which is not ideal.
+                                   // Previous to the addition of this function,
+                                   // the only thing with labels were atoms.
+                                   // Fix another time.
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 
 // raster3d
 short int
@@ -59,12 +135,12 @@ graphics_info_t::raster3d(std::string filename) {
       height = allocation.height;
    } 
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
-			    width, height,
-			    clipping_front,
-			    raster3d_bond_thickness,
-			    raster3d_bone_thickness,
-			    raster3d_atom_radius,
-			    raster3d_density_thickness);
+                            width, height,
+                            clipping_front,
+                            raster3d_bond_thickness,
+                            raster3d_bone_thickness,
+                            raster3d_atom_radius,
+                            raster3d_density_thickness);
    GL_matrix m;
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
@@ -80,7 +156,7 @@ graphics_info_t::raster3d(std::string filename) {
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
 
-      if (molecules[imol].is_displayed_p()) { 
+      if (molecules[imol].is_displayed_p()) {
 	 if (molecules[imol].has_model()) {
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
 	 }
@@ -90,7 +166,7 @@ graphics_info_t::raster3d(std::string filename) {
 	 if (molecules[imol].has_xmap()) {  // NXMAP-FIXME
 	    // map and skeleton
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
-	    if (molecules[imol].is_difference_map_p()) { 
+	    if (molecules[imol].is_difference_map_p()) {
 	       rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
 	    }
 	 }
@@ -104,7 +180,6 @@ graphics_info_t::raster3d(std::string filename) {
 	    std::pair<std::string, clipper::Coord_orth> s = molecules[imol].make_atom_label_string(i, al_flag, sid_flag);
 	    rt.add_label(s);
 	 }
-	 
       }
    }
    std::cout << "Rendering raytrace..." << std::endl;
@@ -164,23 +239,23 @@ graphics_info_t::povray(std::string filename) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
       
       if (molecules[imol].has_model()) {
-	 if (molecules[imol].is_displayed_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
-	    //coot::Cartesian eye_centre = eye - rt.view_centre;
-	    //eye_centre *= 7.5;
-	    //coot::Cartesian far_eye = rt.view_centre - eye_centre;
-	    //std::cout <<"BL DEBUG:: eye and far eye model " << eye << " " << far_eye<<std::endl;
-	    //std::cout <<"BL DEBUG:: view centre model     " << rt.view_centre <<std::endl;
-	    //eye *= 1.015;
-	    //rt.set_front_clipping_plane_point(eye);
-	    //rt.set_camera_location(far_eye);
-	 }
+         if (molecules[imol].is_displayed_p()) { 
+            rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
+            //coot::Cartesian eye_centre = eye - rt.view_centre;
+            //eye_centre *= 7.5;
+            //coot::Cartesian far_eye = rt.view_centre - eye_centre;
+            //std::cout <<"BL DEBUG:: eye and far eye model " << eye << " " << far_eye<<std::endl;
+            //std::cout <<"BL DEBUG:: view centre model     " << rt.view_centre <<std::endl;
+            //eye *= 1.015;
+            //rt.set_front_clipping_plane_point(eye);
+            //rt.set_camera_location(far_eye);
+         }
       }
       if (molecules[imol].has_xmap()) {  // NXMAP-FIXME.
-	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
-	 if (molecules[imol].is_difference_map_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
-	 }
+         rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
+         if (molecules[imol].is_difference_map_p()) { 
+            rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
+         }
       }
    }
    std::cout << "INFO Raytracing..." << std::endl;
@@ -188,7 +263,7 @@ graphics_info_t::povray(std::string filename) {
    std::cout << "INFO:: Wrote raytrace input file." << std::endl;
 
    return istate;
-} 
+}
 
 
 // Renderman format:  (Fun 20090215)
@@ -211,12 +286,12 @@ graphics_info_t::renderman(std::string filename) {
    bool is_bb = background_is_black_p(); 
 
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
-			    width, height,
-			    clipping_front,
-			    raster3d_bond_thickness,
-			    raster3d_bone_thickness,
-			    raster3d_atom_radius,
-			    raster3d_density_thickness);
+                            width, height,
+                            clipping_front,
+                            raster3d_bond_thickness,
+                            raster3d_bone_thickness,
+                            raster3d_atom_radius,
+                            raster3d_density_thickness);
    GL_matrix m;
    m.from_quaternion(quat);
    rt.set_view_matrix(m);
@@ -228,8 +303,8 @@ graphics_info_t::renderman(std::string filename) {
    }
    
    rt.set_ortho_params(-0.3*zoom*aspect_ratio,
-		       0.3*zoom*aspect_ratio,
-		       -0.3*zoom, 0.3*zoom);
+                       0.3*zoom*aspect_ratio,
+                       -0.3*zoom, 0.3*zoom);
 
    rt.add_generic_display_objects(generic_display_objects);
 
@@ -238,15 +313,15 @@ graphics_info_t::renderman(std::string filename) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
       
       if (molecules[imol].has_model()) {
-	 if (molecules[imol].is_displayed_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
-	 }
+         if (molecules[imol].is_displayed_p()) { 
+            rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
+         }
       }
       if (molecules[imol].has_xmap()) { // NXMAP-FIXME
-	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
-	 if (molecules[imol].is_difference_map_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
-	 }
+         rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
+         if (molecules[imol].is_difference_map_p()) { 
+            rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
+         }
       }
    }
    std::cout << "Rendering with renderman output..." << std::endl;
@@ -286,8 +361,8 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
       nytiles = int(float(window_height)/8.0);
 
       if (reso_multiplier != 1) { 
-	 nxtiles *= reso_multiplier;
-	 nytiles *= reso_multiplier;
+         nxtiles *= reso_multiplier;
+         nytiles *= reso_multiplier;
       }
 
       std::cout << "using tiles: " << nxtiles << " " << nytiles << std::endl;
@@ -301,9 +376,9 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
       render_stream << background.col[1] << " ";
       render_stream << background.col[2] << "    background\n";
       if (raster3d_enable_shadows) 
-	 render_stream << "T";
+         render_stream << "T";
       else 
-	 render_stream << "F";
+         render_stream << "F";
       render_stream << "        shadows\n";
       render_stream << "25       Phong power\n";
       render_stream << "0.15     secondary light contribution\n";
@@ -321,8 +396,8 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
 
       clipper::RTop_orth rtop;
       clipper::Mat33<double> clipper_mat(mat[0], mat[1], mat[ 2],
-					 mat[4], mat[5], mat[ 6],
-					 mat[8], mat[9], mat[10]);
+                                         mat[4], mat[5], mat[ 6],
+                                         mat[8], mat[9], mat[10]);
       clipper::Coord_orth cco(-view_centre.x(), -view_centre.y(), -view_centre.z());
       rtop = clipper::RTop_orth(clipper_mat.inverse(), clipper::Coord_orth(0,0,0));
 
@@ -337,9 +412,9 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
       render_stream << mat[4] << " " << mat[5] << " " << mat[ 6] << " 0\n";
       render_stream << mat[8] << " " << mat[9] << " " << mat[10] << " 0\n";
       render_stream << " " << new_centre.x() << " "
-		    << new_centre.y() << " "
-		    << new_centre.z() << " " << zoom*0.62 << "\n";
-      //		    << new_centre.z() << " " << zoom*0.6 << "\n";
+                    << new_centre.y() << " "
+                    << new_centre.z() << " " << zoom*0.62 << "\n";
+      //                    << new_centre.z() << " " << zoom*0.6 << "\n";
       render_stream << "3         mixed object types\n";
       render_stream << "*\n*\n*\n";
 
@@ -370,13 +445,13 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
       render_stream << "BACKCLIP " << backclip << "\n";
       render_stream << "16\n";
       render_stream << "FOG 0 1.0 1.0 1.0\n";
-	 
+         
       render_molecules(render_stream);
 
       render_generic_objects(render_stream);
 
       render_labels(render_stream);
-	 
+         
       render_stream.close();
       istat = 0;
    }
@@ -410,7 +485,7 @@ int coot::raytrace_info_t::renderman_render(std::string filename) {
       // You can get the glOrtho from the GL context: Glget(GL_PROJECTION_MATRIX, &some_variable);
       
       render_stream << "ScreenWindow " << ortho_left << " " << ortho_right << " "
-		    << ortho_bottom << " " << ortho_top << "\n";
+                    << ortho_bottom << " " << ortho_top << "\n";
 
       render_stream << "Exposure 1.0 1.3\n";
       // Atmosphere "mgfog" "background" [0.0 0.0 0.0] "mindistance" 196.67 "maxdistance" 206.66
@@ -431,7 +506,7 @@ int coot::raytrace_info_t::renderman_render(std::string filename) {
 
       // mg code:
 
-      // 	def getCameraRotations(self,quat):
+      //         def getCameraRotations(self,quat):
       //                 import pygl_coord
       //                 import math
       // 
@@ -447,8 +522,8 @@ int coot::raytrace_info_t::renderman_render(std::string filename) {
       //                 return angle, x,y,z
       // 
       // ax,rx,ry,rz = self.getCameraRotations(quat)
-      // outstream.Print("		Rotate "+str(-ax/math.pi*180.)+" "+str(rx)+" "+str(ry)+" "+str(-rz)+"\n")
-      // outstream.Print("		Translate "+str(rpos[0])+" "+str(rpos[1])+" "+str(-rpos[2])+"\n");
+      // outstream.Print("                Rotate "+str(-ax/math.pi*180.)+" "+str(rx)+" "+str(ry)+" "+str(-rz)+"\n")
+      // outstream.Print("                Translate "+str(rpos[0])+" "+str(rpos[1])+" "+str(-rpos[2])+"\n");
 
       double angle = 2.0 * acos(view_quat.q0);
       double sina = sin(angle/2.0);
@@ -457,20 +532,20 @@ int coot::raytrace_info_t::renderman_render(std::string filename) {
       double qz = view_quat.q3/sina;
       
       render_stream << "Rotate " // -317.207100403 0.242010379709 -0.95971828126 -0.142729803226
-		    << angle*M_PI/180.0 << " " << qx << " " << qy << " " << qz << "\n";
+                    << angle*M_PI/180.0 << " " << qx << " " << qy << " " << qz << "\n";
       render_stream << "Translate " << view_centre.x() << " "
-		    << view_centre.y() << " " << view_centre.z() 
-		    << "\n";
+                    << view_centre.y() << " " << view_centre.z() 
+                    << "\n";
       
-		   // render_stream << "Identity\n";
+                   // render_stream << "Identity\n";
 
       // molecule attributes
       
       for (unsigned int i=0; i<rt_mol_info.size(); i++) {
-	 std::cout << "rendman output for molecule : " << i << std::endl;
-	 rt_mol_info[i].renderman_molecule(render_stream, bond_thickness,
-					   atom_radius, density_thickness,
-					   bone_thickness);
+         std::cout << "rendman output for molecule : " << i << std::endl;
+         rt_mol_info[i].renderman_molecule(render_stream, bond_thickness,
+                                           atom_radius, density_thickness,
+                                           bone_thickness);
       }
       
       render_stream << "WorldEnd\n";
@@ -491,33 +566,33 @@ coot::raytrace_info_t::render_molecules(std::ofstream &render_stream) {
                     << rt_mol_info[i].molecule_number << " "
                     << rt_mol_info[i].molecule_name   << "\n";
       rt_mol_info[i].render_molecule(render_stream, bond_thickness,
-				     atom_radius, density_thickness,
-				     bone_thickness);
+                                     atom_radius, density_thickness,
+                                     bone_thickness);
    }
 }
 
 void
 coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
-					       float bond_thickness,
-					       float atom_radius,
-					       float density_thickness,
-					       float bone_thickness) {
+                                               float bond_thickness,
+                                               float atom_radius,
+                                               float density_thickness,
+                                               float bone_thickness) {
 
    for(unsigned int id=0; id<density_lines.size(); id++) {
       render_stream << "5" << "\n";
       // coord1 radius coord2 dummy colour
       render_stream << "  "
-		    << density_lines[id].first.x() << " "
-		    << density_lines[id].first.y() << " "
-		    << density_lines[id].first.z() << " "
-		    << density_thickness << " "
-		    << density_lines[id].second.x() << " "
-		    << density_lines[id].second.y() << " "
-		    << density_lines[id].second.z() << " "
-		    << density_thickness << " "
-		    << density_colour.col[0] << " "
-		    << density_colour.col[1] << " "
-		    << density_colour.col[2] << "\n";
+                    << density_lines[id].first.x() << " "
+                    << density_lines[id].first.y() << " "
+                    << density_lines[id].first.z() << " "
+                    << density_thickness << " "
+                    << density_lines[id].second.x() << " "
+                    << density_lines[id].second.y() << " "
+                    << density_lines[id].second.z() << " "
+                    << density_thickness << " "
+                    << density_colour.col[0] << " "
+                    << density_colour.col[1] << " "
+                    << density_colour.col[2] << "\n";
    }
 
    for (unsigned int iset=0; iset<bond_lines.size(); iset++) {
@@ -526,32 +601,32 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
          render_stream << "3" << "\n";
          // coord1 radius coord2 dummy colour
          render_stream << "  " 
-		       << bond_lines[iset].bonds[ib].begin_pos.x() << " "
-		       << bond_lines[iset].bonds[ib].begin_pos.y() << " "
-		       << bond_lines[iset].bonds[ib].begin_pos.z() << " "
-		       << bond_lines[iset].bonds[ib].bond_thickness << " "
-		       << bond_lines[iset].bonds[ib].end_pos.x() << " "
-		       << bond_lines[iset].bonds[ib].end_pos.y() << " "
-		       << bond_lines[iset].bonds[ib].end_pos.z() << " "
-   		       << bond_lines[iset].bonds[ib].bond_thickness << " "
-		       << bond_lines[iset].colour[0] << " "
-		       << bond_lines[iset].colour[1] << " "
-		       << bond_lines[iset].colour[2] << "\n";
+                       << bond_lines[iset].bonds[ib].begin_pos.x() << " "
+                       << bond_lines[iset].bonds[ib].begin_pos.y() << " "
+                       << bond_lines[iset].bonds[ib].begin_pos.z() << " "
+                       << bond_lines[iset].bonds[ib].bond_thickness << " "
+                       << bond_lines[iset].bonds[ib].end_pos.x() << " "
+                       << bond_lines[iset].bonds[ib].end_pos.y() << " "
+                       << bond_lines[iset].bonds[ib].end_pos.z() << " "
+                          << bond_lines[iset].bonds[ib].bond_thickness << " "
+                       << bond_lines[iset].colour[0] << " "
+                       << bond_lines[iset].colour[1] << " "
+                       << bond_lines[iset].colour[2] << "\n";
       }
    }
 
    if (graphics_info_t::renderer_show_atoms_flag) { 
       for (unsigned int iat=0; iat<balls.size(); iat++) {
-	 double r = balls[iat].radius;
-	 render_stream << "2" << "\n";
-	 render_stream << balls[iat].pos.x() << " "
-		       << balls[iat].pos.y() << " "
-		       << balls[iat].pos.z() << " "
-		       << r
-		       << " " << balls[iat].colour[0]
-		       << " " << balls[iat].colour[1]
-		       << " " << balls[iat].colour[2]
-		       << "\n";
+         double r = balls[iat].radius;
+         render_stream << "2" << "\n";
+         render_stream << balls[iat].pos.x() << " "
+                       << balls[iat].pos.y() << " "
+                       << balls[iat].pos.z() << " "
+                       << r
+                       << " " << balls[iat].colour[0]
+                       << " " << balls[iat].colour[1]
+                       << " " << balls[iat].colour[2]
+                       << "\n";
       }
    }
 
@@ -559,17 +634,17 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
       render_stream << "5\n";
       // coord1 radius coord2 dummy colour
       render_stream << "  " 
-		    << bone_lines[ib].first.x() << " "
-		    << bone_lines[ib].first.y() << " "
-		    << bone_lines[ib].first.z() << " "
-		    << bone_thickness << " "
-		    << bone_lines[ib].second.x() << " "
-		    << bone_lines[ib].second.y() << " "
-		    << bone_lines[ib].second.z() << " "
-		    << bone_thickness << " "
-		    << bones_colour.col[0] << " "
-		    << bones_colour.col[1] << " "
-		    << bones_colour.col[2] << "\n";
+                    << bone_lines[ib].first.x() << " "
+                    << bone_lines[ib].first.y() << " "
+                    << bone_lines[ib].first.z() << " "
+                    << bone_thickness << " "
+                    << bone_lines[ib].second.x() << " "
+                    << bone_lines[ib].second.y() << " "
+                    << bone_lines[ib].second.z() << " "
+                    << bone_thickness << " "
+                    << bones_colour.col[0] << " "
+                    << bones_colour.col[1] << " "
+                    << bones_colour.col[2] << "\n";
    }
 
    // Extra Restraints (Bond lines)
@@ -578,29 +653,29 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
       const extra_line_representation &l = velr[i];
       render_stream << "5\n";
       render_stream << l.p1.x() << " "
-		    << l.p1.y() << " "
-		    << l.p1.z() << " "
-		    << l.thickness << " "
-		    << l.p2.x() << " "
-		    << l.p2.y() << " "
-		    << l.p2.z() << " "
-		    << l.thickness << " "
-		    << l.c.col[0] << " "
-		    << l.c.col[1] << " "
-		    << l.c.col[2] << "\n";
+                    << l.p1.y() << " "
+                    << l.p1.z() << " "
+                    << l.thickness << " "
+                    << l.p2.x() << " "
+                    << l.p2.y() << " "
+                    << l.p2.z() << " "
+                    << l.thickness << " "
+                    << l.c.col[0] << " "
+                    << l.c.col[1] << " "
+                    << l.c.col[2] << "\n";
    }
 
    for (unsigned int i=0; i<balls.size(); i++) { 
       const ball_t &ball = balls[i];
       render_stream << "2" << "\n";
       render_stream << ball.pos.x() << " "
-		    << ball.pos.y() << " "
-		    << ball.pos.z() << " "
-		    << ball.radius 
-		    << " " << ball.colour.col[0]
-		    << " " << ball.colour.col[1]
-		    << " " << ball.colour.col[2]
-		    << "\n";
+                    << ball.pos.y() << " "
+                    << ball.pos.z() << " "
+                    << ball.radius 
+                    << " " << ball.colour.col[0]
+                    << " " << ball.colour.col[1]
+                    << " " << ball.colour.col[2]
+                    << "\n";
    }
 }
 
@@ -608,7 +683,6 @@ void
 coot::raytrace_info_t::render_generic_objects(std::ofstream &render_stream) const {
 
    for (unsigned int i=0; i<display_objects.size(); i++) {
-      std::cout << " generic object number : " << i << std::endl;
       display_objects[i].raster3d(render_stream);
    }
 }
@@ -622,65 +696,65 @@ coot::raytrace_info_t::render_labels(std::ofstream &s) const {
       s << font_size_string;
       s << " \"Left-align\"\n";
       for (std::size_t i=0; i<labels.size(); i++) {
-	 s << "11\n  ";
-	 s << labels[i].second.x() << " "
-	   << labels[i].second.y() << " "
-	   << labels[i].second.z() << " "
-	   << atom_label_colour.col[0] << " "
-	   << atom_label_colour.col[1] << " "
-	   << atom_label_colour.col[2] << "\n"
-	   << labels[i].first << "\n";
+         s << "11\n  ";
+         s << labels[i].second.x() << " "
+           << labels[i].second.y() << " "
+           << labels[i].second.z() << " "
+           << atom_label_colour.col[0] << " "
+           << atom_label_colour.col[1] << " "
+           << atom_label_colour.col[2] << "\n"
+           << labels[i].first << "\n";
       }
    }
 }
 
 void
 coot::ray_trace_molecule_info::renderman_molecule(std::ofstream &render_stream,
-						  float bond_thickness,
-						  float atom_radius,
-						  float density_thickness,
-						  float bone_thickness) {
+                                                  float bond_thickness,
+                                                  float atom_radius,
+                                                  float density_thickness,
+                                                  float bone_thickness) {
 
    for (unsigned int iset=0; iset<bond_lines.size(); iset++) {
       for (unsigned int ib=0; ib<bond_lines[iset].bonds.size(); ib++) {
-	 render_stream << "# render a bond\n";
-	 render_stream << "AttributeBegin\n";
-	 render_stream << "   Color ["
-		       << bond_lines[iset].colour[0] << " "
-		       << bond_lines[iset].colour[1] << " "
-		       << bond_lines[iset].colour[2] << "]\n";
-	 render_stream << "   Surface \"plastic\" \"Ka\" [1] \"Kd\" [0.5] \"Ks\" 1 \"roughness\" 0.1\n";
-	 // 		    << bond_lines[ib].first.x() << " "
-	 // 		    << bond_lines[ib].first.y() << " "
-	 // 		    << bond_lines[ib].first.z() << " "
-	 // 		    << bond_lines[ib].second.x() << " "
-	 // 		    << bond_lines[ib].second.y() << " "
-	 // 		    << bond_lines[ib].second.z() << "\n";
+         render_stream << "# render a bond\n";
+         render_stream << "AttributeBegin\n";
+         render_stream << "   Color ["
+                       << bond_lines[iset].colour[0] << " "
+                       << bond_lines[iset].colour[1] << " "
+                       << bond_lines[iset].colour[2] << "]\n";
+         render_stream << "   Surface \"plastic\" \"Ka\" [1] \"Kd\" [0.5] \"Ks\" 1 \"roughness\" 0.1\n";
+         //                     << bond_lines[ib].first.x() << " "
+         //                     << bond_lines[ib].first.y() << " "
+         //                     << bond_lines[ib].first.z() << " "
+         //                     << bond_lines[ib].second.x() << " "
+         //                     << bond_lines[ib].second.y() << " "
+         //                     << bond_lines[ib].second.z() << "\n";
 
-	 //       render_stream << "   TransformBegin\n"; // no need
-	 render_stream << "   Translate "
-		       << bond_lines[iset].bonds[ib].begin_pos.x() << " "
-		       << bond_lines[iset].bonds[ib].begin_pos.y() << " "
-		       << bond_lines[iset].bonds[ib].begin_pos.z() << "\n";
-	 double l = (bond_lines[iset].bonds[ib].begin_pos - bond_lines[iset].bonds[ib].end_pos).amplitude();
+         //       render_stream << "   TransformBegin\n"; // no need
+         render_stream << "   Translate "
+                       << bond_lines[iset].bonds[ib].begin_pos.x() << " "
+                       << bond_lines[iset].bonds[ib].begin_pos.y() << " "
+                       << bond_lines[iset].bonds[ib].begin_pos.z() << "\n";
+         double l = (bond_lines[iset].bonds[ib].begin_pos - bond_lines[iset].bonds[ib].end_pos).amplitude();
 
-	 coot::Cartesian v = (bond_lines[iset].bonds[ib].begin_pos - bond_lines[iset].bonds[ib].end_pos);
-	 v.unit_vector_yourself();
-	 coot::Cartesian axis = coot::Cartesian::CrossProduct(v,Cartesian(0,0,1));
-	 double dp = coot::dot_product(v,coot::Cartesian(0,0,-1));
-	 // std::cout << " dot product: " << dp << std::endl;
-	 if (dp > 1.0)  dp =  1.0;
-	 if (dp < -1.0) dp = -1.0;
-	 double angle = -180.0/M_PI*acos(dp);
-	 if(fabs(axis.length())<1e-7) axis = coot::Cartesian(0,1,0);
-	 render_stream << "   Rotate "
-		       << angle << " " << axis.x() << " " << axis.y() << " " << axis.z() << "\n";
-	 // Think about scaling the cylinder so that far away bonds are not tiny thin.
+         coot::Cartesian v = (bond_lines[iset].bonds[ib].begin_pos - bond_lines[iset].bonds[ib].end_pos);
+         v.unit_vector_yourself();
+         coot::Cartesian axis = coot::Cartesian::CrossProduct(v,Cartesian(0,0,1));
+         double dp = coot::dot_product(v,coot::Cartesian(0,0,-1));
+         // std::cout << " dot product: " << dp << std::endl;
+         if (dp > 1.0)  dp =  1.0;
+         if (dp < -1.0) dp = -1.0;
+         double angle = -180.0/M_PI*acos(dp);
+         if(fabs(axis.length())<1e-7) axis = coot::Cartesian(0,1,0);
+         render_stream << "   Rotate "
+                       << angle << " " << axis.x() << " " << axis.y() << " " << axis.z() << "\n";
+         // Think about scaling the cylinder so that far away bonds are not tiny thin.
       
       
-	 render_stream << "   Cylinder 0.15 0 " << l << "  360\n";
-	 //       render_stream << "   TransformEnd\n";  // no need
-	 render_stream << "AttributeEnd\n";
+         render_stream << "   Cylinder 0.15 0 " << l << "  360\n";
+         //       render_stream << "   TransformEnd\n";  // no need
+         render_stream << "AttributeEnd\n";
       }
    }
 
@@ -706,39 +780,41 @@ meshed_generic_display_object::raster3d(std::ofstream &render_stream) const {
 void 
 coot::old_generic_display_object_t::raster3d(std::ofstream &render_stream) const {
 
+   // Make sure that you have set is_displayed_flag for your generic_display_object_t
+
    if (! is_closed_flag) {
       if (is_displayed_flag) {
-	 for (unsigned int ils=0; ils<lines_set.size(); ils++) {
-	    float w = float(lines_set[ils].width)/80.0;
-	    for (unsigned int il=0; il<lines_set[ils].lines.size(); il++) {
-	       render_stream << "3" << "\n";
-	       render_stream << "   "
-			     << lines_set[ils].lines[il].coords.first.x() << " " 
-			     << lines_set[ils].lines[il].coords.first.y() << " " 
-			     << lines_set[ils].lines[il].coords.first.z() << " "
-			     << w << " "
-			     << lines_set[ils].lines[il].coords.second.x() << " " 
-			     << lines_set[ils].lines[il].coords.second.y() << " " 
-			     << lines_set[ils].lines[il].coords.second.z() << " " 
-			     << w << " "
-			     << lines_set[ils].colour.red << " " 
-			     << lines_set[ils].colour.green << " " 
-			     << lines_set[ils].colour.blue << "\n";
-	    }
-	 } 
-	 for (unsigned int ips=0; ips<points_set.size(); ips++) {
-	    for (unsigned int ip=0; ip<points_set[ips].points.size(); ip++) {
-	       render_stream << "2" << "\n"
-			     << "   "
-			     << points_set[ips].points[ip].x() << " " 
-			     << points_set[ips].points[ip].y() << " " 
-			     << points_set[ips].points[ip].z() << " "
-			     << 0.05 << " " 
-			     << points_set[ips].colour.red << " " 
-			     << points_set[ips].colour.green << " " 
-			     << points_set[ips].colour.blue << "\n";
-	    }
-	 } 
+         for (unsigned int ils=0; ils<lines_set.size(); ils++) {
+            float w = float(lines_set[ils].width)/80.0;
+            for (unsigned int il=0; il<lines_set[ils].lines.size(); il++) {
+               render_stream << "3" << "\n";
+               render_stream << "   "
+                             << lines_set[ils].lines[il].coords.first.x() << " " 
+                             << lines_set[ils].lines[il].coords.first.y() << " " 
+                             << lines_set[ils].lines[il].coords.first.z() << " "
+                             << w << " "
+                             << lines_set[ils].lines[il].coords.second.x() << " " 
+                             << lines_set[ils].lines[il].coords.second.y() << " " 
+                             << lines_set[ils].lines[il].coords.second.z() << " " 
+                             << w << " "
+                             << lines_set[ils].colour.red << " " 
+                             << lines_set[ils].colour.green << " " 
+                             << lines_set[ils].colour.blue << "\n";
+            }
+         } 
+         for (unsigned int ips=0; ips<points_set.size(); ips++) {
+            for (unsigned int ip=0; ip<points_set[ips].points.size(); ip++) {
+               render_stream << "2" << "\n"
+                             << "   "
+                             << points_set[ips].points[ip].x() << " " 
+                             << points_set[ips].points[ip].y() << " " 
+                             << points_set[ips].points[ip].z() << " "
+                             << 0.05 << " " 
+                             << points_set[ips].colour.red << " " 
+                             << points_set[ips].colour.green << " " 
+                             << points_set[ips].colour.blue << "\n";
+            }
+         } 
       }
    } 
 } 
@@ -772,24 +848,24 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       // conversion from a 3x3 matrix to polar coords.
       //
       clipper::Mat33<double> view_matrix_cl(view_matrix.matrix_element(0,0),
-					    view_matrix.matrix_element(0,1),
-					    view_matrix.matrix_element(0,2),
-					    view_matrix.matrix_element(1,0),
-					    view_matrix.matrix_element(1,1),
-					    view_matrix.matrix_element(1,2),
-					    -view_matrix.matrix_element(2,0),
-					    -view_matrix.matrix_element(2,1),
-					    -view_matrix.matrix_element(2,2));
-					    
+                                            view_matrix.matrix_element(0,1),
+                                            view_matrix.matrix_element(0,2),
+                                            view_matrix.matrix_element(1,0),
+                                            view_matrix.matrix_element(1,1),
+                                            view_matrix.matrix_element(1,2),
+                                            -view_matrix.matrix_element(2,0),
+                                            -view_matrix.matrix_element(2,1),
+                                            -view_matrix.matrix_element(2,2));
+                                            
       clipper::Mat33<double> view_matrix_inv_cl(view_matrix.matrix_element(0,0),
-						view_matrix.matrix_element(1,0),
-						view_matrix.matrix_element(2,0),
-						view_matrix.matrix_element(0,1),
-						view_matrix.matrix_element(1,1),
-						view_matrix.matrix_element(2,1),
-						-view_matrix.matrix_element(0,2),
-						-view_matrix.matrix_element(1,2),
-						-view_matrix.matrix_element(2,2));
+                                                view_matrix.matrix_element(1,0),
+                                                view_matrix.matrix_element(2,0),
+                                                view_matrix.matrix_element(0,1),
+                                                view_matrix.matrix_element(1,1),
+                                                view_matrix.matrix_element(2,1),
+                                                -view_matrix.matrix_element(0,2),
+                                                -view_matrix.matrix_element(1,2),
+                                                -view_matrix.matrix_element(2,2));
 
       clipper::Polar_ccp4 polar = clipper::Rotation(view_matrix_cl).polar_ccp4();
       std::cout << "kappa: " << polar.kappa() << std::endl;
@@ -810,14 +886,14 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
 					       camera_location.z());
 
       clipper::Vec3<double> view_centre_cl(view_centre.x(),
-					   view_centre.y(),
-					   view_centre.z());
+                                           view_centre.y(),
+                                           view_centre.z());
 
       float dir_len = (camera_location - view_centre).amplitude();
 
       clipper::Vec3<double> direction_cl(view_matrix.matrix_element(2,0),
-					 view_matrix.matrix_element(2,1),
-					 view_matrix.matrix_element(2,2));
+                                         view_matrix.matrix_element(2,1),
+                                         view_matrix.matrix_element(2,2));
 
       float tmp_len = view_centre_cl * direction_cl;
       
@@ -830,13 +906,13 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
       //std::cout <<"BL DEBUG::   dir+tmp_len : " << dir_len+tmp_len <<std::endl;
       if (angle_factor > 1.99) {
         // simple protection, so that povray doesnt fail if angle get's too
-	// large
-	angle_factor = 1.99;
+        // large
+        angle_factor = 1.99;
       }
 
       clipper::Vec3<double> tt_cl;
       for (int i=0; i<3; i++) {
-	tt_cl[i] = dir_len * direction_cl[i];
+        tt_cl[i] = dir_len * direction_cl[i];
       }
       clipper::Vec3<double> camera_translation_cl = view_centre_cl + tt_cl;
 
@@ -870,23 +946,23 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
                     << graphics_info_t::background_colour[1] << ", "
                     << graphics_info_t::background_colour[2] << "> }\n";
       /*      render_stream << "camera { orthographic\n"
-		    << "        location  <"
-		    << camera_translation_cl[0] << ", "
-		    << camera_translation_cl[1] << ", "
-		    << camera_translation_cl[2] << ">\n";
+                    << "        location  <"
+                    << camera_translation_cl[0] << ", "
+                    << camera_translation_cl[1] << ", "
+                    << camera_translation_cl[2] << ">\n";
       */
       render_stream << "camera { orthographic\n"
-		    << "         transform  {\n"
-		    << "         matrix  <\n"
+                    << "         transform  {\n"
+                    << "         matrix  <\n"
                     << "           "
-		    << mv[0]  << ", " << mv[1]  << ", " << mv[2] << ",\n"
+                    << mv[0]  << ", " << mv[1]  << ", " << mv[2] << ",\n"
                     << "           "
-		    << mv[4]  << ", " << mv[5]  << ", " << mv[6] << ",\n"
+                    << mv[4]  << ", " << mv[5]  << ", " << mv[6] << ",\n"
                     << "           "
-		    << mv[8]  << ", " << mv[9]  << ", " << mv[10] << ",\n"
+                    << mv[8]  << ", " << mv[9]  << ", " << mv[10] << ",\n"
                     << "           "
-		    << mv[12] << ", " << mv[13] << ", " << mv[14] << "\n"
-		    << "         >\n"
+                    << mv[12] << ", " << mv[13] << ", " << mv[14] << "\n"
+                    << "         >\n"
                     << "         inverse }\n";
 
 
@@ -897,17 +973,17 @@ coot::raytrace_info_t::povray_ray_trace(std::string filename) {
                     << "         up        <0,1,0>\n";
       /*
       render_stream << "        right     < " 
-		    << view_matrix.matrix_element(0,0) * ratio << ", "
-		    << view_matrix.matrix_element(0,1) * ratio << ", "
-		    << view_matrix.matrix_element(0,2) * ratio << "> \n"
-		    << "        up        < "
-	            << view_matrix.matrix_element(1,0) << ", "
-		    << view_matrix.matrix_element(1,1) << ", "
-		    << view_matrix.matrix_element(1,2) << "> \n"
-		    << "        direction < "
-		    << -view_matrix.matrix_element(2,0) << ", "
-		    << -view_matrix.matrix_element(2,1) << ", "
-		    << -view_matrix.matrix_element(2,2) << "> \n";
+                    << view_matrix.matrix_element(0,0) * ratio << ", "
+                    << view_matrix.matrix_element(0,1) * ratio << ", "
+                    << view_matrix.matrix_element(0,2) * ratio << "> \n"
+                    << "        up        < "
+                    << view_matrix.matrix_element(1,0) << ", "
+                    << view_matrix.matrix_element(1,1) << ", "
+                    << view_matrix.matrix_element(1,2) << "> \n"
+                    << "        direction < "
+                    << -view_matrix.matrix_element(2,0) << ", "
+                    << -view_matrix.matrix_element(2,1) << ", "
+                    << -view_matrix.matrix_element(2,2) << "> \n";
       render_stream << "        angle  90* "<< angle_factor << " \n";
       */
       //render_stream << "         look_at  <"
@@ -931,21 +1007,21 @@ coot::raytrace_info_t::povray_molecules(std::ofstream &render_stream) {
    for (unsigned int i=0; i<rt_mol_info.size(); i++) {
       std::cout << "rendering povray ray trace number: " << i << std::endl;
       rt_mol_info[i].povray_molecule(render_stream,
-				     bond_thickness,
-				     density_thickness,
-				     atom_radius,
-				     zoom, view_centre, front_clipping_plane_point);
+                                     bond_thickness,
+                                     density_thickness,
+                                     atom_radius,
+                                     zoom, view_centre, front_clipping_plane_point);
    }
 }
 
 void
 coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
-					       float bond_thickness,
-					       float density_thickness,
-					       float atom_radius,
-					       float zoom,
-					       const coot::Cartesian &view_centre,
-					       const coot::Cartesian &front_clipping_plane_point) {
+                                               float bond_thickness,
+                                               float density_thickness,
+                                               float atom_radius,
+                                               float zoom,
+                                               const coot::Cartesian &view_centre,
+                                               const coot::Cartesian &front_clipping_plane_point) {
 
    // Clipping:
    //
@@ -1005,93 +1081,93 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
       float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
       float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
       if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
-	Cartesian line = density_lines[id].first - density_lines[id].second;
-	if (line.length() > 0.001) {
-	 render_stream << "cylinder{<"
-		       << density_lines[id].first.x() << ", "
-		       << density_lines[id].first.y() << ", "
-		       << density_lines[id].first.z() << ">\n "
-		       << "         <"
-		       << density_lines[id].second.x() << ", "
-		       << density_lines[id].second.y() << ", "
-		       << density_lines[id].second.z() << ">\n"
-		       << "         " << density_thickness
-		       << "   pigment { color <"
-		       << density_colour.col[0] <<", "
-		       << density_colour.col[1] <<", "
-		       << density_colour.col[2] <<"> " << "} "
-		       << "scale " << 1.0 
-		       << "}\n";
-	} else {
-	  render_stream<< "sphere{ <"
-		       << density_lines[id].first.x() << ", "
-		       << density_lines[id].first.y() << ", "
-		       << density_lines[id].first.z() << "> "
-		       << density_thickness
-		       << "   pigment { color <"
-		       << density_colour.col[0] <<", "
-		       << density_colour.col[1] <<", "
-		       << density_colour.col[2] <<">} "
-		       << ""
-		       << "}\n";
-	}
+        Cartesian line = density_lines[id].first - density_lines[id].second;
+        if (line.length() > 0.001) {
+         render_stream << "cylinder{<"
+                       << density_lines[id].first.x() << ", "
+                       << density_lines[id].first.y() << ", "
+                       << density_lines[id].first.z() << ">\n "
+                       << "         <"
+                       << density_lines[id].second.x() << ", "
+                       << density_lines[id].second.y() << ", "
+                       << density_lines[id].second.z() << ">\n"
+                       << "         " << density_thickness
+                       << "   pigment { color <"
+                       << density_colour.col[0] <<", "
+                       << density_colour.col[1] <<", "
+                       << density_colour.col[2] <<"> " << "} "
+                       << "scale " << 1.0 
+                       << "}\n";
+        } else {
+          render_stream<< "sphere{ <"
+                       << density_lines[id].first.x() << ", "
+                       << density_lines[id].first.y() << ", "
+                       << density_lines[id].first.z() << "> "
+                       << density_thickness
+                       << "   pigment { color <"
+                       << density_colour.col[0] <<", "
+                       << density_colour.col[1] <<", "
+                       << density_colour.col[2] <<">} "
+                       << ""
+                       << "}\n";
+        }
       }
    }
 
    for (unsigned int iset=0; iset<bond_lines.size(); iset++) {
       for (unsigned int ib=0; ib<bond_lines[iset].bonds.size(); iset++) {
       
-	 Cartesian v1 = bond_lines[iset].bonds[ib].begin_pos  - front_clipping_plane_point;
-	 Cartesian v2 = bond_lines[iset].bonds[ib].end_pos    - front_clipping_plane_point;
-	 Cartesian v3 = bond_lines[iset].bonds[ib].begin_pos  -  back_clipping_plane_point;
-	 Cartesian v4 = bond_lines[iset].bonds[ib].end_pos    -  back_clipping_plane_point;
-	 float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
-	 float dp2 = coot::dot_product(v2, front_clip_to_centre_vec);
-	 float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
-	 float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
-	 if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
-	    render_stream << "cylinder{ <"
-			  << bond_lines[iset].bonds[ib].begin_pos.x() << ", "
-			  << bond_lines[iset].bonds[ib].begin_pos.y() << ", "
-			  << bond_lines[iset].bonds[ib].begin_pos.z() << ">\n "
-			  << "         <"
-			  << bond_lines[iset].bonds[ib].end_pos.x() << ", "
-			  << bond_lines[iset].bonds[ib].end_pos.y() << ", "
-			  << bond_lines[iset].bonds[ib].end_pos.z() << ">\n"
-			  << "         " << bond_thickness
-			  << "   pigment { color <"
-			  << bond_lines[iset].colour[0] <<", "
-			  << bond_lines[iset].colour[1] <<", "
-			  << bond_lines[iset].colour[2] <<"> " << "} "
-	       // 		    << "scale " << 1.0*(100.0/zoom)
-			  << "scale " << 1.0
-			  << "}\n";
-	 }
+         Cartesian v1 = bond_lines[iset].bonds[ib].begin_pos  - front_clipping_plane_point;
+         Cartesian v2 = bond_lines[iset].bonds[ib].end_pos    - front_clipping_plane_point;
+         Cartesian v3 = bond_lines[iset].bonds[ib].begin_pos  -  back_clipping_plane_point;
+         Cartesian v4 = bond_lines[iset].bonds[ib].end_pos    -  back_clipping_plane_point;
+         float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
+         float dp2 = coot::dot_product(v2, front_clip_to_centre_vec);
+         float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
+         float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
+         if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
+            render_stream << "cylinder{ <"
+                          << bond_lines[iset].bonds[ib].begin_pos.x() << ", "
+                          << bond_lines[iset].bonds[ib].begin_pos.y() << ", "
+                          << bond_lines[iset].bonds[ib].begin_pos.z() << ">\n "
+                          << "         <"
+                          << bond_lines[iset].bonds[ib].end_pos.x() << ", "
+                          << bond_lines[iset].bonds[ib].end_pos.y() << ", "
+                          << bond_lines[iset].bonds[ib].end_pos.z() << ">\n"
+                          << "         " << bond_thickness
+                          << "   pigment { color <"
+                          << bond_lines[iset].colour[0] <<", "
+                          << bond_lines[iset].colour[1] <<", "
+                          << bond_lines[iset].colour[2] <<"> " << "} "
+               //                     << "scale " << 1.0*(100.0/zoom)
+                          << "scale " << 1.0
+                          << "}\n";
+         }
       }
    }
 
-   // 		       << " " << atom[iat].second.col[0]
+   //                        << " " << atom[iat].second.col[0]
    // cylinder{<0,0,0>, <0,1,0>, 0.1 pigment {colour <0.1,0.2,0.3>} }
    if (graphics_info_t::renderer_show_atoms_flag) { 
       for (unsigned int iat=0; iat<balls.size(); iat++) {
       
-	 Cartesian v1 = balls[iat].pos  - front_clipping_plane_point;
-	 Cartesian v2 = balls[iat].pos  -  back_clipping_plane_point;
-	 float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
-	 float dp2 = coot::dot_product(v2,  back_clip_to_centre_vec);
-	 if ((dp1 > 0) && (dp2 > 0)) { 
-	    render_stream << "sphere{ <"
-			  << balls[iat].pos.x() << ","
-			  << balls[iat].pos.y() << ","
-			  << balls[iat].pos.z() << ">"
-			  << "0.3   pigment { color <"
-			  << balls[iat].colour[0] <<", "
-			  << balls[iat].colour[1] <<", "
-			  << balls[iat].colour[2] <<">} "
-			  << ""
-			  << "} "
-			  << "\n";
-	 }
+         Cartesian v1 = balls[iat].pos  - front_clipping_plane_point;
+         Cartesian v2 = balls[iat].pos  -  back_clipping_plane_point;
+         float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
+         float dp2 = coot::dot_product(v2,  back_clip_to_centre_vec);
+         if ((dp1 > 0) && (dp2 > 0)) { 
+            render_stream << "sphere{ <"
+                          << balls[iat].pos.x() << ","
+                          << balls[iat].pos.y() << ","
+                          << balls[iat].pos.z() << ">"
+                          << "0.3   pigment { color <"
+                          << balls[iat].colour[0] <<", "
+                          << balls[iat].colour[1] <<", "
+                          << balls[iat].colour[2] <<">} "
+                          << ""
+                          << "} "
+                          << "\n";
+         }
       }
    }
 

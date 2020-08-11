@@ -1356,8 +1356,9 @@ int test_interface_residues(int argc, char **argv) {
 void
 test_fibonacci() {
 
-   std::vector<clipper::Coord_orth> pts = coot::fibonacci_sphere(50);
-   for (unsigned int i=0; i<50; i++)
+   unsigned int n_samples = 450;
+   std::vector<clipper::Coord_orth> pts = coot::fibonacci_sphere(n_samples);
+   for (unsigned int i=0; i<n_samples; i++)
       std::cout << "spherical " << pts[i].x() << " " << pts[i].y() << " " << pts[i].z() << "\n";
 
 }

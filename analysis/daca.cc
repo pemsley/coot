@@ -874,7 +874,7 @@ coot::daca::calculate_daca(mmdb::Residue *reference_residue_p,
 
                // don't consider peptide neighbour mainchain
                int res_no_delta = at->residue->GetSeqNum() - reference_residue_seqnum;
-               if (fabs(res_no_delta) < 2)
+               if (std::abs(res_no_delta) < 2)
                   if (at->residue->chain == reference_residue_p->chain)
                      if (is_main_chain_p(at))
                         continue;
@@ -946,6 +946,17 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
       std::string fn = files[i];
       atom_selection_container_t asc = get_atom_selection(fn, false, false);
       if (asc.read_success) {
+
+         std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
+         if (true) {
+            for (unsigned int i=0; i<se.size(); i++) {
+               std::string rn(se[i].first->GetResName());
+               std::cout << "se " << fn << " " << coot::residue_spec_t(se[i].first)
+                         << " " << rn
+                         << " " << se[i].second << std::endl;
+            }
+         }
+
          mmdb::Model *model_p = asc.mol->GetModel(1);
          if (model_p) {
             fill_helix_flags(model_p, asc.mol);
@@ -985,7 +996,7 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
          mmdb::Model *model_p = asc.mol->GetModel(1);
          if (model_p) {
 
-            std::cout << "score " << pdb_file_name << std::endl;
+            std::cout << "INFO:: scoring " << pdb_file_name << std::endl;
 
             protein_geometry geom;
             geom.init_standard();
@@ -999,7 +1010,7 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
                int nres = chain_p->GetNumberOfResidues();
                for (int ires=0; ires<nres; ires++) {
                   mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                  if (residue_p) {
+                 if (residue_p) {
                      std::string res_name(residue_p->GetResName());
                      int res_number = residue_p->GetSeqNum();
                      if (res_name == "HOH") continue;
@@ -1131,6 +1142,64 @@ coot::daca::normalize() {
    }
 }
 
+void
+coot::daca::normalize_v2() {
+
+   // this version normalizes every grid point over every atom type
+   //
+
+   // iterators not const because we want to modify the contents of the boxes
+   //
+
+   std::vector<box_index_t> box_indices_vec;
+
+   int e = 6;
+   for (int ix=-e; ix<e; ix++) {
+      for (int iy=-e; iy<e; iy++) {
+         for (int iz=-e; iz<e; iz++) {
+            box_index_t bi(ix,iy,iz);
+            box_indices_vec.push_back(bi);
+         }
+      }
+   }
+
+
+   std::cout << "box_indices_vec size() " << box_indices_vec.size()   << std::endl;
+   for (unsigned int i=0; i<box_indices_vec.size(); i++) {
+
+      unsigned int sum_counts = 0;
+      unsigned int n_hits = 0;
+      std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::iterator it;
+      for (it=boxes.begin(); it!=boxes.end(); it++) {
+         const std::string &res_name_with_ss(it->first);
+         std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &v(it->second);
+         for (unsigned int idx_frag=0; idx_frag<v.size(); idx_frag++) {
+            std::map<std::string, std::map<box_index_t, unsigned int> > &m1(v[idx_frag]);
+            std::map<std::string, std::map<box_index_t, unsigned int> >::iterator it_1;
+
+            for (it_1=m1.begin(); it_1!=m1.end(); it_1++) {
+               const std::string &atom_type = it_1->first;
+               std::map<box_index_t, unsigned int> &m2(it_1->second);
+               std::map<box_index_t, unsigned int>::const_iterator it_2 = m2.find(box_indices_vec[i]);
+               if (it_2 != m2.end()) {
+                  n_hits++;
+                  const unsigned int &counts = it_2->second;
+                  sum_counts += counts;
+               }
+            }
+         }
+      }
+
+      std::cout << "box "
+                << box_indices_vec[i].idx_x << " "
+                << box_indices_vec[i].idx_y << " "
+                << box_indices_vec[i].idx_z << " "
+                << sum_counts << " n_hits " << n_hits << std::endl;
+   }
+}
+
+// 2aaa get the pdb redo model, build on this and check with privateer.
+
 // as in the verb
 void
 coot::daca::envelope() {
@@ -1223,11 +1292,218 @@ coot::daca::smooth() {
    boxes = copy_boxes;
 }
 
+double
+coot::daca::get_radius(const std::string &ele) const {
+
+   double radius = 1.70;
+   if (ele == " H")
+      radius = 1.20;
+   if (ele == " N")
+      radius = 1.55;
+   if (ele == " O")
+      radius = 1.52;
+   if (ele == " S")
+      radius = 1.8;
+   // PDBv3
+   if (ele == "H")
+      radius = 1.20;
+   if (ele == "N")
+      radius = 1.55;
+   if (ele == "O")
+      radius = 1.52;
+   if (ele == "S")
+      radius = 1.8;
+   return radius;
+}
+
+// eposure of the side chain atoms only are considered
+//
+std::vector<std::pair<mmdb::Residue *, float> >
+coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
+
+   std::vector<std::pair<mmdb::Residue *, float> > v;
+   if (! mol) return v;
+
+   float max_dist = 5.7;
+   mmdb::PPAtom atom_selection = 0;
+   int n_atoms;
+
+   int SelHnd = mol->NewSelection(); // d
+   mol->SelectAtoms(SelHnd, 1, "*",
+                    mmdb::ANY_RES, "*",
+                    mmdb::ANY_RES, "*",
+                    "*","*","!H","*", mmdb::SKEY_NEW);
+
+   std::map<mmdb::Residue *, std::set<mmdb::Atom *> > residue_neighbouring_atoms;
+
+   mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+   if (n_atoms) {
+      mmdb::Contact *pscontact = NULL;
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mmdb::mat44 my_matt;
+      mmdb::SymOps symm;
+      for (int i=0; i<4; i++)
+	 for (int j=0; j<4; j++)
+	    my_matt[i][j] = 0.0;
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      mol->SeekContacts(atom_selection, n_atoms,
+			atom_selection, n_atoms,
+			0, max_dist,
+			0, // in same residue
+			pscontact, n_contacts,
+			0, &my_matt, i_contact_group); // makes reverses also
+      if (n_contacts > 0) {
+
+	 if (pscontact) {
+	    for (int i=0; i<n_contacts; i++) {
+               mmdb::Atom *at_1 = atom_selection[pscontact[i].id1];
+               mmdb::Atom *at_2 = atom_selection[pscontact[i].id2];
+
+               mmdb::Residue *residue_p_1 = at_1->GetResidue();
+               mmdb::Residue *residue_p_2 = at_2->GetResidue();
+               if (residue_p_2 == residue_p_1) continue;
+               std::string res_name_1(residue_p_1->GetResName());
+               std::string res_name_2(at_2->residue->GetResName());
+               if (res_name_1 == "HOH") continue;
+               if (res_name_2 == "HOH") continue;
+               if (! util::is_standard_amino_acid_name(res_name_1)) continue;
+
+               if (! side_chain_only)
+                  residue_neighbouring_atoms[residue_p_1].insert(at_2);
+               else
+                  if (!is_main_chain_p(at_1))
+                     residue_neighbouring_atoms[residue_p_1].insert(at_2);
+            }
+         }
+      }
+
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               std::map<mmdb::Residue *, std::set<mmdb::Atom *> >::const_iterator it =
+                  residue_neighbouring_atoms.find(residue_p);
+               if (it != residue_neighbouring_atoms.end()) {
+                  std::pair<mmdb::Residue *, float> p(residue_p, it->second.size());
+                  v.push_back(p);
+               }
+            }
+         }
+      }
+   }
+   mol->DeleteSelection(SelHnd);
+   return v;
+}
+
+
+std::vector<std::pair<mmdb::Atom *, float> >
+coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) const {
+
+   std::vector<std::pair<mmdb::Atom *, float> > v;
+   if (mol) {
+
+      double dot_density = 0.35;
+      //
+      double phi_step = 5.0 * (M_PI/180.0);
+      double theta_step = 5.0 * (M_PI/180.0);
+      if (dot_density > 0.0) {
+	 phi_step   /= dot_density;
+	 theta_step /= dot_density;
+      }
+
+      double water_radius = 1.4;
+      double fudge = 1.0;
+      mmdb::PPAtom atoms = 0;
+      int n_atoms;
+      mol->GetSelIndex(SelHnd_in, atoms, n_atoms);
+      std::vector<double> radius(n_atoms);
+
+      for (int iat=0; iat<n_atoms; iat++) {
+	 std::string ele(atoms[iat]->element);
+	 radius[iat] = get_radius(ele);
+      }
+
+      mmdb::PPAtom atoms_all = 0;
+      int n_atoms_all;
+      int SelHnd_all = mol->NewSelection();
+      mol->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+      mol->GetSelIndex(SelHnd_all, atoms_all, n_atoms_all);
+
+      for (int iatom=0; iatom<n_atoms; iatom++) {
+	 if (! atoms[iatom]->isTer()) {
+	    clipper::Coord_orth centre(atoms[iatom]->x,
+				       atoms[iatom]->y,
+				       atoms[iatom]->z);
+	    bool even = 1;
+	    int n_points = 0;
+	    int n_sa = 0;
+	    for (double theta=0; theta<M_PI; theta+=theta_step) {
+	       double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
+	       for (double phi=0; phi<2*M_PI; phi+=phi_step_inner) {
+		  if (even) {
+		     double r = fudge * (radius[iatom] + water_radius);
+		     clipper::Coord_orth pt(r*cos(phi)*sin(theta),
+					    r*sin(phi)*sin(theta),
+					    r*cos(theta));
+		     pt += centre;
+		     n_points++;
+
+		     // now, is pt closer to (a water centre around)
+		     // another atom?
+
+		     bool is_solvent_accessible = true;
+		     for (int i_all=0; i_all<n_atoms_all; i_all++) {
+			// don't exclude from self
+			mmdb::Atom *other_at = atoms_all[i_all];
+			std::string other_res_name = other_at->GetResName();
+			if (other_res_name != "HOH") {
+			   if (atoms[iatom] != other_at) {
+			      std::string other_ele = other_at->element;
+			      if (other_ele != " H") {
+				 double other_atom_r = fudge * (get_radius(other_ele) + water_radius);
+				 double other_atom_r_sq = other_atom_r * other_atom_r;
+				 clipper::Coord_orth pt_other(other_at->x, other_at->y, other_at->z);
+				 if ((pt-pt_other).lengthsq() < other_atom_r_sq) {
+				    is_solvent_accessible = 0;
+				    break;
+				 }
+			      }
+			   }
+			}
+		     }
+		     if (is_solvent_accessible)
+			n_sa++;
+		  }
+		  even = 1 - even;
+	       }
+	    }
+
+	    double exposure_frac = double(n_sa)/double(n_points);
+	    if (0)
+	       std::cout << "Atom " << atoms[iatom]->name << " has exposure " << n_sa << "/" << n_points
+			 << " = " << exposure_frac << std::endl;
+	    std::pair<mmdb::Atom *, float> p(atoms[iatom], exposure_frac);
+	    v.push_back(p);
+	 }
+      }
+      mol->DeleteSelection(SelHnd_all); // presumably this was missing before... 20101230
+   }
+   return v;
+}
+
 
 void
 coot::daca::cook() {
 
    smooth();
    envelope();
-   normalize();
+   normalize_v2();
 }

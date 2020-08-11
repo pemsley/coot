@@ -10,11 +10,12 @@ coot::is_main_chain_p(mmdb::Atom *at) {
    std::string mol_atom_name(at->name);
    if (mol_atom_name == " N  " ||
        mol_atom_name == " C  " ||
-       mol_atom_name == " H  " ||
        mol_atom_name == " CA " ||
+       mol_atom_name == " H  " ||
        mol_atom_name == " HA " || // CA hydrogen
+       mol_atom_name == " OXT" ||
        mol_atom_name == " O  ") {
-      return 1;
+      return true;
    } else {
       std::string res_name = at->GetResName();
       if (res_name == "GLY") {
@@ -69,6 +70,7 @@ coot::is_main_chain_or_cb_p(const std::string &mol_atom_name) {
        mol_atom_name == " C  " ||
        mol_atom_name == " H  " ||
        mol_atom_name == " CA " ||
+       mol_atom_name == " OXT" ||
        mol_atom_name == " CB " ||
        mol_atom_name == " HA " || // CA hydrogen
        mol_atom_name == " O  ") {

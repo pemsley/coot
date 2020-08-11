@@ -779,10 +779,13 @@ molecule_class_info_t::install_model(int imol_no_in,
 
 void
 molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
-                                        short int seg_ids_in_atom_labels_flag) {
+                                        short int seg_ids_in_atom_labels_flag,
+                                        const glm::vec4 &atom_label_colour,
+                                        const glm::mat4 &mvp,
+                                        const glm::mat4 &view_rotation,
+                                        const glm::vec3 &eye_position) {
 
    if (draw_it) {
-
       if (has_model()) {
 
          // keep a list of atoms that have labels (either in graphics_info
@@ -796,7 +799,9 @@ molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
 
          // also remove labels from atom indexes list of over the end.
          for (int ii=0; ii<n_atoms_to_label ; ii++)
-            draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
+            draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag,
+                            seg_ids_in_atom_labels_flag, atom_label_colour,
+                            mvp, view_rotation, eye_position);
 
          n_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -1985,65 +1990,16 @@ molecule_class_info_t::dotted_chopped_name() const {
 void
 molecule_class_info_t::add_to_labelled_atom_list(int atom_index) {
 
+   // this is quite passive. Caller does the atom label drawing.
+
    // note initialization n_labelled_atoms is 0;
    //
    if (is_in_labelled_list(atom_index) == 1) {
       unlabel_atom(atom_index);
    } else {
       labelled_atom_index_list.push_back(atom_index);
-
-      std::cout << "molecule_class_info_t::add_to_labelled_atom_list - add TextureMesh here"
-                << std::endl;
    }
 }
-
-void
-molecule_class_info_t::add_mesh_for_atom_label(int atom_index) {
-
-   // maybe atom labels should have their own mesh type.
-   Mesh mesh;
-
-   mmdb::Atom *at = atom_sel.atom_selection[atom_index];
-   glm::vec3 atom_position = coord_orth_to_glm(coot::co(at));
-
-   std::vector<glm::vec3> q_vertices = { glm::vec3(0,0,0),
-                                         glm::vec3(1,0,0),
-                                         glm::vec3(1,1,0),
-                                         glm::vec3(0,1,0) };
-   std::vector<g_triangle> triangles;
-   triangles.push_back(g_triangle(0,1,2));
-   triangles.push_back(g_triangle(0,2,3));
-
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
-   std::vector<s_generic_vertex> vertices(4);
-   glm::vec3 n(0,0,1);
-   for (unsigned int i=0; i<4; i++) {
-      vertices[i].pos = atom_position + q_vertices[i];
-      vertices[i].normal = n;
-      vertices[i].color = glm::vec4(0.6, 0.6, 0.6, 1.0);
-   }
-
-   Material material;
-   Shader &shader = graphics_info_t::shader_for_moleculestotriangles;
-   mesh.import(vertices, triangles);
-   mesh.setup(&shader, material);
-   meshes.push_back(mesh);
-}
-
-// int
-// molecule_class_info_t::labelled_atom(int i) {
-
-//    return labelled_atom_index_list[i];
-
-// }
-
-
-// Olde Pointere Stuff.  Delete when you feel it should go.
-// int
-// molecule_class_info_t::max_labelled_atom() {
-
-//    return n_labelled_atoms;
-// }
 
 
 // or as we would say in lisp: rember
@@ -2056,8 +2012,8 @@ molecule_class_info_t::unlabel_atom(int atom_index) {
    std::vector<int>::iterator it;
    for (it = labelled_atom_index_list.begin(); it != labelled_atom_index_list.end(); it++) {
       if ( *it == atom_index) {
-    labelled_atom_index_list.erase(it);
-    break;
+         labelled_atom_index_list.erase(it);
+         break;
       }
    }
 }
@@ -3405,33 +3361,31 @@ molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
 void
 molecule_class_info_t::draw_atom_label(int atom_index,
                                        int brief_atom_labels_flag,
-                                       short int seg_ids_in_atom_labels_flag) {
+                                       short int seg_ids_in_atom_labels_flag,
+                                       const glm::vec4 &atom_label_colour,
+                                       const glm::mat4 &mvp,
+                                       const glm::mat4 &view_rotation,
+                                       const glm::vec3 &eye_position) {
 
    if (has_model()) {
-
       if (atom_index < atom_sel.n_selected_atoms) {
-
-         mmdb::PAtom atom = (atom_sel.atom_selection)[atom_index];
-
+         mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
          if (atom) {
+            std::string label = make_atom_label_string(atom, brief_atom_labels_flag,
+                                                       seg_ids_in_atom_labels_flag);
+            graphics_info_t g;
 
-            std::string label = make_atom_label_string(atom, brief_atom_labels_flag, seg_ids_in_atom_labels_flag);
-
-            // GLfloat white[3] = { 1.0, 1.0, 1.0 };
-            GLfloat pink[3] =  { graphics_info_t::font_colour.red,
-                                 graphics_info_t::font_colour.green,
-                                 graphics_info_t::font_colour.blue };
-
-            // glClear(GL_COLOR_BUFFER_BIT);
-            glColor3fv(pink);
-            // glShadeModel (GL_FLAT);
-
-            // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-            graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
+            glm::vec3 position(atom->x, atom->y, atom->z);
+            g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
+                                               &g.shader_for_atom_labels, mvp, view_rotation,
+                                               g.lights, eye_position,
+                                               glm::vec4(g.background_colour, 1.0),
+                                               g.shader_do_depth_blur_flag,
+                                               g.perspective_projection_flag);
 
          }
       } else {
-         std::cout << "INFO:: trying to label atom out of range: "
+         std::cout << "INFO:: draw_atom_label() trying to label atom out of range: "
                    << atom_index << " " << atom_sel.n_selected_atoms
                    << " Removing label\n";
          unlabel_atom(atom_index);
@@ -3757,7 +3711,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
           if (is_intermediate_atoms_molecule)
              if (i==0)
-                if (i == 0) index_to_colour[i] = glm::vec4(0.75, 0.75, 0.75, 1.0);
+                index_to_colour[i] = glm::vec4(0.75, 0.65, 0.55, 1.0);
        } // end bond-colour for loop
 
     } else {
@@ -3783,6 +3737,19 @@ molecule_class_info_t::make_bonds_type_checked() {
     triangles.insert(triangles.end(), atom_bits.second.begin(), atom_bits.second.end());
     for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
        triangles[k].rebase(idx_base);
+
+    // --- bad CA-CA loop distances
+    if (bonds_box.n_bad_CA_CA_dist_spots > 0) {
+       idx_base = vertices.size();
+       idx_tri_base = triangles.size();
+       std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > bad_CA_CA_bits =
+          make_generic_vertices_for_bad_CA_CA_distances();
+
+       vertices.insert(vertices.end(), bad_CA_CA_bits.first.begin(), bad_CA_CA_bits.first.end());
+       triangles.insert(triangles.end(), bad_CA_CA_bits.second.begin(), bad_CA_CA_bits.second.end());
+       for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+          triangles[k].rebase(idx_base);
+    }
 
     // --- bonds ---
 
@@ -6482,6 +6449,49 @@ molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &
 // ----------------------------------------------------------------------
 //               Pointer Atoms
 // ----------------------------------------------------------------------
+
+bool
+molecule_class_info_t::have_atom_close_to_position(const coot::Cartesian &pos) const {
+
+   bool r = false;
+
+   float close_d = 0.5;
+   float close_d_squared = close_d * close_d;
+   if (atom_sel.mol) {
+      for(int imod = 1; imod <= atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float dd =
+                           (pos.x() - at->x) * (pos.x() - at->x) +
+                           (pos.y() - at->y) * (pos.y() - at->y) +
+                           (pos.z() - at->z) * (pos.z() - at->z);
+                        if (dd < close_d_squared) {
+                           r = true;
+                           break;
+                        }
+                     }
+                  }
+                  if (r) break;
+               }
+               if (r) break;
+            }
+            if (r) break;
+         }
+      }
+   }
+   return r;
+}
+
 void
 molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 
@@ -6576,109 +6586,120 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
       if (type == "Water") {
 
-    // special rule for water: we add a water to a water chain if
-    // possible
+         // special rule for water: we add a water to a water chain if
+         // possible
 
-    atom_p->SetAtomName(" O  ");
-    atom_p->SetElementName(" O");
-    res_p->SetResName("HOH");
+         atom_p->SetAtomName(" O  ");
+         atom_p->SetElementName(" O");
+         res_p->SetResName("HOH");
 
-    mmdb::Chain *w = water_chain();
-    int wresno = 1;
+         mmdb::Chain *w = water_chain();
+         int wresno = 1;
 
-    if (w) {
-       // remove a TER atom if it exists on the last residue
-       // prior to insertion of a new residue.
-       remove_TER_on_last_residue(w);
+         bool ok_to_add = true;
+         if (have_atom_close_to_position(pos))
+            ok_to_add = false;
 
-       // Now add atom to chain w.
-       std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
-       if (wresno_pair.first) {
-          wresno = wresno_pair.second;
-       } else {
-          wresno = 1;
-       }
-       res_p->seqNum = wresno;
-       res_p->AddAtom(atom_p);
-       w->AddResidue(res_p);
-       std::cout << atom_p << " added to molecule" << std::endl;
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
+         if (! ok_to_add) {
+            std::cout << "WARNING:: new atom addition blocked by nearby atom" << std::endl;
+            graphics_info_t g;
+            g.add_status_bar_text("WARNING:: new atom addition blocked by nearby atom");
+         } else {
 
-    } else {
-       // There was no water chain
-       res_p->AddAtom(atom_p);
-       std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
-       if (!pre_existing_chain_flag) {
-          chain_p->SetChainID(mol_chain_id.second.c_str());
-          atom_sel.mol->GetModel(1)->AddChain(chain_p);
-       }
-       res_p->seqNum = 1; // start of a new chain.
-       chain_p->AddResidue(res_p);
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
-    }
+            if (w) {
+               // remove a TER atom if it exists on the last residue
+               // prior to insertion of a new residue.
+               remove_TER_on_last_residue(w);
+
+               // Now add atom to chain w.
+               std::pair<short int, int> wresno_pair = next_residue_number_in_chain(w);
+               if (wresno_pair.first) {
+                  wresno = wresno_pair.second;
+               } else {
+                  wresno = 1;
+               }
+               res_p->seqNum = wresno;
+               res_p->AddAtom(atom_p);
+               w->AddResidue(res_p);
+               std::cout << atom_p << " added to molecule" << std::endl;
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel = make_asc(atom_sel.mol);
+               have_unsaved_changes_flag = 1;
+               make_bonds_type_checked();
+
+            } else {
+               // There was no water chain
+               res_p->AddAtom(atom_p);
+               std::cout << atom_p << " added to molecule (and new chain)" << std::endl;
+               if (!pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+               }
+               res_p->seqNum = 1; // start of a new chain.
+               chain_p->AddResidue(res_p);
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel = make_asc(atom_sel.mol);
+               have_unsaved_changes_flag = 1;
+               make_bonds_type_checked();
+            }
+         }
       } else {
 
-  	 // Not water
-    std::string element = "";
+         // Not water
+         std::string element = "";
 
-    if (mol_chain_id.first || pre_existing_chain_flag) {
+         if (mol_chain_id.first || pre_existing_chain_flag) {
 
-       if (bits.filled) {
-          bits.SetAtom(atom_p, res_p);
+            if (bits.filled) {
+               bits.SetAtom(atom_p, res_p);
 
-          res_p->AddAtom(atom_p);
-          std::cout << atom_p << " added to molecule" << std::endl;
-          if (! pre_existing_chain_flag) {
-             chain_p->SetChainID(mol_chain_id.second.c_str());
-            atom_sel.mol->GetModel(1)->AddChain(chain_p);
-          }
-          std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
-          int previous_max = 0;
-          if (ires_prev_pair.first) { // was not an empty chain
-             previous_max =  ires_prev_pair.second;
-            res_p->seqNum = previous_max + 1;
-          } else {
+               res_p->AddAtom(atom_p);
+               std::cout << atom_p << " added to molecule" << std::endl;
+               if (! pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+               }
+               std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+               int previous_max = 0;
+               if (ires_prev_pair.first) { // was not an empty chain
+                  previous_max =  ires_prev_pair.second;
+                  res_p->seqNum = previous_max + 1;
+               } else {
 
-     // was an empty chain.  Handle the shelx case:
+                  // was an empty chain.  Handle the shelx case:
 
-     if (! is_from_shelx_ins_flag) {
-        res_p->seqNum = 1 ; // start of a new chain.
-     } else {
-        // in a shelx molecule, we can't make the residue
-        // number 1 because there are no chains.  We need to
-        // make the residue number bigger than the biggest
-        // residue number so far.
-        ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
-        if (ires_prev_pair.first) {
-           res_p->seqNum = ires_prev_pair.second + 1;
-        } else {
-           res_p->seqNum = 1;
-        }
-     }
-          }
-       }
+                  if (! is_from_shelx_ins_flag) {
+                     res_p->seqNum = 1 ; // start of a new chain.
+                  } else {
+                     // in a shelx molecule, we can't make the residue
+                     // number 1 because there are no chains.  We need to
+                     // make the residue number bigger than the biggest
+                     // residue number so far.
+                     ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
+                     if (ires_prev_pair.first) {
+                        res_p->seqNum = ires_prev_pair.second + 1;
+                     } else {
+                        res_p->seqNum = 1;
+                     }
+                  }
+               }
+            }
 
        // Add this element to the sfac (redundancy check in the addition function
-       if (is_from_shelx_ins_flag) {
-          shelxins.add_sfac(element);
-       }
-       chain_p->AddResidue(res_p);
-       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-       atom_sel.mol->FinishStructEdit();
-       atom_sel = make_asc(atom_sel.mol);
-       have_unsaved_changes_flag = 1;
-       make_bonds_type_checked();
-    } else {
-       std::cout << "WARNING:: Can't find new chain for new atom\n";
-    }
+            if (is_from_shelx_ins_flag) {
+               shelxins.add_sfac(element);
+            }
+            chain_p->AddResidue(res_p);
+            atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+            atom_sel.mol->FinishStructEdit();
+            atom_sel = make_asc(atom_sel.mol);
+            have_unsaved_changes_flag = 1;
+            make_bonds_type_checked();
+         } else {
+            std::cout << "WARNING:: Can't find new chain for new atom\n";
+         }
       } // type was water, or not
 
    } else {
@@ -7166,138 +7187,60 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 // Backup filename: return a stub.
 //
 std::string
-molecule_class_info_t::save_molecule_filename(const std::string &dir) {
+molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
 
-   std::string time_string = save_time_string;
+   auto replace_char = [] (const std::string &s, char a) {
+                          std::string r = s;
+                          int slen = s.length();
+                          for (int i=0; i<slen; i++) {
+                             if (r[i] == a)
+                                r[i] = '_';
+                          }
+                          return r;
+                       };
+
    graphics_info_t g;
+   bool decolonify = g.decoloned_backup_file_names_flag;
+   std::string t_name_1 = name_;
+   if (g.unpathed_backup_file_names_flag)
+      t_name_1 = name_for_display_manager();
+   std::string t_name_2 = replace_char(t_name_1, '/');
+   std::string t_name_3 = replace_char(t_name_2, ' ');
 
-   if ((history_index == 0) ||
-       history_index != max_history_index) {
-
-      time_string = dir;
-
-      // unix dependent logic here:  Don't know how to do this on other systems...
-      // We want a filename proceeded by a directory name:
-      // i.e. we end up with something like
-      // "coot-backup/a.pdb_Tues_Aug_19_20:16:00_2003_modification_0.mmdbbin"
-
-      time_string += "/";
-
-      std::string clean_name = name_;
-      if (g.unpathed_backup_file_names_flag) {
-         clean_name = name_for_display_manager();
-      }
-      // convert "/" to "_"
-      int slen = clean_name.length();
-      for (int i=0; i<slen; i++)
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW)
-// BL says: we change /, \ and : to _ in windows
-         if (clean_name[i] == '/' || clean_name[i] == '\\'
-                             || clean_name[i] == ':')
-            clean_name[i] = '_';
-#else
-    if (clean_name[i] == '/')
-       clean_name[i] = '_';
-#endif // win32 things
-
-      time_string += clean_name;
-      time_string += "_";
-
-      // add in the time component:
-
+   if (save_time_string.empty()) {
       time_t t;
       time(&t);
       char *chars_time = ctime(&t);
       int l = strlen(chars_time);
-
-      bool decolonify = g.decoloned_backup_file_names_flag;
-
-#ifdef WINDOWS_MINGW
-      decolonify = true;
-#endif
-
-      if (decolonify) {
-         // we just convert the : to _
-         for (int i=0; i<l; i++) {
-            if (chars_time[i] == ':') {
-                chars_time[i] = '_';
-            }
-         }
+      save_time_string = chars_time;
+      if (! save_time_string.empty()) {
+         std::string::size_type l = save_time_string.length();
+         save_time_string = save_time_string.substr(0, l-1);
       }
-
-      time_string += chars_time;
-
-      // strip off the trailing newline:
-      slen = time_string.length();
-      if (slen > 2)
-         time_string = time_string.substr(0,slen-1);
-
-      // convert spaces to underscores
-      //
-      for (unsigned int i=0; i<time_string.length(); i++)
-    if (time_string[i] == ' ')
-       time_string[i] = '_';
-
-#if defined(__WIN32__) || defined(__CYGWIN__) || defined(WINDOWS_MINGW) || defined(_MSC_VER)
-
-      // convert : to underscores in windows
-      //
-#ifndef WINDOWS_MINGW
-      // BL say: nonsense since we would transform the directory C: here.
-      // we have done it before already
-      for (int i=0; i<time_string.length(); i++)
-    if (time_string[i] == ':')
-       time_string[i] = '_';
-#endif // MINGW
-#endif // other win32
-
-      time_string += "_modification_";
-
-      save_time_string = time_string; // why do we do this?  Ah, because we want the
-                                      // time to calculated at the start:
-                                      // and use that as a stub.
-
-      time_string += g.int_to_string(history_index);
-      //time_string += ".mmdbbin";
-      if (! is_from_shelx_ins_flag)
-    time_string += ".pdb";
-      else
-    time_string += ".res";
-
-#if defined(_MSC_VER)
-      // we can do now too (I hope for all of them?!?)
-      // lets be save and only assume WINDOWS_MINGW can do it
-      // maybe we can just deal with it using the compress_flag rather
-      // than hard coding?
-#else
-      if (! is_from_shelx_ins_flag) {
-        if (g.backup_compress_files_flag) {
-          time_string += ".gz"; // 'cos we can do compression.  Groovy baby!
-        }
-      }
-#endif
-
-   } else {
-      // (this is not the first save molecule that we have done)
-
-      // add to the stub that we have previously generated.
-      //
-      time_string += g.int_to_string(history_index);
-      if (! is_from_shelx_ins_flag)
-    time_string += ".pdb";
-      else
-    time_string += ".res";
-#if defined(_MSC_VER)
-      // same here
-#else
-      if (! is_from_shelx_ins_flag) {
-        if (g.backup_compress_files_flag) {
-          time_string += ".gz";
-        }
-      }
-#endif
+      save_time_string = replace_char(save_time_string, ' ');
+      save_time_string = replace_char(save_time_string, '/');
+      if (decolonify)
+         save_time_string = replace_char(save_time_string, ':');
    }
-   return time_string;
+   std::string time_string = save_time_string;
+   std::string t_name_4 = t_name_3 + "_" + time_string;
+
+   std::string index_string = coot::util::int_to_string(history_index);
+   std::string t_name_5 = t_name_4 + "_modification_" + index_string;
+
+   std::string extension = ".pdb";
+   if (coot::is_mmcif_filename(name_))
+      extension = ".cif";
+   if (is_from_shelx_ins_flag)
+      extension = ".res";
+   if (g.backup_compress_files_flag)
+      extension += ".gz";
+
+   std::string t_name_6 = t_name_5 + extension;
+
+   std::string save_file_name = coot::util::append_dir_file(dir, t_name_6);
+   return save_file_name;
+
 }
 
 // Return like mkdir: mkdir returns zero on success, or -1 if an  error  occurred
@@ -7340,73 +7283,73 @@ molecule_class_info_t::make_backup() { // changes history details
        env_var = NULL;
     }
       }
+
       if (env_var)
     backup_dir = env_var;
 
       if (atom_sel.mol) {
-    int dirstat = make_maybe_backup_dir(backup_dir);
+	 int dirstat = make_maybe_backup_dir(backup_dir);
 
-    if (dirstat != 0) {
-       // fallback to making a directory in $HOME
-       const char *home_dir = getenv("HOME");
-       if (home_dir) {
-          backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
-          dirstat = make_maybe_backup_dir(backup_dir);
-          if (dirstat != 0) {
-     std::cout << "WARNING:: backup directory "<< backup_dir
-       << " failure to exist or create" << std::endl;
-          } else {
-     std::cout << "INFO using backup directory " << backup_dir << std::endl;
-          }
-       } else {
-          std::cout << "WARNING:: backup directory "<< backup_dir
-    << " failure to exist or create" << std::endl;
-       }
-    }
+	 if (dirstat != 0) {
+	    // fallback to making a directory in $HOME
+	    const char *home_dir = getenv("HOME");
+	    if (home_dir) {
+	       backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
+	       dirstat = make_maybe_backup_dir(backup_dir);
+	       if (dirstat != 0) {
+		  std::cout << "WARNING:: backup directory "<< backup_dir
+			    << " failure to exist or create" << std::endl;
+	       } else {
+		  std::cout << "INFO using backup directory " << backup_dir << std::endl;
+	       }
+	    } else {
+	       std::cout << "WARNING:: backup directory "<< backup_dir
+			 << " failure to exist or create" << std::endl;
+	    }
+	 }
 
-    if (dirstat == 0) {
-       // all is hunkey-dorey.  Directory exists.
-       std::string backup_file_name = save_molecule_filename(backup_dir);
- 	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
+	 if (dirstat == 0) {
+	    // all is hunkey-dorey.  Directory exists.
 
-#if defined(_MSC_VER)
-            // and again, although not used any more!?
-       mmdb::byte gz = mmdb::io::GZM_NONE;
-#else
-       mmdb::byte gz;
-       if (g.backup_compress_files_flag) {
-          gz = mmdb::io::GZM_ENFORCE;
-       } else {
-          gz = mmdb::io::GZM_NONE;
-       }
-#endif
-       // Writing out a modified binary mmdb like this results in the
-       // file being unreadable (crash in mmdb read).
-       //
-       int istat;
-       if (! is_from_shelx_ins_flag) {
-          bool as_cif = false;
-          istat = write_atom_selection_file(atom_sel, backup_file_name, as_cif, gz);
-          // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
-          if (istat) {
-             std::string warn;
-             warn = "WARNING:: WritePDBASCII failed! Return status ";
-             warn += istat;
-             g.info_dialog_and_text(warn);
-          }
-       } else {
-          std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
-          istat = p.first;
-       }
+	    std::string backup_file_name = get_save_molecule_filename(backup_dir);
+ 	    std::cout << "INFO:: backup file name " << backup_file_name << std::endl;
 
-       save_history_file_name(backup_file_name);
-       if (history_index == max_history_index)
-          max_history_index++;
-       history_index++;
-    }
+	    mmdb::byte gz;
+	    if (g.backup_compress_files_flag) {
+	       gz = mmdb::io::GZM_ENFORCE;
+	    } else {
+	       gz = mmdb::io::GZM_NONE;
+	    }
+
+	    // Writing out a modified binary mmdb like this results in the
+	    // file being unreadable (crash in mmdb read).
+	    //
+	    int istat;
+	    if (! is_from_shelx_ins_flag) {
+	       bool write_as_cif = false;
+	       if (coot::is_mmcif_filename(name_))
+		  write_as_cif = true;
+	       istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
+	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
+	       if (istat) {
+		  std::string warn;
+		  warn = "WARNING:: WritePDBASCII failed! Return status ";
+		  warn += istat;
+		  g.info_dialog_and_text(warn);
+	       }
+	    } else {
+	       std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);
+	       istat = p.first;
+	    }
+
+	    save_history_file_name(backup_file_name);
+	    if (history_index == max_history_index)
+	       max_history_index++;
+	    history_index++;
+	 }
       } else {
-    std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"
-      << std::endl;
+	 std::cout << "WARNING:: BACKUP:: Ooops - no atoms to backup for this empty molecule"
+		   << std::endl;
       }
    } else {
       // Occasionally useful but mostly tedious...

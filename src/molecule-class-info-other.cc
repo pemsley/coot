@@ -970,9 +970,9 @@ molecule_class_info_t::get_term_type(int atom_index) {
 
    std::string term_type = "not-terminal-residue"; // returned thing
 
-   // These are the clicked atom's parameters:
-   //
-   // char *chainid = atom_sel.atom_selection[atom_index]->GetChainID();
+   if (atom_index < 0) return "";
+   if (atom_index >= atom_sel.n_selected_atoms) return "";
+
    int ires_atom = atom_sel.atom_selection[atom_index]->GetSeqNum();
    mmdb::PChain chain = atom_sel.atom_selection[atom_index]->GetChain();
    int nres = chain->GetNumberOfResidues();
@@ -1529,6 +1529,13 @@ molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &
    }
    return something_deleted;
 }
+
+short int
+molecule_class_info_t::delete_residue_sidechain(const coot::residue_spec_t &rs) {
+
+   return delete_residue_sidechain(rs.chain_id, rs.res_no, rs.ins_code);
+}
+
 
 
 short int

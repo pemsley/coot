@@ -2320,6 +2320,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 return True
         return False
 
+    def is_nucleotide(imol, ch_id, res_no):
+        type_list = ["G", "A", "T", "U", "C", "DA", "DG", "DT", "DC"]
+        rn = residue_name(imol, ch_id, res_no, "")
+        return rn in type_list
+
     #
     def overlap_by_main_chain(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
                               imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
@@ -2331,6 +2336,48 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                               [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "]))
         apply_lsq_matches(imol_ref, imol_mov)
 
+    def is_purine(res_name):
+        type_list = ["G", "A", "DA", "DG"]
+        return res_name in type_list
+
+    def is_pyrimidine(res_name):
+        type_list = ["T", "U", "C", "DT", "DC"]
+        return res_name in type_list
+
+    def overlap_by_base(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
+                        imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
+
+        clear_lsq_matches()
+        rn_1 = residue_name(imol_mov, chain_id_mov, res_no_mov, ins_code_mov)
+        rn_2 = residue_name(imol_ref, chain_id_ref, res_no_ref, ins_code_ref)
+        purine_set = [ " N9 ", " N7 ", " C5 ", " N1 ", " N3 "]
+        pyrimidine_set = [ " N1 ", " C5 ", " N3 "]
+        purine_to_pyrimidine_set = [ " N1 ", " C2 ", " N3 "]
+        pyrimidine_to_purine_set = [ " N9 ", " C4 ", " N5 "]
+
+        atom_list_1 = []
+        atom_list_2 = []
+
+        if is_purine(rn_1):
+            if is_purine(rn_2):
+                atom_list_1 = purine_set
+                atom_list_2 = purine_set
+        
+        if is_pyrimidine(rn_1):
+            if is_pyrimidine(rn_2):
+                atom_list_1 = pyrimidine_set
+                atom_list_2 = pyrimidine_set
+
+        if is_purine(rn_1):
+            if is_pyrimidine(rn_2):
+                atom_list_1 = purine_to_pyrimidine_set
+                atom_list_2 = pyrimidine_to_purine_set
+        
+        if is_pyrimidine(rn_1):
+            if is_purine(rn_2):
+                atom_list_1 = pyrimidine_to_purine_set
+                atom_list_2 = purine_to_pyrimidine_set
+        
     # get_monomer_and_dictionary, now we check to see if we have a
     # molecule already loaded that matches this residue, if we have,
     # then use it.
@@ -2371,7 +2418,8 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
             else:
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
-            match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+            if (not is_nucleotide(imol_ligand, "A", 1)):
+                match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
             delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             print("BL DEBUG:: new_chain_id_info: ", new_chain_id_info)

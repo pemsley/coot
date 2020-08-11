@@ -380,6 +380,15 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    return 1;
 }
 
+void
+graphics_info_t::add_picked_atom_info_to_status_bar(int imol, int atom_index) {
+
+   std::string ai;
+   ai = atom_info_as_text_for_statusbar(atom_index, imol);
+   add_status_bar_text(ai);
+}
+
+
 // This is a function like:
 // graphics_info_t::set_go_to_atom_chain_residue_atom_name(const char
 // *t1, int it2, const char *t3, const char *altLoc)

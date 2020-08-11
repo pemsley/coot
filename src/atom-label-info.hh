@@ -4,6 +4,8 @@
 
 #include <string>
 
+// not really an atom label.
+
 class atom_label_info_t {
 public:
    std::string label;

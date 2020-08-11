@@ -145,6 +145,7 @@ void update_go_to_atom_residue_list(int imol) {
 
 /* utility function, moving widget work out of c-interface-build.cc */
 void delete_object_handle_delete_dialog(short int do_delete_dialog) {
+
    if (graphics_info_t::delete_item_widget != NULL) {
       if (do_delete_dialog) { // via ctrl
 
@@ -160,13 +161,6 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog) {
                                  // graphics-info-define's delete_item().
 	 } else {
 
-	    gint upositionx, upositiony;
-	    GdkWindow *window = gtk_widget_get_window(graphics_info_t::delete_item_widget);
-	    // gdk_window_get_root_origin (window,
-	    // &upositionx, &upositiony);
-	    gtk_window_get_position(GTK_WINDOW(window), &upositionx, &upositiony);
-	    graphics_info_t::delete_item_widget_x_position = upositionx;
-	    graphics_info_t::delete_item_widget_y_position = upositiony;
 	    gtk_widget_destroy(graphics_info_t::delete_item_widget);
 	    graphics_info_t::delete_item_widget = NULL;
 	    graphics_draw();
@@ -477,8 +471,6 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
 
 void apply_add_OXT_from_widget(GtkWidget *ok_button) {
-
-   std::cout << "---------- apply_add_OXT_from_widget() " << ok_button << std::endl;
 
    GtkWidget *combobox = lookup_widget(ok_button, "add_OXT_molecule_combobox");
 

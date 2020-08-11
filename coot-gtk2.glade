@@ -19782,6 +19782,28 @@ checks the value of this checkbutton</property>
 	      <property name="fill">False</property>
 	    </packing>
 	  </child>
+
+	  <child>
+	    <widget class="GtkEntry" id="residue_type_chooser_entry">
+	      <property name="visible">True</property>
+	      <property name="tooltip" translatable="yes">Type the single letter code the &quot;Enter&quot; to execute</property>
+	      <property name="can_focus">True</property>
+	      <property name="has_focus">True</property>
+	      <property name="editable">True</property>
+	      <property name="visibility">True</property>
+	      <property name="max_length">0</property>
+	      <property name="text" translatable="yes"></property>
+	      <property name="has_frame">True</property>
+	      <property name="invisible_char">•</property>
+	      <property name="activates_default">False</property>
+	      <signal name="key_press_event" handler="on_residue_type_chooser_entry_key_press_event" last_modification_time="Thu, 06 Aug 2020 13:41:33 GMT"/>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
+	    </packing>
+	  </child>
 	</widget>
       </child>
     </widget>

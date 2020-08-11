@@ -1591,7 +1591,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 	    else
 	       item = goo_canvas_ellipse_new(residues_grp,
 					     phi, -psi,
-					     4.0, 4.0,
+					     5.0, 5.0,
 					     "fill-color", colour.c_str(),
 					     "stroke-color", outline_color.c_str(),
 					     "line-width", 1.,

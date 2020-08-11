@@ -329,7 +329,7 @@ class molecule_class_info_t {
 
    // saving temporary files (undo)
    //
-   std::string save_molecule_filename(const std::string &dir);
+   std::string get_save_molecule_filename(const std::string &dir);
    int make_backup(); // changes history details
    int make_maybe_backup_dir(const std::string &filename) const;
    bool backup_this_molecule;
@@ -706,7 +706,12 @@ public:        //                      public
 			  int brief_atom_labels_flag,
 			  short int seg_ids_in_atom_labels_flag) const;
 
-   void draw_atom_label(int atom_index, int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_label(int atom_index, int brief_atom_labels_flag,
+                        short int seg_ids_in_atom_labels_flag,
+                        const glm::vec4 &atom_label_colour,
+                        const glm::mat4 &mvp,
+                        const glm::mat4 &view_rotation,
+                        const glm::vec3 &eye_position);
 
    // don't count the mainchain of the peptide-linked residues
    //
@@ -952,6 +957,8 @@ public:        //                      public
 
    mmdb::Atom *get_atom(int idx) const;
 
+   bool have_atom_close_to_position(const coot::Cartesian &pos) const;
+
    // return the maximum residue number in the chain. first of false means failure to do so.
    //
    std::pair<bool,int> max_res_no_in_chain(mmdb::Chain *chain_p) const;
@@ -998,7 +1005,12 @@ public:        //                      public
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
    void make_glsl_bonds_type_checked();
 
-   void draw_atom_labels(int brief_atom_labels_flag, short int seg_ids_in_atom_labels_flag);
+   void draw_atom_labels(int brief_atom_labels_flag,
+                         short int seg_ids_in_atom_labels_flag,
+                         const glm::vec4 &atom_label_colour,
+                         const glm::mat4 &mvp,
+                         const glm::mat4 &view_rotation,
+                         const glm::vec3 &eye_position);
 
    //
    void update_molecule_after_additions(); // cleanup, new
@@ -1663,6 +1675,8 @@ public:        //                      public
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
+   short int delete_residue_sidechain(const coot::residue_spec_t &rs);
+
    bool delete_atom(const std::string &chain_id,
 		    int resno,
 		    const std::string &ins_code,
@@ -2932,6 +2946,8 @@ public:        //                      public
    void setup_glsl_map_rendering();
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   make_generic_vertices_for_bad_CA_CA_distances() const;
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);
 
    void setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
@@ -3421,7 +3437,6 @@ public:        //                      public
 
    std::vector<Mesh> meshes;
 
-   void add_mesh_for_atom_label(int atom_index);
 
 };
 

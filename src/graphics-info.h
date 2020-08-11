@@ -155,6 +155,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "meshed-generic-display-object.hh"
 
+#include "simple-distance-object.hh"
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -250,27 +251,6 @@ namespace coot {
       clipper::Coord_orth p2;
       clipper::Coord_orth p3;
    };
-
-
-   class simple_distance_object_t {
-   public:
-     clipper::Coord_orth start_pos;
-     clipper::Coord_orth end_pos;
-     int imol_start;
-     int imol_end;
-     simple_distance_object_t(int imol1,
-			      const clipper::Coord_orth &start,
-			      int imol2,
-			      const clipper::Coord_orth &end) {
-       start_pos = start;
-       end_pos = end;
-       imol_start = imol1;
-       imol_end = imol2;
-     }
-     friend std::ostream& operator<<(std::ostream &s, simple_distance_object_t o);
-   };
-   std::ostream& operator<<(std::ostream &s, simple_distance_object_t o);
-
 
    class intermediate_atom_distance_t {
      Cartesian static_position;
@@ -905,7 +885,7 @@ class graphics_info_t {
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
    void info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const;
-   void info_dialog_refinement_non_matching_atoms(std::vector<std::pair<std::string, std::vector<std::string> > > nma);
+   void info_dialog_refinement_non_matching_atoms(std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > nma);
 
    // bottom left flat ligand view:
    //
@@ -2426,10 +2406,11 @@ public:
    // return success status: 1 for success
    int execute_add_terminal_residue(int imol,
 				     const std::string &terminus,
-				     mmdb::Residue *res_p,
+				     mmdb::Residue *residue_p,
 				     const std::string &chain_id,
 				     const std::string &res_type,
-				     short int immediate_addition_flag);
+				     bool immediate_addition_flag);
+   void add_terminal_residue_using_active_atom(); // wraps above
    void execute_simple_nucleotide_addition(int imol, const std::string &term_type,
                                            mmdb::Residue *res_p, const std::string &chain_id);
    void execute_simple_nucleotide_addition(int imol, const std::string &chain_id, int res_no);
@@ -2873,6 +2854,8 @@ public:
    void apply_residue_info_changes(GtkWidget *t);
    static void residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidget *widget);
    static void residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *widget);
+
+   void add_picked_atom_info_to_status_bar(int imol, int atom_index);
 
    // crosshairs
    static short int draw_crosshairs_flag;
@@ -4109,7 +4092,7 @@ string   static std::string sessionid;
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();
    static void draw_intermediate_atoms();
-   static void draw_molecule_atom_labels(const molecule_class_info_t &m,
+   static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_molecular_triangles();
@@ -4173,6 +4156,11 @@ string   static std::string sessionid;
    /*! \brief shiftfield xyz refinement */
    void shiftfield_xyz_factor_refinement(int imol);
 
+   // if pull_restraint_neighbour_displacement_max_radius < 1.5 (say) then
+   // turn off proportional editing.
+   static float pull_restraint_neighbour_displacement_max_radius;
+   void pull_restraint_neighbour_displacement_change_max_radius(bool up_or_down); // change above
+   static void draw_pull_restraint_neighbour_displacement_max_radius_circle();
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

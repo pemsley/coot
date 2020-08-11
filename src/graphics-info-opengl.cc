@@ -91,7 +91,7 @@ graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coord
    glm::vec4 screenPos = glm::vec4(projected_coords, 1.0f);
    glm::vec4 c = vp_inv * screenPos;
 
-   std::cout << "debug:: unproject_to_world_coordinates() c " << glm::to_string(c) << std::endl;
+   // std::cout << "debug:: unproject_to_world_coordinates() c " << glm::to_string(c) << std::endl;
    double oow = 1.0/c.w;
    return glm::vec3(c.x * oow, c.y * oow, c.z * oow);
 

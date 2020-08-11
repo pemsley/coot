@@ -432,6 +432,7 @@ coot_bin_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	eyes.cc eyes.hh		 \
 	flev.hh			 \
 	flev.cc                  \
         framebuffer.cc           \
@@ -456,6 +457,7 @@ coot_bin_SOURCES = \
 	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
+	graphics-info-draw.cc    \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
@@ -581,6 +583,7 @@ coot_bin_SOURCES = \
 	seq-view-interface.c     \
 	seq-view-interface.h     \
 	Shader.cc Shader.hh      \
+        simple-distance-object.hh \
 	startup-scripts.hh       \
 	support.c support.h      \
 	select-atom-info.hh      \

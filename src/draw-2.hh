@@ -21,3 +21,11 @@ void remap_key(const std::string &description, int);
 // moved into graphics_info_t
 // glm::vec4 new_unproject(float z);
 
+
+glm::vec3 get_camera_up_direction(const glm::mat4 &mouse_quat_mat);
+
+gboolean
+glarea_tick_func(GtkWidget *widget,
+                 GdkFrameClock *frame_clock,
+                 gpointer data);
+

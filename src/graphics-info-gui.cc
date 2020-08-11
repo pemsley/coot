@@ -176,7 +176,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
       // now set the position, if it was set:
 
-      if (true)
+      if (false)
 	 std::cout << "Here...... outer "
 		   << graphics_info_t::accept_reject_dialog_x_position
 		   << " "
@@ -500,22 +500,30 @@ graphics_info_t::info_dialog_alignment(coot::chain_mutation_info_container_t mut
 }
 
 void
-graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair<std::string, std::vector<std::string> > > nma) {
+graphics_info_t::info_dialog_refinement_non_matching_atoms(std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > nma) {
 
    std::string s = "WARNING:: Failed to match (to the dictionary) the following model atom names:\n";
    for (unsigned int i=0; i<nma.size(); i++) {
       s += "   ";
-      s += nma[i].first;
-      s += "\n   ";
+      s += nma[i].first->GetChainID();
+      s += " ";
+      s += int_to_string(nma[i].first->GetSeqNum());
+      s += " ";
+      s += nma[i].first->GetResName();
+      s += "  ";
       for (unsigned int j=0; j<nma[i].second.size(); j++) {
 	 s += "\"";
 	 s += nma[i].second[j];
 	 s += "\"   ";
       }
       s += "\n";
+   }
+
+   if(! nma.empty()) {
       s += "\n";
       s += "   That would cause exploding atoms, so the refinement didn't start\n";
    }
+
 
    GtkWidget *dialog = info_dialog(s); // get trashed by markup text
    if (dialog) {

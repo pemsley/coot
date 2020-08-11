@@ -31,7 +31,14 @@ namespace coot {
          float d() const;
          float d_squared() const;
       };
+
+
+      double get_radius(const std::string &ele) const;
       // std::ostream &operator<<(std::ostream &s, const box_index_t &bi);
+      std::vector<std::pair<mmdb::Atom *, float> >
+      solvent_exposure_old_version(int selhnd, mmdb::Manager *mol) const;
+      std::vector<std::pair<mmdb::Residue *, float> >
+      solvent_exposure(mmdb::Manager *mol, bool side_chain_only=true) const;
 
    private:
       enum mode_t {REFERENCE, ANALYSIS};
@@ -77,6 +84,7 @@ namespace coot {
       void compare_boxes() const;
       void presize_boxes(mode_t mode=REFERENCE);
       void normalize();
+      void normalize_v2();
       void envelope();
       void smooth();
 

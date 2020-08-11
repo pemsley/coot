@@ -2532,6 +2532,14 @@ namespace coot {
       //
       std::vector<atom_spec_t> turn_off_atom_pull_restraints_when_close_to_target_position(const atom_spec_t &dragged_atom);
 
+      void pull_restraint_displace_neighbours(mmdb::Atom *at,
+                                              const clipper::Coord_orth &new_pull_atom_target_position,
+                                              float radius_of_effect);
+      bool use_proportional_editing;
+      float pull_restraint_neighbour_displacement_max_radius;
+      void set_use_proportional_editing(bool state);
+
+
       bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
 
       // more debugging interface:
