@@ -386,7 +386,8 @@
 # 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
 # 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
 # 5.30 20180109 Update python version.
-script_version=5.30
+# 6.00 20200812 include glm
+script_version=6.00
 
 
 
@@ -2900,7 +2901,7 @@ if [ "$build_boost" = true ] ; then
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
       cd - 
    fi
-   ) > $HOSTLOGDIR/16-boost.log
+   ) > $HOSTLOGDIR/16-boost.txt
 fi
 
 
@@ -3012,6 +3013,29 @@ else
        ) > $HOSTLOGDIR/15-raster3d.txt 2>&1
    fi
 fi
+
+
+###############################################################################
+##########         GLM                                            #############
+###############################################################################
+if [ -e $install_top_dir/include/glm/glm.hpp ] ; then
+   echo not building glm
+else
+   echo BUILDING glm:
+    glm_version=0.9.9.2
+    ${WGET} $extras_place/glm-$glm_version.tar.gz
+    (
+    date
+    pwd
+    gzip -dc ${AUTOBUILD_SOURCES}/glm-$glm_version.tar.gz | tar xf -
+    cd glm-$glm_version
+    cmake . -DCMAKE_INSTALL_PREFIX=$install_top_dir
+    if $MAKE ; then
+       make install
+    fi
+    ) > $HOSTLOGDIR/16-glm.txt 2>&1
+fi
+
 
 
 ###############################################################################
