@@ -249,6 +249,9 @@
 (define (model-molecule-number-list)
   (filter valid-model-molecule? (molecule-number-list)))
 
+(define (display-all-maps)
+  (let ((map-list (map-molecule-list)))
+    (for-each (lambda (imol) (set-map-displayed imol 1)) map-list)))
 
 
 ;; c.f. graphics_info_t::undisplay_all_model_molecules_except(int imol)
@@ -263,8 +266,7 @@
 	      map-list)
     (set-map-displayed imol-map 1)))
 
-
-(define (just-one-or-next-map)
+(define (display-cycle-through-maps)
 
   ;; return an index or #f, lst must be a list
   (define (find-in-list item lst)
@@ -302,9 +304,18 @@
        ((= n-displayed 0) (if (> (length map-list) 0)
 			      (undisplay-all-maps-except (car map-list))))
        ((= n-displayed 1) (if (> (length map-list) 1)
-			      (undisplay-all-maps-except (next-map (car current-displayed-maps)
-								   map-list))))
-       (else (undisplay-all-maps-except (car (reverse current-displayed-maps)))))))))
+                              (let ((nm (next-map (car current-displayed-maps) map-list))
+                                    (currently-displayed-map (car current-displayed-maps)))
+                                (if (> nm currently-displayed-map)
+                                    (undisplay-all-maps-except nm)
+                                    (display-all-maps)))))
+
+       (else (undisplay-all-maps-except (car current-displayed-maps))))))))
+
+;; is isn't quite because one of the options is "all"
+(define (just-one-or-next-map)
+  (display-cycle-through-maps))
+
 
 ;; first n fields of ls. if length ls is less than n, return ls.
 ;; if ls is not a list, return ls.  If n is negative, return ls.

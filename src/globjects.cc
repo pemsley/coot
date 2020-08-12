@@ -338,7 +338,7 @@ int graphics_info_t::file_selection_dialog_y_size = -1;
 // things for quaternion-based view rotation:
 double graphics_info_t::mouse_current_x = 0.0;
 double graphics_info_t::mouse_current_y = 0.0;
-float* graphics_info_t::quat = new float[4];
+// float* graphics_info_t::quat = new float[4]; // gone. Use glm_quat
 float graphics_info_t::trackball_size = 12.8; // better for me for now. was 0.8
 
 // residue reorientation on "space"
@@ -348,7 +348,7 @@ bool graphics_info_t::reorienting_next_residue_mode = false;
 // things for baton quaternion rotation: Must use a c++ class at some
 // stage:
 // baton
-float* graphics_info_t::baton_quat = new float[4];
+// float* graphics_info_t::baton_quat = new float[4]; // gone - needs glm::quat version
 float  graphics_info_t::baton_length = 3.8; // A;
 int    graphics_info_t::baton_next_ca_options_index = 0;
 int    graphics_info_t::user_set_baton_atom_molecule = -1; // initially unset
@@ -1822,10 +1822,10 @@ init_gl_widget(GtkWidget *widget) {
 
 
    // last value does not matter because zero rotation
-   trackball(graphics_info_t::quat , 0.0, 0.0, 0.0, 0.0, 0.0);
+   // trackball(graphics_info_t::quat , 0.0, 0.0, 0.0, 0.0, 0.0);
 
    // initialize also the baton quaternion
-   trackball(graphics_info_t::baton_quat , 0.0, 0.0, 0.0, 0.0, 0.0);
+   // trackball(graphics_info_t::baton_quat , 0.0, 0.0, 0.0, 0.0, 0.0);
 
 
    // gtk_idle_add((GtkFunction)animate, widget);
@@ -2382,7 +2382,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	    // 	      << endl;
 
 	    // args: q1, q2, destination
-	    add_quats(spin_quat, info.quat, info.quat);
+	    // add_quats(spin_quat, info.quat, info.quat);
 
 	    // 	 cout << "spin_quat " << spin_quat[0] << " " << spin_quat[1] << " "
 	    // 	      << spin_quat[2] << " " << spin_quat[3] << endl;
@@ -2542,6 +2542,7 @@ do_button_zoom(gdouble x, gdouble y) {
 void
 do_screen_z_rotate(gdouble x, gdouble y) {
 
+#if 0
    // c. f. animate_idle()
 
    float spin_quat[4];
@@ -2580,6 +2581,7 @@ do_screen_z_rotate(gdouble x, gdouble y) {
    trackball(spin_quat,  0.0, 1.0, x_diff, 1.0, 0.5);
    add_quats(spin_quat, g.quat, g.quat);
    g.graphics_draw();
+#endif
 }
 
 void
@@ -3577,6 +3579,9 @@ gint idle_contour_function(gpointer data) {
 gint
 animate_idle_spin(gpointer data) {
 
+   // get rid of this function
+
+#if 0
    float spin_quat[4];
    graphics_info_t g;
 
@@ -3586,6 +3591,7 @@ animate_idle_spin(gpointer data) {
    add_quats(spin_quat, g.quat, g.quat);
 
    g.graphics_draw();
+#endif
 
    return 1;
 }
@@ -3595,6 +3601,7 @@ animate_idle_spin(gpointer data) {
 gint
 animate_idle_rock(gpointer user_data) {
 
+#if 0 // get rid of this function
    graphics_info_t g;
    double target_angle = get_idle_function_rock_target_angle();
    double curr_angle = g.idle_function_rock_angle_previous;
@@ -3620,6 +3627,7 @@ animate_idle_rock(gpointer user_data) {
       g.idle_function_rock_angle_previous = target_angle; // for next round
 
    }
+#endif
    return 1;  // keep going
 }
 

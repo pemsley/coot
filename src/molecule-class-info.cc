@@ -944,157 +944,234 @@ molecule_class_info_t::draw_anisotropic_atoms() {
 }
 
 coot::colour_t
-molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_dark_background) {
 
+   // this is used for intermediate atoms
+
+   coot::colour_t col(0.5, 0.5, 0.5);
+
+   if (true) {  // background check
+      switch (colour_index) {
+      case CARBON_BOND:
+	 col = coot::colour_t (0.2, 0.7, 0.1);
+	 break;
+      case GREEN_BOND:
+	 col = coot::colour_t (0.0, 0.7, 0.0);
+	 break;
+      case BLUE_BOND:
+	 col = coot::colour_t (0.2, 0.2, 0.8);
+	 break;
+      case RED_BOND:
+	 col = coot::colour_t (0.8, 0.1, 0.1);
+	 break;
+      case YELLOW_BOND:
+	 col = coot::colour_t (0.7, 0.7, 0.0);
+	 break;
+      case GREY_BOND:
+	 col = coot::colour_t (0.5, 0.5, 0.5);
+	 break;
+      case HYDROGEN_GREY_BOND:
+	 col = coot::colour_t (0.7, 0.7, 0.7);
+	 break;
+      case MAGENTA_BOND:
+	 col = coot::colour_t (0.8, 0.1, 0.8);
+	 break;
+      case DARK_GREEN_BOND:
+	 col = coot::colour_t (0.05, 0.69, 0.05);
+	 break;
+      case DARK_ORANGE_BOND:
+	 col = coot::colour_t (0.7, 0.7, 0.05);
+	 break;
+      case DARK_BROWN_BOND:
+	 col = coot::colour_t (0.5, 0.5, 0.1);
+	 break;
+      default:
+	 col = coot::colour_t (0.7, 0.8, 0.8);
+      }
+   }
+   return col;
+}
+
+coot::colour_t
+molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
+
+
+   GLenum err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() --start-- " << err << std::endl;
    coot::colour_t rgb;
 
    if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(i);
+      rgb = get_bond_colour_basic(colour_index, against_a_dark_background);
+      err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1 a1 " << err << std::endl;
    } else {
-      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
+
       float rotation_size = bonds_colour_map_rotation/360.0;
 
-//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
-// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
-
       // rotation_size typically then: 2*32/360 = 0.178
+      err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1a " << colour_index << std::endl;
 
-      while (rotation_size > 1.0) { // no more black bonds?
-    rotation_size -= 1.0;
-      }
-      if (against_a_dark_background) {
-
-	 if (false)
-	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-		      << " green "   << GREEN_BOND << " "
-		      << " blue "    << BLUE_BOND << " "
-		      << " red "     << RED_BOND << " "
-		      << " yellow "  << YELLOW_BOND << " "
-		      << " grey "    << GREY_BOND << " "
-		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
-		      << " magenta " << MAGENTA_BOND << " "
-		      << std::endl;
-
-	 switch (i) {
-	 case CARBON_BOND:
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb = bespoke_carbon_atoms_colour;
-	    } else {
-	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-	    }
-	    break;
-	 case YELLOW_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	    // replaced in mmdb-extras.h
-	    //       case white:
-	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-	    // 	 break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 default:
-	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-	    rgb.rotate(i*26.0/360.0);
-	 }
-
+      if (colour_index >= 50) {
+         int ii = colour_index - 50;
+         rgb[0] = 0.8; rgb[1] = 0.4; rgb[2] = 0.4;
+         if (ii > 0)
+	    rgb.rotate(float(ii*43.0/360.0));
+         // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
+         // << colour_index << " " << rgb << std::endl;
+         err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1b " << colour_index << std::endl;
       } else {
 
-	 // against a white background.  Less pale, darker, more saturated.
+         while (rotation_size > 1.0) { // no more black bonds?
+            rotation_size -= 1.0;
+         }
 
-	 switch (i) {
-	 case YELLOW_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
+         if (against_a_dark_background) {
 
-	 default:
-	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-	    // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	    rgb.rotate(i*26.0/360.0);
-	 }
-      }
+            if (false)
+               std::cout << "get_bond_colour_by_mol_no() idx: " << colour_index << " vs "
+                         << " green "   << GREEN_BOND << " "
+                         << " blue "    << BLUE_BOND << " "
+                         << " red "     << RED_BOND << " "
+                         << " yellow "  << YELLOW_BOND << " "
+                         << " grey "    << GREY_BOND << " "
+                         << " H-grey "  << HYDROGEN_GREY_BOND << " "
+                         << " magenta " << MAGENTA_BOND << " "
+                         << std::endl;
 
-      // "correct" for the +1 added in the calculation of the rotation
-      // size.
-      // 21. is the default colour map rotation
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1c " << err << std::endl;
 
-      rgb.rotate(float(1.0 - 21.0/360.0));
+            switch (colour_index) {
+            case CARBON_BOND:
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+               }
+               break;
+            case YELLOW_BOND:
+               rgb[0] = 0.6; rgb[1] = 0.98; rgb[2] =  0.2;
+               break;
+            case BLUE_BOND:
+               rgb[0] = 0.4; rgb[1] =  0.4; rgb[2] =  1.0;
+               break;
+            case RED_BOND:
+               rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+               break;
+            case GREEN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+               break;
+            case GREY_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+               break;
+            case HYDROGEN_GREY_BOND:
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               break;
+               // replaced in mmdb-extras.h
+               //       case white:
+               // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
+               // 	 break;
+            case MAGENTA_BOND:
+               rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+               break;
+            case ORANGE_BOND:
+               rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+               break;
+            case CYAN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+               break;
+            case DARK_GREEN_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               break;
+            case DARK_ORANGE_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               break;
+            case DARK_BROWN_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+            default:
+               rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+               rgb.rotate(colour_index*26.0/360.0);
+            }
 
-      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-    if (i == CARBON_BOND) {
-       if (use_bespoke_grey_colour_for_carbon_atoms) {
-          rgb = bespoke_carbon_atoms_colour;
-       } else {
-          rgb.rotate(rotation_size);
-       }
-    }
-      } else {
-    rgb.rotate(rotation_size);
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1d " << err << std::endl;
+
+         } else {
+
+            // against a white background.  Less pale (more saturated) and darker.
+
+            switch (colour_index) {
+            case YELLOW_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+               break;
+            case BLUE_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+               break;
+            case RED_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+               break;
+            case GREEN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+               break;
+            case GREY_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
+               break;
+            case HYDROGEN_GREY_BOND:
+               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               break;
+            case MAGENTA_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+               break;
+            case ORANGE_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+            case CYAN_BOND:
+               rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+               break;
+            case DARK_GREEN_BOND:
+               rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+               break;
+            case DARK_ORANGE_BOND:
+               rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+               break;
+            case DARK_BROWN_BOND:
+               rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+               break;
+
+            default:
+               rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
+               // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+               rgb.rotate(colour_index*26.0/360.0);
+            }
+         }
+
+         err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1e " << err << std::endl;
+
+         // "correct" for the +1 added in the calculation of the rotation
+         // size.
+         // 21. is the default colour map rotation
+
+         rgb.rotate(float(1.0 - 21.0/360.0));
+
+         err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1f " << err << std::endl;
+
+         if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
+
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1g " << err << std::endl;
+
+            if (colour_index == CARBON_BOND) {
+               if (use_bespoke_grey_colour_for_carbon_atoms) {
+                  rgb = bespoke_carbon_atoms_colour;
+               } else {
+                  rgb.rotate(rotation_size);
+               }
+            }
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1h " << err << std::endl;
+         } else {
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1k " << err << std::endl;
+            rgb.rotate(rotation_size);
+            err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() 1l " << err << std::endl;
+         }
       }
    }
+   err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() --end-- " << err << std::endl;
    return rgb;
 }
 
@@ -1103,182 +1180,10 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 //
 // not const because bond_colour_internal is set.
 void
-molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+molecule_class_info_t::set_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
 
-   if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(i);
-   } else {
-      std::vector<float> rgb(3);
-      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
-      float rotation_size = bonds_colour_map_rotation/360.0;
-
-//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
-// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
-
-      // rotation_size typically then: 2*32/360 = 0.178
-
-      while (rotation_size > 1.0) { // no more black bonds?
-    rotation_size -= 1.0;
-      }
-      if (against_a_dark_background) {
-
-	 if (false)
-	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
-		      << " green "   << GREEN_BOND << " "
-		      << " blue "    << BLUE_BOND << " "
-		      << " red "     << RED_BOND << " "
-		      << " yellow "  << YELLOW_BOND << " "
-		      << " grey "    << GREY_BOND << " "
-		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
-		      << " magenta " << MAGENTA_BOND << " "
-		      << std::endl;
-
-	 switch (i) {
-	 case CARBON_BOND:
-	    if (use_bespoke_grey_colour_for_carbon_atoms) {
-	       rgb[0] = bespoke_carbon_atoms_colour[0];
-	       rgb[1] = bespoke_carbon_atoms_colour[1];
-	       rgb[2] = bespoke_carbon_atoms_colour[2];
-	    } else {
-	       if (i == 0) {
-		  if (imol_no == 0) {
-		     rgb[0] = 0.8; rgb[1] =  0.5; rgb[2] =  0.1;
-		  } else {
-		     rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-		  }
-	       } else {
-		  rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
-	       }
-	    }
-	    break;
-	 case YELLOW_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	    // replaced in mmdb-extras.h
-	    //       case white:
-	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
-	    // 	 break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-
-	 default:
-	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
-	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	 }
-
-      } else {
-
-	 // against a white background.  Less pale, darker, more saturated.
-
-	 switch (i) {
-	 case YELLOW_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
-	    break;
-	 case BLUE_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
-	    break;
-	 case RED_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
-	    break;
-	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
-	    break;
-	 case GREY_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
-	    break;
-	 case HYDROGEN_GREY_BOND:
-	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
-	    break;
-	 case MAGENTA_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
-	    break;
-	 case ORANGE_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-	 case CYAN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
-	    break;
-	 case DARK_GREEN_BOND:
-	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
-	    break;
-	 case DARK_ORANGE_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
-	    break;
-	 case DARK_BROWN_BOND:
-	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
-	    break;
-
-	 default:
-	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
-	    rgb = rotate_rgb(rgb, float(i*26.0/360.0));
-	 }
-      }
-
-      // "correct" for the +1 added in the calculation of the rotation
-      // size.
-      // 21. is the default colour map rotation
-      rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
-
-      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-    if (i == CARBON_BOND) {
-
-       if (use_bespoke_grey_colour_for_carbon_atoms) {
-          bond_colour_internal[0] = bespoke_carbon_atoms_colour[0];
-          bond_colour_internal[1] = bespoke_carbon_atoms_colour[1];
-          bond_colour_internal[2] = bespoke_carbon_atoms_colour[2];
-       } else {
-          std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-          bond_colour_internal = rgb_new;
-       }
-       if (graphics_info_t::use_graphics_interface_flag)
-          glColor3f(bond_colour_internal[0],
-    bond_colour_internal[1],
-    bond_colour_internal[2]);
-    } else {
-       bond_colour_internal = rgb;
-       if (graphics_info_t::use_graphics_interface_flag)
-          glColor3f(rgb[0],rgb[1], rgb[2]);
-    }
-      } else {
-//  	 std::cout << "DEBUG: rotating coordinates colour map by "
-//  		   << rotation_size * 360.0 << " degrees " << std::endl;
-    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-    bond_colour_internal = rgb_new;
-    if (graphics_info_t::use_graphics_interface_flag)
-       glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
-      }
-   }
+   coot::colour_t col = get_bond_colour_by_mol_no(colour_index, against_a_dark_background);
+   glColor3f(col.col[0], col.col[1], col.col[2]);
 }
 
 void
@@ -1302,6 +1207,8 @@ molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_
 //
 void
 molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type) {
+
+   std::cout << "set_bond_colour_by_colour_wheel_position() " << i << std::endl;
 
    std::vector<float> rgb(3);
    rgb[0] = 0.2f; rgb[1] =  0.2f; rgb[2] =  0.8f; // blue
@@ -2436,8 +2343,8 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
       if (bonds_box.atom_centres_) {
 
-	 // pass this?
-	 const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
+         // pass this?
+         const std::pair<bool, float> &use_radius_limit = graphics_info_t::model_display_radius;
 
          float zsc = graphics_info_t::zoom;
          coot::Cartesian z_delta = (front - back) * 0.003;
@@ -2473,6 +2380,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
             // Note that this delta for atom interacts with the highlight.
             //
             for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+               if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
                if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
                   set_bond_colour_for_goodsell_mode(icol, against_a_dark_background);
                } else {
@@ -2614,6 +2522,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       glBegin(GL_POINTS);
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 
+                  if (bonds_box.consolidated_atom_centres[icol].num_points == 0) continue;
 		  coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
 		  cc.brighter(1.15);
 		  glColor3f(cc[0], cc[1], cc[2]);
@@ -3623,7 +3532,7 @@ molecule_class_info_t::make_bonds_type_checked() {
       std::set<int> s;
       bool goodsell_mode = false;
       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL)
-	 goodsell_mode = true;
+         goodsell_mode = true;
       make_colour_by_chain_bonds(s, graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag, goodsell_mode);
    }
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
@@ -3686,28 +3595,22 @@ molecule_class_info_t::make_bonds_type_checked() {
 
  void molecule_class_info_t::make_glsl_bonds_type_checked() {
 
+    GLenum err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
     unsigned int n_slices = 16;
     unsigned int n_stacks = 2;
 
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1\n";
     std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1a\n";
     if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
        for (int i=0; i<bonds_box.num_colours; i++) {
-          index_to_colour[i] = glm::vec4(0.5, 0.5, 0.5, 1.0);
-          if (i == 0) index_to_colour[i] = glm::vec4(0.75, 0.6, 0.4, 1.0);
-          if (i == 1) index_to_colour[i] = glm::vec4(0.7, 0.7, 0.2, 1.0);
-          if (i == 2) index_to_colour[i] = glm::vec4(0.9, 0.3, 0.3, 1.0);
-          if (i == 3) index_to_colour[i] = glm::vec4(0.5, 0.5, 0.9, 1.0);
-          if (i == 4) index_to_colour[i] = glm::vec4(0.2, 0.7, 0.2, 1.0);
-          if (i == 5) index_to_colour[i] = glm::vec4(0.8, 0.2, 0.8, 1.0);
-          if (i == 6) index_to_colour[i] = glm::vec4(0.6, 0.6, 0.6, 1.0);
-          if (i == 7) index_to_colour[i] = glm::vec4(0.8, 0.6, 0.25, 1.0);
-          if (i == 8) index_to_colour[i] = glm::vec4(0.1, 0.6, 0.65, 1.0);
-          if (i == 9) index_to_colour[i] = glm::vec4(0.9, 0.9, 0.9, 1.0);
-          if (i == 10) index_to_colour[i] = glm::vec4(0.4, 0.2, 0.1, 1.0); // dark brown
-          if (i == 11) index_to_colour[i] = glm::vec4(0.1, 0.4, 0.1, 1.0); // dark green
-          if (i == 12) index_to_colour[i] = glm::vec4(0.5, 0.4, 0.1, 1.0); // dark orange
+          bool dark_bg_flag = true;
+          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1b " << i << std::endl;
+          coot::colour_t cc = get_bond_colour_by_mol_no(i, dark_bg_flag);
+          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1c " << i << std::endl;
+          index_to_colour[i] = cc.to_glm();
 
           if (is_intermediate_atoms_molecule)
              if (i==0)
@@ -3717,11 +3620,13 @@ molecule_class_info_t::make_bonds_type_checked() {
     } else {
        // rainbow
        for (int i=0; i<bonds_box.num_colours; i++) {
-          set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW_BONDS);
+          set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW_BONDS); // bleugh
           glm::vec4 glm_col(bond_colour_internal[0], bond_colour_internal[1], bond_colour_internal[2], 1.0);
           index_to_colour[i] = glm_col;
        }
     }
+
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 2\n";
 
     std::vector<vertex_with_rotation_translation> vertices;
     std::vector<g_triangle> triangles;
@@ -3752,6 +3657,7 @@ molecule_class_info_t::make_bonds_type_checked() {
     }
 
     // --- bonds ---
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 3\n";
 
     float radius = 0.02f * bond_width;
     if (is_intermediate_atoms_molecule) radius *= 1.8f;
@@ -3789,6 +3695,7 @@ molecule_class_info_t::make_bonds_type_checked() {
        }
     }
     if (vertices.empty()) return;
+    err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 4\n";
     setup_glsl_bonds_buffers(vertices, triangles);
  }
 
@@ -3805,14 +3712,21 @@ molecule_class_info_t::make_bonds_type_checked() {
 
    n_vertices_for_model_VertexArray = vertices.size(); // the "signal" to the draw function to draw this model
 
+   GLenum err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() -- start --\n";
    glGenVertexArrays (1, &m_VertexArray_for_model_ID);
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 1\n";
    glBindVertexArray (m_VertexArray_for_model_ID);
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 2\n";
 
    glGenBuffers(1, &m_VertexBuffer_for_model_ID);
    glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 3\n";
    unsigned int n_vertices = vertices.size();
-   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
-   GLenum err = glGetError(); if (err) std::cout << "GL error bonds 5\n";
+   if (is_intermediate_atoms_molecule)
+      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_DYNAMIC_DRAW);
+   else
+      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers()  5\n";
 
    // "from-origin" model matrix (orientation)
    glEnableVertexAttribArray(0);
@@ -3828,27 +3742,27 @@ molecule_class_info_t::make_bonds_type_checked() {
 
    // positions, 4, size 3 floats
    glEnableVertexAttribArray(4);
-   err = glGetError(); if (err) std::cout << "GL error bonds 6\n";
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 6\n";
    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(4 * sizeof(glm::vec3)));
    err = glGetError(); if (err) std::cout << "GL error bonds 7\n";
 
    //  normals, 5, size 3 floats
    glEnableVertexAttribArray(5);
-   err = glGetError(); if (err) std::cout << "GL error bonds 11\n";
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 11\n";
    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(5 * sizeof(glm::vec3)));
-   err = glGetError(); if (err) std::cout << "GL error bonds 12\n";
+   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 12\n";
 
    //  colours, 6, size 4 floats
    glEnableVertexAttribArray(6);
-   err = glGetError(); if (err) std::cout << "GL error bonds 16\n";
+   err = glGetError(); if (err) std::cout << "GL error setup_glsl_bonds_buffers()  16\n";
    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation), reinterpret_cast<void *>(6 * sizeof(glm::vec3)));
    err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
    // Indices
    glGenBuffers(1, &m_IndexBuffer_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
+   err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 18\n";
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error bonds 18\n";
+   err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
    n_indices_for_model_triangles = triangles.size() * 3;
    unsigned int n_bytes = triangles.size() * 3 * sizeof(unsigned int);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);

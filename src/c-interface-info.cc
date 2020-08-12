@@ -5046,9 +5046,9 @@ void write_ccp4mg_picture_description(const char *filename) {
       //       mg_stream << "    orientation = [ " << g.quat[0] << ", "
       // 		<< g.quat[1] << ", " << g.quat[2] << ", " << g.quat[3] << "]\n";
       // Stuart corrects the orientation specification:
-      mg_stream << "    orientation = [ " << -g.quat[3] << ", "
-		<< g.quat[0] << ", " << g.quat[1] << ", " << g.quat[2] << "]\n";
-      mg_stream << ")\n";
+      // mg_stream << "    orientation = [ " << -g.quat[3] << ", "
+      // << g.quat[0] << ", " << g.quat[1] << ", " << g.quat[2] << "]\n";
+      //       mg_stream << ")\n";
 
       // Parameters (maybe further down?)
       // GUI Parameters (for bg colour e.g.)

@@ -678,20 +678,6 @@ graphics_info_t::setRotationCentre(int index, int imol) {
       rotation_centre_z = z;
    }
 
-   if (false) {  // Felix test/play code to orient the residue up the
-                 // screen on moving to next residue.
-
-      GL_matrix m;
-      clipper::Mat33<double> mat_in = m.to_clipper_mat();
-      clipper::Mat33<double> mat = coot::util::residue_orientation(atom->residue, mat_in);
-      coot::util::quaternion q(mat.inverse());
-      quat[0] = q.q0;
-      quat[1] = q.q1;
-      quat[2] = q.q2;
-      quat[3] = q.q3;
-   }
-
-
    update_ramachandran_plot_point_maybe(imol, atom);
    setup_graphics_ligand_view(imol, atom->residue, atom->altLoc);
 
@@ -3324,19 +3310,12 @@ graphics_info_t::int_to_string(int i) {
 
 std::string
 graphics_info_t::float_to_string(float f) {
-   char s[100];
-   // initial s, stop valgrind complaining
-   for (int i=0; i<100; i++) s[i]=0;
-   snprintf(s,99,"%5.2f",f);
-   return std::string(s);
+   return coot::util::float_to_string(f);
 }
 
 std::string
 graphics_info_t::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
-   char s[100];
-   for (int i=0; i<100; i++) s[i]=0;
-   snprintf(s,99,"%7.4f",f); // haha, FIXME. (use n_dec_pl, not 4)
-   return std::string(s);
+   return coot::util::float_to_string_using_dec_pl(f, n_dec_pl);
 }
 
 

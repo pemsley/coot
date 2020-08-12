@@ -621,6 +621,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // the orientation
    //
+#if 0 // we don't use quat in gtk3/OpenGL3.3 version
    if (use_graphics_interface_flag) {
       command_strings.clear();
       command_strings.push_back("set-view-quaternion");
@@ -630,6 +631,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       command_strings.push_back(float_to_string_using_dec_pl(quat[3], 5));
       commands.push_back(state_command(command_strings, il));
    }
+#endif
 
    // stereo mode
    //
@@ -899,14 +901,18 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
       if (state_lang == coot::STATE_PYTHON) {
 	 if (strs.size() > 0) {
 	    command = pythonize_command_name(strs[0]);
-	    command += " (";
-	    for (int i=1; i<(int(strs.size())-1); i++) {
-	       command += strs[i];
-	       command += ", ";
-	    }
-	    if (strs.size() > 1)
-	       command += strs.back();
-	    command +=  ")";
+	    command += "(";
+            if (strs.size() > 2) {
+               // add args with commas after them
+               int n_strs_max = strs.size() -1;
+               for (int i=1; i<n_strs_max; i++) {
+                  command += strs[i];
+                  command += ", ";
+               }
+            }
+            if (strs.size() > 1)
+               command += strs.back();
+            command +=  ")";
 	 }
       }
    }
@@ -919,7 +925,7 @@ short int
 graphics_info_t::write_state(const std::vector<std::string> &commands,
 			     const std::string &filename) const {
 
-   bool do_c_mode = 1;
+   bool do_c_mode = false; // it's 2020 - Mac problems have gone away?
 
    short int istat = 1;
    if (do_c_mode) {
@@ -989,7 +995,7 @@ graphics_info_t::write_state_c_mode(const std::vector<std::string> &commands,
       for (unsigned int i=0; i<commands.size(); i++) {
 	 fputs(commands[i].c_str(), file);
 	 fputs("\n", file);
-	 }
+      }
       istat = 1;
       fclose(file);
    } else {

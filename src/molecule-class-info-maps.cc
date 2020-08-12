@@ -1340,6 +1340,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                       << err << std::endl;
 
          delete [] points;
+         delete [] normals;
          delete [] indices_for_lines;
          delete [] indices_for_triangles;
          delete [] colours;

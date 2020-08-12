@@ -1145,8 +1145,8 @@ public:
    static int map_line_width;
 
    static double mouse_current_x, mouse_current_y;
-   static float* quat;  // rotation quaternion, allocatated [4]
-   static float* baton_quat;
+   // static float* quat;  // rotation quaternion, allocatated [4]
+   // static float* baton_quat;
 
    static int mouse_just_cliked; // delete this?
    static float zoom;
@@ -1280,6 +1280,8 @@ public:
    // To which map is the mouse scroll wheel attached?
    //
    static int scroll_wheel_map;
+
+   void contour_level_scroll_scrollable_map(int direction);
 
    // a static utility function (excised for portability)
    static std::string add_dir_file(const std::string &dirname, const std::string &filename);

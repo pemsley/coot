@@ -199,41 +199,24 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       direction = -1;
 
    graphics_info_t g;
-   int imol_scroll = g.scroll_wheel_map;
-
-   if (! g.is_valid_map_molecule(imol_scroll)) {
-
-      std::vector<int> dm = g.displayed_map_imols();
-      if (std::find(dm.begin(), dm.end(), imol_scroll) == dm.end()) {
-         if (dm.size() > 0)
-            imol_scroll = dm[0];
+   bool handled = false;
+   bool control_is_pressed = false;
+   bool   shift_is_pressed = false;
+   if (event->state & GDK_CONTROL_MASK) control_is_pressed = true;
+   if (event->state & GDK_SHIFT_MASK) shift_is_pressed = true;
+   
+   if (control_is_pressed) {
+      if (shift_is_pressed){
+         if (direction == 1)
+            change_model_molecule_representation_mode(-1);
+         else
+            change_model_molecule_representation_mode(1);
+         handled = true;
       }
    }
 
-   if (g.is_valid_map_molecule(imol_scroll)) {
-      if (! g.molecules[imol_scroll].is_displayed_p()) {
-         // don't scroll the map if the map is not displayed. Scroll the
-         // map that *is* displayed
-         std::vector<int> dm = g.displayed_map_imols();
-         if (dm.size() > 0)
-            imol_scroll = dm[0];
-      }
-   }
-
-   if (g.is_valid_map_molecule(imol_scroll)) {
-      // use direction
-      if (direction == 1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-      if (direction == -1)
-         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
-      int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
-      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-                << g.molecules[imol_scroll].contour_level << std::endl;
-      g.set_density_level_string(imol_scroll, g.molecules[imol_scroll].contour_level);
-      g.display_density_level_this_image = 1;
-      // g.update_maps();
-      g.graphics_draw(); // queue
-   }
+   if (! handled)
+      g.contour_level_scroll_scrollable_map(direction);
    return TRUE;
 }
 
@@ -511,14 +494,14 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
 
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = g.key_bindings_map.find(kbk);
 
+   bool found = false;
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
      if (true)
         std::cout << "key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
-   } else {
-      std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
+     found =  true;
    }
 
    // fix the type here
@@ -527,8 +510,11 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
       handled = TRUE;
    }
 
+   if (! found)
+      if (! handled)
+         std::cout << "on_glarea_key_press_notify() key not found in map: " << event->keyval << std::endl;
+
    graphics_info_t::graphics_draw(); // queue
-   // gtk_widget_queue_draw(widget);
 
    return handled;
 

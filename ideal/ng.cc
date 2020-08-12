@@ -1593,6 +1593,42 @@ coot::restraints_container_t::disperse_plane_restraints() {
 #endif
 }
 
+bool
+coot::restraints_container_t::N_and_C_are_close_ng(mmdb::Residue *res_1,
+                                                   mmdb::Residue *res_2,
+                                                   float d_crit) const {
+
+   bool status = false;
+
+   mmdb::Atom *at_1 = res_1->GetAtom(" C  ");
+   mmdb::Atom *at_2 = res_2->GetAtom(" N  ");
+   if (at_1) {
+      if (at_2) {
+         float dd =
+            (at_1->x - at_2->x) * (at_1->x - at_2->x) +
+            (at_1->y - at_2->y) * (at_1->y - at_2->y) +
+            (at_1->z - at_2->z) * (at_1->z - at_2->z);
+         if (dd < d_crit * d_crit)
+            status = true;
+      }
+   }
+   /// No linking of there was a TER in res_1
+   if (status) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      res_1->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (at->isTer()) {
+            status = false;
+            break;
+         }
+      }
+   }
+   return status;
+}
+
+
 void
 coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry &geom,
 						    bool do_rama_plot_restraints,
@@ -1664,7 +1700,15 @@ coot::restraints_container_t::make_polymer_links_ng(const coot::protein_geometry
 							do_rama_plot_restraints,
 							do_trans_peptide_restraints);
 		  }
-	       }
+	       } else {
+
+                  // antibody case: H212 is peptide linked to H216 5d6c (no LINK record)
+                  if (N_and_C_are_close_ng(res_1, res_2, 2.0))
+		     results = try_make_peptide_link_ng(geom, residues_vec[i1], residues_vec[i2],
+							do_rama_plot_restraints,
+							do_trans_peptide_restraints);
+
+               }
 	    }
 
 	    if (results.first) {
@@ -2067,6 +2111,8 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
       const simple_restraint &rest = restraints_vec[std::get<0>(d)];
       mmdb::Atom *at_1 = atom[rest.atom_index_1];
       mmdb::Atom *at_2 = atom[rest.atom_index_2];
+
+      std::cout << std::setprecision(3);
 
       if (r_type == CHIRAL_VOLUME_RESTRAINT) {
          mmdb::Atom *at_c = atom[rest.atom_index_centre];

@@ -727,7 +727,9 @@ public:        //                      public
    void set_bond_colour_for_goodsell_mode(int icol, bool against_a_dark_background);
 
    // return the colour, don't call glColor3f();
-   coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
+   coot::colour_t get_bond_colour_basic(int colour_index, bool against_a_dark_background);
+   // return the colour, don't call glColor3f();
+   coot::colour_t get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background);
 
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
    bool use_bespoke_grey_colour_for_carbon_atoms;

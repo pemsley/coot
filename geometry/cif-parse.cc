@@ -3128,7 +3128,7 @@ coot::protein_geometry::init_standard() {
    std::string hardwired_default_place;
    hardwired_default_place = util::append_dir_dir(dir, "coot");
    hardwired_default_place = util::append_dir_dir(hardwired_default_place, "lib");
-   bool using_clibd_mon = 0; 
+   bool using_clibd_mon = false;
 
    std::string mon_lib_dir; 
    short int env_dir_fails = 0;
@@ -3173,7 +3173,7 @@ coot::protein_geometry::init_standard() {
 	    std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
 		      << " CLIBD_MON: " << s << std::endl;
 	    mon_lib_dir = s;
-	    using_clibd_mon = 1;
+	    using_clibd_mon = true;
 	    // strip any trailing / from mon_lib_dir
 	    if (mon_lib_dir.length() > 0) {
 	       if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
@@ -3249,7 +3249,7 @@ coot::protein_geometry::init_standard() {
    // 
    std::string mon_lib_cif = mon_lib_dir + "/data/monomers/list/mon_lib_list.cif";
    std::string energy_cif_file_name = mon_lib_dir + "/data/monomers/ener_lib.cif";
-   if (using_clibd_mon) { 
+   if (using_clibd_mon) {
       mon_lib_cif = mon_lib_dir + "/list/mon_lib_list.cif";
       energy_cif_file_name = mon_lib_dir + "/ener_lib.cif";
    }
@@ -3270,7 +3270,6 @@ coot::protein_geometry::init_standard() {
       }
       refmac_monomer(mon_lib_dir, monomer_cif_file); // update read_number too :)
    }
-
 
    read_energy_lib(energy_cif_file_name);
 

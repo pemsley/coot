@@ -38,7 +38,7 @@ coot::pepflip_using_difference_map::get_suggested_flips(float n_sigma) const {
    float sd   = sqrt(data.variance());
    float cut = mean + n_sigma * sd;
 
-   std::cout << "----- info size: " << data.size() << " mean " << mean
+   std::cout << "INFO:: pepfip stats: size: " << data.size() << " mean " << mean
 	     << " sd " << sd << " cut " << cut << std::endl;
 
    for (std::size_t i=0; i<triplets.size(); i++) {
@@ -48,10 +48,11 @@ coot::pepflip_using_difference_map::get_suggested_flips(float n_sigma) const {
       float d1 = util::density_at_point(diff_map, pt_1);
       float d2 = util::density_at_point(diff_map, pt_2);
       float delta = d2-d1;
-      if (false)
-	 std::cout << residue_spec_t(t.CA_this) << " delta : " << delta << std::endl;
-      if (delta > cut)
-	 rv.push_back(residue_spec_t(t.CA_this->residue));
+      if (delta > cut) {
+         residue_spec_t spec(t.CA_this->residue);
+         rv.push_back(spec);
+         std::cout << "INFO:: Adding pepflip: " << spec << " z: " << delta/sd << std::endl;
+      }
    }
 
    return rv;

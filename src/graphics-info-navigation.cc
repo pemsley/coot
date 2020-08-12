@@ -326,7 +326,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    if (molecules[imol].atom_sel.mol == 0) {
 
       std::cout << "ERROR:: bad go to atom molecule (" << imol
-		<< ") in intelligent_near_atom_centring" << std::endl;
+                << ") in intelligent_near_atom_centring" << std::endl;
 
    } else {
 
@@ -338,43 +338,45 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
       }
 
       if (atom_index != -1) {
-          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
+         mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
 
-          go_to_atom_chain_       = next_atom->GetChainID();
-          go_to_atom_atom_name_   = next_atom->name;
-          go_to_atom_residue_     = next_atom->GetSeqNum();
-          go_to_atom_inscode_     = next_atom->GetInsCode();
-          go_to_atom_atom_altLoc_ = next_atom->altLoc;
+         go_to_atom_chain_       = next_atom->GetChainID();
+         go_to_atom_atom_name_   = next_atom->name;
+         go_to_atom_residue_     = next_atom->GetSeqNum();
+         go_to_atom_inscode_     = next_atom->GetInsCode();
+         go_to_atom_atom_altLoc_ = next_atom->altLoc;
 
-          // now update the widget with the new values of the above (like
-          // c-interface:goto_near_atom_maybe())
+         // now update the widget with the new values of the above (like
+         // c-interface:goto_near_atom_maybe())
 
-          if (go_to_atom_window) {
-              update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-              // 	 GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
-              // 						 "go_to_atom_residue_tree");
-              // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
-          }
-          try_centre_from_new_go_to_atom();
+         if (go_to_atom_window) {
+            update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+            //          GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+            //                                                  "go_to_atom_residue_tree");
+            // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
+         }
+         try_centre_from_new_go_to_atom();
 
-          // Update the graphics (glarea widget):
-          //
-          update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
-          // and show something in the statusbar
-          std::string ai;
-          ai = atom_info_as_text_for_statusbar(atom_index, imol);
-          add_status_bar_text(ai);
+         // Update the graphics (glarea widget):
+         //
+         update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
+         // and show something in the statusbar
+         std::string ai;
+         ai = atom_info_as_text_for_statusbar(atom_index, imol);
+         add_status_bar_text(ai);
 
-          mmdb::Residue *residue_p = next_atom->residue;
-          if (residue_p) {
-              GtkWidget *svc = get_sequence_view_is_displayed(imol);
 #if GTK3_CAN_DO_SEQUENCE_VIEW
-              if (svc) {
-                  exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+         mmdb::Residue *residue_p = next_atom->residue;
+         if (residue_p) {
+            GtkWidget *svc = get_sequence_view_is_displayed(imol);
+
+            if (svc) {
+               exptl::nsv *nsv = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(svc), "nsv"));
+               if (nsv)
                   nsv->highlight_residue(residue_p);
-              }
+            }
+         }
 #endif
-          }
       }
    }
    return 1;
@@ -1231,6 +1233,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
 
 
    if (r) {
+#if 0   // needs glm_quat version
       coot::Cartesian nrc(best_molecule_centre.x(), best_molecule_centre.y(), best_molecule_centre.z());
       coot::util::quaternion q(quat[0],quat[1],quat[2],quat[3]);
       clipper::Mat33<double> current_view_mat = q.matrix();
@@ -1242,7 +1245,7 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
       quat[3] = vq.q3;
       setRotationCentre(nrc);
       update_things_on_move_and_redraw();
-
+#endif
       graphics_draw();
    }
    return r;

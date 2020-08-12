@@ -1047,16 +1047,16 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       glEnableVertexAttribArray(0);
       glEnableVertexAttribArray(1);
       glEnableVertexAttribArray(2);
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17c\n";
       glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(0 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17d\n";
       glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(1 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17e\n";
       glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_with_rotation_translation),
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
-      err = glGetError(); if (err) std::cout << "GL error bonds 17c\n";
+      err = glGetError(); if (err) std::cout << "GL error setup_atom_pull_restraints_glsl() 17f\n";
 
       // translate position, 3, size 3 floats
       glEnableVertexAttribArray(3);
@@ -1941,7 +1941,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
+   //   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
@@ -2036,3 +2036,42 @@ graphics_info_t::setup_key_bindings() {
 
 }
 
+
+void
+graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
+   
+   int imol_scroll = scroll_wheel_map;
+   if (! is_valid_map_molecule(imol_scroll)) {
+
+      std::vector<int> dm = displayed_map_imols();
+      if (std::find(dm.begin(), dm.end(), imol_scroll) == dm.end()) {
+         if (dm.size() > 0)
+            imol_scroll = dm[0];
+      }
+   }
+
+   if (is_valid_map_molecule(imol_scroll)) {
+      if (! molecules[imol_scroll].is_displayed_p()) {
+         // don't scroll the map if the map is not displayed. Scroll the
+         // map that *is* displayed
+         std::vector<int> dm = displayed_map_imols();
+         if (dm.size() > 0)
+            imol_scroll = dm[0];
+      }
+   }
+
+   if (is_valid_map_molecule(imol_scroll)) {
+      // use direction
+      if (direction == 1)
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+      if (direction == -1)
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
+      int contour_idle_token = g_idle_add(idle_contour_function, glareas[0]);
+      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+                << molecules[imol_scroll].contour_level << std::endl;
+      set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
+      display_density_level_this_image = 1;
+
+      graphics_draw(); // queue
+   }
+}
