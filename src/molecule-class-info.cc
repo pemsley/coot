@@ -1011,9 +1011,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
 
       if (colour_index >= 50) {
          int ii = colour_index - 50;
-         rgb[0] = 0.8; rgb[1] = 0.4; rgb[2] = 0.4;
+         rgb[0] = 0.7; rgb[1] = 0.6; rgb[2] = 0.5;
          if (ii > 0)
-	    rgb.rotate(float(ii*43.0/360.0));
+	    rgb.rotate(float(ii*73.0/360.0));
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;
          err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1b " << colour_index << std::endl;
