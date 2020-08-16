@@ -1389,6 +1389,44 @@ else
 fi
 
 
+
+########################################################################
+# cmake
+########################################################################
+
+r=$(cmake --version)
+echo $r
+
+case $r in
+
+cmake\ version\ 3.1[1-9]*)
+    echo found recent cmake
+    cmake_is_good=true
+    ;;
+
+cmake\ version\ 3.[2-9]*)
+    echo found recent cmake
+    cmake_is_good=true
+    ;;
+
+cmake\ version\ 4*)
+    echo found recent cmake
+    cmake_is_good=true
+    ;;
+
+esac
+
+echo cmake_is_good: $cmake_is_good
+if [ "$cmake_is_good" = true  ] ; then
+    echo cmake passes
+else
+    echo $r
+    echo cmake too old - Version 3.2 or later is needed. Ending now.
+    exit 2
+fi
+
+
+
 # create $AUTOBUILD_BUILD directory
 
 if [ ! -d "$AUTOBUILD_BUILD" ] ; then
@@ -3033,13 +3071,28 @@ else
     if $MAKE ; then
        make install
     fi
-    ) > $HOSTLOGDIR/16-glm.txt 2>&1
+    ) > $HOSTLOGDIR/17-glm.txt 2>&1
 fi
 
 
+###############################################################################
+# pygobject
+###############################################################################
+# this needs to find gobject-introspection-1.0 >= 1.46.0
+# and it does if PKG_CONFIG_PATH is set correctly
+if [ -e $install/include/pygobject-3.0/pygobject.h ] ; then
+   echo pygobject is installed
+else
+   echo installing pygobject
+    echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
+    which pip3
+    pip3 install wheel
+    pip3 install pygobject
+fi
+
 
 ###############################################################################
-##########         get Coot                                       #############
+##########         Coot is now built from git repo                #############
 ###############################################################################
 #
 date
