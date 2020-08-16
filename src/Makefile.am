@@ -505,6 +505,8 @@ coot_bin_SOURCES = \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
+	matrix-utils.hh          \
+	matrix-utils.cc          \
         map-statistics.hh        \
 	Mesh.cc Mesh.hh          \
 	meshed-generic-display-object.hh \

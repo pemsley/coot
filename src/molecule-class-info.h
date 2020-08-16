@@ -1658,6 +1658,10 @@ public:        //                      public
    short int delete_residue(int model_number,
 			    const std::string &chain_id, int resno,
                             const std::string &inscode);
+
+   // delete from all models
+   short int delete_residue(const coot::residue_spec_t &rs);
+
    // Delete only the atoms of the residue that have the same altconf (as
    // the selected atom).  If the selected atom has altconf "", you
    // should call simply delete_residue().

@@ -1406,34 +1406,6 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
-std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
-std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
-#endif // USE_MOLECULES_TO_TRIANGLES
-
-// --------------------------------------------------------------------------------------------
-
-float *graphics_info_t::mvp = new float[16];
-int    graphics_info_t::mvp_location = -1;
-int    graphics_info_t::view_rotation_location = -1;
-glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
-GLuint graphics_info_t::programID_for_central_cube = 0;
-GLuint graphics_info_t::central_cube_vertexarray_id = 0;
-GLuint graphics_info_t::central_cube_array_buffer_id = 0;
-GLuint graphics_info_t::central_cube_index_buffer_id = 0;
-GLuint graphics_info_t::hud_text_vertexarray_id = 0;
-GLuint graphics_info_t::hud_text_array_buffer_id = 0;
-GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
-GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
-GLuint graphics_info_t::textureColorbuffer_screen = 0;
-GLuint graphics_info_t::textureColorbuffer_blur = 0;
-framebuffer graphics_info_t::screen_framebuffer;
-framebuffer graphics_info_t::blur_framebuffer;
-bool graphics_info_t::perspective_projection_flag = false;
-
-
-// --------------------------------------------------------------------------------------------
-
 
 GtkWidget *
 gl_gtk3_widget(GtkWidget *vbox, short int try_stereo_flag) {

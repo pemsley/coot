@@ -1221,6 +1221,20 @@ molecule_class_info_t::delete_residue(int model_number,
 }
 
 short int
+molecule_class_info_t::delete_residue(const coot::residue_spec_t &spec) {
+
+   short int status = 0;
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (int imodel=1; imodel<=n_models; imodel++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imodel);
+      if (model_p)
+         status = delete_residue(imodel, spec.chain_id, spec.res_no, spec.ins_code);
+   }
+   return status;
+
+}
+
+short int
 molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int resno,
                                                 const std::string &ins_code,
 						const std::string &altloc) {

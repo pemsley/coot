@@ -275,8 +275,6 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 
    tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
    glm::quat product = tb_quat * glm_quat;
-   float delta_x = mouse_current_x - g.GetMouseBeginX(); // use static mouse_begin.first
-   float delta_y = mouse_current_y - g.GetMouseBeginY();
    glm_quat = glm::normalize(product);
 
 }

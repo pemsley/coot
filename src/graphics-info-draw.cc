@@ -1772,6 +1772,9 @@ graphics_info_t::move_backwards() {
    translate_in_screen_z(-1.0);
 }
 
+#include <glm/gtx/rotate_vector.hpp>
+#include "matrix-utils.hh"
+
 void
 graphics_info_t::setup_key_bindings() {
 
@@ -1921,6 +1924,78 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l28 = [] () {
+
+                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+                 if (aa_spec_pair.first) {
+                    int imol = aa_spec_pair.second.first;
+                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+                    mmdb::Residue *residue_p = at->GetResidue();
+                    if (residue_p) {
+                       std::string this_chain_id = residue_p->GetChainID();
+                       coot::residue_spec_t residue_spec(residue_p);
+                       std::vector<std::vector<std::string> > ghost_chains_sets = molecules[imol].ncs_ghost_chains();
+                       unsigned int n_ghost_chain_sets = ghost_chains_sets.size();
+                       for (unsigned int i=0; i<n_ghost_chain_sets; i++) {
+                          const std::vector<std::string> &chain_ids = ghost_chains_sets[i];
+                          if (std::find(chain_ids.begin(), chain_ids.end(), this_chain_id) != chain_ids.end()) {
+                             unsigned int idx_next = 0;
+                             for (unsigned int j=0; j<chain_ids.size(); j++) {
+                                if (chain_ids[j] == this_chain_id) {
+                                   idx_next = j + 1;
+                                   if (idx_next == chain_ids.size())
+                                      idx_next = 0;
+                                   break;
+                                }
+                             }
+                             std::string chain_id_next = chain_ids[idx_next];
+                             clipper::Coord_orth current_position = coot::co(at);
+                             bool forward_flag = true;
+                             glm::mat4 quat_mat = glm::toMat4(glm_quat);
+                             clipper::Mat33<double> current_view_mat = glm_to_mat33(quat_mat);
+
+                             if (molecules[imol].ncs_ghosts_have_rtops_p() == 0)
+                                molecules[imol].fill_ghost_info(1, ncs_homology_level);
+
+                             std::pair<bool, clipper::RTop_orth> new_ori =
+                                molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+                                                                              current_position,
+                                                                              this_chain_id, chain_id_next,
+                                                                              forward_flag);
+                             if (new_ori.first) {
+                                coot::util::quaternion q(new_ori.second.rot());
+                                glm::quat q_ncs = coot_quaternion_to_glm(q);
+                                glm_quat = glm::normalize(glm_quat * q_ncs); // wrong
+                                clipper::Coord_orth t(new_ori.second.trn());
+                                set_rotation_centre(t);
+
+                                glm::quat q_ncs_1 = glm::rotate(q_ncs,   3.1415926f, glm::vec3(1,0,0));
+                                glm::quat q_ncs_2 = glm::rotate(q_ncs_1, 3.1415926f, glm::vec3(1,0,0));
+                                glm::quat q_ncs_3 = glm::inverse(q_ncs_2);
+
+                                coot::util::quaternion cq = glm_to_coot_quaternion(q_ncs_3);
+
+                                std::cout << "debug q_ncs  : " << glm::to_string(q_ncs)   << std::endl;
+                                std::cout << "debug q_ncs_1: " << glm::to_string(q_ncs_1) << std::endl;
+                                std::cout << "debug q_ncs_2: " << glm::to_string(q_ncs_2) << std::endl;
+                                std::cout << "debug q_ncs_3: " << glm::to_string(q_ncs_3) << std::endl;
+                                std::cout << "before: " << q << " after " << cq << std::endl;
+
+                                graphics_info_t g;
+                                g.update_things_on_move();
+
+                             }
+                             break;
+                          }
+                       }
+                    } else {
+                       std::cout << "ERROR:: no residue" << std::endl;
+                    }
+                 }
+                 graphics_draw();
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -1948,6 +2023,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
 
    // control keys
 
@@ -1965,6 +2041,26 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t redo_key_binding(lc3, "Redo");
    std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
    kb_vec.push_back(p3);
+
+   auto ldr = [] () {
+                 graphics_info_t g;
+                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+                 if (aa_spec_pair.first) {
+                    int imol = aa_spec_pair.second.first;
+                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+                    mmdb::Residue *residue_p = at->GetResidue();
+                    if (residue_p) {
+                       coot::residue_spec_t residue_spec(residue_p);
+                       g.molecules[imol].delete_residue(residue_spec);
+                    }
+                 }
+                 return gboolean(TRUE);
+              };
+   key_bindings_t delete_residue_key_binding(ldr, "Delete Residue");
+   std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
+   kb_vec.push_back(pdel);
+
+
 
    // left
    auto lc4 = []() {

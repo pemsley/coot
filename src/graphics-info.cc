@@ -651,6 +651,16 @@ graphics_info_t::reorienting_next_residue(bool dir) {
    // graphics_draw();
 }
 
+// static
+void
+graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
+
+   graphics_info_t g;
+   coot::Cartesian centre(pt.x(), pt.y(), pt.z());
+   g.setRotationCentre(centre);
+}
+
+
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 

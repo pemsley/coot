@@ -1339,6 +1339,8 @@ public:
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
 
+   static void set_rotation_centre(const clipper::Coord_orth &pt);
+
    void update_things_on_move();
    void update_things_on_move_and_redraw();
    void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);

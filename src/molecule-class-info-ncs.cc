@@ -211,8 +211,9 @@ int
 molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 				       float homology_lev) {
 
-   //nstd::cout << "DEBUG::   --------------- in fill_ghost_info ------- with homology_lev "
-   // << homology_lev << std::endl;
+   if (false)
+      std::cout << "DEBUG::   --------------- in fill_ghost_info ------- with homology_lev "
+                << homology_lev << std::endl;
 
    std::vector<std::string> chain_ids;
    std::vector<std::vector<std::pair<std::string, int> > > residue_types;
@@ -1912,13 +1913,13 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 							     const std::string &current_chain,
 							     const std::string &next_ncs_chain) const { 
 
-
    clipper::Mat33<double> r = current_view_mat;
    bool apply_it = 0;
    clipper::Coord_orth t(0,0,0);
 
    unsigned int n_ghosts = ncs_ghosts.size();
-   if ((n_ghosts > 0) && (ncs_ghosts_have_rtops_flag))  {
+
+   if ((n_ghosts > 0) && ncs_ghosts_have_rtops_flag)  {
 
       // If current_chain is not a target_chain_id
       //    { i.e. we were not sitting on an NCS master}
@@ -2009,6 +2010,8 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 	    apply_it = 1;
 	 }
       } 
+   } else {
+      std::cout << "WARNING:: no ghosts (with ncs)" << std::endl;
    }
    clipper::RTop_orth rtop(r, t);
    return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
@@ -2130,7 +2133,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation_backward(const clipper::Mat
    }
    clipper::RTop_orth rtop(r, t);
    if (! apply_it)
-      std::cout << "WARNING apply_it not set " << std::endl;
+      std::cout << "WARNING:: apply_ncs_to_view_orientation_backward() apply_it not set " << std::endl;
    return std::pair<bool, clipper::RTop_orth> (apply_it, rtop);
 }
 

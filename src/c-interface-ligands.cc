@@ -108,10 +108,19 @@ go_to_ligand_inner() {
 				graphics_info_t::RotationCentre_z());
 	 coot::new_centre_info_t new_centre =
 	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc, graphics_info_t::go_to_ligand_n_atoms_limit);
+         std::cout << "debug:: go_to_ligand_inner(): new_centre: "
+                   << new_centre.position.format() << " info \""
+                   << new_centre.info_string << "\" "
+                   << new_centre.residue_spec << " type "
+                   << new_centre.type << " "
+                   << std::endl;
 	 new_rotation_centre = new_centre.position;
 	 if (new_centre.type == coot::NORMAL_CASE) {
-	    // g.setRotationCentre(new_centre.position);
-	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
+            std::cout << "-------------------- normal " << std::endl;
+            int imol = pp.second.first;
+	    // g.setRotationCentre(new_centre.position); // the target position is (should be) reached by the tick animation
+                                                         // in coot::view_info_t::interpolate()
+	    g.perpendicular_ligand_view(imol, new_centre.residue_spec);
             std::string name = g.molecules[imol].get_residue_name(new_centre.residue_spec);
 
 	    g.update_things_on_move_and_redraw(); // now not done in perpendicular_ligand_view()
@@ -127,7 +136,9 @@ go_to_ligand_inner() {
 	    s += coot::util::int_to_string(pp.second.first);
 	    s += ".";
 	    add_status_bar_text(s.c_str());
+            std::cout << "status bar: " << s << std::endl;
 	 } else {
+            std::cout << "-------------------- not normal " << std::endl;
 	    if (new_centre.type == coot::NO_LIGANDS) {
 	       std::string s = "No ligand (hetgroup) found in this molecule (#";
 	       s += coot::util::int_to_string(pp.second.first);

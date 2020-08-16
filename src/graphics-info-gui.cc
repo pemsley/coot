@@ -4241,7 +4241,12 @@ void
 graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *button,
 							    gpointer         user_data) {
 
-   coot::diff_map_peak_helper_data *hd = (coot::diff_map_peak_helper_data *) user_data;
+   std::cout << "Here in on_diff_map_peak_button_selection_toggled() " << std::endl;
+
+   //coot::diff_map_peak_helper_data *hd = (coot::diff_map_peak_helper_data *) user_data;
+   coot::diff_map_peak_helper_data *hd = static_cast<coot::diff_map_peak_helper_data *>(user_data);
+
+
    // int i = hd->ipeak;
 
    graphics_info_t g;
