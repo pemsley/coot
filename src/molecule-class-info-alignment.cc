@@ -46,6 +46,8 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
       // Happy path
       const coot::pir_alignment_t &a = it->second;
+
+      std::cout << "DEBUG:: in apply_pir_alignment() with matches.size() " << a.matches.size() << std::endl;
  
       if (a.matches.size() > 0) {
 
@@ -64,6 +66,8 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	    }
 	 }
 
+         std::cout << "DEBUG:: in apply_pir_alignment() with chain_p " << chain_p << std::endl;
+
 	 if (chain_p) {
 
 	    // so now we have the alignment and the chain to which it should be applied
@@ -78,10 +82,13 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 	    int i_res = 0; // to start with
 	    std::vector<mmdb::Residue *> deletables;
 
+            std::cout << "DEBUG:: in apply_pir_alignment() with a.size() " << a.size() << std::endl;
+
 	    if (a.size() > 0) {
 	       if (a.size(0) > 0) {
 		  std::vector<coot::pir_alignment_t::matched_residue_t> matches = a.get_matches(0);
-                  std::cout << "INFO:: need to apply " << matches.size() << " alignment matches" << std::endl;
+                  std::cout << "INFO:: in apply_pir_alignment() need to apply " << matches.size()
+                            << " alignment matches" << std::endl;
 
 		  for (std::size_t i_align_pair=0; i_align_pair<matches.size(); i_align_pair++) {
 
