@@ -420,11 +420,22 @@ if (have_coot_python):
      #
      #---------------------------------------------------------------------
 
+     def add_hydrogens_with_coot_reduce():
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
+         coot_reduce(aa_imol)
+
      def add_hydrogens_refmac_func():
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          add_hydrogens_using_refmac(aa_imol)
      
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Add Hydrogens",
+       lambda func: add_hydrogens_with_coot_reduce())
+
+
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Add Hydrogens using Refmac",
