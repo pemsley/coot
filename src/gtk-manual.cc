@@ -60,7 +60,7 @@ on_map_color_changed(GtkWidget *w,
 		     gpointer *tmd)
 { 
 
-   std::cout << "... on_map_color_changed() " << std::endl;
+   // std::cout << "... on_map_color_changed() " << std::endl;
    gdouble color[4];
    struct map_colour_data_type* t;
 
