@@ -543,6 +543,7 @@ coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> >
 	    }
 	 }
       }
+      delete [] pscontact;
       mol->DeleteSelection(SelectionHandle);
    }
    return m;
