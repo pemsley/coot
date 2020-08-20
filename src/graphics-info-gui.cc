@@ -4217,19 +4217,16 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
 
    // not used in the callback now that the button contains a pointer
    // to this info:
-   diff_map_peaks->resize(0);
+   diff_map_peaks->clear();
    for (unsigned int i=0; i<centres.size(); i++)
       diff_map_peaks->push_back(centres[i].first);
    max_diff_map_peaks = centres.size();
 
-   if (centres.size() > 0) {
+   if (! centres.empty()) {
       graphics_info_t g;
       coot::Cartesian c(centres[0].first.x(), centres[0].first.y(), centres[0].first.z());
-      g.setRotationCentre(c);
-      for(int ii=0; ii<n_molecules(); ii++) {
-	 molecules[ii].update_map();
-	 molecules[ii].update_symmetry();
-      }
+      g.setRotationCentre(c, true);
+      g.update_things_on_move();
       graphics_draw();
    }
    return w;
@@ -4241,25 +4238,25 @@ void
 graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *button,
 							    gpointer         user_data) {
 
-   std::cout << "Here in on_diff_map_peak_button_selection_toggled() " << std::endl;
-
-   //coot::diff_map_peak_helper_data *hd = (coot::diff_map_peak_helper_data *) user_data;
    coot::diff_map_peak_helper_data *hd = static_cast<coot::diff_map_peak_helper_data *>(user_data);
 
-
-   // int i = hd->ipeak;
+   coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
+   int button_state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+   if (false)
+      std::cout << "debug:: Here in on_diff_map_peak_button_selection_toggled() " << c << " "
+                <<  button_state << std::endl;
 
    graphics_info_t g;
-   // std::cout << "button number " << i << " pressed\n";
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-      // std::cout << "button number " << i << " was active\n";
-      coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
-      g.setRotationCentre(c);
-      for(int ii=0; ii<n_molecules(); ii++) {
-	 molecules[ii].update_map();
-	 molecules[ii].update_symmetry();
+
+   if (button_state) {
+
+      bool force_jump = true; // No slide, so that the following updates are done
+                              // when we reach the new centre.
+      bool have_jumped = g.setRotationCentre(c, force_jump);
+      bool do_updates_now = have_jumped;
+      if (do_updates_now) {
+         g.update_things_on_move();
       }
-      g.make_pointer_distance_objects();
       graphics_draw();
       std::string s = "Difference map peak number ";
       s += int_to_string(hd->ipeak);

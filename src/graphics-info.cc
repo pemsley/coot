@@ -1111,8 +1111,8 @@ graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
 
 }
 
-void
-graphics_info_t::setRotationCentre(coot::Cartesian centre) {
+bool
+graphics_info_t::setRotationCentre(coot::Cartesian centre, bool force_jump) {
 
    set_old_rotation_centre(RotationCentre());
 
@@ -1125,20 +1125,23 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
    // as the place from which to start moving :-)
 
    bool needs_centre_jump = true;
-   if (graphics_info_t::smooth_scroll == 1) {
-      // don't zoom and dummy value
-      bool status = smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 0, 100.0);
-      if (status) needs_centre_jump = false; // all in hand
-   }
-
-   if (needs_centre_jump)  {
-
-      rotation_centre_x = centre.get_x();
-      rotation_centre_y = centre.get_y();
-      rotation_centre_z = centre.get_z();
+   if (force_jump) {
+      setRotationCentreSimple(centre);
       run_post_set_rotation_centre_hook();
+   } else {
+      if (graphics_info_t::smooth_scroll == 1) {
+         // don't zoom and dummy value
+         bool status = smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 0, 100.0);
+         if (status) needs_centre_jump = false; // all in hand
+      }
+
+      if (needs_centre_jump)  {
+         setRotationCentreSimple(centre);
+         run_post_set_rotation_centre_hook();
+      }
    }
 
+   return needs_centre_jump;
 }
 
 void
@@ -3574,6 +3577,7 @@ graphics_info_t::update_things_on_move() {
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
+   make_pointer_distance_objects();
    setup_graphics_ligand_view_aa();
 }
 

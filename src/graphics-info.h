@@ -1329,7 +1329,8 @@ public:
    void reorienting_next_residue(bool dir);
    static bool reorienting_next_residue_mode;
 
-   void setRotationCentre(coot::Cartesian centre);
+   // return the "I did a jump" status
+   bool setRotationCentre(coot::Cartesian centre, bool force_jump=false);
    void setRotationCentreAndZoom(coot::Cartesian centre,
 				 float target_zoom);
    void setRotationCentreSimple(const coot::Cartesian &c);
