@@ -605,8 +605,6 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   widget_name = "display_mol_button_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
 
-  std::cout << "xxxxxxxxx widget_name " << widget_name << std::endl;
-
   displayed_button_1 = gtk_check_button_new_with_label (_("Display"));
   // gtk_widget_ref (displayed_button_1);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_button_1),
@@ -621,8 +619,6 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 
   widget_name = "active_mol_button_";
   widget_name += four_char_imol + coot::util::int_to_string(imol);
-
-  std::cout << "xxxxxxxxx widget_name " << widget_name << std::endl;
 
   active_button_1 = gtk_check_button_new_with_label (_("Active"));
   // gtk_widget_ref (active_button_1);

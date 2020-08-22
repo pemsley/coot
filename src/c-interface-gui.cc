@@ -1368,6 +1368,10 @@ gboolean
 coot_checked_exit(int retval) {
 
    graphics_info_t g;
+
+   // 20200822-PE save the (new) python history
+   g.command_history.write_history();
+
    int i_unsaved = g.check_for_unsaved_changes();
    std::string cmd = "coot-checked-exit";
    std::vector<coot::command_arg_t> args;
@@ -1784,6 +1788,30 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*              scripting gtk interface                                      */
 /*  ------------------------------------------------------------------------ */
 
+
+// extern "C" G_MODULE_EXPORT
+gboolean
+on_python_window_entry_key_press_event(GtkWidget   *entry,
+                                       GdkEventKey *event,
+                                       gpointer     user_data) {
+
+   if (event->keyval == GDK_KEY_Up) {
+      graphics_info_t g;
+      std::string t = g.command_history.get_previous_command();
+      // std::cout << "previous-command: \"" << t << "\"" << std::endl;
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      return TRUE;
+   }
+   if (event->keyval == GDK_KEY_Down) {
+      graphics_info_t g;
+      std::string t = g.command_history.get_next_command();
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      return TRUE;
+   }
+
+   return FALSE;
+}
+
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void
@@ -1793,13 +1821,18 @@ setup_python_window_entry(GtkWidget *entry) {
 
    // add python entry in entry callback code here...
 
-    g_signal_connect(G_OBJECT(entry), "activate",
-		     G_CALLBACK(python_window_enter_callback),
-		     (gpointer) entry);
+   g_signal_connect(G_OBJECT(entry), "activate",
+                    G_CALLBACK(python_window_enter_callback),
+                    (gpointer) entry);
+
+   g_signal_connect(G_OBJECT(entry), "key-press-event",
+                    G_CALLBACK(on_python_window_entry_key_press_event),
+                    (gpointer) entry);
 
 #endif // USE_PYTHON
-
 }
+
+
 
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
@@ -1808,41 +1841,33 @@ setup_guile_window_entry(GtkWidget *entry) {
 
 #ifdef USE_GUILE
    g_signal_connect(G_OBJECT(entry), "activate",
-		    G_CALLBACK(guile_window_enter_callback),
-		    (gpointer) entry);
+                    G_CALLBACK(guile_window_enter_callback),
+                    (gpointer) entry);
 #endif //  USE_GUILE
 
 }
 
 #ifdef USE_PYTHON
-void python_window_enter_callback( GtkWidget *widget,
-				   GtkWidget *entry )
-{
+void python_window_enter_callback(GtkWidget *widget,
+                                  GtkWidget *entry ) {
 
-  const gchar *entry_text;
-  entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
-
-  // Sigh. PyRun_SimpleString needs a (char *), not a (const gchar *):
-  size_t new_length = strlen(entry_text)+1;
-  char *new_text;
-  new_text = new char[new_length];
-  strncpy(new_text, entry_text, new_length);
-  printf("Running string: %s\n", new_text);
-
-  PyRun_SimpleString(new_text);
+  const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+  std::string entry_text_as_string(entry_text); // important to make a copy
+  PyRun_SimpleString(entry_text);
 
   // clear the entry
-  gtk_entry_set_text(GTK_ENTRY(entry),"");
+  gtk_entry_set_text(GTK_ENTRY(entry), "");
 
-  delete [] new_text;
+  graphics_info_t g;
+  g.command_history.add_to_history(entry_text_as_string);
+
 }
 #endif
 
 
 #ifdef USE_GUILE
-void guile_window_enter_callback( GtkWidget *widget,
-				  GtkWidget *entry )
-{
+void guile_window_enter_callback(GtkWidget *widget,
+                                 GtkWidget *entry ) {
   const gchar *entry_text;
   entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
   printf("Entry contents: %s\n", entry_text);
@@ -1856,7 +1881,7 @@ void guile_window_enter_callback( GtkWidget *widget,
 
    SCM handler = scm_c_eval_string ("(lambda (key . args) "
      "(display (list \"Error in proc:\" key \" args: \" args)) (newline))");
-			   // "(newline))");
+                           // "(newline))");
 
   // scm_catch(SCM_BOOL_T, scm_c_eval_string(entry_text), handler);
 

@@ -802,6 +802,13 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
 
    if (! do_the_sort) return;
 
+   if (false) // debug
+      for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
+         clipper::Coord_orth delta(map_triangle_centres[i].second.mid_point - eye_position);
+         std::cout << "triangle " << i << " " << map_triangle_centres[i].second.mid_point.format() << " "
+                   << sqrt(delta.lengthsq()) << std::endl;
+      }
+
    for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
       clipper::Coord_orth delta(map_triangle_centres[i].second.mid_point - eye_position);
       double dd = delta.lengthsq();
@@ -809,9 +816,21 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
    }
 
    // this sign needs checking.
-   auto map_triangle_sorter = [](const std::pair<int, TRIANGLE> &t1,
-                                 const std::pair<int, TRIANGLE> &t2) {
-                                 return (t1.second.back_front_projection_distance > t2.second.back_front_projection_distance);
+   auto map_triangle_sorter = [] (const std::pair<int, TRIANGLE> &t1,
+                                  const std::pair<int, TRIANGLE> &t2) {
+#if 0
+                                    std::cout << "comparing "
+                                              << t1.second.back_front_projection_distance << " "
+                                              << t1.second.pointID[0] << " "
+                                              << t1.second.pointID[1] << " "
+                                              << t1.second.pointID[2] << " "
+                                              << t2.second.back_front_projection_distance << " "
+                                              << t2.second.pointID[0] << " "
+                                              << t2.second.pointID[1] << " "
+                                              << t2.second.pointID[2] << " "
+                                              << std::endl;
+#endif
+                                 return (t1.second.back_front_projection_distance < t2.second.back_front_projection_distance);
                               };
 
    std::sort(map_triangle_centres.begin(), map_triangle_centres.end(), map_triangle_sorter);
@@ -825,15 +844,16 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
       indices_for_triangles[3*i+2] = map_triangle_centres[i].second.pointID[2];
    }
 
+   // if (xmap_is_diff_map)
+   // return;
+
    GLenum err = glGetError();
-   // glDeleteBuffers(1, &m_IndexBuffer_for_map_triangles_ID); // doing this causes weird effects.
+
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_map_triangles_ID);
    err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
-   // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-   // &indices_for_triangles[0], GL_STATIC_DRAW);
-   // perhaps don't use GL_STATIC_DRAW - use GL_DYNAMIC_DRAW
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_indices_for_triangles,
-                &indices_for_triangles[0], GL_DYNAMIC_DRAW);
+
+   unsigned int n_bytes = 3 * n_triangle_centres * sizeof(unsigned int);
+   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, n_bytes, &indices_for_triangles[0]);
    err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
 
    delete [] indices_for_triangles;
@@ -923,10 +943,9 @@ molecule_class_info_t::setup_glsl_map_rendering() {
             }
          }
 
-         // put the triangle mid-points into a single vector. Not sure that this is needed now.
-         // There's a different mechanism (in the works) for triangle sorting.
+         // put the triangle mid-points into a single vector.
+
          int idx_for_mid_points = 0;
-         // std::vector<std::pair<int, TRIANGLE> > map_triangle_centres(sum_tri_con_triangles);
          map_triangle_centres.resize(sum_tri_con_triangles); // class member
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
             const coot::density_contour_triangles_container_t &tri_con(draw_vector_sets[i]);

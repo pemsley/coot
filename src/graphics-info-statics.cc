@@ -161,3 +161,4 @@ TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
 
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
+coot::command_history_t graphics_info_t::command_history;

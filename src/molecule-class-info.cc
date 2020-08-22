@@ -1050,10 +1050,10 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb[0] = 0.6; rgb[1] = 0.98; rgb[2] =  0.2;
                break;
             case BLUE_BOND:
-               rgb[0] = 0.4; rgb[1] =  0.4; rgb[2] =  1.0;
+               rgb[0] = 0.3; rgb[1] =  0.3; rgb[2] =  1.0;
                break;
             case RED_BOND:
-               rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+               rgb[0] = 1.0; rgb[1] =  0.2; rgb[2] =  0.2;
                break;
             case GREEN_BOND:
                rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
@@ -3579,7 +3579,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
    GLint current_program;
    glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
-   std::cout << "INFO:: current program " << current_program << std::endl;
+   // std::cout << "INFO:: make_bonds_type_checked() current program " << current_program << std::endl;
 
    make_glsl_bonds_type_checked();
 
@@ -3594,6 +3594,8 @@ molecule_class_info_t::make_bonds_type_checked() {
 }
 
  void molecule_class_info_t::make_glsl_bonds_type_checked() {
+
+    std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 
     GLenum err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
@@ -3635,8 +3637,9 @@ molecule_class_info_t::make_bonds_type_checked() {
 
     // --- atoms ---
 
+    float atom_radius_scale_factor = 3.0;
     std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > atom_bits =
-       make_generic_vertices_for_atoms(index_to_colour);
+       make_generic_vertices_for_atoms(index_to_colour, atom_radius_scale_factor);
 
     vertices.insert(vertices.end(), atom_bits.first.begin(), atom_bits.first.end());
     triangles.insert(triangles.end(), atom_bits.second.begin(), atom_bits.second.end());
@@ -3764,6 +3767,7 @@ molecule_class_info_t::make_bonds_type_checked() {
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
    err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
    n_indices_for_model_triangles = triangles.size() * 3;
+   std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
    unsigned int n_bytes = triangles.size() * 3 * sizeof(unsigned int);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
    err = glGetError(); if (err) std::cout << "GL error bonds --- end ---\n";

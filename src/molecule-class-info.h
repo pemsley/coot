@@ -2951,7 +2951,7 @@ public:        //                      public
    void post_process_map_triangles();
    void setup_glsl_map_rendering();
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
-   make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
+   make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour, float atom_radius_scale_factor=1.0) const;
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_bad_CA_CA_distances() const;
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);

@@ -1516,6 +1516,7 @@ graphics_info_t::setup_lights() {
    light.direction = glm::normalize(glm::vec3(-1.0, 0.5, 1.0));
    graphics_info_t::lights[1] = light;
 }
+
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer) {
 

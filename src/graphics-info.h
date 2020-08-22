@@ -2388,6 +2388,7 @@ public:
    static short int guile_history;
    void add_history_command(const std::vector<std::string> &command_strings);
    static coot::history_list_t history_list;
+   static coot::command_history_t command_history;
 
    // this does not quote strings - it just copies out the arguments
    // "bare".  If the arguments are strings they should be quoted
