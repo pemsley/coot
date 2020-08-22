@@ -2314,7 +2314,7 @@ void
 on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *dialog;
   GtkWidget *helix_checkbutton;
   GtkWidget *helix_temp_combobox;
@@ -2370,7 +2370,7 @@ on_fast_sss_dialog_ok_button_clicked   (GtkButton       *button,
 				 radius);
 
   gtk_widget_destroy(dialog);
-#endif /* GTK_MAJOR_VERSION */
+
 }
 
 
@@ -2379,15 +2379,12 @@ on_fast_sss_dialog_citation_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *dialog;
   GtkWidget *toolbutton;
   dialog = wrapped_create_coot_references_dialog();
   toolbutton = lookup_widget(dialog, "coot_references_buccaneer_toolbutton");
   fill_references_notebook(GTK_TOOL_BUTTON(toolbutton), COOT_REFERENCE_BUCCANEER);
-#else
-  g_print("INFO:: sorry not in GTK+ 1.2\n");
-#endif /* GTK_MAJOR_VERSION */
 
 }
 
