@@ -22,6 +22,9 @@ public:
    }
    TRIANGLE() {
       reject_this = false;
+      mid_point = clipper::Coord_orth(0,0,0);
+      back_front_projection_distance = 999.9;
+      normal_for_flat_shading = clipper::Coord_orth(0,0,1);
    }
 };
 
