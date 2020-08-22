@@ -467,22 +467,33 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    //
 
-   bool cosine_dependent_map_opacity = false;
+   bool cosine_dependent_map_opacity = true;
 
    unsigned int n_transparent_maps = 0;
-   if (draw_transparent_maps) {
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+   unsigned int n_maps_to_draw = 0;
+   for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+      const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+      if (draw_transparent_maps) {
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
-         const molecule_class_info_t &m = graphics_info_t::molecules[ii];
          if (! m.draw_it_for_map) continue;
-         if (! m.is_an_opaque_map())
+         if (! m.is_an_opaque_map()) {
             n_transparent_maps++;
+            n_maps_to_draw += 1;
+         }
+      } else {
+         if (m.is_an_opaque_map()) {
+            if (m.draw_it_for_map)
+               n_maps_to_draw += 1;
+         }
       }
-      if (n_transparent_maps > 0) {
-         needs_blend_reset = true;
-         glEnable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      }
+   }
+
+   if (n_maps_to_draw == 0) return;
+
+   if (n_transparent_maps > 0) {
+      needs_blend_reset = true;
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    }
 
    if (cosine_dependent_map_opacity) {
@@ -515,13 +526,20 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
          molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          if (! m.draw_it_for_map) continue;
-         if (draw_transparent_maps)
+         if (draw_transparent_maps) {
             if (m.is_an_opaque_map())
                continue; // not this round
+         } else {
+            // only draw (completely) opaque (that's what the question means)
+            if (! m.is_an_opaque_map())
+               continue;
+         }
 
          if (m.n_vertices_for_map_VertexArray > 0) {
 
-            err = glGetError(); if (err) std::cout << "   draw_map_molecules() --- map start --- error " << std::endl;
+            err = glGetError();
+            if (err) std::cout << "draw_map_molecules() --- draw map loop start --- error "
+                               << std::endl;
 
             bool draw_with_lines = true;
             if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
