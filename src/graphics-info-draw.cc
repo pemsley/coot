@@ -607,7 +607,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                if (! m.is_an_opaque_map()) {
                   // sort the triangles
                   clipper::Coord_orth eye_pos_co(ep.x, ep.y, ep.z);
-                  graphics_info_t::molecules[ii].sort_map_triangles(eye_pos_co);
+                  m.sort_map_triangles(eye_pos_co);
                }
 
                glBindVertexArray(m.m_VertexArrayID_for_map);
