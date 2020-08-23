@@ -83,12 +83,12 @@ public:
    }
 
    virtual GooCanvasItem *wrap_goo_canvas_text_new(GooCanvasItem *group,
-					   const std::string &text,
-					   double x_pos, double y_pos, 
-					   int something,
-					   GtkAnchorType anchor_type,
-					   const std::string &font,
-					   const std::string &fill_colour) const {
+                                                   const std::string &text,
+                                                   double x_pos, double y_pos, 
+                                                   int something,
+                                                   GooCanvasAnchorType anchor_type,
+                                                   const std::string &font,
+                                                   const std::string &fill_colour) const {
       return goo_canvas_text_new(group,
 				 text.c_str(),
 				 x_pos, y_pos, 

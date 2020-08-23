@@ -24,17 +24,8 @@
 
 #ifdef HAVE_GSL
 
-#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
-#ifdef HAVE_GNOME_CANVAS
-#include <libgnomecanvas/libgnomecanvas.h>
-typedef GnomeCanvas GtkCanvas;
-typedef GnomeCanvasItem GtkCanvasItem;
-#endif
-#ifdef HAVE_GTK_CANVAS
-#include <gtk-canvas.h>
-#endif
-
+#ifdef HAVE_GOOCANVAS
+#include "goograph/goograph.hh"
 
 #include "ideal/simple-restraint.hh"
 
@@ -53,7 +44,7 @@ namespace coot {
 ////E
    };
 
-   gint on_geometry_graph_block_clicked(GtkCanvasItem *item, 
+   gint on_geometry_graph_block_clicked(GooCanvasItem *item, 
 					GdkEvent *event, 
 					gpointer data);
 
@@ -79,13 +70,13 @@ namespace coot {
    
    class geometry_graph_block_info : public geometry_graph_block_info_generic { 
    public:
-      GtkCanvas *canvas;  // for button press callback
+      GooCanvas *canvas;  // for button press callback
       geometry_graph_block_info(int imol_in, 
 				int resno_in, 
 				const atom_spec_t &atom_spec_in, 
 				double dist_in, 
 				const std::string &str, 
-				GtkCanvas *w) :
+				GooCanvas *w) :
 	 geometry_graph_block_info_generic(imol_in, resno_in, atom_spec_in, dist_in, str)
       {
 	 canvas = w;
@@ -114,19 +105,19 @@ namespace coot {
       int n_chains;
       int max_chain_length;
       std::string graph_label;
-      GtkCanvas *canvas;
+      GooCanvas *canvas;
       void clear_tooltip_box();
       void tooltip_like_box(const geometry_graph_block_info &bi,
 			    const GdkEvent *event);
-      GtkCanvasItem *tooltip_item;
-      GtkCanvasItem *tooltip_item_text;
+      GooCanvasItem *tooltip_item;
+      GooCanvasItem *tooltip_item_text;
       
       std::vector<std::string> chain_index; // could be a map
       std::vector<int> offsets; // tricky indexing.  If we have a
 				// residue number of 1 in the chain,
 				// offset is 0.  If we have 10, it is 9.
 
-      std::vector<std::vector<GtkCanvasItem *> > blocks;
+      std::vector<std::vector<GooCanvasItem *> > blocks;
       void setup_internal();
       void setup_canvas(int n_chains, int max_chain_length);
       void plot_block(const geometry_graph_block_info &block_info,
@@ -216,9 +207,9 @@ namespace coot {
       void update_residue_blocks(const std::vector<geometry_graph_block_info_generic> &dv);
       
       void set_sensitivity(double d); // becomes the distortion_max.
-      void button_press(GtkCanvasItem *item, GdkEvent *event, 
+      void button_press(GooCanvasItem *item, GdkEvent *event, 
 			const geometry_graph_block_info &binfo);
-      void mouse_over(GtkCanvasItem *item, GdkEvent *event, 
+      void mouse_over(GooCanvasItem *item, GdkEvent *event, 
 		      const geometry_graph_block_info &binfo);
       void delete_block(const std::string &chain_id, int resno);
       GtkWidget *dialog() const;

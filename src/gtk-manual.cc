@@ -270,19 +270,21 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 /* We should come here and be given imol.  New molecules should insert
    themselves into the Ramachandran Plot menu(item). */
 
-#if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
   rama_widget = dynarama_is_displayed_state(imol);
   if (rama_widget == NULL) {
     do_ramachandran_plot(imol);
   } else {
-    if (!GTK_WIDGET_MAPPED(rama_widget))
-      gtk_widget_show(rama_widget);
-    else
-      gdk_window_raise(rama_widget->window);
+     // if (!GTK_WIDGET_MAPPED(rama_widget))
+     if (true) {
+        gtk_widget_show(rama_widget);
+     } else {
+        gdk_window_raise(GDK_WINDOW(gtk_widget_get_window(rama_widget)));
+     }
   }
 #else
-  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+  printf("not compiled with GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -323,10 +325,11 @@ void sequence_view_mol_selector_activate (GtkMenuItem     *menuitem,
 					  gpointer         user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
+  std::cout << "calling do_sequence_view() " << imol  << std::endl;
    do_sequence_view(imol);
 #else
-  printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+  printf("not compiled with GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -1311,7 +1314,8 @@ on_display_control_mol_displayed_button_toggled(GtkToggleButton *button,
 
 
      } else {
-        printf("ERROR:: Failed to find active_toggle_button from name: %s\n", widget_name);
+        std::cout << "ERROR:: Failed to find active_toggle_button from name:"
+                  << widget_name << std::endl;
      }
   } else {
      printf("ERROR:: (ignoring) display toggle of bogus molecule: %d\n", imol);

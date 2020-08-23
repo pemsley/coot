@@ -1153,70 +1153,70 @@ lbg_info_t::handle_key_press_button_toggle(int keyval, bool ctrl_is_pressed) {
 
    switch (keyval) {
 
-   case GDK_n:
+   case GDK_KEY_n:
       lbg_toggle_button_my_toggle(widget_names["nitrogen_toggle_toolbutton"]);
       break;
 
-   case GDK_c:
+   case GDK_KEY_c:
       lbg_toggle_button_my_toggle(widget_names["carbon_toggle_toolbutton"]);
       break;
 
-   case GDK_o:
+   case GDK_KEY_o:
       lbg_toggle_button_my_toggle(widget_names["oxygen_toggle_toolbutton"]);
       break;
 
-   case GDK_p:
+   case GDK_KEY_p:
       lbg_toggle_button_my_toggle(widget_names["phos_toggle_toolbutton"]);
       break;
 
-   case GDK_i:
+   case GDK_KEY_i:
       lbg_toggle_button_my_toggle(widget_names["iodine_toggle_toolbutton"]);
       break;
 
-   case GDK_s:
+   case GDK_KEY_s:
       if  (ctrl_is_pressed)
 	 lbg_toggle_button_my_toggle(widget_names["sulfur_toggle_toolbutton"]);
       else
 	 lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
       break;
 
-   case GDK_d:
+   case GDK_KEY_d:
       lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
       break;
 
-   case GDK_1:
+   case GDK_KEY_1:
       lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
       break;
 
-   case GDK_2:
+   case GDK_KEY_2:
       lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
       break;
 
-   case GDK_3:
+   case GDK_KEY_3:
       lbg_toggle_button_my_toggle(widget_names["c3_toggle_toolbutton"]);
       break;
 
-   case GDK_4:
+   case GDK_KEY_4:
       lbg_toggle_button_my_toggle(widget_names["c4_toggle_toolbutton"]);
       break;
 
-   case GDK_5:
+   case GDK_KEY_5:
       lbg_toggle_button_my_toggle(widget_names["c5_toggle_toolbutton"]);
       break;
 
-   case GDK_6:
+   case GDK_KEY_6:
       lbg_toggle_button_my_toggle(widget_names["c6_toggle_toolbutton"]);
       break;
 
-   case GDK_7:
+   case GDK_KEY_7:
       lbg_toggle_button_my_toggle(widget_names["c7_toggle_toolbutton"]);
       break;
 
-   case GDK_8:
+   case GDK_KEY_8:
       lbg_toggle_button_my_toggle(widget_names["c8_toggle_toolbutton"]);
       break;
 
-   case GDK_b:
+   case GDK_KEY_b:
       // lbg_toggle_button_my_toggle(lbg_bromine_toggle_toolbutton);
       lbg_toggle_button_my_toggle(widget_names["c6_arom_toggle_toolbutton"]);
       break;
@@ -2524,7 +2524,7 @@ lbg_info_t::have_2_stubs_attached_to_atom(unsigned int atom_index,
 void
 lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode) {
 
-   gpointer gp = gtk_object_get_user_data(GTK_OBJECT(canvas));
+   gpointer gp = g_object_get_data(G_OBJECT(canvas), "lbg");
    lbg_info_t *l = static_cast<lbg_info_t *> (gp);
 
    if (l) {
@@ -3167,7 +3167,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    //
    goo_canvas_set_scale(GOO_CANVAS(canvas), 1.0);
 
-   GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
+   // gtk_widget_set_flags(canvas, GTK_CAN_FOCUS);
+   std::cout << "FIXME gtk_widget_set_flags GTK_CAN_FOCUS!"  << std::endl;
 
    GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
    g_object_set(G_OBJECT(root_item), "line_width", 1.5, NULL); // thank you Damon Chaplin
@@ -3175,7 +3176,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    if (lbg_scale_spinbutton) {
                                      // value lower upper step_inc page_inc page_size (which should be 0)
-      GtkObject *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
+      GtkAdjustment *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
       gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(lbg_scale_spinbutton), GTK_ADJUSTMENT(adj));
       gtk_spin_button_set_value(GTK_SPIN_BUTTON(lbg_scale_spinbutton), 1.0);
 
@@ -3194,8 +3195,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 #endif // HAVE_CCP4SRS
 
    if (use_graphics_interface_flag) {
-      gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
-      gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
+      // gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
+      std::cout << "FIXME! bounds padding!" << std::endl;
+      g_object_set_data(G_OBJECT(canvas), "lbg", (gpointer) this);
 
       save_togglebutton_widgets(builder);
       GtkWidget *lbg_scrolled_win =
@@ -3206,6 +3208,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    GooCanvas *gc = GOO_CANVAS(canvas);
 
+#if 0
    if (0)
       std::cout << "   after setting bounds: canvas adjustments: h-lower "
 		<< gc->hadjustment->lower << " h-upper-page "
@@ -3214,6 +3217,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 		<< gc->vadjustment->upper - gc->vadjustment->page_size  << " h-page "
 		<< gc->hadjustment->page_size  << " "
 		<< gc->vadjustment->page_size << std::endl;
+#endif
 
    if (use_graphics_interface_flag) {
 
@@ -3240,8 +3244,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    // ------------ (old-style) watch for new files from coot ---------------------
    //
-   if (is_stand_alone())
-      int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+   // Gtk3 porting: comment this out for now.
+   // if (is_stand_alone())
+   // int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
    // Hack in a button (or hide the hbox) for PE to test stuff
    //
@@ -3290,11 +3295,13 @@ lbg_info_t::init(GtkBuilder *builder) {
 void
 lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton) {
 
-   float f = gtk_spin_button_get_value_as_float(spinbutton);
+   float f = 1.0; // gtk_spin_button_get_value_as_float(spinbutton);
+   std::cout << "FIXME why oh why is gtk_spin_button_get_value_as_float() missing now!?"
+             << std::endl;
    gpointer user_data = g_object_get_data(G_OBJECT(spinbutton), "user_data");
    if (user_data) {
       GtkWidget *canvas = GTK_WIDGET(user_data);
-      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data(G_OBJECT(canvas), "lbg"));
       if (l) {
 	 l->scale_canvas(f);
       }

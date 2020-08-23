@@ -2992,8 +2992,13 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
 			// draw the contour level bar
 			float cl = graphics_info_t::molecules[imol].get_contour_level();
-			std::vector<float> map_colours = graphics_info_t::molecules[imol].map_colours();
-			if (map_colours.size() > 2) {
+
+                        // std::pair<GdkRGBA, GdkRGBA> map_colours() const;
+			std::pair<GdkRGBA, GdkRGBA> map_colours =
+                           graphics_info_t::molecules[imol].map_colours();
+
+#if 0
+			if (true) { // this test is needed?
 			   coot::colour_holder ch(map_colours);
 			   void (*func)(int, float) = set_contour_level_absolute;
 			   GtkWidget *canvas = g->get_canvas();
@@ -3006,6 +3011,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 			   gtk_widget_show(canvas);
 			   gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
 			}
+#endif
 		     }
 		  }
 	       }

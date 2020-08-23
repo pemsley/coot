@@ -277,10 +277,10 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 			    GTK_WIDGET(button), FALSE, FALSE, 3);
 	 std::string *comp_id = new std::string(v[i].comp_id);
 	 g_signal_connect(GTK_WIDGET(button), "clicked",
-			  GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
+			  G_CALLBACK(on_sbase_search_result_button_clicked),
 			  (gpointer) (comp_id));
 	 gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
-	 gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
+	 g_object_set_data(G_OBJECT(button), "lbg", (gpointer) this);
 	 gtk_widget_show(button);
       }
    } else {
@@ -306,10 +306,10 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 			       GTK_WIDGET(button), FALSE, FALSE, 3);
 	    std::string *comp_id = new std::string(v[i].comp_id);
 	    g_signal_connect(GTK_WIDGET(button), "clicked",
-			     GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
+			     G_CALLBACK(on_sbase_search_result_button_clicked),
 			     (gpointer) (comp_id));
 	    gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
-	    gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
+	    g_object_set_data(G_OBJECT(button), "lbg", (gpointer) this);
 
 	    GtkWidget *label  = gtk_label_new(lab.c_str());
 	    GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
@@ -451,7 +451,7 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
       // std::cout << "Do something with " << comp_id << std::endl;
 
       // 20120110 new style, call an import function, using a pointer.
-      lbg_info_t *lbg = (lbg_info_t *) gtk_object_get_data(GTK_OBJECT(button), "lbg");
+      lbg_info_t *lbg = (lbg_info_t *) g_object_get_data(G_OBJECT(button), "lbg");
       if (!lbg) { 
 	 std::cout << "ERROR NULL lbg in on_sbase_search_result_button_clicked() " << std::endl;
       } else {

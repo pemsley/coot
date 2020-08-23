@@ -240,7 +240,7 @@ namespace coot {
 					  const std::vector<coot::command_arg_t> &args);
 
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
    void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
    GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type);
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)

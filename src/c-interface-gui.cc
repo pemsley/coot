@@ -5261,7 +5261,8 @@ void set_sequence_view_is_docked(short int state) {
 
 void nsv(int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
+
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
@@ -5276,7 +5277,8 @@ void nsv(int imol) {
 	 GtkWidget *widget = lookup_widget(canvas, "nsv_dialog");
 
 	 if (widget) {
-	    if (!GTK_WIDGET_MAPPED(widget)) {
+	    // if (!GTK_WIDGET_MAPPED(widget)) { // gone
+            if (true) {
 	       gtk_widget_show(widget);
 	    } else {
 	       std::cout << "GTK-FIXME no raise" << std::endl;
@@ -5288,10 +5290,12 @@ void nsv(int imol) {
 
 	    widget = lookup_widget(canvas, "sequence_view_dialog");
 	    if (widget) {
-	       if (!GTK_WIDGET_MAPPED(widget)) {
+	       //if (!GTK_WIDGET_MAPPED(widget)) { // gone
+               if (true) {
 		  gtk_widget_show(widget);
 	       } else {
-		  gdk_window_raise(widget->window);
+                  GdkWindow *w = gtk_widget_get_window(widget);
+		  gdk_window_raise(w);
 	       }
 	    }
 	 }
@@ -5300,7 +5304,7 @@ void nsv(int imol) {
 	 graphics_info_t g;
          GtkWidget *main_window_vbox = 0;
          if (g.sequence_view_is_docked_flag) {
-            main_window_vbox = lookup_widget(g.glarea, "main_window_vbox");
+            main_window_vbox = lookup_widget(g.glareas[0], "main_window_vbox");
          }
 	 std::string name = g.molecules[imol].name_for_display_manager();
 	 exptl::nsv *seq_view =
@@ -5314,7 +5318,7 @@ void nsv(int imol) {
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
-#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#endif // GOOCANVAS
 }
 
 void set_nsv_canvas_pixel_limit(int cpl) {

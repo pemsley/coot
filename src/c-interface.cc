@@ -7302,11 +7302,11 @@ void print_sequence_chain(int imol, const char *chain_id) {
 void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      bool do_old_style = 0;
+      bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
-      if (r.size() > 0) {
-         do_old_style = 1;
+      if (! r.empty()) {
+         do_old_style = true;
       } else {
          // was it a big shelx molecule?
          if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {

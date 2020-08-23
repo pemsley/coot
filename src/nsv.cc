@@ -25,7 +25,7 @@
 #endif
 
 
-#if defined(HAVE_GNOME_CANVAS) || defined (HAVE_GOOCANVAS)
+#ifdef HAVE_GOOCANVAS
 
 // Don't forget to enable
 // g.set_sequence_view_is_displayed(seq_view->Canvas(), imol) in nsv()
@@ -95,9 +95,13 @@ exptl::nsv::on_canvas_button_press(GtkWidget      *canvas,
       gtk_widget_show(item);
       // const GdkEvent *trigger_event = NULL;
       // use gtk_menu_popup_at_pointer?
+
+      std::cout << "FIXME on_canvas_button_press() " << std::endl;
+#if 0      
       gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, 0,
                      (event != NULL) ? event->time
                      : gtk_get_current_event_time());
+#endif
    }
    return TRUE;
 }
@@ -139,9 +143,10 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    if (make_top_level_dialog) {
       top_lev = gtk_dialog_new();
-      gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev); // huh?
+      g_object_set_data(G_OBJECT(top_lev), "nsv_dialog", top_lev); // huh?
       gtk_window_set_title(GTK_WINDOW(top_lev), "Coot Sequence View");
-      GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
+      // GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
+      GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(top_lev));
       container_vbox = vbox;
       std::string label_string = "Molecule Number ";
       label_string += coot::util::int_to_string(molecule_number_in);
@@ -158,8 +163,6 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    canvas_group = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-#else
-   canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
 #endif
 
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -179,21 +182,21 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    if (make_top_level_dialog) {
       GtkWidget *close_button = gtk_button_new_with_label("  Close   ");
-      GtkWidget *aa = GTK_DIALOG(top_lev)->action_area;
+      GtkWidget *aa = gtk_dialog_get_action_area(GTK_DIALOG(top_lev));
       gtk_box_pack_start(GTK_BOX(aa), close_button, FALSE, FALSE, 2);
 
-      gtk_signal_connect(GTK_OBJECT(close_button), "clicked",
-                         GTK_SIGNAL_FUNC(on_nsv_close_button_clicked), NULL);
+      g_signal_connect(G_OBJECT(close_button), "clicked",
+                       G_CALLBACK(on_nsv_close_button_clicked), NULL);
 
-      gtk_signal_connect(GTK_OBJECT(top_lev), "destroy",
-                         GTK_SIGNAL_FUNC(on_nsv_dialog_destroy), top_lev);
+      g_signal_connect(G_OBJECT(top_lev), "destroy",
+                       G_CALLBACK(on_nsv_dialog_destroy), top_lev);
       gtk_widget_show(close_button);
       gtk_widget_show(aa); // needed?
       gtk_widget_show(top_lev);
    }
 
    // used on destroy
-   gtk_object_set_user_data(GTK_OBJECT(top_lev), GINT_TO_POINTER(molecule_number));
+   g_object_set_data(G_OBJECT(top_lev), "molecule_number", GINT_TO_POINTER(molecule_number));
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
@@ -224,7 +227,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
                          GDK_KEY_RELEASE_MASK   |
                          GDK_POINTER_MOTION_HINT_MASK);
 
-   g_signal_connect(GTK_OBJECT(scrolled_window), "button_press_event",
+   g_signal_connect(G_OBJECT(scrolled_window), "button_press_event",
                     G_CALLBACK(on_canvas_button_press), scrolled_window);
 
    // how about capturing a scroll event here also?
@@ -245,11 +248,11 @@ exptl::nsv::on_nsv_close_button_clicked(GtkButton *button,
 
 // static
 void
-exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
+exptl::nsv::on_nsv_dialog_destroy (GObject *obj,
 				   gpointer user_data) {
 
    GtkWidget *dialog = (GtkWidget *) user_data;
-   int imol = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dialog)));
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "molecule_number"));
 
    std::cout << "DEBUG:: on_nsv_dialog_destroy() called for molecule " << imol << std::endl;
    set_sequence_view_is_displayed(0, imol);
@@ -512,7 +515,7 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
                               chain_label.c_str(),
                               x, y,
                               -1,
-                              GTK_ANCHOR_WEST,
+                              GOO_CANVAS_ANCHOR_WEST,
                               "fill_color", "#111111",
                               "font", fixed_font_str.c_str(),
                               NULL);
@@ -522,7 +525,8 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
 				"text", chain_label.c_str(),
 				"x", x,
 				"y", y,
-				"anchor", GTK_ANCHOR_WEST,
+				"anchor",
+                                GOO_CANVAS_ANCHOR_WEST,
 				"fill_color", "#111111",
 				"font", fixed_font_str.c_str(),
 				NULL);
@@ -645,7 +649,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                                     res_code.c_str(),
                                     x, y,
                                     -1,
-                                    GTK_ANCHOR_CENTER,
+                                    GOO_CANVAS_ANCHOR_CENTER,
                                     "fill_color", colour.c_str(),
                                     "font", fixed_font_str.c_str(),
                                     "can-focus", FALSE,
@@ -669,12 +673,12 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
                 "text", res_code.c_str(),
                 "x", x,
                 "y", y,
-                "anchor", GTK_ANCHOR_CENTER,
+                "anchor", GOO_CANVAS_ANCHOR_CENTER,
                 "fill_color", colour.c_str(),
                 "font", fixed_font_str.c_str(),
                 NULL);
-    gtk_signal_connect(GTK_OBJECT(text_item), "event",
-		       GTK_SIGNAL_FUNC(letter_event), so);
+    gtk_signal_connect(G_OBJECT(text_item), "event",
+		       G_CALLBACK(letter_event), so);
     canvas_item_vec.push_back(text_item);
 #endif
       } else {
@@ -709,7 +713,7 @@ exptl::nsv::clear_canvas() {
       while(temp_list != NULL) {
 	    GnomeCanvasItem *item = GNOME_CANVAS_ITEM(temp_list->data);
 	    temp_list = temp_list->next;
-	    gtk_object_destroy(GTK_OBJECT(item));
+	    g_object_destroy(G_OBJECT(item));
       }
    }
 #endif
@@ -719,7 +723,7 @@ exptl::nsv::clear_canvas() {
 #ifndef HAVE_GOOCANVAS
 // static
 gint
-exptl::nsv::letter_event(GtkObject *obj,
+exptl::nsv::letter_event(GObject *obj,
                          GdkEvent *event,
                          gpointer data) {
 
@@ -799,7 +803,7 @@ exptl::nsv::rect_button_event(GooCanvasItem *item,
 #else
 // static
 gint
-exptl::nsv::rect_event (GtkObject *obj,
+exptl::nsv::rect_event (GObject *obj,
 			GdkEvent *event,
 			gpointer data) {
 
@@ -998,10 +1002,10 @@ exptl::nsv::helix(mmdb::Chain *chain_p, int resno_low, int resno_high, double x_
    }
 
    GooCanvasItem *item_box = goo_canvas_polyline_new(canvas_group, TRUE, 0,
-						   "points", points,
-						   "line-width", 1.0,
-						   "stroke-color", "black",
-						   NULL);
+                                                     "points", points,
+                                                     "line-width", 1.0,
+                                                     "stroke-color", "black",
+                                                     NULL);
    goo_canvas_points_unref(points);
 
    double y_start = -40.0;
@@ -1368,7 +1372,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
                                   lab.c_str(),
                                   x, y_for_text,
                                   -1,
-                                  GTK_ANCHOR_CENTER,
+                                  GOO_CANVAS_ANCHOR_CENTER,
                                   "font", fixed_font_str.c_str(),
                                   "fill_color", "black",
                                   NULL);
@@ -1385,7 +1389,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 				       "text", lab.c_str(),
 				       "x", x,
 				       "y", y_for_text,
-				       "anchor", GTK_ANCHOR_CENTER,
+				       "anchor", GOO_CANVAS_ANCHOR_CENTER,
 				       "font", fixed_font_str.c_str(),
 				       "fill_color", "black",
 				       NULL);

@@ -888,11 +888,11 @@ void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
       graphics_info_t g;
       g.b_factor_graphs(imol);
 #else
-      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+      printf("not compiled with HAVE_GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -903,11 +903,12 @@ void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menu
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+#ifdef HAVE_GOOCANVAS
       graphics_info_t g;
       g.calc_b_factor_graphs(imol);
 #else
-      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+   printf("not compiled with HAVE_GOOCANVAS - remake\n");
 #endif
 
 }
@@ -917,11 +918,12 @@ void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+
+#ifdef HAVE_GOOCANVAS
       graphics_info_t g;
       g.geometric_distortion(imol);
 #else
-      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+      printf("not compiled with HAVE_GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -930,11 +932,12 @@ void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
 						   gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-      graphics_info_t g;
-      g.omega_graphs(imol);
+
+#ifdef HAVE_GOOCANVAS
+   graphics_info_t g;
+   g.omega_graphs(imol);
 #else
-      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+   printf("not compiled with HAVE_GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -943,11 +946,11 @@ void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
 						     gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
    graphics_info_t g;
    g.rotamer_graphs(imol);
 #else
-   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+   printf("not compiled with HAVE_GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 
 }
@@ -956,11 +959,11 @@ void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuit
 							 gpointer         user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
    graphics_info_t g;
    g.density_fit_graphs(imol);
 #else
-   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
+   printf("not compiled with HAVE_GOOCANVAS - remake\n");
 #endif /* HAVE_GTK_CANVAS */
 }
 
@@ -968,16 +971,13 @@ void probe_mol_selector_activate (GtkMenuItem     *menuitem,
  				  gpointer         user_data) {
 
     int imol = GPOINTER_TO_INT(user_data);
- #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
-       graphics_info_t g;
 
-       std::vector<std::string> cmd_strings;
-      cmd_strings.push_back("probe");
-      cmd_strings.push_back(coot::util::int_to_string(imol));
-      run_generic_script(cmd_strings);
-#else
-      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n");
-#endif /* HAVE_GTK_CANVAS */
+    graphics_info_t g;
+    
+    std::vector<std::string> cmd_strings;
+    cmd_strings.push_back("probe");
+    cmd_strings.push_back(coot::util::int_to_string(imol));
+    run_generic_script(cmd_strings);
 }
 
 
