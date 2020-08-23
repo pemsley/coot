@@ -6295,7 +6295,7 @@ create_python_window (void)
   python_window_entry = gtk_entry_new ();
   gtk_widget_show (python_window_entry);
   gtk_box_pack_start (GTK_BOX (vbox41), python_window_entry, FALSE, FALSE, 5);
-  gtk_widget_set_size_request (python_window_entry, 350, -1);
+  gtk_widget_set_size_request (python_window_entry, 450, -1);
 
   scrolledwindow4 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow4);

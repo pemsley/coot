@@ -1616,8 +1616,8 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
    graphics_info_t g;
    unsigned int sf = framebuffer_scale;
    unsigned int index_offset = 0;
-   std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
-             << width << " x " << height << std::endl;
+   // std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
+   // << width << " x " << height << std::endl;
    g.screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
    GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
