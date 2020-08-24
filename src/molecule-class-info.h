@@ -140,6 +140,8 @@ namespace molecule_map_type {
 
 #include "g_triangle.hh"
 
+#include "fresnel-settings.hh"
+
 glm::vec3 cartesian_to_glm(const coot::Cartesian &c);
 
 namespace coot {
@@ -1911,6 +1913,7 @@ public:        //                      public
       other_map_for_colouring_p = NULL;
       colour_map_using_other_map_flag = false;
    }
+   fresnel_settings_t fresnel_settings;
 
    // save yourself and update have_unsaved_changes_flag status
    //

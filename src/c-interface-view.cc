@@ -188,6 +188,16 @@ void set_map_specular_strength(int imol, float specular_strength) {
    }
 }
 
+void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.fresnel_settings = fresnel_settings_t(state, bias, scale, power);
+      graphics_draw();
+   }
+
+}
+
 void set_draw_normals(short int state) {
 
    graphics_info_t::draw_normals_flag = state;

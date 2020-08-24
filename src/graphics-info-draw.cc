@@ -572,6 +572,21 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             shader.set_float_for_uniform("material.shininess", material.shininess);
             shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
 
+            // --- background ---
+
+            GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
+            glm::vec4 bgc(background_colour, 1.0);
+            glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+            err = glGetError();
+            if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+
+            // --- fresnel ---
+
+            shader.set_bool_for_uniform("do_fresnel",     m.fresnel_settings.state);
+            shader.set_float_for_uniform("fresnel_bias",  m.fresnel_settings.bias);
+            shader.set_float_for_uniform("fresnel_scale", m.fresnel_settings.scale);
+            shader.set_float_for_uniform("fresnel_power", m.fresnel_settings.power);
+
             // --- draw ---
 
             if (draw_with_lines) {
@@ -624,12 +639,6 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-
-               GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-               glm::vec4 bgc(background_colour, 1.0);
-               glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
                // opacity:
                // GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
