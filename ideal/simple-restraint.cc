@@ -80,7 +80,7 @@ coot::restraints_container_t::~restraints_container_t() {
 	 // Oh we can't do this here because we copy the
 	 // restraints in simple_refine_residues() and that
 	 // shallow copies the atom pointer - the original
-	 // restriants go out of scope and call this destructor.
+	 // restraints go out of scope and call this destructor.
 	 //
 	 // We need a new way to get rid of atom - c.f. the
 	 // linear/conventional way?
