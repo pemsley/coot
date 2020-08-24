@@ -3595,7 +3595,8 @@ molecule_class_info_t::make_bonds_type_checked() {
 
  void molecule_class_info_t::make_glsl_bonds_type_checked() {
 
-    std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
+    if (! is_intermediate_atoms_molecule)
+       std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 
     GLenum err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
@@ -3767,7 +3768,8 @@ molecule_class_info_t::make_bonds_type_checked() {
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
    err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
    n_indices_for_model_triangles = triangles.size() * 3;
-   std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
+   if (! is_intermediate_atoms_molecule)
+      std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
    unsigned int n_bytes = triangles.size() * 3 * sizeof(unsigned int);
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
    err = glGetError(); if (err) std::cout << "GL error bonds --- end ---\n";
