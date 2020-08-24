@@ -1391,6 +1391,10 @@ void set_map_material_specular(int imol, float specular_strength, float shinines
 
 void set_model_material_specular(int imol, float specular_strength, float shininess);
 
+void reload_map_shader();
+
+void reload_model_shader();
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

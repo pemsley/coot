@@ -240,7 +240,23 @@ void set_model_material_specular(int imol, float specular_strength, float shinin
    }
 }
 
-   
+
+void reload_map_shader() {
+
+   graphics_info_t g;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));
+   std::cout << "reload map shader" << std::endl;
+   g.shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   graphics_draw();
+}
+
+void reload_model_shader() {
+
+   graphics_info_t g;
+   g.shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
+   graphics_draw();
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */

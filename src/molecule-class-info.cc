@@ -1062,7 +1062,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
                break;
             case HYDROGEN_GREY_BOND:
-               rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               rgb[0] = 0.86; rgb[1] =  0.86; rgb[2] =  0.86;
                break;
                // replaced in mmdb-extras.h
                //       case white:
