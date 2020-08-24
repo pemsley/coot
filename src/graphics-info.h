@@ -4093,7 +4093,7 @@ string   static std::string sessionid;
                                   const glm::mat4 &mvp,
                                   const glm::mat4 &view_rotation,
                                   float density_surface_opacity);
-   static gboolean render(bool render_to_screendump_framebuffer_flag=false);
+   static gboolean render(bool render_to_screendump_framebuffer_flag=false, const std::string &output_file_name="coot-screendump.tga");
    static void render_scene_to_base_framebuffer();
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();

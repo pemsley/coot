@@ -203,7 +203,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
                                             -0.3f*zoom,    0.3f*zoom,
                                             near, far);
-   
+
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
@@ -221,7 +221,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       // along screen-Z.
 
       glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
-      
+
       glm::vec3 ep = eye_position; // in view space i.e. (0,0,z) (z = 40, say)
       glm::vec3 up(0,1,0);
       glm::vec3 origin(0,0,0);
@@ -777,7 +777,7 @@ graphics_info_t::draw_model_molecules() {
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() post-material "
                             << shader.name << " with err " << err << std::endl;
- 
+
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
 
@@ -1527,7 +1527,7 @@ graphics_info_t::setup_lights() {
 }
 
 gboolean
-graphics_info_t::render(bool to_screendump_framebuffer) {
+graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
@@ -1576,7 +1576,7 @@ graphics_info_t::render(bool to_screendump_framebuffer) {
       screendump_framebuffer.bind();
       render_scene_to_base_framebuffer();
       gtk_gl_area_attach_buffers(gl_area);
-      screendump_tga_internal("new-framebuffer-dump.tga", w, h, sf, screendump_framebuffer.get_fbo());
+      screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
    } else {
       glViewport(0, 0, w, h);
@@ -2163,7 +2163,7 @@ graphics_info_t::setup_key_bindings() {
 
 void
 graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
-   
+
    int imol_scroll = scroll_wheel_map;
    if (! is_valid_map_molecule(imol_scroll)) {
 
