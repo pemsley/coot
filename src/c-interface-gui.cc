@@ -1476,6 +1476,9 @@ coot_real_exit(int retval) {
 void
 coot_no_state_real_exit(int retval) {
 
+   graphics_info_t g;
+   g.command_history.write_history();
+
    // this is called (only) from on_window1_delete_event()
    coot_save_state_and_exit(retval, 0);
 }

@@ -25,7 +25,8 @@ namespace coot {
       }
 
       void add_to_history(const std::string &s) {
-         commands.push_back(s);
+         if (! s.empty())
+            commands.push_back(s);
          index = commands.size();
       }
 
