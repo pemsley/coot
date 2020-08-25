@@ -4910,7 +4910,10 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			   return YELLOW_BOND;
 			} else {
 			   if (is_hydrogen(element)) {
-			      return HYDROGEN_GREY_BOND;
+                              if (is_deuterium(element))
+                                 return DEUTERIUM_PINK;
+                              else
+                                 return HYDROGEN_GREY_BOND;
 			   } else {
 			      if (element == " P") {
 				 return ORANGE_BOND;

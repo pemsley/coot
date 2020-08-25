@@ -973,6 +973,9 @@ molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_da
       case HYDROGEN_GREY_BOND:
 	 col = coot::colour_t (0.7, 0.7, 0.7);
 	 break;
+      case DEUTERIUM_PINK:
+	 col = coot::colour_t (0.8, 0.6, 0.64);
+	 break;
       case MAGENTA_BOND:
 	 col = coot::colour_t (0.8, 0.1, 0.8);
 	 break;
@@ -1064,6 +1067,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
             case HYDROGEN_GREY_BOND:
                rgb[0] = 0.86; rgb[1] =  0.86; rgb[2] =  0.86;
                break;
+            case DEUTERIUM_PINK:
+               rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
+               break;
                // replaced in mmdb-extras.h
                //       case white:
                // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
@@ -1115,6 +1121,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                break;
             case HYDROGEN_GREY_BOND:
                rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+               break;
+            case DEUTERIUM_PINK:
+               rgb[0] = 0.8; rgb[1] =  0.6; rgb[2] =  0.64;
                break;
             case MAGENTA_BOND:
                rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;

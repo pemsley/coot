@@ -179,7 +179,13 @@ class Bond_lines_container {
 	 return true;
       else
 	 return false; 
-   } 
+   }
+   bool is_deuterium(const std::string &ele) const {
+      if (ele == " D")
+	 return true;
+      else
+	 return false; 
+   }
 
    void construct_from_atom_selection(const atom_selection_container_t &asc,
 				      const mmdb::PPAtom atom_selection_1,
