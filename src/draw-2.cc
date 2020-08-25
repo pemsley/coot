@@ -380,6 +380,8 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                            // std::cout << "now zoom: " << g.zoom << std::endl;
                         } else {
                            // Move the eye towards the rotation centre (don't move the rotation centre)
+                           if (fabs(delta_y) > fabs(delta_x))
+                              delta_x = delta_y;
                            float sf = 1.0 - delta_x * 0.003;
                            graphics_info_t::eye_position.z *= sf;
 
