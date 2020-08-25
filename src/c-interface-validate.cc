@@ -1663,33 +1663,33 @@ void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *comb
 
 void do_ramachandran_plot(int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   std::cout << "do_ramachandran_plot()" << imol << std::endl;
 
-   if (imol >= 0) {
-      if (imol < graphics_info_t::n_molecules()) {
-	 if (graphics_info_t::molecules[imol].has_model()) {
-	    coot::rama_plot *rama = new coot::rama_plot;
-	    if (graphics_info_t::ramachandran_plot_x_position > 0)
-	       rama->set_position(graphics_info_t::ramachandran_plot_x_position,
-				  graphics_info_t::ramachandran_plot_y_position);
-	    short int is_kleywegt_plot_flag = 0;
-	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
-	    rama->init(imol,
-		       graphics_info_t::molecules[imol].dotted_chopped_name(),
-		       graphics_info_t::rama_level_prefered,
-		       graphics_info_t::rama_level_allowed,
-		       graphics_info_t::rama_plot_background_block_size,
-             is_kleywegt_plot_flag,
-             graphics_info_t::rama_psi_axis_mode);
-       if (rama->dynawin) {
-          rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol);
-       } else {
-          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
-       }
-	 }
+#ifdef HAVE_GOOCANVAS
+
+   if (is_valid_model_molecule(imol)) {
+
+      std::cout << "do_ramachandran_plot()" << imol << " doing it" << std::endl;
+      coot::rama_plot *rama = new coot::rama_plot;
+      if (graphics_info_t::ramachandran_plot_x_position > 0)
+         rama->set_position(graphics_info_t::ramachandran_plot_x_position,
+                            graphics_info_t::ramachandran_plot_y_position);
+      short int is_kleywegt_plot_flag = 0;
+      rama->set_n_diffs(graphics_info_t::rama_n_diffs);
+      rama->init(imol,
+                 graphics_info_t::molecules[imol].dotted_chopped_name(),
+                 graphics_info_t::rama_level_prefered,
+                 graphics_info_t::rama_level_allowed,
+                 graphics_info_t::rama_plot_background_block_size,
+                 is_kleywegt_plot_flag,
+                 graphics_info_t::rama_psi_axis_mode);
+      if (rama->dynawin) {
+         rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol);
+      } else {
+         std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
       }
    }
-#endif // HAVE_GTK_CANVAS
+#endif // HAVE_GOOCANVAS
 }
 
 void set_kleywegt_plot_n_diffs(int ndiffs) {
