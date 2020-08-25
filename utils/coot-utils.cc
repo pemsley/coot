@@ -415,7 +415,7 @@ coot::util::float_to_string(float f) {
    return std::string(s);
 #endif
 
-   return std::to_string(f);
+   return float_to_string_using_dec_pl(f, 2);
 
 }
 
