@@ -767,7 +767,7 @@ exptl::nsv::rect_notify_event (GooCanvasItem *item,
                                GdkEvent *event,
                                gpointer data) {
 
-   std::cout << "rect_notify_event for item " << item << std::endl;
+   // std::cout << "rect_notify_event for item " << item << std::endl;
 
    GooCanvasItem *rect;
    rect = static_cast<GooCanvasItem *> (g_object_get_data(G_OBJECT(item), "rect"));

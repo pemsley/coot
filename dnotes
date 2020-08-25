@@ -9509,6 +9509,21 @@ Mon 15 Jun 08:57:41 BST 2020
     rewrote ERRAT with a continuous distance weighting scheme, which
     led to more stable and robust behavior.
 
+
 ---
 
+   Fresnel
    https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
+
+---
+Fri 21 Aug 15:46:31 BST 2020
+
+    Header-only C++ libraries
+
+    https://github.com/p-ranav/awesome-hpp
+
+    A Treasure Trove.
+
+    Look at stack trace and command line argument parser(s)
+
+    https://github.com/bombela/backward-cpp

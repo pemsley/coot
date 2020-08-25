@@ -1208,8 +1208,6 @@ molecule_class_info_t::set_bond_colour_for_goodsell_mode(int icol, bool against_
 void
 molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type) {
 
-   std::cout << "set_bond_colour_by_colour_wheel_position() " << i << std::endl;
-
    std::vector<float> rgb(3);
    rgb[0] = 0.2f; rgb[1] =  0.2f; rgb[2] =  0.8f; // blue
 

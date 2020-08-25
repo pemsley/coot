@@ -2828,6 +2828,17 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *spgr_text = lookup_widget(window, "single_map_properties_sg_text");
    GtkWidget *reso_text = lookup_widget(window, "single_map_properties_reso_text");
 
+   GtkWidget *line_width_frame = lookup_widget(window, "map_properties_dialog_line_width_frame");
+   GtkWidget *specular_frame   = lookup_widget(window, "map_properties_dialog_specularity_frame");
+   GtkWidget *fresnel_frame    = lookup_widget(window, "map_properties_dialog_fresnel_frame");
+
+
+   if (true) { // true for gtk2 version
+      gtk_widget_hide(line_width_frame);
+      gtk_widget_hide(specular_frame);
+      gtk_widget_hide(fresnel_frame);
+   }
+
    std::string cell_text_string;
    std::string spgr_text_string;
    std::string reso_text_string;
