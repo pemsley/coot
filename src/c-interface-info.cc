@@ -2832,8 +2832,7 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *specular_frame   = lookup_widget(window, "map_properties_dialog_specularity_frame");
    GtkWidget *fresnel_frame    = lookup_widget(window, "map_properties_dialog_fresnel_frame");
 
-
-   if (true) { // true for gtk2 version
+   if (false) { // true for gtk2 version
       gtk_widget_hide(line_width_frame);
       gtk_widget_hide(specular_frame);
       gtk_widget_hide(fresnel_frame);
