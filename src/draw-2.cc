@@ -349,33 +349,81 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.mouse_current_x = event->x;
    g.mouse_current_y = event->y;
 
-   if (event->state & GDK_BUTTON1_MASK) {
-      if (control_is_pressed) {
-         do_drag_pan_gtk3(widget);
-      } else {
+   auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget, int x_as_int, int y_as_int) {
+                               graphics_info_t g;
+                               if (control_is_pressed) {
+                                  do_drag_pan_gtk3(widget);
+                               } else {
 
-         bool handled = false;
-         if (g.in_moving_atoms_drag_atom_mode_flag) {
-            if (g.last_restraints_size() > 0) {
-               // move an already picked atom
-               g.move_atom_pull_target_position(x_as_int, y_as_int);
-               handled = true;
-            } else {
-               // don't allow translation drag of the
-               // intermediate atoms when they are a rotamer:
-               //
-               if (! g.rotamer_dialog) {
-                  // e.g. translate an added peptide fragment.
-                  g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
-               }
+                                  bool handled = false;
+                                  if (! handled) {
+                                     GtkAllocation allocation;
+                                     gtk_widget_get_allocation(widget, &allocation);
+                                     int w = allocation.width;
+                                     int h = allocation.height;
+                                     graphics_info_t::update_view_quaternion(w, h);
+                                  }
+                               }
+                            };
+
+   auto mouse_zoom = [] (double delta_x, double delta_y) {
+                        // Zooming
+                        double fx = 1.0 + delta_x/300.0;
+                        double fy = 1.0 + delta_y/300.0;
+                        if (fx > 0.0) graphics_info_t::zoom /= fx;
+                        if (fy > 0.0) graphics_info_t::zoom /= fy;
+                        if (false)
+                           std::cout << "zooming with perspective_projection_flag "
+                                     << graphics_info_t::perspective_projection_flag
+                                     << " " << graphics_info_t::zoom << std::endl;
+                        if (! graphics_info_t::perspective_projection_flag) {
+                           // std::cout << "now zoom: " << g.zoom << std::endl;
+                        } else {
+                           // Move the eye towards the rotation centre (don't move the rotation centre)
+                           float sf = 1.0 - delta_x * 0.003;
+                           graphics_info_t::eye_position.z *= sf;
+
+                           { // own graphics_info_t function - c.f. adjust clipping
+                              double  l = graphics_info_t::eye_position.z;
+                              double zf = graphics_info_t::screen_z_far_perspective;
+                              double zn = graphics_info_t::screen_z_near_perspective;
+
+                              graphics_info_t::screen_z_near_perspective *= sf;
+                              graphics_info_t::screen_z_far_perspective  *= sf;
+
+                              float screen_z_near_perspective_limit = l * 0.95;
+                              float screen_z_far_perspective_limit  = l * 1.05;
+                              if (graphics_info_t::screen_z_near_perspective < 2.0)
+                                 graphics_info_t::screen_z_near_perspective = 2.0;
+                              if (graphics_info_t::screen_z_far_perspective > 1000.0)
+                                 graphics_info_t::screen_z_far_perspective = 1000.0;
+
+                              if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
+                                 graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
+                              if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
+                                 graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+                              if (false)
+                                 std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+                                           << graphics_info_t::screen_z_near_perspective << " "
+                                           << graphics_info_t::screen_z_far_perspective << std::endl;
+                           }
+                        }
+                     };
+
+   if (event->state & GDK_BUTTON1_MASK) {
+
+      if (g.in_moving_atoms_drag_atom_mode_flag) {
+         if (g.last_restraints_size() > 0) {
+            // move an already picked atom
+            g.move_atom_pull_target_position(x_as_int, y_as_int);
+         } else {
+            // don't allow translation drag of the
+            // intermediate atoms when they are a rotamer:
+            //
+            if (! g.rotamer_dialog) {
+               // e.g. translate an added peptide fragment.
+               g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
             }
-         }
-         if (! handled) {
-            GtkAllocation allocation;
-            gtk_widget_get_allocation(widget, &allocation);
-            int w = allocation.width;
-            int h = allocation.height;
-            graphics_info_t::update_view_quaternion(w, h);
          }
       }
    }
@@ -386,49 +434,15 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    }
 
    if (event->state & GDK_BUTTON3_MASK) {
-      // Zooming
-      double delta_x = event->x - g.GetMouseBeginX();
-      double delta_y = event->y - g.GetMouseBeginY();
-      double fx = 1.0 + delta_x/300.0;
-      double fy = 1.0 + delta_y/300.0;
-      if (fx > 0.0) g.zoom /= fx;
-      if (fy > 0.0) g.zoom /= fy;
-      if (false)
-         std::cout << "zooming with perspective_projection_flag "
-                   << graphics_info_t::perspective_projection_flag
-                   << " " << g.zoom << std::endl;
-      if (! graphics_info_t::perspective_projection_flag) {
-         // std::cout << "now zoom: " << g.zoom << std::endl;
-      } else {
-         // Move the eye towards the rotation centre (don't move the rotation centre)
-         float sf = 1.0 - delta_x * 0.003;
-         graphics_info_t::eye_position.z *= sf;
 
-         { // own graphics_info_t function - c.f. adjust clipping
-            double  l = graphics_info_t::eye_position.z;
-            double zf = graphics_info_t::screen_z_far_perspective;
-            double zn = graphics_info_t::screen_z_near_perspective;
+      if (!shift_is_pressed) {
+         mouse_view_rotate(widget, x_as_int, y_as_int);
+      }
 
-            graphics_info_t::screen_z_near_perspective *= sf;
-            graphics_info_t::screen_z_far_perspective  *= sf;
-
-            float screen_z_near_perspective_limit = l * 0.95;
-            float screen_z_far_perspective_limit  = l * 1.05;
-            if (graphics_info_t::screen_z_near_perspective < 2.0)
-               graphics_info_t::screen_z_near_perspective = 2.0;
-            if (graphics_info_t::screen_z_far_perspective > 1000.0)
-               graphics_info_t::screen_z_far_perspective = 1000.0;
-
-            if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
-               graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
-            if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
-               graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
-            if (false)
-               std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
-                         << graphics_info_t::screen_z_near_perspective << " "
-                         << graphics_info_t::screen_z_far_perspective << std::endl;
-         }
-
+      if (shift_is_pressed) {
+         double delta_x = event->x - g.GetMouseBeginX();
+         double delta_y = event->y - g.GetMouseBeginY();
+         mouse_zoom(delta_x, delta_y);
       }
    }
 
