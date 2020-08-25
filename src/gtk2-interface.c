@@ -12306,8 +12306,10 @@ create_single_map_properties_dialog (void)
 {
   GtkWidget *single_map_properties_dialog;
   GtkWidget *dialog_vbox23;
-  GtkWidget *vbox82;
   GtkWidget *label752;
+  GtkWidget *scrolledwindow43;
+  GtkWidget *viewport30;
+  GtkWidget *vbox82;
   GtkWidget *frame102;
   GtkWidget *vbox110;
   GtkWidget *label163;
@@ -12368,6 +12370,31 @@ create_single_map_properties_dialog (void)
   GSList *single_map_skeleton_on_radiobutton_group = NULL;
   GtkWidget *single_map_skeleton_off_radiobutton;
   GtkWidget *label749;
+  GtkWidget *map_properties_dialog_line_width_frame;
+  GtkWidget *alignment177;
+  GtkWidget *hbox455;
+  GtkWidget *map_properties_dialog_line_width_combobox;
+  GtkWidget *frame311_label;
+  GtkWidget *map_properties_dialog_specularity_frame;
+  GtkWidget *alignment178;
+  GtkWidget *hbox456;
+  GtkWidget *map_properties_dialog_specularity_state_checkbutton;
+  GtkWidget *label841;
+  GtkWidget *map_properties_dialog_specularity_strength_entry;
+  GtkWidget *label842;
+  GtkWidget *map_properties_dialog_specularity_shininess_entry;
+  GtkWidget *label840;
+  GtkWidget *map_properties_dialog_fresnel_frame;
+  GtkWidget *alignment179;
+  GtkWidget *hbox457;
+  GtkWidget *map_properties_dialog_fresnel_state_checkbutton;
+  GtkWidget *label844;
+  GtkWidget *map_properties_dialog_fresnel_bias_entry;
+  GtkWidget *label845;
+  GtkWidget *map_properties_dialog_fresnel_scale_entry;
+  GtkWidget *label846;
+  GtkWidget *map_properties_dialog_fresnel_power_entry;
+  GtkWidget *label843;
   GtkWidget *dialog_action_area23;
   GtkWidget *hbox58;
   GtkWidget *single_map_properties_ok_button;
@@ -12382,15 +12409,24 @@ create_single_map_properties_dialog (void)
   dialog_vbox23 = GTK_DIALOG (single_map_properties_dialog)->vbox;
   gtk_widget_show (dialog_vbox23);
 
-  vbox82 = gtk_vbox_new (FALSE, 0);
-  gtk_widget_show (vbox82);
-  gtk_box_pack_start (GTK_BOX (dialog_vbox23), vbox82, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (vbox82), 2);
-
   label752 = gtk_label_new ("<b>Map Settings</b>");
   gtk_widget_show (label752);
-  gtk_box_pack_start (GTK_BOX (vbox82), label752, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox23), label752, FALSE, FALSE, 0);
   gtk_label_set_use_markup (GTK_LABEL (label752), TRUE);
+
+  scrolledwindow43 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow43);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox23), scrolledwindow43, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow43, 350, 600);
+
+  viewport30 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (viewport30);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow43), viewport30);
+
+  vbox82 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox82);
+  gtk_container_add (GTK_CONTAINER (viewport30), vbox82);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox82), 2);
 
   frame102 = gtk_frame_new (NULL);
   gtk_widget_show (frame102);
@@ -12475,8 +12511,8 @@ create_single_map_properties_dialog (void)
   displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_transparent_radiobutton));
 
   displayed_map_style_as_cut_glass_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "\"Cut-Glass\"");
-  gtk_widget_show (displayed_map_style_as_cut_glass_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox308), displayed_map_style_as_cut_glass_radiobutton, FALSE, FALSE, 0);
+  GTK_WIDGET_UNSET_FLAGS (displayed_map_style_as_cut_glass_radiobutton, GTK_CAN_FOCUS);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (displayed_map_style_as_cut_glass_radiobutton), displayed_map_style_as_lines_radiobutton_group);
   displayed_map_style_as_lines_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (displayed_map_style_as_cut_glass_radiobutton));
 
@@ -12488,9 +12524,10 @@ create_single_map_properties_dialog (void)
   gtk_widget_show (label748);
   gtk_box_pack_start (GTK_BOX (hbox414), label748, FALSE, FALSE, 0);
 
-  map_opacity_hscale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (50, 0, 105, 10, 10, 5)));
+  map_opacity_hscale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (80, 0, 105, 10, 10, 5)));
   gtk_widget_show (map_opacity_hscale);
-  gtk_box_pack_start (GTK_BOX (hbox414), map_opacity_hscale, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox414), map_opacity_hscale, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (map_opacity_hscale, 220, -1);
 
   label747 = gtk_label_new ("<b>Displayed Map Style:</b>");
   gtk_widget_show (label747);
@@ -12531,18 +12568,19 @@ create_single_map_properties_dialog (void)
   single_map_properties_contour_level_entry = gtk_entry_new ();
   gtk_widget_show (single_map_properties_contour_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox237), single_map_properties_contour_level_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (single_map_properties_contour_level_entry, 60, -1);
 
   vbox198 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox198);
-  gtk_box_pack_start (GTK_BOX (hbox237), vbox198, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox237), vbox198, FALSE, FALSE, 0);
 
-  single_map_properties_absolute_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "absolute");
+  single_map_properties_absolute_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "absolute   ");
   gtk_widget_show (single_map_properties_absolute_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox198), single_map_properties_absolute_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton), single_map_properties_absolute_radiobutton_group);
   single_map_properties_absolute_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton));
 
-  single_map_properties_sigma_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "rmsd");
+  single_map_properties_sigma_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "r.m.s.d. ");
   gtk_widget_show (single_map_properties_sigma_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox198), single_map_properties_sigma_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_properties_sigma_radiobutton), single_map_properties_absolute_radiobutton_group);
@@ -12550,9 +12588,9 @@ create_single_map_properties_dialog (void)
 
   vbox197 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox197);
-  gtk_box_pack_start (GTK_BOX (hbox237), vbox197, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox237), vbox197, FALSE, FALSE, 0);
 
-  single_map_properties_contour_level_apply_button = gtk_button_new_with_mnemonic ("  Apply  ");
+  single_map_properties_contour_level_apply_button = gtk_button_new_with_mnemonic ("Apply");
   gtk_widget_show (single_map_properties_contour_level_apply_button);
   gtk_box_pack_start (GTK_BOX (vbox197), single_map_properties_contour_level_apply_button, FALSE, FALSE, 0);
 
@@ -12589,13 +12627,14 @@ create_single_map_properties_dialog (void)
   table1 = gtk_table_new (2, 2, FALSE);
   gtk_widget_show (table1);
   gtk_container_add (GTK_CONTAINER (alignment71), table1);
-  gtk_container_set_border_width (GTK_CONTAINER (table1), 4);
+  gtk_container_set_border_width (GTK_CONTAINER (table1), 2);
 
   single_map_sigma_step_entry = gtk_entry_new ();
   gtk_widget_show (single_map_sigma_step_entry);
   gtk_table_attach (GTK_TABLE (table1), single_map_sigma_step_entry, 1, 2, 1, 2,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_size_request (single_map_sigma_step_entry, 60, -1);
 
   single_map_sigma_checkbutton = gtk_check_button_new_with_mnemonic ("Change by rmsd? ");
   gtk_widget_show (single_map_sigma_checkbutton);
@@ -12688,6 +12727,135 @@ create_single_map_properties_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (single_map_skeleton_frame), label749);
   gtk_label_set_use_markup (GTK_LABEL (label749), TRUE);
 
+  map_properties_dialog_line_width_frame = gtk_frame_new (NULL);
+  gtk_widget_show (map_properties_dialog_line_width_frame);
+  gtk_box_pack_start (GTK_BOX (vbox82), map_properties_dialog_line_width_frame, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (map_properties_dialog_line_width_frame), 6);
+
+  alignment177 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment177);
+  gtk_container_add (GTK_CONTAINER (map_properties_dialog_line_width_frame), alignment177);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment177), 0, 0, 12, 0);
+
+  hbox455 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox455);
+  gtk_container_add (GTK_CONTAINER (alignment177), hbox455);
+
+  map_properties_dialog_line_width_combobox = gtk_combo_box_text_new ();
+  gtk_widget_show (map_properties_dialog_line_width_combobox);
+  gtk_box_pack_start (GTK_BOX (hbox455), map_properties_dialog_line_width_combobox, FALSE, FALSE, 0);
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (map_properties_dialog_line_width_combobox), "1");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (map_properties_dialog_line_width_combobox), "2");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (map_properties_dialog_line_width_combobox), "3");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (map_properties_dialog_line_width_combobox), "4");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (map_properties_dialog_line_width_combobox), "5");
+
+  frame311_label = gtk_label_new ("<b>Line Width:</b>");
+  gtk_widget_show (frame311_label);
+  gtk_frame_set_label_widget (GTK_FRAME (map_properties_dialog_line_width_frame), frame311_label);
+  gtk_label_set_use_markup (GTK_LABEL (frame311_label), TRUE);
+
+  map_properties_dialog_specularity_frame = gtk_frame_new (NULL);
+  gtk_widget_show (map_properties_dialog_specularity_frame);
+  gtk_box_pack_start (GTK_BOX (vbox82), map_properties_dialog_specularity_frame, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (map_properties_dialog_specularity_frame), 6);
+
+  alignment178 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment178);
+  gtk_container_add (GTK_CONTAINER (map_properties_dialog_specularity_frame), alignment178);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment178), 0, 0, 12, 0);
+
+  hbox456 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox456);
+  gtk_container_add (GTK_CONTAINER (alignment178), hbox456);
+
+  map_properties_dialog_specularity_state_checkbutton = gtk_check_button_new_with_mnemonic ("Apply   ");
+  gtk_widget_show (map_properties_dialog_specularity_state_checkbutton);
+  gtk_box_pack_start (GTK_BOX (hbox456), map_properties_dialog_specularity_state_checkbutton, FALSE, FALSE, 0);
+
+  label841 = gtk_label_new ("    Strength ");
+  gtk_widget_show (label841);
+  gtk_box_pack_start (GTK_BOX (hbox456), label841, FALSE, FALSE, 0);
+
+  map_properties_dialog_specularity_strength_entry = gtk_entry_new ();
+  gtk_widget_show (map_properties_dialog_specularity_strength_entry);
+  gtk_box_pack_start (GTK_BOX (hbox456), map_properties_dialog_specularity_strength_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (map_properties_dialog_specularity_strength_entry, 60, -1);
+  gtk_entry_set_text (GTK_ENTRY (map_properties_dialog_specularity_strength_entry), "1.0");
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_properties_dialog_specularity_strength_entry), 8226);
+
+  label842 = gtk_label_new ("    Shininess ");
+  gtk_widget_show (label842);
+  gtk_box_pack_start (GTK_BOX (hbox456), label842, FALSE, FALSE, 0);
+
+  map_properties_dialog_specularity_shininess_entry = gtk_entry_new ();
+  gtk_widget_show (map_properties_dialog_specularity_shininess_entry);
+  gtk_box_pack_start (GTK_BOX (hbox456), map_properties_dialog_specularity_shininess_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (map_properties_dialog_specularity_shininess_entry, 60, -1);
+  gtk_entry_set_text (GTK_ENTRY (map_properties_dialog_specularity_shininess_entry), "50");
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_properties_dialog_specularity_shininess_entry), 8226);
+
+  label840 = gtk_label_new ("<b>Specularity:</b>");
+  gtk_widget_show (label840);
+  gtk_frame_set_label_widget (GTK_FRAME (map_properties_dialog_specularity_frame), label840);
+  gtk_label_set_use_markup (GTK_LABEL (label840), TRUE);
+
+  map_properties_dialog_fresnel_frame = gtk_frame_new (NULL);
+  gtk_widget_show (map_properties_dialog_fresnel_frame);
+  gtk_box_pack_start (GTK_BOX (vbox82), map_properties_dialog_fresnel_frame, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (map_properties_dialog_fresnel_frame), 6);
+
+  alignment179 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment179);
+  gtk_container_add (GTK_CONTAINER (map_properties_dialog_fresnel_frame), alignment179);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment179), 0, 0, 12, 0);
+
+  hbox457 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox457);
+  gtk_container_add (GTK_CONTAINER (alignment179), hbox457);
+
+  map_properties_dialog_fresnel_state_checkbutton = gtk_check_button_new_with_mnemonic ("Apply   ");
+  gtk_widget_show (map_properties_dialog_fresnel_state_checkbutton);
+  gtk_box_pack_start (GTK_BOX (hbox457), map_properties_dialog_fresnel_state_checkbutton, FALSE, FALSE, 0);
+
+  label844 = gtk_label_new ("  Bias ");
+  gtk_widget_show (label844);
+  gtk_box_pack_start (GTK_BOX (hbox457), label844, FALSE, FALSE, 0);
+
+  map_properties_dialog_fresnel_bias_entry = gtk_entry_new ();
+  gtk_widget_show (map_properties_dialog_fresnel_bias_entry);
+  gtk_box_pack_start (GTK_BOX (hbox457), map_properties_dialog_fresnel_bias_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (map_properties_dialog_fresnel_bias_entry, 60, -1);
+  gtk_entry_set_text (GTK_ENTRY (map_properties_dialog_fresnel_bias_entry), "0.0");
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_properties_dialog_fresnel_bias_entry), 8226);
+
+  label845 = gtk_label_new ("    Scale ");
+  gtk_widget_show (label845);
+  gtk_box_pack_start (GTK_BOX (hbox457), label845, FALSE, FALSE, 0);
+
+  map_properties_dialog_fresnel_scale_entry = gtk_entry_new ();
+  gtk_widget_show (map_properties_dialog_fresnel_scale_entry);
+  gtk_box_pack_start (GTK_BOX (hbox457), map_properties_dialog_fresnel_scale_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (map_properties_dialog_fresnel_scale_entry, 60, -1);
+  gtk_entry_set_text (GTK_ENTRY (map_properties_dialog_fresnel_scale_entry), "1.0");
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_properties_dialog_fresnel_scale_entry), 8226);
+
+  label846 = gtk_label_new ("    Power ");
+  gtk_widget_show (label846);
+  gtk_box_pack_start (GTK_BOX (hbox457), label846, FALSE, FALSE, 0);
+
+  map_properties_dialog_fresnel_power_entry = gtk_entry_new ();
+  gtk_widget_show (map_properties_dialog_fresnel_power_entry);
+  gtk_box_pack_start (GTK_BOX (hbox457), map_properties_dialog_fresnel_power_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (map_properties_dialog_fresnel_power_entry, 60, -1);
+  gtk_entry_set_text (GTK_ENTRY (map_properties_dialog_fresnel_power_entry), "10");
+  gtk_entry_set_invisible_char (GTK_ENTRY (map_properties_dialog_fresnel_power_entry), 8226);
+
+  label843 = gtk_label_new ("<b>Fresnel:</b>");
+  gtk_widget_show (label843);
+  gtk_frame_set_label_widget (GTK_FRAME (map_properties_dialog_fresnel_frame), label843);
+  gtk_label_set_use_markup (GTK_LABEL (label843), TRUE);
+
   dialog_action_area23 = GTK_DIALOG (single_map_properties_dialog)->action_area;
   gtk_widget_show (dialog_action_area23);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area23), GTK_BUTTONBOX_END);
@@ -12723,6 +12891,27 @@ create_single_map_properties_dialog (void)
   g_signal_connect ((gpointer) single_map_properties_colour_button, "clicked",
                     G_CALLBACK (on_single_map_properties_colour_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_specularity_state_checkbutton, "toggled",
+                    G_CALLBACK (on_map_properties_dialog_specularity_state_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_specularity_strength_entry, "activate",
+                    G_CALLBACK (on_map_properties_dialog_specularity_strength_entry_activate),
+                    NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_specularity_shininess_entry, "activate",
+                    G_CALLBACK (on_map_properties_dialog_specularity_shininess_entry_activate),
+                    NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_fresnel_state_checkbutton, "toggled",
+                    G_CALLBACK (on_map_properties_dialog_fresnel_state_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_fresnel_bias_entry, "activate",
+                    G_CALLBACK (on_map_properties_dialog_fresnel_bias_entry_activate),
+                    NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_fresnel_scale_entry, "activate",
+                    G_CALLBACK (on_map_properties_dialog_fresnel_scale_entry_activate),
+                    NULL);
+  g_signal_connect ((gpointer) map_properties_dialog_fresnel_power_entry, "activate",
+                    G_CALLBACK (on_map_properties_dialog_fresnel_power_entry_activate),
+                    NULL);
   g_signal_connect ((gpointer) single_map_properties_ok_button, "clicked",
                     G_CALLBACK (on_single_map_properties_ok_button_clicked),
                     NULL);
@@ -12730,8 +12919,10 @@ create_single_map_properties_dialog (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, single_map_properties_dialog, "single_map_properties_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, dialog_vbox23, "dialog_vbox23");
-  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox82, "vbox82");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label752, "label752");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, scrolledwindow43, "scrolledwindow43");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, viewport30, "viewport30");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox82, "vbox82");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame102, "frame102");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, vbox110, "vbox110");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label163, "label163");
@@ -12789,6 +12980,31 @@ create_single_map_properties_dialog (void)
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_skeleton_on_radiobutton, "single_map_skeleton_on_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_skeleton_off_radiobutton, "single_map_skeleton_off_radiobutton");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label749, "label749");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_line_width_frame, "map_properties_dialog_line_width_frame");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment177, "alignment177");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox455, "hbox455");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_line_width_combobox, "map_properties_dialog_line_width_combobox");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, frame311_label, "frame311_label");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_specularity_frame, "map_properties_dialog_specularity_frame");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment178, "alignment178");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox456, "hbox456");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_specularity_state_checkbutton, "map_properties_dialog_specularity_state_checkbutton");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label841, "label841");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_specularity_strength_entry, "map_properties_dialog_specularity_strength_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label842, "label842");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_specularity_shininess_entry, "map_properties_dialog_specularity_shininess_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label840, "label840");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_fresnel_frame, "map_properties_dialog_fresnel_frame");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, alignment179, "alignment179");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox457, "hbox457");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_fresnel_state_checkbutton, "map_properties_dialog_fresnel_state_checkbutton");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label844, "label844");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_fresnel_bias_entry, "map_properties_dialog_fresnel_bias_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label845, "label845");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_fresnel_scale_entry, "map_properties_dialog_fresnel_scale_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label846, "label846");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, map_properties_dialog_fresnel_power_entry, "map_properties_dialog_fresnel_power_entry");
+  GLADE_HOOKUP_OBJECT (single_map_properties_dialog, label843, "label843");
   GLADE_HOOKUP_OBJECT_NO_REF (single_map_properties_dialog, dialog_action_area23, "dialog_action_area23");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, hbox58, "hbox58");
   GLADE_HOOKUP_OBJECT (single_map_properties_dialog, single_map_properties_ok_button, "single_map_properties_ok_button");

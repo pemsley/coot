@@ -9375,3 +9375,15 @@ Mon 15 Jun 08:57:41 BST 2020
     led to more stable and robust behavior.
 
 
+---
+Fri 21 Aug 15:46:31 BST 2020
+
+    Header-only C++ libraries
+
+    https://github.com/p-ranav/awesome-hpp
+
+    A Treasure Trove.
+
+    Look at stack trace and command line argument parser(s)
+
+    https://github.com/bombela/backward-cpp
