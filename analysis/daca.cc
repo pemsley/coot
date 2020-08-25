@@ -942,6 +942,9 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
    geom.init_standard();
    std::vector<std::string> files = util::glob_files(dir_name, "*.pdb");
 
+   std::cout << "in write_tables_using_reference_structures_from_dir()  " << dir_name << " " << output_tables_dir
+             << std::endl;
+
    for (unsigned int i=0; i<files.size(); i++) {
       std::string fn = files[i];
       atom_selection_container_t asc = get_atom_selection(fn, false, false);
