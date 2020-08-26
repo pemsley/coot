@@ -437,14 +437,19 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
    if (event->state & GDK_BUTTON3_MASK) {
 
-      if (!shift_is_pressed) {
-         mouse_view_rotate(widget, x_as_int, y_as_int);
-      }
-
-      if (shift_is_pressed) {
+      if (event->state & GDK_BUTTON1_MASK) {
          double delta_x = event->x - g.GetMouseBeginX();
          double delta_y = event->y - g.GetMouseBeginY();
          mouse_zoom(delta_x, delta_y);
+      } else {
+         if (!shift_is_pressed) {
+            mouse_view_rotate(widget, x_as_int, y_as_int);
+         }
+         if (shift_is_pressed) {
+            double delta_x = event->x - g.GetMouseBeginX();
+            double delta_y = event->y - g.GetMouseBeginY();
+            mouse_zoom(delta_x, delta_y);
+         }
       }
    }
 
