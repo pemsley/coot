@@ -3300,13 +3300,16 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
 
 void assign_sequence_from_file(int imol, const char *file) {
    if (is_valid_model_molecule(imol)) {
-    graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
-  }
-  std::string cmd = "assign-sequence-from-file";
-  std::vector<coot::command_arg_t> args;
-  args.push_back(imol);
-  args.push_back(single_quote(file));
-  add_to_history_typed(cmd, args);
+      graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
+   } else {
+      std::cout << "WARNING:: assign_sequence_from_file() molecule number " << imol
+                << " is not a valid molecule" << std::endl;
+   }
+   std::string cmd = "assign-sequence-from-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(single_quote(file));
+   add_to_history_typed(cmd, args);
 }
 
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq) {

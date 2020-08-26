@@ -727,12 +727,13 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 			 << coot::util::three_letter_to_one_letter(SelResidues[selindex[i]]->GetResName())
 			 << std::endl;
 	    else
-	       std::cout << "   sequence-check: " << i << " target " << t[i] << " seq " << s[i] << " -1" << std::endl;
+	       std::cout << "   sequence-check: " << i << " target " << t[i] << " seq " << s[i]
+                         << " -1" << std::endl;
 	 }
       }
 
-      std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
-      std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
+      // std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
+      // std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
 
       std::string inscode("");
       int ires = 0;
