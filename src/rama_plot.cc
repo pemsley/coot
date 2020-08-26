@@ -3145,6 +3145,10 @@ coot::rama_plot::draw_axes() {
       shift = -60.0;
       shift_label = -40.0;
    }
+
+   std::string colour = "black";
+   colour = "white";
+
    axis_grp = goo_canvas_group_new(root, NULL);
    item = goo_canvas_text_new(axis_grp,
                               "Phi",
@@ -3153,7 +3157,7 @@ coot::rama_plot::draw_axes() {
                               -1,
                               GOO_CANVAS_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
-                              "fill-color", "black",
+                              "fill-color", colour.c_str(),
                               NULL);
 
    item = goo_canvas_text_new(axis_grp,
@@ -3163,7 +3167,7 @@ coot::rama_plot::draw_axes() {
                               -1,
                               GOO_CANVAS_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
-                              "fill-color", "black",
+                              "fill-color", colour.c_str(),
                               NULL);
 
 
@@ -3207,7 +3211,7 @@ coot::rama_plot::draw_axes() {
                                           pnts[i].start_x(), pnts[i].start_y(),
                                           pnts[i].end_x(), pnts[i].end_y(),
                                           "line-width", 1.,
-                                          "fill-color", "black",
+                                          "fill-color", colour.c_str(),
                                           NULL);
    }
 
@@ -3251,7 +3255,7 @@ coot::rama_plot::draw_axes() {
                                  -1,
                                  GOO_CANVAS_ANCHOR_WEST,
                                  "font", fixed_font_str.c_str(),
-                                 "fill-color", "black",
+                                 "fill-color", colour.c_str(),
                                  NULL);
 
 
@@ -3267,7 +3271,7 @@ coot::rama_plot::draw_axes() {
                                  -1,
                                  GOO_CANVAS_ANCHOR_WEST,
                                  "font", fixed_font_str.c_str(),
-                                 "fill-color", "black",
+                                 "fill-color", colour.c_str(),
                                  NULL);
 
    }
