@@ -507,7 +507,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 						   atom_selection_2[contact[i].id2],
 						   imodel,
 						   atom_index_1, atom_index_2,
-						   atom_colour_type, nullptr);
+						   atom_colour_type, nullptr, false, false);
 				 } else {
 
 				    // Bonds to hydrogens are one colour - HYDROGEN_GREY_BOND, not
@@ -526,7 +526,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 						      atom_selection_2[contact[i].id2],
 						      imodel,
 						      atom_index_1, atom_index_2,
-						      atom_colour_type, nullptr);
+						      atom_colour_type, nullptr, false, false);
 				    } else {
 
 				       bool done_h_bond = false; // set when we make a half-bond between H and O.
@@ -540,7 +540,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 							    atom_selection_2[contact[i].id2],
 							    imodel,
 							    atom_index_1, atom_index_2,
-							    atom_colour_type, nullptr);
+							    atom_colour_type, nullptr, false, false);
 					     done_h_bond = true;
 					  }
 				       }
@@ -555,7 +555,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 							    atom_selection_2[contact[i].id2],
 							    imodel,
 							    atom_index_1, atom_index_2,
-							    atom_colour_type, nullptr);
+							    atom_colour_type, nullptr, false, false);
 					     done_h_bond = true;
 					  }
 				       }
@@ -571,7 +571,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 							    atom_selection_2[contact[i].id2],
 							    imodel,
 							    atom_index_1, atom_index_2,
-							    atom_colour_type, nullptr);
+							    atom_colour_type, nullptr, false, false);
 					  }
 				       }
 				       done_bond_udd_handle = true;
@@ -741,7 +741,9 @@ Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1_pos,
 				     int atom_index_1,
 				     int atom_index_2,
 				     int atom_colour_type,
-                                     coot::my_atom_colour_map_t *atom_colour_map_p) {
+                                     coot::my_atom_colour_map_t *atom_colour_map_p,
+                                     bool add_begin_end_cap,
+                                     bool add_end_end_cap) {
 
    // I am pretty sure that half-bonds are single bonds by nature
    // (dashed bonds are not double by nature)
@@ -752,10 +754,10 @@ Bond_lines_container::add_half_bonds(const coot::Cartesian &atom_1_pos,
 
    coot::Cartesian bond_mid_point = atom_1_pos.mid_point(atom_2_pos);
    int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
-   addBond(col, atom_1_pos, bond_mid_point, cc, model_number, atom_index_1, atom_index_2);
+   addBond(col, atom_1_pos, bond_mid_point, cc, model_number, atom_index_1, atom_index_2, add_begin_end_cap, false);
 
    col = atom_colour(at_2, atom_colour_type, atom_colour_map_p);
-   addBond(col, bond_mid_point, atom_2_pos, cc, model_number, atom_index_1, atom_index_2);
+   addBond(col, bond_mid_point, atom_2_pos, cc, model_number, atom_index_1, atom_index_2, false, add_end_end_cap);
 
 }
 
@@ -798,7 +800,7 @@ Bond_lines_container::draw_bonded_quad_atoms_rings(const std::vector<bonded_quad
             addBond(col, p2, p3, cc, imodel, atom_2_index, atom_3_index);
          } else {
             add_half_bonds(p2, p3, at_2, at_3, imodel, atom_2_index, atom_3_index,
-                           atom_colour_type, atom_colour_map_p);
+                           atom_colour_type, atom_colour_map_p, false, false);
             }
       }
       if (bq.bond_type == bonded_quad_atoms::DOUBLE) {
@@ -824,7 +826,7 @@ Bond_lines_container::draw_bonded_quad_atoms_rings(const std::vector<bonded_quad
             //
             // I need to be able to say that these bonds should have end caps.
             add_half_bonds(ip1, ip2, at_2, at_3, imodel, atom_2_index, atom_3_index,
-                           atom_colour_type, atom_colour_map_p);
+                           atom_colour_type, atom_colour_map_p, false, false);
          }
 
       }
@@ -882,7 +884,8 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
          addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
       } else {
-         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index,
+                        atom_colour_type, atom_colour_map_p, false, false);
       }
    }
 
@@ -915,9 +918,10 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       std::string ele_2(at_2->element);
       if (ele_1 == ele_2) {
          graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, true, true);
       } else {
-         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index,
+                        atom_colour_type, atom_colour_map_p, true, true);
       }
    }
 
@@ -954,7 +958,8 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
          addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
       } else {
          // a nucleotide base is using this function
-         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index,
+                        atom_colour_type, atom_colour_map_p, true, true);
       }
    }
 
@@ -996,7 +1001,8 @@ Bond_lines_container::draw_phenyl_ring(const std::vector<mmdb::Atom *> &ring_ato
          addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index, true, true);
       } else {
          // a nucleotide base is using this function
-         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index,
+                        atom_colour_type, atom_colour_map_p, true, true);
       }
    }
 
@@ -1418,7 +1424,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 							       residue_atoms[jat],
 							       model_number,
 							       iat_1_atom_index, iat_2_atom_index,
-							       atom_colour_type, &atom_colour_map);
+							       atom_colour_type, &atom_colour_map,
+                                                               false, false);
 					     }
 					  }
 				       }
@@ -1430,7 +1437,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 							    residue_atoms[jat],
 							    model_number,
 							    iat_1_atom_index, iat_2_atom_index,
-							    atom_colour_type, &atom_colour_map);
+							    atom_colour_type, &atom_colour_map, true, true);
 					  } else {
 					     graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 					     addBond(HYDROGEN_GREY_BOND, p1, p2, cc, model_number, iat_1_atom_index, iat_2_atom_index); // 20171224-PE correct indices?w
@@ -5960,7 +5967,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
 
                                        add_half_bonds(p1, p2, residue_atoms[iat], residue_atoms[jat],
                                                       model_number, iat_1_atom_index, iat_2_atom_index,
-                                                      atom_colour_type, atom_colour_map);
+                                                      atom_colour_type, atom_colour_map, false, false);
 
                                     } else {
                                        add_double_bond(imol, model_number, iat, jat, residue_atoms, n_residue_atoms,
@@ -5987,7 +5994,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                                          residue_atoms[jat],
                                                          model_number,
                                                          iat_1_atom_index, iat_2_atom_index,
-                                                         atom_colour_type, atom_colour_map);
+                                                         atom_colour_type, atom_colour_map, false, false);
                                        }
                                     }
                                  }
@@ -5999,7 +6006,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                                       residue_atoms[jat],
                                                       model_number,
                                                       iat_1_atom_index, iat_2_atom_index,
-                                                      atom_colour_type, atom_colour_map);
+                                                      atom_colour_type, atom_colour_map, false, false);
                                     } else {
                                        graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
                                        addBond(HYDROGEN_GREY_BOND, p1, p2, cc, model_number, iat_1_atom_index, iat_2_atom_index); // 20171224-PE correct indices?w
@@ -6240,7 +6247,7 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
                                                       at_1, at_2,
                                                       imod,
                                                       atom_index_1, atom_index_2,
-                                                      atom_colour_type, &atom_colour_map);
+                                                      atom_colour_type, &atom_colour_map, false, false);
                                     }
                                  }
                               }

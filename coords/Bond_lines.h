@@ -277,7 +277,9 @@ class Bond_lines_container {
 		       int atom_index_1,
 		       int atom_index_2,
 		       int atom_colour_type,
-                       coot::my_atom_colour_map_t *atom_colour_map_p);
+                       coot::my_atom_colour_map_t *atom_colour_map_p,
+                       bool add_begin_end_cap,
+                       bool add_end_end_cap);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // We pass udd_atom_index_handle because we need the atom index (not residue atom index) for
