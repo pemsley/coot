@@ -1663,13 +1663,10 @@ void ramachandran_plot_differences_chain_combobox_second_changed(GtkWidget *comb
 
 void do_ramachandran_plot(int imol) {
 
-   std::cout << "do_ramachandran_plot()" << imol << std::endl;
-
 #ifdef HAVE_GOOCANVAS
 
    if (is_valid_model_molecule(imol)) {
 
-      std::cout << "do_ramachandran_plot()" << imol << " doing it" << std::endl;
       coot::rama_plot *rama = new coot::rama_plot;
       if (graphics_info_t::ramachandran_plot_x_position > 0)
          rama->set_position(graphics_info_t::ramachandran_plot_x_position,

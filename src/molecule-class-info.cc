@@ -129,6 +129,8 @@ molecule_class_info_t::setup_internal() {
 
    draw_hydrogens_flag = 1;
    bond_width = 3.0;
+   atom_radius_scale_factor = 1.0; // used in making balls for atoms
+
    ghost_bond_width = 2.0;
 
    // initial bonds type (checked and reset in handle_read_draw_molecule)
@@ -3605,7 +3607,9 @@ molecule_class_info_t::make_bonds_type_checked() {
     if (! is_intermediate_atoms_molecule)
        std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 
-    GLenum err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
+    GLenum err = glGetError();
+    if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
+
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
     unsigned int n_slices = 16;
@@ -3617,9 +3621,11 @@ molecule_class_info_t::make_bonds_type_checked() {
     if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
        for (int i=0; i<bonds_box.num_colours; i++) {
           bool dark_bg_flag = true;
-          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1b " << i << std::endl;
+          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1b "
+                                                 << i << std::endl;
           coot::colour_t cc = get_bond_colour_by_mol_no(i, dark_bg_flag);
-          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1c " << i << std::endl;
+          err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1c "
+                                                 << i << std::endl;
           index_to_colour[i] = cc.to_glm();
 
           if (is_intermediate_atoms_molecule)
@@ -3645,7 +3651,7 @@ molecule_class_info_t::make_bonds_type_checked() {
 
     // --- atoms ---
 
-    float atom_radius_scale_factor = 3.0;
+    // float atom_radius_scale_factor = 3.0;
     std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > atom_bits =
        make_generic_vertices_for_atoms(index_to_colour, atom_radius_scale_factor);
 

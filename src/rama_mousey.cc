@@ -97,14 +97,18 @@ on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
-   if (plot->is_stand_alone()) {
-      // gtk_exit(0);
-      std::cout << "exit here in on_dynarama2_cancel_button_clicked() " << std::endl;
+   if (!plot) {
+      std::cout<<"failed to get the plot from " << canvas <<std::endl;
    } else {
-      int imol = plot->molecule_number();
-      if (imol == -9999)
-         clear_moving_atoms_object();
-      gtk_widget_destroy(plot->dynawin);
+      if (plot->is_stand_alone()) {
+         // gtk_exit(0);
+         std::cout << "exit here in on_dynarama2_cancel_button_clicked() " << std::endl;
+      } else {
+         int imol = plot->molecule_number();
+         if (imol == -9999)
+            clear_moving_atoms_object();
+         gtk_widget_destroy(plot->dynawin);
+      }
    }
 }
 
@@ -114,8 +118,12 @@ on_kleywegt_apply_chain_button_clicked(GtkButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas), "rama_plot"));
-   plot->update_kleywegt_plot();
-
+   if (!plot) {
+      std::cout << "error:: on_kleywegt_apply_chain_button_clicked()))  failed to get the plot from "
+                << canvas <<std::endl;
+   } else {
+      plot->update_kleywegt_plot();
+   }
 }
 
 extern "C" G_MODULE_EXPORT void
