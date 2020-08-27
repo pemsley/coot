@@ -5131,14 +5131,15 @@ coot::util::compare_residues(const std::pair<mmdb::Residue *, int> &a,
 
 // Use the results of the above to give us a sequence string:
 std::string
-coot::util::model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa) {
+coot::util::model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa,
+                           bool allow_ligands) {
 
    std::string s;
    char r[10];
    for (unsigned int i=0; i<sa.size(); i++) {
       std::string this_residue = "X";
       std::string res_name = sa[i].first->GetResName();
-      if (res_name != "HOH") { 
+      if (is_standard_amino_acid_name(res_name) || allow_ligands) {
 	 mmdb::Get1LetterCode(res_name.c_str(), r);
 	 this_residue = r[0];
 	 s += this_residue;

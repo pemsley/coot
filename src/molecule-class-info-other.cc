@@ -4121,52 +4121,101 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
 
 }
 
+std::vector<std::string>
+molecule_class_info_t::get_chain_ids() const {
+
+   std::vector<std::string> v;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id(chain_p->GetChainID());
+         v.push_back(chain_id);
+      }
+   }
+   return v;
+}
+
+
 // we let clipper assign the sequence for us from any sequence file
 void
 molecule_class_info_t::assign_sequence_from_file(const std::string &filename) {
 
-  // read in file via clipper
-  // maybe check if file exists first
-  if (coot::file_exists(filename)) {
-    clipper::SEQfile seq_file;
-    clipper::MMoleculeSequence molecule_sequence;
-    seq_file.read_file(filename);
-    seq_file.import_molecule_sequence(molecule_sequence);
+   if (! atom_sel.mol) return;
 
-    // previous assigned sequences?
-    std::vector<std::pair<std::string, std::string> > seq_old =
-         graphics_info_t::molecules[imol_no].sequence_info();
+   if (coot::file_exists(filename)) {
+      clipper::SEQfile seq_file;
+      clipper::MMoleculeSequence molecule_sequence;
+      seq_file.read_file(filename);
+      seq_file.import_molecule_sequence(molecule_sequence);
 
-    bool skip_chain = 0;
-    std::string old_chain_id;
-    std::string new_chain_id;
+      std::vector<std::string> chain_ids = get_chain_ids();
+      input_sequence.clear();
+      for (unsigned int i=0; i<chain_ids.size(); i++) {
+         const std::string &chain_id = chain_ids[i];
 
-    if (!molecule_sequence.is_null()) {
-      for (int i=0; i<int(molecule_sequence.size()); i++) {
-	new_chain_id = molecule_sequence[i].id();
-	std::pair<std::string, std::string> new_seq_info(new_chain_id, molecule_sequence[i].sequence());
-	if (seq_old.size() > 0) {
-	  skip_chain = 0;
-	  for (int j=0; j<int(seq_old.size()); j++) {
-	    old_chain_id = seq_old[j].first;
-	    if (new_chain_id == old_chain_id) {
-	      skip_chain = 1;
-	      break;
-	    }
-	  }
-	  if (!skip_chain) {
-	    input_sequence.push_back(new_seq_info);
-	  }
-	} else {
-	  input_sequence.push_back(new_seq_info);
-	}
+         int selHnd = atom_sel.mol->NewSelection(); // d
+         mmdb::PResidue *SelResidues = NULL;
+         int nSelResidues = 0;
+         float wgap   = -3.0;
+         float wspace = -0.4;
+
+         atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
+                              chain_id.c_str(),
+                              mmdb::ANY_RES, "*",
+                              mmdb::ANY_RES, "*",
+                              "*",  // residue name
+                              "*",  // Residue must contain this atom name?
+                              "*",  // Residue must contain this Element?
+                              "*",  // altLocs
+                              mmdb::SKEY_NEW // selection key
+                              );
+         atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
+         if (nSelResidues > 0) {
+            float current_best_alignment_score = -1.0;
+            std::string current_best_sequence;
+            for (int j=0; j<molecule_sequence.size(); j++) {
+               std::string target = molecule_sequence[j].sequence();
+               coot::chain_mutation_info_container_t alignment =
+                  align_on_chain(chain_id, SelResidues, nSelResidues,
+                                 target, wgap, wspace, false, false);
+
+               std::cout << "chain_id " << chain_id
+                         << " alignment_score " << alignment.alignment_score.first
+                         << " " << alignment.alignment_score.second
+                         << " n-alignment-mutations " << alignment.mutations.size()
+                         << " with " << nSelResidues << " residues in chain" << std::endl;
+
+               if (alignment.alignment_score.first) {
+                  if (alignment.alignment_score.second > 2.0 * 0.7 * nSelResidues) {
+                     if (alignment.alignment_score.second > current_best_alignment_score) {
+                        current_best_alignment_score = alignment.alignment_score.second;
+                        current_best_sequence = target;
+                     }
+                  }
+               }
+            }
+            if (! current_best_sequence.empty()) {
+               std::pair<std::string, std::string> new_seq_info(chain_id, current_best_sequence);
+               input_sequence.push_back(new_seq_info);
+            }
+         }
+         atom_sel.mol->DeleteSelection(selHnd);
       }
-    } else {
-      std::cout <<"WARNING:: no valid sequence model" <<std::endl;
-    }
-  } else {
-    std::cout <<"ERROR:: filename not found " <<std::endl;
-  }
+   }
+
+   if (true) {
+      std::cout << "Now we have these sequences: " << std::endl;
+      for (unsigned int i=0; i<input_sequence.size(); i++) {
+         const std::string chain_id = input_sequence[i].first;
+         const std::string seq = input_sequence[i].second;
+         std::cout << "chain " << chain_id << "  " << seq << std::endl;
+      }
+   }
+
 }
 
 // to assign a sequence from a simple string
