@@ -533,7 +533,6 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    coot::chain_mutation_info_container_t ch_info(chain_id);
    bool debug = false;
 
-
    if (console_output || debug) {
       std::cout << "\n----- input to align_on_chain() -----------------" << std::endl;
       std::cout << "        chain " << chain_id << std::endl;
@@ -552,7 +551,8 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    std::vector<std::pair<mmdb::Residue *, int> > vseq =
       coot::util::sort_residues_by_seqno(SelResidues, nSelResidues);
 
-   std::string model = coot::util::model_sequence(vseq);
+   bool allow_ligands = false;
+   std::string model = coot::util::model_sequence(vseq, allow_ligands);
    if (console_output || debug) {
       std::cout << "INFO:: input model  sequence: " << model  << std::endl;
       std::cout << "INFO:: input target sequence: " << target  << std::endl;
