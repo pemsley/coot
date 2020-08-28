@@ -1405,6 +1405,8 @@ void reload_map_shader();
 //! \brief
 void reload_model_shader();
 
+void set_atom_radius_scale_factor(int imol, float scale_factor);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

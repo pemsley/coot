@@ -1009,7 +1009,7 @@ public:        //                      public
    void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
    void make_glsl_bonds_type_checked();
    float atom_radius_scale_factor; // 3 is quite nice, 1 by default.
-   void set_atom_radius_scale_factor(float sf) { atom_radius_scale_factor = sf; }
+   void set_atom_radius_scale_factor(float sf); // regenerate
 
    void draw_atom_labels(int brief_atom_labels_flag,
                          short int seg_ids_in_atom_labels_flag,

@@ -267,6 +267,15 @@ void reload_model_shader() {
    graphics_draw();
 }
 
+void set_atom_radius_scale_factor(int imol, float scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_atom_radius_scale_factor(scale_factor);
+   }
+   graphics_draw();
+}
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */

@@ -3598,9 +3598,18 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_ghosts();
    update_extra_restraints_representation();
 
-   if (debug)
+   if (debug) {
       std::cout << "--- make_bonds_type_checked() done " << std::endl;
+   }
 }
+
+ void
+    molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
+
+    atom_radius_scale_factor = sf;
+    make_glsl_bonds_type_checked();
+ }
+ 
 
  void molecule_class_info_t::make_glsl_bonds_type_checked() {
 
