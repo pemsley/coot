@@ -68,7 +68,7 @@ Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_particles;
-Shader graphics_info_t::shader_for_instanced_cylinders; // better name needed? used for boids
+Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();

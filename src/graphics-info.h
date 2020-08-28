@@ -4060,7 +4060,7 @@ string   static std::string sessionid;
    static Shader shader_for_blur;
    static Shader shader_for_lines;
    static Shader shader_for_particles;
-   static Shader shader_for_instanced_cylinders;
+   static Shader shader_for_instanced_objects;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;

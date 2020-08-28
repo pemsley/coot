@@ -1718,7 +1718,7 @@ graphics_info_t::setup_draw_for_boids() {
          colours[i] = glm::vec4(0.2, 0.6, 0.4, 1.0);
       }
       Material material;
-      mesh_for_boids.setup_rtsc_instancing(&shader_for_instanced_cylinders,
+      mesh_for_boids.setup_rtsc_instancing(&shader_for_instanced_objects,
                                            mats, colours, n_boids, material);
 
       do_tick_boids = true;
@@ -1780,7 +1780,7 @@ graphics_info_t::draw_boids() {
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
-      mesh_for_boids.draw(&shader_for_instanced_cylinders,
+      mesh_for_boids.draw(&shader_for_instanced_objects,
                           mvp, view_rotation_matrix, lights, eye_position, bg_col,
                           shader_do_depth_fog_flag);
 

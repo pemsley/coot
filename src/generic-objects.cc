@@ -175,22 +175,12 @@ void to_generic_object_add_point(int object_number,
                                  float from_z1) {
 
    graphics_info_t g;
-   clipper::Coord_orth x1(from_x1, from_y1, from_z1);
+   clipper::Coord_orth pt(from_x1, from_y1, from_z1);
    std::string c(colour_name);
-   coot::colour_holder colour =
-      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
+   coot::colour_holder colour = coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
-//    std::cout << "debug:: colour input " << c << " gave colour "
-//      << colour << std::endl;
+   to_generic_object_add_point_internal(object_number, colour_name, colour, point_width, pt);
 
-   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
-
-      g.generic_display_objects[object_number].add_point(colour, c, point_width, x1);
-
-   } else {
-      std::cout << "BAD object_number in to_generic_object_add_point: "
-                << object_number << std::endl;
-   }
 }
 
 void to_generic_object_add_point_internal(int object_number,
@@ -201,7 +191,14 @@ void to_generic_object_add_point_internal(int object_number,
    graphics_info_t g;
 
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
-      g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      unsigned int object_number_u(object_number);
+      if (object_number_u < g.generic_display_objects.size()) {
+         meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+         Material material;
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+         g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
+      }
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
                 << object_number << std::endl;

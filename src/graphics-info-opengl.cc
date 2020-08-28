@@ -38,7 +38,7 @@ graphics_info_t::init_shaders() {
    shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_particles.init("particles.shader", Shader::Entity_t::MODEL);
-   shader_for_instanced_cylinders.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
+   shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.

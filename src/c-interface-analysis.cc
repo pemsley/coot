@@ -69,24 +69,25 @@ void hole(int imol, float start_x, float start_y, float start_z,
 
       int obj_path    = new_generic_object_number("Probe path");
       int obj_surface = new_generic_object_number("Probe surface");
-   
-      for (unsigned int i=0; i<probe_path.size(); i++) {
-	 to_generic_object_add_point(obj_path, "red", 3,
-				     probe_path[i].first.x(),
-				     probe_path[i].first.y(),
-				     probe_path[i].first.z());
-      }
+
+      if (false)
+         for (unsigned int i=0; i<probe_path.size(); i++) {
+            to_generic_object_add_point(obj_path, "red", 3,
+                                        probe_path[i].first.x(),
+                                        probe_path[i].first.y(),
+                                        probe_path[i].first.z());
+         }
 
       for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) { 
 	 to_generic_object_add_point(obj_surface,
 				     hole_path_and_surface.second[i].colour.hex().c_str(),
-				     1, // pixel
+				     3, // pixel
 				     hole_path_and_surface.second[i].position.x(),
 				     hole_path_and_surface.second[i].position.y(),
 				     hole_path_and_surface.second[i].position.z());
       }
 
-      set_display_generic_object(obj_path,    1);
+      // set_display_generic_object(obj_path,    1);
       set_display_generic_object(obj_surface, 1);
 
       std::string text;

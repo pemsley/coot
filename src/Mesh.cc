@@ -96,6 +96,17 @@ Mesh::debug() const {
 
 void
 Mesh::setup(Shader *shader_p, const Material &material_in) {
+
+   // Generic objects need a lot of reworking
+   // because I want to "setup" only after all objects have been added - not
+   // after adding every object (say 1000 spheres/dots).
+   // But I don't want to draw if the object is not setup. Hmm.
+   // Also adding thousands of balls is slow!
+   // HOLE dots is a good example of where I should be using instancing
+
+   // if (setup_has_been_done)
+   // return;
+
    material = material_in;
    shader_p->Use();
    setup_buffers();
