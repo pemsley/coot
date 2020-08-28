@@ -22,7 +22,7 @@ AM_CPPFLAGS = -I$(top_srcdir) $(CLIPPER_CXXFLAGS)
 
 lib_LTLIBRARIES = libcoot-isosurface.la
 
-pkginclude_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh occlusion.hh
+pkginclude_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh occlusion.hh transfer-occlusions.hh
 pkgincludedir = $(includedir)/coot/density-contour
 
 check_PROGRAMS = test-occlusion
