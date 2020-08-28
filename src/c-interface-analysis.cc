@@ -78,14 +78,17 @@ void hole(int imol, float start_x, float start_y, float start_z,
                                         probe_path[i].first.z());
          }
 
-      for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) { 
-	 to_generic_object_add_point(obj_surface,
-				     hole_path_and_surface.second[i].colour.hex().c_str(),
-				     3, // pixel
-				     hole_path_and_surface.second[i].position.x(),
-				     hole_path_and_surface.second[i].position.y(),
-				     hole_path_and_surface.second[i].position.z());
+      meshed_generic_display_object &surface_obj = g.generic_display_objects[obj_surface];
+
+      for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) {
+         std::string colour_name = hole_path_and_surface.second[i].colour.hex();
+         coot::colour_holder colour =
+            coot::old_generic_display_object_t::colour_values_from_colour_name(colour_name);
+         const clipper::Coord_orth &pt = hole_path_and_surface.second[i].position;
+         surface_obj.add_point(colour, colour_name, 4, pt);
       }
+      Material material;
+      surface_obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
 
       // set_display_generic_object(obj_path,    1);
       set_display_generic_object(obj_surface, 1);
