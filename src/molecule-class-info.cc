@@ -3630,6 +3630,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
     unsigned int n_slices = 16;
     unsigned int n_stacks = 2;
+    if (is_intermediate_atoms_molecule)
+       n_slices = 8;
 
     err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 1\n";
     std::vector<glm::vec4> index_to_colour(bonds_box.num_colours);
