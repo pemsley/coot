@@ -75,112 +75,135 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
       }
    }
 
-   // about 200,000 vertices for tutorial modern with subdivision 2
-   // std::cout << "returning from make_generic_vertices_for_atoms() with sizes "
-   // << v1.size() << " " << v2.size() << std::endl;
-
-   if (false) { // a bit of fun
-
-      for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
-         for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-            const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
-            float sphere_scale = radius_scale * ai.radius_scale * 1.18;
-            if (ai.is_hydrogen_atom) continue;
-            if (ai.is_hydrogen_atom)
-               sphere_scale = 0.5;
-
-            glm::vec3 atom_position = cartesian_to_glm(ai.position);
-            float solid_theta = 0.1;
-            float atom_radius = sphere_radius * radius_scale;
-
-            float badness = fabs(ai.position.x());
-            if (badness > 2.0) badness = 2.0;
-            if (badness < 0.2) badness = 0.2;
-
-            float h_scale = 1.0;
-            float v_scale = badness * 0.1;
-
-            unsigned int n_slices = 16;
-            std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> >
-               spherical_surface_circular_patch_mesh =
-               make_spherical_surface_circular_patch(atom_radius * 1.189, solid_theta, h_scale, v_scale, n_slices);
-            std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> >
-               spherical_surface_circular_patch_mesh_pupil =
-               make_spherical_surface_circular_patch(atom_radius * 1.191, 0.4 * solid_theta, h_scale, h_scale, n_slices);
-
-            unsigned int idx_base = v1.size();
-            unsigned int idx_base_tri = v2.size();
-            float m_w = 0.6;
-            float m_h = 0.1;
-            m_h = badness;
-
-            std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> >
-               mouth_patch = make_curved_bar_patch(atom_radius * 1.29, -m_w, m_w, m_h, 16, 0.8);
-            for (unsigned int i=0; i<mouth_patch.first.size(); i++) {
-               const position_normal_vertex &v = mouth_patch.first[i];
-               glm::vec4 c(0.2, 0.2, 0.2, 1.0);
-
-               vertex_with_rotation_translation vrt(v.pos, v.normal, c);
-               glm::mat4 rm(1.0f);
-               glm::mat3 mm = glm::mat3(rm);
-               vrt.model_rotation_matrix = mm;
-               vrt.model_translation = atom_position;
-               v1.push_back(vrt);
-            }
-            v2.insert(v2.end(), mouth_patch.second.begin(), mouth_patch.second.end());
-            for (unsigned int i=idx_base_tri; i<v2.size(); i++)
-               v2[i].rebase(idx_base);
-
-            for (int ii=0; ii<2; ii++) {
-
-               unsigned int idx_base = v1.size();
-               unsigned int idx_base_tri = v2.size();
-
-               for (unsigned int i=0; i<spherical_surface_circular_patch_mesh.first.size(); i++) {
-                  const position_normal_vertex &v = spherical_surface_circular_patch_mesh.first[i];
-                  float whiteness = 0.82;
-                  glm::vec4 c(whiteness, whiteness, whiteness, 1.0);
-                  vertex_with_rotation_translation vrt(v.pos, v.normal, c);
-                  glm::mat4 rm(1.0f);
-                  float angle = 0.5 * static_cast<float>(2 * ii - 1);
-                  rm = glm::rotate(rm, angle, glm::vec3(0,1,0));
-                  glm::mat3 mm = glm::mat3(rm);
-                  vrt.model_rotation_matrix = mm;
-                  vrt.model_translation     = atom_position;
-                  v1.push_back(vrt);
-               }
-               v2.insert(v2.end(),
-                         spherical_surface_circular_patch_mesh.second.begin(),
-                         spherical_surface_circular_patch_mesh.second.end());
-               for (unsigned int i=idx_base_tri; i<v2.size(); i++)
-                  v2[i].rebase(idx_base);
-
-               idx_base = v1.size();
-               idx_base_tri = v2.size();
-               for (unsigned int i=0; i<spherical_surface_circular_patch_mesh_pupil.first.size(); i++) {
-                  const position_normal_vertex &v = spherical_surface_circular_patch_mesh_pupil.first[i];
-                  glm::vec4 c(0.1, 0.1, 0.1, 1.0);
-                  vertex_with_rotation_translation vrt(v.pos, v.normal, c);
-                  glm::mat4 rm(1.0f);
-                  float angle = 0.5 * static_cast<float>(2 * ii - 1) + 0.1;
-                  rm = glm::rotate(rm, angle, glm::vec3(0,1,0));
-                  glm::mat3 mm = glm::mat3(rm);
-                  vrt.model_rotation_matrix = mm;
-                  vrt.model_translation = atom_position + 0.0f * glm::vec3(ii+1,ii+1,ii+1);
-                  v1.push_back(vrt);
-               }
-               v2.insert(v2.end(),
-                         spherical_surface_circular_patch_mesh_pupil.second.begin(),
-                         spherical_surface_circular_patch_mesh_pupil.second.end());
-               for (unsigned int i=idx_base_tri; i<v2.size(); i++)
-                  v2[i].rebase(idx_base);
-            }
-         }
+   if (false) {
+      if (is_intermediate_atoms_molecule) {
+         unsigned int idx_base = v1.size();
+         unsigned int idx_base_tri = v2.size();
+         std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v_fun =
+            fun(4.0 * radius_scale);
+         std::cout << "fun triangles " << v1.size() << " " << v2.size() << std::endl;
+         v1.insert(v1.end(), v_fun.first.begin(), v_fun.first.end());
+         v2.insert(v2.end(), v_fun.second.begin(), v_fun.second.end());
+         for (unsigned int ii=idx_base_tri; ii<v2.size(); ii++)
+            v2[ii].rebase(idx_base);
       }
    }
 
    return v;
 }
+
+
+std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+molecule_class_info_t::fun(float radius_scale) const {
+
+   // about 200,000 vertices for tutorial modern with subdivision 2
+   // std::cout << "returning from make_generic_vertices_for_atoms() with sizes "
+   // << v1.size() << " " << v2.size() << std::endl;
+
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+   std::vector<vertex_with_rotation_translation> &v1 = v.first;
+   std::vector<g_triangle> &v2 = v.second;
+
+   for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+      for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
+         const graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
+         float sphere_scale = radius_scale * ai.radius_scale * 1.18;
+         if (ai.is_hydrogen_atom) continue;
+         if (ai.is_hydrogen_atom)
+            sphere_scale = 0.5;
+
+         glm::vec3 atom_position = cartesian_to_glm(ai.position);
+         float solid_theta = 0.1;
+         float sphere_radius = 0.085; // how big should atoms be?
+         float atom_radius = sphere_radius * radius_scale;
+
+         float badness = fabs(ai.position.x());
+         if (badness > 2.0) badness = 2.0;
+         if (badness < 0.2) badness = 0.2;
+
+         float h_scale = 1.0;
+         float v_scale = 1.0;
+
+         unsigned int n_slices = 16;
+         std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> >
+            spherical_surface_circular_patch_mesh =
+            make_spherical_surface_circular_patch(atom_radius * 1.189, solid_theta, h_scale, v_scale, n_slices);
+         std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> >
+            spherical_surface_circular_patch_mesh_pupil =
+            make_spherical_surface_circular_patch(atom_radius * 1.191, 0.4 * solid_theta, h_scale, h_scale, n_slices);
+
+         unsigned int idx_base = v1.size();
+         unsigned int idx_base_tri = v2.size();
+         float m_w = 0.6;
+         float m_h = 0.1;
+         m_h = badness;
+
+         std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> >
+            mouth_patch = make_curved_bar_patch(atom_radius * 0.29, -m_w, m_w, m_h, 16, 0.8);
+         for (unsigned int i=0; i<mouth_patch.first.size(); i++) {
+            const position_normal_vertex &v = mouth_patch.first[i];
+            glm::vec4 c(0.2, 0.2, 0.2, 1.0);
+
+            vertex_with_rotation_translation vrt(v.pos, v.normal, c);
+            glm::mat4 rm(1.0f);
+            glm::mat3 mm = glm::mat3(rm);
+            vrt.model_rotation_matrix = mm;
+            vrt.model_translation = atom_position;
+            v1.push_back(vrt);
+         }
+         v2.insert(v2.end(), mouth_patch.second.begin(), mouth_patch.second.end());
+         for (unsigned int i=idx_base_tri; i<v2.size(); i++)
+            v2[i].rebase(idx_base);
+
+         for (int ii=0; ii<2; ii++) {
+
+            unsigned int idx_base = v1.size();
+            unsigned int idx_base_tri = v2.size();
+
+            for (unsigned int i=0; i<spherical_surface_circular_patch_mesh.first.size(); i++) {
+               const position_normal_vertex &v = spherical_surface_circular_patch_mesh.first[i];
+               float whiteness = 0.82;
+               glm::vec4 c(whiteness, whiteness, whiteness, 1.0);
+               vertex_with_rotation_translation vrt(v.pos, v.normal, c);
+               glm::mat4 rm(1.0f);
+               float angle = 0.5 * static_cast<float>(2 * ii - 1);
+               rm = glm::rotate(rm, angle, glm::vec3(0,1,0));
+               glm::mat3 mm = glm::mat3(rm);
+               vrt.model_rotation_matrix = mm;
+               vrt.model_translation     = atom_position;
+               v1.push_back(vrt);
+            }
+            v2.insert(v2.end(),
+                      spherical_surface_circular_patch_mesh.second.begin(),
+                      spherical_surface_circular_patch_mesh.second.end());
+            for (unsigned int i=idx_base_tri; i<v2.size(); i++)
+               v2[i].rebase(idx_base);
+
+            idx_base = v1.size();
+            idx_base_tri = v2.size();
+            for (unsigned int i=0; i<spherical_surface_circular_patch_mesh_pupil.first.size(); i++) {
+               const position_normal_vertex &v = spherical_surface_circular_patch_mesh_pupil.first[i];
+               glm::vec4 c(0.1, 0.1, 0.1, 1.0);
+               vertex_with_rotation_translation vrt(v.pos, v.normal, c);
+               glm::mat4 rm(1.0f);
+               float angle = 0.5 * static_cast<float>(2 * ii - 1) + 0.1;
+               rm = glm::rotate(rm, angle, glm::vec3(0,1,0));
+               glm::mat3 mm = glm::mat3(rm);
+               vrt.model_rotation_matrix = mm;
+               vrt.model_translation = atom_position + 0.0f * glm::vec3(ii+1,ii+1,ii+1);
+               v1.push_back(vrt);
+            }
+            v2.insert(v2.end(),
+                      spherical_surface_circular_patch_mesh_pupil.second.begin(),
+                      spherical_surface_circular_patch_mesh_pupil.second.end());
+            for (unsigned int i=idx_base_tri; i<v2.size(); i++)
+               v2[i].rebase(idx_base);
+         }
+      }
+   }
+   return v;
+}
+
 
 std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
 molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
