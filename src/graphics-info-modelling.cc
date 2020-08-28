@@ -446,6 +446,25 @@ graphics_info_t::refinement_loop_threaded() {
 								  spf, pr_chi_sqds, *Geom_p());
       graphics_info_t::saved_dragged_refinement_results = rr;
 
+      if (false) {
+         if (rr.refinement_results_contain_overall_nbc_score) {
+            std::cout << "-------------- nbc baddies " << std::endl;
+            for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++)
+               std::cout << "       nbc number " << i
+                         << ":  " << rr.sorted_nbc_baddies[i].first
+                         << " "  << rr.sorted_nbc_baddies[i].second << std::endl;
+         }
+      }
+      if (false) {
+         if (rr.refinement_results_contain_overall_rama_plot_score) {
+            std::cout << "-------------- rama baddies " << std::endl;
+            for (unsigned int i=0; i<rr.sorted_rama_baddies.size(); i++)
+               std::cout << "       rama number " << i
+                         << ":  " << rr.sorted_rama_baddies[i].first
+                         << " "  << rr.sorted_rama_baddies[i].second << std::endl;
+         }
+      }
+
       if (rr.progress == GSL_SUCCESS) {
 	 graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
 	 rr = graphics_info_t::saved_dragged_refinement_results;

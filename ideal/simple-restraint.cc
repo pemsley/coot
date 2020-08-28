@@ -1535,7 +1535,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // std::cout << "After update atoms " << std::endl;
 
    // (we don't get here unless restraints were found)
-   coot::refinement_results_t rr(1, status, lights_vec);
+   bool found_restraints_flag = true;
+   coot::refinement_results_t rr(found_restraints_flag, status, lights_vec);
+   if (refinement_results_add_details)
+      add_details_to_refinement_results(&rr);
 
    // std::cout << "After rr" << std::endl;
 
@@ -1571,6 +1574,98 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    n_refiners_refining--;
    return rr;
+}
+
+void
+coot::restraints_container_t::add_details_to_refinement_results(refinement_results_t *rr) const {
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   int n_restraints = size();
+   std::map<int, float> nbc_baddies;
+   std::map<int, float> rama_baddies;
+   unsigned int n_non_bonded_restraints = 0;
+   unsigned int n_rama_restraints = 0;
+   double nbc_distortion_score_sum = 0;
+   double rama_distortion_score_sum = 0;
+   const gsl_vector *v = m_s->x;
+
+   for (int i=0; i<n_restraints; i++) {
+      const simple_restraint &restraint = restraints_vec[i];
+      if (restraints_usage_flag & coot::NON_BONDED_MASK) {
+         if ( restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+            n_non_bonded_restraints++;
+            double dist = coot::distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
+            nbc_distortion_score_sum += dist;
+            // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
+            if (dist > 0.01) {
+               nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
+               nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
+            }
+         }
+      }
+      if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
+         if (restraint.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+            n_rama_restraints++;
+            if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+               double dd = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
+               rama_distortion_score_sum += dd;
+               std::cout << "zo-rama " << dd << std::endl;
+               if (dd > 0.01) {
+                  rama_baddies[restraint.atom_index_1] += 0.5 * dd;
+               }
+            } else {
+               double dd = distortion_score_rama(restraint, v, LogRama());
+               rama_distortion_score_sum += dd;
+               // std::cout << "rama " << dd << std::endl; mean is about -200
+               // this cutoff should be relative to the rama weight
+               if (dd > -200.0) {
+                  rama_baddies[restraint.atom_index_1] += 0.5 * dd;
+               }
+            }
+         }
+      }
+   }
+
+   // --- non-bonded contacts ---
+
+   std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size());
+   std::map<int, float>::const_iterator it;
+   unsigned int idx = 0;
+   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); it++)
+      nbc_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
+
+   auto sorter = [] (const std::pair<int, float> &v1,
+                     const std::pair<int, float> &v2) {
+                    return v2.second < v1.second;
+                 };
+   std::sort(nbc_baddies_vec.begin(), nbc_baddies_vec.end(), sorter);
+   if (nbc_baddies_vec.size() > 50)
+      nbc_baddies_vec.resize(50);
+
+   // --- rama ---
+
+   std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
+   idx = 0;
+   for (it=rama_baddies.begin(); it!=rama_baddies.end(); it++)
+      rama_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
+   std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
+   if (rama_baddies_vec.size() > 20)
+      rama_baddies_vec.resize(20);
+
+   rr->overall_nbc_score = nbc_distortion_score_sum;
+   rr->sorted_nbc_baddies = nbc_baddies_vec;
+   rr->overall_rama_plot_score = rama_distortion_score_sum;
+   rr->sorted_rama_baddies = rama_baddies_vec;
+   rr->refinement_results_contain_overall_nbc_score = true;
+   rr->refinement_results_contain_overall_rama_plot_score = true;
+
+   if (false) {
+      // ~1ms for 100 residues
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+      std::cout << "info:: add_details_to_refinement_results(): " << d21 << " microseconds\n";
+   }
+
 }
 
 // this should be a static member function of refinement_lights_info_t
