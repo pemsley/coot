@@ -3509,11 +3509,15 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 void
-molecule_class_info_t::make_bonds_type_checked() {
+molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    bool debug = false;
+
    if (debug)
-      std::cout << "--- make_bonds_type_checked() called  with bonds_box_type "
+      std::cout << "debug:: make_bonds_type_checked() --------start--------- called by "
+                << caller << "()" << std::endl;
+   if (debug)
+      std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
    << bonds_box_type << " vs "
    << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
    << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
@@ -3590,8 +3594,6 @@ molecule_class_info_t::make_bonds_type_checked() {
    glGetIntegerv(GL_CURRENT_PROGRAM, &current_program);
    // std::cout << "INFO:: make_bonds_type_checked() current program " << current_program << std::endl;
 
-   make_glsl_bonds_type_checked();
-
    // all these will need to be changed or removed
    update_additional_representations(glci, g.Geom_p());
    update_fixed_atom_positions();
@@ -3599,7 +3601,7 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_extra_restraints_representation();
 
    if (debug) {
-      std::cout << "--- make_bonds_type_checked() done " << std::endl;
+      std::cout << "debug:: -------------- make_bonds_type_checked() done " << std::endl;
    }
 }
 
@@ -3611,10 +3613,15 @@ molecule_class_info_t::make_bonds_type_checked() {
  }
  
 
- void molecule_class_info_t::make_glsl_bonds_type_checked() {
+ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
-    if (! is_intermediate_atoms_molecule)
-       std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
+    if (false)
+       std::cout << "debug:: make_glsl_bonds_type_checked() called by " << caller
+                 << "()" << std::endl;
+
+    if (false)
+       if (! is_intermediate_atoms_molecule)
+          std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 
     GLenum err = glGetError();
     if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
@@ -3798,7 +3805,13 @@ molecule_class_info_t::make_bonds_type_checked() {
 }
 
 void
-molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices) {
+   molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
+                                                  const char *caller) {
+
+   if (false)
+      std::cout << "debug::make_bonds_type_checked(no-bonds-set) "
+                << no_bonds_to_these_atom_indices.size() << " called by "
+                << caller << std::endl;
 
    graphics_info_t g; // urgh!  (But the best solution?)
    coot::protein_geometry *geom_p = g.Geom_p();
