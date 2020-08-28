@@ -445,6 +445,9 @@ molecule_class_info_t::fill_fobs_sigfobs() {
 
 #include "gensurf.hh"
 
+#include "density-contour/occlusion.hh"
+#include "density-contour/transfer-occlusions.hh"
+
 //
 void
 molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre) {
@@ -545,6 +548,21 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
       }
 
       // post_process_map_triangles();
+
+      if (false) {
+         for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
+            coot::density_contour_triangles_container_t &tri_con = draw_vector_sets[i];
+            std::vector<coot::augmented_position> positions(tri_con.points.size());
+            unsigned int n = draw_vector_sets[i].points.size();
+            for (unsigned int j=0; j<n; j++) {
+               const clipper::Coord_orth &pos  = tri_con.points[j];
+               const clipper::Coord_orth &norm = tri_con.normals[j];
+               positions[i] = coot::augmented_position(pos, norm);
+            }
+            coot::set_occlusions(positions); // crash, related to range
+            coot::transfer_occlusions(positions, &draw_vector_sets[i]);
+         }
+      }
 
       setup_glsl_map_rendering(); // turn tri_con into buffers.
 
@@ -1192,6 +1210,14 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                      colours[4*idx_for_colours+3] = 1.0f;
                   } else {
                      // basic/standard single colour map
+
+                     if (false) {// baked-in ambient occlusion
+                        if (j < tri_con.occlusion_factor.size())
+                           std::cout << "occlusion factor " << tri_con.occlusion_factor[j] << std::endl;
+                        else
+                           std::cout << "occlusion factor index error " << j << " vs " <<  tri_con.occlusion_factor.size() << std::endl;
+                     }
+
                      if ((4*idx_for_colours) < (4 * n_colours)) {
                         colours[4*idx_for_colours  ] = map_colour.red;
                         colours[4*idx_for_colours+1] = map_colour.green;

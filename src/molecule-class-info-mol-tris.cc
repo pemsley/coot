@@ -49,6 +49,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    molecular_mesh_generator_t mmg;
    std::string name = "Ribbons";
    Material material;
+   material.shininess = 1.5;
+   material.specular_strength = 1.12;
    Shader molecular_triangles_shader;
    molecular_triangles_shader.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    Mesh mesh(name);
