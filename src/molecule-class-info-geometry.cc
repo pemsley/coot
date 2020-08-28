@@ -11,7 +11,10 @@ std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle>
 molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour,
                                                        float atom_radius_scale_factor) const {
 
-   bool fat_atoms_mode = false;
+
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+   std::vector<vertex_with_rotation_translation> &v1 = v.first;
+   std::vector<g_triangle> &v2 = v.second;
 
    // this is not consistent with the bonds - the hydrogen atoms are too small
    float sphere_radius = 0.085; // how big should atoms be?
@@ -19,9 +22,6 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
    if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
 
    radius_scale *= atom_radius_scale_factor;
-
-   std::vector<vertex_with_rotation_translation> v1;
-   std::vector<g_triangle> v2;
 
    bool against_a_dark_background = true;
    glm::vec3 origin(0,0,0);
@@ -179,7 +179,7 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
       }
    }
 
-   return std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >(v1, v2);
+   return v;
 }
 
 std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
@@ -221,4 +221,51 @@ molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
    }
 
    return std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >(v1, v2);
+}
+
+
+// rama balls.
+std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+molecule_class_info_t::make_generic_vertices_for_rama_balls(float ball_scale_factor,
+                                                            const glm::vec3 &screen_up_dir) const {
+
+   // treat them like atoms for now.
+
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+   std::vector<vertex_with_rotation_translation> &v1 = v.first;
+   std::vector<g_triangle> &v2 = v.second;
+   float rama_ball_pos_offset_scale = 0.6;
+
+   unsigned int num_subdivisions = 2;
+   glm::vec3 origin(0,0,0);
+   glm::mat4 unit_matrix(1.0f);
+   float radius = 0.62f * ball_scale_factor;
+   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > octaball =
+      make_octasphere(num_subdivisions, origin, radius, col);
+
+   for (int i=0; i<bonds_box.n_ramachandran_goodness_spots; i++) {
+      coot::Cartesian position = bonds_box.ramachandran_goodness_spots_ptr[i].first;
+      const float &prob_raw    = bonds_box.ramachandran_goodness_spots_ptr[i].second;
+      double prob(prob_raw);
+      if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
+      double q = (1 - 2.0 * prob);
+      q = pow(q, 20);
+      coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, false, std::string(""));
+      glm::vec3 atom_position = cartesian_to_glm(position) + rama_ball_pos_offset_scale * screen_up_dir;
+      unsigned int idx_base = v1.size();
+      for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
+         vertex_with_rotation_translation vertex(octaball.first[ibv], radius);
+         vertex.colour = glm::vec4(col.red, col.green, col.blue, 1.0f);
+         vertex.model_rotation_matrix = unit_matrix;
+         vertex.model_translation = atom_position;
+         v1.push_back(vertex);
+      }
+      std::vector<g_triangle> octaball_triangles = octaball.second;
+      for (unsigned int ii=0; ii<octaball_triangles.size(); ii++)
+         octaball_triangles[ii].rebase(idx_base);
+      v2.insert(v2.end(), octaball_triangles.begin(), octaball_triangles.end());
+   }
+
+   return v;
 }

@@ -3667,9 +3667,25 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
     unsigned int idx_base = vertices.size();
     unsigned int idx_tri_base = triangles.size();
 
+    // --- rama spots ---
+    if (is_intermediate_atoms_molecule) {
+       glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
+       glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
+       glm::vec3 screen_up_dir = glm::normalize(y_vec -base);
+       float rama_ball_pos_offset_scale = 0.6f;
+       std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > rama_bits =
+          make_generic_vertices_for_rama_balls(atom_radius_scale_factor, screen_up_dir);
+       vertices.insert(vertices.end(), rama_bits.first.begin(), rama_bits.first.end());
+       triangles.insert(triangles.end(), rama_bits.second.begin(), rama_bits.second.end());
+       for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+          triangles[k].rebase(idx_base);
+    }
+
     // --- atoms ---
 
     // float atom_radius_scale_factor = 3.0;
+    idx_base = vertices.size();
+    idx_tri_base = triangles.size();
     std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > atom_bits =
        make_generic_vertices_for_atoms(index_to_colour, atom_radius_scale_factor);
 
