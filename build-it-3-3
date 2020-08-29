@@ -1399,7 +1399,7 @@ echo $r
 
 case $r in
 
-cmake\ version\ 3.1[1-9]*)
+cmake\ version\ 3.1[0-9]*)
     echo found recent cmake
     cmake_is_good=true
     ;;
