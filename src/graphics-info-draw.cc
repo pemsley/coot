@@ -1556,15 +1556,20 @@ graphics_info_t::draw_hud_geometry_bars() {
       float screen_scale_factor = 1.0/static_cast<float>(n);
       for (int i=(n-1); i>=0; i--) {
          float d = saved_dragged_refinement_results.sorted_nbc_baddies[i].second;
-         coot::colour_t cc(0.1, 0.9, 0.0);
-         cc.rotate(1.0f - 0.01 * d);
+         coot::colour_t cc(0.1, 0.9, 0.2);
+         // we want to rotate to red (which is negative direction) but
+         // rotate() doesn't work with negative rotations, so make it
+         // 1.0 - amount (1.0 being a full rotation).
+         float rotation_amount = 1.0f - 0.012 * d;
+         if (rotation_amount < 0.68) rotation_amount = 0.68;
+         cc.rotate(rotation_amount);
          glm::vec4 col = cc.to_glm();
          col.w = 0.7;
          glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
-         float l = screen_scale_factor * 0.05 * d;
-         HUD_bar_attribs_t bar(col, position_offset, l);
+         float bar_length = screen_scale_factor * 0.07 * d;
+         HUD_bar_attribs_t bar(col, position_offset, bar_length);
          new_bars.push_back(bar);
-         sum_l += l + 0.005;
+         sum_l += bar_length + 0.005; // with a gap between bars
       }
 
       mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
