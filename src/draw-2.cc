@@ -238,24 +238,39 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
 
    bool was_a_double_click = false;
-   if (event->type==GDK_2BUTTON_PRESS)
+   if (event->type == GDK_2BUTTON_PRESS)
       was_a_double_click = true;
 
    GdkModifierType state;
 
+   // if (true) { // check here for left-mouse click
+   // if (event->state & GDK_BUTTON1_PRESS) {
    if (true) { // check here for left-mouse click
 
-      // implicit type cast
-      gboolean handled = g.check_if_moving_atom_pull(was_a_double_click);
+      bool handled = false;
+
+      if (false)
+         std::cout << "click event: " << event->x << " " << event->y << " "
+                   << x_as_int << " " << y_as_int << std::endl;
+
+      // first thing to test is the HUD bar
+      handled = g.check_if_hud_bar_clicked(event->x, event->y);
 
       if (! handled) {
-         if (was_a_double_click) {
-            pick_info nearest_atom_index_info = g.atom_pick_gtk3(false);
-            if (nearest_atom_index_info.success == GL_TRUE) {
-               int im = nearest_atom_index_info.imol;
-               g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-               g.add_picked_atom_info_to_status_bar(im, nearest_atom_index_info.atom_index);
-               g.graphics_draw();
+         // implicit type cast
+         handled = g.check_if_moving_atom_pull(was_a_double_click);
+
+         if (! handled) {
+            if (was_a_double_click) {
+               bool intermediate_atoms_only_flag = false;
+               pick_info nearest_atom_index_info = g.atom_pick_gtk3(intermediate_atoms_only_flag);
+               if (nearest_atom_index_info.success == GL_TRUE) {
+                  handled = true;
+                  int im = nearest_atom_index_info.imol;
+                  g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+                  g.add_picked_atom_info_to_status_bar(im, nearest_atom_index_info.atom_index);
+                  g.graphics_draw();
+               }
             }
          }
       }

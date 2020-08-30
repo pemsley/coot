@@ -1577,8 +1577,70 @@ graphics_info_t::draw_hud_geometry_bars() {
       mesh_for_hud_geometry.draw(&shader);
 
    }
-
+   glDisable(GL_BLEND);
 }
+
+bool
+graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
+
+   bool status = false;
+   if (! moving_atoms_asc) return false;
+   if (! moving_atoms_asc->mol) return false;
+
+   // this values in this loop must match those in the loop above
+   // (draw_hud_geometry_bars())
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   double frac_x = mouse_x/static_cast<double>(w);
+   double frac_y = 1.0 - mouse_y/static_cast<double>(h);
+   glm::vec2 mouse_in_opengl_coords(2.0 * frac_x - 1.0, 2.0 * frac_y - 1.0);
+
+   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score) {
+      glm::vec2 to_top_left(-0.95, 0.9);
+
+      float sum_l = 0;
+      int n = saved_dragged_refinement_results.sorted_nbc_baddies.size();
+      float screen_scale_factor = 1.0/static_cast<float>(n);
+      for (int i=(n-1); i>=0; i--) {
+         float d = saved_dragged_refinement_results.sorted_nbc_baddies[i].second;
+         glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+         float bar_length = screen_scale_factor * 0.07 * d;
+         sum_l += bar_length + 0.005; // with a gap between bars
+
+         if (false)
+            std::cout << "checking " << glm::to_string(position_offset) << " "
+                      << " " << bar_length
+                      << " vs mouse " << glm::to_string(mouse_in_opengl_coords)
+                      << std::endl;
+
+         if (mouse_in_opengl_coords.x >= position_offset.x) {
+            if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+               int idx = saved_dragged_refinement_results.sorted_nbc_baddies[i].first;
+               // std::cout << "x hit for i " << i << " index " << idx << std::endl;
+               float tiny_y_offset = -0.01; // not sure why I need this
+               if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
+                  // 0.03 is the bar height in setup_camera_facing_quad()
+                  float bar_height = 0.03;
+                  if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
+                     // std::cout << "y hit for i " << i << " index " << idx << std::endl;
+                     mmdb::Atom *at = moving_atoms_asc->atom_selection[idx];
+                     clipper::Coord_orth pt = coot::co(at);
+                     set_rotation_centre(pt);
+                  }
+               }
+            }
+         }
+      }
+
+   }
+
+   return status;
+}
+
 
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {

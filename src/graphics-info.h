@@ -2782,6 +2782,8 @@ public:
 				 const GdkModifierType &state);
    bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 
+   bool check_if_hud_bar_clicked(double x, double y);
+
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
    }

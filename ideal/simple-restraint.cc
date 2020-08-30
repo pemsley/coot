@@ -1594,9 +1594,9 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
          if ( restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
             n_non_bonded_restraints++;
-            double dist = coot::distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
+            double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
-            if (dist > 0.01) {
+            if (dist > 0.05) {
                nbc_distortion_score_sum += dist;
                nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
                nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
@@ -1639,8 +1639,8 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                     return v2.second < v1.second;
                  };
    std::sort(nbc_baddies_vec.begin(), nbc_baddies_vec.end(), sorter);
-   if (nbc_baddies_vec.size() > 50)
-      nbc_baddies_vec.resize(50);
+   if (nbc_baddies_vec.size() > 20)
+      nbc_baddies_vec.resize(20);
 
    // --- rama ---
 
