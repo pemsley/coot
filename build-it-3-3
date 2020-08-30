@@ -2937,9 +2937,48 @@ if [ "$build_boost" = true ] ; then
 
       # bjam no longer exists
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
-      cd - 
+      cd -
    fi
    ) > $HOSTLOGDIR/16-boost.txt
+fi
+
+
+
+#################################################################
+# goocanvas
+#################################################################
+#
+
+if [ -e $install_top_dir/include/goocanvas-2.0/goocanvas.h ] ; then
+   build_goocanvas=no
+fi
+
+
+if [ "$build_goocanvas" != "no" ] ; then
+    echo BUILDING goocanvas
+    ${WGET} http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0/goocanvas-2.0.0.tar.gz
+    (date
+     echo building in: $PWD
+     echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+     echo CFLAGS: $CFLAGS
+     echo CXXFLAGS: $CXXFLAGS
+     echo CPPFLAGS: $CPPFLAGS
+     echo LDFLAGS: $LDFLAGS
+     pwd
+     gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-2.0.0.tar.gz | tar xf -
+     cd goocanvas-2.0.0
+     # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
+     # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
+     if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
+        if ! $MAKE ; then
+           echo make of goocanvas failed
+        else
+            $MAKE install
+        fi
+     else
+        echo goocanvas configure failed
+     fi
+     ) > $HOSTLOGDIR/17-goocanvas.txt 2>&1
 fi
 
 
@@ -3081,9 +3120,9 @@ fi
 # this needs to find gobject-introspection-1.0 >= 1.46.0
 # and it does if PKG_CONFIG_PATH is set correctly
 if [ -e $install/include/pygobject-3.0/pygobject.h ] ; then
-   echo pygobject is installed
+    echo pygobject is installed
 else
-   echo installing pygobject
+    echo installing pygobject
     echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
     which pip3
     pip3 install wheel
@@ -3097,6 +3136,25 @@ fi
 #
 date
 pwd
+
+if [ -e ../../coot ] ; then
+   echo coot directory exists
+   cd ../../coot
+   git fetch
+   git merge
+   rm -rf autom4te.cache
+   bash autogen.sh
+   cd -
+else
+   pushd
+   cd ../..
+   git clone https://github.com/pemsley/coot.git -b gtk3
+   cd coot
+   rm -rf autom4te.cache
+   bash autogen.sh
+   cd -
+   popd
+fi
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -3168,6 +3226,7 @@ echo ../../coot/configure $coot_prefix \
       --with-modern-language-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
+      --with-goocanvas-prefix=$install_top_dir \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
@@ -3184,6 +3243,7 @@ bash ../../coot/configure $coot_prefix \
       --with-modern-language-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
+      --with-goocanvas-prefix=$install_top_dir \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
