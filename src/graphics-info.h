@@ -113,6 +113,7 @@
 #endif
 
 #include "TextureMesh.hh"
+#include "HUDMesh.hh"
 
 #include "boids.hh"
 
@@ -2364,6 +2365,7 @@ public:
    void add_distance_labels_for_environment_distances();
    static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
    static TextureMesh tmesh_for_labels;
+   static HUDMesh mesh_for_hud_geometry;
 
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
@@ -4061,6 +4063,7 @@ string   static std::string sessionid;
    static Shader shader_for_lines;
    static Shader shader_for_particles;
    static Shader shader_for_instanced_objects;
+   static Shader shader_for_hud_geometry_bars;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
@@ -4084,6 +4087,7 @@ string   static std::string sessionid;
    void init_central_cube();
    void init_buffers();
    void init_hud_text();
+   static void draw_hud_geometry_bars();
    static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
    static glm::mat4 get_particle_mvp();
    static glm::mat4 get_model_view_matrix();
@@ -4228,6 +4232,8 @@ string   static std::string sessionid;
    // Lights
    //
    static std::map<unsigned int, lights_info_t> lights;
+
+   void setup_hud_geometry_bars();
 
    // Mesh mesh_for_particles("mesh-for-particles");
    // int n_particles = 100;

@@ -494,6 +494,8 @@ coot_bin_SOURCES = \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
 	history_list.hh		 \
+	HUDMesh.cc               \
+	HUDMesh.hh               \
         idles.hh                 \
 	interface.h              \
 	key-bindings.cc		 \

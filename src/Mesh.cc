@@ -698,9 +698,6 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
 
 
 
-// not really cylinders - anything that uses a rotation/translation/scale matrix
-//
-// rename this when it works.
 void
 Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats,
                                                  const std::vector<glm::vec4> &colours) {

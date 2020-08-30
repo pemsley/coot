@@ -1526,6 +1526,55 @@ graphics_info_t::setup_lights() {
    graphics_info_t::lights[1] = light;
 }
 
+void
+graphics_info_t::setup_hud_geometry_bars() {
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   shader_for_hud_geometry_bars.Use();
+   mesh_for_hud_geometry.setup_camera_facing_quad();
+   mesh_for_hud_geometry.setup_instancing_buffer(50);
+
+}
+
+void
+graphics_info_t::draw_hud_geometry_bars() {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_BLEND);
+
+   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score) {
+      GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+
+      glm::vec2 to_top_left(-0.95, 0.9);
+
+      std::vector<HUD_bar_attribs_t> new_bars;
+      float sum_l = 0;
+      int n = saved_dragged_refinement_results.sorted_nbc_baddies.size();
+      float screen_scale_factor = 1.0/static_cast<float>(n);
+      for (int i=(n-1); i>=0; i--) {
+         float d = saved_dragged_refinement_results.sorted_nbc_baddies[i].second;
+         coot::colour_t cc(0.1, 0.9, 0.0);
+         cc.rotate(1.0f - 0.01 * d);
+         glm::vec4 col = cc.to_glm();
+         col.w = 0.7;
+         glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+         float l = screen_scale_factor * 0.05 * d;
+         HUD_bar_attribs_t bar(col, position_offset, l);
+         new_bars.push_back(bar);
+         sum_l += l + 0.005;
+      }
+
+      mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
+      Shader &shader = shader_for_hud_geometry_bars;
+      mesh_for_hud_geometry.draw(&shader);
+
+   }
+
+}
+
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {
 
@@ -1561,6 +1610,8 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
       err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
 
       draw_molecules();
+
+      draw_hud_geometry_bars();
 
       glBindVertexArray(0); // here is not the place to call this.
    }

@@ -1595,9 +1595,9 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
          if ( restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
             n_non_bonded_restraints++;
             double dist = coot::distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
-            nbc_distortion_score_sum += dist;
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
             if (dist > 0.01) {
+               nbc_distortion_score_sum += dist;
                nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
                nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
             }

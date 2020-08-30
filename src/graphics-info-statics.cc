@@ -63,6 +63,7 @@ Shader graphics_info_t::shader_for_moleculestotriangles;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
+Shader graphics_info_t::shader_for_hud_geometry_bars;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
@@ -158,6 +159,7 @@ LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
+HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
 
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
