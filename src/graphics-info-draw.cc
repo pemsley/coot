@@ -1587,11 +1587,11 @@ graphics_info_t::draw_hud_geometry_bars() {
                                             };
 
    auto distortion_to_bar_size_rama = [] (float distortion) {
-                                           distortion += 200.0;
-                                           float d2 = distortion * 0.0003;
-                                           if (d2 < 0.0) d2 = 0.0;
-                                           float d3 = 100.0 * d2 * d2;
-                                           return d3;
+                                         float d1 = distortion + 200.0;
+                                         float d2 = d1 * 0.0003;
+                                         if (d2 < 0.0) d2 = 0.0;
+                                         float d3 = 100.0 * d2 * d2;
+                                         return d3;
                                       };
 
    auto distortion_to_bar_size_nbc = [] (float distortion) {
@@ -1616,9 +1616,10 @@ graphics_info_t::draw_hud_geometry_bars() {
                             col.w = 0.7;
                             glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
                             float bar_length = distortion_to_bar_size(d);
-                            if (false)
-                               std::cout << "index i " << i << " bar_index " << bar_index << " d " << d
+                            if (bar_index == 111)
+                               std::cout << "index i " << i << " distortion " << d
                                          << " bar length " << bar_length
+                                         << " atom " << baddies[i].first
                                          << " position_offset " << glm::to_string(position_offset)  << std::endl;
 
                             HUD_bar_attribs_t bar(col, position_offset, bar_length);

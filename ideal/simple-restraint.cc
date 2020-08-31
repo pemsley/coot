@@ -1614,10 +1614,13 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                   rama_baddies[restraint.atom_index_3] += dd;
                }
             } else {
-               double dd = distortion_score_rama(restraint, v, LogRama());
+               double dd = distortion_score_rama(restraint, v, LogRama());  // mean is about -200
                rama_distortion_score_sum += dd;
-               // std::cout << "rama " << dd << std::endl; mean is about -200
-               // this cutoff should be relative to the rama weight
+               if (false)
+                  std::cout << "rama for restraint " << i << " distortion " << dd << " "
+                            << atom_spec_t(atom[restraint.atom_index_3])
+                            << std::endl;
+               // this cutoff should take account of the rama weight
                if (dd > -200.0) {
                   rama_baddies[restraint.atom_index_3] += dd;
                }
@@ -1662,13 +1665,14 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
       std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
       if (rama_baddies_vec.size() > 20)
          rama_baddies_vec.resize(20);
-      std::vector<std::pair<atom_spec_t, float> > rama_baddies_with_spec_vec(nbc_baddies_vec.size());
+      std::vector<std::pair<atom_spec_t, float> > rama_baddies_with_spec_vec(rama_baddies_vec.size());
       for (unsigned int i=0; i<rama_baddies_vec.size(); i++) {
          rama_baddies_with_spec_vec[i].first  = atom_spec_t(atom[rama_baddies_vec[i].first]);
          rama_baddies_with_spec_vec[i].second = rama_baddies_vec[i].second;
-         std::cout << "debug:: " << i << " "
-                   << rama_baddies_with_spec_vec[i].first << " "
-                   << rama_baddies_with_spec_vec[i].second << std::endl;
+         if (false)
+            std::cout << "debug:: rama_baddies_with_spec_vec " << i << " "
+                      << rama_baddies_with_spec_vec[i].first << " "
+                      << rama_baddies_with_spec_vec[i].second << std::endl;
       }
       rr->refinement_results_contain_overall_rama_plot_score = true;
       rr->sorted_rama_baddies = rama_baddies_with_spec_vec;
