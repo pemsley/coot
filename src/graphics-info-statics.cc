@@ -64,6 +64,7 @@ Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_hud_geometry_bars;
+Shader graphics_info_t::shader_for_hud_geometry_labels;
 Shader graphics_info_t::shader_for_atom_labels;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
@@ -164,3 +165,7 @@ HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 coot::command_history_t graphics_info_t::command_history;
+
+Texture graphics_info_t::texture_for_hud_geometry_labels;
+
+HUDTextureMesh graphics_info_t::mesh_for_hud_geometry_labels = HUDTextureMesh("tmesh-for-hud-geometry-labels");

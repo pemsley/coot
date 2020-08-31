@@ -112,8 +112,10 @@
 #endif // HAVE_CURL_H
 #endif
 
+#include "Texture.hh"
 #include "TextureMesh.hh"
 #include "HUDMesh.hh"
+#include "HUDTextureMesh.hh"
 
 #include "boids.hh"
 
@@ -2366,6 +2368,8 @@ public:
    static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
    static TextureMesh tmesh_for_labels;
    static HUDMesh mesh_for_hud_geometry;
+   static Texture texture_for_hud_geometry_labels; // image to texture for
+   static HUDTextureMesh mesh_for_hud_geometry_labels; // labels for the bars
 
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
@@ -4066,6 +4070,7 @@ string   static std::string sessionid;
    static Shader shader_for_particles;
    static Shader shader_for_instanced_objects;
    static Shader shader_for_hud_geometry_bars;
+   static Shader shader_for_hud_geometry_labels; // for labels image
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;

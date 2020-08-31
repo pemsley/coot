@@ -12,13 +12,7 @@ HUDMesh::init() {
 }
 
 void
-HUDMesh::setup_camera_facing_quad() {
-
-   float scale_x = 0.4; // pass?
-   float scale_y = 0.2;
-
-   glm::vec3 n(0,0,1);
-   glm::vec4 col(1.0, 1.0, 1.0, 1.0);
+HUDMesh::setup_camera_facing_quad_for_bar() {
 
    vertices.clear();
    triangles.clear();

@@ -33,9 +33,9 @@ public:
    std::vector<glm::vec2> vertices;
    std::vector<g_triangle> triangles;
    std::string name;
-   HUDMesh() {}
+   HUDMesh() { init(); }
    HUDMesh(const std::string &n) : name(n) { init(); }
-   void setup_camera_facing_quad();
+   void setup_camera_facing_quad_for_bar();
    void setup_instancing_buffer(unsigned int n_boxes);
    void update_instancing_buffer_data(const std::vector<HUD_bar_attribs_t> &new_bars);
    void draw(Shader *shader);

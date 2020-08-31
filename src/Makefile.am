@@ -496,6 +496,8 @@ coot_bin_SOURCES = \
 	history_list.hh		 \
 	HUDMesh.cc               \
 	HUDMesh.hh               \
+	HUDTextureMesh.cc        \
+	HUDTextureMesh.hh        \
         idles.hh                 \
 	interface.h              \
 	key-bindings.cc		 \

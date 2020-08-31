@@ -1531,9 +1531,16 @@ graphics_info_t::setup_hud_geometry_bars() {
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    shader_for_hud_geometry_bars.Use();
-   mesh_for_hud_geometry.setup_camera_facing_quad();
+
+   mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
    mesh_for_hud_geometry.setup_instancing_buffer(100);
 
+   texture_for_hud_geometry_labels.init("hud-label-nbc-rama.png");
+
+   // Do I need to Use() the shader_for_hud_geometry_labels here?
+   shader_for_hud_geometry_labels.Use();
+   mesh_for_hud_geometry_labels.setup_quad();
+   mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.892), 0.035);
 }
 
 void
@@ -1542,8 +1549,23 @@ graphics_info_t::draw_hud_geometry_bars() {
    if (! moving_atoms_asc) return;
    if (! moving_atoms_asc->mol) return;
 
-   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_DEPTH_TEST); // needed?
    glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   // first draw the text (labels) texture
+
+   if (! saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score) {
+      std::cout << "chopping the texture " << std::endl;
+      mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_only();
+   } else {
+      mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_and_rama();
+   }
+
+   texture_for_hud_geometry_labels.Bind(0);
+   mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
+
+   // now draw the bars
 
    auto distortion_to_rotation_amount_rama = [] (float distortion) {
                                                 distortion += 200.0;
@@ -1580,7 +1602,7 @@ graphics_info_t::draw_hud_geometry_bars() {
                        auto distortion_to_rotation_amount,
                        auto distortion_to_bar_size) {
 
-                         glm::vec2 to_top_left(-0.95, 0.9 - 0.07 * static_cast<float>(bar_index));
+                         glm::vec2 to_top_left(-0.91, 0.9 - 0.05 * static_cast<float>(bar_index));
                          float sum_l = 0;
                          int n = baddies.size();
                          for (int i=(n-1); i>=0; i--) {
@@ -1661,7 +1683,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                                  unsigned int bar_index,
                                                  auto distortion_to_bar_size) {
 
-                          glm::vec2 to_top_left(-0.95, 0.9 - 0.07 * static_cast<float>(bar_index));
+                          glm::vec2 to_top_left(-0.91, 0.9 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
                           for (int i=(n-1); i>=0; i--) {

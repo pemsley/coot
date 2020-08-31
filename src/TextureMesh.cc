@@ -433,8 +433,8 @@ TextureMesh::draw(Shader *shader_p,
 
    glUseProgram (0);
 
-   
 }
+
 
 
 void

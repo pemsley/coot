@@ -171,6 +171,7 @@ on_glarea_realize(GtkGLArea *glarea) {
    g.setup_hud_geometry_bars();
 
    g.setup_key_bindings();
+   
 }
 
 gboolean
