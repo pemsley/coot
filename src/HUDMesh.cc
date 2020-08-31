@@ -151,8 +151,6 @@ HUDMesh::update_instancing_buffer_data(const std::vector<HUD_bar_attribs_t> &new
       unsigned int s = new_bars.size();
       if (s > n_instances)
          s = n_instances; // only draw as many as we have allocated
-      else
-         n_instances = s;
       glBindBuffer(GL_ARRAY_BUFFER, inst_hud_bar_attribs_buffer_id);
       glBufferSubData(GL_ARRAY_BUFFER, 0, s * sizeof(HUD_bar_attribs_t), &(new_bars[0]));
    }

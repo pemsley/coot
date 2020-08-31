@@ -1532,7 +1532,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    shader_for_hud_geometry_bars.Use();
    mesh_for_hud_geometry.setup_camera_facing_quad();
-   mesh_for_hud_geometry.setup_instancing_buffer(50);
+   mesh_for_hud_geometry.setup_instancing_buffer(100);
 
 }
 
@@ -1545,39 +1545,81 @@ graphics_info_t::draw_hud_geometry_bars() {
    glEnable(GL_DEPTH_TEST);
    glEnable(GL_BLEND);
 
-   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score) {
-      GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   auto distortion_to_rotation_amount_rama = [] (float distortion) {
+                                                distortion += 200.0;
+                                                float rotation_amount = 1.0 - 0.0022 * distortion;
+                                                if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
+                                                if (rotation_amount > 1.0) rotation_amount = 1.0;
+                                                return rotation_amount;
+                                             };
 
-      glm::vec2 to_top_left(-0.95, 0.9);
+   auto distortion_to_rotation_amount_nbc = [] (float distortion) {
+                                               // we want to rotate to red (which is negative direction) but
+                                               // rotate() doesn't work with negative rotations, so make it
+                                               // 1.0 - amount (1.0 being a full rotation).
+                                               float rotation_amount = 1.0 - 0.012 * distortion;
+                                               if (rotation_amount < 0.68) rotation_amount = 0.68;
+                                               return rotation_amount;
+                                            };
 
-      std::vector<HUD_bar_attribs_t> new_bars;
-      float sum_l = 0;
-      int n = saved_dragged_refinement_results.sorted_nbc_baddies.size();
-      float screen_scale_factor = 1.0/static_cast<float>(n);
-      for (int i=(n-1); i>=0; i--) {
-         float d = saved_dragged_refinement_results.sorted_nbc_baddies[i].second;
-         coot::colour_t cc(0.1, 0.9, 0.2);
-         // we want to rotate to red (which is negative direction) but
-         // rotate() doesn't work with negative rotations, so make it
-         // 1.0 - amount (1.0 being a full rotation).
-         float rotation_amount = 1.0f - 0.012 * d;
-         if (rotation_amount < 0.68) rotation_amount = 0.68;
-         cc.rotate(rotation_amount);
-         glm::vec4 col = cc.to_glm();
-         col.w = 0.7;
-         glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
-         float bar_length = screen_scale_factor * 0.07 * d;
-         HUD_bar_attribs_t bar(col, position_offset, bar_length);
-         new_bars.push_back(bar);
-         sum_l += bar_length + 0.005; // with a gap between bars
-      }
+   auto distortion_to_bar_size_rama = [] (float distortion) {
+                                           distortion += 200.0;
+                                           float d2 = distortion * 0.001;
+                                           if (d2 < 0.0) d2 = 0.0;
+                                           return d2;
+                                      };
 
+   auto distortion_to_bar_size_nbc = [] (float distortion) {
+                                        return distortion * 0.002;
+                                     };
+
+   auto add_bars = [] (const std::vector<std::pair<int, float> > &baddies,
+                       unsigned int bar_index,
+                       std::vector<HUD_bar_attribs_t> *new_bars_p,
+                       auto distortion_to_rotation_amount,
+                       auto distortion_to_bar_size) {
+
+                         glm::vec2 to_top_left(-0.9, 0.9 - 0.07 * static_cast<float>(bar_index));
+                         float sum_l = 0;
+                         int n = baddies.size();
+                         for (int i=(n-1); i>=0; i--) {
+                            coot::colour_t cc(0.1, 0.9, 0.2);
+                            float d = baddies[i].second;
+                            float rotation_amount = distortion_to_rotation_amount(d);
+                            cc.rotate(rotation_amount);
+                            glm::vec4 col = cc.to_glm();
+                            col.w = 0.7;
+                            glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                            float bar_length = distortion_to_bar_size(d);
+                            if (false)
+                               std::cout << "index i " << i << " bar_index " << bar_index << " d " << d
+                                         << " bar length " << bar_length
+                                         << " position_offset " << glm::to_string(position_offset)  << std::endl;
+
+                            HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                            new_bars_p->push_back(bar);
+                            sum_l += bar_length + 0.005; // with a gap between bars
+                          }
+                       };
+
+   std::vector<HUD_bar_attribs_t> new_bars;
+
+   if (saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
+      add_bars(saved_dragged_refinement_results.sorted_rama_baddies, 1, &new_bars,
+               distortion_to_rotation_amount_rama, distortion_to_bar_size_rama);
+
+   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score)
+      add_bars(saved_dragged_refinement_results.sorted_nbc_baddies, 0, &new_bars,
+               distortion_to_rotation_amount_nbc, distortion_to_bar_size_nbc);
+
+   if (! new_bars.empty()) {
+      // std::cout << "new bar size " << new_bars.size() << std::endl;
       mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
       Shader &shader = shader_for_hud_geometry_bars;
       mesh_for_hud_geometry.draw(&shader);
-
    }
    glDisable(GL_BLEND);
+
 }
 
 bool
@@ -1599,44 +1641,76 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
    double frac_y = 1.0 - mouse_y/static_cast<double>(h);
    glm::vec2 mouse_in_opengl_coords(2.0 * frac_x - 1.0, 2.0 * frac_y - 1.0);
 
-   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score) {
-      glm::vec2 to_top_left(-0.95, 0.9);
+   std::cout << "saved_dragged_refinement_results rama plot "
+             << saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score
+             << " vec size " << saved_dragged_refinement_results.sorted_rama_baddies.size()
+             << std::endl;
 
-      float sum_l = 0;
-      int n = saved_dragged_refinement_results.sorted_nbc_baddies.size();
-      float screen_scale_factor = 1.0/static_cast<float>(n);
-      for (int i=(n-1); i>=0; i--) {
-         float d = saved_dragged_refinement_results.sorted_nbc_baddies[i].second;
-         glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
-         float bar_length = screen_scale_factor * 0.07 * d;
-         sum_l += bar_length + 0.005; // with a gap between bars
 
-         if (false)
-            std::cout << "checking " << glm::to_string(position_offset) << " "
-                      << " " << bar_length
-                      << " vs mouse " << glm::to_string(mouse_in_opengl_coords)
-                      << std::endl;
+   // these functions are copies of those in the above function
 
-         if (mouse_in_opengl_coords.x >= position_offset.x) {
-            if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
-               int idx = saved_dragged_refinement_results.sorted_nbc_baddies[i].first;
-               // std::cout << "x hit for i " << i << " index " << idx << std::endl;
-               float tiny_y_offset = -0.01; // not sure why I need this
-               if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
-                  // 0.03 is the bar height in setup_camera_facing_quad()
-                  float bar_height = 0.03;
-                  if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
-                     // std::cout << "y hit for i " << i << " index " << idx << std::endl;
-                     mmdb::Atom *at = moving_atoms_asc->atom_selection[idx];
-                     clipper::Coord_orth pt = coot::co(at);
-                     set_rotation_centre(pt);
-                  }
-               }
-            }
-         }
-      }
+   auto distortion_to_bar_size_rama = [] (float distortion) {
+                                         distortion += 200.0;
+                                         float d2 = distortion * 0.001;
+                                         if (d2 < 0.0) d2 = 0.0;
+                                         return d2;
+                                      };
 
-   }
+   auto distortion_to_bar_size_nbc = [] (float distortion) {
+                                        return distortion * 0.0025;
+                                     };
+
+   auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<int, float> > &baddies,
+                                                 unsigned int bar_index,
+                                                 auto distortion_to_bar_size) {
+
+                          glm::vec2 to_top_left(-0.95, 0.9 - 0.07 * static_cast<float>(bar_index));
+                          float sum_l = 0;
+                          int n = baddies.size();
+                          for (int i=(n-1); i>=0; i--) {
+                             float d = baddies[i].second;
+                             glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                             float bar_length = distortion_to_bar_size(d);
+                             sum_l += bar_length + 0.005; // with a gap between bars
+
+                             if (true)
+                                std::cout << "checking " << glm::to_string(position_offset) << " "
+                                          << " " << bar_length
+                                          << " vs mouse " << glm::to_string(mouse_in_opengl_coords)
+                                          << std::endl;
+
+                             if (mouse_in_opengl_coords.x >= position_offset.x) {
+                                if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+                                   float tiny_y_offset = -0.01; // not sure why I need this
+                                   if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
+                                      // 0.03 is the bar height in setup_camera_facing_quad()
+                                      float bar_height = 0.03;
+                                      if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
+                                         int idx = baddies[i].first;
+                                         if (false)
+                                            std::cout << "check_blocks(): atom index " << idx << " "
+                                                      << moving_atoms_asc->n_selected_atoms << std::endl;
+                                         if (idx < moving_atoms_asc->n_selected_atoms) {
+                                            mmdb::Atom *at = moving_atoms_asc->atom_selection[idx];
+                                            clipper::Coord_orth pt = coot::co(at);
+                                            std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
+                                                      << std::endl;
+                                            set_rotation_centre(pt);
+                                            graphics_info_t g;
+                                            g.update_things_on_move_and_redraw();
+                                         }
+                                      }
+                                   }
+                                }
+                             }
+                          }
+                       };
+
+   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score)
+      check_blocks(saved_dragged_refinement_results.sorted_nbc_baddies, 0, distortion_to_bar_size_nbc);
+
+   if (saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
+      check_blocks(saved_dragged_refinement_results.sorted_rama_baddies, 1, distortion_to_bar_size_rama);
 
    return status;
 }

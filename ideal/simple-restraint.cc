@@ -1611,7 +1611,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                rama_distortion_score_sum += dd;
                std::cout << "zo-rama " << dd << std::endl;
                if (dd > 0.01) {
-                  rama_baddies[restraint.atom_index_1] += 0.5 * dd;
+                  rama_baddies[restraint.atom_index_3] += dd;
                }
             } else {
                double dd = distortion_score_rama(restraint, v, LogRama());
@@ -1619,7 +1619,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                // std::cout << "rama " << dd << std::endl; mean is about -200
                // this cutoff should be relative to the rama weight
                if (dd > -200.0) {
-                  rama_baddies[restraint.atom_index_1] += 0.5 * dd;
+                  rama_baddies[restraint.atom_index_3] += dd;
                }
             }
          }
