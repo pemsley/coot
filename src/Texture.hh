@@ -8,6 +8,7 @@
 class Texture {
 
    GLuint m_texture_handle;
+   std::string default_directory;
 
 public:
    std::string id;
@@ -16,6 +17,7 @@ public:
    void init(const std::string &file_name);
    ~Texture(); // don't close
    void Bind(unsigned int unit);
+   void set_default_directory(const std::string &dir);
    void close();
 
 };

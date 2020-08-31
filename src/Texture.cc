@@ -4,6 +4,8 @@
 #include "Texture.hh"
 #include "stb_image.h"
 
+#include "utils/coot-utils.hh"
+
 Texture::Texture(const std::string &file_name) {
    init(file_name);
 }
@@ -12,6 +14,17 @@ void
 Texture::init(const std::string &file_name) {
 
    int width, height, num_components;
+   std::string fn = file_name;
+   if (! coot::file_exists(fn)) {
+      std::string default_directory =
+      fn = default_directory + "/" + file_name;
+   }
+
+   if (! coot::file_exists(fn)) {
+      std::cout << "ERROR:: missing file " << fn << std::endl;
+      return;
+   }
+
    stbi_uc* image_data = stbi_load(file_name.c_str(), &width, &height, &num_components, 4);
    id = file_name;
 
@@ -34,6 +47,13 @@ Texture::init(const std::string &file_name) {
 
    stbi_image_free(image_data);
 }
+
+
+void
+Texture::set_default_directory(const std::string &dir) {
+   default_directory = dir;
+}
+
 
 void
 Texture::close() {

@@ -1535,6 +1535,8 @@ graphics_info_t::setup_hud_geometry_bars() {
    mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
    mesh_for_hud_geometry.setup_instancing_buffer(100);
 
+   // If not found in this directory, then try default directory.
+   texture_for_hud_geometry_labels.set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels.init("hud-label-nbc-rama.png");
 
    // Do I need to Use() the shader_for_hud_geometry_labels here?
