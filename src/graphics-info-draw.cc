@@ -1564,22 +1564,23 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    auto distortion_to_bar_size_rama = [] (float distortion) {
                                            distortion += 200.0;
-                                           float d2 = distortion * 0.001;
+                                           float d2 = distortion * 0.0003;
                                            if (d2 < 0.0) d2 = 0.0;
-                                           return d2;
+                                           float d3 = 100.0 * d2 * d2;
+                                           return d3;
                                       };
 
    auto distortion_to_bar_size_nbc = [] (float distortion) {
                                         return distortion * 0.002;
                                      };
 
-   auto add_bars = [] (const std::vector<std::pair<int, float> > &baddies,
+   auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                        unsigned int bar_index,
                        std::vector<HUD_bar_attribs_t> *new_bars_p,
                        auto distortion_to_rotation_amount,
                        auto distortion_to_bar_size) {
 
-                         glm::vec2 to_top_left(-0.9, 0.9 - 0.07 * static_cast<float>(bar_index));
+                         glm::vec2 to_top_left(-0.95, 0.9 - 0.07 * static_cast<float>(bar_index));
                          float sum_l = 0;
                          int n = baddies.size();
                          for (int i=(n-1); i>=0; i--) {
@@ -1641,26 +1642,22 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
    double frac_y = 1.0 - mouse_y/static_cast<double>(h);
    glm::vec2 mouse_in_opengl_coords(2.0 * frac_x - 1.0, 2.0 * frac_y - 1.0);
 
-   std::cout << "saved_dragged_refinement_results rama plot "
-             << saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score
-             << " vec size " << saved_dragged_refinement_results.sorted_rama_baddies.size()
-             << std::endl;
-
-
-   // these functions are copies of those in the above function
+   // these functions are copies of those in the above function. If you edit them again, make them
+   // member functions.
 
    auto distortion_to_bar_size_rama = [] (float distortion) {
                                          distortion += 200.0;
-                                         float d2 = distortion * 0.001;
+                                         float d2 = distortion * 0.0003;
                                          if (d2 < 0.0) d2 = 0.0;
-                                         return d2;
+                                         float d3 = 100.0 * d2 * d2;
+                                         return d3;
                                       };
 
    auto distortion_to_bar_size_nbc = [] (float distortion) {
-                                        return distortion * 0.0025;
+                                        return distortion * 0.002;
                                      };
 
-   auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<int, float> > &baddies,
+   auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                                                  unsigned int bar_index,
                                                  auto distortion_to_bar_size) {
 
@@ -1673,31 +1670,39 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                              float bar_length = distortion_to_bar_size(d);
                              sum_l += bar_length + 0.005; // with a gap between bars
 
-                             if (true)
-                                std::cout << "checking " << glm::to_string(position_offset) << " "
+                             if (false) {
+                                glm::vec2 position_offset_far_point = position_offset;
+                                position_offset_far_point.x += bar_length;
+                                std::cout << "checking "
+                                          << glm::to_string(position_offset) << " "
+                                          << glm::to_string(position_offset_far_point) << " "
                                           << " " << bar_length
                                           << " vs mouse " << glm::to_string(mouse_in_opengl_coords)
                                           << std::endl;
+                             }
 
                              if (mouse_in_opengl_coords.x >= position_offset.x) {
                                 if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+                                   // std::cout << ":::::::::: x hit bar_index " << bar_index
+                                   //           << " i " << i << " " << baddies[i].first << std::endl;
                                    float tiny_y_offset = -0.01; // not sure why I need this
                                    if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
                                       // 0.03 is the bar height in setup_camera_facing_quad()
                                       float bar_height = 0.03;
                                       if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
-                                         int idx = baddies[i].first;
-                                         if (false)
-                                            std::cout << "check_blocks(): atom index " << idx << " "
-                                                      << moving_atoms_asc->n_selected_atoms << std::endl;
-                                         if (idx < moving_atoms_asc->n_selected_atoms) {
-                                            mmdb::Atom *at = moving_atoms_asc->atom_selection[idx];
-                                            clipper::Coord_orth pt = coot::co(at);
-                                            std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
-                                                      << std::endl;
-                                            set_rotation_centre(pt);
-                                            graphics_info_t g;
-                                            g.update_things_on_move_and_redraw();
+                                         coot::atom_spec_t spec(baddies[i].first);
+                                         if (moving_atoms_asc->mol) {
+                                            mmdb::Atom *at = spec.get_atom(moving_atoms_asc->mol);
+                                            if (at) {
+                                               clipper::Coord_orth pt = coot::co(at);
+                                               std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
+                                                         << std::endl;
+                                               set_rotation_centre(pt);
+                                               graphics_info_t g;
+                                               g.update_things_on_move_and_redraw();
+                                            }
+                                         } else {
+                                            std::cout << "ERROR:: no moving atoms mol" << std::endl;
                                          }
                                       }
                                    }

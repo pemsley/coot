@@ -1592,7 +1592,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    for (int i=0; i<n_restraints; i++) {
       const simple_restraint &restraint = restraints_vec[i];
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
-         if ( restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+         if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
             n_non_bonded_restraints++;
             double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
             // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
@@ -1641,23 +1641,39 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    std::sort(nbc_baddies_vec.begin(), nbc_baddies_vec.end(), sorter);
    if (nbc_baddies_vec.size() > 20)
       nbc_baddies_vec.resize(20);
-
-   // --- rama ---
-
-   std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
-   idx = 0;
-   for (it=rama_baddies.begin(); it!=rama_baddies.end(); it++)
-      rama_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
-   std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
-   if (rama_baddies_vec.size() > 20)
-      rama_baddies_vec.resize(20);
-
+   std::vector<std::pair<atom_spec_t, float> > nbc_baddies_with_spec_vec(nbc_baddies_vec.size());
+   for (unsigned int i=0; i<nbc_baddies_vec.size(); i++) {
+      nbc_baddies_with_spec_vec[i].first  = atom_spec_t(atom[nbc_baddies_vec[i].first]);
+      nbc_baddies_with_spec_vec[i].second = nbc_baddies_vec[i].second;
+   }
    rr->overall_nbc_score = nbc_distortion_score_sum;
-   rr->sorted_nbc_baddies = nbc_baddies_vec;
-   rr->overall_rama_plot_score = rama_distortion_score_sum;
-   rr->sorted_rama_baddies = rama_baddies_vec;
+   rr->sorted_nbc_baddies = nbc_baddies_with_spec_vec;
    rr->refinement_results_contain_overall_nbc_score = true;
-   rr->refinement_results_contain_overall_rama_plot_score = true;
+
+
+
+      // --- rama ---
+
+   if (n_rama_restraints > 0) {
+      std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
+      idx = 0;
+      for (it=rama_baddies.begin(); it!=rama_baddies.end(); it++)
+         rama_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
+      std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
+      if (rama_baddies_vec.size() > 20)
+         rama_baddies_vec.resize(20);
+      std::vector<std::pair<atom_spec_t, float> > rama_baddies_with_spec_vec(nbc_baddies_vec.size());
+      for (unsigned int i=0; i<rama_baddies_vec.size(); i++) {
+         rama_baddies_with_spec_vec[i].first  = atom_spec_t(atom[rama_baddies_vec[i].first]);
+         rama_baddies_with_spec_vec[i].second = rama_baddies_vec[i].second;
+         std::cout << "debug:: " << i << " "
+                   << rama_baddies_with_spec_vec[i].first << " "
+                   << rama_baddies_with_spec_vec[i].second << std::endl;
+      }
+      rr->refinement_results_contain_overall_rama_plot_score = true;
+      rr->sorted_rama_baddies = rama_baddies_with_spec_vec;
+      rr->overall_rama_plot_score = rama_distortion_score_sum;
+   }
 
    if (false) {
       // ~1ms for 100 residues

@@ -4,6 +4,8 @@
 
 #include "refinement-lights.hh"
 
+#include "geometry/residue-and-atom-specs.hh"
+
 namespace coot {
 
    // ---------------------------------------------------------------
@@ -23,9 +25,9 @@ namespace coot {
       bool refinement_results_contain_overall_nbc_score;
       bool refinement_results_contain_overall_rama_plot_score;
       float overall_nbc_score;
-      std::vector<std::pair<int, float> > sorted_nbc_baddies; // atom index and value
+      std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies; // atom index and value
       float overall_rama_plot_score;
-      std::vector<std::pair<int, float> > sorted_rama_baddies; // atom index and value
+      std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies; // atom index and value
 
       refinement_results_t(bool frf, int prog_in,
                            const std::vector<refinement_lights_info_t> &lights_in) {

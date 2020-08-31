@@ -197,6 +197,10 @@ namespace coot {
 	 }
 	 return r;
       }
+
+      // return null on failure to find atom in mol
+      // (this is the inside out version of the function in molecule_class_info_t)
+      mmdb::Atom *get_atom(mmdb::Manager *mol) const;
       
       
 #ifndef SWIG
