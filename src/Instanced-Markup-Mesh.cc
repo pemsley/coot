@@ -13,6 +13,7 @@ void
 Instanced_Markup_Mesh::init() {
 
    n_instances = 0;
+   max_n_instances = 0;
    draw_this_mesh = true;
    vao = 99999999;
 }
@@ -88,7 +89,8 @@ Instanced_Markup_Mesh::setup_buffers() {
 void
 Instanced_Markup_Mesh::setup_instancing_buffers(unsigned int max_nun_instances) {
 
-   n_instances = max_nun_instances;
+   max_n_instances = max_nun_instances;
+   n_instances = 0;
 
    glBindVertexArray (vao);
 
@@ -109,7 +111,7 @@ Instanced_Markup_Mesh::setup_instancing_buffers(unsigned int max_nun_instances) 
 
    glGenBuffers(1, &inst_attribs_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_attribs_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(Instanced_Markup_Mesh_attrib_t),
+   glBufferData(GL_ARRAY_BUFFER, max_n_instances * sizeof(Instanced_Markup_Mesh_attrib_t),
                 nullptr, GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(2);
    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Instanced_Markup_Mesh_attrib_t), 0);
@@ -149,10 +151,12 @@ void
 Instanced_Markup_Mesh::update_instancing_buffers(const std::vector<Instanced_Markup_Mesh_attrib_t> &balls) {
 
    unsigned int s = balls.size();
-   if (s > n_instances)
-      s = n_instances;
+   n_instances = s;
+   if (n_instances > max_n_instances)
+      n_instances = max_n_instances;
+
    glBindBuffer(GL_ARRAY_BUFFER, inst_attribs_buffer_id);
-   glBufferSubData(GL_ARRAY_BUFFER, 0, s * sizeof(Instanced_Markup_Mesh_attrib_t), &(balls[0]));
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Instanced_Markup_Mesh_attrib_t), &(balls[0]));
 
 }
 

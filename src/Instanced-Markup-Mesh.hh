@@ -41,6 +41,7 @@ class Instanced_Markup_Mesh {
    GLuint index_buffer_id;
    GLuint inst_attribs_buffer_id;
    unsigned int n_instances;
+   unsigned int max_n_instances;
    std::vector<Instanced_Markup_Mesh_Vertex_attrib_t> vertices;
    std::vector<g_triangle> triangles;
    std::string name;

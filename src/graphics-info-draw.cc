@@ -965,12 +965,14 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
       const coot::atom_spec_t &spec_CA = rr.all_ramas[i].atom_spec_CA;
       mmdb::Atom *at = spec_CA.get_atom(moving_atoms_asc->mol);
       if (at) {
+
+         float d = rr.all_ramas[i].distortion;
          glm::vec3 atom_position(at->x, at->y, at->z);
          glm::vec3 ball_position(rr.all_ramas[i].ball_pos_x,
                                  rr.all_ramas[i].ball_pos_y,
                                  rr.all_ramas[i].ball_pos_z);
+         // std::cout << "update_rama_balls() " << i << " " << spec_CA << " " << d << std::endl;
          float size = 0.38;
-         float d = rr.all_ramas[i].distortion;
          // std::cout << "debug d " << d << std::endl;
          float ra = hud_geometry_distortion_to_rotation_amount_rama(d);
          coot::colour_t cc(0.1, 0.9, 0.2);
@@ -1812,8 +1814,6 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                                std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
                                                          << std::endl;
                                                set_rotation_centre(pt);
-                                               graphics_info_t g;
-                                               g.update_things_on_move_and_redraw();
                                             }
                                          } else {
                                             std::cout << "ERROR:: no moving atoms mol" << std::endl;

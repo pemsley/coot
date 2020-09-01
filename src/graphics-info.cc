@@ -658,6 +658,7 @@ graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
    graphics_info_t g;
    coot::Cartesian centre(pt.x(), pt.y(), pt.z());
    g.setRotationCentre(centre);
+
 }
 
 

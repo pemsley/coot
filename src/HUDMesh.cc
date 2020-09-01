@@ -5,6 +5,7 @@
 void
 HUDMesh::init() {
 
+   max_n_instances = 0;
    n_instances = 0;
    first_time = true;
    use_blending = false;
@@ -92,7 +93,8 @@ HUDMesh::setup_instancing_buffer(unsigned int n_boxes) {
 
    // make *space* for the instancing values, but don't fill them with data (here)
 
-   n_instances = n_boxes; // this is how many we want to draw now.
+   max_n_instances = n_boxes; // as much space as we have allocated.
+   n_instances = 0; // this is how many we want to draw now.
 
    glBindVertexArray (vao);
 
@@ -138,16 +140,13 @@ HUDMesh::setup_instancing_buffer(unsigned int n_boxes) {
 void
 HUDMesh::update_instancing_buffer_data(const std::vector<HUD_bar_attribs_t> &new_bars) {
 
-   if (false)
-      std::cout << "debug:: HUDMesh::update_instancing_buffer_data() "
-                << new_bars.size() << " " << n_instances << std::endl;
-   if (!new_bars.empty()) {
-      unsigned int s = new_bars.size();
-      if (s > n_instances)
-         s = n_instances; // only draw as many as we have allocated
-      glBindBuffer(GL_ARRAY_BUFFER, inst_hud_bar_attribs_buffer_id);
-      glBufferSubData(GL_ARRAY_BUFFER, 0, s * sizeof(HUD_bar_attribs_t), &(new_bars[0]));
-   }
+   unsigned int s = new_bars.size();
+   n_instances = s;
+   if (s > max_n_instances)
+         n_instances = max_n_instances; // only draw as many as we have allocated
+   glBindBuffer(GL_ARRAY_BUFFER, inst_hud_bar_attribs_buffer_id);
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(HUD_bar_attribs_t), &(new_bars[0]));
+
 }
 
 void
@@ -162,16 +161,16 @@ HUDMesh::draw(Shader *shader_p) {
    shader_p->Use();
 
    glBindVertexArray(vao);
-   // glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    glEnableVertexAttribArray(0);
-   // glBindBuffer(GL_ARRAY_BUFFER, inst_hud_bar_attribs_buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, inst_hud_bar_attribs_buffer_id);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
    glEnableVertexAttribArray(3);
 
    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, n_instances);
    GLenum err = glGetError();
-   if (err) std::cout << "   error HUDMesh::draw() glDrawElementsInstanced()"
+   if (err) std::cout << "error HUDMesh::draw() glDrawElementsInstanced()"
                       << " of HUDMesh \"" << name << "\""
                       << " with shader" << shader_p->name
                       << std::endl;

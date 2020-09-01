@@ -1643,12 +1643,24 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
          if (restraint.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
             n_rama_restraints++;
             if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
-               std::cout << "----------------------- ZO type RAMA! " << std::endl;
+               // std::cout << "----------------------- ZO type RAMA! " << std::endl;
                double dd = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
+               dd /= rama_plot_weight;
+               dd *= 50.0; // scale to non-ZO non weighted
+               if (false) // range -13 to 0 with weight 1.4, and 100 times that with weight 140
+                  std::cout << "rama zo for restraint " << i << " distortion " << dd << " "
+                            << atom_spec_t(atom[restraint.atom_index_3])
+                            << std::endl;
                rama_distortion_score_sum += dd;
-               if (dd > 0.01) {
+               if (dd > -200.01) {
                   rama_baddies[restraint.atom_index_3] += dd;
                }
+               refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
+                                                atom[restraint.atom_index_2],
+                                                atom[restraint.atom_index_3],
+                                                atom[restraint.atom_index_4],
+                                                atom[restraint.atom_index_5], dd);
+               all_ramas.push_back(rp);
             } else {
                double dd = distortion_score_rama(restraint, v, LogRama());  // mean is about -200
                rama_distortion_score_sum += dd;
@@ -1664,7 +1676,13 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                                                 atom[restraint.atom_index_4],
                                                 atom[restraint.atom_index_5], dd);
                all_ramas.push_back(rp);
-               // this cutoff should take account of the rama weight
+               // this cutoff (or dd) should take account of the rama weight
+               // When we are plotting coloured balls and bars, we are not interested
+               // in the contribution of this rama to the target function, we want to
+               // know how probable this rama value is. So needs unweighting.
+               //
+               // Actually, only the ZO rama scores are weighted.
+               //
                if (dd > -200.0) {
                   // GLY have naturally lower probabilities densities, hence higher -logPr
                   std::string rn(atom[restraint.atom_index_3]->residue->GetResName());

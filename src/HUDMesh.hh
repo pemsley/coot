@@ -22,6 +22,7 @@ class HUDMesh {
    void setup_buffers();
    void init();
    bool first_time;
+   unsigned int max_n_instances;
    unsigned int n_instances;
    unsigned int inst_hud_bar_attribs_buffer_id;
 public:
