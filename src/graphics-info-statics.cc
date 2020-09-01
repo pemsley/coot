@@ -66,6 +66,7 @@ Shader graphics_info_t::shader_for_hud_text;
 Shader graphics_info_t::shader_for_hud_geometry_bars;
 Shader graphics_info_t::shader_for_hud_geometry_labels;
 Shader graphics_info_t::shader_for_atom_labels;
+Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_lines;
@@ -169,3 +170,6 @@ coot::command_history_t graphics_info_t::command_history;
 Texture graphics_info_t::texture_for_hud_geometry_labels;
 
 HUDTextureMesh graphics_info_t::mesh_for_hud_geometry_labels = HUDTextureMesh("tmesh-for-hud-geometry-labels");
+
+Instanced_Markup_Mesh graphics_info_t::rama_balls_mesh = Instanced_Markup_Mesh("rama-balls");
+

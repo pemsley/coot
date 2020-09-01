@@ -3668,7 +3668,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
     unsigned int idx_tri_base = triangles.size();
 
     // --- rama spots ---
-    if (is_intermediate_atoms_molecule) {
+    if (false) {  // was: is_intermediate_atoms_molecule
        glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
        glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
        glm::vec3 screen_up_dir = glm::normalize(y_vec -base);

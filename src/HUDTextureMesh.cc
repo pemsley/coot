@@ -118,6 +118,7 @@ HUDTextureMesh::setup_buffers() {
    GLenum err = glGetError(); if (err) std::cout << "GL error HUDMesh setup_simple_triangles()\n";
 
    glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glUseProgram(0);
    glBindVertexArray(0);

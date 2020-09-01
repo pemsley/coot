@@ -2,6 +2,12 @@
 #ifndef HUD_TEXTURE_MESH_HH
 #define HUD_TEXTURE_MESH_HH
 
+#include "g_triangle.hh"
+
+#include "lights-info.hh"
+#include "Shader.hh"
+#include "Material.hh"
+
 class HUDTextureMesh {
    GLuint vao;
    GLuint buffer_id;
@@ -12,10 +18,12 @@ class HUDTextureMesh {
    void init();
    void setup_buffers();
    bool draw_this_mesh;
+   Material material;
 
 public:
    HUDTextureMesh(const std::string &n) : name(n) { init(); }
    void setup_quad();
+   void set_material;
    void draw(Shader *shader_p);
    void close() { draw_this_mesh = false; }
 };

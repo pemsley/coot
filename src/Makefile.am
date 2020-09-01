@@ -498,6 +498,8 @@ coot_bin_SOURCES = \
 	HUDMesh.hh               \
 	HUDTextureMesh.cc        \
 	HUDTextureMesh.hh        \
+	Instanced-Markup-Mesh.hh \
+	Instanced-Markup-Mesh.cc \
         idles.hh                 \
 	interface.h              \
 	key-bindings.cc		 \

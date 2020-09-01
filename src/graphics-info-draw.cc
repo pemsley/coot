@@ -864,10 +864,6 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
    if (true) {
       const molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
 
-      if (false)
-         std::cout << " moving atoms molecule: n_vertices_for_model_VertexArray "
-                   << m.n_vertices_for_model_VertexArray << std::endl;
-
       if (m.n_vertices_for_model_VertexArray > 0) {
 
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
@@ -880,7 +876,7 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
 
          glBindVertexArray(m.m_VertexArray_for_model_ID);
          err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glBindVertexArray() "
+         if (err) std::cout << "error draw_intermediate_atoms() glBindVertexArray() "
                             << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
@@ -937,6 +933,91 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
    }
 }
 
+
+#include "Instanced-Markup-Mesh.hh"
+
+void
+graphics_info_t::setup_rama_balls() {
+
+   rama_balls_mesh.setup_octasphere(2);
+   rama_balls_mesh.setup_instancing_buffers(3000);
+}
+
+void
+graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls) {
+
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
+
+   auto rr = saved_dragged_refinement_results;
+
+   balls->clear();
+
+   float rama_ball_pos_offset_scale = 0.6;
+   glm::vec3 screen_up_dir(0.2, 0.3, 0.3);
+
+   unsigned int n_atoms_found = 0;
+
+   // std::cout << "update rama ball for " << rr.all_ramas.size() << " balls " << std::endl;
+   for (unsigned int i=0; i<rr.all_ramas.size(); i++) {
+
+      float rama_score = rr.all_ramas[i].distortion;
+
+      const coot::atom_spec_t &spec_CA = rr.all_ramas[i].atom_spec_CA;
+      mmdb::Atom *at = spec_CA.get_atom(moving_atoms_asc->mol);
+      if (at) {
+         glm::vec3 atom_position(at->x, at->y, at->z);
+         glm::vec3 ball_position(rr.all_ramas[i].ball_pos_x,
+                                 rr.all_ramas[i].ball_pos_y,
+                                 rr.all_ramas[i].ball_pos_z);
+         float size = 0.38;
+         float d = rr.all_ramas[i].distortion;
+         // std::cout << "debug d " << d << std::endl;
+         float ra = hud_geometry_distortion_to_rotation_amount_rama(d);
+         coot::colour_t cc(0.1, 0.9, 0.2);
+         cc.rotate(ra);
+         glm::vec4 col = cc.to_glm();
+         Instanced_Markup_Mesh_attrib_t ball(col, ball_position, size);
+         float d1 = d + 70.0;
+         float d2 = - d1 * 0.01;
+         if (d2 < 0.0) d2 = 0.0;
+         if (d2 > 1.0) d2 = 1.0;
+         ball.specular_strength = 0.04 + d2;
+         ball.shininess = 2.0 + 65.0 * d2;
+         balls->push_back(ball);
+      }
+   }
+}
+
+
+
+void
+graphics_info_t::draw_intermediate_atoms_rama_balls() {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 view_rotation = get_view_rotation();
+
+   Shader &shader = graphics_info_t::shader_for_rama_balls;
+   if (true) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 view_rotation = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      bool do_depth_fog = true;
+      // this is a bit ugly
+
+      // the balls are updated after a refinement cycle has finished -
+      // no need to do it here
+      // graphics_info_t g;
+      // std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+      // update_rama_balls(&balls);
+      // rama_balls_mesh.update_instancing_buffers(balls);
+      rama_balls_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
+   }
+
+}
+
 void
 graphics_info_t::setup_atom_pull_restraints_glsl() {
 
@@ -966,8 +1047,8 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       n_vertices_for_atom_pull_restraints  += n_stacks_for_arrow_tip * n_slices * 2 * n_atom_pulls;
       n_triangles_for_atom_pull_restraints += n_stacks_for_arrow_tip * n_slices * 2 * n_atom_pulls;
       // the indices of the vertices in the triangles (3 indices per triangle)
-      unsigned int     *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
-      unsigned int     *flat_indices_start = flat_indices;
+      unsigned int *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
+      unsigned int *flat_indices_start = flat_indices;
       unsigned int ifi = 0; // index into flat indices - running
       vertex_with_rotation_translation *vertices =
          new vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
@@ -1264,6 +1345,9 @@ graphics_info_t::draw_molecules() {
    // opaque things
 
    draw_intermediate_atoms();
+
+   draw_intermediate_atoms_rama_balls();
+
    draw_atom_pull_restraints();
 
    draw_meshes(); // get a better name
@@ -1542,8 +1626,33 @@ graphics_info_t::setup_hud_geometry_bars() {
    // Do I need to Use() the shader_for_hud_geometry_labels here?
    shader_for_hud_geometry_labels.Use();
    mesh_for_hud_geometry_labels.setup_quad();
-   mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.892), 0.035);
+   mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.89), 0.037); // was 0.35
 }
+
+float
+graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
+   float d1 = distortion + 200.0;
+   float d2 = d1 * 0.0003;
+   if (d2 < 0.0) d2 = 0.0;
+   float d3 = 100.0 * d2 * d2;
+   return d3;
+}
+
+float
+graphics_info_t::hud_geometry_distortion_to_bar_size_nbc(float distortion) {
+   return distortion * 0.002;
+}
+
+
+float
+graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortion) {
+   distortion += 200.0;
+   float rotation_amount = 1.0 - 0.0022 * distortion;
+   if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
+   if (rotation_amount > 1.0) rotation_amount = 1.0;
+   return rotation_amount;
+}
+
 
 void
 graphics_info_t::draw_hud_geometry_bars() {
@@ -1558,7 +1667,7 @@ graphics_info_t::draw_hud_geometry_bars() {
    // first draw the text (labels) texture
 
    if (! saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score) {
-      std::cout << "chopping the texture " << std::endl;
+      // std::cout << "chopping the texture " << std::endl;
       mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_only();
    } else {
       mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_and_rama();
@@ -1569,14 +1678,6 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    // now draw the bars
 
-   auto distortion_to_rotation_amount_rama = [] (float distortion) {
-                                                distortion += 200.0;
-                                                float rotation_amount = 1.0 - 0.0022 * distortion;
-                                                if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
-                                                if (rotation_amount > 1.0) rotation_amount = 1.0;
-                                                return rotation_amount;
-                                             };
-
    auto distortion_to_rotation_amount_nbc = [] (float distortion) {
                                                // we want to rotate to red (which is negative direction) but
                                                // rotate() doesn't work with negative rotations, so make it
@@ -1585,18 +1686,6 @@ graphics_info_t::draw_hud_geometry_bars() {
                                                if (rotation_amount < 0.68) rotation_amount = 0.68;
                                                return rotation_amount;
                                             };
-
-   auto distortion_to_bar_size_rama = [] (float distortion) {
-                                         float d1 = distortion + 200.0;
-                                         float d2 = d1 * 0.0003;
-                                         if (d2 < 0.0) d2 = 0.0;
-                                         float d3 = 100.0 * d2 * d2;
-                                         return d3;
-                                      };
-
-   auto distortion_to_bar_size_nbc = [] (float distortion) {
-                                        return distortion * 0.002;
-                                     };
 
    auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                        unsigned int bar_index,
@@ -1632,11 +1721,11 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    if (saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
       add_bars(saved_dragged_refinement_results.sorted_rama_baddies, 1, &new_bars,
-               distortion_to_rotation_amount_rama, distortion_to_bar_size_rama);
+               hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
 
    if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score)
       add_bars(saved_dragged_refinement_results.sorted_nbc_baddies, 0, &new_bars,
-               distortion_to_rotation_amount_nbc, distortion_to_bar_size_nbc);
+               distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
 
    if (! new_bars.empty()) {
       // std::cout << "new bar size " << new_bars.size() << std::endl;

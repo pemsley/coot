@@ -116,6 +116,7 @@
 #include "TextureMesh.hh"
 #include "HUDMesh.hh"
 #include "HUDTextureMesh.hh"
+#include "Instanced-Markup-Mesh.hh"
 
 #include "boids.hh"
 
@@ -3964,6 +3965,10 @@ string   static std::string sessionid;
    static bool do_intermediate_atoms_rama_markup; // true
    static bool do_intermediate_atoms_rota_markup; // false
 
+   static Instanced_Markup_Mesh rama_balls_mesh;
+   void setup_rama_balls();
+   void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
+
    static void fill_rotamer_probability_tables() {
 
      if (! rot_prob_tables.tried_and_failed()) {
@@ -4067,6 +4072,7 @@ string   static std::string sessionid;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
    static Shader shader_for_lines;
+   static Shader shader_for_rama_balls;
    static Shader shader_for_particles;
    static Shader shader_for_instanced_objects;
    static Shader shader_for_hud_geometry_bars;
@@ -4112,6 +4118,7 @@ string   static std::string sessionid;
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();
    static void draw_intermediate_atoms();
+   static void draw_intermediate_atoms_rama_balls();
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
@@ -4241,6 +4248,9 @@ string   static std::string sessionid;
    static std::map<unsigned int, lights_info_t> lights;
 
    void setup_hud_geometry_bars();
+   static float hud_geometry_distortion_to_bar_size_nbc(float distortion);
+   static float hud_geometry_distortion_to_bar_size_rama(float distortion);
+   static float hud_geometry_distortion_to_rotation_amount_rama(float distortion);
 
    // Mesh mesh_for_particles("mesh-for-particles");
    // int n_particles = 100;

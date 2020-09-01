@@ -16,6 +16,19 @@ namespace coot {
    // ---------------------------------------------------------------
    // ---------------------------------------------------------------
 
+   class refinement_results_for_rama_t {
+   public:
+      float ball_pos_x, ball_pos_y, ball_pos_z; // include file fun!
+      atom_spec_t atom_spec_CA;
+      float distortion;
+      refinement_results_for_rama_t(mmdb::Atom *at_1,
+                                    mmdb::Atom *at_2,
+                                    mmdb::Atom *at_3,
+                                    mmdb::Atom *at_4,
+                                    mmdb::Atom *at_5,
+                                    float distortion_in);
+   };
+
    class refinement_results_t {
    public:
       bool found_restraints_flag; // if we found restraints or not.
@@ -28,6 +41,7 @@ namespace coot {
       std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies; // atom index and value
       float overall_rama_plot_score;
       std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies; // atom index and value
+      std::vector<refinement_results_for_rama_t> all_ramas;
 
       refinement_results_t(bool frf, int prog_in,
                            const std::vector<refinement_lights_info_t> &lights_in) {

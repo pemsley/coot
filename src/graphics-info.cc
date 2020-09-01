@@ -2042,107 +2042,20 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       moving_atoms_bonds_lock = 0; // unlocked
    }
 
-   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box; // needed? or does make_glsl_bonds_type_checked()
+                                                                  // update this?
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
    moving_atoms_molecule.make_glsl_bonds_type_checked();
+
    setup_atom_pull_restraints_glsl();
 
-}
-
-
-// Display the graphical object of the regularization.
-// static
-// moving atoms are intermediate atoms
-void
-graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) {
-
-#if 0
-
-   // old - delete this
-
-   // very much most of the time, this will be zero
-   //
-   if (regularize_object_bonds_box.num_colours > 0) {
-
-      if (moving_atoms_bonds_lock) {
-    std::cout << "in draw_moving_atoms_graphics_object() moving_atoms_bonds_lock was locked"
-      << std::endl;
-    return;
-      }
-
-      unsigned int unlocked = false;
-      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
-    std::this_thread::sleep_for(std::chrono::microseconds(10));
-    unlocked = 0;
-      }
-
-      if (against_a_dark_background) {
-	 // now we want to draw out our bonds in white,
-	 glColor3f (0.8, 0.8, 0.6);
-      } else {
-	 glColor3f (0.3, 0.3, 0.3);
-      }
-
-      float bw = graphics_info_t::bond_thickness_intermediate_atoms;
-      float current_bond_width = bw;
-      glLineWidth(bw);
-      for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
-
-      switch(i) {
-	 case BLUE_BOND:
-	    glColor3f (0.40, 0.4, 0.79);
-	    break;
-	 case RED_BOND:
-	    glColor3f (0.79, 0.40, 0.640);
-	    break;
-	 default:
-	    if (against_a_dark_background)
-	       glColor3f (0.7, 0.7, 0.4);
-	    else
-	       glColor3f (0.5, 0.5, 0.5);
-	 }
-
-	 graphical_bonds_lines_list<graphics_line_t> &ll = regularize_object_bonds_box.bonds_[i];
-
-	 // std::cout << "   debug colour ii = " << i << " has  "
-	 // << regularize_object_bonds_box.bonds_[i].num_lines << " lines" << std::endl;
-
-         float new_bond_width = bw;
-         if (ll.thin_lines_flag)
-            new_bond_width = bw * 0.5;
-
-         if (new_bond_width != current_bond_width) {
-       glLineWidth(new_bond_width);
-            current_bond_width = new_bond_width;
-         }
-
-    glBegin(GL_LINES);
-    for (int j=0; j< regularize_object_bonds_box.bonds_[i].num_lines; j++) {
-
-       coot::CartesianPair &pair = ll.pair_list[j].positions;
-
-       glVertex3f(pair.getStart().get_x(),
-          pair.getStart().get_y(),
-          pair.getStart().get_z());
-       glVertex3f(pair.getFinish().get_x(),
-          pair.getFinish().get_y(),
-          pair.getFinish().get_z());
-    }
-    glEnd();
-      }
-
-      draw_moving_atoms_atoms(against_a_dark_background);
-      draw_moving_atoms_peptide_markup();
-      draw_ramachandran_goodness_spots();
-      draw_rotamer_probability_object();
-
-      moving_atoms_bonds_lock = false; // unlock.
+   { // put this somewhere
+      std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+      update_rama_balls(&balls);
+      rama_balls_mesh.update_instancing_buffers(balls);
    }
 
-#endif
-
 }
-
 
 void
 graphics_info_t::draw_moving_atoms_peptide_markup() {

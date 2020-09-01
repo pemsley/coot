@@ -1576,6 +1576,40 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    return rr;
 }
 
+coot::refinement_results_for_rama_t::refinement_results_for_rama_t(mmdb::Atom *at_1,
+                                                                   mmdb::Atom *at_2,
+                                                                   mmdb::Atom *at_3,
+                                                                   mmdb::Atom *at_4,
+                                                                   mmdb::Atom *at_5,
+                                                                   float distortion_in) {
+   distortion = distortion_in;
+   atom_spec_CA = atom_spec_t(at_3);
+   ball_pos_x = 0; ball_pos_y = 0; ball_pos_z = 0;
+   if (at_3) {
+      ball_pos_x = at_3->x + 0.5;
+      ball_pos_y = at_3->y;
+      ball_pos_z = at_3->z;
+   }
+   if (at_1 && at_2 && at_3 && at_4 && at_5) {
+      clipper::Coord_orth p2 = co(at_2);
+      clipper::Coord_orth p3 = co(at_3);
+      clipper::Coord_orth p4 = co(at_4);
+      clipper::Coord_orth v1(p3 - p2);
+      clipper::Coord_orth v2(p3 - p4);
+      clipper::Coord_orth v3(p4 - p2);
+      clipper::Coord_orth v1_uv(v1.unit());
+      clipper::Coord_orth v2_uv(v2.unit());
+      clipper::Coord_orth v3_uv(v3.unit());
+      clipper::Coord_orth v4(clipper::Coord_orth::cross(v2_uv, v1_uv));
+      clipper::Coord_orth p2p24_mid_point(0.5 * (p4+p2));
+      clipper::Coord_orth mid_point_to_CA(p3 - p2p24_mid_point);
+      clipper::Coord_orth delta = 0.2 * mid_point_to_CA + 0.4 * v4;
+      ball_pos_x = delta.x() + at_3->x;
+      ball_pos_y = delta.y() + at_3->y;
+      ball_pos_z = delta.z() + at_3->z;
+   }
+}
+
 void
 coot::restraints_container_t::add_details_to_refinement_results(refinement_results_t *rr) const {
 
@@ -1588,6 +1622,8 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    double nbc_distortion_score_sum = 0;
    double rama_distortion_score_sum = 0;
    const gsl_vector *v = m_s->x;
+   std::vector<refinement_results_for_rama_t> all_ramas;
+   all_ramas.reserve(100);
 
    for (int i=0; i<n_restraints; i++) {
       const simple_restraint &restraint = restraints_vec[i];
@@ -1607,9 +1643,9 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
          if (restraint.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
             n_rama_restraints++;
             if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+               std::cout << "----------------------- ZO type RAMA! " << std::endl;
                double dd = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
                rama_distortion_score_sum += dd;
-               std::cout << "zo-rama " << dd << std::endl;
                if (dd > 0.01) {
                   rama_baddies[restraint.atom_index_3] += dd;
                }
@@ -1620,8 +1656,21 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                   std::cout << "rama for restraint " << i << " distortion " << dd << " "
                             << atom_spec_t(atom[restraint.atom_index_3])
                             << std::endl;
+
+               mmdb::Atom *at = atom[restraint.atom_index_3];
+               refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
+                                                atom[restraint.atom_index_2],
+                                                atom[restraint.atom_index_3],
+                                                atom[restraint.atom_index_4],
+                                                atom[restraint.atom_index_5], dd);
+               all_ramas.push_back(rp);
                // this cutoff should take account of the rama weight
                if (dd > -200.0) {
+                  // GLY have naturally lower probabilities densities, hence higher -logPr
+                  std::string rn(atom[restraint.atom_index_3]->residue->GetResName());
+                  if (rn == "GLY") {
+                     dd -= 50.0; // utter guess
+                  }
                   rama_baddies[restraint.atom_index_3] += dd;
                }
             }
@@ -1654,8 +1703,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    rr->refinement_results_contain_overall_nbc_score = true;
 
 
-
-      // --- rama ---
+   // --- rama ---
 
    if (n_rama_restraints > 0) {
       std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
@@ -1675,6 +1723,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                       << rama_baddies_with_spec_vec[i].second << std::endl;
       }
       rr->refinement_results_contain_overall_rama_plot_score = true;
+      rr->all_ramas = all_ramas;
       rr->sorted_rama_baddies = rama_baddies_with_spec_vec;
       rr->overall_rama_plot_score = rama_distortion_score_sum;
    }

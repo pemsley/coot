@@ -39,6 +39,7 @@ graphics_info_t::init_shaders() {
    shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::MODEL);
    shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
    shader_for_particles.init("particles.shader", Shader::Entity_t::MODEL);
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
 
@@ -280,3 +281,5 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
    glm_quat = glm::normalize(product);
 
 }
+
+
