@@ -657,7 +657,9 @@ graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
 
    graphics_info_t g;
    coot::Cartesian centre(pt.x(), pt.y(), pt.z());
-   g.setRotationCentre(centre);
+   bool done_centre_jump = g.setRotationCentre(centre);
+   if (done_centre_jump)
+      g.update_things_on_move_and_redraw();
 
 }
 
@@ -939,10 +941,11 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
                    << " Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
 
       graphics_draw(); // adds to the queue
-      glFlush();
 
       return G_SOURCE_CONTINUE;
    } else {
+      graphics_info_t g;
+      g.update_things_on_move_and_redraw();
       return G_SOURCE_REMOVE;
    }
 }
@@ -1112,10 +1115,14 @@ graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
 
 }
 
+// return true if this function did the (simple and immediate) jump to the centre
 bool
-graphics_info_t::setRotationCentre(coot::Cartesian centre, bool force_jump) {
+graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) {
 
-   set_old_rotation_centre(RotationCentre());
+   bool needs_centre_jump = true;
+
+   coot::Cartesian current_centre = RotationCentre();
+   set_old_rotation_centre(current_centre);
 
    // smooth_scroll_maybe
 
@@ -1125,20 +1132,31 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre, bool force_jump) {
    // because the timeout function  will use "centre"
    // as the place from which to start moving :-)
 
-   bool needs_centre_jump = true;
-   if (force_jump) {
-      setRotationCentreSimple(centre);
-      run_post_set_rotation_centre_hook();
-   } else {
-      if (graphics_info_t::smooth_scroll == 1) {
-         // don't zoom and dummy value
-         bool status = smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 0, 100.0);
-         if (status) needs_centre_jump = false; // all in hand
-      }
+   // If we are already here then don't animate a move.
+   //
+   bool already_here = false;
+   coot::Cartesian position_delta = new_centre - current_centre;
+   if (position_delta.amplitude() < 0.4) {
+      std::cout << "::::::::::::::::::::: do an \"already here!\" pulse!" << std::endl;
+      already_here = true;
+      needs_centre_jump = false;
+   }
 
-      if (needs_centre_jump)  {
-         setRotationCentreSimple(centre);
+   if (!already_here) {
+      if (force_jump) {
+         setRotationCentreSimple(new_centre);
          run_post_set_rotation_centre_hook();
+      } else {
+         if (graphics_info_t::smooth_scroll == 1) {
+            // don't zoom and dummy value
+            bool status = smooth_scroll_maybe(new_centre.x(), new_centre.y(), new_centre.z(), 0, 100.0);
+            if (status) needs_centre_jump = false; // all in hand
+         }
+
+         if (needs_centre_jump)  {
+            setRotationCentreSimple(new_centre);
+            run_post_set_rotation_centre_hook();
+         }
       }
    }
 
