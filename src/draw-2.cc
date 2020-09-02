@@ -168,7 +168,7 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
 
-   g.setup_pulse_identification();
+   g.setup_pulse_identification(); // not needed I think
 
    g.setup_hud_geometry_bars();
 

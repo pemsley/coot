@@ -5,6 +5,8 @@ Have you really filled the vertices and indices?
 Call this before setup():
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
+If you don't then, there will be a crash on glDrawElements() or glDrawArrays().
+
 Use() the shader in setup().
 
 In setup():
@@ -26,4 +28,5 @@ In draw():
 In draw():
    Don't forget to send over the mvp:
    glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+
 

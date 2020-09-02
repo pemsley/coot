@@ -12,13 +12,20 @@ void
 graphics_info_t::init_shaders() {
 
    std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
+                                                           shader_for_map_caps,
                                                            shader_for_models,
                                                            shader_for_central_cube,
                                                            shader_for_origin_cube,
                                                            shader_for_hud_text,
+                                                           shader_for_hud_geometry_bars,
+                                                           shader_for_hud_geometry_labels,
                                                            shader_for_atom_labels,
                                                            shader_for_moleculestotriangles,
                                                            shader_for_lines,
+                                                           shader_for_lines_pulse,
+                                                           shader_for_rama_balls,
+                                                           shader_for_particles,
+                                                           shader_for_instanced_objects,
                                                            shader_for_screen,
                                                            shader_for_blur};
    std::string p = coot::package_data_dir();
