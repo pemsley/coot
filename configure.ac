@@ -444,6 +444,7 @@ data/cho-models/Makefile
 data/cho-acedrg/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
+textures/Makefile
 rama-data/Makefile
 man/Makefile
 pli/Makefile

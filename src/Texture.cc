@@ -13,19 +13,22 @@ Texture::Texture(const std::string &file_name) {
 void
 Texture::init(const std::string &file_name) {
 
-   int width, height, num_components;
    std::string fn = file_name;
+   std::string default_directory = coot::package_data_dir();
+   default_directory += "/textures";
+
    if (! coot::file_exists(fn)) {
-      std::string default_directory = coot::package_data_dir();
       fn = default_directory + "/" + file_name;
    }
 
    if (! coot::file_exists(fn)) {
-      std::cout << "ERROR:: missing file " << fn << std::endl;
+      std::cout << "ERROR:: missing file " << file_name << std::endl;
+      std::cout << "ERROR:: not in " << default_directory << std::endl;
       return;
    }
 
-   stbi_uc* image_data = stbi_load(file_name.c_str(), &width, &height, &num_components, 4);
+   int width, height, num_components;
+   stbi_uc* image_data = stbi_load(fn.c_str(), &width, &height, &num_components, 4);
    id = file_name;
 
    if (!image_data) {
