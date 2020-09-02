@@ -3606,6 +3606,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    }
 }
 
+ #include "molecular-mesh-generator.hh"
+
  void
     molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 
@@ -3748,6 +3750,31 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
     }
     if (vertices.empty()) return;
     err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 4\n";
+
+
+    molecular_mesh_generator_t mmg;
+    std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > cis_peptide_markup_mesh =
+       mmg.make_cis_peptide_quads_mesh(atom_sel.mol);
+
+    std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > >::const_iterator it;
+
+    for(it=cis_peptide_markup_mesh.begin(); it!=cis_peptide_markup_mesh.end(); it++) {
+       const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &cis_peptide_markup_mesh = it->second;
+       idx_base = vertices.size();
+       idx_tri_base = triangles.size();
+
+       for (unsigned int i=0; i<cis_peptide_markup_mesh.first.size(); i++) {
+          const s_generic_vertex &sgv = cis_peptide_markup_mesh.first[i];
+          vertex_with_rotation_translation vrt(sgv, 1.0);
+          vrt.model_rotation_matrix = glm::mat3(1.0f);
+          vrt.model_translation     = glm::vec3(0,0,0);
+          vertices.push_back(vrt);
+       }
+       triangles.insert(triangles.end(), cis_peptide_markup_mesh.second.begin(), cis_peptide_markup_mesh.second.end());
+       for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+          triangles[k].rebase(idx_base);
+    }
+
     setup_glsl_bonds_buffers(vertices, triangles);
  }
 

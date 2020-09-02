@@ -36,6 +36,7 @@ public:
    glm::vec3 normal; // normalized when set
    glm::vec4 colour;
    vertex_with_rotation_translation(const glm::vec3 &p, const glm::vec3 &n, const glm::vec4 &c) : pos(p), normal(n), colour(c) {}
+   // don't forget to set a unit matrix and zero translation if you use this constructor
    vertex_with_rotation_translation(const s_generic_vertex &v, float scale) : pos(v.pos * scale), normal(v.normal), colour(v.color) {}
    vertex_with_rotation_translation() {}
 };

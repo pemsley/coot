@@ -564,8 +564,9 @@ molecular_mesh_generator_t::get_test_cis_peptides() { // maybe should be in grap
                                            glm::vec3(46.374,  11.225,  18.462),     // N next
                                            glm::vec3(47.072,  10.589,  17.411) };   // CA next
 
+   coot::util::cis_peptide_quad_info_t::type_t type = coot::util::cis_peptide_quad_info_t::CIS;
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp_cis_pep =
-      make_cis_peptide_geom(cis_pep_quad);
+      make_cis_peptide_geom(cis_pep_quad, type);
 
    unsigned int idx_base = vp.first.size();
    unsigned int idx_tri_base = vp.second.size();
@@ -619,14 +620,60 @@ molecular_mesh_generator_t::get_cis_peptides(const std::string &pdb_file_name) {
    return vp;
 }
 
-std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad_in) {
 
-   std::vector<glm::vec3> cis_pep_quad = cis_pep_quad_in;
-   for (unsigned int i=0; i<cis_pep_quad.size(); i++)
-      cis_pep_quad[i] -= glm::vec3(41.595322, 8.686544, 12.909259);
-   for (unsigned int i=0; i<cis_pep_quad.size(); i++)
-      cis_pep_quad[i] *= 0.3; // to match the scale in instanced-cylinders.shader
+#include "coot-utils/coot-coord-utils.hh"
+
+// return a map with the key as the model number (normally only 1 of course)
+// the first of the pair is the type (cis, pre-PRO-cis and twisted-trans).
+std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > >
+molecular_mesh_generator_t::make_cis_peptide_quads_mesh(mmdb::Manager *mol) {
+
+   std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > cis_pep_geometry_map;
+   if (! mol) std::cout << "error:: in molecular_mesh_generator_t::make_cis_peptide_quads_mesh() null mol" << std::endl;
+   if (! mol) return cis_pep_geometry_map;
+
+   auto atom_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      std::vector<std::vector<glm::vec3> > v_cis_peps;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         bool strictly_cis = false;
+         std::vector<coot::util::cis_peptide_quad_info_t> cis_peps =
+            coot::util::cis_peptide_quads_from_coords(mol, imod, strictly_cis);
+
+         std::vector<s_generic_vertex> sum_of_vertices;
+         std::vector<g_triangle> sum_of_triangles;
+
+         for (auto cp : cis_peps) {
+            const coot::atom_quad &quad = cp.quad;
+            glm::vec3 p1 = atom_to_glm(quad.atom_1);
+            glm::vec3 p2 = atom_to_glm(quad.atom_2);
+            glm::vec3 p3 = atom_to_glm(quad.atom_3);
+            glm::vec3 p4 = atom_to_glm(quad.atom_4);
+            std::vector<glm::vec3> cp_atom_positions = { p1, p2, p3, p4 };
+            std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+               cis_pep_geometry = make_cis_peptide_geom(cp_atom_positions, cp.type);
+            add_to_mesh(&(cis_pep_geometry_map[imod]), cis_pep_geometry);
+         }
+      }
+   }
+   return  cis_pep_geometry_map;
+}
+
+
+
+std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad_in,
+                                                  coot::util::cis_peptide_quad_info_t::type_t type) {
+
+   // type: 9 unset
+   // type: 1 cis
+   // type: 2 pre-PRO cis
+   // type: 3 twisted-trans
+
+   const   std::vector<glm::vec3> &cis_pep_quad = cis_pep_quad_in;
+
 
    // find the normal
    glm::vec3 v1 = cis_pep_quad[1] - cis_pep_quad[0];
@@ -649,7 +696,7 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
    glm::vec3 C_to_CA_midpoint_uv = glm::normalize(C_to_CA_midpoint);
    glm::vec3 N_to_CA_midpoint_uv = glm::normalize(N_to_CA_midpoint);
 
-   float cut_back_frac = 0.05;
+   float cut_back_frac = 0.2; // was 0.05
    glm::vec3 C_N_midpoint_cutback = C_N_midpoint + cut_back_frac *  C_N_midpoint_to_CA_midpoint_uv;
    glm::vec3 CA_this_cutback = cis_pep_quad[0] - cut_back_frac * ca_this_uv;
    glm::vec3 CA_next_cutback = cis_pep_quad[3] - cut_back_frac * ca_next_uv;
@@ -658,7 +705,11 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
 
    glm::vec3 d = 0.02f * normal_1;
 
-   glm::vec4 col(0.9f, 0.3f, 0.3f, 1.0f); // ignored, because we use material
+   glm::vec4 col(0.9f, 0.3f, 0.3f, 1.0f);
+   if (type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
+      col = glm::vec4(0.2f, 0.8f, 0.3f, 1.0f);
+   if (type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
+      col = glm::vec4(0.7f, 0.7f, 0.3f, 1.0f);
 
    glm::vec3 normal_1A = glm::normalize(glm::cross(cis_pep_quad[0]-cis_pep_quad[1], cis_pep_quad[0]-CA_midpoint));
    glm::vec3 normal_1B = glm::normalize(glm::cross(cis_pep_quad[3]-cis_pep_quad[2], cis_pep_quad[3]-CA_midpoint));

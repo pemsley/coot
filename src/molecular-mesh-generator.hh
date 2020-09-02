@@ -27,6 +27,7 @@
 #include "generic-vertex.hh"
 #include "g_triangle.hh"
 
+#include "coot-utils/cis-peptide-info.hh"
 
 class molecular_mesh_generator_t {
    std::vector<glm::vec3> generate_spline_points(std::vector<glm::vec3> &control_points, unsigned int n=20);
@@ -73,8 +74,19 @@ public:
    void update_mats_and_colours();
    void move_the_atoms_and_update_the_instancing_matrices();
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_cis_peptides(const std::string &pdb_file_name);
+   std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > get_cis_peptides_mesh(mmdb::Manager *mol);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_cis_peptides();
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_cis_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad);
+
+   // key is the model.
+   // type: 0 uset
+   // type: 1 cis
+   // type: 2 pre-PRO cis
+   // type: 3 twisted-trans
+
+   std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > make_cis_peptide_quads_mesh(mmdb::Manager *mol);
+   
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_cis_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad,
+                                                                                            coot::util::cis_peptide_quad_info_t::type_t type);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_twisted_trans_peptides();
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_twisted_trans_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_worm_mesh(std::string pdb_file_name);
