@@ -58,7 +58,7 @@ graphics_info_t::init_screen_quads() {
    glEnableVertexAttribArray(1);
    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
    GLenum err = glGetError();
-   if (true) std::cout << "init_screen_quads() err is " << err << std::endl;
+   if (err) std::cout << "init_screen_quads() err is " << err << std::endl;
 
 }
 void
@@ -77,7 +77,7 @@ graphics_info_t::init_blur_quads() {
    glEnableVertexAttribArray(1);
    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
    GLenum err = glGetError();
-   if (true) std::cout << "init_blur_quads() err is " << err << std::endl;
+   if (err) std::cout << "init_blur_quads() err is " << err << std::endl;
 
 }
 
@@ -1998,7 +1998,7 @@ graphics_info_t::setup_draw_for_particles() {
    if (particles.empty()) {
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
       glm::vec3 rc = g.get_rotation_centre();
-      std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
+      // std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
       particles.make_particles(n_particles, rc);
    }
    // passing user_data and Notify function at the end

@@ -99,7 +99,7 @@ TextureMesh::setup_buffers() {
    err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
    unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (true)
+   if (false)
       std::cout << "debug:: glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;

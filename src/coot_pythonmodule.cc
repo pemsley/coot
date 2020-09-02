@@ -197,7 +197,7 @@ PyInit_coot_gui_api(void) {
    if (PyErr_Occurred())
       PyErr_PrintEx(0);
 
-   std::cout << "in PyInit_coot_gui_api() returing module " << module << std::endl;
+   // std::cout << "in PyInit_coot_gui_api() returning module " << module << std::endl;
    return module;
 }
 

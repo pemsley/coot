@@ -216,9 +216,7 @@ void do_main_window(const command_line_data &cld) {
       GtkWidget *glarea = my_gtkglarea(graphics_hbox);
       my_glarea_add_signals_and_events(glarea);
       graphics_info_t::glareas.push_back(glarea); // have I done this elsewhere?
-      std::cout << "debug:: in main glarea.size() is " << graphics_info_t::glareas.size()
-                << std::endl;
-
+      
       if (true) {
 	 // application icon:
 	 setup_application_icon(GTK_WINDOW(window1));

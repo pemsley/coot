@@ -41,7 +41,7 @@ particle_container_t::random() const {
 void
 particle_container_t::make_particles(unsigned int n_particles, const glm::vec3 &rotation_centre) {
 
-   std::cout << "making particles with rotation_centre " << glm::to_string(rotation_centre) << std::endl;
+   // std::cout << "making particles with rotation_centre " << glm::to_string(rotation_centre) << std::endl;
 
    for (unsigned int i=0; i<n_particles; i++) {
       float p0 = 2.0 * random() - 1.0;

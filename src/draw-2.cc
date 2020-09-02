@@ -104,11 +104,12 @@ on_glarea_realize(GtkGLArea *glarea) {
    g.init_shaders();
    g.init_buffers();
    err = glGetError();
-   std::cout << "on_glarea_realize() post init_shaders() err is " << err << std::endl;
+   if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
    graphics_info_t::shader_for_screen.Use(); // needed?
 
-   err = glGetError(); std::cout << "start on_glarea_realize() err is " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
 
    unsigned int index_offset = 0;
    graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
