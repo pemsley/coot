@@ -90,7 +90,9 @@ vec3 sampling_blur(int n_pixels_max) {
             if (ix == 5550 && iy == 0) {
                // sum_inner += colour_ij; // use orig_colour
             } else {
-               if (abs(ix) < 3 && abs(iy) < 3) {
+               int inner_neighb_limit = 3;
+               inner_neighb_limit = 2;
+               if (abs(ix) < inner_neighb_limit && abs(iy) < inner_neighb_limit) {
                   float md = float(abs(ix) + abs(iy));
                   if (md == 0) md = 0.5; // was 0.5
                   float w = 0.2 + 1.0 / md;
@@ -123,7 +125,7 @@ vec3 sampling_blur(int n_pixels_max) {
       float alpha_inner = w_inner_neighbs;
       alpha_inner = clamp(alpha_inner, 0.0f, 1.0f);
       float alpha = 0.0f; // not at the moment. was clamp(0.5 * sum_for_alpha, 0.0f, 1.0f);
-      float Sc = 0.6f/float(n_pixels_max*n_pixels_max);
+      float Sc = 0.4f/float(n_pixels_max*n_pixels_max); // was 0.6
       vec3 result_intermediate = mix(orig_colour, average_col_from_inner_neighbs, alpha_inner);
       result = mix(result_intermediate, Sc * sum_outer, alpha);
       if (n_inner_neighbs == 0)
@@ -142,7 +144,7 @@ vec3 make_outline() {
       for (int iy= -1; iy<=1; iy++) {
          vec2 offset_coords = TexCoords + vec2(tex_scale.x * ix, tex_scale.y * iy);
          float depth_ij = texture(screenDepth, offset_coords).x;
-         if ((depth_ij - depth_centre) > 0.1) {
+         if ((depth_ij - depth_centre) > 0.1 * (1.0 - 0.1 * depth_centre)) {
             n_deep_neighbs++;
          }
       }
