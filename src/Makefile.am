@@ -118,8 +118,12 @@ subpkgdata_DATA = dynarama.glade
 
 cootdatadir = $(pkgdatadir)/shaders
 dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
-                     hud-text.shader  map.shader  model.shader screen.shader \
-		     moleculestotriangles.shader
+                     hud-text.shader  hud-bars.shader hud-labels.shader \
+                     map.shader model.shader screen.shader \
+		     moleculestotriangles.shader \
+                     instanced-objects.shader particles.shader lines.shader \
+                     draw-map-cap.shader
+
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
