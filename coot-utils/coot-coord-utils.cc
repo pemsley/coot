@@ -7249,8 +7249,13 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 					  int model_number,
 					  bool strictly_cis_flag) {
 
-   //    std::vector<atom_quad> v;
    std::vector<cis_peptide_quad_info_t> v;
+
+   if (!mol) {
+      std::cout << "ERROR:: in cis_peptide_quads_from_coords() null mol " << std::endl;
+      return v;
+   }
+
    int mol_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
 
    int n_models = mol->GetNumberOfModels();
