@@ -1516,7 +1516,8 @@ molecule_class_info_t::draw_unit_cell(Shader *shader_p,
       if (show_unit_cell_flag) { // should be draw_it_for_unit_cell
          if (lines_mesh_for_cell.empty())
             setup_unit_cell(shader_p);
-         lines_mesh_for_cell.draw(shader_p, mvp);
+         glm::mat4 dummy(1.0f);
+         lines_mesh_for_cell.draw(shader_p, mvp, dummy);
       }
    }
 

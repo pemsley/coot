@@ -355,7 +355,7 @@ graphics_info_t::get_world_space_eye_position() {
 
       // I need to convert that to world coordinates and then rotate
       // and translate the world according to rotation centre and mouse-based
-      // quaternion (ther order of operations is not yet clear to me).
+      // quaternion
 
       glm::vec3 ep = eye_position;
       glm::vec4 ep_4(ep, 1.0);
@@ -1777,6 +1777,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                                  unsigned int bar_index,
                                                  auto distortion_to_bar_size) {
 
+                          bool status = false;
                           glm::vec2 to_top_left(-0.91, 0.9 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
@@ -1814,6 +1815,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                                std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
                                                          << std::endl;
                                                set_rotation_centre(pt);
+                                               status = true;
                                             }
                                          } else {
                                             std::cout << "ERROR:: no moving atoms mol" << std::endl;
@@ -1823,13 +1825,14 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                 }
                              }
                           }
+                          return status;
                        };
 
    if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score)
-      check_blocks(saved_dragged_refinement_results.sorted_nbc_baddies, 0, distortion_to_bar_size_nbc);
+      status = check_blocks(saved_dragged_refinement_results.sorted_nbc_baddies, 0, distortion_to_bar_size_nbc);
 
    if (saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
-      check_blocks(saved_dragged_refinement_results.sorted_rama_baddies, 1, distortion_to_bar_size_rama);
+      status = check_blocks(saved_dragged_refinement_results.sorted_rama_baddies, 1, distortion_to_bar_size_rama);
 
    return status;
 }
@@ -1872,6 +1875,8 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
       draw_molecules();
 
       draw_hud_geometry_bars();
+
+      draw_identification_pulse();
 
       glBindVertexArray(0); // here is not the place to call this.
    }
@@ -2095,7 +2100,27 @@ graphics_info_t::draw_boids() {
                           mvp, view_rotation_matrix, lights, eye_position, bg_col,
                           shader_do_depth_fog_flag);
 
-      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp);
+      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, view_rotation_matrix);
+   }
+}
+
+//static
+void
+graphics_info_t::setup_pulse_identification() {
+
+   // we don't set it up here - we set it up in the function that sets up the tick timeout.
+   //
+   // lines_mesh_for_identification_pulse.setup(&shader_for_lines);
+}
+
+
+void
+graphics_info_t::draw_identification_pulse() {
+
+   if (! lines_mesh_for_identification_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse, mvp, view_rotation_matrix, true);
    }
 }
 

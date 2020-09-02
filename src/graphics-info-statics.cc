@@ -70,6 +70,7 @@ Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_lines;
+Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
@@ -158,6 +159,8 @@ particle_container_t graphics_info_t::particles;
 fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
+
+LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
 
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");

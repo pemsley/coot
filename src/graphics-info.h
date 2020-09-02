@@ -4077,6 +4077,7 @@ string   static std::string sessionid;
    static Shader shader_for_instanced_objects;
    static Shader shader_for_hud_geometry_bars;
    static Shader shader_for_hud_geometry_labels; // for labels image
+   static Shader shader_for_lines_pulse; // "you are here" pulse
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
@@ -4257,6 +4258,10 @@ string   static std::string sessionid;
    static Mesh mesh_for_particles;
    static int n_particles;
    static particle_container_t particles;
+
+   static LinesMesh lines_mesh_for_identification_pulse;
+   static void setup_pulse_identification();
+   static void draw_identification_pulse();
 
    static Mesh mesh_for_boids; // with instancing
    static fun::boids_container_t boids;
