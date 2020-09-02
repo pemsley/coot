@@ -16,7 +16,7 @@ Texture::init(const std::string &file_name) {
    int width, height, num_components;
    std::string fn = file_name;
    if (! coot::file_exists(fn)) {
-      std::string default_directory =
+      std::string default_directory = coot::package_data_dir();
       fn = default_directory + "/" + file_name;
    }
 
