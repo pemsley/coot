@@ -7390,7 +7390,26 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 void
 Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number) {
 
-   cis_peptide_quads = coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
+   // cis_peptide_quads is the member data
+   cis_peptide_quads.clear();
+
+   std::vector<coot::util::cis_peptide_quad_info_t> quads =
+      coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
+
+   for (unsigned int i=0; i<quads.size(); i++) {
+      bool keep_this = true;
+      int idx1 = quads[i].index_quad.index1;
+      if (idx1 >= 0)
+         if (no_bonds_to_these_atoms.find(idx1) != no_bonds_to_these_atoms.end())
+            keep_this = false;
+      int idx4 = quads[i].index_quad.index4;
+      if (idx4 >= 0)
+         if (no_bonds_to_these_atoms.find(idx4) != no_bonds_to_these_atoms.end())
+            keep_this = false;
+      if (keep_this)
+         cis_peptide_quads.push_back(quads[i]);
+   }
+
 }
 
 void
