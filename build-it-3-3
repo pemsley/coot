@@ -3134,26 +3134,35 @@ fi
 ##########         Coot is now built from git repo                #############
 ###############################################################################
 #
+echo 222222222222222 Now Coot.....
 date
 pwd
 
 if [ -e ../../coot ] ; then
-   echo coot directory exists
+   echo CASE 1 coot directory exists
+   pwd
    cd ../../coot
+   echo now in this dir:
+   pwd
+   echo 33333333333333333333333 and about to fetch and merge...
    git fetch
    git merge
+   echo 44444444444444444444444 done fetch and merge
    rm -rf autom4te.cache
+   echo 5555555555555555555555 bash autogen.sh
+   echo bash autogen.sh
    bash autogen.sh
+   echo 66666666666666666666 done bash autogen.sh
    cd -
 else
-   pushd
+   echo CASE 2 coot directory not exists
+   save_dir=$(pwd)
    cd ../..
    git clone https://github.com/pemsley/coot.git -b gtk3
    cd coot
    rm -rf autom4te.cache
    bash autogen.sh
-   cd -
-   popd
+   cd $save_dir
 fi
 
 if test -n "$glib_installed" ; then
