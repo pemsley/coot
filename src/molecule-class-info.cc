@@ -2110,8 +2110,8 @@ int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *a
 
 void
 molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
-        bool against_a_dark_background,
-        bool show_cis_peptide_markups) {
+                                     bool against_a_dark_background,
+                                     bool show_cis_peptide_markups) {
 
    // show_cis_peptide_markups gets turned off by caller when there are intermediate atoms
    // displayed.
@@ -3752,36 +3752,53 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
     err = glGetError(); if (err) std::cout << "GL error in make_glsl_bonds_type_checked() 4\n";
 
 
-    if (atom_sel.mol) {
-       molecular_mesh_generator_t mmg;
-       std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > cis_peptide_markup_mesh =
-          mmg.make_cis_peptide_quads_mesh(atom_sel.mol);
+    // there is a (not quite) race condition here. Although we are in the process of starting the refinement,
+    // the intermediate atoms are not yet drawn, so the draw_cis_peptide_markups is true even though the
+    // atoms of the cis peptide are not displayed.
 
-       std::map<int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > >::const_iterator it;
+    bool draw_cis_peps_flag = graphics_info_t::draw_cis_peptide_markups;
+    if (graphics_info_t::moving_atoms_displayed_p())
+       draw_cis_peps_flag = false;
 
-       for(it=cis_peptide_markup_mesh.begin(); it!=cis_peptide_markup_mesh.end(); it++) {
-          const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &cis_peptide_markup_mesh = it->second;
-          idx_base = vertices.size();
-          idx_tri_base = triangles.size();
+    if (draw_cis_peps_flag) {
+       if (bonds_box.n_cis_peptide_markups > 0) {
+          for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) {
+             const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
+             if ((single_model_view_current_model_number == 0) ||
+                 (single_model_view_current_model_number == m.model_number)) {
 
-          for (unsigned int i=0; i<cis_peptide_markup_mesh.first.size(); i++) {
-             const s_generic_vertex &sgv = cis_peptide_markup_mesh.first[i];
-             vertex_with_rotation_translation vrt(sgv, 1.0);
-             vrt.model_rotation_matrix = glm::mat3(1.0f);
-             vrt.model_translation     = glm::vec3(0,0,0);
-             vertices.push_back(vrt);
+                std::vector<glm::vec3> glm_quad(4);
+                glm_quad[0] = cartesian_to_glm(m.pt_ca_1);
+                glm_quad[1] = cartesian_to_glm(m.pt_c_1);
+                glm_quad[2] = cartesian_to_glm(m.pt_n_2);
+                glm_quad[3] = cartesian_to_glm(m.pt_ca_2);
+                molecular_mesh_generator_t mmg;
+                coot::util::cis_peptide_quad_info_t::type_t type = coot::util::cis_peptide_quad_info_t::CIS;
+                if (m.is_pre_pro_cis_peptide) type = coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS;
+                if (m.is_twisted)             type = coot::util::cis_peptide_quad_info_t::TWISTED_TRANS;
+                std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > cpg =
+                   mmg.make_cis_peptide_geom(glm_quad, type);
+
+                unsigned int idx_base = vertices.size();
+                unsigned int idx_tri_base = triangles.size();
+
+                std::vector<vertex_with_rotation_translation> vvrt;
+                vvrt.reserve(10);
+                for (unsigned int jj=0; jj<cpg.first.size(); jj++) {
+                   const s_generic_vertex &sgv = cpg.first[jj];
+                   vertex_with_rotation_translation vrt(sgv, 1.0);
+                   vrt.model_rotation_matrix = glm::mat3(1.0f);
+                   vrt.model_translation = glm::vec3(0,0,0);
+                   vvrt.push_back(vrt);
+                }
+                vertices.insert(vertices.end(), vvrt.begin(), vvrt.end());
+                triangles.insert(triangles.end(), cpg.second.begin(), cpg.second.end());
+                for (unsigned int jj=idx_tri_base; jj<triangles.size(); jj++)
+                   triangles[jj].rebase(idx_base);
+             }
           }
-          triangles.insert(triangles.end(), cis_peptide_markup_mesh.second.begin(), cis_peptide_markup_mesh.second.end());
-          for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
-             triangles[k].rebase(idx_base);
        }
-    } else {
-
-       // this is true for intermediate atoms - I don't know why
-       // 
-       // std::cout << "null atom_sel.mol in make_glsl_bonds_type_checked() " << std::endl;
     }
-
     setup_glsl_bonds_buffers(vertices, triangles);
  }
 

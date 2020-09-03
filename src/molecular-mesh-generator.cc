@@ -703,7 +703,7 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
    glm::vec3 C_this_cutback  = cis_pep_quad[1] + cut_back_frac * C_to_CA_midpoint_uv;
    glm::vec3 N_next_cutback  = cis_pep_quad[2] + cut_back_frac * N_to_CA_midpoint_uv;
 
-   glm::vec3 d = 0.02f * normal_1;
+   glm::vec3 d = 3.0f * 0.02f * normal_1;
 
    glm::vec4 col(0.9f, 0.3f, 0.3f, 1.0f);
    if (type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
@@ -752,7 +752,7 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
 
    vt.push_back(g_triangle(idx_base, idx_base+1, idx_base+2));
    vt.push_back(g_triangle(idx_base+1, idx_base+3, idx_base+2));
-   
+
    idx_base = vv.size();
    n = glm::normalize(0.5f * (CA_this_cutback + C_this_cutback) - CA_next_cutback);
    vv.push_back(s_generic_vertex(CA_this_cutback + d, n, col));
@@ -780,10 +780,10 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
    vv.push_back(s_generic_vertex(CA_next_cutback - d, n, col));
    vt.push_back(g_triangle(idx_base, idx_base+1, idx_base+2));
    vt.push_back(g_triangle(idx_base+1, idx_base+3, idx_base+2));
-   
+
    // std::move here? Or is this optimized?
    return std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >(vv, vt);
-   
+
 }
 
 void
@@ -1074,7 +1074,7 @@ molecular_mesh_generator_t::get_worm_mesh(std::string pdb_file_name) {
 
    // the return value from this can be used to be imported into a Mesh
    mmdb::Manager *mol = new mmdb::Manager;
-   
+
    if (! pdb_file_name.empty()) {
       mmdb::ERROR_CODE err = mol->ReadPDBASCII(pdb_file_name.c_str());
       if (! err) {
