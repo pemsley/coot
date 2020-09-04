@@ -22,6 +22,8 @@ public:
    float displacement; // so the balls can be "rough"
 };
 
+// Are you using the rama-balls.shader?
+
 class Instanced_Markup_Mesh_attrib_t {
 public:
    glm::vec4 colour;
@@ -30,7 +32,10 @@ public:
    float specular_strength;
    float shininess;
    Instanced_Markup_Mesh_attrib_t() {}
-   Instanced_Markup_Mesh_attrib_t(const glm::vec4 &c, glm::vec3 &p, float s) : colour(c), position(p), size(s) {}
+   Instanced_Markup_Mesh_attrib_t(const glm::vec4 &c, glm::vec3 &p, float s) : colour(c), position(p), size(s) {
+      specular_strength = 0.5;
+      shininess = 65.0;
+   }
 };
 
 
@@ -48,12 +53,18 @@ class Instanced_Markup_Mesh {
    void init();
    void setup_buffers();
    bool draw_this_mesh;
+   bool first_time;
+   bool this_mesh_is_closed;
 
 public:
    Instanced_Markup_Mesh(const std::string &n) : name(n) { init(); }
+   bool is_closed() const {return this_mesh_is_closed; }  // once closed, it's gone.
+   std::string get_name() const { return name; }
    void setup_octasphere(unsigned int num_subdivisions);
    void setup_instancing_buffers(unsigned int max_nun_instances); // allocate space, don't fill it with data yet
    void update_instancing_buffers(const std::vector<Instanced_Markup_Mesh_attrib_t> &balls);
+   bool get_draw_status() const { return draw_this_mesh; }
+   void set_draw_status(bool status) { draw_this_mesh = status; }
    void draw(Shader *shader_p,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
@@ -61,7 +72,7 @@ public:
              const glm::vec3 &eye_position, // eye position in view space (not molecule space)
              const glm::vec4 &background_colour,
              bool do_depth_fog);
-   void close() { draw_this_mesh = false; }
+   void close();
 };
 
 

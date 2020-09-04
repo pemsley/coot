@@ -5778,6 +5778,29 @@ on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
 }
 
 void
+on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled(GtkToggleButton *button,
+                                                                      gpointer user_data) {
+
+   int combo_ints = GPOINTER_TO_INT(user_data);
+   int imol = combo_ints/1000;
+   int obj_no = combo_ints - imol;
+   bool state = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+      state = 1;
+
+   std::cout << "debug imol " << imol << " obj_no " << obj_no << std::endl;
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      int n_meshes = m.instanced_meshes.size();
+      if (obj_no >=0 && obj_no < n_meshes) {
+         m.instanced_meshes[obj_no].set_draw_status(state);
+         graphics_draw();
+      }
+   }
+
+}
+
+void
 generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_object &gdo,
                                                 GtkWidget *dialog,
                                                 GtkWidget *grid,
@@ -5816,28 +5839,19 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
 
 }
 
-
-// Get rid of this
-//
-// This presumes that the table is big enough to add the widgets for
-// the given object number.
-//
 void
-generic_objects_dialog_grid_add_object_internal(const coot::old_generic_display_object_t &gdo,
+generic_objects_dialog_grid_add_object_internal(int imol,
+                                                const Instanced_Markup_Mesh &imm,
                                                 GtkWidget *dialog,
                                                 GtkWidget *grid,
-                                                int io) {
+                                                int i_position) {
 
-   if (! gdo.is_closed_flag) {
-
+   if (! imm.is_closed()) {
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
-      std::string label_str = gdo.name;
+      std::string label_str = imm.get_name();
       GtkWidget *label = gtk_label_new(label_str.c_str());
 
-      std::cout << "generic_objects_dialog_grid_add_object_internal() set alignment" << std::endl;
-      // gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
-
-      std::string stub = "generic_object_" + coot::util::int_to_string(io);
+      std::string stub = "generic_object_" + std::to_string(i_position);
       std::string toggle_button_name = stub + "_toggle_button";
       std::string label_name = stub + "_label";
 
@@ -5847,28 +5861,24 @@ generic_objects_dialog_grid_add_object_internal(const coot::old_generic_display_
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      gtk_grid_attach (GTK_GRID (grid), label, 0, 1, 1, 1);
+      // grid child left top width height
+      gtk_grid_attach (GTK_GRID (grid), label,       0, i_position, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, i_position, 1, 1);
 
-      // (GtkAttachOptions) (GTK_FILL),
-      // (GtkAttachOptions) (0), 8, 0); // pad-x pad-y
-
-      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, 2, 1, 1);
-
-      // (GtkAttachOptions) (GTK_FILL),
-      // (GtkAttachOptions) (0), 0, 0);
-
-      if (gdo.is_displayed_flag)
+      if (imm.get_draw_status())
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_generic_objects_dialog_object_toggle_button_toggled),
-		       GINT_TO_POINTER(io));
+		       G_CALLBACK(on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled),
+		       GINT_TO_POINTER(imol * 1000 + i_position));
 
       gtk_widget_show (label);
       gtk_widget_show (checkbutton);
-   }
 
+   }
 }
+
+
 
 
 GtkWidget *wrapped_create_generic_objects_dialog() {
@@ -5885,10 +5895,27 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
    gtk_container_add(GTK_CONTAINER(generic_objects_viewport), generic_objects_dialog_grid);
 
    if (generic_objects_dialog_grid) {
+      unsigned int io_count = 0;
       unsigned int n_objs = g.generic_display_objects.size();
       for (unsigned int io=0; io<n_objs; io++) {
 	 const meshed_generic_display_object &gdo = g.generic_display_objects.at(io);
-	 generic_objects_dialog_grid_add_object_internal(gdo, w, generic_objects_dialog_grid, io);
+         if (! gdo.mesh.is_closed()) {
+            generic_objects_dialog_grid_add_object_internal(gdo, w, generic_objects_dialog_grid, io);
+            io_count++;
+         }
+      }
+
+      unsigned int im_count = 0;
+      for (unsigned int i=0; i<g.molecules.size(); i++) {
+         const molecule_class_info_t &m = g.molecules[i];
+         for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
+            const Instanced_Markup_Mesh &imm = m.instanced_meshes[j];
+            if (! imm.is_closed()) {
+               generic_objects_dialog_grid_add_object_internal(i, imm, w, generic_objects_dialog_grid,
+                                                               im_count+io_count);
+               im_count++;
+            }
+         }
       }
    }
    return w;

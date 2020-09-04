@@ -79,13 +79,16 @@ layout(location = 0) out vec4 outputColor;
 
 float get_fog_amount(float depth_in) {
 
-   if (! is_perspective_projection) {
+   if (false) {
       return depth_in;
    } else {
       // needs tweaking
       float d = depth_in;
-      float d4 = d * d * d * d;
-      return d * d;
+
+      float d2 = depth_in - 0.5;
+      float d3 = 30.0 * d2 * d2 * d2 * d2;
+      float d4 = clamp(d3, 0.0, 1.0);
+      return d4;
    }
 
 }
@@ -132,7 +135,7 @@ void main() {
    float fog_amount = 0.0;
    if (do_depth_fog)
       fog_amount = get_fog_amount(gl_FragCoord.z);
-   outputColor += mix(sum_col, bg_col, fog_amount);
+   outputColor = mix(sum_col, bg_col, fog_amount);
 
 }
 

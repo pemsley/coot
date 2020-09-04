@@ -8,7 +8,7 @@
 #include "Shader.hh"
 #include "Material.hh"
 
-class HUDTextureMesh {
+class XYMesh {
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
@@ -19,13 +19,20 @@ class HUDTextureMesh {
    void setup_buffers();
    bool draw_this_mesh;
    Material material;
+   bool this_mesh_is_closed;
 
 public:
-   HUDTextureMesh(const std::string &n) : name(n) { init(); }
+   XYMesh(const std::string &n) : name(n) { init(); }
+   std::string get_name() const { return name; }
+   bool get_draw_status() const { return draw_this_mesh; }
    void setup_quad();
-   void set_material;
+   void set_material(Material mat) { material = mat; }
    void draw(Shader *shader_p);
-   void close() { draw_this_mesh = false; }
+   void close() {
+      draw_this_mesh = false;
+      this_mesh_is_closed = true; // and delete the buffers if not first time,
+                                  //  so don't inline this function
+   }
 };
 
 

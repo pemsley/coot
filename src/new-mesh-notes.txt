@@ -30,3 +30,18 @@ In draw():
    glUniformMatrix4fv(shader.mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
 
 
+
+in coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec)
+
+   1: After I had filled balls, I didn't call
+      im.update_instancing_buffers(balls);
+
+   2: I was iterating over meshes, but trying to draw instanced meshes (this won't happen again
+      hopefully)
+
+   3: I was using the wrong shader, not moleculestotriangles.shader, not instanced-objects.shader
+      (that one contains an orientation in the attributes - I don't need that for balls)
+      rama-balls.shader is what I wanted (is that true for other instanced meshes in the future
+      though? Hmm) So the balls were the wrong colour and drawn at the origin.
+
+

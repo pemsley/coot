@@ -12,10 +12,28 @@
 void
 Instanced_Markup_Mesh::init() {
 
+   first_time = true;
    n_instances = 0;
    max_n_instances = 0;
    draw_this_mesh = true;
+   this_mesh_is_closed = false;
    vao = 99999999;
+}
+
+void
+Instanced_Markup_Mesh::close() {
+
+   vertices.clear();
+   triangles.clear();
+   draw_this_mesh = false;
+   this_mesh_is_closed = true;
+
+   // delete the buffers
+
+   if (! first_time) {
+      glDeleteBuffers(1, &buffer_id);
+      glDeleteBuffers(1, &index_buffer_id);
+   }
 }
 
 void
@@ -23,8 +41,6 @@ Instanced_Markup_Mesh::setup_buffers() {
 
    if (triangles.empty()) return;
    if (vertices.empty()) return;
-
-   bool first_time = true; // make this member data if needed.
 
    if (first_time)
       glGenVertexArrays(1, &vao);
@@ -255,7 +271,7 @@ Instanced_Markup_Mesh::draw(Shader *shader_p,
    err = glGetError(); if (err) std::cout << "   error draw() pre-setting material "
                                           << err << std::endl;
 
-   // the material is part of the attributes - not a uniform (different balls have differnt shininess)
+   // the material is part of the attributes - not a uniform (different balls have different shininess)
 
    err = glGetError();
    if (err) std::cout << "error draw() " << shader_name << " pre-set eye position "
@@ -302,6 +318,11 @@ Instanced_Markup_Mesh::draw(Shader *shader_p,
 
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;
+
+   if (false) // are you using the correct shader? (rama-balls.shader)?
+      std::cout << "debug instanced mesh draw(): " << name << " drawing " << n_verts
+                << " vertices " << " n_instances " << n_instances
+                << " with shader " << shader_p->name << std::endl;
 
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
    err = glGetError();

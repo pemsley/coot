@@ -3609,6 +3609,9 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+   // these are for non-molecule based generic display objects using instancing
+   static std::vector<Instanced_Markup_Mesh> instanced_meshes;
+
    static meshed_generic_display_object mesh_for_environment_distances;
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
@@ -3974,6 +3977,7 @@ string   static std::string sessionid;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
 
+
    static void fill_rotamer_probability_tables() {
 
      if (! rot_prob_tables.tried_and_failed()) {
@@ -4131,6 +4135,8 @@ string   static std::string sessionid;
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
+   static void draw_meshed_generic_display_object_meshes();
+   static void draw_instanced_meshes();
    static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);

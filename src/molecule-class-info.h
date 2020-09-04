@@ -260,6 +260,7 @@ namespace coot {
 
 #include "Mesh.hh"
 #include "LinesMesh.hh"
+#include "Instanced-Markup-Mesh.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -3450,7 +3451,15 @@ public:        //                      public
 
    coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
 
+   // These meshes are not the way coot 0.9 organized generic display objects.
+   //
+   // meshes are drawn with draw_meshed_generic_display_object_meshes()
+   // and instanced_meshes are drawn with draw_instanced_meshes().
+   //
+   // these are for specific molecule-based objects using regular Mesh
    std::vector<Mesh> meshes;
+   // these are for specific molecule-based objects using instancing Mesh
+   std::vector<Instanced_Markup_Mesh> instanced_meshes;
 
 
 };
