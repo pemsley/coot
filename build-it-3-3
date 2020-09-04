@@ -3227,7 +3227,7 @@ echo PATH: $PATH
 # the gtk3 branch, have run autogen.sh
 # and have placed that directory somewhere sensible relative to here
 
-echo ../../coot/configure $coot_prefix \
+echo ../../../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       SHELL=/bin/bash \
@@ -3244,7 +3244,7 @@ echo ../../coot/configure $coot_prefix \
       $coot_extra_args    \
       $extra_args_for_darwin
 
-bash ../../coot/configure $coot_prefix \
+bash ../../../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       SHELL=/bin/bash \
       PYTHON=python3 \
