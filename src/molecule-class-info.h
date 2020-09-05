@@ -3460,6 +3460,7 @@ public:        //                      public
    std::vector<Mesh> meshes;
    // these are for specific molecule-based objects using instancing Mesh
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
+   Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
 
 
 };

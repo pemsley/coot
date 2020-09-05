@@ -1627,6 +1627,16 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
 
    for (int i=0; i<n_restraints; i++) {
       const simple_restraint &restraint = restraints_vec[i];
+
+      if (restraint.restraint_type == coot::TARGET_POS_RESTRAINT) {
+          double dist = distortion_score_target_pos(restraint, 1.0, v);
+          mmdb::Atom *at = atom[restraint.atom_index_1];
+          std::pair<atom_spec_t, float> p(atom_spec_t(at), dist);
+          // not sorted yet
+          rr->sorted_atom_pulls.push_back(p);
+          rr->overall_atom_pull_score += dist;
+      }
+
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
          if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
             n_non_bonded_restraints++;
@@ -1746,6 +1756,16 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
       rr->overall_rama_plot_score = rama_distortion_score_sum;
    }
 
+   // --- atom pulls ---
+
+   {
+      auto sorter = [] (const std::pair<atom_spec_t, float> &v1,
+                        const std::pair<atom_spec_t, float> &v2) {
+                       return v2.second < v1.second;
+                    };
+      std::sort(rr->sorted_atom_pulls.begin(), rr->sorted_atom_pulls.end(), sorter);
+   }
+      
    if (false) {
       // ~1ms for 100 residues
       auto tp_2 = std::chrono::high_resolution_clock::now();

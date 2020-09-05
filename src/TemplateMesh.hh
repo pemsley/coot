@@ -33,6 +33,7 @@ public:
       this_mesh_is_closed = true; // and delete the buffers if not first time,
                                   //  so don't inline this function
    }
+   void clear();
 };
 
 

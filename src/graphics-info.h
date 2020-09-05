@@ -4261,6 +4261,7 @@ string   static std::string sessionid;
 
    void setup_hud_geometry_bars();
    static float hud_geometry_distortion_to_bar_size_nbc(float distortion);
+   static float hud_geometry_distortion_to_bar_size_atom_pull(float distortion);
    static float hud_geometry_distortion_to_bar_size_rama(float distortion);
    static float hud_geometry_distortion_to_rotation_amount_rama(float distortion);
 

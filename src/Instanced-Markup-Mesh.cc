@@ -21,14 +21,23 @@ Instanced_Markup_Mesh::init() {
 }
 
 void
-Instanced_Markup_Mesh::close() {
+Instanced_Markup_Mesh::clear() {
 
    vertices.clear();
    triangles.clear();
+
+   // don't reset draw_this_mesh
+
+   // the buffers will be reset (deleted, created) on the setup_octasphere() and setup_instancing_buffers()
+
+}
+
+void
+Instanced_Markup_Mesh::close() {
+
+   clear();
    draw_this_mesh = false;
    this_mesh_is_closed = true;
-
-   // delete the buffers
 
    if (! first_time) {
       glDeleteBuffers(1, &buffer_id);

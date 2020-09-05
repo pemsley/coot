@@ -73,6 +73,7 @@ public:
              const glm::vec4 &background_colour,
              bool do_depth_fog);
    void close();
+   void clear();
 };
 
 

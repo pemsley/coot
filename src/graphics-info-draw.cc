@@ -1692,6 +1692,12 @@ graphics_info_t::hud_geometry_distortion_to_bar_size_nbc(float distortion) {
 
 
 float
+graphics_info_t::hud_geometry_distortion_to_bar_size_atom_pull(float distortion) {
+   return distortion * 0.0008;
+}
+
+
+float
 graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortion) {
    distortion += 200.0;
    float rotation_amount = 1.0 - 0.0022 * distortion;
@@ -1713,7 +1719,9 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    // first draw the text (labels) texture
 
-   if (! saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score) {
+   coot::refinement_results_t &rr = saved_dragged_refinement_results;
+   
+   if (! rr.refinement_results_contain_overall_rama_plot_score) {
       // std::cout << "chopping the texture " << std::endl;
       mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_only();
    } else {
@@ -1766,13 +1774,16 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    std::vector<HUD_bar_attribs_t> new_bars;
 
-   if (saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
-      add_bars(saved_dragged_refinement_results.sorted_rama_baddies, 1, &new_bars,
+   if (rr.refinement_results_contain_overall_nbc_score)
+      add_bars(rr.sorted_nbc_baddies, 0, &new_bars,
+               distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
+
+   if (rr.refinement_results_contain_overall_rama_plot_score)
+      add_bars(rr.sorted_rama_baddies, 1, &new_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
 
-   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score)
-      add_bars(saved_dragged_refinement_results.sorted_nbc_baddies, 0, &new_bars,
-               distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
+   add_bars(rr.sorted_atom_pulls, 2, &new_bars,
+            distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
 
    if (! new_bars.empty()) {
       // std::cout << "new bar size " << new_bars.size() << std::endl;
@@ -1790,6 +1801,8 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
    bool status = false;
    if (! moving_atoms_asc) return false;
    if (! moving_atoms_asc->mol) return false;
+
+   coot::refinement_results_t &rr = saved_dragged_refinement_results;
 
    // this values in this loop must match those in the loop above
    // (draw_hud_geometry_bars())
@@ -1826,13 +1839,14 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                           glm::vec2 to_top_left(-0.91, 0.9 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
+                          std::cout << "there are " << n << " baddies" << std::endl;
                           for (int i=(n-1); i>=0; i--) {
                              float d = baddies[i].second;
                              glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
                              float bar_length = distortion_to_bar_size(d);
                              sum_l += bar_length + 0.005; // with a gap between bars
 
-                             if (false) {
+                             if (true) {
                                 glm::vec2 position_offset_far_point = position_offset;
                                 position_offset_far_point.x += bar_length;
                                 std::cout << "checking "
@@ -1873,11 +1887,15 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                           return status;
                        };
 
-   if (saved_dragged_refinement_results.refinement_results_contain_overall_nbc_score)
-      status = check_blocks(saved_dragged_refinement_results.sorted_nbc_baddies, 0, distortion_to_bar_size_nbc);
+   if (rr.refinement_results_contain_overall_nbc_score)
+      status = check_blocks(rr.sorted_nbc_baddies, 0, hud_geometry_distortion_to_bar_size_nbc);
 
-   if (saved_dragged_refinement_results.refinement_results_contain_overall_rama_plot_score)
-      status = check_blocks(saved_dragged_refinement_results.sorted_rama_baddies, 1, distortion_to_bar_size_rama);
+   if (!status)
+      if (rr.refinement_results_contain_overall_rama_plot_score)
+         status = check_blocks(rr.sorted_rama_baddies, 1, hud_geometry_distortion_to_bar_size_rama);
+
+   if (!status)
+      status = check_blocks(rr.sorted_atom_pulls, 2, hud_geometry_distortion_to_bar_size_atom_pull);
 
    return status;
 }

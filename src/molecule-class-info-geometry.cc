@@ -292,3 +292,16 @@ molecule_class_info_t::make_generic_vertices_for_rama_balls(float ball_scale_fac
 
    return v;
 }
+
+Instanced_Markup_Mesh &
+molecule_class_info_t::find_or_make_new(const std::string &mesh_name) {
+
+   for (unsigned int i=0; i<instanced_meshes.size(); i++)
+      if (instanced_meshes[i].get_name() == mesh_name)
+         return instanced_meshes[i];
+
+   Instanced_Markup_Mesh im(mesh_name);
+   instanced_meshes.push_back(im);
+   return instanced_meshes.back();
+
+}

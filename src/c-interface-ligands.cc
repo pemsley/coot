@@ -3472,6 +3472,8 @@ void
 coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec) {
 
    graphics_info_t g;
+   unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
+
    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
    mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
    if (!residue_p) {
@@ -3520,7 +3522,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          g.molecules[imol].instanced_meshes.push_back(im_in);
          Instanced_Markup_Mesh &im = g.molecules[imol].instanced_meshes.back();
 
-         im.setup_octasphere(2);
+         im.setup_octasphere(octasphere_subdivisions);
          im.setup_instancing_buffers(v.size());
          std::vector<Instanced_Markup_Mesh_attrib_t> balls;
          balls.resize(v.size());
@@ -3534,7 +3536,34 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          }
          im.update_instancing_buffers(balls);
       }
+
+      // clashes
+      // we can't do cylinders with this shader! So make a ball instead
+
+      if (c.clashes.size()) {
+         coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
+         glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.red, 1.0);
+         std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+         balls.resize(c.clashes.size());
+         std::string mesh_name = molecule_name_stub + "clashes";
+         mesh_name += " clashes";
+         float line_radius = 0.062f;
+         const unsigned int n_slices = 16;
+         Instanced_Markup_Mesh im_in(mesh_name);
+         g.molecules[imol].instanced_meshes.push_back(im_in);
+         Instanced_Markup_Mesh &im = g.molecules[imol].instanced_meshes.back();
+         im.setup_octasphere(octasphere_subdivisions);
+         im.setup_instancing_buffers(c.clashes.size());
+         const float point_size = 0.13;
+         for (unsigned int i=0; i<c.clashes.size(); i++) {
+            glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
+            Instanced_Markup_Mesh_attrib_t attribs(clash_col_glm, position, point_size);
+            balls[i] = attribs;
+         }
+         im.update_instancing_buffers(balls);
+      }
    }
+   graphics_draw();
 }
 
 void
@@ -3685,7 +3714,7 @@ coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
 
 // all-atom contact dots.  This is not the place for this definition (not a ligand function)
 //
-void coot_all_atom_contact_dots(int imol) {
+void coot_all_atom_contact_dots_old(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -3767,6 +3796,106 @@ void coot_all_atom_contact_dots(int imol) {
    }
 }
 
+void coot_all_atom_contact_dots_instanced(int imol) {
+
+   unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      // spike-length ball-radius
+      bool ignore_waters = true;
+      // I don't like this part
+      std::map<std::string, coot::colour_holder> colour_map;
+      colour_map["blue"      ] = colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = colour_values_from_colour_name("greentint");
+      colour_map["darkpurple"] = colour_values_from_colour_name("darkpurple");
+      colour_map["green"     ] = colour_values_from_colour_name("green");
+      colour_map["orange"    ] = colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = colour_values_from_colour_name("magenta");
+      colour_map["royalblue" ] = colour_values_from_colour_name("royalblue");
+
+      auto colour_string_to_colour_holder = [colour_map] (const std::string &c) {
+                                               return colour_map.find(c)->second;
+                                            };
+
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
+      // dot density
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      std::string molecule_name_stub = "Contact Dots for Molecule ";
+      molecule_name_stub += coot::util::int_to_string(imol);
+      molecule_name_stub += ": ";
+
+      std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+	 const std::string &type = it->first;
+	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+         float point_size = 0.10;
+         if (type == "vdw-surface") point_size = 0.06;
+         std::string mesh_name = molecule_name_stub + type;
+
+         Instanced_Markup_Mesh &im = g.molecules[imol].find_or_make_new(mesh_name);
+         im.clear();
+
+         im.setup_octasphere(octasphere_subdivisions);
+         im.setup_instancing_buffers(v.size());
+         std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+         balls.resize(v.size());
+         for (unsigned int i=0; i<v.size(); i++) {
+            coot::colour_holder ch = colour_string_to_colour_holder(v[i].col);
+            glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
+            glm::vec3 position(v[i].pos.x(), v[i].pos.y(), v[i].pos.z());
+            Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size);
+            balls[i] = attribs;
+         }
+         im.update_instancing_buffers(balls);
+      }
+
+      // now clashes.................
+
+      // we can't do cylinders with this shader! So make a ball instead
+
+      if (c.clashes.size()) {
+         coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
+         glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.red, 1.0);
+         std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+         balls.resize(c.clashes.size());
+         std::string mesh_name = molecule_name_stub + "clashes";
+         mesh_name += " clashes";
+         float line_radius = 0.062f;
+         const unsigned int n_slices = 16;
+         Instanced_Markup_Mesh im_in(mesh_name);
+         g.molecules[imol].instanced_meshes.push_back(im_in);
+         Instanced_Markup_Mesh &im = g.molecules[imol].find_or_make_new(mesh_name);
+         im.clear();
+         im.setup_octasphere(octasphere_subdivisions);
+         im.setup_instancing_buffers(c.clashes.size());
+         const float point_size = 0.13;
+         for (unsigned int i=0; i<c.clashes.size(); i++) {
+            glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
+            Instanced_Markup_Mesh_attrib_t attribs(clash_col_glm, position, point_size);
+            balls[i] = attribs;
+         }
+         im.update_instancing_buffers(balls);
+      }
+   }
+   graphics_draw();
+}
+
+void coot_all_atom_contact_dots(int imol) {
+
+   coot_all_atom_contact_dots_instanced(imol);
+}
 
 #ifdef USE_GUILE
 SCM linked_residues_scm(SCM residue_centre_scm, int imol, float close_dist_max) {

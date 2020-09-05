@@ -9527,3 +9527,15 @@ Fri 21 Aug 15:46:31 BST 2020
     Look at stack trace and command line argument parser(s)
 
     https://github.com/bombela/backward-cpp
+
+
+---
+Fri  4 Sep 15:13:15 BST 2020
+
+   header guards, wrapper ifndef
+   http://www.dawnofthedata.com/2013/08/a-handful-of-emacs-utilities.html
+
+   https://elpy.readthedocs.io/en/latest/
+
+   https://martinsosic.com/development/emacs/2017/12/09/emacs-cpp-ide.html
+

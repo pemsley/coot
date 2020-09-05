@@ -38,10 +38,12 @@ namespace coot {
       bool refinement_results_contain_overall_nbc_score;
       bool refinement_results_contain_overall_rama_plot_score;
       float overall_nbc_score;
-      std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies; // atom index and value
+      std::vector<std::pair<atom_spec_t, float> > sorted_nbc_baddies;
       float overall_rama_plot_score;
-      std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies; // atom index and value
+      std::vector<std::pair<atom_spec_t, float> > sorted_rama_baddies;
       std::vector<refinement_results_for_rama_t> all_ramas;
+      float overall_atom_pull_score;
+      std::vector<std::pair<atom_spec_t, float> > sorted_atom_pulls; // all of them
 
       refinement_results_t(bool frf, int prog_in,
                            const std::vector<refinement_lights_info_t> &lights_in) {
@@ -72,6 +74,7 @@ namespace coot {
          refinement_results_contain_overall_rama_plot_score = false;
          overall_nbc_score = 0.0;
          overall_rama_plot_score = 0.0;
+         overall_atom_pull_score = 0.0;
       }
       bool hooray() const;
    };
