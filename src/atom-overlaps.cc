@@ -210,15 +210,10 @@ graphics_info_t::do_interactive_coot_probe() {
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
 
-	 graphics_info_t g;
-	 bool ignore_waters = true;
-	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p(), ignore_waters);
-
-	 // dot density
-	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.4);
-
-         // this will be lovely.
-         // But today it's empty.
+         // get_moving_atoms_lock(__FUNCTION__);
+         std::cout << "doing do_interactive_coot_probe() " << std::endl;
+         // coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
+         // release_moving_atoms_lock(__FUNCTION__);
 
       }
    }

@@ -874,9 +874,16 @@ class graphics_info_t {
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
    void debug_refinement();
+
    static void get_restraints_lock(const std::string &calling_function_name);
    static void release_restraints_lock(const std::string &calling_function_name);
    static std::string restraints_locking_function_name; //  static because it is set by above
+
+   // similar for moving atoms:
+   static void get_moving_atoms_lock(const std::string &calling_function_name);
+   static void release_moving_atoms_lock(const std::string &calling_function_name);
+   static std::string moving_atoms_locking_function_name; //  static because it is set by above
+
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -3977,6 +3984,8 @@ string   static std::string sessionid;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
 
+   void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
+   // meshes in molecules.
 
    static void fill_rotamer_probability_tables() {
 

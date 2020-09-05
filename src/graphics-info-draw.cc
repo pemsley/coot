@@ -1846,7 +1846,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                              float bar_length = distortion_to_bar_size(d);
                              sum_l += bar_length + 0.005; // with a gap between bars
 
-                             if (true) {
+                             if (false) {
                                 glm::vec2 position_offset_far_point = position_offset;
                                 position_offset_far_point.x += bar_length;
                                 std::cout << "checking "
