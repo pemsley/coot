@@ -296,6 +296,7 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
+
    unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
 
    if (true) {
@@ -323,9 +324,18 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
                                                return colour_map.find(c)->second;
                                             };
 
-      coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
-      // dot density
-      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+      coot::atom_overlaps_dots_container_t c;
+      // get_moving_atoms_lock(__FUNCTION__);
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            if (moving_atoms_asc->n_selected_atoms > 0) {
+               coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+               c = overlaps.all_atom_contact_dots(0.95, true);// dot density
+            }
+         }
+      }
+      // release_moving_atoms_lock(__FUNCTION__);
+
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Contact Dots for Molecule ";
       molecule_name_stub += coot::util::int_to_string(imol);
