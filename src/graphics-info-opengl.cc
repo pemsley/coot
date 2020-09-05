@@ -336,7 +336,9 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          float point_size = 0.10;
-         if (type == "vdw-surface") point_size = 0.06;
+         float specular_strength = 0.5; // default
+         if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
+         if (type == "vdw-surface") point_size = 0.03;
          std::string mesh_name = molecule_name_stub + type;
 
          Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
@@ -353,11 +355,13 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
             const std::string &colour_string = v[i].col;
             if (colour_string == previous_colour_string) {
                Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size);
+               attribs.specular_strength = specular_strength;
                balls[i] = attribs;
             } else {
                coot::colour_holder ch = colour_string_to_colour_holder(colour_string);
                glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
                Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size);
+               attribs.specular_strength = specular_strength;
                balls[i] = attribs;
                previous_colour_string = colour_string;
                previous_colour = colour;
@@ -370,29 +374,22 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
 
       // we can't do cylinders with this shader! So make a ball instead
 
-      if (c.clashes.size()) {
-         coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
-         glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.red, 1.0);
-         std::vector<Instanced_Markup_Mesh_attrib_t> balls;
-         balls.resize(c.clashes.size());
-         std::string mesh_name = molecule_name_stub + "clashes";
-         mesh_name += " clashes";
-         float line_radius = 0.062f;
-         const unsigned int n_slices = 16;
-         Instanced_Markup_Mesh im_in(mesh_name);
-         graphics_info_t::molecules[imol].instanced_meshes.push_back(im_in);
-         Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
-         im.clear();
-         im.setup_octasphere(octasphere_subdivisions);
-         im.setup_instancing_buffers(c.clashes.size());
-         const float point_size = 0.13;
-         for (unsigned int i=0; i<c.clashes.size(); i++) {
-            glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
-            Instanced_Markup_Mesh_attrib_t attribs(clash_col_glm, position, point_size);
-            balls[i] = attribs;
-         }
-         im.update_instancing_buffers(balls);
+      coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
+      glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.red, 1.0);
+      std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+      balls.resize(c.clashes.size());
+      std::string mesh_name = molecule_name_stub + "clashes";
+      Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
+      im.clear();
+      im.setup_octasphere(octasphere_subdivisions);
+      im.setup_instancing_buffers(c.clashes.size());
+      const float point_size = 0.13;
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+         glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
+         Instanced_Markup_Mesh_attrib_t attribs(clash_col_glm, position, point_size);
+         balls[i] = attribs;
       }
+      im.update_instancing_buffers(balls);
    }
 
 }
