@@ -207,14 +207,16 @@ PyObject *molecule_atom_overlaps_py(int imol) {
 void
 graphics_info_t::do_interactive_coot_probe() {
 
-   if (moving_atoms_asc->n_selected_atoms > 0) {
-      if (moving_atoms_asc->mol) {
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->n_selected_atoms > 0) {
+         if (moving_atoms_asc->mol) {
 
-         // get_moving_atoms_lock(__FUNCTION__);
-         std::cout << "doing do_interactive_coot_probe() " << std::endl;
-         // coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
-         // release_moving_atoms_lock(__FUNCTION__);
-
+            std::cout << "doing do_interactive_coot_probe() " << std::endl;
+            // For speed, I need the lock inside this function, it's ok to release the lock after
+            // the contact dots have been found (but before the contact dots meshes have
+            // been generated).
+            coot_all_atom_contact_dots_instanced(moving_atoms_asc->mol, imol_moving_atoms);
+         }
       }
    }
 }
