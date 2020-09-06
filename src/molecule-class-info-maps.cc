@@ -878,10 +878,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
    if (true) { // real map
 
-      bool first_time = true;
-      if (n_vertices_for_map_VertexArray > 0)
-         first_time = false;
-
       unsigned int sum_tri_con_points = 0;
       unsigned int sum_tri_con_normals = 0;
       unsigned int sum_tri_con_triangles = 0;
@@ -1254,18 +1250,19 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          // why is this needed? Is it needed? Done by caller? (or should be?)
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-         glGenVertexArrays(1, &m_VertexArrayID_for_map);
-         GLenum err = glGetError();
-         if (err) std::cout << "############## in setup_glsl_map_rendering() error trying to bind vertex array "
-                            << m_VertexArrayID_for_map << std::endl;
+         if (map_mesh_first_time) {
+            glGenVertexArrays(1, &m_VertexArrayID_for_map);
+            GLenum err = glGetError();
+            if (err) std::cout << "############## in setup_glsl_map_rendering() error trying to bind vertex array "
+                               << m_VertexArrayID_for_map << std::endl;
+         }
          glBindVertexArray(m_VertexArrayID_for_map);
-         err = glGetError();
+         GLenum err = glGetError();
          if (err) std::cout << "############## in setup_glsl_map_rendering() error glBindVertexArray() "
                             << m_VertexArrayID_for_map << std::endl;
-         err = glGetError();
 
          // positions
-         if (first_time) {
+         if (map_mesh_first_time) {
             glGenBuffers(1, &m_VertexBufferID);
             err = glGetError();
             if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() err " << err << std::endl;
@@ -1291,7 +1288,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          // std::cout << "setup_glsl_map_rendering() glVertexAttribPointer() err " << err << std::endl;
 
          // normals
-         if (first_time) {
+         if (map_mesh_first_time) {
             glGenBuffers(1, &m_NormalBufferID);
             err = glGetError();
             if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for normals err " << err << std::endl;
@@ -1316,7 +1313,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
          // colours
-         if (first_time) {
+         if (map_mesh_first_time) {
             glGenBuffers(1, &m_ColourBufferID);
             err = glGetError();
             if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() for colours err " << err << std::endl;
@@ -1341,7 +1338,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
 
          // indices for map lines
-         if (first_time) {
+         if (map_mesh_first_time) {
             glGenBuffers(1, &m_IndexBuffer_for_map_lines_ID);
             err = glGetError();
             if (err) std::cout << "setup_glsl_map_rendering() glGenBuffers() A-path " << err << std::endl;
@@ -1365,7 +1362,7 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // indices for map triangles
 
-         if (first_time) {
+         if (map_mesh_first_time) {
             glGenBuffers(1, &m_IndexBuffer_for_map_triangles_ID);
             err = glGetError();
             if (err)
@@ -1402,6 +1399,8 @@ molecule_class_info_t::setup_glsl_map_rendering() {
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       // std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
    }
+
+   map_mesh_first_time = false;
 
    if (false)
       std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "
