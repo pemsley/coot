@@ -172,6 +172,7 @@ LinesMesh::make_vertices_for_pulse(float radius_overall) {
          vertices.push_back(v);
       }
       for (unsigned int i=0; i<n_line_segments; i++) {
+         if ((j+i) %2 == 0) continue;
          unsigned int i_this = i;
          unsigned int i_next = i+1;
          if (i_next == n_line_segments)

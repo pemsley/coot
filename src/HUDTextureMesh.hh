@@ -22,6 +22,7 @@ class HUDTextureMesh {
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
+   bool first_time;
    std::vector<HUDTextureMesh_attribs_t> vertices;
    std::vector<g_triangle> triangles;
    std::string name;

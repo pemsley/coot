@@ -668,50 +668,12 @@ void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
    mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
-
    float x = atom->x;
    float y = atom->y;
    float z = atom->z;
+   clipper::Coord_orth pt(x,y,z);
+   set_rotation_centre(pt);
 
-   set_old_rotation_centre(RotationCentre());
-
-   bool do_zoom_flag = false;
-
-   bool needs_a_centre_jump = true;
-   if (smooth_scroll == 1) {
-      // this (usually) launches a timeout/tick function
-      if (smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0))
-         needs_a_centre_jump = false;
-   }
-
-   if (needs_a_centre_jump) {
-      // set it now.
-      rotation_centre_x = x;
-      rotation_centre_y = y;
-      rotation_centre_z = z;
-   }
-
-   update_ramachandran_plot_point_maybe(imol, atom);
-   setup_graphics_ligand_view(imol, atom->residue, atom->altLoc);
-
-   if (environment_show_distances) {
-      mol_no_for_environment_distances = imol;
-      update_environment_graphics_object(index, imol);
-      // label new centre
-      if (environment_distance_label_atom) {
-         molecules[imol].unlabel_last_atom();
-         molecules[imol].add_to_labelled_atom_list(index);
-      }
-      if (show_symmetry)
-         update_symmetry_environment_graphics_object(index, imol);
-   } else {
-
-      if (label_atom_on_recentre_flag) {
-         molecules[imol].unlabel_last_atom();
-         molecules[imol].add_to_labelled_atom_list(index);
-      }
-   }
-   run_post_set_rotation_centre_hook();
 }
 
 // update the green square, where we are.

@@ -8,6 +8,7 @@ HUDTextureMesh::init() {
 
    draw_this_mesh = true;
    vao = 99999999; // unset
+   first_time = true;
 }
 
 void
@@ -69,8 +70,6 @@ HUDTextureMesh::setup_buffers() {
 
    if (triangles.empty()) return;
    if (vertices.empty()) return;
-
-   bool first_time = true; // make this member data if needed.
 
    if (first_time)
       glGenVertexArrays(1, &vao);

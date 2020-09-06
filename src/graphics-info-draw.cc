@@ -1748,7 +1748,7 @@ graphics_info_t::draw_hud_geometry_bars() {
                        auto distortion_to_rotation_amount,
                        auto distortion_to_bar_size) {
 
-                         glm::vec2 to_top_left(-0.91, 0.9 - 0.05 * static_cast<float>(bar_index));
+                         glm::vec2 to_top_left(-0.91, 0.94 - 0.05 * static_cast<float>(bar_index));
                          float sum_l = 0;
                          int n = baddies.size();
                          for (int i=(n-1); i>=0; i--) {
@@ -1774,16 +1774,16 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    std::vector<HUD_bar_attribs_t> new_bars;
 
+   add_bars(rr.sorted_atom_pulls, 0, &new_bars,
+            distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
+
    if (rr.refinement_results_contain_overall_nbc_score)
-      add_bars(rr.sorted_nbc_baddies, 0, &new_bars,
+      add_bars(rr.sorted_nbc_baddies, 1, &new_bars,
                distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
 
    if (rr.refinement_results_contain_overall_rama_plot_score)
-      add_bars(rr.sorted_rama_baddies, 1, &new_bars,
+      add_bars(rr.sorted_rama_baddies, 2, &new_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
-
-   add_bars(rr.sorted_atom_pulls, 2, &new_bars,
-            distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
 
    if (! new_bars.empty()) {
       // std::cout << "new bar size " << new_bars.size() << std::endl;
@@ -1836,7 +1836,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                                  auto distortion_to_bar_size) {
 
                           bool status = false;
-                          glm::vec2 to_top_left(-0.91, 0.9 - 0.05 * static_cast<float>(bar_index));
+                          glm::vec2 to_top_left(-0.91, 0.94 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
                           std::cout << "there are " << n << " baddies" << std::endl;
@@ -1887,15 +1887,15 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                           return status;
                        };
 
-   if (rr.refinement_results_contain_overall_nbc_score)
-      status = check_blocks(rr.sorted_nbc_baddies, 0, hud_geometry_distortion_to_bar_size_nbc);
+   status = check_blocks(rr.sorted_atom_pulls, 0, hud_geometry_distortion_to_bar_size_atom_pull);
+
+   if (!status)
+      if (rr.refinement_results_contain_overall_nbc_score)
+         status = check_blocks(rr.sorted_nbc_baddies, 1, hud_geometry_distortion_to_bar_size_nbc);
 
    if (!status)
       if (rr.refinement_results_contain_overall_rama_plot_score)
-         status = check_blocks(rr.sorted_rama_baddies, 1, hud_geometry_distortion_to_bar_size_rama);
-
-   if (!status)
-      status = check_blocks(rr.sorted_atom_pulls, 2, hud_geometry_distortion_to_bar_size_atom_pull);
+         status = check_blocks(rr.sorted_rama_baddies, 2, hud_geometry_distortion_to_bar_size_rama);
 
    return status;
 }
