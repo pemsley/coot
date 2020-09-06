@@ -2807,11 +2807,16 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_d:
 
-      if (graphics_info_t::clipping_back < 15.0) {
-	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
-	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
-	 // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
-	 // << graphics_info_t::clipping_back << std::endl;
+      if (graphics_info_t::control_is_pressed) {
+	 graphics_info_t g;
+	 g.delete_active_residue();
+      } else {
+	 if (graphics_info_t::clipping_back < 15.0) {
+	    set_clipping_front(graphics_info_t::clipping_front + 0.4);
+	    set_clipping_back (graphics_info_t::clipping_front + 0.4);
+	    // std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+	    // << graphics_info_t::clipping_back << std::endl;
+	 }
       }
       handled = TRUE;
       break;
