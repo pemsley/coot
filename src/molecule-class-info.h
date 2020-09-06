@@ -2994,6 +2994,9 @@ public:        //                      public
    GLuint m_IndexBuffer_for_map_cap_ID;
    GLuint n_vertices_for_map_cap;
 
+   bool map_mesh_first_time;
+   bool model_mesh_first_time;
+
    float density_surface_opacity;
    bool is_an_opaque_map() const { return density_surface_opacity == 1.0; } // needs explicit assignment to 1.0
                                                                             // elsewhere in the code, e.g. in

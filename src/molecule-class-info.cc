@@ -256,6 +256,9 @@ molecule_class_info_t::setup_internal() {
    shader_shininess = 6.0;
    shader_specular_strength = 0.6;
 
+   map_mesh_first_time = true;
+   model_mesh_first_time = true;
+
    // draw vectors
    draw_vector_sets.reserve(120); // more than enough
    draw_vector_sets.resize(120);
@@ -3799,6 +3802,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
           }
        }
     }
+
     setup_glsl_bonds_buffers(vertices, triangles);
  }
 
@@ -3816,20 +3820,37 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    n_vertices_for_model_VertexArray = vertices.size(); // the "signal" to the draw function to draw this model
 
    GLenum err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() -- start --\n";
-   glGenVertexArrays (1, &m_VertexArray_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 1\n";
+
+   if (model_mesh_first_time) {
+      glGenVertexArrays (1, &m_VertexArray_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 1\n";
+   }
+
    glBindVertexArray (m_VertexArray_for_model_ID);
    err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 2\n";
 
-   glGenBuffers(1, &m_VertexBuffer_for_model_ID);
-   glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 3\n";
-   unsigned int n_vertices = vertices.size();
-   if (is_intermediate_atoms_molecule)
-      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_DYNAMIC_DRAW);
-   else
-      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
-   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers()  5\n";
+   if (model_mesh_first_time) {
+      glGenBuffers(1, &m_VertexBuffer_for_model_ID);
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 3\n";
+      unsigned int n_vertices = vertices.size();
+      if (is_intermediate_atoms_molecule)
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_DYNAMIC_DRAW);
+      else
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers()  5\n";
+   } else {
+      glDeleteBuffers(1, &m_VertexBuffer_for_model_ID);
+      glGenBuffers(1, &m_VertexBuffer_for_model_ID);
+      glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 3\n";
+      unsigned int n_vertices = vertices.size();
+      if (is_intermediate_atoms_molecule)
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_DYNAMIC_DRAW);
+      else
+         glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers()  5\n";
+   }
 
    // "from-origin" model matrix (orientation)
    glEnableVertexAttribArray(0);
@@ -3862,16 +3883,26 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    err = glGetError(); if (err) std::cout << "GL error bonds 17\n";
 
    // Indices
-   glGenBuffers(1, &m_IndexBuffer_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 18\n";
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
    n_indices_for_model_triangles = triangles.size() * 3;
    if (! is_intermediate_atoms_molecule)
       std::cout << "DEBUG:: n_triangles in model: " << triangles.size() << std::endl;
    unsigned int n_bytes = triangles.size() * 3 * sizeof(unsigned int);
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
+   if (model_mesh_first_time) {
+      glGenBuffers(1, &m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 18\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
+   } else {
+      glDeleteBuffers(1, &m_IndexBuffer_for_model_ID);
+      glGenBuffers(1, &m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 18\n";
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBuffer_for_model_ID);
+      err = glGetError(); if (err) std::cout << "GL error bonds setup_glsl_bonds_buffers() 19\n";
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
+   }
    err = glGetError(); if (err) std::cout << "GL error bonds --- end ---\n";
+   model_mesh_first_time = false;
 }
 
 void
