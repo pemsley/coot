@@ -1809,7 +1809,11 @@ graphics_info_t::clear_up_moving_atoms() {
 
    // We must not delete the moving atoms if they are being used to manipulate pull restraints
    //
-   get_moving_atoms_lock(__FUNCTION__);
+   bool unlocked_atoms = false;
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, true) && !unlocked_atoms) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      unlocked_atoms = false;
+   }
 
    continue_update_refinement_atoms_flag = false;
    continue_threaded_refinement_loop = false;
@@ -1869,7 +1873,7 @@ graphics_info_t::clear_up_moving_atoms() {
 #endif // HAVE_GSL
 
 
-   release_moving_atoms_lock(__FUNCTION__);
+   moving_atoms_lock  = false;
 
    // std::cout << "calling rebond_molecule_corresponding_to_moving_atoms() " << std::endl;
    graphics_info_t::rebond_molecule_corresponding_to_moving_atoms(); // haven't we done this?
@@ -2012,10 +2016,18 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
          if (moving_atoms_asc->atom_selection) {
 
-            get_moving_atoms_lock(__FUNCTION__);
+            // moving_atoms_lock is a bool
+            bool unlocked = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = false;
+            }
+
             regularize_object_bonds_box.clear_up();
             regularize_object_bonds_box = bonds.make_graphical_bonds();
-            release_moving_atoms_lock(__FUNCTION__);
+
+
+            moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
 
@@ -2031,10 +2043,16 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          // we shouldn't draw bonds if they have been deleted in clear_up_moving_atoms():
          if (moving_atoms_asc->atom_selection) {
 
-            get_moving_atoms_lock(__FUNCTION__);
+            // moving_atoms_lock is a bool
+            bool unlocked = false;
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
+                 std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                 unlocked = false;
+            }
+
             regularize_object_bonds_box.clear_up();
             regularize_object_bonds_box = bonds.make_graphical_bonds();
-            release_moving_atoms_lock(__FUNCTION__);
+            moving_atoms_lock = 0; // unlock them
          }
          moving_atoms_bonds_lock = 0;
       }

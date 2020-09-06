@@ -732,7 +732,11 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
 
                // I need the atoms lock here, because we don't want to access the moving atoms
                // if they have been deleted.
-               get_moving_atoms_lock(__FUNCTION__);
+               bool unlocked = false;
+               while (! moving_atoms_lock.compare_exchange_weak(unlocked, true) && !unlocked) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    unlocked = 0;
+               }
                if (moving_atoms_asc->atom_selection) {
 		  // check that moving_atoms_currently_dragged_atom_index is set before using it
 		  if (moving_atoms_currently_dragged_atom_index > -1) {
@@ -743,7 +747,7 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
                   std::cout << "WARNING:: attempted use moving_atoms_asc->atom_selection, but NULL"
                             << std::endl;
                }
-               release_moving_atoms_lock(__FUNCTION__);
+               moving_atoms_lock = false;
             }
          }
 
@@ -893,13 +897,18 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
 
       // To stop the moving atoms begin deleted as we draw them, we lock them here
       //
-      get_moving_atoms_lock(__FUNCTION__);
+      bool unlocked_atoms = false;
+      while (! moving_atoms_lock.compare_exchange_weak(unlocked_atoms, 1) && !unlocked_atoms) {
+         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+         unlocked_atoms = 0;
+      }
 
       // tell the next round that we have (already) drawn the bonds for this set
       // of atom positions
       threaded_refinement_loop_counter_bonds_gen = threaded_refinement_loop_counter;
       graphics_info_t g;
       g.make_moving_atoms_graphics_object(imol_moving_atoms, *moving_atoms_asc);
+
       g.debug_refinement(); // checks COOT_DEBUG_REFINEMENT
 
       // Dots on then off but dots remain? Just undisplay them in the Generic Object manager
@@ -907,7 +916,7 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function() {
          g.do_interactive_coot_probe();
       }
       moving_atoms_bonds_lock = 0;
-      release_moving_atoms_lock(__FUNCTION__);
+      moving_atoms_lock = false;
 
       if (accept_reject_dialog)
 	 update_accept_reject_dialog_with_results(accept_reject_dialog, coot::CHI_SQUAREDS,
@@ -3377,7 +3386,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 
 
 void
-graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type,
+graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
                                                     mmdb::Residue *res_p, const std::string &chain_id) {
 
 
