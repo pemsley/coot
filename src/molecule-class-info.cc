@@ -3677,7 +3677,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
     // we usually want to see rama balls on intermediate atoms even if there are no rama restraints.
     // (but if we don't, how do we turn this off?)
-    if (false) {
+    if (is_intermediate_atoms_molecule) {
        if (! graphics_info_t::do_rama_restraints) {
           glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
           glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
