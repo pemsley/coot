@@ -38,6 +38,8 @@ namespace coot {
       std::vector<std::pair<mmdb::Atom *, float> >
       solvent_exposure_old_version(int selhnd, mmdb::Manager *mol) const;
       std::vector<std::pair<mmdb::Residue *, float> >
+      solvent_exposure_old_version_v2(mmdb::Manager *mol, bool side_chain_only=true) const;
+      std::vector<std::pair<mmdb::Residue *, float> >
       solvent_exposure(mmdb::Manager *mol, bool side_chain_only=true) const;
 
    private:

@@ -2652,6 +2652,8 @@ public:        //                      public
    int fill_partial_residue(coot::residue_spec_t &residue_spec,
 			     coot::protein_geometry *geom_p, int imol_refinement_map);
 
+   std::vector<std::string> get_chain_ids() const;
+
    // Ribosome People:
    int exchange_chain_ids_for_seg_ids();
 

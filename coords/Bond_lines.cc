@@ -840,15 +840,22 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       int iat = vp_single[i].first;
       int jat = vp_single[i].second;
       mmdb::Atom *at_1 = ring_atoms[iat];
+      mmdb::Atom *at_2 = ring_atoms[jat];
       int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
       int atom_1_index = -1;
       int atom_2_index = -1;
       coot::Cartesian p1(ring_atoms[iat]->x, ring_atoms[iat]->y, ring_atoms[iat]->z);
       coot::Cartesian p2(ring_atoms[jat]->x, ring_atoms[jat]->y, ring_atoms[jat]->z);
-      ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
-      ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
-      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+      std::string ele_1(at_1->element);
+      std::string ele_2(at_2->element);
+      if (ele_1 == ele_2) {
+         ring_atoms[iat]->GetUDData(udd_atom_index_handle, atom_1_index);
+         ring_atoms[jat]->GetUDData(udd_atom_index_handle, atom_2_index);
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, p1, p2, cc, imodel, atom_1_index, atom_2_index);
+      } else {
+         add_half_bonds(p1, p2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+      }
    }
 
    for (unsigned int i=0; i<inner_doubles.size(); i++) {
@@ -870,13 +877,20 @@ Bond_lines_container::draw_trp_rings(const std::vector<mmdb::Atom *> &ring_atoms
       coot::Cartesian ip1 = mp + v1 * 0.8;
       coot::Cartesian ip2 = mp + v2 * 0.8;
       mmdb::Atom *at_1 = ring_atoms[iat_1];
+      mmdb::Atom *at_2 = ring_atoms[iat_2];
       int col = atom_colour(at_1, atom_colour_type, atom_colour_map_p);
       int atom_1_index = -1;
       int atom_2_index = -1;
       ring_atoms[iat_1]->GetUDData(udd_atom_index_handle, atom_1_index);
       ring_atoms[iat_2]->GetUDData(udd_atom_index_handle, atom_2_index);
-      graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+      std::string ele_1(at_1->element);
+      std::string ele_2(at_2->element);
+      if (ele_1 == ele_2) {
+         graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+         addBond(col, ip1, ip2, cc, imodel, atom_1_index, atom_2_index);
+      } else {
+         add_half_bonds(ip1, ip2, at_1, at_2, imodel, atom_1_index, atom_2_index, atom_colour_type, atom_colour_map_p);
+      }
    }
 
 }
@@ -7378,7 +7392,26 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 void
 Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom, int model_number) {
 
-   cis_peptide_quads = coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
+   // cis_peptide_quads is the member data
+   cis_peptide_quads.clear();
+
+   std::vector<coot::util::cis_peptide_quad_info_t> quads =
+      coot::util::cis_peptide_quads_from_coords(SelAtom.mol, model_number);
+
+   for (unsigned int i=0; i<quads.size(); i++) {
+      bool keep_this = true;
+      int idx1 = quads[i].index_quad.index1;
+      if (idx1 >= 0)
+         if (no_bonds_to_these_atoms.find(idx1) != no_bonds_to_these_atoms.end())
+            keep_this = false;
+      int idx4 = quads[i].index_quad.index4;
+      if (idx4 >= 0)
+         if (no_bonds_to_these_atoms.find(idx4) != no_bonds_to_these_atoms.end())
+            keep_this = false;
+      if (keep_this)
+         cis_peptide_quads.push_back(quads[i]);
+   }
+
 }
 
 void

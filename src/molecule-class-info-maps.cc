@@ -913,7 +913,7 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	    tri_con.depth_sort(back_cl, front_cl);
             auto tp_2 = std::chrono::high_resolution_clock::now();
             auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
-            std::cout << "triangle sorting " << d21 << " milliseconds" << std::endl;
+            // std::cout << "triangle sorting " << d21 << " milliseconds" << std::endl;
 	    // std::cout << " sorted" << std::endl;
 	    if (xmap_is_diff_map)
 	       tri_con_diff_map_neg.depth_sort(back_cl, front_cl);

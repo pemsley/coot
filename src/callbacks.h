@@ -4814,3 +4814,38 @@ on_residue_type_chooser_entry_key_press_event
                                         (GtkWidget       *widget,
                                         GdkEventKey     *event,
                                         gpointer         user_data);
+
+void
+on_map_properties_dialog_specularity_state_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_map_properties_dialog_fresnel_state_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_map_properties_dialog_specularity_strength_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data);
+
+void
+on_map_properties_dialog_specularity_shininess_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data);
+
+void
+on_map_properties_dialog_fresnel_bias_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data);
+
+void
+on_map_properties_dialog_fresnel_scale_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data);
+
+void
+on_map_properties_dialog_fresnel_power_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data);

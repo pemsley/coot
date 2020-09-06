@@ -1143,6 +1143,8 @@ namespace coot {
          do_hydrogen_atom_refinement = false;
          do_neutron_refinement = false;
 
+         refinement_results_add_details = true;
+
 #ifndef __NVCC__
 	 restraints_lock = false; // not locked
 	 thread_pool_p = 0; // null pointer
@@ -2342,6 +2344,10 @@ namespace coot {
 				    int nsteps_max, short int print_initial_chi_sq_flag,
 				    const protein_geometry &geom);
       refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+
+      bool refinement_results_add_details;
+      void add_details_to_refinement_results(refinement_results_t *rr) const;
+
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
       refinement_lights_info_t::the_worst_t

@@ -34,6 +34,8 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
+// #include <utils/backward.hpp>
+
 // need gtk things
 #include <gtk/gtk.h>
 
@@ -135,6 +137,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "generic-display-object.hh"
 
 #include "simple-distance-object.hh"
+
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values

@@ -942,11 +942,15 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
    geom.init_standard();
    std::vector<std::string> files = util::glob_files(dir_name, "*.pdb");
 
+   std::cout << "in write_tables_using_reference_structures_from_dir()  " << dir_name << " "
+             << output_tables_dir << std::endl;
+
    for (unsigned int i=0; i<files.size(); i++) {
       std::string fn = files[i];
       atom_selection_container_t asc = get_atom_selection(fn, false, false);
       if (asc.read_success) {
 
+         std::cout << "write_tables()... read pdb file " << fn << std::endl;
          std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
          if (true) {
             for (unsigned int i=0; i<se.size(); i++) {
@@ -1316,10 +1320,168 @@ coot::daca::get_radius(const std::string &ele) const {
    return radius;
 }
 
+
+#include "coot-utils/fib-sphere.hh"
+
 // eposure of the side chain atoms only are considered
 //
 std::vector<std::pair<mmdb::Residue *, float> >
 coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
+
+  std::vector<std::pair<mmdb::Residue *, float> > v;
+   if (! mol) return v;
+
+   float max_dist = 2 * (1.7 + 1.4);
+   mmdb::PPAtom atom_selection = 0;
+   int n_atoms;
+
+   int SelHnd = mol->NewSelection(); // d
+   mol->SelectAtoms(SelHnd, 1, "*",
+                    mmdb::ANY_RES, "*",
+                    mmdb::ANY_RES, "*",
+                    "*","*","!H","*", mmdb::SKEY_NEW);
+
+   std::map<mmdb::Residue *, std::set<mmdb::Atom *> > residue_neighbouring_atoms;
+
+   std::map<int, std::set<int> > contact_map;
+
+   // fill contact_map
+   mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+   if (n_atoms) {
+      mmdb::Contact *pscontact = NULL; // d
+      int n_contacts;
+      float min_dist = 0.01;
+      long i_contact_group = 1;
+      mmdb::mat44 my_matt;
+      mmdb::SymOps symm;
+      for (int i=0; i<4; i++)
+	 for (int j=0; j<4; j++)
+	    my_matt[i][j] = 0.0;
+      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+      mol->SeekContacts(atom_selection, n_atoms,
+			atom_selection, n_atoms,
+			0, max_dist,
+			0, // allow contacts from atoms in same residue
+			pscontact, n_contacts,
+			0, &my_matt, i_contact_group); // makes reverses also
+      if (n_contacts > 0) {
+
+	 if (pscontact) {
+            // we could do the selection wthout waters, but also filter out waters this way
+            std::vector<bool> is_water(n_atoms, false);
+            for (int iat=0; iat<n_atoms; iat++) {
+               std::string rn(atom_selection[iat]->residue->GetResName());
+               if (rn == "HOH")
+                  is_water[iat] = true;
+            }
+            std::vector<float> radius(n_atoms);
+            for (int iat=0; iat<n_atoms; iat++) {
+               std::string ele(atom_selection[iat]->element);
+               radius[iat] = get_radius(ele); // could be more clever, use atom type.
+            }
+	    for (int i=0; i<n_contacts; i++) {
+               // check for not a water here. (both ways)
+               if (is_water[pscontact[i].id1]) continue;
+               if (is_water[pscontact[i].id2]) continue;
+
+               mmdb::Atom *at = atom_selection[pscontact[i].id1];
+               if (is_main_chain_p(at)) continue;
+               contact_map[pscontact[i].id1].insert(pscontact[i].id2);
+            }
+            delete [] pscontact;
+
+
+            // OK, contact_map is filled.
+
+            // so now let's count the dots around each of the atoms
+
+            // for faster execution, need a function that takes 2 atoms and a squared dist
+            // (so that there is no conversion to doubles)
+            // bool within_distance_criterion(mmdb::Atom *at_1, mmdb::Atom *at_2, float dist_sq);
+
+            auto dot_count = [] (int atom_index,
+                                 const std::set<int> &neighbour_atoms,
+                                 float atom_radius,
+                                 mmdb::PPAtom atom_selection,
+                                 const std::vector<clipper::Coord_orth> &unit_sphere_points) {
+                                int count = 0;
+                                const float water_radius = 1.8;
+                                float radius = atom_radius + water_radius;
+                                double dd_crit = radius * radius;
+                                mmdb::Atom *at = atom_selection[atom_index];
+                                clipper::Coord_orth atom_position = co(at);
+                                std::set<int>::const_iterator it;
+                                for (unsigned int i=0; i<unit_sphere_points.size(); i++) {
+                                   bool inside_another_atom = false;
+                                   clipper::Coord_orth pt_on_sphere(radius * unit_sphere_points[i]);
+                                   clipper::Coord_orth pt = atom_position + pt_on_sphere;
+                                   for (it=neighbour_atoms.begin(); it!=neighbour_atoms.end(); it++) {
+                                      mmdb::Atom *at_neigb = atom_selection[*it];
+                                      clipper::Coord_orth pt_neighb = co(at_neigb);
+                                      double dd = (pt-pt_neighb).lengthsq();
+                                      if (false)
+                                         std::cout << i << " pt-on-sphere " << pt_on_sphere.format()
+                                                   << " pt " << pt.format()
+                                                   << " d " << sqrt(dd) << " " << dd << std::endl;
+                                      if (dd < dd_crit) {
+                                         inside_another_atom = true;
+                                         break;
+                                      }
+                                   }
+                                   if (! inside_another_atom)
+                                      count += 1;
+                                }
+                                if (false) {
+                                   std::string rn(at->residue->GetResName());
+                                   if (rn == "HOH") {
+                                      std::cout << "HOH " << residue_spec_t(at->residue)
+                                                << " with n-neighbs " << neighbour_atoms.size()
+                                                << " returning " << count << std::endl;
+                                   }
+                                }
+                                return count;
+                             };
+
+            const unsigned int n_sphere_points = 106; // so that each point covers about 1A^2
+            std::vector<clipper::Coord_orth> unit_sphere_points =
+               coot::fibonacci_sphere(n_sphere_points);
+
+            std::map<mmdb::Residue *, int> residue_count_map;
+            std::map<int, std::set<int> >::const_iterator it;
+            for (it=contact_map.begin(); it!=contact_map.end(); it++) {
+               int atom_index = it->first;
+               mmdb::Atom *at = atom_selection[atom_index];
+               const std::set<int> &neighbours = it->second;
+               int n_dots_for_atom = 0;
+               if (neighbours.size() == 0)
+                  n_dots_for_atom = n_sphere_points; // nothing can block the sphere points
+               else
+                  n_dots_for_atom = dot_count(atom_index, neighbours, radius[atom_index],
+                                              atom_selection, unit_sphere_points);
+
+               residue_count_map[at->residue] += n_dots_for_atom;
+            }
+
+            {
+               std::cout << "contact map:"  << std::endl;
+               std::map<mmdb::Residue *, int>::const_iterator it;
+               for (it=residue_count_map.begin(); it!=residue_count_map.end(); it++) {
+                  std::string rn = it->first->GetResName();
+                  std::cout << "    " << residue_spec_t(it->first) << " " << rn << " "
+                            << it->second << std::endl;
+               }
+            }
+         }
+      }
+   }
+
+   return v;
+}
+
+std::vector<std::pair<mmdb::Residue *, float> >
+coot::daca::solvent_exposure_old_version_v2(mmdb::Manager *mol,
+                                            bool side_chain_only) const {
 
    std::vector<std::pair<mmdb::Residue *, float> > v;
    if (! mol) return v;
@@ -1338,7 +1500,8 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
 
    mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
    if (n_atoms) {
-      mmdb::Contact *pscontact = NULL;
+
+      mmdb::Contact *pscontact = NULL; // d
       int n_contacts;
       float min_dist = 0.01;
       long i_contact_group = 1;
@@ -1377,6 +1540,7 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
                   if (!is_main_chain_p(at_1))
                      residue_neighbouring_atoms[residue_p_1].insert(at_2);
             }
+            delete [] pscontact;
          }
       }
 
