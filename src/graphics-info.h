@@ -3978,6 +3978,7 @@ string   static std::string sessionid;
    void setup_rama_balls();
    void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
 
+   static float contact_dots_density; // 1 by default
    void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
    // meshes in molecules.
 

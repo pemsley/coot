@@ -142,6 +142,8 @@ graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) 
 #endif
 }
 
+float graphics_info_t::contact_dots_density = 1.0;
+
 bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;

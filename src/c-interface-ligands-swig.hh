@@ -166,7 +166,7 @@ void coot_contact_dots_for_ligand_scm(int imol, SCM residue_spec_scm);
 void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 #endif
 
-
+void set_contact_dots_density(float density);
 
 // we want to read in the built-in database to convert these scores to percentiles
 // return -1 (test for negative) on failure

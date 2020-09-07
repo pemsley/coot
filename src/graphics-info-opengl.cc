@@ -8,6 +8,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include "graphics-info.h"
 
+
 void
 graphics_info_t::init_shaders() {
 
@@ -32,7 +33,7 @@ graphics_info_t::init_shaders() {
    std::string d = coot::util::append_dir_dir(p, "shaders");
    std::cout << "INFO:: shader default dir: " << d << std::endl;
    std::vector<std::reference_wrapper<Shader> >::iterator it;
-   for (it=shaders.begin(); it!=shaders.end(); it++)
+   for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
@@ -293,6 +294,9 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 
 #include "coot-utils/atom-overlaps.hh"
 
+
+// probably not the right place for this function
+//
 void
 graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
 
@@ -330,7 +334,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
          if (moving_atoms_asc->mol) {
             if (moving_atoms_asc->n_selected_atoms > 0) {
                coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
-               c = overlaps.all_atom_contact_dots(0.95, true);// dot density
+               c = overlaps.all_atom_contact_dots(contact_dots_density, true);
             }
          }
       }
@@ -342,7 +346,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
       molecule_name_stub += ": ";
 
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          float point_size = 0.10;

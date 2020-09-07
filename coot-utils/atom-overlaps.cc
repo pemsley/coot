@@ -1066,8 +1066,10 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
       if (n_contacts > 0) {
 	 if (pscontact) {
 
-            std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(450);
-            std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(270); // less than above
+            int   atom_n_sphere_dots = static_cast<int>(450 * dot_density_in);
+            int H_atom_n_sphere_dots = static_cast<int>(270 * dot_density_in);  // less than above
+            std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(atom_n_sphere_dots);
+            std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(H_atom_n_sphere_dots);
 
 	    // which atoms are close to which other atoms?
 	    std::map<int, std::vector<int> > contact_map; // these atoms can have nbc interactions

@@ -117,7 +117,6 @@ go_to_ligand_inner() {
 	 new_rotation_centre = new_centre.position;
 	 if (new_centre.type == coot::NORMAL_CASE) {
             std::cout << "-------------------- normal " << std::endl;
-            int imol = pp.second.first;
 	    // g.setRotationCentre(new_centre.position); // the target position is (should be) reached by the tick animation
                                                          // in coot::view_info_t::interpolate()
 	    g.perpendicular_ligand_view(imol, new_centre.residue_spec);
@@ -3504,7 +3503,9 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
                                             };
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
-      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
+      float cdd = graphics_info_t::contact_dots_density;
+
+      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Contact Dots for Ligand Molecule ";
@@ -3512,11 +3513,13 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       molecule_name_stub += ": ";
 
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
-      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
+         float specular_strength = 0.5; //  default
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
          float point_size = 0.16;
-         if (type == "vdw-surface") point_size = 0.08;
+         if (type == "vdw-surface") point_size = 0.05;
+         if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
          std::string mesh_name = molecule_name_stub + type;
          Instanced_Markup_Mesh im_in(mesh_name);
          g.molecules[imol].instanced_meshes.push_back(im_in);
@@ -3526,12 +3529,12 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
          im.setup_instancing_buffers(v.size());
          std::vector<Instanced_Markup_Mesh_attrib_t> balls;
          balls.resize(v.size());
-         glm::vec4 colour(0.93, 0.4, 0.5, 1.0);
          for (unsigned int i=0; i<v.size(); i++) {
             coot::colour_holder ch = colour_string_to_colour_holder(v[i].col);
             glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
             glm::vec3 position(v[i].pos.x(), v[i].pos.y(), v[i].pos.z());
             Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size);
+            attribs.specular_strength = specular_strength;
             balls[i] = attribs;
          }
          im.update_instancing_buffers(balls);
@@ -3723,7 +3726,8 @@ void coot_all_atom_contact_dots_old(int imol) {
       bool ignore_waters = true;
       coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), ignore_waters, 0.5, 0.25);
       // dot density
-      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+      float dd = graphics_info_t::contact_dots_density;
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dd, true);
 
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 
@@ -3806,6 +3810,12 @@ void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
    }
 
 }
+
+void set_contact_dots_density(float density) {
+
+   graphics_info_t::contact_dots_density = density;
+}
+
 
 void coot_all_atom_contact_dots_instanced(int imol) {
 
