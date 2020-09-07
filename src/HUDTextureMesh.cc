@@ -26,7 +26,7 @@ HUDTextureMesh::setup_quad() {
    triangles.push_back(g_triangle(0, 1, 2));
    triangles.push_back(g_triangle(2, 3, 0));
 
-   set_position_and_scale(glm::vec2(0,0), 1.0);
+   set_position_and_scales(glm::vec2(0,0), glm::vec2(1.0, 1.0));
 
    setup_buffers();
 
@@ -58,10 +58,10 @@ HUDTextureMesh::setup_texture_coords_for_nbcs_and_rama() {
 }
 
 void
-HUDTextureMesh::set_position_and_scale(const glm::vec2 &pos, float scale_in) {
+HUDTextureMesh::set_position_and_scales(const glm::vec2 &pos, const glm::vec2 &scales_in) {
 
    position =  pos;
-   scale = scale_in;
+   scales = scales_in;
 }
 
 
@@ -145,7 +145,7 @@ HUDTextureMesh::draw(Shader *shader_p) {
    glEnableVertexAttribArray(1);
 
    shader_p->set_vec2_for_uniform("position", position);
-   shader_p->set_float_for_uniform("scale", scale);
+   shader_p->set_vec2_for_uniform("scales", scales);
 
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id); // needed?
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

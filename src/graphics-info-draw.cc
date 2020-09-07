@@ -137,7 +137,6 @@ graphics_info_t::init_central_cube() {
 void
 graphics_info_t::init_hud_text() {
 
-   std::cout << "------------------ init_hud_text() ---------------------\n";
    graphics_info_t g;
    g.load_freetype_font_textures();
    glUseProgram(g.shader_for_hud_text.get_program_id());
@@ -158,7 +157,6 @@ graphics_info_t::init_hud_text() {
 
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glBindVertexArray(0);
-   std::cout << "------------------ done init_hud_text() ---------------------\n";
 }
 
 // static
@@ -1660,6 +1658,13 @@ graphics_info_t::setup_lights() {
 void
 graphics_info_t::setup_hud_geometry_bars() {
 
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
+
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
    shader_for_hud_geometry_bars.Use();
 
@@ -1673,7 +1678,10 @@ graphics_info_t::setup_hud_geometry_bars() {
    // Do I need to Use() the shader_for_hud_geometry_labels here?
    shader_for_hud_geometry_labels.Use();
    mesh_for_hud_geometry_labels.setup_quad();
-   mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.89), 0.037); // was 0.35
+   // mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.87), 0.037); // was 0.35
+   glm::vec2 position(-0.98, 0.903);
+   glm::vec2 scales(0.07/aspect_ratio, 0.06);
+   mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
 }
 
 float
@@ -1748,7 +1756,7 @@ graphics_info_t::draw_hud_geometry_bars() {
                        auto distortion_to_rotation_amount,
                        auto distortion_to_bar_size) {
 
-                         glm::vec2 to_top_left(-0.91, 0.94 - 0.05 * static_cast<float>(bar_index));
+                         glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                          float sum_l = 0;
                          int n = baddies.size();
                          for (int i=(n-1); i>=0; i--) {
@@ -1836,7 +1844,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                                  auto distortion_to_bar_size) {
 
                           bool status = false;
-                          glm::vec2 to_top_left(-0.91, 0.94 - 0.05 * static_cast<float>(bar_index));
+                          glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
                           std::cout << "there are " << n << " baddies" << std::endl;

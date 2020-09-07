@@ -18,7 +18,7 @@ public:
 
 class HUDTextureMesh {
    glm::vec2 position; // uniforms
-   float scale;
+   glm::vec2 scales;
    GLuint vao;
    GLuint buffer_id;
    GLuint index_buffer_id;
@@ -33,7 +33,7 @@ class HUDTextureMesh {
 public:
    HUDTextureMesh(const std::string &n) : name(n) { init(); }
    void setup_quad(); // camera-facing, of course
-   void set_position_and_scale(const glm::vec2 &pos, float scale);
+   void set_position_and_scales(const glm::vec2 &pos, const glm::vec2 &scales);
    void setup_texture_coords_for_nbcs_only();
    void setup_texture_coords_for_nbcs_and_rama();
    void draw(Shader *shader_p);
