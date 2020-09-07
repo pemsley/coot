@@ -944,16 +944,11 @@ graphics_info_t::setup_rama_balls() {
 void
 graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls) {
 
-   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > v;
-
    auto rr = saved_dragged_refinement_results;
 
    balls->clear();
 
-   float rama_ball_pos_offset_scale = 0.6;
-   glm::vec3 screen_up_dir(0.2, 0.3, 0.3);
-
-   unsigned int n_atoms_found = 0;
+  glm::vec3 screen_up_dir(0.2, 0.3, 0.3);
 
    // std::cout << "update rama ball for " << rr.all_ramas.size() << " balls " << std::endl;
    for (unsigned int i=0; i<rr.all_ramas.size(); i++) {
@@ -969,7 +964,6 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
          glm::vec3 ball_position(rr.all_ramas[i].ball_pos_x,
                                  rr.all_ramas[i].ball_pos_y,
                                  rr.all_ramas[i].ball_pos_z);
-         // std::cout << "update_rama_balls() " << i << " " << spec_CA << " " << d << std::endl;
          float size = 0.38;
          // std::cout << "debug d " << d << std::endl;
          float ra = hud_geometry_distortion_to_rotation_amount_rama(d);
@@ -977,12 +971,12 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
          cc.rotate(ra);
          glm::vec4 col = cc.to_glm();
          Instanced_Markup_Mesh_attrib_t ball(col, ball_position, size);
-         float d1 = d + 70.0;
-         float d2 = - d1 * 0.01;
+         float d1 = d + 85.0;
+         float d2 = - d1 * 0.016;
          if (d2 < 0.0) d2 = 0.0;
          if (d2 > 1.0) d2 = 1.0;
-         ball.specular_strength = 0.04 + d2;
-         ball.shininess = 2.0 + 65.0 * d2;
+         ball.specular_strength = 0.01 + d2;
+         ball.shininess = 0.9 + 155.0 * d2;
          balls->push_back(ball);
       }
    }
@@ -995,26 +989,23 @@ graphics_info_t::draw_intermediate_atoms_rama_balls() {
 
    if (! moving_atoms_asc) return;
    if (! moving_atoms_asc->mol) return;
-   glm::mat4 mvp = get_molecule_mvp();
-   glm::mat4 view_rotation = get_view_rotation();
 
    Shader &shader = graphics_info_t::shader_for_rama_balls;
-   if (true) {
-      glm::mat4 mvp = get_molecule_mvp();
-      glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 view_rotation = get_view_rotation();
-      glm::vec4 bg_col(background_colour, 1.0);
-      bool do_depth_fog = true;
-      // this is a bit ugly
 
-      // the balls are updated after a refinement cycle has finished -
-      // no need to do it here
-      // graphics_info_t g;
-      // std::vector<Instanced_Markup_Mesh_attrib_t> balls;
-      // update_rama_balls(&balls);
-      // rama_balls_mesh.update_instancing_buffers(balls);
-      rama_balls_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
-   }
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::vec3 eye_position = get_world_space_eye_position();
+   glm::mat4 view_rotation = get_view_rotation();
+   glm::vec4 bg_col(background_colour, 1.0);
+   bool do_depth_fog = true;
+   // this is a bit ugly
+
+   // the balls are updated after a refinement cycle has finished -
+   // no need to do it here
+   // graphics_info_t g;
+   // std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+   // update_rama_balls(&balls);
+   // rama_balls_mesh.update_instancing_buffers(balls);
+   rama_balls_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
 
 }
 
@@ -1680,7 +1671,7 @@ graphics_info_t::setup_hud_geometry_bars() {
    mesh_for_hud_geometry_labels.setup_quad();
    // mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.87), 0.037); // was 0.35
    glm::vec2 position(-0.98, 0.903);
-   glm::vec2 scales(0.07/aspect_ratio, 0.06);
+   glm::vec2 scales(0.04/aspect_ratio, 0.06);
    mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
 }
 
@@ -1847,7 +1838,6 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                           glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
-                          std::cout << "there are " << n << " baddies" << std::endl;
                           for (int i=(n-1); i>=0; i--) {
                              float d = baddies[i].second;
                              glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);

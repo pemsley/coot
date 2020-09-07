@@ -223,7 +223,7 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
       }
       if (p_i.success) {
          mmdb::Atom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
-         std::cout << "INFO:: picked atom: " << coot::atom_spec_t(at) << std::endl;
+         // std::cout << "INFO:: picked atom: " << coot::atom_spec_t(at) << std::endl;
       }
    }
    return p_i;

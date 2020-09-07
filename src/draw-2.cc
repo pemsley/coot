@@ -377,15 +377,11 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                                if (control_is_pressed) {
                                   do_drag_pan_gtk3(widget);
                                } else {
-
-                                  bool handled = false;
-                                  if (! handled) {
-                                     GtkAllocation allocation;
-                                     gtk_widget_get_allocation(widget, &allocation);
-                                     int w = allocation.width;
-                                     int h = allocation.height;
-                                     graphics_info_t::update_view_quaternion(w, h);
-                                  }
+                                  GtkAllocation allocation;
+                                  gtk_widget_get_allocation(widget, &allocation);
+                                  int w = allocation.width;
+                                  int h = allocation.height;
+                                  graphics_info_t::update_view_quaternion(w, h);
                                }
                             };
 
@@ -475,6 +471,34 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
          }
       }
    }
+
+   if (g.delete_item_widget) { 
+      if (g.delete_item_water) {
+	 pick_info naii = g.atom_pick_gtk3(false);
+         GdkDisplay *display = gdk_display_get_default();
+         GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(widget));
+         GdkCursor *current_cursor = gdk_window_get_cursor(window);
+         // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
+	 if (naii.success == GL_TRUE) {
+            int imol = naii.imol;
+            std::string res_name = graphics_info_t::molecules[imol].atom_sel.atom_selection[naii.atom_index]->GetResName();
+            if (res_name == "HOH") {
+               GdkCursor *c = gdk_cursor_new_from_name (display, "crosshair");
+               // std::cout << "crosshair type " << gdk_cursor_get_cursor_type(c) << std::endl;
+               gdk_window_set_cursor(window, c);
+            } else {
+               GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
+               std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+               gdk_window_set_cursor(window, c);
+            }
+         } else {
+            GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
+            std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+            gdk_window_set_cursor(window, c);
+         }
+      }
+   }
+
 
    // for next motion
    g.SetMouseBegin(event->x,event->y);
