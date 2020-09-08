@@ -1122,7 +1122,6 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
                                                 continue_status = 0;
                                                 lines_mesh_for_identification_pulse.clear();
                                              } else {
-                                                // ns should depend on zoom
                                                 float ns = pulse_data->n_pulse_steps;
                                                 lines_mesh_for_identification_pulse.update_buffers_for_pulse(ns);
                                              }
@@ -1134,9 +1133,9 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
          // (happens when mouse double clicked)
          pulse_data_t *pulse_data = new pulse_data_t(0, 30);
          gpointer user_data = reinterpret_cast<void *>(pulse_data);
-         glm::vec3 pos = cartesian_to_glm(current_centre);
+         identification_pulse_centre = cartesian_to_glm(current_centre);
          gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-         lines_mesh_for_identification_pulse.setup_pulse(pos, &shader_for_lines_pulse);
+         lines_mesh_for_identification_pulse.setup_pulse(&shader_for_lines_pulse);
          gtk_widget_add_tick_callback(glareas[0], identification_pulse_func, user_data, NULL);
 
       }

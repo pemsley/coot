@@ -4275,9 +4275,13 @@ string   static std::string sessionid;
    static int n_particles;
    static particle_container_t particles;
 
+   // these are "setup" by the function that starts them
    static LinesMesh lines_mesh_for_identification_pulse;
-   static void setup_pulse_identification();
+   static LinesMesh lines_mesh_for_delete_item_pulse;
+   static glm::vec3 identification_pulse_centre;
    static void draw_identification_pulse();
+   static void draw_delete_item_pulse();
+   static std::vector<glm::vec3> delete_item_pulse_centres;
 
    static Mesh mesh_for_boids; // with instancing
    static fun::boids_container_t boids;

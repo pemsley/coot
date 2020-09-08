@@ -16,9 +16,8 @@ out vec4 colour_transfer;
 
 void main() {
 
-   vec3 p1 = position - atom_centre;
    mat4 t = transpose(view_rotation);
-   vec4 p2 = vec4(p1, 1.0);
+   vec4 p2 = vec4(position, 1.0);
    vec4 p3 = t * p2;
    vec4 p4 = p3 + vec4(atom_centre, 0.0); // 0.0 is important here
    gl_Position = mvp * p4;

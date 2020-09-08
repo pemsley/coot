@@ -157,12 +157,15 @@ bool graphics_info_t::do_tick_boids = false;
 int graphics_info_t::n_particles = 300;
 Mesh graphics_info_t::mesh_for_particles;
 particle_container_t graphics_info_t::particles;
+glm::vec3 graphics_info_t::identification_pulse_centre;
 
 fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
 LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
+LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
+std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
 
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");

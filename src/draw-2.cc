@@ -169,8 +169,6 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
 
-   g.setup_pulse_identification(); // not needed I think
-
    g.setup_hud_geometry_bars();
 
    g.setup_rama_balls();
@@ -481,19 +479,20 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
          // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
 	 if (naii.success == GL_TRUE) {
             int imol = naii.imol;
-            std::string res_name = graphics_info_t::molecules[imol].atom_sel.atom_selection[naii.atom_index]->GetResName();
+            molecule_class_info_t &m = graphics_info_t::molecules[imol];
+            std::string res_name = m.atom_sel.atom_selection[naii.atom_index]->GetResName();
             if (res_name == "HOH") {
                GdkCursor *c = gdk_cursor_new_from_name (display, "crosshair");
                // std::cout << "crosshair type " << gdk_cursor_get_cursor_type(c) << std::endl;
                gdk_window_set_cursor(window, c);
             } else {
                GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
-               std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+               // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
                gdk_window_set_cursor(window, c);
             }
          } else {
             GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
-            std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+            // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
             gdk_window_set_cursor(window, c);
          }
       }

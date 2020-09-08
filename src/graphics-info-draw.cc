@@ -1699,7 +1699,8 @@ graphics_info_t::hud_geometry_distortion_to_bar_size_atom_pull(float distortion)
 float
 graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortion) {
    distortion += 200.0;
-   float rotation_amount = 1.0 - 0.0022 * distortion;
+   // float rotation_amount = 1.0 - 0.0022 * distortion;
+   float rotation_amount = 1.0 - 0.0028 * distortion;
    if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
    if (rotation_amount > 1.0) rotation_amount = 1.0;
    return rotation_amount;
@@ -1939,6 +1940,8 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
       draw_identification_pulse();
 
+      draw_delete_item_pulse();
+
       glBindVertexArray(0); // here is not the place to call this.
    }
 
@@ -2165,15 +2168,6 @@ graphics_info_t::draw_boids() {
    }
 }
 
-//static
-void
-graphics_info_t::setup_pulse_identification() {
-
-   // we don't set it up here - we set it up in the function that sets up the tick timeout.
-   //
-   // lines_mesh_for_identification_pulse.setup(&shader_for_lines);
-}
-
 
 void
 graphics_info_t::draw_identification_pulse() {
@@ -2181,7 +2175,25 @@ graphics_info_t::draw_identification_pulse() {
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 view_rotation_matrix = get_view_rotation();
-      lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse, mvp, view_rotation_matrix, true);
+      glLineWidth(2.0);
+      lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
+                                               identification_pulse_centre,
+                                               mvp, view_rotation_matrix, true);
+   }
+}
+
+void
+graphics_info_t::draw_delete_item_pulse() {
+
+   if (! lines_mesh_for_delete_item_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glLineWidth(2.0);
+      for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {
+         lines_mesh_for_delete_item_pulse.draw(&shader_for_lines_pulse,
+                                               delete_item_pulse_centres[i],
+                                               mvp, view_rotation_matrix, true);
+      }
    }
 }
 
@@ -2475,6 +2487,9 @@ graphics_info_t::setup_key_bindings() {
                     mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
                     mmdb::Residue *residue_p = at->GetResidue();
                     if (residue_p) {
+                       // for this to work I need to move setup_delete_item_pulse() into
+                       // graphics_info_t. Not today.
+                       // setup_delete_item_pulse(residue_p);
                        coot::residue_spec_t residue_spec(residue_p);
                        g.molecules[imol].delete_residue(residue_spec);
                     }
