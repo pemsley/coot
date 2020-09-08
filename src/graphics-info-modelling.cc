@@ -5105,6 +5105,19 @@ graphics_info_t::delete_sidechain_range(int imol,
 
 }
 
+void
+graphics_info_t::delete_active_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+   if (aa.first) {
+      int imol = aa.second.first;
+      coot::residue_spec_t rs(aa.second.second);
+      molecules[imol].delete_residue(rs);
+   }
+   graphics_draw();
+}
+
+
 
 
 // // static

@@ -1277,12 +1277,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       }
    }
 
-   std::cout << "debug:: D make_df_restraints_indicies() called here\n";
    make_df_restraints_indices();
-	// is the following needed? I doubt.
+   // is the following needed? I doubt.
    make_distortion_electron_density_ranges();
 
-	return n_nbc_restraints;
+   return n_nbc_restraints;
 
 }
 

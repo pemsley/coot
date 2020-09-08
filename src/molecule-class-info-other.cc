@@ -1192,6 +1192,17 @@ molecule_class_info_t::delete_residue(int model_number,
    return was_deleted;
 }
 
+// wraps above
+short int
+molecule_class_info_t::delete_residue(const coot::residue_spec_t &spec) {
+
+   return delete_residue(spec.model_number,
+			 spec.chain_id,
+			 spec.res_no,
+			 spec.ins_code);
+}
+
+
 short int
 molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int resno,
                                                 const std::string &ins_code,

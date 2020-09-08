@@ -52,6 +52,13 @@ namespace coot {
 					   bool fill_masking_molecule_flag);
 
    class ligand {
+   public:
+      class spherical_density_score_t {
+      public:
+	 float density_at_position;
+	 float non_spherical_score;
+	 spherical_density_score_t(float f, float n) : density_at_position(f), non_spherical_score(n) {}
+      };
 
    private:
       enum { OK_GOLDILOCKS, TOO_FAR, TOO_CLOSE, WATER_STATUS_UNKNOWN};
@@ -152,10 +159,9 @@ namespace coot {
       clipper::Coord_orth move_atom_to_peak(const clipper::Coord_orth &a,
 					    const clipper::Xmap<float> &search_map) const;
       short int cluster_is_possible_water(int i) const;
-      short int cluster_is_possible_water(const coot::map_point_cluster &mpc) const;
+      short int cluster_is_possible_water(const map_point_cluster &mpc) const;
       short int has_sphericalish_density(const clipper::Coord_orth &a,
 					 const clipper::Xmap<float> &search_map) const;
-
       // is close to protein, H-bonding distance to an O or N atom.
       short int water_pos_is_chemically_sensible(clipper::Coord_orth new_centre) const;
       short int water_pos_is_chemically_sensible(const clipper::Coord_orth &water_centre,
@@ -198,7 +204,7 @@ namespace coot {
       short int similar_eigen_values(int iclust, int ilig) const;
 
       // water stuff
-      coot::minimol::molecule water_molecule;  // a molecule of (many) waters
+      minimol::molecule water_molecule;  // a molecule of (many) waters
       minimol::molecule new_ligand_with_centre(const clipper::Coord_orth &pos);
       void write_waters(const std::vector<clipper::Coord_orth> &water_list,
 			const std::string &filename) const;
@@ -216,7 +222,7 @@ namespace coot {
                                                         // indexed with iclust
 
       // tinker with mmmol (minimol molecule)
-      void set_cell_and_symm(coot::minimol::molecule *mmmol) const;
+      void set_cell_and_symm(minimol::molecule *mmmol) const;
 
       int n_grid_limit_for_water_cluster() const;
 
@@ -260,7 +266,7 @@ namespace coot {
       // back the top 10 (say) solutions for a given position and
       // allow the user to examine).
       // std::vector<coot::minimol::molecule>   final_ligand;
-      std::vector<std::vector<std::pair<coot::minimol::molecule, ligand_score_card> > > final_ligand;
+      std::vector<std::vector<std::pair<minimol::molecule, ligand_score_card> > > final_ligand;
       void sort_final_ligand(unsigned int iclust);
       // which uses comparison function
       // return "is first less than second?" status
@@ -296,7 +302,7 @@ namespace coot {
 
       // Here's a function that someone else might want to use:
       //
-      std::string get_first_residue_name(const coot::minimol::molecule &mol) const;
+      std::string get_first_residue_name(const minimol::molecule &mol) const;
 
       std::vector<clipper::Coord_orth> water_fit_internal(float sigma_cutoff, int n_cycle);
 
@@ -572,6 +578,13 @@ namespace coot {
 
       std::vector<std::pair<std::string, clipper::Xmap<float> > >
          make_masked_maps_split_by_chain(mmdb::Manager *mol);
+
+      std::pair<float, float> mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const;
+
+      spherical_density_score_t
+      spherical_density_score(const clipper::Coord_orth &a,
+                              const clipper::Xmap<float> &search_map) const;
+
    };
 
 
