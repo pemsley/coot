@@ -1654,11 +1654,12 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
             n_rama_restraints++;
             if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
                // std::cout << "----------------------- ZO type RAMA! " << std::endl;
-               double dd = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
-               dd /= rama_plot_weight;
+               double dd_raw = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
+               double dd = dd_raw / rama_plot_weight;
                dd *= 50.0; // scale to non-ZO non weighted
                if (false) // range -13 to 0 with weight 1.4, and 100 times that with weight 140
-                  std::cout << "rama zo for restraint " << i << " distortion " << dd << " "
+                  std::cout << "zo-rama distortion for restraint " << i << " distortion is "
+                            << dd_raw << " " << " (post-mod) " << dd << " "
                             << atom_spec_t(atom[restraint.atom_index_3])
                             << std::endl;
                rama_distortion_score_sum += dd;
