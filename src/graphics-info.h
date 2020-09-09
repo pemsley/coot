@@ -3024,7 +3024,12 @@ public:
 						    int resno_2) const;
    atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol,
 						    const std::vector<mmdb::Residue *> &residues) const;
-   static bool moving_atoms_displayed_p() { return moving_atoms_asc->mol; }
+   static bool moving_atoms_displayed_p() {
+      if (moving_atoms_asc)
+         if (moving_atoms_asc->mol)
+            return true;
+      return false;
+   }
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    //
