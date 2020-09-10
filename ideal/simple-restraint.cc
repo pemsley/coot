@@ -88,8 +88,10 @@ coot::restraints_container_t::~restraints_container_t() {
          // 20200820-PE I don't know what simple_refine_residues() is
          // I am going to ignore the above message and delete the atoms
          // now.
-	 delete [] atom;
-	 atom = NULL;
+         // atom needs to be a shared_ptr so that I can copy
+         // restraints containers.
+	 // delete [] atom;
+	 // atom = NULL;
       }
    } else {
       // member data item mmdb::PPAtom atom is constructed by an
