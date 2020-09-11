@@ -164,6 +164,149 @@ coot::ligand::density_at_point(const clipper::Coord_orth &atom_pos,
    return dv;
 }
 
+#include "coot-utils/fib-sphere.hh"
+#include "analysis/stats.hh"
+
+std::pair<float, float>
+coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
+
+   std::pair<float, float> r(0,0);
+   unsigned int n_test_points = 100;
+   std::vector<clipper::Coord_orth> test_points;
+
+   unsigned int n_atoms = 0;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      const clipper::Xmap<float> &xmap = xmap_pristine;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    std::string rn(residue_p->GetResName());
+	    if (rn != "HOH") {
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       if (n_atoms == 1) {
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     mmdb::Atom *at = residue_p->GetAtom(iat);
+		     if (! at->isTer()) {
+			n_atoms++;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      if (n_atoms > n_test_points) {
+	 float rmi = 1.0f/float(RAND_MAX);
+	 float crit_val = static_cast<float>(n_test_points)/static_cast<float>(n_atoms);
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       std::string rn(residue_p->GetResName());
+	       if (rn != "HOH") {
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  if (n_atoms == 1) {
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			if (! at->isTer()) {
+			   float f = coot::util::random() * rmi;
+			   if (f < crit_val) {
+			      clipper::Coord_orth c(at->x, at->y, at->z);
+			      test_points.push_back(c);
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      } else {
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       std::string rn(residue_p->GetResName());
+	       if (rn != "HOH") {
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  if (n_atoms == 1) {
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			if (! at->isTer()) {
+			   clipper::Coord_orth c(at->x, at->y, at->z);
+			   test_points.push_back(c);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+
+      if (! test_points.empty()) {
+	 coot::stats::single s;
+	 for (std::size_t i=0; i<test_points.size(); i++)
+	    s.add(density_at_point(test_points[i], xmap));
+	 float m = s.mean();
+	 float sd = sqrt(s.variance());
+	 return std::pair<float, float>(m,sd);
+      }
+   }
+   return r;
+}
+
+
+coot::ligand::spherical_density_score_t
+coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
+                                      const clipper::Xmap<float> &not_needed) const {
+
+   double step = 0.4;
+
+   const clipper::Xmap<float> &search_map = xmap_pristine;
+
+   std::vector<int> n_samples = { 0, 30, 80, 150 };
+   int n_total = 30 + 80 + 150;
+
+   std::vector<float> var(4,0);
+
+   float sum_for_scaling = 0.0;
+
+   for (int istep=1; istep<=3; istep++) {
+      std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(n_samples[istep]);
+      double sum_sq = 0;
+      double sum = 0;
+
+      for (int i=0; i<n_samples[istep]; i++) {
+         clipper::Coord_orth pos = a + step * sphere_points[i];
+         float dv = density_at_point(pos, search_map);
+         sum    += dv;
+         sum_sq += dv * dv;
+         sum_for_scaling += dv;
+      }
+
+      float mean = sum/static_cast<float>(n_samples[istep]);
+      var[istep] = sum_sq/static_cast<float>(n_samples[istep]) - mean * mean;
+
+   }
+   float overall_mean = sum_for_scaling/static_cast<float>(n_total);
+   float non_spherical = 0.0;
+   for (int istep=1; istep<=3; istep++)
+      non_spherical += 0.333 * sqrt(var[istep])/overall_mean;
+   // if (non_spherical < 0.0) non_spherical = 0.0;
+   // if (non_spherical > 1.0) non_spherical = 1.0;
+   float sphericalness = 1.0 - non_spherical;
+
+   float dp = density_at_point(a, search_map);
+   return spherical_density_score_t(dp, non_spherical);
+
+}
+
 short int
 coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
 				       const clipper::Xmap<float> &search_map) const {
@@ -196,8 +339,8 @@ coot::ligand::has_sphericalish_density(const clipper::Coord_orth &a,
       double sum_sq = 0;
       double sum = 0;
       for (int j=0; j<6; j++) {
-	 sum    += dv[j];
-	 sum_sq += dv[j]*dv[j];
+         sum    += dv[j];
+         sum_sq += dv[j]*dv[j];
       }
       var[i-1] = sum_sq/6.0 - sum*sum/36.0;
    }
@@ -373,7 +516,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 
    if (xmap_masked_stats.first == 0) {
       std::cout << "ERROR: xmap_masked_stats not set" << std::endl;
-   } else { 
+   } else {
 //       std::cout << "DEBUG:: at start of water_fit_internal: map stats: sigma: "
 // 		<< xmap_masked_stats.second.second << std::endl;
       

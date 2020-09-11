@@ -1220,6 +1220,7 @@ molecule_class_info_t::delete_residue(int model_number,
    return was_deleted;
 }
 
+// wraps above
 short int
 molecule_class_info_t::delete_residue(const coot::residue_spec_t &spec) {
 

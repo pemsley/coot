@@ -71,6 +71,23 @@ coot::restraints_container_t::clear() {
    init(); // resets lock, fwiw
 }
 
+void
+coot::restraints_container_t::get_restraints_lock() {
+
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+      unlocked = false;
+   }
+}
+
+void
+coot::restraints_container_t::release_restraints_lock() {
+
+   restraints_lock = false;
+}
+
+
 
 coot::restraints_container_t::~restraints_container_t() {
    if (from_residue_vector) {
@@ -88,8 +105,10 @@ coot::restraints_container_t::~restraints_container_t() {
          // 20200820-PE I don't know what simple_refine_residues() is
          // I am going to ignore the above message and delete the atoms
          // now.
-	 delete [] atom;
-	 atom = NULL;
+         // atom needs to be a shared_ptr so that I can copy
+         // restraints containers.
+	 // delete [] atom;
+	 // atom = NULL;
       }
    } else {
       // member data item mmdb::PPAtom atom is constructed by an

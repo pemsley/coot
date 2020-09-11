@@ -2488,6 +2488,7 @@ public:
    void delete_sidechain_range(int imol,
 			       const coot::residue_spec_t &res_1,
 			       const coot::residue_spec_t &res_2);
+   void delete_active_residue();
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
    //
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,

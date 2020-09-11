@@ -5949,10 +5949,11 @@ int add_generic_display_object(const meshed_generic_display_object &gdo) {
 #include <boost/crc.hpp>
 #endif
 
-bool
+std::pair<bool, std::string>
 checksums_match(const std::string &file_name, const std::string &checksum) {
 
    bool state = false;
+   std::string message;
 
 #ifdef HAVE_BOOST
    std::ifstream f(file_name.c_str());
@@ -5963,13 +5964,15 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
       // boost::crc_basic<16> crc_ccitt1( 0x1021, 0xFFFF, 0, false, false );
       boost::crc_basic<16> crc_ccitt1(0xffff, 0x0, 0, false, false );
       crc_ccitt1.process_bytes(dl_str.c_str(), dl_str.size());
-      // std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
+      std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
       std::string s = coot::util::int_to_string(crc_ccitt1.checksum());
       if (s == checksum)
 	 state = true;
+      else
+         message = s + " vs " + checksum;
    }
 #endif // HAVE_BOOST
-   return state;
+   return std::pair<bool, std::string> (state, message);
 }
 
 
@@ -6001,7 +6004,8 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
       } else {
          // Happy path
          if (coot::file_exists(dl_fn)) {
-            if (checksums_match(dl_fn, checksum)) {
+            std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
+            if (checksum_result.first) {
                // I want a function that returns preferences_dir
                char *home = getenv("HOME");
                if (home) {
@@ -6027,7 +6031,7 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                   std::cout << "No HOME env var" << std::endl;
                }
             } else {
-               std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+               std::cout << "WARNING:: Failure in checksum match " << dl_fn << " " << checksum_result.second << std::endl;
             }
          } else {
             std::cout << "WARNING:: download target file " << dl_fn << " does not exist" << std::endl;
@@ -6121,7 +6125,8 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			if (coot::file_exists(dl_fn)) {
 			   std::string checksum;
 			   if (checksum_cstr) checksum = checksum_cstr;
-			   if (checksums_match(dl_fn, checksum)) {
+                           std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
+                           if (checksum_result.first) {
 			      // I want a function that returns preferences_dir
 			      char *home = getenv("HOME");
 			      if (home) {
@@ -6151,7 +6156,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
                                  std::cout << "No HOME env var" << std::endl;
                               }
 			   } else {
-			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << " " << checksum_result.second << std::endl;
 			   }
 			} else {
 			   std::cout << "WARNING:: file does not exist " << file_name << std::endl;

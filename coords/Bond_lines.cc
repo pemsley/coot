@@ -5939,9 +5939,11 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                            int atom_idx_1 = -1;  // atom index in the asc atom selection
                            int atom_idx_2 = -1;
                            ierr = residue_atoms[iat]->GetUDData(udd_atom_index_handle, atom_idx_1);
-                           if (ierr != mmdb::UDDATA_Ok) std::cout << "Index error" << std::endl;
+                           if (ierr != mmdb::UDDATA_Ok)
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error " << udd_atom_index_handle << std::endl;
                            ierr = residue_atoms[jat]->GetUDData(udd_atom_index_handle, atom_idx_2);
-                           if (ierr != mmdb::UDDATA_Ok) std::cout << "Index error" << std::endl;
+                           if (ierr != mmdb::UDDATA_Ok)
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error " << udd_atom_index_handle << std::endl;
 
                            std::string element_1 = std::get<1>(atom_name_ele_vec[iat]);
                            std::string element_2 = std::get<1>(atom_name_ele_vec[jat]);

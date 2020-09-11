@@ -19,10 +19,10 @@
  * 02110-1301, USA.
 */
 
-#include "clipper/core/rotation.h" 
-#include "mmdb-extras.h" 
-#include "mmdb.h" 
-#include "coot-coord-utils.hh"
+#include "clipper/core/rotation.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coot-utils/coot-coord-utils.hh"
 #include "torsion-general.hh"
 #include <dirent.h>
 
@@ -129,7 +129,7 @@ compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, mmdb::M
 				 n_atoms_matched++;
 				 ::Cartesian p1(at_1->x, at_1->y, at_1->z);
 				 ::Cartesian p2(at_2->x, at_2->y, at_2->z);
-				 float d = ::Cartesian::LineLength(p1, p2);
+				 float d = LineLength(p1, p2);
 				 atom_dist_diff += d;
 			      }
 			   }
@@ -330,19 +330,98 @@ void rotamer_tables() {
 
 }
 
+int test_torsion(const std::string &pdb_filename) {
+
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, false, false);
+   int retval = test_torsion_general(asc, pdb_filename);
+   return retval;
+}
+
+#include "ligand.hh"
+
+int test_spherical(const std::string &pdb_filename,
+		   const std::string &mtz_filename) {
+
+   int r = 0;
+
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, false, false);
+   clipper::Xmap<float> xmap;
+   std::string f_col   = "FWT";
+   std::string phi_col = "PHWT";
+   bool use_weights = 0;
+   bool is_diff_map = 0;
+   coot::ligand lig;
+   bool stat = false;
+   try {
+      stat = lig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "",
+				   use_weights, is_diff_map);
+   }
+   catch (const clipper::Message_fatal &m) {
+      std::cout << "ERROR:: reading " << mtz_filename << std::endl;
+   }
+   if (! stat) {
+      std::cout << "ERROR: in filling map from mtz file: " << mtz_filename
+		<< std::endl;
+   } else {
+      int imod = 1;
+      mmdb::Model *model_p = asc.mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       std::string rn(residue_p->GetResName());
+	       if (rn == "HOH") {
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  if (n_atoms == 1) {
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *at = residue_p->GetAtom(iat);
+			if (! at->isTer()) {
+			   clipper::Coord_orth pt = coot::co(at);
+			   coot::ligand::spherical_density_score_t non_spherical_score =
+			      lig.spherical_density_score(pt, xmap);
+			   std::cout << "water " << pdb_filename <<  " " << coot::atom_spec_t(at)
+				     << " " << non_spherical_score.density_at_position
+				     << " " << non_spherical_score.non_spherical_score << std::endl;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+}
+
+
 int main(int argc, char **argv) {
 
-   int r=1; // file not provided
+   int r = 1;
 
-   if (argc < 2) {
-      std::cout << "Usage: Need to pass a pdb file name" << std::endl;
-      return 1;
-   } else {
-      std::string pdb_filename = argv[1];
-      atom_selection_container_t asc = get_atom_selection(pdb_filename, 1);
-      int retval = test_torsion_general(asc, pdb_filename);
-      r = retval;
+   if (false) {
+      if (argc < 2) {
+	 std::cout << "Usage: Need to pass a pdb file name" << std::endl;
+      } else {
+	 std::string pdb_filename = argv[1];
+	 r = test_torsion(pdb_filename);
+      }
    }
-   rotamer_tables();
+
+   if (false)
+      rotamer_tables();
+
+   if (true) {
+      if (argc < 3) {
+	 std::cout << "Usage: Need to pass a pdb file name and map" << std::endl;
+      } else {
+	 std::string pdb_filename = argv[1];
+	 std::string mtz_filename = argv[2];
+	 r = test_spherical(pdb_filename, mtz_filename);
+      }
+   }
+
    return r;
 }

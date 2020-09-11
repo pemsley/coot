@@ -95,22 +95,20 @@ namespace coot {
       bool fixed_2;
       bool fixed_3;
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
-		    const std::string &link_type_in) {
+		    const std::string &link_type_in) : link_type(link_type_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
-	 link_type = link_type_in;
 	 fixed_1 = 0;
 	 fixed_2 = 0;
 	 fixed_3 = 0;
       }
       rama_triple_t(mmdb::Residue *r1, mmdb::Residue *r2, mmdb::Residue *r3,
 		    const std::string &link_type_in,
-		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) {
+		    bool fixed_1_in, bool fixed_2_in, bool fixed_3_in) : link_type(link_type_in) {
 	 r_1 = r1;
 	 r_2 = r2;
 	 r_3 = r3;
-	 link_type = link_type_in;
 	 fixed_1 = fixed_1_in;
 	 fixed_2 = fixed_2_in;
 	 fixed_3 = fixed_3_in;
@@ -2317,6 +2315,8 @@ namespace coot {
       // we shouldn't refine when the atom pull restraints are being updated.
       // we shouldn't clear the gsl_vector x when o
       std::atomic<bool> restraints_lock;
+      void get_restraints_lock();
+      void release_restraints_lock();
 #endif
 
       unsigned int get_n_atoms() const { return n_atoms; } // access from split_the_gradients_with_threads()

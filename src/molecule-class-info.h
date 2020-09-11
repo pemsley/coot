@@ -1664,7 +1664,8 @@ public:        //                      public
                             const std::string &inscode);
 
    // delete from all models
-   short int delete_residue(const coot::residue_spec_t &rs);
+   // wraps above
+   short int delete_residue(const coot::residue_spec_t &spec);
 
    // Delete only the atoms of the residue that have the same altconf (as
    // the selected atom).  If the selected atom has altconf "", you
