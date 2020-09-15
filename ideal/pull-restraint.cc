@@ -19,9 +19,9 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    std::vector<simple_restraint>::iterator it;
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
-         std::cout << "comparing specs " << it->atom_spec << " " << spec << std::endl;
+         // std::cout << "comparing specs " << it->atom_spec << " " << spec << std::endl;
 	 if (it->atom_spec == spec) {
-            std::cout << "matched!" << std::endl;
+            // std::cout << "matched!" << std::endl;
 	    at = atom[it->atom_index_1];
 
             get_restraints_lock();
