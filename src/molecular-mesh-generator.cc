@@ -546,7 +546,7 @@ molecular_mesh_generator_t::smooth_vertices(std::vector<s_generic_vertex> *v_p, 
    }
 
    std::map<unsigned int, glm::vec3>::const_iterator it_udm;
-   for (it_udm=updated_normal_map.begin(); it_udm!=updated_normal_map.end(); it_udm++) {
+   for (it_udm=updated_normal_map.begin(); it_udm!=updated_normal_map.end(); ++it_udm) {
       verts[it_udm->first].normal = glm::normalize(it_udm->second);
    }
 
@@ -558,6 +558,9 @@ std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_test_cis_peptides() { // maybe should be in graphical_molecule
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+
+#ifdef THIS_IS_HMT
+#else
 
    std::vector<glm::vec3> cis_pep_quad = { glm::vec3(46.538,   9.221,  19.792),     // CA this
                                            glm::vec3(45.726,  10.437,  19.286),     // C this
@@ -575,6 +578,7 @@ molecular_mesh_generator_t::get_test_cis_peptides() { // maybe should be in grap
    vp.second.insert(vp.second.end(), vp_cis_pep.second.begin(), vp_cis_pep.second.end());;
    for (unsigned int i=idx_tri_base; i<vp.second.size(); i++)
       vp.second[i].rebase(idx_base);
+#endif
 
    return vp;
 
@@ -621,6 +625,8 @@ molecular_mesh_generator_t::get_cis_peptides(const std::string &pdb_file_name) {
 }
 
 
+#ifdef THIS_IS_HMT
+#else
 #include "coot-utils/coot-coord-utils.hh"
 
 // return a map with the key as the model number (normally only 1 of course)
@@ -660,8 +666,11 @@ molecular_mesh_generator_t::make_cis_peptide_quads_mesh(mmdb::Manager *mol) {
    }
    return  cis_pep_geometry_map;
 }
+#endif // THIS_IS_HMT
 
 
+#ifdef THIS_IS_HMT
+#else
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad_in,
@@ -785,6 +794,7 @@ molecular_mesh_generator_t::make_cis_peptide_geom(const std::vector<glm::vec3> &
    return std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >(vv, vt);
 
 }
+#endif // THIS_IS_HMT
 
 void
 molecular_mesh_generator_t::update_mats_and_colours() {
@@ -1053,16 +1063,29 @@ molecular_mesh_generator_t::add_to_mesh(std::pair<std::vector<s_generic_vertex>,
 void
 molecular_mesh_generator_t::add_to_mesh(std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > *vp, // update vp
                                         const std::vector<s_generic_vertex> &gv,
-                                        std::vector<g_triangle> &tris) const {
+                                        const std::vector<g_triangle> &tris) const {
 
    unsigned int idx_base = vp->first.size();
    unsigned int idx_tri_base = vp->second.size();
 
    vp->first.insert(vp->first.end(), gv.begin(), gv.end());
-   vp->second.insert(vp->second.end(), tris.begin(), tris.end());;
+   vp->second.insert(vp->second.end(), tris.begin(), tris.end());
    for (unsigned int i=idx_tri_base; i<vp->second.size(); i++)
       vp->second[i].rebase(idx_base);
 
+}
+
+void
+molecular_triangles_mesh_t::add_to_mesh(const std::vector<s_generic_vertex> &gv,
+                                        const std::vector<g_triangle> &tris) {
+
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_tri_base = triangles.size();
+
+   vertices.insert(vertices.end(), gv.begin(), gv.end());
+   triangles.insert(triangles.end(), tris.begin(), tris.end());
+   for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+      triangles[i].rebase(idx_base);
 }
 
 

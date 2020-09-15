@@ -9,6 +9,9 @@
 #include "Shader.hh"
 #include "Material.hh"
 #include "Particle.hh"
+#include "molecular-triangles-mesh.hh"
+
+#include <assimp/scene.h>
 
 class Mesh {
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
@@ -25,6 +28,7 @@ class Mesh {
    GLuint normals_colour_buffer_id;
    bool first_time;
    void init();
+   aiScene generate_scene() const;
 
 public:
    GLuint vao;
@@ -39,16 +43,15 @@ public:
    bool is_instanced_with_rts_matrix;
    bool use_blending;
    std::vector<s_generic_vertex> vertices;
-   std::vector<g_triangle> triangle_vertex_indices;
+   std::vector<g_triangle> triangle_vertex_indices; // just call it triangles
    Shader shader_for_draw_normals;
    std::string name;
 
    Mesh() { init(); }
    // import from somewhere else
-   Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
-   Mesh(const std::string &name_in) : name(name_in) {
-      init();
-   }
+   explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
+   explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
+   explicit Mesh(const molecular_triangles_mesh_t &mtm);
 
    void debug() const;
    void clear() {
@@ -128,6 +131,9 @@ public:
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
    bool have_instances() const { return (n_instances > 0); }
+   bool export_as_obj_via_assimp(const std::string &file_name) const;
+   bool export_as_obj_internal(const std::string &file_name) const;
+   bool export_as_obj(const std::string &file_name) const;
 
 };
 

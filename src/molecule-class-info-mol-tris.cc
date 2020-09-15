@@ -53,9 +53,19 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    material.specular_strength = 1.12;
    Shader molecular_triangles_shader;
    molecular_triangles_shader.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
-   Mesh mesh(name);
-   meshes.push_back(mesh);
-   meshes.back().import(mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style));
+
+   // Mesh mesh(name);
+   // meshes.push_back(mesh);
+   // std::vector<molecular_triangles_mesh_t mtm =
+   // mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style);
+   // meshes.back().import(mtm);
+
+   std::vector<molecular_triangles_mesh_t> mtm =
+               mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style);
+
+   // Mesh mesh(mtm);
+   // meshes.push_back(mesh);
+
    meshes.back().setup(&molecular_triangles_shader, material);
 
    std::cout << "........... now for molecule " << imol_no << " we have "

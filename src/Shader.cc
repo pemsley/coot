@@ -78,6 +78,7 @@ Shader::close() {
 
 void
 Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
+
    GLuint err = glGetError();
    if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name << " start err " << err << std::endl;
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
@@ -85,8 +86,9 @@ Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
                                           << " A err " << err << std::endl;
    glUniform1i(loc,value);
    err = glGetError(); if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name
-                                          << " B glUniform1i for loc: " << loc << " value: "
-                                          << value << " err " << err << std::endl;
+                                          << " B glUniform1i for uniform " << uniform_name
+                                          << " loc: " << loc << " value: " << value
+                                          << " err " << err << std::endl;
 }
 
 void

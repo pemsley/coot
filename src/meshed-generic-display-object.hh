@@ -24,7 +24,7 @@ class meshed_generic_display_object {
 public:
    class arrow_t {
    public:
-      arrow_t() { fract_head_size = 0.3;}
+      arrow_t() { fract_head_size = 0.3; radius = 0.15; }
       arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
          start_point = pt1;
          end_point = pt2;
@@ -39,8 +39,7 @@ public:
    class sphere_t {
    public:
       sphere_t() {}
-      sphere_t(const clipper::Coord_orth &centre_in, float r) {
-         centre = centre_in;
+      sphere_t(const clipper::Coord_orth &centre_in, float r) : centre(centre_in) {
          radius = r;
       }
       clipper::Coord_orth centre;

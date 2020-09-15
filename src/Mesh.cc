@@ -35,14 +35,20 @@ Mesh::init() {
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
 
-   draw_this_mesh = true;
-   is_instanced = false;
-   is_instanced_with_rts_matrix = false;
-   use_blending = false;
+   init();
    vertices = indexed_vertices.first;
    triangle_vertex_indices = indexed_vertices.second;
-   vao = 99999999;
 }
+
+// a molecular_triangles_mesh_t is a poor man's Mesh. Why does it exist?
+Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
+
+   init();
+   vertices = mtm.vertices;
+   triangle_vertex_indices = mtm.triangles;
+   name = mtm.name;
+}
+
 
 void
 Mesh::close() {
@@ -83,7 +89,6 @@ Mesh::import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triang
                                   indexed_vertices.end());
    for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
       triangle_vertex_indices[i].rebase(idx_base);
-
 }
 
 void
@@ -175,7 +180,6 @@ Mesh::add_one_ball(float scale, const glm::vec3 &centre) { // i.e. a smooth-shad
    std::vector<clipper::Coord_orth> v = penta_dodec.pkdd.d.coords();
 
    unsigned int vertex_index_start_base   = vertices.size();
-   unsigned int triangle_index_start_base = triangle_vertex_indices.size(); // needed?
 
    const std::vector<clipper::Coord_orth> &pv = penta_dodec.pkdd.pyrimid_vertices;
    for (unsigned int i=0; i<12; i++) {
@@ -1116,7 +1120,7 @@ Mesh::draw(Shader *shader_p,
                       << " with GL err " << err << std::endl;
 
    if (vao == 99999999)
-      std::cout << "You forget to setup this mesh " << name << " "
+      std::cout << "You forgot to setup this Mesh " << name << " "
                 << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
@@ -1499,4 +1503,142 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides) {
       for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
          triangle_vertex_indices[i].rebase(idx_base);
 
+}
+
+#include <fstream>
+
+bool
+Mesh::export_as_obj(const std::string &file_name) const {
+   return export_as_obj_internal(file_name);
+}
+
+
+bool
+Mesh::export_as_obj_internal(const std::string &file_name) const {
+
+   bool status = true;
+
+   std::ofstream f(file_name.c_str());
+   if (f) {
+      f << "# " << name << "\n";
+      f << "# " << "\n";
+      f << "" << "\n";
+      f << "g exported_obj\n";
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const s_generic_vertex &vert = vertices[i];
+         f << "v " << vert.pos.x << " " << vert.pos.y << " " << vert.pos.z;
+         f << " " << vert.color.r << " " << vert.color.g << " " << vert.color.b;
+         f << "\n";
+      }
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const s_generic_vertex &vert = vertices[i];
+         f << "vn " << -vert.normal.x << " " << -vert.normal.y << " " << -vert.normal.z << "\n";
+      }
+      for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
+         const g_triangle &tri = triangle_vertex_indices[i];
+         f << "f "
+           << tri.point_id[0]+1 << "//" << tri.point_id[0]+1 << " "
+           << tri.point_id[1]+1 << "//" << tri.point_id[1]+1 << " "
+           << tri.point_id[2]+1 << "//" << tri.point_id[1]+1 << "\n";
+      }
+   }
+   return status;
+}
+
+
+// We import from assimp from Model and export from Mesh - at the moment
+//
+#include <assimp/Exporter.hpp>
+
+bool
+Mesh::export_as_obj_via_assimp(const std::string &file_name) const {
+
+   unsigned int status = false;
+
+   if (! vertices.empty()) {
+      // this will do a copy. Is that what I want?
+      aiScene scene = generate_scene();
+      // now export scener to file_name;
+      Assimp::Exporter ae;
+
+      if (false) { // 20 formats - "obj" is one of them
+         size_t n_formats = ae.GetExportFormatCount();
+         for (size_t i=0; i<n_formats; i++) {
+            const aiExportFormatDesc *fd = ae.GetExportFormatDescription(i);
+            std::cout << i << " " << fd->id << " " << fd->description << std::endl;
+         }
+      }
+
+      std::string format_id = "obj";
+
+      std::cout << "----- calling ae.Export() " << std::endl;
+      std::cout << "----- calling ae.Export() scene: " << &scene << std::endl;
+      std::cout << "----- calling ae.Export() mMaterials " << scene.mMaterials << std::endl;
+      std::cout << "----- calling ae.Export() mMaterials[0] " << scene.mMaterials[0] << std::endl;
+      // Oh, scene gets copies in Export()!
+      aiReturn air = ae.Export(&scene, format_id.c_str(), file_name.c_str(), 0);
+      std::cout << "export status " << air << std::endl;
+
+   }
+   return status;
+}
+
+// Use make_shared and a shared or unique? pointer as the return value
+aiScene
+Mesh::generate_scene() const {
+
+   aiScene scene;
+   scene.mRootNode = new aiNode();
+
+   std::cout << "debug:: scene.mNumMaterials " << scene.mNumMaterials << std::endl;
+
+   // Materials? Maybe we have to.
+   // else when Exporter::Export() does the scene copy the scene.mMaterials gets
+   // set to null and GetMaterialName() fails
+
+   scene.mNumMaterials = 1;
+   scene.mMaterials = new aiMaterial *[1];
+   scene.mMaterials[0] = new aiMaterial();
+
+   aiMesh mesh;
+   scene.mMeshes = new aiMesh *[1];
+   scene.mNumMeshes = 1;
+   scene.mMeshes[0] = new aiMesh();
+   std::cout << "new aimesh mMaterialIndex " << scene.mMeshes[0]->mMaterialIndex << std::endl;
+   scene.mMeshes[0]->mMaterialIndex = 0; // Hmm? Dangerous?
+   scene.mRootNode->mMeshes = new unsigned int[1];
+   scene.mRootNode->mMeshes[0] = 0;
+   scene.mRootNode->mNumMeshes = 1;
+   aiMesh *pMesh = scene.mMeshes[0];
+
+   //  --- vertices ---
+
+   pMesh->mVertices = new aiVector3D[vertices.size()];
+   pMesh->mNumVertices = vertices.size();
+   pMesh->mTextureCoords[0] = new aiVector3D[vertices.size()];       // needed?
+   pMesh->mNumUVComponents[0] = vertices.size();                     // needed?
+   for (unsigned int i=0; i<vertices.size(); i++) {
+      const s_generic_vertex &vert = vertices[i];
+      aiVector3D aiv(vert.pos.x, vert.pos.y, vert.pos.z);
+      // std::cout << "vertex " << i << " " << glm::to_string(vert.pos)  << std::endl;
+      pMesh->mVertices[i] = aiv;
+      pMesh->mTextureCoords[0][i] = aiVector3D(0,0,0); // for now
+   }
+
+   //  --- normals ---
+
+
+   //  --- triangles ---
+
+   pMesh->mFaces = new aiFace[triangle_vertex_indices.size()];
+   pMesh->mNumFaces = triangle_vertex_indices.size();
+   for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
+      aiFace &face = pMesh->mFaces[i];
+      face.mIndices = new unsigned int[3];
+      face.mIndices[0] = triangle_vertex_indices[i].point_id[0];
+      face.mIndices[1] = triangle_vertex_indices[i].point_id[1];
+      face.mIndices[2] = triangle_vertex_indices[i].point_id[2];
+   }
+
+   return scene;
 }

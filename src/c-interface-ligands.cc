@@ -3321,7 +3321,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 	    name += coot::util::int_to_string(residue_p->GetSeqNum());
 	    name += " ";
 	    name += residue_p->GetInsCode();
-	    meshed_generic_display_object features_obj(name);
+	    meshed_generic_display_object features_obj;
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    mol->GetSelIndex(SelHnd_lig, residue_atoms, n_residue_atoms);
