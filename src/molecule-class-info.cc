@@ -130,6 +130,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (! is_undo_or_redo) {
       bond_width = bond_width_in;
       bonds_box_type = bonds_box_type_in;
+      if (g.draw_stick_mode_atoms_default == false) {
+         display_stick_mode_atoms_flag = false;
+      }
    }
 
    // std::cout << "DEBUG:: ---- imol_no is now " << imol_no << std::endl;
