@@ -1,5 +1,6 @@
 
 #include <iomanip>
+
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
@@ -1315,6 +1316,8 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 
    link_restraints_counts lrc;
 
+   // restraints_usage_flag = BONDS_ANGLES_AND_CHIRALS;
+
    if (false)
       std::cout << "make_link_restraints_for_link_ng(): "
 		<< " type: " << link_type << " "
@@ -1910,6 +1913,23 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    cb.find_the_contacts(&vcontacts, only_between_different_residues_flag);
 
    std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > tested_but_nothing;
+
+   bool debug_vcontacts = false;
+   if (debug_vcontacts) {
+      for (std::size_t i=0; i<vcontacts.size(); i++) {
+         const std::set<unsigned int> &n_set = vcontacts[i];
+         if (! n_set.empty()) {
+            mmdb::Atom *at_1 = atom[i];
+            std::cout << "vcontact for " << i << " " << atom_spec_t(at_1) << ": ";
+            std::set<unsigned int>::const_iterator it;
+            for (it=n_set.begin(); it!=n_set.end(); it++) {
+               mmdb::Atom *at_2 = atom[*it];
+               std::cout << " " << atom_spec_t(at_2);
+            }
+            std::cout << std::endl;
+         }
+      }
+   }
 
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];

@@ -75,6 +75,7 @@ coot::operator<<(std::ostream &s, coot::bonded_pair_container_t bpc) {
 	<< bpc[i].res_1->GetChainID() << " "    << bpc[i].res_1->GetSeqNum() << " "
 	<< bpc[i].res_1->GetInsCode() << " to " << bpc[i].res_2->GetChainID() << " "
 	<< bpc[i].res_2->GetSeqNum() << " "     << bpc[i].res_2->GetInsCode() << "]"
+        << "   " << bpc[i]
 	<< "\n";
 
    return s; 
@@ -83,12 +84,14 @@ coot::operator<<(std::ostream &s, coot::bonded_pair_container_t bpc) {
 std::ostream&
 coot::operator<<(std::ostream &s, coot::bonded_pair_t bp) {
    s << "[:";
+   s << bp.link_type << " ";
    if (bp.res_1)
       s << bp.res_1->GetChainID() <<  " " << bp.res_1->GetSeqNum() << " " << bp.res_1->GetInsCode();
    s << " ";
    if (bp.res_2)
       s << bp.res_2->GetChainID() <<  " " << bp.res_2->GetSeqNum() << " " << bp.res_2->GetInsCode();
    s << "]";
+   s << " fixed-flags: " << bp.is_fixed_first << " " << bp.is_fixed_second;
    return s;
 }
 
@@ -105,6 +108,7 @@ coot::bonded_pair_t::reorder_as_needed() {
 	       mmdb::Residue *r = res_1;
 	       res_1 = res_2;
 	       res_2 = r;
+               std::swap(is_fixed_first, is_fixed_second);
 	    }
 	 }
 	 if (res_1->isNucleotide()) {
@@ -112,6 +116,7 @@ coot::bonded_pair_t::reorder_as_needed() {
 	       mmdb::Residue *r = res_1;
 	       res_1 = res_2;
 	       res_2 = r;
+               std::swap(is_fixed_first, is_fixed_second);
 	    }
 	 }
       }
