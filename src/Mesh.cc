@@ -1539,21 +1539,27 @@ Mesh::export_as_obj_internal(const std::string &file_name) const {
          f << "f "
            << tri.point_id[0]+1 << "//" << tri.point_id[0]+1 << " "
            << tri.point_id[1]+1 << "//" << tri.point_id[1]+1 << " "
-           << tri.point_id[2]+1 << "//" << tri.point_id[1]+1 << "\n";
+           << tri.point_id[2]+1 << "//" << tri.point_id[2]+1 << "\n";
       }
+   } else {
+      status = false;
    }
    return status;
 }
 
 
+#ifdef USE_ASSIMP
 // We import from assimp from Model and export from Mesh - at the moment
 //
 #include <assimp/Exporter.hpp>
+#endif // USE_ASSIMP
 
 bool
 Mesh::export_as_obj_via_assimp(const std::string &file_name) const {
 
    unsigned int status = false;
+
+#ifdef USE_ASSIMP
 
    if (! vertices.empty()) {
       // this will do a copy. Is that what I want?
@@ -1580,9 +1586,11 @@ Mesh::export_as_obj_via_assimp(const std::string &file_name) const {
       std::cout << "export status " << air << std::endl;
 
    }
+#endif
    return status;
 }
 
+#if USE_ASSIMP
 // Use make_shared and a shared or unique? pointer as the return value
 aiScene
 Mesh::generate_scene() const {
@@ -1642,3 +1650,4 @@ Mesh::generate_scene() const {
 
    return scene;
 }
+#endif
