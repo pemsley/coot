@@ -4719,8 +4719,8 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
       other_map_for_colouring_colour_table = colours;
       update_map();
    }
-
 }
+
 
 coot::density_contour_triangles_container_t
 molecule_class_info_t::export_molecule_as_x3d() const {
@@ -4734,14 +4734,14 @@ molecule_class_info_t::export_molecule_as_x3d() const {
       unsigned int sum_tri_con_normals = 0;
       unsigned int sum_tri_con_triangles = 0;
       std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
-      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
+      for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
          sum_tri_con_points    += tri_con.points.size();
          sum_tri_con_normals   += tri_con.normals.size();
          sum_tri_con_triangles += tri_con.point_indices.size();
       }
       if (xmap_is_diff_map) {
-         for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); it++) {
+         for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
             const coot::density_contour_triangles_container_t &tri_con(*it);
             sum_tri_con_points    += tri_con.points.size();
             sum_tri_con_normals   += tri_con.normals.size();
@@ -4812,7 +4812,7 @@ molecule_class_info_t::export_molecule_as_x3d() const {
             }
          }
 
-         int n_indices_for_triangles    = 3 * sum_tri_con_triangles;
+         int n_indices_for_triangles = 3 * sum_tri_con_triangles;
 
          int idx_for_triangles = 0;
          for (unsigned int i=0; i<draw_vector_sets.size(); i++) {
@@ -4869,4 +4869,49 @@ molecule_class_info_t::export_molecule_as_x3d() const {
       }
    }
    return tc;
+}
+
+bool
+molecule_class_info_t::export_molecule_as_obj(const std::string &file_name) const {
+
+   // this is not in x3d format of course:
+   coot::density_contour_triangles_container_t raw_mesh = export_molecule_as_x3d();
+
+   // There is an obj exporter in Mesh, but it's more trouble to get raw_mesh
+   // into the right form as input to that function than it is to just write another
+   // one.
+
+   bool status = true;
+
+   std::string name = "exported";
+   std::ofstream f(file_name.c_str());
+   if (f) {
+      std::cout << "opened " << file_name << std::endl;
+      f << "# " << name << " from Coot" << "\n";
+      f << "# " << "\n";
+      f << "" << "\n";
+      f << "g exported_obj\n";
+      for (unsigned int i=0; i<raw_mesh.points.size(); i++) {
+         const clipper::Coord_orth &vert = raw_mesh.points[i];
+         f << "v " << vert.x() << " " << vert.y() << " " << vert.z();
+         f << "\n";
+      }
+      for (unsigned int i=0; i<raw_mesh.normals.size(); i++) {
+         const clipper::Coord_orth &n = raw_mesh.normals[i];
+         f << "vn " << n.x() << " " << n.y() << " " << n.z() << "\n";
+      }
+      for (unsigned int i=0; i<raw_mesh.point_indices.size(); i++) {
+         const TRIANGLE &tri = raw_mesh.point_indices[i];
+         f << "f "
+           << tri.pointID[0]+1 << "//" << tri.pointID[0]+1 << " "
+           << tri.pointID[1]+1 << "//" << tri.pointID[1]+1 << " "
+           << tri.pointID[2]+1 << "//" << tri.pointID[2]+1 << "\n";
+      }
+      f.close();
+      std::cout << "closed " << file_name << std::endl;
+   } else {
+      status = false;
+   }
+   return status;
+
 }

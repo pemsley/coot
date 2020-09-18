@@ -323,6 +323,8 @@ PyObject *export_molecule_as_x3d(int imol);
 
 #endif
 
+bool export_molecule_as_obj(int imol, const std::string &file_name);
+
 void
 colour_map_by_other_map_turn_off(int imol_map);
 

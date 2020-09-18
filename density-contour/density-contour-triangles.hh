@@ -1,9 +1,11 @@
 
-
 #ifndef DENSITY_CONTOUR_TRIANGLES_HH
 #define DENSITY_CONTOUR_TRIANGLES_HH
 
 #include <map>
+
+#include <clipper/core/coords.h>
+#include "geometry/residue-and-atom-specs.hh"
 
 struct POINT3DID {
    unsigned int newID;

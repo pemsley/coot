@@ -11,7 +11,9 @@
 #include "Particle.hh"
 #include "molecular-triangles-mesh.hh"
 
+#if USE_ASSIMP
 #include <assimp/scene.h>
+#endif
 
 class Mesh {
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
@@ -28,7 +30,9 @@ class Mesh {
    GLuint normals_colour_buffer_id;
    bool first_time;
    void init();
+#if USE_ASSIMP
    aiScene generate_scene() const;
+#endif
 
 public:
    GLuint vao;

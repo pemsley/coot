@@ -155,9 +155,11 @@
 
 #include "c-interface-widgets.hh" // for wrapped_create_generic_objects_dialog();
 
+#ifdef USE_ASSIMP
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+#endif
 
 int test_function(int i, int j) {
 
@@ -165,6 +167,7 @@ int test_function(int i, int j) {
 
    // Is this the function you are really looking for (these days)?
 
+#ifdef USE_ASSIMP
    if (true) {
       std::string file_name = "cube.obj";
       file_name = "cessna.obj";
@@ -187,6 +190,7 @@ int test_function(int i, int j) {
          std::cout << "------------ scene read OK from " << file_name << std::endl;
       }
    }
+#endif
 
    if (0) {
 
