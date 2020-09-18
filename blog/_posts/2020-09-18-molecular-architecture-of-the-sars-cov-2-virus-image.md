@@ -20,6 +20,11 @@ Here a link to the full resolution version:
 
 [Authentic SARS-CoV-2 virus Full Resolution](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/authentic-sars-cov-2.png)
 
+There is also a video of it spinning slowly:
+
+[Spinning SARS-CoV-2 Virus](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/authentic-sars-cov-2.mp4) # you may need to download that, because it might not play in the browser.
+
+
 The red bouquets are the Spike proteins and the blue pastry-things are ribonucleoproteins.
 
 Just to be clear, I was not involved in this work, I just downloaded the publicly available data
