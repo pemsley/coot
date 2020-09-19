@@ -2938,6 +2938,11 @@ get_aniso_probability() {
 /*                         Display Functions                               */
 /*  ---------------------------------------------------------------------- */
 
+/*! \brief set default for the drawing of atoms in stick mode (default is on (1)) */
+void set_draw_stick_mode_atoms_default(short int state) {
+   graphics_info_t::draw_stick_mode_atoms_default = state;
+}
+
 void set_default_bond_thickness(int t) {
 
    graphics_info_t g;

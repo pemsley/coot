@@ -3024,7 +3024,12 @@ public:
 						    int resno_2) const;
    atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol,
 						    const std::vector<mmdb::Residue *> &residues) const;
-   static bool moving_atoms_displayed_p() { return moving_atoms_asc->mol; }
+   static bool moving_atoms_displayed_p() {
+      if (moving_atoms_asc)
+         if (moving_atoms_asc->mol)
+            return true;
+      return false;
+   }
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    //
@@ -3574,6 +3579,7 @@ public:
    // -- default bond width
    static int default_bond_width;
    static int default_bonds_box_type; // Phil want to configure this.
+   static bool draw_stick_mode_atoms_default; // true,
 
    // ---- default sigma level:
    static float default_sigma_level_for_map;
