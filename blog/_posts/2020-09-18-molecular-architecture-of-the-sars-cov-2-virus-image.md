@@ -27,6 +27,9 @@ There is also a video of it spinning slowly:
 
 The red bouquets are the Spike proteins and the blue pastry-things are ribonucleoproteins.
 
+The iconic image of the coronavirus, with which you are probably familiar, was created by Alissa Eckert from the CDC. It
+is a model. This image is actual experimental data.
+
 Just to be clear, I was not involved in this work, I just downloaded the publicly available data
 (the subtomogram averaging reconstruction) and made this image which you can use for free.
 
