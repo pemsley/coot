@@ -126,6 +126,7 @@ remove_redundant_vertices(std::vector<g_triangle> *triangles_p,
 std::pair<std::vector<glm::vec3>, std::vector<g_triangle> >
 tessellate_octasphere(unsigned int num_subdivisions) {
 
+   bool remove_redundant_vertices_flag = false; // because it's slow
    std::vector<glm::vec3> verts;
    std::vector<g_triangle> triangles;
 
@@ -155,9 +156,11 @@ tessellate_octasphere(unsigned int num_subdivisions) {
       }
    }
 
-   std::map<unsigned int, std::set<unsigned int> > redundant_map = find_same_vertices(verts);
-   // adjust triangles
-   remove_redundant_vertices(&triangles, redundant_map);
+   if (remove_redundant_vertices_flag) {
+      std::map<unsigned int, std::set<unsigned int> > redundant_map = find_same_vertices(verts);
+      // adjust triangles
+      remove_redundant_vertices(&triangles, redundant_map);
+   }
 
    return std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > (verts,triangles);
 }
