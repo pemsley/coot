@@ -2,6 +2,7 @@
 layout: post
 title:  "Backup file-names for Windows"
 date: Thu 25 Jun 10:51:24 BST 2020
+categories: backup
 ---
 
 I have head reports from Windows users that their backup file names fail to be written out.

@@ -2,6 +2,7 @@
 layout: post
 title:  "Molecular architecture of the SARS-CoV-2 virus Image"
 date: Fri 18 Sep 22:56:36 BST 2020
+categories: screen-shots
 ---
 
 Sai Li and co-workers (not least of whom is Max Crispin, a recent co-author of my own)

@@ -2,6 +2,7 @@
 layout: post
 title:  "Making a Link with Coot and Acedrg"
 date: Tue 30 Jun 13:40:22 BST 2020
+categories: links
 ---
 
 *Coot* makes use of the CCP4 Program "Acedrg" to make links between ligands and proteins.

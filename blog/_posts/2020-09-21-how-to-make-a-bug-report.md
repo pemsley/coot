@@ -2,6 +2,7 @@
 layout: post
 title:  "How to Make a Bug Report for Coot"
 date: Mon 21 Sep 14:17:53 BST 2020
+categories: bugs
 ---
 
 I may have sent you this to this post. It's because I am bored of typing out basically the same message every
