@@ -4394,3 +4394,48 @@
            (apply set-rotation-centre (map (lambda (a) (* a 0.5)) (list-head c 3))))))))
 
 
+
+
+(define (write-current-sequence-as-pir imol chain-id file-name)
+  (print-sequence-chain-general imol chain-id 1 1 file-name))
+
+(define (run-clustalw-alignment imol chain-id target-sequence-pir-file)
+
+  ;; write out the current sequence
+  (let ((current-sequence-pir-file "current-sequence.pir")
+        (aligned-sequence-pir-file "aligned-sequence.pir")
+        (clustalw2-output-file-name "clustalw2-output-file.log"))
+
+    (if (file-exists? aligned-sequence-pir-file)
+        (delete-file aligned-sequence-pir-file)
+    (if (file-exists? "aligned-sequence.dnd")
+        (delete-file "aligned-sequence.dnd"))
+    (if (file-exists? "current-sequence.dnd")
+        (delete-file "current-sequence.dnd"))
+
+    (write-current-sequence-as-pir imol chain-id current-sequence-pir-file)
+    (goosh-command
+     "clustalw2"
+     '()
+     (list
+     "3"
+     "1"
+     target-sequence-pir-file
+     "2"
+     current-sequence-pir-file
+     "9"
+     "2"
+     ""
+     "4"
+     ""
+     aligned-sequence-pir-file
+     ""
+     "x"
+     ""
+     "x")
+     clustalw2-output-file-name
+     #t)
+
+    (associate-pir-alignment-from-file imol chain-id aligned-sequence-pir-file)
+    (apply-pir-alignment imol chain-id)
+    (simple-fill-partial-residues imol)))

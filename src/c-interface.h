@@ -6333,6 +6333,14 @@ void setup_base_pairing(int state);
 
 /*! \brief Print the sequence to the console of the given molecule */
 void print_sequence_chain(int imol, const char *chain_id);
+
+/*! \brief optionally write the sequence to the file for the given molecule,
+    optionally in PIR format */
+void print_sequence_chain_general(int imol, const char *chain_id,
+                                  short int pir_format,
+                                  short int file_output,
+                                  const char *file_name);
+
 /*! \brief Assign a FASTA sequence to a given chain in the  molecule */
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
 /*! \brief Assign a PIR sequence to a given chain in the molecule.  If

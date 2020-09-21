@@ -1871,6 +1871,7 @@ public:        //                      public
    // this is where the PIR alignments are stored, the key is the chain-id
    std::map<std::string, coot::pir_alignment_t> pir_alignments;
 
+
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
    // (e.g. 0.95) then return 0 as first and a blank in second.

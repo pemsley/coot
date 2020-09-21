@@ -2401,7 +2401,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
 		     bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
 		     replace_coords(fragment_asc, 0, mzo);
-                     std::cout << "Debug:: waters for deletion size " << baddie_waters.size() << std::endl;
+                     // std::cout << "Debug:: waters for deletion size " << baddie_waters.size() << std::endl;
                      if (baddie_waters.size())
                         delete_atoms(baddie_waters);
 		  }
