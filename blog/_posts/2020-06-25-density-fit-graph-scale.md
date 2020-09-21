@@ -8,4 +8,3 @@ A long-requested feature has now (eventually) been implemented. The scale for th
 
 ![Scalable Density Fit Graph]({{"../../../images/density-fit-graph-scale.png"}})
 
-

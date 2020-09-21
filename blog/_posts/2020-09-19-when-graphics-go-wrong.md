@@ -2,7 +2,6 @@
 layout: post
 title:  "When Graphics Go Wrong: Eye-Catching or Funny Screenshots of Incorrect Geometry"
 date: Sat 19 Sep 05:37:02 BST 2020
-categories: screen-shots
 ---
 
 I find myself spending quite a lot of time working on the graphics system of Coot-0.9.9.
