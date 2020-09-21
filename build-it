@@ -392,7 +392,8 @@
 # 5.35 20190401 clipper configure fftw patch
 # 5.36 20200415 Updates for Release 0.9 - a bit delayed
 # 5.37 20200514 redirect numpy output
-script_version=5.37
+# 5.38 20200921 Add clustalw2
+script_version=5.38
 
 
 
@@ -3923,6 +3924,26 @@ else
     echo not building gsl:
 fi
 
+#################################################################
+# Clustalw2
+#################################################################
+#
+${WGET} ftp://ftp.ebi.ac.uk/pub/software/clustalw2/2.1/clustalw-2.1.tar.gz
+if [ ! -e ${AUTOBUILD_SOURCES}/clustalw-2.1.tar.gz ] ; then
+   echo failed to download clustalw2
+else
+   # happy path
+   (
+   tar xf ${AUTOBUILD_SOURCES}/clustalw-2.1.tar.gz
+   cd clustalw-2.1/
+   ./configure --prefix=$install_top_dir
+   if ${MAKE} ; then
+       make install
+   else
+       echo make for clustalw-2.1 failed. Boo.
+   fi   
+   ) > $HOSTLOGDIR/18-clustalw.txt 2>&1
+fi
 
 
 #################################################################
