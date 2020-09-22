@@ -339,11 +339,10 @@ PyObject *find_terminal_residue_type_py(int imol, const char *chain_id, int resn
 
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag) {
 
-   bool auto_fit = 0; // allow this to be a passed variable at some stage.
-   
    if (is_valid_model_molecule(imol)) {
       if (chain_id) { 
 	 graphics_info_t g;
+         bool auto_fit = false; // allow this to be a passed variable at some stage.
 	 g.mutate_chain(imol, std::string(chain_id), std::string(fasta_maybe), auto_fit, renumber_residues_flag);
 	 graphics_draw();
 	 g.update_go_to_atom_window_on_changed_mol(imol);
@@ -482,7 +481,7 @@ PyObject *alignment_results_py(int imol, const char *chain_id, const char *seq) 
 #endif /* USE_PYTHON */
 
 #ifdef USE_PYTHON
-PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int resno, const char *ins_code) { 
+PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int resno, const char *ins_code) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -490,14 +489,33 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
-	 r = residue_spec_to_py(residue_p);
+         r = residue_spec_to_py(residue_p);
       }
    }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif /* USE_PYTHON */
 
 
+
+void resolve_clashing_sidechains_by_deletion(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
+      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_deletion(geom_p);
+   }
+}
+
+void resolve_clashing_sidechains_by_rebuilding(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::protein_geometry *geom_p = graphics_info_t::Geom_p();
+      graphics_info_t g;
+      int imol_refinement_map = g.Imol_Refinement_Map();
+      graphics_info_t::molecules[imol].resolve_clashing_sidechains_by_rebuilding(geom_p,
+                                                                                 imol_refinement_map);
+   }
+}

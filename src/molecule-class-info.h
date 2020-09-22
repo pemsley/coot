@@ -1813,6 +1813,8 @@ public:        //                      public
 
    int delete_chain(const std::string &chain_id);
 
+   bool delete_sidechain(mmdb::Residue *residue_p);
+
    int delete_sidechains_for_chain(const std::string &chain_id);
 
    int delete_sidechain_range(const coot::residue_spec_t &res_1,
@@ -2654,8 +2656,8 @@ public:        //                      public
    coot::util::missing_atom_info
    fill_partial_residues(coot::protein_geometry *geom_p, int imol_refinement_map);
    // return 1 if the residue was filled, 0 if the residue was not found
-   int fill_partial_residue(coot::residue_spec_t &residue_spec,
-			     coot::protein_geometry *geom_p, int imol_refinement_map);
+   int fill_partial_residue(const coot::residue_spec_t &residue_spec,
+                            const coot::protein_geometry *geom_p, int imol_refinement_map);
 
    std::vector<std::string> get_chain_ids() const;
 
@@ -3400,6 +3402,10 @@ public:        //                      public
 
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
+
+   void resolve_clashing_sidechains_by_deletion(const coot::protein_geometry *geom_p);
+   void resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,
+                                                  int imol_refinement_map);
 
    static int watch_mtz(gpointer data); // return 0 to stop watching
    bool continue_watching_mtz;

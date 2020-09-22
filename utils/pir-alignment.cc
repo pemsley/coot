@@ -105,6 +105,7 @@ coot::pir_alignment_t::init(const std::string &s) {
 
       if (found_newline && found_greater && found_textdescr) {
 	 char t = std::toupper(s[i]);
+         // std::cout << "considering t " << t << std::endl;
 	 if (is_pir_aa(t)) {
 	    seq += t;
 	 }
@@ -169,7 +170,8 @@ coot::pir_alignment_t::init(const std::string &s) {
       seqs.push_back(p);
    }
 
-   // std::cout << "found " << seqs.size() << " sequences " << std::endl;
+   std::cout << "INFO:: pir_alignment_t::init() found " << seqs.size()
+             << " sequences " << std::endl;
    for (std::size_t i=0; i<seqs.size(); i++)
       std::cout << " " << i << " " << seqs[i].seq << std::endl;
 

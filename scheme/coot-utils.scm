@@ -4438,4 +4438,6 @@
 
     (associate-pir-alignment-from-file imol chain-id aligned-sequence-pir-file)
     (apply-pir-alignment imol chain-id)
-    (simple-fill-partial-residues imol)))
+    (simple-fill-partial-residues imol)
+    (resolve-clashing-sidechains-by-deletion imol)
+    ))
