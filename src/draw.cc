@@ -45,6 +45,13 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
          do_first = true;
    }
 
+   if (false)
+      std::cout << "debug:: stereo_projection_setup_maybe() in_stereo_flag "
+                << in_stereo_flag << " vs "
+                << IN_STEREO_SIDE_BY_SIDE_LEFT << " "
+                << IN_STEREO_SIDE_BY_SIDE_RIGHT << " "
+                << "do first and second " << do_first << " " << do_second << std::endl;
+
    if (do_first || do_second) {
       float skew_factor = 0.05 * graphics_info_t::hardware_stereo_angle_factor;
       float view_skew_matrix[16];
@@ -54,20 +61,34 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       for(unsigned int ii=0; ii<4;  ii++) view_skew_matrix[ii*5] = 1.0;
       float trans_fac = 0.038;
 
-      if (do_first) {
-	 view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
-	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(trans_fac, 0.0, 0.0);
-      } else {
-	 view_skew_matrix[8] = -skew_factor;
-	 glMultMatrixf(view_skew_matrix);
-	 glTranslatef(-trans_fac, 0.0, 0.0);
+      if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) {
+         if (do_first) {
+            view_skew_matrix[8] = -skew_factor; // 8 because this is the transpose
+            glMultMatrixf(view_skew_matrix);
+            glTranslatef(-trans_fac, 0.0, 0.0);
+         } else {
+            view_skew_matrix[8] = skew_factor;
+            glMultMatrixf(view_skew_matrix);
+            glTranslatef(trans_fac, 0.0, 0.0);
+         }
+      }
+
+      if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) {
+         if (do_first) {
+            view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+            glMultMatrixf(view_skew_matrix);
+            glTranslatef(trans_fac, 0.0, 0.0);
+         } else {
+            view_skew_matrix[8] = -skew_factor;
+            glMultMatrixf(view_skew_matrix);
+            glTranslatef(-trans_fac, 0.0, 0.0);
+         }
       }
    }
 }
 
 gint
-draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
+draw_mono(GtkWidget *widget, GdkEventExpose *event, short int stereo_mode) {
 
    // std::cout << "draw_mono() with widget " << widget << std::endl;
 
@@ -89,7 +110,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
    // GLCONTEXT
    int gl_context = GL_CONTEXT_MAIN;
-   if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
+   if (stereo_mode == IN_STEREO_SIDE_BY_SIDE_RIGHT)
       gl_context = GL_CONTEXT_SECONDARY;
 
    gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
@@ -118,7 +139,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // BL says:: another hack!? FIXME
       // dont clear when we want to draw the 2 Zalman views
       
-      if (in_stereo_flag != IN_STEREO_ZALMAN_LEFT) 
+      if (stereo_mode != IN_STEREO_ZALMAN_LEFT)
       	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
 
@@ -135,7 +156,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
       // Zalman works here?! but crap lighting!?
-      if (in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
+      if (stereo_mode == IN_STEREO_ZALMAN_RIGHT) {
 	// draws one Zalman lines
 	glEnable(GL_STENCIL_TEST);
 	glStencilFunc(GL_EQUAL, 1, 1);
@@ -153,7 +174,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	//glDisable(GL_STENCIL_TEST);
       }
 
-      if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT) {
+      if (stereo_mode == IN_STEREO_ZALMAN_LEFT) {
 	// g_print("BL DEBUG:: now draw 'right'\n");
 	// draws the other Zalman lines
 	glStencilFunc(GL_EQUAL, 0, 1);
@@ -173,7 +194,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
 
-      stereo_projection_setup_maybe(widget, in_stereo_flag);
+      stereo_projection_setup_maybe(widget, stereo_mode);
 
       // 	 glOrtho(GLdouble left,   GLdouble right, 
       //               GLdouble bottom, GLdouble top,  
@@ -305,34 +326,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       glMatrixMode(GL_MODELVIEW);
 
-#ifdef GRAPHICS_TESTING
-      // GLSL density maps
-
-      // this should not be a graphics_info_t variable. Needs to be put into molecule/map
-      bool do_flat_shading = graphics_info_t::do_flat_shading_for_solid_density_surface;
-      // do_flat_shading = false; // turn off
-      if (do_flat_shading) {
-	 glUseProgram(programID_global);
-
-	 glLineWidth(graphics_info_t::map_line_width);
-	 for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	    if (graphics_info_t::molecules[ii].n_vertices_for_VertexArray > 0) {
-	       if (false)
-		  std::cout << "GLSL for imol " << ii << " binding "
-			    << graphics_info_t::molecules[ii].m_VertexArrayID << " "
-			    << graphics_info_t::molecules[ii].n_vertices_for_VertexArray
-			    << std::endl;
-	       glBindVertexArray(graphics_info_t::molecules[ii].m_VertexArrayID);
-	       glDrawElements(GL_LINES, graphics_info_t::molecules[ii].n_vertices_for_VertexArray,
-			      GL_UNSIGNED_INT, nullptr);
-	       glBindVertexArray(0); // unbind
-	    }
-	 }
-	 glUseProgram(0);
-      }
-
-#endif // GRAPHICS_TESTING
-
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;
 
@@ -379,12 +372,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // used we use the correct part of theMapContours.
 	 //
          // BL says:: bad hack FIXME
-         if (in_stereo_flag == IN_STEREO_ZALMAN_LEFT || in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
+         if (stereo_mode == IN_STEREO_ZALMAN_LEFT || stereo_mode == IN_STEREO_ZALMAN_RIGHT) {
 	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
 							    0);
          } else {
 	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
-							    in_stereo_flag);
+							    stereo_mode);
          }
 
 	 // Turn the light(s) on and after off, if needed.
@@ -507,7 +500,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       display_density_level_maybe();
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
-      if (in_stereo_flag != IN_STEREO_HARDWARE_STEREO && in_stereo_flag != IN_STEREO_ZALMAN_RIGHT) {
+      if (stereo_mode != IN_STEREO_HARDWARE_STEREO && stereo_mode != IN_STEREO_ZALMAN_RIGHT) {
          /* Swap backbuffer to front */
          GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
          if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
@@ -664,6 +657,9 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 //    if (i == 0)
 //       return TRUE;
 
+// for every graphics_draw()
+// this function is called for glarea (and then glarea_2 if needed)
+
 #ifdef USE_PYTHON
    // Hamish function
    if (! graphics_info_t::python_draw_function_string.empty()) {
@@ -677,11 +673,21 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 	 draw_zalman_stereo(widget, event);
       } else {
 	 if (graphics_info_t::display_mode_use_secondary_p()) {
-	    if (widget == graphics_info_t::glarea_2) {
-	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
-	    } else {
-	       draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
-	    }
+
+            if (graphics_info_t::display_mode == coot::SIDE_BY_SIDE_STEREO) {
+               if (widget == graphics_info_t::glarea_2) {
+                  draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
+               } else {
+                  draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
+               }
+            } else {
+               // the other way around
+               if (widget == graphics_info_t::glarea_2) {
+                  draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_LEFT);
+               } else {
+                  draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
+               }
+            }
 	 } else {
 	    draw_mono(widget, event, IN_STEREO_MONO);
 	 }
@@ -879,191 +885,3 @@ debug_eye_position(GtkWidget *widget) {
    set_display_generic_object(go, 1);
 }
 
-struct shader_program_source {
-   std::string VertexSource;
-   std::string FragmentSource;
-};
-
-shader_program_source
-parse_shader(const std::string &file_name) {
-
-   enum class ShaderType { NONE = -1, VERTEX = 0, FRAGMENT = 1 };
-
-   ShaderType type = ShaderType::NONE;
-   shader_program_source ss;
-   std::ifstream f(file_name.c_str());
-   if (f) {
-      std::string line;
-      while(std::getline(f, line)) {
-	 if (line.find("#shader") != std::string::npos) {
-	    if (line.find("vertex") != std::string::npos)
-	       type = ShaderType::VERTEX;
-	    if (line.find("fragment") != std::string::npos)
-	       type = ShaderType::FRAGMENT;
-	 } else {
-	    if (type == ShaderType::VERTEX)
-	       ss.VertexSource += line + "\n";
-	    if (type == ShaderType::FRAGMENT)
-	       ss.FragmentSource += line + "\n";
-	 }
-      }
-   } else {
-      std::cout << "Failed to open " << file_name  << std::endl;
-   }
-   return ss;
-}
-
-unsigned int compile_shader(const std::string &source, unsigned int type) {
-
-#ifdef GRAPHICS_TESTING
-   std::string type_s = "vertex";
-   if (type == GL_FRAGMENT_SHADER)
-      type_s = "fragment";
-   unsigned int id = glCreateShader(type);
-   const char *s = source.c_str();
-   int l = source.size() + 1;
-   glShaderSource(id,  1,  &s, &l);
-   glCompileShader(id);
-
-   int result;
-   glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-   if (result == GL_FALSE) {
-      int length;
-      glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-      char message[length+1];
-      glGetShaderInfoLog(id, length, &length, message);
-      std::cout << "Failed to compile " << type_s << " shader: " << message << std::endl;
-   } else {
-      std::cout << "glCompileShader() result was good for " << type_s << " shader " << std::endl;
-   } 
-   return id;
-#else
-   return 0;
-#endif
-}
-
-std::string file_to_string(const std::string &file_name) {
-
-   std::ifstream f(file_name.c_str());
-   if (f) {
-      std::string s((std::istreambuf_iterator<char>(f)),
-		    std::istreambuf_iterator<char>());
-      return s;
-   } else {
-      return std::string("");
-   }
-}
-
-unsigned int CreateShader(const std::string &vertex_shader, const std::string &fragment_shader) {
-
-#ifdef GRAPHICS_TESTING
-   unsigned int program  = glCreateProgram();
-   unsigned int vs = compile_shader(vertex_shader, GL_VERTEX_SHADER);
-   unsigned int fs = compile_shader(fragment_shader, GL_FRAGMENT_SHADER);
-
-   glAttachShader(program, vs);
-   glAttachShader(program, fs);
-   glLinkProgram(program);
-   glValidateProgram(program);
-
-   glDeleteShader(vs);
-   glDeleteShader(fs);
-
-   return program;
-#else
-
-   return 0;
-
-#endif // GRAPHICS_TESTING
-
-}
-
-void setup_for_single_triangle() {
-
-#ifdef GRAPHICS_TESTING
-
-   std::cout << "---------- setup for single triangle: " << glGetString(GL_VERSION) << std::endl;
-
-   {
-      float positions[12] = {
-	 -0.5,  -0.5, -0.0,
-   	 -0.5,   0.5, -0.0,
-  	  0.5,   0.5, -0.0,
-	  0.5,  -0.5, -0.0
-      };
-
-      unsigned int indices[8] { 0,1,1,2,2,3,3,0 };
-
-      // GLuint VertexArrayID;
-      glGenVertexArrays(1, &VertexArrayID);
-      glBindVertexArray(VertexArrayID);
-
-      GLuint vertexbuffer;
-      glGenBuffers(1, &vertexbuffer);
-      glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, &positions[0], GL_STATIC_DRAW);
-      glEnableVertexAttribArray(0);
-      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-      unsigned int ibo;
-      glGenBuffers(1, &ibo);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 8, &indices[0], GL_STATIC_DRAW);
-
-      std::cout << "----------- parse and create shader " << std::endl;
-      shader_program_source sps = parse_shader("Basic.shader");
-      unsigned int programID = CreateShader(sps.VertexSource, sps.FragmentSource);
-      programID_global = programID;
-      std::cout << "----------- created shader program " << programID << std::endl;
-
-      glBindAttribLocation(programID, 0, "position");
-
-      // int ul = glGetUniformLocation(programID, "u_Color");
-      // std::cout << "Got glGetUniformLocation for u_Color " << ul << std::endl;
-      // location_global = ul;
-
-   }
-#endif // GRAPHICS_TESTING
-}
-
-void draw_single_triangle() {
-
-#ifdef GRAPHICS_TESTING
-
-   glBindVertexArray(VertexArrayID);
-   glUseProgram(programID_global);
-   glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
-   glBindVertexArray(0); // unbind
-   glUseProgram(0);
-
-#endif // GRAPHICS_TESTING
-}
-
-/* Basic.shader
-
-#shader vertex
-
-#version 120
-
-uniform mat4 mygl_ModelViewMatrix;
-uniform mat4 mygl_ProjectionMatrix;
-uniform mat3 mygl_NormalMatrix;
-
-attribute vec3 position;
-
-void main() {
-
-   gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1.0);
-
-}
-
-#shader fragment
-
-#version 120
-
-void main() {
-
-  gl_FragColor = vec4(0.6, 0.1, 0.4, 1.0);
-
-}
-*/
