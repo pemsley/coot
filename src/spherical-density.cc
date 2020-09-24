@@ -44,3 +44,4 @@ SCM spherical_density_overlap(SCM i_scm, SCM j_scm) {
    return r;
 }
 #endif // USE_GUILE
+

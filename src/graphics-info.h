@@ -1308,6 +1308,7 @@ public:
    float Y() { return rotation_centre_y; };
    float Z() { return rotation_centre_z; };
 
+   // why isn't this static? Make it static
    coot::Cartesian RotationCentre() const
       { return coot::Cartesian(rotation_centre_x,
 			       rotation_centre_y,

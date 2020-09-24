@@ -1046,23 +1046,24 @@ graphics_info_t::active_atom_spec_simple() {
    float dist_best = 999999999.9;
    mmdb::Atom *at_close = 0;
 
-   coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
-		      graphics_info_t::RotationCentre_y(),
-		      graphics_info_t::RotationCentre_z());
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].is_displayed_p()) { 
-	 if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
-	    bool do_ca_check_flag = false;
-	    coot::at_dist_info_t at_info =
-	       graphics_info_t::molecules[imol].closest_atom(rc, do_ca_check_flag, "", false);
-	    if (at_info.atom) {
-	       if (at_info.dist <= dist_best) {
-		  dist_best = at_info.dist;
-		  imol_closest = at_info.imol;
-		  at_close = at_info.atom;
-	       }
-	    }
-	 }
+   graphics_info_t g;
+   coot::Cartesian rc = g.RotationCentre(); // not static!
+   for (int imol=0; imol<n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         if (molecules[imol].is_displayed_p()) {
+            if (molecules[imol].atom_selection_is_pickable()) {
+               bool do_ca_check_flag = false;
+               coot::at_dist_info_t at_info =
+                  molecules[imol].closest_atom(rc, do_ca_check_flag, "", false);
+               if (at_info.atom) {
+                  if (at_info.dist <= dist_best) {
+                     dist_best = at_info.dist;
+                     imol_closest = at_info.imol;
+                     at_close = at_info.atom;
+                  }
+               }
+            }
+         }
       }
    }
    if (at_close) {
@@ -1073,9 +1074,6 @@ graphics_info_t::active_atom_spec_simple() {
    std::pair<int, coot::atom_spec_t> p1(imol_closest, spec);
    return std::pair<bool, std::pair<int, coot::atom_spec_t> > (was_found_flag, p1);
 }
-
-   
-
 
 
 // static 

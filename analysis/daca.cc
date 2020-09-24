@@ -599,14 +599,14 @@ coot::daca::write_tables(const std::string &dir) const {
    coot::util::create_directory(dir);
 
    std::map<std::string, std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > >::const_iterator it;
-   for (it=boxes.begin(); it!=boxes.end(); it++) {
+   for (it=boxes.begin(); it!=boxes.end(); ++it) {
       const std::string &residue_type = it->first;
       std::cout << "============= write_tables(): Residue Type " << residue_type << std::endl;
       const std::vector<std::map<std::string, std::map<box_index_t, unsigned int> > > &frag_boxes = it->second;
       for (unsigned int i=0; i<frag_boxes.size(); i++) {
          const std::map<std::string, std::map<box_index_t, unsigned int> > &typed_boxes = frag_boxes[i];
          std::map<std::string, std::map<box_index_t, unsigned int> >::const_iterator it_typed_box;
-         for (it_typed_box=typed_boxes.begin(); it_typed_box!=typed_boxes.end(); it_typed_box++) {
+         for (it_typed_box=typed_boxes.begin(); it_typed_box!=typed_boxes.end(); ++it_typed_box) {
             std::string atom_type = it_typed_box->first;
             if (false)
                std::cout << "----------------- write_tables(): Residue Type " << residue_type << " " << i << " atom type "
@@ -616,7 +616,7 @@ coot::daca::write_tables(const std::string &dir) const {
             std::ofstream f(full_box_file_name.c_str());
             if (f) {
                std::map<box_index_t, unsigned int>::const_iterator it_box;
-               for (it_box=it_typed_box->second.begin(); it_box!=it_typed_box->second.end(); it_box++) {
+               for (it_box=it_typed_box->second.begin(); it_box!=it_typed_box->second.end(); ++it_box) {
                   const box_index_t &bi = it_box->first;
                   unsigned int count = it_box->second;
                   f << " "
@@ -951,13 +951,14 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
       if (asc.read_success) {
 
          std::cout << "write_tables()... read pdb file " << fn << std::endl;
-         std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
-         if (true) {
-            for (unsigned int i=0; i<se.size(); i++) {
-               std::string rn(se[i].first->GetResName());
-               std::cout << "se " << fn << " " << coot::residue_spec_t(se[i].first)
+
+         if (false) { // bring this back when the consolidated tables are in  place.
+            std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
+            for (unsigned int ii=0; ii<se.size(); ii++) {
+               std::string rn(se[ii].first->GetResName());
+               std::cout << "se " << fn << " " << coot::residue_spec_t(se[ii].first)
                          << " " << rn
-                         << " " << se[i].second << std::endl;
+                         << " " << se[ii].second << std::endl;
             }
          }
 

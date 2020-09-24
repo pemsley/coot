@@ -4108,6 +4108,19 @@
 	 (lambda ()
            (molecule-chooser-gui "Select" (lambda (imol) (flip-hand imol)))))
 
+        (add-simple-coot-menu-menuitem
+         menu "Align and Mutate using ClustalW2"
+         (lambda ()
+           'x
+           (generic-chooser-entry-and-file-selector
+            "Align Sequence to Model: "
+            valid-model-molecule?
+            "Chain ID"
+            ""
+            "Select PIR Alignment file"
+            (lambda (imol chain-id target-sequence-pir-file)
+               (run-clustalw-alignment imol chain-id target-sequence-pir-file)))))
+
 	(add-simple-coot-menu-menuitem
 	 menu "Interactive Nudge Residues..."
 	 (lambda ()
