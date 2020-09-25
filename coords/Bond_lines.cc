@@ -1634,10 +1634,10 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 						 int udd_atom_index_handle,
 						 int atom_colour_type) {
 
-   if (true) {
+   if (false) { // debugging
       // udd_atom_index_handle is -1 for intermediate atoms
       std::cout << "in construct_from_model_links() udd_atom_index_handle is " << udd_atom_index_handle
-		<< "\n";
+                << "\n";
       if (model_p) {
 	 int n_chains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<n_chains; ichain++) {
