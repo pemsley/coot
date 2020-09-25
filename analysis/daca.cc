@@ -1008,6 +1008,12 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
             presize_boxes(ANALYSIS);
 
             fill_helix_flags(model_p, asc.mol);
+
+            std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
+            std::map<mmdb::Residue *, float> se_as_map;
+            for (unsigned int i=0; i<se.size(); i++)
+               se_as_map[se[i].first] = se[i].second;
+
             std::vector<std::pair<mmdb::Atom *, std::string> > ta = make_typed_atoms(model_p, geom);
             int n_chains = model_p->GetNumberOfChains();
             for (int ichain=0; ichain<n_chains; ichain++) {
@@ -1022,8 +1028,21 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
                      if (! util::is_standard_amino_acid_name(res_name)) continue;
                      int daca_score = calculate_daca(residue_p, ta, ANALYSIS);
                      score += daca_score;
-                     std::cout << "residue_number " << res_number << " score " << daca_score
-                               << " daca_sum_score " << score << "\n";
+                     float se_score = -1.0;
+                     std::map<mmdb::Residue *, float>::const_iterator it;
+                     it = se_as_map.find(residue_p);
+                     std::string rt = residue_p->GetResName();
+                     if (it != se_as_map.end()) {
+                        se_score = it->second;
+                     } else {
+                        std::cout << "failed to find residue " << residue_spec_t(residue_p)
+                                  << " " << rt << " in map of size " << se_as_map.size()
+                                  << std::endl;
+                     }
+                     std::cout << "residue_number " << res_number << " type " << rt
+                               << " score " << daca_score
+                               << " daca_sum_score " << score << " solvent_exposure " << se_score
+                               << "\n";
                   }
                }
             }
@@ -1329,7 +1348,7 @@ coot::daca::get_radius(const std::string &ele) const {
 std::vector<std::pair<mmdb::Residue *, float> >
 coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
 
-  std::vector<std::pair<mmdb::Residue *, float> > v;
+   std::vector<std::pair<mmdb::Residue *, float> > v; // return the residue count map, not this
    if (! mol) return v;
 
    float max_dist = 2 * (1.7 + 1.4);
@@ -1342,8 +1361,6 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
                     mmdb::ANY_RES, "*",
                     "*","*","!H","*", mmdb::SKEY_NEW);
 
-   std::map<mmdb::Residue *, std::set<mmdb::Atom *> > residue_neighbouring_atoms;
-
    std::map<int, std::set<int> > contact_map;
 
    // fill contact_map
@@ -1351,7 +1368,6 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
    if (n_atoms) {
       mmdb::Contact *pscontact = NULL; // d
       int n_contacts;
-      float min_dist = 0.01;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
@@ -1417,7 +1433,7 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
                                    bool inside_another_atom = false;
                                    clipper::Coord_orth pt_on_sphere(radius * unit_sphere_points[i]);
                                    clipper::Coord_orth pt = atom_position + pt_on_sphere;
-                                   for (it=neighbour_atoms.begin(); it!=neighbour_atoms.end(); it++) {
+                                   for (it=neighbour_atoms.begin(); it!=neighbour_atoms.end(); ++it) {
                                       mmdb::Atom *at_neigb = atom_selection[*it];
                                       clipper::Coord_orth pt_neighb = co(at_neigb);
                                       double dd = (pt-pt_neighb).lengthsq();
@@ -1450,7 +1466,7 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
 
             std::map<mmdb::Residue *, int> residue_count_map;
             std::map<int, std::set<int> >::const_iterator it;
-            for (it=contact_map.begin(); it!=contact_map.end(); it++) {
+            for (it=contact_map.begin(); it!=contact_map.end(); ++it) {
                int atom_index = it->first;
                mmdb::Atom *at = atom_selection[atom_index];
                const std::set<int> &neighbours = it->second;
@@ -1466,11 +1482,16 @@ coot::daca::solvent_exposure(mmdb::Manager *mol, bool side_chain_only) const {
 
             {
                std::cout << "contact map:"  << std::endl;
-               std::map<mmdb::Residue *, int>::const_iterator it;
-               for (it=residue_count_map.begin(); it!=residue_count_map.end(); it++) {
-                  std::string rn = it->first->GetResName();
+               std::map<mmdb::Residue *, int>::const_iterator it_rc;
+               for (it_rc=residue_count_map.begin(); it_rc!=residue_count_map.end(); ++it_rc) {
+                  std::string rn = it_rc->first->GetResName();
                   std::cout << "    " << residue_spec_t(it->first) << " " << rn << " "
-                            << it->second << std::endl;
+                            << it_rc->second << std::endl;
+               }
+
+               for (it_rc=residue_count_map.begin(); it_rc!=residue_count_map.end(); ++it_rc) {
+                  std::pair<mmdb::Residue *, float> p(it_rc->first, it_rc->second);
+                  v.push_back(p);
                }
             }
          }
@@ -1487,7 +1508,6 @@ coot::daca::solvent_exposure_old_version_v2(mmdb::Manager *mol,
    std::vector<std::pair<mmdb::Residue *, float> > v;
    if (! mol) return v;
 
-   float max_dist = 5.7;
    mmdb::PPAtom atom_selection = 0;
    int n_atoms;
 
@@ -1502,9 +1522,9 @@ coot::daca::solvent_exposure_old_version_v2(mmdb::Manager *mol,
    mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
    if (n_atoms) {
 
+      float max_dist = 5.7;
       mmdb::Contact *pscontact = NULL; // d
       int n_contacts;
-      float min_dist = 0.01;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
@@ -1575,14 +1595,12 @@ coot::daca::solvent_exposure_old_version(int SelHnd_in, mmdb::Manager *mol) cons
    std::vector<std::pair<mmdb::Atom *, float> > v;
    if (mol) {
 
-      double dot_density = 0.35;
+      double dot_density = 0.5;
       //
       double phi_step = 5.0 * (M_PI/180.0);
       double theta_step = 5.0 * (M_PI/180.0);
-      if (dot_density > 0.0) {
-	 phi_step   /= dot_density;
-	 theta_step /= dot_density;
-      }
+      phi_step   /= dot_density;
+      theta_step /= dot_density;
 
       double water_radius = 1.4;
       double fudge = 1.0;
