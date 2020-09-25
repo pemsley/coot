@@ -7291,7 +7291,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       }
 
-      GLfloat bgcolor[4] = {0.8, 0.8, 0.8, 0.8};
+      GLfloat bgcolor[4] = {0.8, 0.8, 0.8, 1.0};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 40);
@@ -7300,10 +7300,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box_local.bonds_[ii];
 	 set_bond_colour_by_mol_no(ii, against_a_dark_background);
 
-	 GLfloat bgcolor[4]={bond_colour_internal[0],
-			     bond_colour_internal[1],
-			     bond_colour_internal[2],
-			     1.0};
+         if (bond_colour_internal.size() > 2)
+            for (int jj=0; jj<3; jj++)
+               bgcolor[jj] = bond_colour_internal[jj];
 
 	 for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
 	    glPushMatrix();
@@ -7397,10 +7396,12 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i],
 				      against_a_dark_background);
 	    glPushMatrix();
-	    GLfloat bgcolor[4]={bond_colour_internal[0],
-				bond_colour_internal[1],
-				bond_colour_internal[2],
-				1.0};
+
+	    // GLfloat bgcolor[4]={bond_colour_internal[0],
+            // bond_colour_internal[1],
+            // bond_colour_internal[2],
+            // 1.0};
+
 	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
 	    glTranslatef(bonds_box_local.atom_centres_[i].position.get_x(),
 			 bonds_box_local.atom_centres_[i].position.get_y(),
