@@ -12,7 +12,7 @@
   o FEATURE: find pep-flips using based on difference map
 
   o FEATURE: Add "Proportional editing" for atom-pull neighbour displacement
-             [prompted by Tristan and ISOLDE]. Use Ctrl-scroll to change the radius
+             [c.f. Tristan's ISOLDE]. Use Ctrl-scroll to change the radius
 
   o FEATURE: carbon atoms in Colour-by-Chain mode have their own colour index
 
