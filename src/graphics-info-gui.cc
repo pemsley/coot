@@ -1867,7 +1867,8 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
          ss += "...";
       ss += molecules[imol].name_.substr(left_size, ilen);
 
-      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
+      //  std::cout << "debug:: --- in fill_combobox_with_coordinates_options() "
+      //            << imol << " " << ss << std::endl;
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
