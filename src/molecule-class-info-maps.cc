@@ -4872,7 +4872,58 @@ molecule_class_info_t::export_molecule_as_x3d() const {
 }
 
 bool
-molecule_class_info_t::export_molecule_as_obj(const std::string &file_name) const {
+molecule_class_info_t::export_molecule_as_obj(const std::string &file_name) {
+
+   if (has_xmap()) {
+      return export_map_molecule_as_obj(file_name);
+   } else {
+      return export_model_molecule_as_obj(file_name);
+   }
+}
+
+bool
+molecule_class_info_t::export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices_in,
+                                                          const std::vector<g_triangle> &triangles) {
+
+   // write to export_vertices_and_triangles_file_name_for_func, which is set below
+   // in export_model_molecule_as_obj().
+
+   Mesh mesh;
+   std::vector<s_generic_vertex> vertices(vertices_in.size());
+   for (unsigned int i=0; i<vertices_in.size(); i++) {
+      s_generic_vertex gv;
+      glm::mat4 mat_rot   = glm::mat4(vertices_in[i].model_rotation_matrix);
+      mat_rot = glm::transpose(mat_rot); // Wow. But true.
+      glm::mat4 mat_trans = glm::translate(glm::mat4(1.0f), vertices_in[i].model_translation);
+      glm::vec4 pos_t = mat_rot * glm::vec4(vertices_in[i].pos, 1.0);
+      glm::vec4 pos   = mat_trans * pos_t;
+      glm::vec4 norm  = mat_rot * glm::vec4(vertices_in[i].normal, 1.0);
+      gv.color       = vertices_in[i].colour;
+      gv.pos = glm::vec3(pos);
+      if (false)
+         std::cout << "debug pos " << i << " from vertex " << glm::to_string(vertices_in[i].pos) << " "
+                   << glm::to_string(pos) << " " << glm::to_string(gv.pos) << std::endl;
+      gv.normal = glm::vec3(norm);
+      vertices[i] = gv;
+   }
+   mesh.import(vertices, triangles);
+   bool status = mesh.export_as_obj(export_vertices_and_triangles_file_name_for_func);
+   return status;
+}
+
+bool
+molecule_class_info_t::export_model_molecule_as_obj(const std::string &file_name) {
+
+   write_model_vertices_and_triangles_to_file_mode = true;
+   export_vertices_and_triangles_file_name_for_func = file_name;
+   make_bonds_type_checked();
+   write_model_vertices_and_triangles_to_file_mode = false;
+
+   return false;
+}
+
+bool
+molecule_class_info_t::export_map_molecule_as_obj(const std::string &file_name) const {
 
    // this is not in x3d format of course:
    coot::density_contour_triangles_container_t raw_mesh = export_molecule_as_x3d();

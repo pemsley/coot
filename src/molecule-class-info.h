@@ -3454,7 +3454,17 @@ public:        //                      public
    GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
 
    coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
-   bool export_molecule_as_obj(const std::string &file_name) const;
+   bool export_molecule_as_obj(const std::string &file_name);
+   bool export_map_molecule_as_obj(const std::string &file_name) const;
+   bool export_model_molecule_as_obj(const std::string &file_name);
+
+   void export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+                                  const std::vector<g_triangle> &triangles);
+
+   bool write_model_vertices_and_triangles_to_file_mode;
+   bool export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices,
+                                           const std::vector<g_triangle> &triangles);
+   std::string export_vertices_and_triangles_file_name_for_func;
 
    // These meshes are not the way coot 0.9 organized generic display objects.
    //

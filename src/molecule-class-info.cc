@@ -264,6 +264,8 @@ molecule_class_info_t::setup_internal() {
    draw_vector_sets.resize(120);
    draw_diff_map_vector_sets.resize(120);
 
+   write_model_vertices_and_triangles_to_file_mode = false;
+
    // don't show strict ncs unless it's turned on.
    show_strict_ncs_flag = 1;
 
@@ -3808,8 +3810,20 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
        }
     }
 
-    setup_glsl_bonds_buffers(vertices, triangles);
+    if (write_model_vertices_and_triangles_to_file_mode) {
+       export_these_as_3d_object(vertices, triangles);
+    } else {
+       setup_glsl_bonds_buffers(vertices, triangles);
+    }
  }
+
+void
+molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+                                                 const std::vector<g_triangle> &triangles) {
+
+   export_vertices_and_triangles_func(vertices, triangles);
+}
+
 
  void
     molecule_class_info_t::setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,

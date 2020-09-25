@@ -65,11 +65,25 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 
    // Mesh mesh(mtm);
    // meshes.push_back(mesh);
+   // meshes.back().setup(&molecular_triangles_shader, material);
 
-   meshes.back().setup(&molecular_triangles_shader, material);
+   {
+      // hacketty hack! This is to make the "old" mesh method work again in Coot, without
+      // moving to the Model method
+      molecular_triangles_mesh_t meshes_together;
+      for (unsigned int i=0; i<mtm.size(); i++) {
+         meshes_together.add_to_mesh(mtm[i].vertices, mtm[i].triangles);
+      }
+      std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+         meshes_together_pair(meshes_together.vertices, meshes_together.triangles);
+      Mesh mesh(meshes_together_pair);
+      mesh.set_name(name);
+      meshes.push_back(mesh);
+      meshes.back().setup(&molecular_triangles_shader, material);
+   }
 
-   std::cout << "........... now for molecule " << imol_no << " we have "
-             << meshes.size() << " meshes " << std::endl;
+   // std::cout << "........... now for molecule " << imol_no << " we have "
+   // << meshes.size() << " meshes " << std::endl;
    return status;
 }
 
