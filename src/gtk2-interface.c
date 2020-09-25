@@ -19262,7 +19262,7 @@ create_preferences (void)
 
   preferences = gtk_dialog_new ();
   gtk_window_set_title (GTK_WINDOW (preferences), "Preferences");
-  gtk_window_set_default_size (GTK_WINDOW (preferences), 780, 480);
+  gtk_window_set_default_size (GTK_WINDOW (preferences), 820, 480);
   gtk_window_set_type_hint (GTK_WINDOW (preferences), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox77 = GTK_DIALOG (preferences)->vbox;
@@ -20096,14 +20096,14 @@ create_preferences (void)
   gtk_widget_show (vbox239);
   gtk_container_add (GTK_CONTAINER (frame233), vbox239);
 
-  preferences_hid_spherical_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Spherical surface");
+  preferences_hid_spherical_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Spherical Surface");
   gtk_widget_show (preferences_hid_spherical_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_spherical_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_spherical_radiobutton), 5);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (preferences_hid_spherical_radiobutton), preferences_hid_spherical_radiobutton_group);
   preferences_hid_spherical_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (preferences_hid_spherical_radiobutton));
 
-  preferences_hid_flat_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Flat");
+  preferences_hid_flat_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, "Turntable Mode (Flat)");
   gtk_widget_show (preferences_hid_flat_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox239), preferences_hid_flat_radiobutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (preferences_hid_flat_radiobutton), 5);
