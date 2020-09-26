@@ -4440,4 +4440,4 @@
     (apply-pir-alignment imol chain-id)
     (simple-fill-partial-residues imol)
     (resolve-clashing-sidechains-by-deletion imol)
-    ))
+    )))
