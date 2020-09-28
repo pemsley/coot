@@ -60,7 +60,8 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
          unsigned int idx_base = v1.size();
 
          for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-            vertex_with_rotation_translation vertex(octaball.first[ibv], sphere_radius * sphere_scale);
+            //     vertex_with_rotation_translation vertex(octaball.first[ibv], sphere_radius * sphere_scale);
+            vertex_with_rotation_translation vertex(octaball.first[ibv], atom_position, sphere_radius * sphere_scale);
             vertex.colour = atom_col;
             vertex.model_rotation_matrix = unit_matrix; // for now
             vertex.model_translation = atom_position;
@@ -231,7 +232,7 @@ molecule_class_info_t::make_generic_vertices_for_bad_CA_CA_distances() const {
                           bonds_box.bad_CA_CA_dist_spots_ptr[i].y(),
                           bonds_box.bad_CA_CA_dist_spots_ptr[i].z());
       for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-         vertex_with_rotation_translation vertex(octaball.first[ibv], sphere_radius * sphere_scale);
+         vertex_with_rotation_translation vertex(octaball.first[ibv], position, sphere_radius * sphere_scale);
          vertex.colour = col;
          vertex.model_rotation_matrix = unit_matrix; // for now
          vertex.model_translation = position;
@@ -278,7 +279,7 @@ molecule_class_info_t::make_generic_vertices_for_rama_balls(float ball_scale_fac
       glm::vec3 atom_position = cartesian_to_glm(position) + rama_ball_pos_offset_scale * screen_up_dir;
       unsigned int idx_base = v1.size();
       for (unsigned int ibv=0; ibv<octaball.first.size(); ibv++) {
-         vertex_with_rotation_translation vertex(octaball.first[ibv], radius);
+         vertex_with_rotation_translation vertex(octaball.first[ibv], atom_position, radius);
          vertex.colour = glm::vec4(col.red, col.green, col.blue, 1.0f);
          vertex.model_rotation_matrix = unit_matrix;
          vertex.model_translation = atom_position;

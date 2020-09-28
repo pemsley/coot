@@ -110,9 +110,10 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 	       if (pr.state == coot::rotamer_probability_info_t::OK) {
 		  // pr is high, z low, -> green
 		  // pr is ~0, z is ~1 -> red
-		  z = 1.0 - sqrt(sqrt(pr.probability*0.01));
+		  z = 1.0 - sqrt(sqrt(pr.probability*0.02));
 		  // args fraction, min, max, dummy-not-colour-triple-flag
 		  col = coot::colour_holder(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
+                  col.brighten(0.1);
 	       }
 	       if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
 		  col = coot::colour_holder("#bb22bb"); // purple

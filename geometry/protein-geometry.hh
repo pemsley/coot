@@ -74,12 +74,9 @@ namespace coot {
       pdbx_chem_comp_descriptor_item(const std::string &type_in,
 				     const std::string &program_in,
 				     const std::string &program_version_in,
-				     const std::string &descriptor_in) {
-	 type = type_in;
-	 program = program_in;
-	 program_version = program_version_in;
-	 descriptor = descriptor_in;
-      }
+				     const std::string &descriptor_in) :
+         type(type_in), program(program_in), program_version(program_version_in),
+         descriptor(descriptor_in) { }
    };
    
    class pdbx_chem_comp_descriptor_container_t {
@@ -136,16 +133,18 @@ namespace coot {
 		       const std::string &group_in,
 		       int number_atoms_all_in,
 		       int number_atoms_nh_in,
-		       const std::string &description_level_in) {
+		       const std::string &description_level_in) :
+         comp_id(""), three_letter_code(three_letter_code_in), name(name_in), group(group_in),
+         pdb_formal_charge(0) {
 	 setup_internal(comp_id_in,
 			three_letter_code_in, name_in, group_in,
 			number_atoms_all_in, number_atoms_nh_in,
 			description_level_in);
       }
-      dict_chem_comp_t() {
+      dict_chem_comp_t() : pdb_formal_charge(0) {
  	 setup_internal("", "", "", "", 0, 0, "");
       }
-      dict_chem_comp_t(const dict_chem_comp_t &din) {
+      dict_chem_comp_t(const dict_chem_comp_t &din) : pdb_formal_charge(0) {
 	 setup_internal(din.comp_id, din.three_letter_code, din.name,
 			din.group, din.number_atoms_all, din.number_atoms_nh,
 			din.description_level);
@@ -196,28 +195,26 @@ namespace coot {
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       aromaticity_t aromaticity;
       // dict_bond_restraint_t() {};
-      dict_bond_restraint_t(std::string atom_id_1_in,
-			    std::string atom_id_2_in,
-			    std::string type,
+      dict_bond_restraint_t(const std::string &atom_id_1_in,
+			    const std::string &atom_id_2_in,
+			    const std::string &type,
 			    double dist_in,
 			    double dist_esd_in,
 			    aromaticity_t arom_in=UNASSIGNED) :
-      basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
+         basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type) {
 
 	 dist_ = dist_in;
 	 dist_esd_ = dist_esd_in;
-	 type_ = type;
 	 have_target_values = 1;
 	 aromaticity = arom_in;
       }
 
-      dict_bond_restraint_t(std::string atom_id_1_in,
-			    std::string atom_id_2_in,
-			    std::string type,
+      dict_bond_restraint_t(const std::string &atom_id_1_in,
+			    const std::string &atom_id_2_in,
+			    const std::string &type,
 			    aromaticity_t arom_in=UNASSIGNED) :
-	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
+	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in), type_(type), dist_(0.0), dist_esd_(0.0) {
 	 have_target_values = 0;
-	 type_ = type;
 	 aromaticity = arom_in;
       }
       dict_bond_restraint_t() {} // boost::python needs this

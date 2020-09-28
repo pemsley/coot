@@ -395,6 +395,7 @@ coot_bin_SOURCES = \
 	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
+	clippter-to-glm.hh       \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
@@ -515,6 +516,7 @@ coot_bin_SOURCES = \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
+	make-a-dodec.cc make-a-dodec.hh \
 	matrix-utils.hh          \
 	matrix-utils.cc          \
         map-statistics.hh        \

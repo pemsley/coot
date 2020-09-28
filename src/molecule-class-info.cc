@@ -3513,6 +3513,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 }
 
 
+ #include "oct.hh"
 
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
@@ -3619,6 +3620,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
     atom_radius_scale_factor = sf;
     make_glsl_bonds_type_checked();
  }
+
+#include "make-a-dodec.hh"
  
 
  void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
@@ -3691,6 +3694,64 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
           triangles.insert(triangles.end(), rama_bits.second.begin(), rama_bits.second.end());
           for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
              triangles[k].rebase(idx_base);
+       }
+
+       // for Rotamers, we *do* want the markup that comes with intermediate atoms!
+       if (true) {
+          glm::vec3 base  = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 0.0f, 0.0f));
+          glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
+          glm::vec3 screen_up_dir = glm::normalize(y_vec - base);
+          int nrms = bonds_box.n_rotamer_markups;
+          std::cout << "############################# nrms " << nrms << std::endl;
+          if (nrms > 0) {
+
+             double radius = 0.3; // was 0.38;
+             std::pair<std::vector<vn_vertex>, std::vector<g_triangle> > p_dodec =
+                make_pentakis_dodec(DODEC_SPIKEY_MODE);
+
+             // convert p_dodec to a shape
+             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > shape;
+             shape.first.resize(p_dodec.first.size());
+             for (unsigned int i=0; i<p_dodec.first.size(); i++) {
+                s_generic_vertex v(p_dodec.first[i]);
+                shape.first[i] = v;
+             }
+             shape.second = p_dodec.second;
+#if 0
+             // make_octasphere should return just a vec3 and triangles
+             // maybe make_plain_octasphere() - no need to pass origin, rewrite all of oct.cc basically.
+             int num_subdivisions = 2;
+             glm::vec3 origin(0,0,0);
+             glm::vec4 col(1.0, 0.0, 0.0, 1.0);
+             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > shape =
+                make_octasphere(num_subdivisions, origin, radius, col);
+#endif
+
+             for (int i=0; i<nrms; i++) {
+                const coot::Cartesian &pos_c  = bonds_box.rotamer_markups[i].pos;
+                const coot::colour_holder &ch = bonds_box.rotamer_markups[i].col;
+                glm::vec4 col(ch.red, ch.green, ch.blue, 1.0f);
+
+                glm::vec3 ball_centre = cartesian_to_glm(pos_c);
+                ball_centre += screen_up_dir * 1.34;
+
+                std::vector<vertex_with_rotation_translation> rota_vertices(shape.first.size());
+                const std::vector<g_triangle> &rota_triangles = shape.second;
+                for (unsigned int ii=0; ii<rota_vertices.size(); ii++) {
+                   const s_generic_vertex &v = shape.first[ii];
+                   rota_vertices[ii] = vertex_with_rotation_translation(v, ball_centre, radius);
+                   rota_vertices[ii].colour = col;
+                }
+
+                idx_base = vertices.size();
+                idx_tri_base = triangles.size();
+
+                vertices.insert(vertices.end(), rota_vertices.begin(), rota_vertices.end());
+                triangles.insert(triangles.end(), rota_triangles.begin(), rota_triangles.end());
+                for (unsigned int k=idx_tri_base; k<triangles.size(); k++)
+                   triangles[k].rebase(idx_base);
+             }
+          }
        }
     }
 
@@ -3796,7 +3857,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 vvrt.reserve(10);
                 for (unsigned int jj=0; jj<cpg.first.size(); jj++) {
                    const s_generic_vertex &sgv = cpg.first[jj];
-                   vertex_with_rotation_translation vrt(sgv, 1.0);
+                   vertex_with_rotation_translation vrt(sgv, glm::vec3(0,0,0), 1.0);
                    vrt.model_rotation_matrix = glm::mat3(1.0f);
                    vrt.model_translation = glm::vec3(0,0,0);
                    vvrt.push_back(vrt);

@@ -224,3 +224,14 @@ coot::colour_holder::hex() const {
    hexstring += ss3.str();
    return hexstring;
 } 
+
+void
+coot::colour_holder::brighten(float amount) {
+
+   red   += amount;
+   green += amount;
+   blue  += amount;
+   if (red   > 1.0) red   = 1.0;
+   if (green > 1.0) green = 1.0;
+   if (blue  > 1.0) blue  = 1.0;
+}

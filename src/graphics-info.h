@@ -3618,7 +3618,9 @@ public:
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {
-      generic_display_objects.push_back(Mesh(name));
+      Mesh mesh(name);
+      meshed_generic_display_object meshed(mesh);
+      generic_display_objects.push_back(meshed);
       return generic_display_objects.size() - 1;
    }
    static int generic_object_index(const std::string &name) {

@@ -2219,20 +2219,20 @@ graphics_info_t::draw_rotamer_probability_object() {
 
       for (unsigned int i=0; i<dodecs.size(); i++) {
 
-    float feature_opacity = 0.6;
-    const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
-    GLfloat  mat_diffuse[]  = {dodec.col.red,
-       dodec.col.green,
-       dodec.col.blue,
-       feature_opacity};
-    GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
-    GLfloat  mat_shininess[] = {100};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+         float feature_opacity = 0.6;
+         const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
+         GLfloat  mat_diffuse[]  = {dodec.col.red,
+                                    dodec.col.green,
+                                    dodec.col.blue,
+                                    feature_opacity};
+         GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
+         GLfloat  mat_shininess[] = {100};
+         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
-    g.graphics_object_internal_dodec(dodec);
+         g.graphics_object_internal_dodec(dodec);
       }
       glDisable(GL_LIGHTING);
    }
@@ -2853,7 +2853,7 @@ graphics_info_t::graphics_object_internal_dodec(const coot::old_generic_display_
    if (false) {
       glBegin(GL_POINTS);
       for (unsigned int i=0; i<v.size(); i++) {
-    glVertex3d(v[i].x(), v[i].y(), v[i].z());
+         glVertex3d(v[i].x(), v[i].y(), v[i].z());
       }
       glEnd();
    }
@@ -2863,17 +2863,19 @@ graphics_info_t::graphics_object_internal_dodec(const coot::old_generic_display_
       const std::vector<unsigned int> &face = dodec.d.face(i);
       clipper::Coord_orth sum_vertex(0,0,0);
       for (unsigned int j=0; j<5; j++)
-    sum_vertex += v[face[j]];
+         sum_vertex += v[face[j]];
       clipper::Coord_orth face_normal(sum_vertex.unit());
       for (unsigned int j=0; j<5; j++) {
-    glNormal3d(face_normal.x(), face_normal.y(), face_normal.z());
-    glVertex3d(v[face[j]].x(),  v[face[j]].y(),  v[face[j]].z());
+         glNormal3d(face_normal.x(), face_normal.y(), face_normal.z());
+         glVertex3d(v[face[j]].x(),  v[face[j]].y(),  v[face[j]].z());
       }
       glEnd();
    }
    glPopMatrix();
+#endif
 }
 
+#if 0
 void
 graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec) {
 
@@ -2942,8 +2944,8 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
       }
    }
    glPopMatrix();
-#endif
 }
+#endif
 
 
 void

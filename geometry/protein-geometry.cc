@@ -109,7 +109,6 @@ coot::atom_id_mmdb_expand(const std::string &atomname) {
 	 // But what about CA! - argh! we shouldn't be using this function.
 	 // We need to know the residue name to pad correctly.
 	 //
-	 bool done = false;
 	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
 	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
 	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||

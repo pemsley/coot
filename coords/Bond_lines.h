@@ -50,6 +50,7 @@
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
 
 #include "geometry/bonded-quad.hh"
+#include "mmdb-crystal.h"
 
 namespace coot {
 
