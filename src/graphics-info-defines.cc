@@ -787,7 +787,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
                                     return gboolean(continue_status);
                                  };
 
-   auto residue_to_positions = [] (mmdb::Residue *residue_p) {
+   auto residue_to_positions = [] (mmdb::Residue *residue_p, bool hydrogen_atoms_only_flag=false) {
                                   std::vector<glm::vec3> v;
                                   mmdb::Atom **residue_atoms = 0;
                                   int n_residue_atoms = 0;
@@ -795,19 +795,58 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
                                   for(int iat=0; iat<n_residue_atoms; iat++) {
                                      mmdb::Atom *at = residue_atoms[iat];
                                      if (! at->isTer()) {
-                                        glm::vec3 p(at->x, at->y, at->z);
-                                        v.push_back(p);
+                                        if (! hydrogen_atoms_only_flag) {
+                                           glm::vec3 p(at->x, at->y, at->z);
+                                           v.push_back(p);
+                                        } else {
+                                           std::string ele(at->element);
+                                           if (ele == " H") {
+                                              glm::vec3 p(at->x, at->y, at->z);
+                                              v.push_back(p);
+                                           }
+                                        }
                                      }
                                   }
                                   return v;
                                };
 
-   auto setup_delete_item_pulse = [residue_to_positions, delete_item_pulse_func] (mmdb::Residue *residue_p) {
+
+   auto setup_delete_residue_pulse = [residue_to_positions, delete_item_pulse_func] (mmdb::Residue *residue_p) {
 
       pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
       gpointer user_data = reinterpret_cast<void *>(pulse_data);
       std::vector<glm::vec3> positions = residue_to_positions(residue_p);
       delete_item_pulse_centres = positions;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+      lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+      gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+   };
+
+
+   auto setup_delete_residues_hydrogen_atoms_pulse = [residue_to_positions, delete_item_pulse_func] (mmdb::Residue *residue_p) {
+      pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions = residue_to_positions(residue_p, true);
+      delete_item_pulse_centres = positions;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+      lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+      gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+   };
+
+
+   auto setup_delete_residues_pulse = [residue_to_positions, delete_item_pulse_func] (const std::vector<mmdb::Residue *> &residues) {
+
+      pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> all_positions;
+      for (unsigned int i=0; i<residues.size(); i++) {
+         mmdb::Residue *residue_p = residues[i];
+         std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
+         all_positions.insert(all_positions.end(), residue_positions.begin(), residue_positions.end());
+      }
+      delete_item_pulse_centres = all_positions;
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
       lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
       gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
@@ -907,7 +946,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
                std::string atom_name(at->name);
                std::string ele = at->element;
                coot::residue_spec_t res_spec(coot::atom_spec_t(at));
-               setup_delete_item_pulse(res);
+               setup_delete_residue_pulse(res);
                if (ele == " H") {
                   delete_residue_with_full_spec(naii.imol, naii.model_number, chain_id.c_str(),
                                                 resno, inscode.c_str(), altloc.c_str());
@@ -1019,7 +1058,10 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	 if (naii.success == GL_TRUE) {
 	    normal_cursor();
 	    mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
-	    std::string chain_id = at->residue->chain->GetChainID();
+            mmdb::Chain *chain_p = at->residue->chain;
+	    std::string chain_id = chain_p->GetChainID();
+            std::vector<mmdb::Residue *> residues = coot::util::residues_in_chain(chain_p);
+            setup_delete_residues_pulse(residues);
 	    delete_chain(naii.imol, chain_id.c_str()); // handles dialog
 	    graphics_draw();
 	    run_post_manipulation_hook(naii.imol, DELETED);
@@ -1035,7 +1077,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	    mmdb::Residue *res = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
 	    std::string resname(res->name);
 	    if (resname != "WAT" && resname != "HOH") {
-               setup_delete_item_pulse(res);
+               setup_delete_residue_pulse(res);
 	       normal_cursor();
 	       delete_residue_by_atom_index(naii.imol, naii.atom_index,
 					    destroy_delete_dialog_flag_by_ctrl_press);
@@ -1069,7 +1111,6 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       } else { // not used
 
 		  if (symm_nearest_atom_index_info.success == GL_TRUE) {
-		
 		     std::string s = "That was a symmetry atom\n";
 		     s += "Coot currently doesn't delete symmetry items";
 		     GtkWidget *w = wrapped_nothing_bad_dialog(s);
@@ -1084,6 +1125,8 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
       if (g.delete_item_residue_hydrogens) {
 	 pick_info naii = atom_pick(event);
 	 if (naii.success == GL_TRUE) {
+            mmdb::Residue *residue_p = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->residue;
+            setup_delete_residues_hydrogen_atoms_pulse(residue_p);
 	    delete_residue_hydrogens_by_atom_index(naii.imol, naii.atom_index,
 						   destroy_delete_dialog_flag_by_ctrl_press);
 	    normal_cursor();
@@ -1353,9 +1396,9 @@ graphics_info_t::check_if_in_db_main_define(GdkEventButton *event) {
 
    // 20180721 change this so that it needs only a single click.
 
-   if (g.in_db_main_define) { 
+   if (g.in_db_main_define) {
       pick_info naii = atom_pick(event);
-      if (naii.success == GL_TRUE) { 
+      if (naii.success == GL_TRUE) {
 	 molecules[naii.imol].add_to_labelled_atom_list(naii.atom_index);
 	 if (g.in_db_main_define == 1) {
 	    g.db_main_atom_index_1 = naii.atom_index;
@@ -1414,7 +1457,7 @@ graphics_info_t::check_if_in_mutate_define(GdkEventButton *event) {
          is_nuc = coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p());
          if (! is_nuc)
             is_nuc = coot::util::is_nucleotide(r);
-	 
+
          if (is_nuc) {
             GtkWidget *w = create_nucleic_acid_base_chooser_dialog();
             gtk_widget_show(w);

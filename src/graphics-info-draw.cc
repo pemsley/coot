@@ -2373,6 +2373,47 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
 
 };
 
+void
+graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues) {
+
+   // next you use this functionn make it a member of graphics_info_t
+   // gboolean delete_item_pulse_func(GtkWidget *widget,
+   //                                 GdkFrameClock *frame_clock,
+   //                                 gpointer data)
+   // 
+   auto delete_item_pulse_func = [] (GtkWidget *widget,
+                                     GdkFrameClock *frame_clock,
+                                     gpointer data) {
+
+                                    gboolean continue_status = 1;
+                                    pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+                                    pulse_data->n_pulse_steps += 1;
+                                    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+                                       continue_status = 0;
+                                       lines_mesh_for_delete_item_pulse.clear();
+                                       delete_item_pulse_centres.clear();
+                                    } else {
+                                       float ns = pulse_data->n_pulse_steps;
+                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                    }
+                                    graphics_draw();
+                                    return gboolean(continue_status);
+                                 };
+
+   pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+   gpointer user_data = reinterpret_cast<void *>(pulse_data);
+   std::vector<glm::vec3> all_positions;
+   for (unsigned int i=0; i<residues.size(); i++) {
+      mmdb::Residue *residue_p = residues[i];
+      std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
+      all_positions.insert(all_positions.end(), residue_positions.begin(), residue_positions.end());
+   }
+   delete_item_pulse_centres = all_positions;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+   gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+};
 
 
 void

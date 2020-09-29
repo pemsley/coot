@@ -9514,16 +9514,27 @@ coot::util::residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
          if (std::string(chain_p->GetChainID()) == chain_id_in) {
-            int nres = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<nres; ires++) {
-               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-               v.push_back(residue_p);
-            }
+            v = residues_in_chain(chain_p);
          }
       }
    }
    return v;
 }
+
+std::vector<mmdb::Residue *>
+coot::util::residues_in_chain(mmdb::Chain *chain_p) {
+
+   std::vector<mmdb::Residue *> v;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         v.push_back(residue_p);
+      }
+   }
+   return v;
+}
+
 
 std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> >
 coot::interface_residues(mmdb::Manager *mol,

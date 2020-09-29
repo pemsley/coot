@@ -764,6 +764,7 @@ namespace coot {
 
       std::vector<std::string> chains_in_molecule(mmdb::Manager *mol);
       std::vector<mmdb::Residue *> residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in);
+      std::vector<mmdb::Residue *> residues_in_chain(mmdb::Chain *chain_p);
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
