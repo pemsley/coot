@@ -67,7 +67,7 @@ namespace coot {
    public:
       enum index_type { UNASSIGNED = -1 };
       map_index_t() { index_ = UNASSIGNED; }
-      map_index_t(int i) { index_ = i; }
+      explicit map_index_t(int i) { index_ = i; }
       int index() const { return index_; }
       bool is_assigned() const { return (index_ != UNASSIGNED); }
       bool operator==(const map_index_t &ti) const {
@@ -97,22 +97,20 @@ namespace coot {
       torsion(const std::pair<int, atom_spec_t> &atom_1_in,
 	      const std::pair<int, atom_spec_t> &atom_2_in,
 	      const std::pair<int, atom_spec_t> &atom_3_in,
-	      const std::pair<int, atom_spec_t> &atom_4_in) {
-	 atom_1 = atom_1_in;
-	 atom_2 = atom_2_in;
-	 atom_3 = atom_3_in;
-	 atom_4 = atom_4_in;
-      }
+	      const std::pair<int, atom_spec_t> &atom_4_in) :
+         atom_1(atom_1_in),
+         atom_2(atom_2_in),
+         atom_3(atom_3_in),
+         atom_4(atom_4_in) {}
       torsion(int imol,
 	      const atom_spec_t &atom_1_in,
 	      const atom_spec_t &atom_2_in,
 	      const atom_spec_t &atom_3_in,
-	      const atom_spec_t &atom_4_in) {
-	 atom_1 = std::pair<int, atom_spec_t> (imol, atom_1_in);
-	 atom_2 = std::pair<int, atom_spec_t> (imol, atom_2_in);
-	 atom_3 = std::pair<int, atom_spec_t> (imol, atom_3_in);
-	 atom_4 = std::pair<int, atom_spec_t> (imol, atom_4_in);
-      }
+	      const atom_spec_t &atom_4_in) :
+	 atom_1(std::pair<int, atom_spec_t> (imol, atom_1_in)),
+	 atom_2(std::pair<int, atom_spec_t> (imol, atom_2_in)),
+	 atom_3(std::pair<int, atom_spec_t> (imol, atom_3_in)),
+	 atom_4(std::pair<int, atom_spec_t> (imol, atom_4_in)) {}
 
       // Find 4 atoms in residue that match the torsion spec.  If the
       // returning vector is not of size 4, then this function has
@@ -157,13 +155,15 @@ namespace coot {
       std::string reference_alt_conf;
       std::string matcher_atom_name;
       std::string matcher_alt_conf;
-      lsq_range_match_info_t() { is_single_atom_match = 0;};
+      lsq_range_match_info_t() {
+         is_single_atom_match = false;
+      };
       lsq_range_match_info_t(int to_reference_start_resno_in,
 			     int to_reference_end_resno_in,
-			     std::string reference_chain_id_in,
+			     const std::string &reference_chain_id_in,
 			     int from_matcher_start_resno_in,
 			     int from_matcher_end_resno_in,
-			     std::string matcher_chain_id_in,
+			     const std::string &matcher_chain_id_in,
 			     short int match_type_flag_in) {
 	 is_single_atom_match = 0;
 	 match_type_flag = match_type_flag_in;

@@ -1733,6 +1733,15 @@ graphics_info_t::draw_hud_geometry_bars() {
 
    // now draw the bars
 
+   auto probability_to_rotation_amount = [] (float probability) {
+                                            // high probability should have low rotation
+                                            float q_1 = 0.01 * (100.0 - probability);
+                                            // if (q < 0) q = 0;
+                                            // if (q > 1) q = 1;
+                                            float q_2 = 0.68 * q_1;
+                                            return q_2;
+                                         };
+
    auto distortion_to_rotation_amount_nbc = [] (float distortion) {
                                                // we want to rotate to red (which is negative direction) but
                                                // rotate() doesn't work with negative rotations, so make it
@@ -1760,20 +1769,71 @@ graphics_info_t::draw_hud_geometry_bars() {
                             col.w = 0.7;
                             glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
                             float bar_length = distortion_to_bar_size(d);
-                            if (bar_index == 111)
-                               std::cout << "index i " << i << " distortion " << d
-                                         << " bar length " << bar_length
-                                         << " atom " << baddies[i].first
-                                         << " position_offset " << glm::to_string(position_offset)  << std::endl;
-
                             HUD_bar_attribs_t bar(col, position_offset, bar_length);
                             new_bars_p->push_back(bar);
                             sum_l += bar_length + 0.005; // with a gap between bars
                           }
                        };
 
+   auto rota_sorter = [] (const rotamer_markup_container_t &rmc_1,
+                          const rotamer_markup_container_t &rmc_2) {
+                         if (rmc_2.rpi.probability < rmc_1.rpi.probability)
+                            return true;
+                         else
+                            return false;
+                      };
+
+   auto add_rotamer_bars = [rota_sorter] (std::vector<HUD_bar_attribs_t> *new_bars_p,
+                                          unsigned int bar_index,
+                                          rotamer_markup_container_t *rotamer_markups,
+                                          int n_rotamer_markups,
+                                          auto probability_to_rotation_amount) {
+
+                              // this code has to be the same as the check_if_hud_bar_clicked code
+
+                              glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                              std::vector<rotamer_markup_container_t> v;
+                              // filter out the goodies
+                              for (int i=0; i<n_rotamer_markups; i++)
+                                 if (rotamer_markups[i].rpi.probability < 40) // 40 %
+                                    if (rotamer_markups[i].rpi.probability >= 0)
+                                       v.push_back(rotamer_markups[i]);
+                              // sort the baddies
+                              std::sort(v.begin(), v.end(), rota_sorter);
+                              unsigned int n_rota_max = 20;
+                              if (v.size() > n_rota_max) {
+                                 unsigned int n_for_deletion = v.size() - n_rota_max;
+                                 std::vector<rotamer_markup_container_t>::const_iterator v_begin = v.begin();
+                                 std::vector<rotamer_markup_container_t>::const_iterator v_last;
+                                 v_last = v_begin + n_for_deletion; // (line length)
+                                 v.erase(v_begin, v_last);
+                              }
+
+                              float sum_l = 0;
+                              for (unsigned int i=0; i<v.size(); i++) {
+                                 float pr = v[i].rpi.probability;
+                                 float q = 0.01 * (48.0f - v[i].rpi.probability);
+                                 if (q > 1.0) q = 1.0;
+                                 if (q < 0.0) q = 0.0;
+                                 float bar_length = std::pow(q, 6.0) * 4.0;
+
+                                 if (false)
+                                    std::cout << "bar i " << i << " " << v[i].spec << " " << v[i].col
+                                              << " pr " << pr << " length " << bar_length << std::endl;
+
+                                 const coot::colour_holder &ch = v[i].col;
+                                 glm::vec4 col(ch.red, ch.green, ch.blue, 0.7);
+
+                                 glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                                 HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                                 new_bars_p->push_back(bar);
+                                 sum_l += bar_length + 0.005; // with a gap between bars
+                              }
+                           };
+
    std::vector<HUD_bar_attribs_t> new_bars;
 
+   // add to new_bars
    add_bars(rr.sorted_atom_pulls, 0, &new_bars,
             distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
 
@@ -1784,6 +1844,17 @@ graphics_info_t::draw_hud_geometry_bars() {
    if (rr.refinement_results_contain_overall_rama_plot_score)
       add_bars(rr.sorted_rama_baddies, 2, &new_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
+
+   // add to new_bars
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
+         if (nrms > 0) {
+            add_rotamer_bars(&new_bars, 3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms,
+                             probability_to_rotation_amount);
+         }
+      }
+   }
 
    if (! new_bars.empty()) {
       // std::cout << "new bar size " << new_bars.size() << std::endl;
@@ -1818,6 +1889,14 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
 
    // these functions are copies of those in the above function. If you edit them again, make them
    // member functions.
+
+   auto rota_sorter = [] (const rotamer_markup_container_t &rmc_1,
+                          const rotamer_markup_container_t &rmc_2) {
+                         if (rmc_2.rpi.probability < rmc_1.rpi.probability)
+                            return true;
+                         else
+                            return false;
+                      };
 
    auto distortion_to_bar_size_rama = [] (float distortion) {
                                          distortion += 200.0;
@@ -1858,8 +1937,10 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
 
                              if (mouse_in_opengl_coords.x >= position_offset.x) {
                                 if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+
                                    // std::cout << ":::::::::: x hit bar_index " << bar_index
-                                   //           << " i " << i << " " << baddies[i].first << std::endl;
+                                   // << " i " << i << " " << baddies[i].first << std::endl;
+
                                    float tiny_y_offset = -0.01; // not sure why I need this
                                    if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
                                       // 0.03 is the bar height in setup_camera_facing_quad()
@@ -1886,6 +1967,66 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                           return status;
                        };
 
+   auto check_rota_blocks = [mouse_in_opengl_coords,
+                             rota_sorter] (unsigned int bar_index,
+                                           rotamer_markup_container_t *rotamer_markups,
+                                           int n_rotamer_markups) {
+                               bool status = false;
+                               glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                               std::vector<rotamer_markup_container_t> v;
+                               // filter out the goodies
+                               for (int i=0; i<n_rotamer_markups; i++)
+                                  if (rotamer_markups[i].rpi.probability < 40) // 40 %
+                                    if (rotamer_markups[i].rpi.probability >= 0)
+                                       v.push_back(rotamer_markups[i]);
+                               // sort the baddies
+                               std::sort(v.begin(), v.end(), rota_sorter);
+                               unsigned int n_rota_max = 20;
+                               if (v.size() > n_rota_max) {
+                                  unsigned int n_for_deletion = v.size() - n_rota_max;
+                                  std::vector<rotamer_markup_container_t>::const_iterator v_begin = v.begin();
+                                  std::vector<rotamer_markup_container_t>::const_iterator v_last  = v_begin + n_for_deletion;
+                                  v.erase(v_begin, v_last);
+                               }
+
+                               float sum_l = 0;
+                               for (unsigned int i=0; i<v.size(); i++) {
+                                  float pr = v[i].rpi.probability;
+                                  float q = 0.01 * (48.0f - v[i].rpi.probability);
+                                  if (q > 1.0) q = 1.0;
+                                  if (q < 0.0) q = 0.0;
+                                  float bar_length = std::pow(q, 6.0) * 4.0;
+                                  glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+
+                                  if (mouse_in_opengl_coords.x >= position_offset.x) {
+                                     if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+                                        // std::cout << ":::::::::: x hit bar_index " << bar_index
+                                        //           << " i " << i << " " << baddies[i].first << std::endl;
+                                        float tiny_y_offset = -0.01; // not sure why I need this
+                                        if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
+                                           // 0.03 is the bar height in setup_camera_facing_quad()
+                                           float bar_height = 0.03;
+                                           if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
+
+                                              std::cout << "rama bar hit! " << i << " "
+                                                        << v[i].spec << " "
+                                                        << v[i].col << " "
+                                                        << "probability " << v[i].rpi.probability << std::endl;
+
+                                              if (moving_atoms_asc->mol) {
+                                                 clipper::Coord_orth pos = v[i].pos;
+                                                 status = true;
+                                                 graphics_info_t::set_rotation_centre(pos);
+                                              }
+                                           }
+                                        }
+                                     }
+                                  }
+                                  sum_l += bar_length + 0.005; // with a gap between bars
+                               }
+                               return status;
+                            };
+
    status = check_blocks(rr.sorted_atom_pulls, 0, hud_geometry_distortion_to_bar_size_atom_pull);
 
    if (!status)
@@ -1896,6 +2037,14 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
       if (rr.refinement_results_contain_overall_rama_plot_score)
          status = check_blocks(rr.sorted_rama_baddies, 2, hud_geometry_distortion_to_bar_size_rama);
 
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
+         if (nrms > 0) {
+            status = check_rota_blocks(3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
+         }
+      }
+   }
    return status;
 }
 

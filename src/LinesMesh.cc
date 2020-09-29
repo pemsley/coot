@@ -95,7 +95,7 @@ LinesMesh::draw(Shader *shader_p,
                                           << err << std::endl;
 
    GLuint n_vertices = indices.size();
-   std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
+   // std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
    glDrawElements(GL_LINES, n_vertices, GL_UNSIGNED_INT, nullptr);
    err = glGetError(); if (err) std::cout << "error LinesMesh::draw() glDrawElements()"
                                           << err << std::endl;
@@ -127,7 +127,7 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
 
    // we are using 2 (at the moment) different shaders for this class
    if (use_view_rotation) {
-      std::cout << "sending atom_centre " << glm::to_string(atom_position) << std::endl;
+      // nstd::cout << "sending atom_centre " << glm::to_string(atom_position) << std::endl;
       glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
       shader_p->set_vec3_for_uniform("atom_centre", atom_position);
    }
@@ -138,7 +138,7 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
                                           << err << std::endl;
 
    GLuint n_vertices = indices.size();
-   std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
+   // std::cout << "debug:: LinesMesh draw() drawing n_vertices " << n_vertices << std::endl;
    glDrawElements(GL_LINES, n_vertices, GL_UNSIGNED_INT, nullptr);
    err = glGetError(); if (err) std::cout << "error LinesMesh::draw() glDrawElements()"
                                           << err << std::endl;

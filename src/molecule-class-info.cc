@@ -3702,7 +3702,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
           glm::vec3 y_vec = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, 1.0f, 0.0f));
           glm::vec3 screen_up_dir = glm::normalize(y_vec - base);
           int nrms = bonds_box.n_rotamer_markups;
-          std::cout << "############################# nrms " << nrms << std::endl;
+          // std::cout << "############################# nrms " << nrms << std::endl;
           if (nrms > 0) {
 
              double radius = 0.3; // was 0.38;
@@ -3717,6 +3717,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 shape.first[i] = v;
              }
              shape.second = p_dodec.second;
+
 #if 0
              // make_octasphere should return just a vec3 and triangles
              // maybe make_plain_octasphere() - no need to pass origin, rewrite all of oct.cc basically.
@@ -3731,6 +3732,10 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 const coot::Cartesian &pos_c  = bonds_box.rotamer_markups[i].pos;
                 const coot::colour_holder &ch = bonds_box.rotamer_markups[i].col;
                 glm::vec4 col(ch.red, ch.green, ch.blue, 1.0f);
+
+                if (false)
+                   std::cout << "make_glsl_bonds_type_checked() " << bonds_box.rotamer_markups[i].spec
+                             << " " << bonds_box.rotamer_markups[i].col << std::endl;
 
                 glm::vec3 ball_centre = cartesian_to_glm(pos_c);
                 ball_centre += screen_up_dir * 1.34;

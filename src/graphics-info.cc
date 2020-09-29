@@ -2196,50 +2196,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 
 #include "utils/dodec.hh"
 
-// static
-void
-graphics_info_t::draw_rotamer_probability_object() {
-
-#if 0
-   graphics_info_t g;
-   std::vector<coot::generic_display_object_t::dodec_t> dodecs = g.get_rotamer_dodecs();
-
-   if (dodecs.size()) {
-
-      glDisable(GL_COLOR_MATERIAL);
-      glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
-
-      // draw with:
-      glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT1);
-      glEnable(GL_LIGHT0);
-
-      // glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-      // glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-      for (unsigned int i=0; i<dodecs.size(); i++) {
-
-         float feature_opacity = 0.6;
-         const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
-         GLfloat  mat_diffuse[]  = {dodec.col.red,
-                                    dodec.col.green,
-                                    dodec.col.blue,
-                                    feature_opacity};
-         GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
-         GLfloat  mat_shininess[] = {100};
-         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-         glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-         glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-         g.graphics_object_internal_dodec(dodec);
-      }
-      glDisable(GL_LIGHTING);
-   }
-#endif
-}
-
-// can this be const?
+// delete this function?
 std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
 
