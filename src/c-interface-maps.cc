@@ -1270,19 +1270,45 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
       graphics_info_t g;
       int imol_new = graphics_info_t::create_molecule();
 
-      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag,
-      *graphics_info_t::map_glob_extensions);
+      GdkDisplay *display = gdk_display_get_default();
+      GdkWindow *window = 0;
+      GdkCursor *current_cursor = 0;
+
+      if (display) {
+         GtkWidget *w = graphics_info_t::get_main_window();
+         if (w)
+            window = gtk_widget_get_window(GTK_WIDGET(w));
+      }
+
+      if (window) {
+
+         // doesn't work - I don't know why.
+
+         current_cursor = gdk_window_get_cursor(window);
+         GdkCursor *c = gdk_cursor_new_from_name(display, "not-allowed");
+         // std::cout << "---- not-allowed cursor " << window << " " << c << std::endl;
+         gdk_window_set_cursor(window, c);
+         g.graphics_draw();
+
+      }
+
+      std::vector<std::string> mge = *g.map_glob_extensions;
+      istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag, mge);
+
+      if (window) {
+         // gdk_window_set_cursor(window, current_cursor);
+      }
 
       if (istate > -1) { // not a failure
-    g.scroll_wheel_map = imol_new;  // change the current scrollable map.
-    g.activate_scroll_radio_button_in_display_manager(imol_new);
+         g.scroll_wheel_map = imol_new;  // change the current scrollable map.
+         g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
-    g.erase_last_molecule();
-    std::cout << "Read map " << str << " failed" << std::endl;
-    std::string s = "Read map ";
-    s += str;
-    s += " failed.";
-    g.add_status_bar_text(s);
+         g.erase_last_molecule();
+         std::cout << "Read map " << str << " failed" << std::endl;
+         std::string s = "Read map ";
+         s += str;
+         s += " failed.";
+         g.add_status_bar_text(s);
       }
       graphics_draw();
    } else {

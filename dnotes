@@ -9562,3 +9562,11 @@ Sat 12 Sep 07:22:01 BST 2020
    817	7:19	cmake -DCMAKE_INSTALL_PREFIX=$HOME/assimp CMakeLists.txt
    818	7:20	make -j 15
    819	7:21	make install
+
+---
+Tue 29 Sep 14:55:03 BST 2020
+
+   examples of how how to do stuff:
+
+   https://cpp.hotexamples.com/
+
