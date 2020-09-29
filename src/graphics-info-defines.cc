@@ -750,6 +750,7 @@ graphics_info_t::check_if_in_pepflip_define(GdkEventButton *event) {
    }
 }
 
+#include "pulse-data.hh"
 
 void
 graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
@@ -766,16 +767,6 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
                 << " hydrogens " << delete_item_residue_hydrogens
                 << std::endl;
 
-
-   class pulse_data_t {
-   public:
-      int n_pulse_steps;
-      int n_pulse_steps_max;
-      pulse_data_t(int n1, int n2) {
-         n_pulse_steps = n1;
-         n_pulse_steps_max = n2;
-      }
-   };
 
    auto delete_item_pulse_func = [] (GtkWidget *widget,
                                      GdkFrameClock *frame_clock,

@@ -4285,6 +4285,9 @@ string   static std::string sessionid;
    static void draw_identification_pulse();
    static void draw_delete_item_pulse();
    static std::vector<glm::vec3> delete_item_pulse_centres;
+   void setup_delete_item_pulse(mmdb::Residue *residue_p);
+   std::vector<glm::vec3> residue_to_positions(mmdb::Residue *residue_p) const;
+   
 
    static Mesh mesh_for_boids; // with instancing
    static fun::boids_container_t boids;

@@ -565,7 +565,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
      if (true)
-        std::cout << "key-binding for key: " << it->first.gdk_key << " : "
+        std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
      found =  true;

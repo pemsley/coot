@@ -3659,7 +3659,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
           if (is_intermediate_atoms_molecule)
              if (i==0)
-                index_to_colour[i] = glm::vec4(0.75, 0.65, 0.55, 1.0);
+                index_to_colour[i] = glm::vec4(0.75, 0.7, 0.65, 1.0);
        } // end bond-colour for loop
 
     } else {

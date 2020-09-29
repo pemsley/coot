@@ -570,6 +570,7 @@ coot_bin_SOURCES = \
 	python-classes.hh	 \
 	python-3-interface.hh 	 \
 	Particle.cc Particle.hh  \
+	pulse-data.hh            \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \
