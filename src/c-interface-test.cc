@@ -81,7 +81,7 @@
 #include <direct.h>
 #endif // _MSC_VER
 
-#include "clipper/ccp4/ccp4_map_io.h"
+#include <clipper/ccp4/ccp4_map_io.h>
 
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -167,8 +167,12 @@ int test_function(int i, int j) {
 
    // Is this the function you are really looking for (these days)?
 
-#ifdef USE_ASSIMP
    if (true) {
+      g.setup_draw_for_particles();
+   }
+
+#ifdef USE_ASSIMP
+   if (false) {
       std::string file_name = "cube.obj";
       file_name = "cessna.obj";
 

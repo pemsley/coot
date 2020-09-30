@@ -867,18 +867,20 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-         shader.Use();
-         GLuint err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
-                            << err << std::endl;
-
          glBindVertexArray(m.m_VertexArray_for_model_ID);
-         err = glGetError();
+         GLenum err = glGetError();
          if (err) std::cout << "error draw_intermediate_atoms() glBindVertexArray() "
                             << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
-         // should not be needed?
+         shader.Use();
+         err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
+                            << err << std::endl;
+
+#if 0
+         // should not be needed? - the VAO contains this information.  Needs testing.
+
          glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
          err = glGetError();
          if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() v "
@@ -887,6 +889,8 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          err = glGetError();
          if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() i "
                             << err << std::endl;
+
+#endif
 
          GLuint mvp_location           = shader.mvp_uniform_location;
          GLuint view_rotation_location = shader.view_rotation_uniform_location;
@@ -1320,11 +1324,14 @@ graphics_info_t::draw_molecular_triangles() {
 void
 graphics_info_t::draw_particles() {
 
+   return;
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
+         std::cout << "drawing particles: size " << particles.size() << std::endl;
          glm::mat4 mvp_particle = get_particle_mvp();
          glm::mat4 mvp = get_molecule_mvp();
          mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
+         std::cout << "done drawing particles: size " << particles.size() << std::endl;
       }
    }
 
@@ -1355,6 +1362,8 @@ graphics_info_t::draw_molecules() {
 
    draw_boids();
 
+   draw_particles();
+
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
    // might be better.
@@ -1362,8 +1371,6 @@ graphics_info_t::draw_molecules() {
    draw_model_molecules();
 
    // transparent things...
-
-   draw_particles();
 
    draw_map_molecules(true);
 
@@ -2052,6 +2059,8 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {
 
+   auto tp_0 = std::chrono::high_resolution_clock::now();
+
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -2116,6 +2125,9 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
    glEnable(GL_DEPTH_TEST);
 
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
 
    return FALSE;
 }
@@ -2207,12 +2219,31 @@ graphics_info_t::translate_in_screen_z(float step_size) {
 
 void
 graphics_info_t::setup_draw_for_particles() {
-   graphics_info_t g;
+
+   std::cout << "setup_draw_for_particles(): -- start -- " << std::endl;
    if (particles.empty()) {
+      std::cout << "setup_draw_for_particles(): let's make new particles " << std::endl;
+
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-      glm::vec3 rc = g.get_rotation_centre();
-      // std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
-      particles.make_particles(n_particles, rc);
+      GLenum err = glGetError();
+      if (err) std::cout << "GL Error - setup_draw_for_particles() Post attach buffers err is "
+                         << err << std::endl;
+
+      shader_for_particles.Use();
+
+      err = glGetError();
+      if (err) std::cout << "GL Error - setup_draw_for_particles() Post Use() err is "
+                         << err << std::endl;
+
+      std::cout << "setup_draw_for_particles(): making " << n_particles << std::endl;
+      particles.make_particles(n_particles);
+      std::cout << "setup_draw_for_particles(): done making " << n_particles << " particles"
+                << std::endl;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+      mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
+      std::cout << "setup_draw_for_particles(): done mesh instancing buffers "
+                << std::endl;
+      glUseProgram(0);
    }
    // passing user_data and Notify function at the end
    if (! do_tick_particles) {
@@ -2220,6 +2251,7 @@ graphics_info_t::setup_draw_for_particles() {
       int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
       graphics_info_t::idle_function_spin_rock_token = new_tick_id;
    }
+   std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
 }
 
 void

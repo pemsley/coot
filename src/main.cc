@@ -466,8 +466,10 @@ void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w;
 #ifndef USE_GUILE
-      w = lookup_widget(window1, "scripting_scheme1");
-      gtk_widget_set_sensitive(w, FALSE);
+      // This lookup fails - I don't know why. Get rid of it for now - to remove startup message
+      // w = lookup_widget(window1, "scripting_scheme1");
+      // std::cout << "debug:: in desensitive_scripting_menu_item_maybe() w " << w << std::endl;
+      // gtk_widget_set_sensitive(w, FALSE);
 #endif
 #ifndef USE_PYTHON
       w = lookup_widget(window1, "scripting_python1");

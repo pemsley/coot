@@ -565,6 +565,8 @@ graphics_info_t::refinement_loop_threaded() {
          if (false) { // too crashy at the moment.
             if (rr.hooray()) {
                graphics_info_t g;
+               std::cout << "------------------------ hooray() passed - calling setup_draw_for_particles() "
+                         << std::endl;
                g.setup_draw_for_particles();
             }
          }

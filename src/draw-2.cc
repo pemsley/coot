@@ -159,11 +159,9 @@ on_glarea_realize(GtkGLArea *glarea) {
    g.setup_lights();
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
-   g.particles.make_particles(g.n_particles, g.get_rotation_centre());
+   g.particles.make_particles(g.n_particles);
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
    g.mesh_for_particles.setup_instancing_buffers_for_particles(g.particles.size());
-
-   err = glGetError();
-   if (err) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
 
    g.mesh_for_particles.set_name("mesh for particles");
 
@@ -175,6 +173,10 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.setup_key_bindings();
    
+   err = glGetError();
+   if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
+                      << err << std::endl;
+
 }
 
 gboolean

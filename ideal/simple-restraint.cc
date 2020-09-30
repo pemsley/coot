@@ -8035,7 +8035,7 @@ coot::refinement_results_t::hooray() const {
       std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
       float crit_value = 1.4;
       if (light.name == "Trans_peptide")
-         crit_value = 3.0;
+         crit_value = 5.0;
       if (light.value > crit_value) {
          std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
          status = false;

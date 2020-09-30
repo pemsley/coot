@@ -2029,18 +2029,18 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       //
       coot::rotamer_probability_tables *tables_pointer = NULL;
       if (do_rota_markup) {
-    if (! rot_prob_tables.tried_and_failed()) {
-       if (rot_prob_tables.is_well_formatted()) {
-          tables_pointer = &rot_prob_tables;
-       } else {
-          rot_prob_tables.fill_tables();
-          if (rot_prob_tables.is_well_formatted()) {
-     tables_pointer = &rot_prob_tables;
-          }
-       }
-    } else {
-       do_rota_markup = false;
-    }
+         if (! rot_prob_tables.tried_and_failed()) {
+            if (rot_prob_tables.is_well_formatted()) {
+               tables_pointer = &rot_prob_tables;
+            } else {
+               rot_prob_tables.fill_tables();
+               if (rot_prob_tables.is_well_formatted()) {
+                  tables_pointer = &rot_prob_tables;
+               }
+            }
+         } else {
+            do_rota_markup = false;
+         }
       }
 
       int draw_hydrogens_flag = 0;
@@ -2063,9 +2063,13 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       moving_atoms_bonds_lock = 0; // unlocked
    }
 
-   moving_atoms_molecule.bonds_box = regularize_object_bonds_box; // needed? or does make_glsl_bonds_type_checked()
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box; // needed? or does
+                                                                  // make_glsl_bonds_type_checked()
                                                                   // update this?
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   shader_for_models.Use();
    moving_atoms_molecule.make_glsl_bonds_type_checked();
 
    setup_atom_pull_restraints_glsl();

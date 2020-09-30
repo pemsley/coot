@@ -30,7 +30,7 @@ Mesh::init() {
    draw_this_mesh = true;
    normals_are_setup = false;
    this_mesh_is_closed = false;
-   vao = 99999999; // unset
+   vao = 99999999; // use UNSET_VAO
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
@@ -638,66 +638,86 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    //
    n_instances = 0;
 
-   float s = 0.05;
    glm::vec3 n(0,0,1);
-   glm::vec4 c(0.4, 0.4, 0.4, 0.4);
+   glm::vec4 c(0.8, 0.4, 0.8, 0.8);
 
-   setup_camera_facing_polygon();
+   setup_camera_facing_polygon(4);
 
    glGenVertexArrays (1, &vao);
    glBindVertexArray (vao);
 
-   // vertex position
+   GLenum err = glGetError();
+   if (err) std::cout << "GL error ##################################################"
+                      << " setup_instancing_buffers_for_particles() B "
+                      << err << std::endl;
+   std::cout << "debug:: Mesh::setup_instancing_buffers_for_particles() " << vao << std::endl;
+
+   // allocate buffer for vertices with position, normal and colour
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
+
+   // position
    glEnableVertexAttribArray(0);
    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex), 0);
 
-   // vertex colour, skip over the vertex position and normal
+   // normal - not used in the shader currently
    glEnableVertexAttribArray(1);
-   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
+                         reinterpret_cast<void *>(sizeof(glm::vec3)));
+
+   // colour
+   glEnableVertexAttribArray(2);
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+
+
+   // a Particle has position, velocity and colour. We need position and colour
 
    // I shouldn't need to make 2 buffers (ie. 2 calls to glBufferData) here!
    // Look at how the Mesh for ribbons does it.
 
-   // instanced colours
-   glGenBuffers(1, &inst_colour_buffer_id);
-   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   // glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(Particle), &(particles.particles[0]), GL_DYNAMIC_DRAW);
-   glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
-   glEnableVertexAttribArray(2);
-   // Particle: position, velocity, colour - skip over position and velocity
-   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
-                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
-   glVertexAttribDivisor(2, 1);
-
-   // instanced translations
+   // instanced position
    glGenBuffers(1, &inst_model_translation_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
    glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(3);
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), 0);
    glVertexAttribDivisor(3, 1);
-   GLenum err = glGetError(); if (err) std::cout << "   error setup_instancing_buffers() B "
-                                                 << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "GL error ##################################################"
+                      << " setup_instancing_buffers_for_particles() B "
+                      << err << std::endl;
+   std::cout << "debug ################ setup_instancing_buffers_for_particles()"
+             << " inst_model_translation_buffer_id "
+             << inst_model_translation_buffer_id << std::endl;   
+
+   // instanced colours - setup another buffer - extravagent.
+   glGenBuffers(1, &inst_colour_buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+   glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
+   glEnableVertexAttribArray(4);
+   glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(4, 1);
+
+   // index the quad/hex/polygon
 
    glGenBuffers(1, &index_buffer_id);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
    unsigned int n_triangles = triangle_vertex_indices.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (false)
+   if (true)
       std::cout << "debug:: setup_instancing_buffers() particles: "
-                << "vao" << vao
+                << "vao " << vao
                 << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_STATIC_DRAW);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_DYNAMIC_DRAW);
+   err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
 }
 
 
@@ -994,13 +1014,14 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
                                           << err << std::endl;
    glEnableVertexAttribArray(0); // vertex positions
-   glEnableVertexAttribArray(1); // vertex colours
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // vertex colours
 
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glEnableVertexAttribArray(2); // instanced model/particle colours (time varying)
+   glEnableVertexAttribArray(3); // instanced model/particle colours (time varying)
 
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   glEnableVertexAttribArray(3); // instanced model/particle translations (time varying)
+   glEnableVertexAttribArray(4); // instanced model/particle translations (time varying)
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
@@ -1231,7 +1252,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    }
    if (n_cols > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-      glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * sizeof(glm::vec4), &(colours[0]));
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_cols * sizeof(glm::vec4), &(colours[0]));
    }
 }
 
@@ -1254,15 +1275,41 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
 void
 Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &particles) {
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A0 "
+                      << "binding vao " << vao << std::endl;
+               
    n_instances = particles.size();
    if (false)
       std::cout << "debug:: update_instancing_buffer_data() transfering " << n_instances
                 << " particle/instances " << std::endl;
-   // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position) << std::endl;
+
+   if (vao == 99999999)
+      std::cout << "You forget to setup this Mesh " << name << std::endl;
+
+   glBindVertexArray(vao);
+
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A1 "
+                      << "binding vao " << vao << " error " << err << std::endl;
+
+   // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position)
+   //           << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A2 "
+                      << " vao " << vao
+                      << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
+                      << "\n";
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() B\n";
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() C\n";
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() D\n";
 
 }
 

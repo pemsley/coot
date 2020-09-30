@@ -122,7 +122,7 @@ public:
    // void setup_instancing_buffers(const particle_container_t &particles);
    void setup_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
    void update_instancing_buffer_data_for_particles(const particle_container_t &particles);
-   
+
    void fill_rama_balls(); // make up some balls
    void add_one_ball(float scale, const glm::vec3 &centre);
    void add_one_origin_ball();

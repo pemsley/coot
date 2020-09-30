@@ -3902,17 +3902,24 @@ molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_r
    if (triangles.empty()) return;
    if (vertices.empty()) return;
 
+   graphics_info_t::shader_for_models.Use(); // is this called from the outside before we get here?
+
    n_vertices_for_model_VertexArray = vertices.size(); // the "signal" to the draw function to draw this model
 
    GLenum err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() -- start --\n";
 
    if (model_mesh_first_time) {
-      glGenVertexArrays (1, &m_VertexArray_for_model_ID);
-      err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 1\n";
+      glGenVertexArrays(1, &m_VertexArray_for_model_ID);
+      err = glGetError();
+      if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 1\n";
    }
 
-   glBindVertexArray (m_VertexArray_for_model_ID);
-   err = glGetError(); if (err) std::cout << "GL error in setup_glsl_bonds_buffers() 2\n";
+   glBindVertexArray(m_VertexArray_for_model_ID);
+   err = glGetError();
+   if (err) std::cout << "GL error in molecule_class_info_t::setup_glsl_bonds_buffers()"
+                      << " glBindVertexArray() " << m_VertexArray_for_model_ID
+                      << " model_mesh_first_time " << model_mesh_first_time
+                      << "\n";
 
    if (model_mesh_first_time) {
       glGenBuffers(1, &m_VertexBuffer_for_model_ID);
