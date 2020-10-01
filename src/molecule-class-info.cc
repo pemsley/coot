@@ -8249,7 +8249,7 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       coot::ligand lig;
       coot::minimol::residue r(res);
       coot::minimol::fragment f(res->GetChainID());
-      f.residues.push_back(res);
+      f.residues.push_back(coot::minimol::residue(res));
       coot::minimol::molecule ligand;
       ligand.fragments.push_back(f);
 

@@ -79,7 +79,9 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 	 }
 	 coot::minimol::fragment frag = make_test_fragment(r, rotation_angle);
 	 float f = score_fragment(frag);
-	 std::pair<float, std::vector<mmdb::Atom *> > cs = get_clash_score(frag, sphere_atoms, n_sphere_atoms, water_interaction_mode);
+	 std::pair<float, std::vector<mmdb::Atom *> > cs =
+            get_clash_score(coot::minimol::molecule(frag), sphere_atoms, n_sphere_atoms,
+                            water_interaction_mode);
 
 	 // the clash score is large and positive for big clashes.  
 	 // clash score on to the same scale as density fit.
@@ -156,7 +158,7 @@ coot::backrub::make_test_fragment(mmdb::Residue *r, double rotation_angle) const
    //
    try { 
       f.addresidue(prev_residue, 0);
-      f.addresidue(r, 0);
+      f.addresidue(coot::minimol::residue(r), 0);
       f.addresidue(next_residue, 0);
    }
    catch (const std::runtime_error &rte) {
@@ -223,7 +225,6 @@ coot::backrub::residue_radius(const clipper::Coord_orth &rc) {
    mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
-   float sum_x=0, sum_y=0, sum_z=0;
    float longest_length = 0.0;
    for (int iat=0; iat<n_residue_atoms; iat++) {
       clipper::Coord_orth pt(residue_atoms[iat]->x - rc.x(),
@@ -405,7 +406,7 @@ coot::backrub::sample_individual_peptide(mmdb::Residue *r, double rotation_angle
    // 
    // Let's only consider the position of the O when doing that.
    //
-   
+
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    clipper::Coord_orth O_pos;

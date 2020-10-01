@@ -42,7 +42,7 @@ coot::minimol::molecule::molecule(const std::vector<clipper::Coord_orth> &atom_l
 
    // Constructing a fragment from a chain_id sets residues_offset to 0
    // but doesn't add any residues
-   fragments.push_back(chain_id);
+   fragments.push_back(fragment(chain_id));
    std::string element(" O");
 
    // Each atom goes in its own residue (residue number offset by one

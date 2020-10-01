@@ -389,7 +389,7 @@ coot::pucker_analysis_info_t::puckered_atom() const {
 
 // return "" on no canonical name found
 std::string
-coot::util::canonical_base_name(const std::string res_name_in, base_t rna_or_dna) {
+coot::util::canonical_base_name(const std::string &res_name_in, base_t rna_or_dna) {
 
    if (rna_or_dna == coot::RNA) {
       if (res_name_in == "C")

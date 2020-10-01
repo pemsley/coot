@@ -59,8 +59,8 @@ namespace CXX_old {
         };
 		
 		CXXAlloc() throw() {};
-		CXXAlloc(const CXXAlloc& other) throw(){
-		};
+       // CXXAlloc(const CXXAlloc& other) throw() {
+       // };
 		template <class U> CXXAlloc(const CXXAlloc<U>&) throw(){};
 		~CXXAlloc() throw(){
 		};
@@ -70,10 +70,12 @@ namespace CXX_old {
 		
 		pointer allocate(size_type size, CXXAlloc<void>::const_pointer hint = 0) 
 		{
-			return static_cast<pointer>(::cxxmalloc(size*sizeof(T)));
+                   if (hint) {}
+                   return static_cast<pointer>(::cxxmalloc(size*sizeof(T)));
 		};
 		void deallocate(pointer p, size_type n) {
-			if (p) ::cxxfree(p);
+                   if (n) {}
+                   if (p) ::cxxfree(p);
 		};
 		size_type max_size() const throw(){
 			return size_t(-1) / sizeof(value_type);

@@ -42,10 +42,9 @@ namespace coot {
 	 std::string chain_id;
 	 int resno_1;
 	 int resno_2;
-	 zone_info_t() { is_simple_zone = 0; }
-	 zone_info_t(const std::string &chain_id_in, int r1, int r2) {
+	 zone_info_t() { is_simple_zone = false; resno_1 = -1; resno_2 = -1; }
+	 zone_info_t(const std::string &chain_id_in, int r1, int r2) : chain_id(chain_id_in) {
 	    is_simple_zone = 1;
-	    chain_id = chain_id_in;
 	    resno_1 = r1;
 	    resno_2 = r2;
 	 }
@@ -56,8 +55,8 @@ namespace coot {
 	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc, float occupancy, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy, float b_factor);
-	 atom(mmdb::Atom *at);
-	 atom() { int_user_data = -1; }
+	 explicit atom(mmdb::Atom *at);
+	 atom() { int_user_data = -1; occupancy = -1; temperature_factor = -1; }
 	 std::string altLoc;
 	 float occupancy;
 	 float temperature_factor;
@@ -72,12 +71,11 @@ namespace coot {
 
       class residue { 
       public:
-	 residue(int i){ seqnum = i; ins_code = "";}
-	 residue(int i, const std::string &resname) {
+	 explicit residue(int i) : ins_code(""), name("") { seqnum = i;}
+	 residue(int i, const std::string &resname) : ins_code(""), name(resname) {
 	    seqnum = i;
-	    name = resname;
-	    ins_code = "";}
-	 residue(mmdb::Residue *residue_p);
+         }
+	 explicit residue(mmdb::Residue *residue_p);
 	 residue(mmdb::Residue *residue_p,
 		 const std::vector<std::string> &keep_only_these_atoms);
 	 residue(){ seqnum = mmdb::MinInt4; /* unset */ }; // for resizing the residues in fragment
@@ -123,15 +121,14 @@ namespace coot {
 	 fragment() {
 	    residues_offset = 0;
 	    residues.resize(1, residue(1)); }
-	 fragment(const std::string &frag_id_in) {
-	    fragment_id = frag_id_in;
+	 explicit fragment(const std::string &frag_id_in) : fragment_id(frag_id_in) {
 	    residues_offset = 0;
 	    residues.resize(1, residue(1));
 	 }
-	 fragment(const std::string &frag_id_in, bool f) {
-	    fragment_id = frag_id_in;
+	 fragment(const std::string &frag_id_in, bool f) : fragment_id(frag_id_in) {
 	    residues_offset = 0;
-	 } 
+            if (f) {};
+	 }
 	 std::string fragment_id;
 	 std::vector<residue> residues;
 	 friend std::ostream&  operator<<(std::ostream&, fragment);
@@ -191,8 +188,8 @@ namespace coot {
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
 		  std::string chain_id);
-	 molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
-	 molecule(const fragment &frag);
+	 explicit molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
+	 explicit molecule(const fragment &frag);
 
 	 // Ridiculous synthetic constructor.  Use the atom selection
 	 // to generate the molecule hierachy, but use the atom vector

@@ -14,7 +14,6 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
    int status = -1;
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
    if (atom_sel.mol) {
 
       auto my_mol = std::make_shared<MyMolecule> (atom_sel.mol);
@@ -161,7 +160,6 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
 	 }
       }
    }
-#endif // HAVE_CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
 
    return status;
