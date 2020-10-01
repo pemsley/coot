@@ -2282,7 +2282,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
 
 bool
-coot::protein_geometry::is_non_auto_load_ligand(const std::string resname) const {
+coot::protein_geometry::is_non_auto_load_ligand(const std::string &resname) const {
 
    bool r = false;
    std::vector<std::string>::const_iterator it;
@@ -2546,7 +2546,7 @@ coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_res
 
 
 std::vector <coot::dict_chiral_restraint_t>
-coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_type,
+coot::protein_geometry::get_monomer_chiral_volumes(const std::string &monomer_type,
 						   int imol_enc) const { 
 
    bool ifound = 0;
