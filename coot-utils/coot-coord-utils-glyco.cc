@@ -864,7 +864,7 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
 		      << "\"" << link.first << "\" " << link.second << std::endl;
 	    if (link.first != "") { 
 	       if (link.second) {
-		  std::cout << ".... reseting current_head to " << coot::residue_spec_t(residues[ires])
+		  std::cout << ".... resetting current_head to " << coot::residue_spec_t(residues[ires])
 			    << std::endl;
 		  current_head = residues[ires];
 		  something_added = true;

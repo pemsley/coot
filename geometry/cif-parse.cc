@@ -190,8 +190,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       
-	       // All catagories have loops (AFAICS). 
-	       // std::cout << "DEBUG:: got catagory: " << cat_name << std::endl; 
+	       // All categories have loops (AFAICS). 
+	       // std::cout << "DEBUG:: got category: " << cat_name << std::endl; 
 
 	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
@@ -236,7 +236,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  
 		  if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
 		                   // with one atom e.g. AM.cif (Americium ion)
-		     std::cout << "WARNING:: in init_refmac_mon_lib() unhandled catagory \""
+		     std::cout << "WARNING:: in init_refmac_mon_lib() unhandled category \""
 			       << cat_name << "\" file: " << ciffilename << std::endl; 
 		  
 	       } else {
