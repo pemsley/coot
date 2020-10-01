@@ -22,7 +22,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
       geom_p->get_monomer_restraints(monomer_type, imol);
 
    if (r.first) {
-      std::map<std::string, coot::map_index_t> name_map;
+      std::map<std::string, map_index_t> name_map;
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 std::string atom_name(asc.atom_selection[i]->name);
 	 name_map[atom_name] = map_index_t(i);

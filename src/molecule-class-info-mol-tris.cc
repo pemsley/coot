@@ -24,11 +24,11 @@ molecule_class_info_t::set_mol_triangles_is_displayed(int state) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
    if (molrepinsts.size()) {
       if (state) {
-    for (auto mri : molrepinsts)
-       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(mri);
+         for (auto mri : molrepinsts)
+            graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(mri);
       } else {
-    for (auto mri : molrepinsts)
-       graphics_info_t::mol_tri_scene_setup->removeRepresentationInstance(mri);
+         for (auto mri : molrepinsts)
+            graphics_info_t::mol_tri_scene_setup->removeRepresentationInstance(mri);
       }
    }
 #endif // USE_MOLECULES_TO_TRIANGLES

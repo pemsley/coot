@@ -5648,7 +5648,7 @@ coot::util::interesting_things_list_py(const std::vector<atom_spec_t> &v) {
 // 
 std::string
 coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_spec_and_button_info_t> &v,
-					     const std::string error_type) {
+					     const std::string &error_type) {
 
 #ifdef USE_GUILE
    // e.g. (list) for empty v
@@ -5755,7 +5755,7 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
 // python version
 std::string
 coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::atom_spec_and_button_info_t> &v,
-						const std::string error_type) {
+						const std::string &error_type) {
 #ifdef USE_PYTHON
 // BL says:: here again we need a [] list in python 
    std::string r = "[";

@@ -50,7 +50,8 @@ public:
 		return allocator.allocate(nObjects, 0);
 	};
 	static void operator delete(void *pntr, size_t objectSize=0) {
-		allocator.deallocate(static_cast<CXXSurfaceVertex *>(pntr), 0);
+           if (objectSize) {}
+           allocator.deallocate(static_cast<CXXSurfaceVertex *>(pntr), 0);
 	};
 };
 

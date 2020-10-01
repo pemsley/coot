@@ -940,11 +940,11 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 
 	       if (! add_all_residue) {
 		  if (coot::is_main_chain_p(residue_atoms[iat])) {
-		     fr.addatom(residue_atoms[iat]);
+		     fr.addatom(coot::minimol::atom(residue_atoms[iat]));
 		  }
 	       } else {
 		  // add all atoms of this residue
-		  fr.addatom(residue_atoms[iat]);
+		  fr.addatom(coot::minimol::atom(residue_atoms[iat]));
 	       }
 	    }
 	    f.addresidue(fr, false);
