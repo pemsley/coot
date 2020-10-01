@@ -358,7 +358,7 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
          glm::vec4 pos;
          pos.x = (R + r * cosf(theta)) * cosf(phi);
          pos.y = (R + r * cosf(theta)) * sinf(phi);
-         pos.z = r * sinf(theta);
+         pos.z = torus.height_scale * r * sinf(theta);
          pos.w = 1.0; // or 0?
          v.pos = glm::vec3(pos * ori) + glm::vec3(centre);
          glm::vec4 normal;

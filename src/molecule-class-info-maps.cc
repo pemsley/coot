@@ -2361,22 +2361,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       }
    }
 
-   // was a regular file, let's check the extension:
-   //
-#ifdef WINDOWS_MINGW
-   std::string::size_type islash = coot::util::intelligent_debackslash(filename).find_last_of("/");
-#else
-   std::string::size_type islash = filename.find_last_of("/");
-#endif // MINGW
-   std::string tstring;
-   if (islash == std::string::npos) {
-      // no slash found
-      tstring = filename;
-   } else {
-      tstring = filename.substr(islash + 1);
-   }
 
-   bool good_extension_flag = 0;
+   std::string tstring = coot::util::file_name_non_directory(filename);
+
+   bool good_extension_flag = false;
    for (unsigned int iextension=0; iextension<acceptable_extensions.size(); iextension++) {
       std::string::size_type imap = tstring.rfind(acceptable_extensions[iextension]);
       if (imap != std::string::npos) {
