@@ -1281,22 +1281,21 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
       }
 
       if (window) {
-
-         // doesn't work - I don't know why.
-
+         // doesn't work - I don't know why - possibly because we start
+         // to read the map before gtk functions run.
          current_cursor = gdk_window_get_cursor(window);
          GdkCursor *c = gdk_cursor_new_from_name(display, "not-allowed");
          // std::cout << "---- not-allowed cursor " << window << " " << c << std::endl;
          gdk_window_set_cursor(window, c);
          g.graphics_draw();
-
       }
 
       std::vector<std::string> mge = *g.map_glob_extensions;
       istate = g.molecules[imol_new].read_ccp4_map(str, is_diff_map_flag, mge);
 
       if (window) {
-         // gdk_window_set_cursor(window, current_cursor);
+         // change it back
+         gdk_window_set_cursor(window, current_cursor);
       }
 
       if (istate > -1) { // not a failure
