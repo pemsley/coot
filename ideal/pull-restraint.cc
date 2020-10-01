@@ -43,15 +43,14 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    }
 
    if (! at) {
-      std::cout << "##################### " << restraints_vec.size()
-                << " No match to pull restraints ----------- add a new one " << std::endl;
+      if (false)
+         std::cout << "##################### " << restraints_vec.size()
+                   << " No match to pull restraints ----------- add a new one " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
 	    if (! fixed_check(iat)) {
-               std::cout << "start add new one " << std::endl;
 	       add_target_position_restraint(iat, spec, pos);
-               std::cout << "done  add new one " << std::endl;
 	       at = atom[iat];
 	    }
 	    break;
