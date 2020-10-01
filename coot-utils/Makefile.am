@@ -41,7 +41,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh \
 	strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh arc-info.hh \
-	coot_shiftfield.h shiftfield.h cis-peptide-info.hh pepflip-using-difference-map.hh fib-sphere.hh
+	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh pepflip-using-difference-map.hh polar-atoms.hh
 
 
 
@@ -71,7 +71,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	secondary-structure-headers.cc plane-utils.cc c-beta-deviations.cc lidia-core-functions.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
-	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc
+	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp slurp-map.cc fib-sphere.cc polar-atoms.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -189,6 +189,7 @@ test_coot_utils_LDADD = \
 	./libcoot-coord-extras.la \
 	./libcoot-coord-utils.la  \
 	$(top_builddir)/coords/libcoot-coords.la \
+	$(top_builddir)/analysis/libcoot-analysis.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread

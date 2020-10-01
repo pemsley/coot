@@ -19,9 +19,7 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    std::vector<simple_restraint>::iterator it;
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
-         // std::cout << "comparing specs " << it->atom_spec << " " << spec << std::endl;
 	 if (it->atom_spec == spec) {
-            // std::cout << "matched!" << std::endl;
 	    at = atom[it->atom_index_1];
 
             get_restraints_lock();
@@ -45,15 +43,14 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    }
 
    if (! at) {
-      std::cout << "##################### " << restraints_vec.size()
-                << " No match to pull restraints ----------- add a new one " << std::endl;
+      if (false)
+         std::cout << "##################### " << restraints_vec.size()
+                   << " No match to pull restraints ----------- add a new one " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
 	    if (! fixed_check(iat)) {
-               std::cout << "start add new one " << std::endl;
 	       add_target_position_restraint(iat, spec, pos);
-               std::cout << "done  add new one " << std::endl;
 	       at = atom[iat];
 	    }
 	    break;

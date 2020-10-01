@@ -490,7 +490,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
       std::cout << "debug:: in init_from_mol() here are the " << fixed_atom_indices.size()
 		<< " fixed_atom indices: \n";
       std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
 	 std::cout << " " << *it;
       std::cout << "\n";
 
@@ -807,6 +807,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // debug:
    bool debug = false;
+
    if (debug) {
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 	 mmdb::PAtom *res_atom_selection = NULL;
@@ -875,7 +876,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // function:
    set_non_bonded_neighbour_residues_by_residue_vector(neighbour_set, bpc, geom);
 
-   if (false) { // debug
+   if (debug) { // debug
 
       std::cout << "############## neighbour set: " << std::endl;
       for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); it_map++) {
@@ -951,7 +952,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 all_residues.push_back(non_bonded_neighbour_residues[ires]);
    }
 
-   if (0) {
+   if (debug) {
       std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
 		<< all_residues.size() << " residues total (including flankers)"
 		<< " with " << non_bonded_neighbour_residues.size()
@@ -1018,12 +1019,12 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 fixed_residue_set.insert(residues_vec[i].second);
 
    if (false) { // debug
-      for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+      for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
 	 mmdb::Residue *r = it_map->first;
 	 std::cout << "###### debugging rnr: Residue " << coot::residue_spec_t(r) << std::endl;
 	 const std::set<mmdb::Residue *> &s = it_map->second;
 	 std::set<mmdb::Residue *>::const_iterator it_set;
-	 for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
 	    mmdb::Residue *residue_neighb = *it_set;
 	    std::cout << "###### debugging rnr:    Neighb: " << coot::residue_spec_t(residue_neighb)
 		      << " " << residue_neighb << std::endl;
@@ -1032,11 +1033,11 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    }
 
    
-   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+   for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
       mmdb::Residue *r = it_map->first;
       const std::set<mmdb::Residue *> &s = it_map->second;
       std::set<mmdb::Residue *>::const_iterator it_set;
-      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+      for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
 	 mmdb::Residue *residue_neighb = *it_set;
 	 // if residue_neigh is fixed and r is not then add residue_neigh as a neighbour of r
 	 if (residues_vec_moving_set.find(residue_neighb) == residues_vec_moving_set.end()) {
@@ -1050,7 +1051,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
-   if (false) {
+   if (true) {
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
       std::set<int>::const_iterator it;

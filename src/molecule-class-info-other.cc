@@ -2443,7 +2443,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
 		     bool mzo = g.refinement_move_atoms_with_zero_occupancy_flag;
 		     replace_coords(fragment_asc, 0, mzo);
-                     std::cout << "Debug:: waters for deletion size " << baddie_waters.size() << std::endl;
+                     // std::cout << "Debug:: waters for deletion size " << baddie_waters.size() << std::endl;
                      if (baddie_waters.size())
                         delete_atoms(baddie_waters);
 		  }
@@ -7360,7 +7360,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       }
 
-      GLfloat bgcolor[4] = {0.8, 0.8, 0.8, 0.8};
+      GLfloat bgcolor[4] = {0.8, 0.8, 0.8, 1.0};
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 40);
@@ -7369,10 +7369,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box_local.bonds_[ii];
 	 set_bond_colour_by_mol_no(ii, against_a_dark_background);
 
-	 GLfloat bgcolor[4]={bond_colour_internal[0],
-			     bond_colour_internal[1],
-			     bond_colour_internal[2],
-			     1.0};
+         if (bond_colour_internal.size() > 2)
+            for (int jj=0; jj<3; jj++)
+               bgcolor[jj] = bond_colour_internal[jj];
 
 	 for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
 	    glPushMatrix();
@@ -7466,10 +7465,12 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i],
 				      against_a_dark_background);
 	    glPushMatrix();
-	    GLfloat bgcolor[4]={bond_colour_internal[0],
-				bond_colour_internal[1],
-				bond_colour_internal[2],
-				1.0};
+
+	    // GLfloat bgcolor[4]={bond_colour_internal[0],
+            // bond_colour_internal[1],
+            // bond_colour_internal[2],
+            // 1.0};
+
 	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
 	    glTranslatef(bonds_box_local.atom_centres_[i].position.get_x(),
 			 bonds_box_local.atom_centres_[i].position.get_y(),
@@ -8732,22 +8733,22 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
 
 
 int
-molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
-					    coot::protein_geometry *geom_p,
+molecule_class_info_t::fill_partial_residue(const coot::residue_spec_t &residue_spec,
+					    const coot::protein_geometry *geom_p,
 					    int refinement_map_number) {
 
    int resno = residue_spec.res_no;
    std::string chain_id = residue_spec.chain_id;
    std::string inscode = residue_spec.ins_code;
    std::string altloc = "";
-   float lowest_probability = 0.8;
-   int clash_flag = 1;
 
    mmdb::Residue *residue_p = get_residue(chain_id, resno, inscode);
    if (residue_p) {
       std::string residue_type = residue_p->GetResName();
       mutate(resno, inscode, chain_id, residue_type); // fill missing atoms
       if (refinement_map_number >= 0) {
+         float lowest_probability = 0.8;
+         int clash_flag = 1;
 	 auto_fit_best_rotamer(ROTAMERSEARCHLOWRES,
 			       resno, altloc, inscode, chain_id,
 			       refinement_map_number, clash_flag,

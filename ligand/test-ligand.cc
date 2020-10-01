@@ -366,25 +366,30 @@ int test_spherical(const std::string &pdb_filename,
       int imod = 1;
       mmdb::Model *model_p = asc.mol->GetModel(imod);
       if (model_p) {
-	 int n_chains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<n_chains; ichain++) {
-	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    for (int ires=0; ires<nres; ires++) {
-	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	       std::string rn(residue_p->GetResName());
-	       if (rn == "HOH") {
-		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  if (n_atoms == 1) {
-		     for (int iat=0; iat<n_atoms; iat++) {
-			mmdb::Atom *at = residue_p->GetAtom(iat);
-			if (! at->isTer()) {
-			   clipper::Coord_orth pt = coot::co(at);
-			   coot::ligand::spherical_density_score_t non_spherical_score =
-			      lig.spherical_density_score(pt, xmap);
-			   std::cout << "water " << pdb_filename <<  " " << coot::atom_spec_t(at)
-				     << " " << non_spherical_score.density_at_position
-				     << " " << non_spherical_score.non_spherical_score << std::endl;
+	 std::pair<float, float> mdoa = lig.mean_and_variance_where_the_atoms_are(asc.mol);
+	 std::cout << "here with mdoa " << mdoa.first << " " << mdoa.second << std::endl;
+	 if (mdoa.first > 0.0) {
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       int nres = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<nres; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  std::string rn(residue_p->GetResName());
+		  if (rn == "HOH") {
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     if (n_atoms == 1) {
+			for (int iat=0; iat<n_atoms; iat++) {
+			   mmdb::Atom *at = residue_p->GetAtom(iat);
+			   if (! at->isTer()) {
+			      clipper::Coord_orth pt = coot::co(at);
+			      coot::ligand::spherical_density_score_t non_spherical_score =
+				 lig.spherical_density_score(pt, mdoa.first);
+			      std::cout << "water " << pdb_filename <<  " " << coot::atom_spec_t(at)
+					<< " density " << non_spherical_score.density_at_position
+					<< " non-spherical-score " << non_spherical_score.non_spherical_score
+					<< std::endl;
+			   }
 			}
 		     }
 		  }

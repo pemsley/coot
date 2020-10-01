@@ -1010,8 +1010,8 @@ graphics_info_t::refine_residues_vec(int imol,
 
    bool use_map_flag = 1;
 
-   if (true)
-      std::cout << "debug:: in refine_residues_vec() with altconf \""
+   if (false)
+      std::cout << "INFO:: refine_residues_vec() with altconf \""
 		<< alt_conf << "\"" << std::endl;
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);

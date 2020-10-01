@@ -180,4 +180,5 @@ Texture graphics_info_t::texture_for_hud_geometry_labels;
 HUDTextureMesh graphics_info_t::mesh_for_hud_geometry_labels = HUDTextureMesh("tmesh-for-hud-geometry-labels");
 
 Instanced_Markup_Mesh graphics_info_t::rama_balls_mesh = Instanced_Markup_Mesh("rama-balls");
+bool graphics_info_t::draw_stick_mode_atoms_default = true;
 

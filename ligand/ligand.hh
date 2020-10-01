@@ -583,7 +583,7 @@ namespace coot {
 
       spherical_density_score_t
       spherical_density_score(const clipper::Coord_orth &a,
-                              const clipper::Xmap<float> &search_map) const;
+                              float mean_density_other_atoms) const;
 
    };
 

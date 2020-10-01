@@ -1,7 +1,8 @@
 
+
 #include <string>
 #include <vector>
-#include <mmdb2/mmdb_utils.h>
+#include <mmdb2/mmdb_manager.h>
 
    // ------------------------------------------------------------------------
    //                  chem_mods
@@ -23,7 +24,7 @@ namespace coot {
 		    const std::string &name_in,
 		    const std::string &comp_id_in,
 		    const std::string &group_id_in) :
-         name(name_in), id(id_in), group_id(group_id_in), comp_id(comp_id_in) { }
+         name(name_in), id(id_in), group_id(group_id_in), comp_id(comp_id_in) {}
       friend std::ostream& operator<<(std::ostream &s, list_chem_mod mod);
    };
    std::ostream& operator<<(std::ostream &s, list_chem_mod mod);
@@ -313,5 +314,48 @@ namespace coot {
 	 friend std::ostream& operator<<(std::ostream &s, chem_mod mod);
       };
    std::ostream& operator<<(std::ostream &s, chem_mod mod);
+
+      class min_chem_mod {
+
+      public:
+	 min_chem_mod() {};
+	 std::vector<chem_mod_atom>  atom_mods;
+// 	 std::vector<chem_mod_tree>  tree_mods;
+// 	 std::vector<chem_mod_bond>  bond_mods;
+// 	 std::vector<chem_mod_angle> angle_mods;
+// 	 std::vector<chem_mod_tor>   tor_mods;
+// 	 std::vector<chem_mod_plane> plane_mods;
+ 	 std::vector<chem_mod_chir>  chir_mods;
+	 void add_mod_atom(const chem_mod_atom &chem_atom) {
+	    atom_mods.push_back(chem_atom);
+	 }
+#if 0
+	 void add_mod_tree(const chem_mod_tree &chem_tree) {
+	    // tree_mods.push_back(chem_tree);
+	 }
+	 void add_mod_bond(const chem_mod_bond &chem_bond) {
+	    // bond_mods.push_back(chem_bond);
+	 }
+	 void add_mod_angle(const chem_mod_angle &chem_angle) {
+	    // angle_mods.push_back(chem_angle);
+	 }
+	 void add_mod_tor(const chem_mod_tor &chem_tor) {
+	    // tor_mods.push_back(chem_tor);
+	 }
+	 void add_mod_plane(const chem_mod_plane &chem_plane) {
+	    // plane_mods.push_back(chem_plane);
+	 }
+	 void add_mod_chir(const chem_mod_chir &chem_chir) {
+	    chir_mods.push_back(chem_chir);
+	 }
+	 void add_plane_atom(const std::string &plane_id,
+			     const std::string &function,
+			     const std::string &atom_name,
+			     double dist) {
+	 }
+	 friend std::ostream& operator<<(std::ostream &s, min_chem_mod mod);
+#endif
+      };
+   std::ostream& operator<<(std::ostream &s, min_chem_mod mod);
 
 }

@@ -1877,6 +1877,9 @@ SCM spherical_density_overlap(SCM i_scm, SCM j_scm);
 #endif // USE_GUILE
 #endif // __cplusplus
 
+void resolve_clashing_sidechains_by_deletion(int imol);
+
+void resolve_clashing_sidechains_by_rebuilding(int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                  GUIL Utility Functions                                  */

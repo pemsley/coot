@@ -182,14 +182,21 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 		   << " "
 		   << graphics_info_t::accept_reject_dialog_y_position
 		   << std::endl;
-      if ((graphics_info_t::accept_reject_dialog_x_position > -100) &&
+
+      if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
 	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
-	 if (true)
-	    std::cout << "Fix the uposition Here...... inside if setting ..... "
+	 if (false)
+	    std::cout << "Here in do_accept_reject_dialog() ...... inside if setting ..... "
 		      << graphics_info_t::accept_reject_dialog_x_position
 		      << " "
 		      << graphics_info_t::accept_reject_dialog_y_position
 		      << std::endl;
+
+         std::cout << "INFO:: gtk_widget_set_uposition() " << window << " "
+                   << graphics_info_t::accept_reject_dialog_x_position << " "
+                   << graphics_info_t::accept_reject_dialog_y_position << " "
+                   << std::endl;
+
 	 // gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_NONE);
 	 // gtk_widget_set_uposition(window,
 	// 			  graphics_info_t::accept_reject_dialog_x_position,
@@ -1891,7 +1898,8 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
          ss += "...";
       ss += molecules[imol].name_.substr(left_size, ilen);
 
-      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
+      //  std::cout << "debug:: --- in fill_combobox_with_coordinates_options() "
+      //            << imol << " " << ss << std::endl;
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 

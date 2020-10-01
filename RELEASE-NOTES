@@ -1,4 +1,78 @@
 
+  Pre-release 0.9.1
+
+  o FEATURE: fat atoms for some metals and halides
+
+  o FEATURE: add a "Rescale" entry and button for the density fit validation graph
+
+  o FEATURE: add label_closest_atoms_in_neighbour_residues to the API and added to the Draw menu
+
+  o FEATURE: missing-residue loops can now be undisplayed: set_draw_missing_residues_loops()
+
+  o FEATURE: find pep-flips using based on difference map
+
+  o FEATURE: Add "Proportional editing" for atom-pull neighbour displacement
+             [c.f. Tristan's ISOLDE]. Use Ctrl-scroll to change the radius
+
+  o FEATURE: carbon atoms in Colour-by-Chain mode have their own colour index
+
+  o FEATURE: add a menu items for the addition of hydrogen atoms
+
+  o FEATURE: backup file names can now be decolonized
+
+  o FEATURE: flip_hand() function added - for reversing the hand of Cryo-EM maps
+
+  o FEATURE: add "backward" for better core dump reporting
+
+  o FEATURE: "Delete Residue" added - bound to Ctrl-D
+
+  o FEATURE: add_nucleotide() added to the API [Gianluca Cascarano]
+
+  o FEATURE: distances added to raster3d output [Vito Calderone]
+
+  o CHANGE: waters can no longer be placed directly on top of another atom
+
+  o CHANGE: Sequence view is docked by default - now with current-residue highlighting
+
+  o CHANGE: Bond orders used for colour-by-chain mode
+
+  o CHANGE: increase weight on atom-pull restraint
+
+  o CHANGE: More sane rotation Ctrl-base rotation in Rotation/Translation mode [Mattias Barone]
+
+  o CHANGE: contact dots now use Fibonacci spheres
+
+  o CHANGE: improvements to dictionary reading and reporting of mismatches
+
+  o CHANGE: single-letter entry added to residue type selector for mutations
+
+  o CHANGE: rework the liking algorithm so that residues with a residue number gap but close
+            N and C atoms can now be linked.
+
+  o CHANGE: Fourier filtered Jiggle-Fit now followed by rigid-body refinement at full
+            resolution
+
+  o CHANGE: assign_sequence_from_file() rewritten and generalize for all-chain search [Bob Nolte]
+
+  o BUG-FIX: fix the generation of link metal oxygens restraints when the atoms are reversed.
+
+  o BUG-FIX: fix crash in lbg network molecule retrival
+
+  o BUG-FIX: Curlew's "Install" and "Uninstall" buttons work better
+
+  o BUG-FIX: mutate_by_overlap now works for nucleotides
+
+  o BUG-FIX: backup file name generation cleaned up
+
+  o BUG-FIX: tidied up the GLY representation in CA+sidechains mode
+
+  o BUG-FIX: Apply the dynamic transformation to NCS ghost maps [Randy Read]
+
+  o BUG-FIX: remove neighbour-generation memory leak
+
+  o BUG-FIX: getopt usage reworked
+
+
   Release 0.9
 
   This release has been a long-term effort (4 years according to my notes). It is powerful but not as

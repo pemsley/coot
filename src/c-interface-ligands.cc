@@ -3693,13 +3693,17 @@ void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm) {
 #endif // USE_GUILE
 
 
-void coot_reduce(int imol) {
+void coot_add_hydrogen_atoms(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.molecules[imol].reduce(g.Geom_p());
       graphics_draw();
    }
+}
+
+void coot_reduce(int imol) {
+   coot_add_hydrogen_atoms(imol);
 }
 
 

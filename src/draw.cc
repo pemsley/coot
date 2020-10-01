@@ -33,6 +33,13 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
          do_first = true;
    }
 
+   if (false)
+      std::cout << "debug:: stereo_projection_setup_maybe() in_stereo_flag "
+                << in_stereo_flag << " vs "
+                << IN_STEREO_SIDE_BY_SIDE_LEFT << " "
+                << IN_STEREO_SIDE_BY_SIDE_RIGHT << " "
+                << "do first and second " << do_first << " " << do_second << std::endl;
+
    if (do_first || do_second) {
       float skew_factor = 0.05 * graphics_info_t::hardware_stereo_angle_factor;
       float view_skew_matrix[16];
@@ -41,6 +48,7 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
       for(unsigned int ii=0; ii<16; ii++) view_skew_matrix[ii]   = 0.0;
       for(unsigned int ii=0; ii<4;  ii++) view_skew_matrix[ii*5] = 1.0;
       float trans_fac = 0.038;
+
 
       if (do_first) {
          view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
@@ -57,7 +65,7 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
 
 
 gint
-draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
+draw_mono(GtkWidget *widget, GdkEventExpose *event, short int stereo_mode) {
 
 #if 0 // historical reasons - remove this function when useless
 
@@ -81,7 +89,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
    // GLCONTEXT
    int gl_context = GL_CONTEXT_MAIN;
-   if (in_stereo_flag == IN_STEREO_SIDE_BY_SIDE_RIGHT)
+   if (stereo_mode == IN_STEREO_SIDE_BY_SIDE_RIGHT)
       gl_context = GL_CONTEXT_SECONDARY;
 
    GtkWidget *glarea_0 = 0;
@@ -116,10 +124,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       // BL says:: another hack!? FIXME
       // dont clear when we want to draw the 2 Zalman views
-
       if (in_stereo_flag != IN_STEREO_ZALMAN_LEFT)
          glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-
 
       // From Bernhard
 
@@ -134,6 +140,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
       // Zalman works here?! but crap lighting!?
+
       if (in_stereo_flag == IN_STEREO_ZALMAN_RIGHT) {
          // draws one Zalman lines
          glEnable(GL_STENCIL_TEST);
@@ -172,7 +179,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
 
-      stereo_projection_setup_maybe(widget, in_stereo_flag);
+      stereo_projection_setup_maybe(widget, stereo_mode);
 
       // 	 glOrtho(GLdouble left,   GLdouble right,
       //               GLdouble bottom, GLdouble top,
@@ -351,6 +358,14 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // secondary window, so that, when display lists are being
 	 // used we use the correct part of theMapContours.
 	 //
+         // BL says:: bad hack FIXME
+         if (stereo_mode == IN_STEREO_ZALMAN_LEFT || stereo_mode == IN_STEREO_ZALMAN_RIGHT) {
+	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+							    0);
+         } else {
+	    graphics_info_t::molecules[ii].draw_density_map(graphics_info_t::display_lists_for_maps_flag,
+							    stereo_mode);
+         }
 
          // Goodbye map drawing
 
@@ -640,6 +655,9 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
 //    if (i == 0)
 //       return TRUE;
 
+// for every graphics_draw()
+// this function is called for glarea (and then glarea_2 if needed)
+
 #ifdef USE_PYTHON
    // Hamish function
    if (! graphics_info_t::python_draw_function_string.empty()) {
@@ -652,6 +670,7 @@ gint draw(GtkWidget *widget, GdkEventExpose *event) {
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO) {
          draw_zalman_stereo(widget, event);
       } else {
+
          if (graphics_info_t::display_mode_use_secondary_p()) {
             if (graphics_info_t::glareas.size() == 2) {
                draw_mono(widget, event, IN_STEREO_SIDE_BY_SIDE_RIGHT);
@@ -806,5 +825,5 @@ debug_eye_position(GtkWidget *widget) {
 
    to_generic_object_add_point(go, "red", 4, pt.x(), pt.y(), pt.z());
    set_display_generic_object(go, 1);
-
 }
+ 

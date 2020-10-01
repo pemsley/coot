@@ -289,7 +289,9 @@ namespace coot {
       int resno_third;
       std::vector<bool> is_fixed;
       ramachandran_restraint_flanking_residues_helper_t() {
-	 is_fixed.resize(3,0);
+	 is_fixed.resize(3, false);
+         resno_first = -1;
+         resno_third = -1;
       }
    };
 

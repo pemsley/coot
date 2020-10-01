@@ -1154,6 +1154,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
          }
+
       } else {
 
          if (use_wall_eye_flag == 1) {
@@ -3141,6 +3142,11 @@ get_aniso_probability() {
 /*  ---------------------------------------------------------------------- */
 /*                         Display Functions                               */
 /*  ---------------------------------------------------------------------- */
+
+/*! \brief set default for the drawing of atoms in stick mode (default is on (1)) */
+void set_draw_stick_mode_atoms_default(short int state) {
+   graphics_info_t::draw_stick_mode_atoms_default = state;
+}
 
 void set_default_bond_thickness(int t) {
 
@@ -7260,6 +7266,14 @@ void destroy_edit_backbone_rama_plot() {
 //
 void print_sequence_chain(int imol, const char *chain_id) {
 
+   print_sequence_chain_general(imol, chain_id, 0, 0, "");
+}
+
+void print_sequence_chain_general(int imol, const char *chain_id,
+                                   short int pir_format,
+                                   short int file_output,
+                                   const char *file_name) {
+
    std::string seq;
    bool with_spaces = false; // block spaced output is easier to read
 
@@ -7303,9 +7317,39 @@ void print_sequence_chain(int imol, const char *chain_id) {
             }
          }
       }
-      std::cout << ">" << graphics_info_t::molecules[imol].name_sans_extension(0)
-                << " chain " << chain_id << std::endl;
-      std::cout << seq << std::endl;
+
+      std::string full_seq;
+      if (pir_format) {
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         full_seq = ">P1;";
+         full_seq += n;
+         full_seq += " ";
+         full_seq += chain_id;
+         full_seq += "\n\n";
+         full_seq += seq;
+         full_seq += "\n*\n";
+      } else {
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         full_seq = "> ";
+         full_seq += n;
+         full_seq += " ";
+         full_seq += chain_id;
+         full_seq += "\n";
+         full_seq += seq;
+         full_seq += "\n";
+      }
+
+      if (file_output) {
+         std::ofstream f(file_name);
+         if (f) {
+            f << full_seq;
+            f.close();
+         } else {
+            std::cout << "WARNING:: failed to open " << file_name << std::endl;
+         }
+      } else {
+         std::cout << full_seq;
+      }
    }
 }
 

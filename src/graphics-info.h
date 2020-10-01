@@ -1365,6 +1365,7 @@ public:
    float Y() { return rotation_centre_y; };
    float Z() { return rotation_centre_z; };
 
+   // why isn't this static? Make it static
    coot::Cartesian RotationCentre() const
       { return coot::Cartesian(rotation_centre_x,
 			       rotation_centre_y,
@@ -3659,6 +3660,7 @@ public:
    // -- default bond width
    static int default_bond_width;
    static int default_bonds_box_type; // Phil want to configure this.
+   static bool draw_stick_mode_atoms_default; // true,
 
    // ---- default sigma level:
    static float default_sigma_level_for_map;

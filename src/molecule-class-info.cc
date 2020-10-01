@@ -339,6 +339,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (! is_undo_or_redo) {
       bond_width = bond_width_in;
       bonds_box_type = bonds_box_type_in;
+      if (g.draw_stick_mode_atoms_default == false) {
+         display_stick_mode_atoms_flag = false;
+      }
    }
 
    // std::cout << "DEBUG:: ---- imol_no is now " << imol_no << std::endl;
@@ -6800,8 +6803,23 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 
          if (mol_chain_id.first || pre_existing_chain_flag) {
 
-            if (bits.filled) {
-               bits.SetAtom(atom_p, res_p);
+	       bits.SetAtom(atom_p, res_p);
+               if (false)
+                  std::cout << "debug:: bits.SetAtom() called with atom " << coot::atom_spec_t(atom_p)
+                            << " and residue " << coot::residue_spec_t(res_p)
+                            << " with residue name \"" << res_p->GetResName() << "\"" << std::endl;
+	       res_p->AddAtom(atom_p);
+	       std::cout << atom_p << " added to molecule" << std::endl;
+	       if (! pre_existing_chain_flag) {
+                  chain_p->SetChainID(mol_chain_id.second.c_str());
+                  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+	       }
+	       std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+	       int previous_max = 0;
+	       if (ires_prev_pair.first) { // was not an empty chain
+                  previous_max =  ires_prev_pair.second;
+                  res_p->seqNum = previous_max + 1;
+               } else {
 
                res_p->AddAtom(atom_p);
                std::cout << atom_p << " added to molecule" << std::endl;
