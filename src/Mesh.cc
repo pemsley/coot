@@ -30,7 +30,7 @@ Mesh::init() {
    draw_this_mesh = true;
    normals_are_setup = false;
    this_mesh_is_closed = false;
-   vao = 99999999; // use UNSET_VAO
+   vao = VAO_NOT_SET; // use UNSET_VAO
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
@@ -1141,7 +1141,7 @@ Mesh::draw(Shader *shader_p,
                       << " with GL err " << err << std::endl;
 
    if (vao == 99999999)
-      std::cout << "You forgot to setup this Mesh " << name << " "
+      std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
                 << shader_p->name << std::endl;
 
    glBindVertexArray(vao);

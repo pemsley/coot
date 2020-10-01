@@ -16,6 +16,7 @@
 #endif
 
 class Mesh {
+   enum { VAO_NOT_SET = 99999999 };
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
    Material material;
    void setup_instanced_balls( Shader *shader_p, const Material &material_in);

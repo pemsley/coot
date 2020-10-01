@@ -49,17 +49,13 @@ public:
    class torus_t {
    public:
       torus_t() {}
-      torus_t(const clipper::Coord_orth &pt1,
-              const clipper::Coord_orth &pt2,
-              float r1, float r2) {
-         start_point = pt1;
-         end_point   = pt2;
-         radius_1 = r1;
-         radius_2 = r2;
+      torus_t(const clipper::Coord_orth &p,
+              const clipper::Coord_orth &n,
+              float r1, float r2) : position(p), normal(n), radius_1(r1), radius_2(r2) {
          n_ring_atoms = 6;
       }
-      clipper::Coord_orth start_point;
-      clipper::Coord_orth end_point;
+      clipper::Coord_orth position;
+      clipper::Coord_orth normal;
       coot::colour_holder col;
       float radius_1;
       float radius_2;

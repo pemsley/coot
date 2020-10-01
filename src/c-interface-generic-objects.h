@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include <string>
 #include "generic-display-objects-c.h"
 
 
@@ -115,6 +116,17 @@ void to_generic_object_add_arc(int object_number,
 			       float normal_x1, 
 			       float normal_y1, 
 			       float normal_z1);
+
+void to_generic_object_add_torus(int object_number,
+                                 const char *colour_name,
+                                 float radius,
+                                 float radius_inner,
+                                 float centre_point_x,
+                                 float centre_point_y,
+                                 float centre_point_z,
+                                 float normal_x,
+                                 float normal_y,
+                                 float normal_z);
 
 void
 to_generic_object_add_arrow(int object_number,
