@@ -3,11 +3,11 @@ def new_molecule_with_nudged_residues(imol, residue_spec,
                                       residue_delta, nudge_by):
 
     imol_new = copy_molecule(imol)
-    chain_id = residue_spec_to_chain_id(residue_spec)
-    resno_start = residue_spec_to_res_no(residue_spec) - residue_delta
-    resno_end = residue_spec_to_res_no(residue_spec) + residue_delta
+    chain_id = res_spec_utils.residue_spec_to_chain_id(residue_spec)
+    resno_start = res_spec_utils.residue_spec_to_res_no(residue_spec) - residue_delta
+    resno_end = res_spec_utils.residue_spec_to_res_no(residue_spec) + residue_delta
 
-    if debug():
+    if coot_utils.debug():
         print("imol:", imol)
         print("residue_spec:", residue_spec)
         print("residue_delta:", residue_delta)
@@ -59,12 +59,12 @@ def nudge_residues_gui(imol, residue_spec):
     label_2 = gtk.Label(" residues ")
     label_n = gtk.Label(" Nudge ")
     res_lab = " residues up and down from " + \
-              residue_spec_to_chain_id(residue_spec) + " " + \
+              res_spec_utils.residue_spec_to_chain_id(residue_spec) + " " + \
               str(residue_spec_to_res_no(residue_spec))
     label_a = gtk.Label(res_lab)
     m_lab = " Nudging residues from Molecule:\n   " + \
             str(imol) + ": " + \
-            strip_path(molecule_name(imol))
+            coot_utils.strip_path(molecule_name(imol))
     label_m = gtk.Label(m_lab)
     entry = gtk.Entry()
     h_sep = gtk.HSeparator()

@@ -1,6 +1,6 @@
 # 18/3/2018 version 2.3 (acedrg?)
 
-#this could be in coot_gui.py
+#this could be in coot_gui.coot_gui.py
 def fill_option_menu_with_string_options(menu, string_list,
                                          default_option_value):
     for item in string_list:
@@ -97,7 +97,7 @@ def acedrg_link_generation_control_window():
 # return the new file name
 def hack_link(fn):
     import os
-    stub = file_name_sans_extension(fn)
+    stub = coot_utils.file_name_sans_extension(fn)
     new_file_name = fn + "-hack.cif"
 
     with open(fn, "rt") as fin:
@@ -136,9 +136,9 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
         print("BL DEBUG:: we received these clicks:", clicks)
 
         bond_list = ['single', 'double']
-        bond_order = get_option_menu_active_item(option_menu,
+        bond_order = coot_gui.get_option_menu_active_item(option_menu,
                                                  bond_list) # could be enums
-        change_bond_order = get_option_menu_active_item(change_bond_order_option_menu,
+        change_bond_order = coot_gui.get_option_menu_active_item(change_bond_order_option_menu,
                                                         bond_list)
         if (len(clicks) == 2):
             click_1 = clicks[0]
@@ -237,7 +237,7 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                         fin.write(s)
                         fin.close()
 
-                        status = popen_command("acedrg",
+                        status = coot_utils.popen_command("acedrg",
                                                ["-L", ins_file_name, "-o", st_1],
                                                [],
                                                log_file_name,

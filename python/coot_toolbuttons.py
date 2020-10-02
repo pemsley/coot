@@ -185,7 +185,7 @@ if (have_coot_python):
                       if len(item) > 5:
                         use_button_item = item[5]
                     if (check_button_label == button_label):
-                      new_toolbutton = coot_toolbar_button(button_label,
+                      new_toolbutton = coot_gui.coot_toolbar_button(button_label,
                                                            callback_function,
                                                            icon_name=icon,
                                                            tooltip=description,
@@ -203,7 +203,7 @@ if (have_coot_python):
             else:
               # remove an existing button?
               # check if the button is in the existing button list
-              for toolbar in toolbar_label_list():
+              for toolbar in coot_gui.toolbar_label_list():
                 if (button_label == toolbar[0]):
                   coot_python.main_toolbar().remove(toolbar[1])
                   # remove from save
@@ -263,12 +263,12 @@ if (have_coot_python):
             icon_combobox = icon_selection_combobox(icon_model)
             button_icon = False
 
-            all_toolbar_labels = [x[0] for x in toolbar_label_list()]
+            all_toolbar_labels = [x[0] for x in coot_gui.toolbar_label_list()]
             if (check_button_label in all_toolbar_labels):
                 check_button.set_active(True)
                 # now try to get the icon
                 try:
-                  ls = toolbar_label_list()
+                  ls = coot_gui.toolbar_label_list()
                   button_icon = ls[all_toolbar_labels.index(check_button_label)][1].get_stock_id()
                 except:
                   # no icon found
@@ -326,7 +326,7 @@ if (have_coot_python):
               coot_main_toolbar.remove(toolbar_child)
               remove_toolbar_from_init_file(button_label)
               break
-      generic_single_entry("Remove toolbar button",
+      coot_gui.generic_single_entry("Remove toolbar button",
                            "button label",
                            "Remove",
                            remove_toolbar_button)
@@ -383,7 +383,7 @@ if (have_coot_python):
           if (icon_stock):
             icon = icon_stock
 
-        coot_toolbar_button(name_str, func_str, icon)
+        coot_gui.coot_toolbar_button(name_str, func_str, icon)
         if (save_qm):
           save_toolbar_to_init_file(name_str, func_str, icon)
         
@@ -422,7 +422,7 @@ if (have_coot_python):
       assi.set_page_title(vbox, 'Set the function')
       assi.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
 
-      label = gtk.Label("Please enter the python function... (e.g. refine_active_residue())")
+      label = gtk.Label("Please enter the python function... (e.g. fitting.refine_active_residue())")
       label.set_line_wrap(True)
       label.show()
       vbox.pack_start(label, True, True, 0)
@@ -510,11 +510,11 @@ if (have_coot_python):
           if (icon_stock):
             icon = icon_stock
 
-        coot_toolbar_button(name_str, func_str, icon)
+        coot_gui.coot_toolbar_button(name_str, func_str, icon)
         if (save_qm):
           save_toolbar_to_init_file(name_str, func_str, icon)
         
-      entry_widget = generic_double_entry("Button Name:", "Python Function:",
+      entry_widget = coot_gui.generic_double_entry("Button Name:", "Python Function:",
                                           "test", "centre_of_mass(0)",
                                           "Save to Preferences?", button_func,
                                           "Create", do_func,
@@ -574,9 +574,9 @@ def save_toolbar_to_init_file(button_label, callback_function,
     print("BL ERROR:: could not find a home directory")
   else:
     filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
-    remove_line_containing_from_file(["coot_toolbar_button", button_label],
+    coot_utils.remove_line_containing_from_file(["coot_toolbar_button", button_label],
                                      filename)
-    save_string_to_file(save_str, filename)
+    coot_utils.save_string_to_file(save_str, filename)
 
     
 # remove a toolbar from  ~/.coot-preferences/coot_toolbuttons.py
@@ -591,11 +591,11 @@ def remove_toolbar_from_init_file(button_label):
     filename = os.path.join(home, ".coot-preferences", "coot_toolbuttons.py")
     remove_str_ls = ["coot_toolbar_button", button_label]
     if (os.path.isfile(filename)):
-      remove_line_containing_from_file(remove_str_ls, filename)
+      coot_utils.remove_line_containing_from_file(remove_str_ls, filename)
 
 
 # returns a list with pre-defined toolbar-functions (stock-id is optional,
-# so are a few others - almost consistent with order in coot_toolbar_button
+# so are a few others - almost consistent with order in coot_gui.coot_toolbar_button
 # function)
 # format:
 # [[Group1,[toolbarname1, callbackfunction1, description1],
@@ -610,10 +610,10 @@ def list_of_toolbar_functions():
          ["Side-by-side/Mono", "side_by_side_stereo_mono_toggle()", "Toggle between Side-by-Side Stereo and Mono view", "stereo-view.svg"],
          ["Zalman Stereo/mono", "zalman_stereo_mono_toggle()", "Toggle between Zalman Stereo and Mono view", "stereo-view.svg"],
          ["Swap Stereo", "switch_stereo_sides()", "Change left and right stereo image", "undo-1.svg"],
-         ["Full screen", toggle_full_screen,
+         ["Full screen", coot_utils.toggle_full_screen,
           "Switch between full screen and window mode", "gtk-fullscreen",
           True, True],
-          ['Hydrogens', toggle_hydrogen_display,
+          ['Hydrogens', coot_gui.toggle_hydrogen_display,
            "Toggle to show (or not) hydrogens",
            "delete.svg", True, True],
          ],
@@ -630,17 +630,17 @@ def list_of_toolbar_functions():
          ["Change Alt Conf Occ", "select_atom_alt_conf_occ_gui()", "Change occupancies for alternative conformations", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
-         ['Backrub Rotamers', toggle_backrub_rotamers,
+         ['Backrub Rotamers', coot_gui.toggle_backrub_rotamers,
           "Toggle use (or not) of backrub rotamers",
           "auto-fit-rotamer.svg", True, True],
          ['Cis<->Trans', "do_cis_trans_conversion_setup(1)", "Convert peptide: cis->trans or trans->cis", "flip-peptide.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["Validation",
-         ["Interactive dots", toggle_interactive_probe_dots,
+         ["Interactive dots", generic_objects.toggle_interactive_probe_dots,
           "Show dots after refinement and for chi/rotamer changes",
           "probe-clash.svg", True, True],
-         ["Local probe dots", "probe_local_sphere_active_atom()",
-          "Show probe dots for active atom in 4A radius.",
+         ["Local generic_objects.probe dots", "probe_local_sphere_active_atom()",
+          "Show generic_objects.probe dots for active atom in 4A radius.",
           "probe-clash.svg"]
          ],
         ["Building",

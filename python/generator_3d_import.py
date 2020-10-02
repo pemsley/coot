@@ -42,7 +42,7 @@ if not os.getenv("CLIBD"):
 # this is for BL win machine
 # Mmmh. FIXME!!!!
 # home = os.getenv("HOME")
-# if (not home and is_windows()):
+# if (not home and coot_utils.is_windows()):
 #     home = os.getenv("COOT_HOME")
 # if home:
 #     prodrg_xyzin      = os.path.join(home, "Projects",
@@ -81,7 +81,7 @@ def import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id):
     cif_out_file_name = "acedrg-" + comp_id + ".cif"
     stub = "acedrg-" + comp_id
 
-    status = popen_command("acedrg",
+    status = coot_utils.popen_command("acedrg",
                            ["-m", mdl_file_name, "-r", comp_id, "-o", stub],
                            [], "acedrg.log", False, local_env=acedrg_env())
     if status:
@@ -93,18 +93,18 @@ def import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id):
 
 def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
 
-    if not command_in_path_qm("pyrogen"):
+    if not coot_utils.command_in_path_qm("pyrogen"):
         info_dialog("pyrogen not found in path")
     else:
         # happy path, maybe!?
         #  -m for sdf (default) and -c for mmcif
-        file_type_flag = "-c" if file_name_extension(mdl_file_name)=="cif" else "-m"
+        file_type_flag = "-c" if coot_utils.file_name_extension(mdl_file_name)=="cif" else "-m"
         # depends on if we have mogul as well...
-        if command_in_path_qm("mogul"):
+        if coot_utils.command_in_path_qm("mogul"):
             args = [file_type_flag, mdl_file_name, "--residue-type", comp_id]
         else:
             args = ["--no-mogul", file_type_flag, mdl_file_name, "--residue-type", comp_id]
-        status = popen_command("pyrogen", args,
+        status = coot_utils.popen_command("pyrogen", args,
                  [], "pyrogen.log", True)
         if status:
             info_dialog("WARNING:: Bad exit status for pyrogen\n - see pyrogen.log")
@@ -113,7 +113,7 @@ def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
             pdb_out_file_name = comp_id + "-pyrogen.pdb"
             cif_out_file_name = comp_id + "-pyrogen.cif"
             imol_ligand = handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
-            if not valid_model_molecule_qm(imol_ligand):
+            if not coot_utils.valid_model_molecule_qm(imol_ligand):
                 info_dialog("WARNING:: Something bad happened running pyrogen")
             else:
                 read_cif_dictionary(cif_out_file_name)
@@ -126,10 +126,10 @@ def import_from_3d_generator_from_mdl(mdl_file_name, comp_id):
     global my_favourite_3d_generator
     # if acedrg is in the path use that
     if not my_favourite_3d_generator:
-        if command_in_path_qm("acedrg"):
+        if coot_utils.command_in_path_qm("acedrg"):
             import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id)
         else:
-            if command_in_path_qm("pyrogen"):
+            if coot_utils.command_in_path_qm("pyrogen"):
                 import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id)
             else:
                 # fallback, to prodrg for now
@@ -182,7 +182,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
         if (not restraints):
             return False
         else:
-            if not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
+            if not coot_utils.residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
                 return False
             else:
                 print("----------- overlap-ligands %s %s %s %s ------------" \
@@ -259,7 +259,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
         # we have an active residue to match to
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf]:
-            if not residue_is_close_to_screen_centre_qm(
+            if not coot_utils.residue_is_close_to_screen_centre_qm(
                 aa_imol, aa_chain_id, aa_res_no, ""):
 
                 # not close, no overlap
@@ -314,10 +314,10 @@ def import_from_prodrg(minimize_mode, res_name):
     mini_mode = "NO" if (minimize_mode == 'mini-no') else "PREP"
     # see if we have cprodrg
     if not (os.path.isfile(cprodrg) or
-            command_in_path_qm(cprodrg)):
+            coot_utils.command_in_path_qm(cprodrg)):
         info_dialog("BL INFO:: No cprodrg found")
     else:
-        status = popen_command(cprodrg,
+        status = coot_utils.popen_command(cprodrg,
                                ["XYZIN",  prodrg_xyzin,
                                 "XYZOUT", prodrg_xyzout,
                                 "LIBOUT", prodrg_cif],
@@ -343,10 +343,10 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         log_file_name = os.path.join(working_dir, stub + ".log")
         print("::::::::: args", args)
         if (generator == "acedrg"):
-            status = popen_command(generator, args, [], log_file_name, True,
+            status = coot_utils.popen_command(generator, args, [], log_file_name, True,
                                    local_env=acedrg_env())
         else:
-            status = popen_command(generator, args, [], log_file_name, True)
+            status = coot_utils.popen_command(generator, args, [], log_file_name, True)
         if not status == 0:
             return -1 # bad mol
         else:
@@ -358,10 +358,10 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
             return imol
 
     def use_acedrg(three_letter_code):
-        working_dir = get_directory("coot-acedrg")
+        working_dir = coot_utils.get_directory("coot-acedrg")
         stub = three_letter_code + "-acedrg"
         smi_file_name = os.path.join(working_dir, stub + "-from-coot.smi")
-        save_string_to_file(smiles_text, smi_file_name, True)
+        coot_utils.save_string_to_file(smiles_text, smi_file_name, True)
         dict_gen("acedrg",
             three_letter_code,
             ["-r", three_letter_code, "-i", smi_file_name, "-o", os.path.join(working_dir, stub)],
@@ -386,24 +386,24 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
        smiles_input.write(smiles_text)
        smiles_input.close()
 
-       libcheck_exe_file = find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
+       libcheck_exe_file = coot_utils.find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
 
        if (not libcheck_exe_file):
            print(" BL WARNING:: libcheck not found!")
        else:
-           status = popen_command(libcheck_exe_file, [], libcheck_data_lines,
+           status = coot_utils.popen_command(libcheck_exe_file, [], libcheck_data_lines,
                                   log_file_name, True)
            # the output of libcheck goes to libcheck.lib, we want it in
            # (i.e. overwrite the minimal description in cif_file_name
-           if isNumber(status):
+           if coot_utils.isNumber(status):
                if (status == 0):
                    if (os.path.isfile("libcheck.lib")):
                        # copy rather than rename file to avoid accession issues
                        shutil.copy("libcheck.lib", cif_file_name)
-                       sc = rotation_centre()
+                       sc = coot_utils.rotation_centre()
                        imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
                        if (is_valid_model_molecule(imol)):
-                           mc = molecule_centre(imol)
+                           mc = coot_utils.molecule_centre(imol)
                            sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
                            translate_molecule_by(imol, *sc_mc)
                        read_cif_dictionary(cif_file_name)
@@ -417,7 +417,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
 
         global use_mogul
 
-        working_dir = get_directory("coot-pyrogen")
+        working_dir = coot_utils.get_directory("coot-pyrogen")
         log_file_name = "pyrogen.log"  # in working_dir
 
         # Embed a test for mogul
@@ -431,22 +431,22 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         if use_mogul:
             args = ["--residue-type", comp_id, smiles_text]
         else:
-            if command_in_path_qm("mogul"):
+            if coot_utils.command_in_path_qm("mogul"):
                 args = ["--residue-type", comp_id, smiles_text]
             else:
                 args = ["--no-mogul", "-M", "--residue-type", comp_id, smiles_text]
 
         print("---------- args:", args)
         # BL says:: may have to find pyrogen first?! FIXME
-        status = popen_command("pyrogen", args, [], log_file_name, True)
+        status = coot_utils.popen_command("pyrogen", args, [], log_file_name, True)
 
         if (ok_popen_status_qm(status)):
             pdb_file_name = comp_id + "-pyrogen.pdb"
             cif_file_name = comp_id + "-pyrogen.cif"
-            sc = rotation_centre()
+            sc = coot_utils.rotation_centre()
             imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
             if (is_valid_model_molecule(imol)):
-                mc = molecule_centre(imol)
+                mc = coot_utils.molecule_centre(imol)
                 sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
                 translate_molecule_by(imol, *sc_mc)
             read_cif_dictionary(cif_file_name)
@@ -494,8 +494,8 @@ def new_molecule_by_smiles_string_by_acedrg(tlc_str, smiles_str):
 
     args = ["-i", smi_file, "-r", tlc_str, "-o", stub]
     log_file_name = "acedrg-" + tlc_str + ".log"
-    if command_in_path_qm("acedrg"):
-        status = popen_command("acedrg", args, [], log_file_name, True,
+    if coot_utils.command_in_path_qm("acedrg"):
+        status = coot_utils.popen_command("acedrg", args, [], log_file_name, True,
                                local_env=acedrg_env())
         if (ok_popen_status_qm(status)):
             handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
@@ -539,11 +539,11 @@ def mdl_update_timeout_func():
                     tlc_symbol = fin.readline()  # need to read more? FIXME
                     fin.close()
                     imol = get_ccp4srs_monomer_and_dictionary(tlc_symbol)
-                    if not valid_model_molecule_qm(imol):
+                    if not coot_utils.valid_model_molecule_qm(imol):
                         print("failed to get SBase molecule for", tlc_symbol)
                     else:
                         # it was read OK, do an overlap
-                        using_active_atom(overlap_ligands, imol,
+                        coot_utils.using_active_atom(overlap_ligands, imol,
                                           "aa_imol", "aa_chain_id", "aa_res_no")
                 except:
                     print("BL ERROR:: reading sbase file", sbase_to_coot_tlc)
@@ -607,13 +607,13 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
                 "XYZOUT", prodrg_output_pdb_file,
                 "LIBOUT", prodrg_output_lib_file]
     print("arg_list", arg_list)
-    status = popen_command(cprodrg,
+    status = coot_utils.popen_command(cprodrg,
                            arg_list,
                            ["COORDS BOTH", "MINI FLAT", "END"],
                            prodrg_log, True)
     # Does this make sense in python? status being number that is.
     # Maybe rather check for cprodrg exe. FIXME
-    if not isNumber(status):
+    if not coot_utils.isNumber(status):
         info_dialog("Ooops: cprodrg not found?")
         return False
     else:
@@ -645,7 +645,7 @@ def prodrg_plain(mode, imol_in, chain_id_in, res_no_in):
     prodrg_log    = stub + ".log"
 
     write_pdb_file(imol, prodrg_xyzinX)
-    result = popen_command(cprodrg,
+    result = coot_utils.popen_command(cprodrg,
                            ["XYZIN",  prodrg_xyzinX,
                             "XYZOUT", prodrg_xyzout,
                             "LIBOUT", prodrg_cif],
@@ -675,7 +675,7 @@ def fle_view(imol, chain_id, res_no, ins_code):
         aa_imol     = active_atom[0]
         aa_chain_id = active_atom[1]
         aa_res_no   = active_atom[2]
-        fle_view_internal(aa_imol, aa_chain_id, aa_res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+        fle_view_internal(aa_imol, aa_chain_id, aa_res_no, "",  # should be from active_atom!!     coot_utils.using_active_atom([[]])
                           imol_ligand_fragment,
                           prodrg_output_flat_mol_file_name,
                           prodrg_output_flat_pdb_file_name,
@@ -702,7 +702,7 @@ def fle_view(imol, chain_id, res_no, ins_code):
         #    else:
         #        subprocess.call("copy NUL " + lbg_ready, shell=True)
         #else:
-        #    popen_command("touch",
+        #    coot_utils.popen_command("touch",
         #                  [os.path.join("coot-ccp4",
         #                                ".coot-to-lbg-mol-ready")],
         #                  [],
@@ -730,7 +730,7 @@ def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
         prodrg_output_flat_pdb_file_name = r_flat[2]
         prodrg_output_cif_file_name      = r_flat[3]
         prodrg_output_3d_pdb_file_name   = r_plain[1]
-        fle_view_internal_to_png(imol, chain_id, res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+        fle_view_internal_to_png(imol, chain_id, res_no, "",  # should be from active_atom!!     coot_utils.using_active_atom([[]])
                                  imol_ligand_fragment,
                                  prodrg_output_flat_mol_file_name,
                                  prodrg_output_flat_pdb_file_name,

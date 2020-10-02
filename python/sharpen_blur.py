@@ -6,7 +6,7 @@ def sharpen_blur_map_gui():
 
     def on_ok_button_clicked(button, combobox, map_mol_list, entry_1, entry_2, check_button, check_button_for_refinement_map, window):
         print("click", button)
-        imol_map = get_option_menu_active_molecule(combobox, map_mol_list)
+        imol_map = coot_gui.get_option_menu_active_molecule(combobox, map_mol_list)
         t1 = entry_1.get_text()
         blur_factor = float(t1)
         if check_button.get_active():
@@ -51,7 +51,7 @@ def sharpen_blur_map_gui():
     ok_button    = gtk.Button(" Make Map ")
     cancel_button = gtk.Button(" Cancel ")
     h_sep = gtk.HSeparator()
-    map_mol_list = fill_option_menu_with_map_mol_options(combobox)
+    map_mol_list = coot_gui.fill_option_menu_with_map_mol_options(combobox)
     check_button = gtk.CheckButton("Resample")
     check_button_for_refinement_map = gtk.CheckButton("Make the new map the Refinement Map")
 
@@ -93,7 +93,7 @@ def sharpen_blur_map_gui():
 if False:
     if have_coot_python:
         if coot_python.main_menubar():
-            menu = coot_menubar_menu("Cryo-EM")
+            menu = coot_gui.coot_menubar_menu("Cryo-EM")
             if menu:
-                add_simple_coot_menu_menuitem(menu, "Sharpen/Blur Map",
+                coot_gui.add_simple_coot_menu_menuitem(menu, "Sharpen/Blur Map",
                                               lambda func: sharpen_blur_map_gui())

@@ -21,8 +21,8 @@ from redefine_functions import *
 
 def find_first_model_molecule():
 
-    for molecule in molecule_number_list():
-        if valid_model_molecule_qm(molecule):
+    for molecule in coot_utils.molecule_number_list():
+        if coot_utils.valid_model_molecule_qm(molecule):
            return molecule
 
 # Skip the residue in the next chain (typically of a molecule with
@@ -73,13 +73,13 @@ def skip_to_next_ncs_chain(direction):
   def get_chain_id_list(imol, this_chain_id):
       att = ncs_chain_ids(imol)
       if (not att):
-          return chain_ids(imol)
+          return coot_utils.chain_ids(imol)
       else:
           for attempt in att:
               if (this_chain_id in attempt):
                   return attempt
           # we havent found this_chain_id in ncs chains, so return all chains
-          return chain_ids(imol)
+          return coot_utils.chain_ids(imol)
 
   # First, what is imol? imol is the go to atom molecule
   imol = coot.go_to_atom_molecule_number()
@@ -221,7 +221,7 @@ def update_ncs_ghosts_by_local_sphere():
                                                           6)
                     sphere_residues = [active_residue_spec, near_residues]
                     for residue_spec in sphere_residues:
-                        res_no = residue_spec_to_res_no(residue_spec)
+                        res_no = res_spec_utils.residue_spec_to_res_no(residue_spec)
                         add_lsq_match(res_no, res_no, ghost_chain_id_list[0],
                                       res_no, res_no, chain_id, 1)
 
@@ -273,15 +273,15 @@ def ncs_ligand(imol_protein, ncs_master_chain_id,
                 return ghost[3]
         return False
 
-    chain_ids_from_ncs = ncs_chain_ids(imol_protein)
-    if chain_ids_from_ncs:
+    coot_utils.chain_ids_from_ncs = ncs_chain_ids(imol_protein)
+    if coot_utils.chain_ids_from_ncs:
         ligand_selection_string = "//" + chain_id_ligand + "/" + str(resno_ligand_start) + \
                                   "-" + str(resno_ligand_stop)
         imol_ligand_fragment = new_molecule_by_atom_selection(imol_ligand, ligand_selection_string)
         ghosts = ncs_ghosts(imol_protein)
-        for chain_ids in chain_ids_from_ncs:
+        for coot_utils.chain_ids in chain_ids_from_ncs:
             if (chain_ids[0] == ncs_master_chain_id):
-                peer_chains = chain_ids[1:len(chain_ids)]
+                peer_chains = coot_utils.chain_ids[1:len(chain_ids)]
                 candidate_name = "Candidate NCS-related ligand"
                 for chain_id_protein in peer_chains:
                     rtop = rtop_from_ghost_with_chain_id(ghosts, chain_id_protein)
@@ -290,7 +290,7 @@ def ncs_ligand(imol_protein, ncs_master_chain_id,
                         info_dialog("Opps - ncs-ligand: Missing ghost rt-op!")
                     else:
                         new_lig_mol = copy_molecule(imol_ligand_fragment)
-                        transform_coords_molecule(new_lig_mol, inverse_rtop(rtop))
+                        coot_utils.transform_coords_molecule(new_lig_mol, inverse_rtop(rtop))
                         set_molecule_name(new_lig_mol,
                                           str(new_lig_mol) +
                                           ": " +
@@ -299,18 +299,18 @@ def ncs_ligand(imol_protein, ncs_master_chain_id,
                                           chain_id_protein)
 
         def test_func(imol):
-            if (not valid_model_molecule_qm(imol)):
+            if (not coot_utils.valid_model_molecule_qm(imol)):
                 return False
             else:
                 name = molecule_name(imol)
                 if (candidate_name in name):
                     ls = [name]
-                    for i in molecule_centre(imol):
+                    for i in coot_utils.molecule_centre(imol):
                         ls.append(i)
                     return ls
                 else:
                     return False
-        molecules_matching_criteria(lambda imol: test_func(imol))     
+        fitting.molecules_matching_criteria(lambda imol: test_func(imol))     
                 
                 
                 

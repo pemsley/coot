@@ -22,10 +22,10 @@ import numbers
 def add_module_shelx():
     # we only have the menu if shelxl is in PATH (and if we have the
     # python menubar)
-    if not find_exe("shelxl", "PATH"):
+    if not coot_utils.find_exe("shelxl", "PATH"):
         info_dialog("WARNING:: Cannot find shelxl.\n\nSome SHELX plugin functions may not be working")
     if have_coot_python:
-        menu = coot_menubar_menu("SHELX")
+        menu = coot_gui.coot_menubar_menu("SHELX")
 
         def shelx_refine_func():
 
@@ -39,8 +39,8 @@ def add_module_shelx():
             h_sep = gtk.HSeparator()
 
             window.add(vbox)
-            option_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
-            entry = file_selector_entry(vbox, entry_hint_text)
+            option_menu_mol_list_pair = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text)
+            entry = coot_gui.file_selector_entry(vbox, entry_hint_text)
 
             def shelx_delete_event(*args):
                 window.destroy()
@@ -49,7 +49,7 @@ def add_module_shelx():
             def shelx_refine_go_funcn_event(*args):
                 import operator
                 txt = entry.get_text()
-                imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
+                imol = coot_gui.get_option_menu_active_molecule(*option_menu_mol_list_pair)
                 if (isinstance(imol, numbers.Number)):
                     editable_shelx_gui(imol, txt)
                 window.destroy()
@@ -64,7 +64,7 @@ def add_module_shelx():
             hbox.pack_start(cancel_button, True, False, 0)
             window.show_all()
 
-        add_simple_coot_menu_menuitem(
+        coot_gui.add_simple_coot_menu_menuitem(
             menu, "SHELXL Refine...",
             lambda func: shelx_refine_func())
 
@@ -76,7 +76,7 @@ def add_module_shelx():
 
             def shelx_read_go_funcn_event(*args):
                 file_name = entry.get_text()
-                read_shelx_project(file_name)
+                shelx.read_shelx_project(file_name)
                 window.destroy()
                 return False
 
@@ -87,7 +87,7 @@ def add_module_shelx():
             go_button = gtk.Button("  Read Project   ")
             cancel_button = gtk.Button("  Cancel   ")
 
-            entry = file_selector_entry(vbox, " Project Name: ")
+            entry = coot_gui.file_selector_entry(vbox, " Project Name: ")
 
             cancel_button.connect("clicked", shelx_delete_event)
             go_button.connect("clicked", shelx_read_go_funcn_event)
@@ -100,23 +100,23 @@ def add_module_shelx():
             vbox.pack_start(hbox, False, False, 0)
             window.show_all()
 
-        add_simple_coot_menu_menuitem(
+        coot_gui.add_simple_coot_menu_menuitem(
             menu, "Read SHELX Project...",
             lambda func: shelx_read_project_func())
 
 
-        add_simple_coot_menu_menuitem(
+        coot_gui.add_simple_coot_menu_menuitem(
             menu, "Read LST file...",
-            lambda func: generic_chooser_and_file_selector("Model Corresponding to LST file: ",
-                                                           valid_model_molecule_qm,
+            lambda func: coot_gui.generic_chooser_and_file_selector("Model Corresponding to LST file: ",
+                                                           coot_utils.valid_model_molecule_qm,
                                                            "LST file",
                                                            "",
-                                                           lambda imol, lst_file_name: read_shelx_lst_file(lst_file_name, imol)))
+                                                           lambda imol, lst_file_name: shelx.read_shelx_lst_file(lst_file_name, imol)))
 
 
-        add_simple_coot_menu_menuitem(
+        coot_gui.add_simple_coot_menu_menuitem(
             menu, "Add SHELXL instruction...",
-            lambda func: generic_chooser_and_entry("Add new SHELXL command to model:",
+            lambda func: coot_gui.generic_chooser_and_entry("Add new SHELXL command to model:",
                                                    "SHELX instruction:",
                                                    "",
                                                    lambda imol, text: add_shelx_string_to_molecule(imol, text)))
@@ -144,7 +144,7 @@ def shelxl_refine_gui(imol, hkl_file_name_maybe=False):
         import operator
         start, end = textbuffer.get_bounds()
         txt = textbuffer.get_text(start, end)
-        shelxl_refine_primitive(imol, txt, hkl_file_name_maybe)
+        shelx.shelxl_refine_primitive(imol, txt, hkl_file_name_maybe)
         window.destroy()
         return False
 
@@ -196,7 +196,7 @@ def editable_shelx_gui(imol, hklin_file_name):
             hklin_file_info = False
             if (len(hklin_file_name) > 0):
                 hklin_file_info = hklin_file_name
-            shelxl_refine_primitive(imol, txt, hklin_file_info)
+            shelx.shelxl_refine_primitive(imol, txt, hklin_file_info)
         window.destroy()
         return False
 

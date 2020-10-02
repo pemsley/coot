@@ -43,7 +43,7 @@ def brute_lsqman(pdb1_imol, pdb2_imol):
 
     write_pdb_file(pdb1_imol, "coot-tmp1.pdb")
     write_pdb_file(pdb2_imol, "coot-tmp2.pdb")
-    status = popen_command(lsqman_command, command_line_args, data_lines, 
+    status = coot_utils.popen_command(lsqman_command, command_line_args, data_lines, 
               lsqman_log, True)
     if (status == 0): # lsqman ran OK
         handle_read_draw_molecule(pdbout_filename)

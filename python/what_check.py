@@ -26,13 +26,13 @@ def go_to_residue_by_spec(imol, spec):
         return (len(spec) == 5)
 
     # main line
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     if (atom_spec_qm(spec)):
         atom_name = spec[3]
     else:
         atom_name = " CA "
 
-    set_go_to_atom_chain_residue_atom_name(spec[0],
+    coot_utils.set_go_to_atom_chain_residue_atom_name(spec[0],
                                            spec[1],
                                            atom_name)
 
@@ -104,7 +104,7 @@ def problem_residues2dialog(imol, problemed_res_list_list):
             #print "BL DEBUG:: returning button_list", ret
             return ret
 
-        dialog_box_of_pairs_of_buttons(imol,
+        coot_gui.dialog_box_of_pairs_of_buttons(imol,
                                        "What-Check Report",
                                        [270, 300],
                                        # buttons is a list of: [[button_1_label, button_1_action,],
@@ -129,7 +129,7 @@ def parse_check_db(imol, file_name, action):
                                       "")
 
     def my_rsr(imol_local, res_spec):
-        with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
+        coot_utils.with_auto_accept([refine_zone, imol_local, res_spec[0], res_spec[1],
                            res_spec[1], ""])
 
     #

@@ -6,66 +6,66 @@ def interactive_add_cho_dialog():
                                        aa_atom_name, aa_alt_conf, aa_res_spec]:
             refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
 
-    add_synthetic_pyranose_planes()
-    use_unimodal_pyranose_ring_torsions()
+    add_linked_cho.add_synthetic_pyranose_planes()
+    add_linked_cho.use_unimodal_pyranose_ring_torsions()
     # button list with [label, function]
     buttons = [
-        ["Update for Current Residue", lambda func: printf("dummy")],
+        ["Update for Current Residue", lambda func: coot_utils.printf("dummy")],
         ["Refine Tree", lambda func: refine_tree_func()],
         ["Add a NAG-ASN NAG",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN")],
         ["Add a BETA1-4 NAG",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4")],
         ["Add a BETA1-4 BMA",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4")],
         ["Add an ALPHA1-2 MAN",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2")],
         ["Add an ALPHA1-3 MAN",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3")],
         ["Add an ALPHA2-3 MAN",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3")],
         ["Add an ALPHA2-3 GAL",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3")],
         ["Add an ALPHA1-6 MAN",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6")],
         ["Add a BETA1-2 NAG",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-2")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-2")],
         ["Add a BETA1-4 GAL",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("GAL", "BETA1-4")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("GAL", "BETA1-4")],
         ["Add an ALPHA1-2 FUC",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-2")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-2")],
         ["Add an ALPHA1-3 FUC",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3")],
         ["Add an ALPHA1-6 FUC",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6")],
         ["Add an BETA1-6 FUL",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("FUL", "BETA1-6")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUL", "BETA1-6")],
         ["Add an XYP-BMA XYP",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA")],
         ["Add an ALPHA2-3 SIA",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-3")],
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-3")],
         ["Add an ALPHA2-6 SIA",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-6")]
+         add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-6")]
     ]
 
-    vbox = dialog_box_of_buttons("Add N-linked Glycan",
+    vbox = coot_gui.dialog_box_of_buttons("Add N-linked Glycan",
                                  [420, 600], buttons, "Close")[0]
     gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
     # set the callback on the first button
@@ -457,8 +457,8 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
 #
 def glyco_validation_dialog_set_go_to_residue(imol, residue_spec):
     rc = residue_centre(imol,
-                        residue_spec_to_chain_id(residue_spec),
-                        residue_spec_to_res_no(residue_spec),
+                        res_spec_utils.residue_spec_to_chain_id(residue_spec),
+                        res_spec_utils.residue_spec_to_res_no(residue_spec),
                         '')
     set_rotation_centre(*rc)
 
@@ -474,14 +474,14 @@ class glyco_validate:
             args = ['-mtzin', hklin_fn, '-colin-fo', fp_col+','+sigfp_col,
                     '-pdbin', pdbin_fn]
             # using'-mode', 'ccp4i2' makes a file with no residue nambers (afaics)
-            popen_command("privateer", args, [], privateer_log, False)
+            coot_utils.popen_command("privateer", args, [], privateer_log, False)
 
     def make_privateer_validation_info(self, imol, fp_col, sigfp_col, glyco_tree_residues):
 
         imol_map = imol_refinement_map()
 
         if len(glyco_tree_residues) > 0:
-            d = get_directory("coot-ccp4")
+            d = coot_utils.get_directory("coot-ccp4")
             spid = str(os.getpid())
             fn_pdb = "coot-privateer-" + spid + ".pdb"
             fn_log = "coot-privateer-" + spid + ".log"
@@ -514,7 +514,7 @@ class glyco_validate:
                         for r in glyco_tree_residues:
                             rn = residue_name_by_spec(imol, r)
                             try:
-                                res_id = rn + "-" + residue_spec_to_chain_id(r) + \
+                                res_id = rn + "-" + res_spec_utils.residue_spec_to_chain_id(r) + \
                                          '-' + str(residue_spec_to_res_no(r))
                                 # print "res_id", res_id
                                 if words[1] == res_id:
@@ -546,7 +546,7 @@ class glyco_validate:
         if len(buttons) > 0:
             button = ["Load Privateer Dictionary", "load_privateer_dictionary()"]
             buttons.append(button)
-            dialog_box_of_buttons("Privateer Validation", (400, 220), buttons, " Close ")
+            coot_gui.dialog_box_of_buttons("Privateer Validation", (400, 220), buttons, " Close ")
 
     def validation_dialog(self):
         
@@ -583,7 +583,7 @@ class glyco_validate:
             print("test", res_info)
             res_status = res_info[1][12]
             if res_status == 'check' or res_status == 'no':
-                delete_residue_by_spec(imol, res_info[0])
+                coot_utils.delete_residue_by_spec(imol, res_info[0])
 
     def auto_delete_residues(self):
         try:
@@ -601,9 +601,9 @@ class glyco_validate:
 def add_module_carbohydrate_gui():
     if (have_coot_python):
         if coot_python.main_menubar():
-            menu = coot_menubar_menu("Glyco")
+            menu = coot_gui.coot_menubar_menu("Glyco")
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "N-linked Glycan Addition...",
                 lambda func:
                 interactive_add_cho_dialog())
@@ -611,7 +611,7 @@ def add_module_carbohydrate_gui():
             def add_multi_carbo_link_func(link_list):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    multi_add_linked_residue(aa_imol,
+                    add_linked_cho.multi_add_linked_residue(aa_imol,
                                              [aa_chain_id, aa_res_no, aa_ins_code],
                                              link_list)
 
@@ -625,90 +625,90 @@ def add_module_carbohydrate_gui():
                     # BL says:: why not do a new mol by sphere selection?!
                     m = median_temperature_factor(imol_region)
                     close_molecule(imol_region)
-                    if isNumber(m):
+                    if coot_utils.isNumber(m):
                         new_m = m* 1.55
                         set_default_temperature_factor_for_new_atoms(new_m)
                         s = "New Temperature Factor set to " + str(new_m)
                         info_dialog(s)
                 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Set Default N-linked CHO Atoms B-factor",
                 lambda func: set_default_cho_b_factor_func()
             )
 
             
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "N-link add NAG, NAG, BMA",
                 lambda func: add_multi_carbo_link_func([["NAG", "NAG-ASN"],
                                                         ["NAG", "BETA1-4"],
                                                         ["BMA", "BETA1-4"]]))
             
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add a ASN-NAG NAG",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN"))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add a BETA1-4 NAG",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4"))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add a BETA1-4 BMA",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4"))
             
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA1-2 MAN",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2"))
             
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA1-3 MAN",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3"))
 
             # we should do this only if we are sitting on an SIA.
             # Attaching a SIA to a MAN (i.e. reverse order) would be a
             # good test too...
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA2-3 MAN",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3"))
 
             # # same consideration as above
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA2-3 GAL",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3"))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA1-6 MAN",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6"))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA1-3 FUC",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3"))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an ALPHA1-6 FUC",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6"))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Add an XYP-BMA XYP",
             #     lambda func:
-            #     add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA"))
+            #     add_linked_cho.add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA"))
 
 
             # the mode in the function call now takes take of this
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Auto Fit & Refine On for Link Addition",
             #     lambda func: set_add_linked_residue_do_fit_and_refine(1))
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Auto Fit & Refine Off for Link Addition",
             #     lambda func: set_add_linked_residue_do_fit_and_refine(0))
 
@@ -717,34 +717,34 @@ def add_module_carbohydrate_gui():
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     make_backup(aa_imol)
                     # switch backup off?!
-                    add_linked_residue_tree(aa_imol,
+                    add_linked_cho.add_linked_residue_tree(aa_imol,
                                             [aa_chain_id, aa_res_no, aa_ins_code],
                                             oligo_tree)
                 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add High Mannose",
                 lambda func: add_oligo_tree_func(oligomannose_tree()))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add Hybrid (Mammal)",
                 lambda func: add_oligo_tree_func(hybrid_mammal_tree()))
             
 #            in practice, no one will be doing this. 
-#            add_simple_coot_menu_menuitem(
+#            coot_gui.add_simple_coot_menu_menuitem(
 #                menu, "Add Hybrid (Plant)",
 #                lambda func: add_oligo_tree_func(hybrid_plant_derived_tree()))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add Complex (Mammal)",
                 lambda func: add_oligo_tree_func(complex_mammal_tree()))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add Complex (Plant)",
                 lambda func: add_oligo_tree_func(complex_plant_tree()))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Delete All Carbohydrate",
-                lambda func: delete_all_cho())
+                lambda func: add_linked_cho.delete_all_cho())
 
             def torsion_fit_this_func(refine = False):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -768,27 +768,27 @@ def add_module_carbohydrate_gui():
                         with AutoAccept():
                             refine_residues(aa_imol, [centre_residue])
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Torsion Fit this residue",
                 lambda func: torsion_fit_this_func())
 
-            # add_simple_coot_menu_menuitem(
+            # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Torsion Fit This Residue and Neighbours",
             #     lambda func: torsion_fit_this_and_neighbours_func())
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Torsion Fit & Refine this residue",
                 lambda func: torsion_fit_this_func(True))
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add synthetic pyranose plane restraints",
-                lambda func: add_synthetic_pyranose_planes())
+                lambda func: add_linked_cho.add_synthetic_pyranose_planes())
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Use Unimodal ring torsion restraints",
-                lambda func: use_unimodal_pyranose_ring_torsions())
+                lambda func: add_linked_cho.use_unimodal_pyranose_ring_torsions())
 
-            add_simple_coot_menu_menuitem(
+            coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Extract this Tree",
                 lambda func:
-                new_molecule_from_this_glyco_tree())
+                add_linked_cho.new_molecule_from_this_glyco_tree())

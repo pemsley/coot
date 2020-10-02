@@ -1,17 +1,17 @@
 
-add_key_binding("Refine Active Residue", "r", lambda: manual_refine_residues(0))
-add_key_binding("Refine Active Residue AA", "x", lambda: refine_active_residue())
-add_key_binding("Triple Refine", "t", lambda: manual_refine_residues(1))
-add_key_binding("Autofit Rotamer", "j", lambda: auto_fit_rotamer_active_residue())
-add_key_binding("Pepflip", "q", lambda: pepflip_active_residue())
+add_key_binding("Refine Active Residue", "r", lambda: fitting.manual_refine_residues(0))
+add_key_binding("Refine Active Residue AA", "x", lambda: fitting.refine_active_residue())
+add_key_binding("Triple Refine", "t", lambda: fitting.manual_refine_residues(1))
+add_key_binding("Autofit Rotamer", "j", lambda: fitting.auto_fit_rotamer_active_residue())
+add_key_binding("Pepflip", "q", lambda: fitting.pepflip_active_residue())
 add_key_binding("Go To Blob", "g", lambda: blob_under_pointer_to_screen_centre())
-add_key_binding("Eigen-flip Ligand", "e", lambda: flip_active_ligand())
+add_key_binding("Eigen-flip Ligand", "e", lambda: coot_utils.flip_active_ligand())
 add_key_binding("Add Water", "w", lambda: place_typed_atom_at_pointer("Water"))
 
 def add_water_in_blob():
     blob_under_pointer_to_screen_centre()
     place_typed_atom_at_pointer("Water")
-    refine_active_residue()
+    fitting.refine_active_residue()
 add_key_binding("Add Water +", "W", lambda: add_water_in_blob())
 
 def key_binding_func_1():
@@ -81,10 +81,10 @@ add_key_binding("Rotamer name in Status Bar", "~", lambda: key_binding_func_5())
 
 refine_residue_sphere_radius_key = 4.5  # Angstroms
 add_key_binding("Refine residue in a sphere", "R",
-                lambda: sphere_refine(refine_residue_sphere_radius_key))
+                lambda: fitting.sphere_refine(refine_residue_sphere_radius_key))
 
 def key_binding_func_21():
-    if not valid_map_molecule_qm(imol_refinement_map()):
+    if not coot_utils.valid_map_molecule_qm(imol_refinement_map()):
         info_dialog("Must set the refinement map")
     else:
         # not using active atom
@@ -101,11 +101,11 @@ def key_binding_func_21():
 
             rc_spec = [chain_id, res_no, ins_code]
             ls = residues_near_residue(imol, rc_spec, 1.9)
-            with_auto_accept([refine_residues, imol, [rc_spec] + ls])
+            coot_utils.with_auto_accept([refine_residues, imol, [rc_spec] + ls])
 add_key_binding("Neighbours Refine", "h", lambda: key_binding_func_21())
 
 add_key_binding("Regularize Residues in sphere", "B",
-                lambda: sphere_regularize(refine_residue_sphere_radius_key))
+                lambda: fitting.sphere_regularize(refine_residue_sphere_radius_key))
 
 def edit_chi_angles_key_func():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -118,7 +118,7 @@ add_key_binding("Edit Chi Angles", "X", lambda: edit_chi_angles_key_func())
 
 # BL says:: I like to keep edit chi, so use "Y" for something potentially
 # more useful (according to Paule)
-add_key_binding("Just One or Next Map", "Y", lambda: just_one_or_next_map())
+add_key_binding("Just One or Next Map", "Y", lambda: coot_utils.just_one_or_next_map())
 
 def jiggle_fit_residue_key():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -128,7 +128,7 @@ def jiggle_fit_residue_key():
 add_key_binding("Jiggle Fit Residue", "J", lambda: jiggle_fit_residue_key())
 
 def step_scrollable_map_number():
-    maps = map_molecule_list()
+    maps = coot_utils.map_molecule_list()
     current = scroll_wheel_map()
     if maps:
         l = maps.index(current)
@@ -182,5 +182,5 @@ add_key_binding("JED-Flip", "F", lambda: jed_flip_key_func(0))
 add_key_binding("Reverse JED-Flip", "G", lambda: jed_flip_key_func(1))
 
 # Paul's not sure about this one. I likey!
-# add_key_binding("Delete this water", "D", lambda: delete_atom(*active_residue()))
+# coot_utils.add_key_binding("Delete this water", "D", lambda: delete_atom(*active_residue()))
 

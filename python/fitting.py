@@ -35,7 +35,7 @@ import coot_utils
 #
 def fit_protein(imol, rotamer_only=False, animate=True):
 
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     make_backup(imol) # do a backup first
     backup_mode = backup_state(imol)
     imol_map  = coot.imol_refinement_map()
@@ -48,8 +48,8 @@ def fit_protein(imol, rotamer_only=False, animate=True):
         turn_off_backup(imol)
         set_refinement_immediate_replacement(1)
           
-        for chain_id in chain_ids(imol):
-         if (not is_solvent_chain_qm(imol,chain_id)):
+        for chain_id in coot_utils.chain_ids(imol):
+         if (not coot_utils.is_solvent_chain_qm(imol,chain_id)):
              n_residues = chain_n_residues(chain_id,imol)
              print("There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id})
                
@@ -63,9 +63,9 @@ def fit_protein(imol, rotamer_only=False, animate=True):
                 if (ins_code is not None):
                     if (len(res_atoms) > 3):
                     #if (not res_name=="HOH"): not needed if only refining 3 or  more atoms
-                        for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+                        for alt_conf in coot_utils.residue_alt_confs(imol, chain_id, res_no, ins_code):
                             print("centering on ",chain_id,res_no," CA")
-                            set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
+                            coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
                             if animate:
                                 rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
                             if (alt_conf == ""):
@@ -116,11 +116,11 @@ multi_refine_separator = False
 #
 def fit_protein_make_specs(imol, chain_specifier):
     from types import StringType
-    if (not valid_model_molecule_qm(imol)):
+    if (not coot_utils.valid_model_molecule_qm(imol)):
         return []
     else:
         if (chain_specifier == 'all-chains'):
-            chain_list = chain_ids(imol)
+            chain_list = coot_utils.chain_ids(imol)
         elif (type(chain_specifier) == StringType):
             chain_list = [chain_specifier]
         else:
@@ -145,7 +145,7 @@ def fit_protein_make_specs(imol, chain_specifier):
     
 def fit_protein_make_specs_from_residue_range(imol, chain_id,
                                               res_no_start, res_no_end):
-    if valid_model_molecule_qm(imol):
+    if coot_utils.valid_model_molecule_qm(imol):
         if res_no_end > res_no_start:
             ret = [[chain_id, res_no, ""] for res_no in range(res_no_start, res_no_end + 1 )]
             return ret
@@ -162,9 +162,9 @@ def fit_protein_fit_function(res_spec, imol_map):
     res_name = residue_name(imol, chain_id, res_no, ins_code)
     if isinstance(res_name, str):
         if (res_name != "HOH"):
-            for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+            for alt_conf in coot_utils.residue_alt_confs(imol, chain_id, res_no, ins_code):
                 print("centering on", chain_id, res_no, "CA")
-                set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+                coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
                 rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)        
                 res_atoms = residue_info(imol, chain_id, res_no, ins_code)
                 if (len(res_atoms) > 3):
@@ -189,13 +189,13 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     ins_code = res_spec[3]
     current_rama_state = refine_ramachandran_angles_state()
     
-    for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
+    for alt_conf in coot_utils.residue_alt_confs(imol, chain_id, res_no, ins_code):
         if use_rama:
             set_refine_ramachandran_angles(1)
         res_name = residue_name(imol, chain_id, res_no, ins_code)
         if (not res_name == "HOH"):
             print("centering on", chain_id, res_no, "CA")
-            set_go_to_atom_chain_residue_atom_name_full(chain_id, res_no,
+            coot_utils.set_go_to_atom_chain_residue_atom_name_full(chain_id, res_no,
                                                         ins_code, "CA",
                                                         alt_conf)
             rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
@@ -227,8 +227,8 @@ def interruptible_fit_protein(imol, func):
         # lets make a backup before we start
         make_backup(imol)
         
-        multi_refine_separator = add_coot_toolbar_separator()
-        multi_refine_stop_button = coot_toolbar_button("Stop",
+        multi_refine_separator = coot_toolbuttons.add_coot_toolbar_separator()
+        multi_refine_stop_button = coot_gui.coot_toolbar_button("Stop",
                                                        "stop_interruptible_fit_protein()"
                                                        , "gtk-stop")
         multi_refine_spec_list = specs
@@ -257,7 +257,7 @@ def interruptible_fit_protein(imol, func):
                 return False
         gobject.idle_add(idle_func)
         multi_refine_idle_proc = idle_func
-        set_go_to_atom_molecule(imol)
+        coot_utils.set_go_to_atom_molecule(imol)
 
 # this will stop the currently running interuptible fit protein function
 #
@@ -269,10 +269,10 @@ def stop_interruptible_fit_protein():
     
     continue_multi_refine = False
 
-    multi_refine_cancel_button = coot_toolbar_button("Cancel",
+    multi_refine_cancel_button = coot_gui.coot_toolbar_button("Cancel",
                                                      "cancel_interruptible_fit_protein()",
                                                      "gtk-cancel")
-    multi_refine_continue_button = coot_toolbar_button("Continue",
+    multi_refine_continue_button = coot_gui.coot_toolbar_button("Continue",
                                                      "continue_interruptible_fit_protein()",
                                                      "gtk-apply")
     
@@ -346,7 +346,7 @@ def fit_chain(imol, chain_id):
                if (len(res_atoms) > 3):  # actually then we dont need the water check any more?!
                    #if (not res_name == "HOH"):
                        print("centering on ", chain_id, res_no, " CA")
-                       set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
+                       coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
                        auto_fit_best_rotamer(res_no, alt_conf, ins_code,
                                              chain_id, imol, imol_map, 1, 0.1)
                        if (imol_map >= 1):
@@ -375,9 +375,9 @@ def fit_residue_range(imol, chain_id, resno_start, resno_end):
     else:
        n_residues = chain_n_residues(chain_id,imol)
        ins_code = ""
-       for res_no in number_list(resno_start, resno_end):
+       for res_no in coot_utils.number_list(resno_start, resno_end):
            print("centering on ", chain_id, res_no, " CA")
-           set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+           coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
            res_atoms = residue_info(imol, chain_id, res_no, ins_code)
            if (len(res_atoms) > 3):
                auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id,
@@ -413,10 +413,10 @@ def fit_waters(imol, animate_qm = False):
 
         turn_off_backup(imol)
         set_refinement_immediate_replacement(1)
-        set_go_to_atom_molecule(imol)
+        coot_utils.set_go_to_atom_molecule(imol)
 
         # refine waters
-        for chain_id in chain_ids(imol):
+        for chain_id in coot_utils.chain_ids(imol):
             if (is_solvent_chain_qm(imol, chain_id)):
                 n_residues = chain_n_residues(chain_id, imol)
                 print("There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id})
@@ -427,7 +427,7 @@ def fit_waters(imol, animate_qm = False):
                         if not res_info == []:
                             atom = res_info[0]
                             atom_name = atom[0]
-                            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
+                            coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, atom_name)
                             refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                             rotate_y_scene(30, 0.6)	# n-frames frame-interval(degrees)
                     else:
@@ -483,12 +483,12 @@ def stepped_refine_protein(imol, res_step = 2):
     from types import IntType
 
     imol_map = coot.imol_refinement_map()
-    if (not valid_map_molecule_qm(imol_map)):            
+    if (not coot_utils.valid_map_molecule_qm(imol_map)):            
         info_dialog("Oops, must set map to refine to")
     else:
         def refine_func(chain_id, res_no):
             #print "centering on ",chain_id,res_no," CA"
-            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+            coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
             rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
             refine_auto_range(imol, chain_id, res_no, "")
             accept_regularizement()
@@ -501,12 +501,12 @@ def stepped_refine_protein(imol, res_step = 2):
 def stepped_refine_protein_for_rama(imol):
 
     imol_map = coot.imol_refinement_map()
-    if (not valid_map_molecule_qm(imol_map)):
+    if (not coot_utils.valid_map_molecule_qm(imol_map)):
         info_dialog("Oops, must set map to refine to")
     else:
         current_rama_state  = refine_ramachandran_angles_state()
         def refine_func(chain_id, res_no):
-            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+            coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
             refine_auto_range(imol, chain_id, res_no, "")
             accept_regularizement()
 
@@ -517,7 +517,7 @@ def stepped_refine_protein_for_rama(imol):
 #
 def stepped_refine_protein_with_refine_func(imol, refine_func, res_step):
 
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     make_backup(imol)
     backup_mode = backup_state(imol)
     alt_conf = ""
@@ -537,7 +537,7 @@ def stepped_refine_protein_with_refine_func(imol, refine_func, res_step):
         else:
             set_refine_auto_range_step(int(res_step / 2))
 
-        for chain_id in chain_ids(imol):
+        for chain_id in coot_utils.chain_ids(imol):
             n_residues = chain_n_residues(chain_id,imol)
             print("There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id})
             
@@ -567,7 +567,7 @@ def post_ligand_fit_gui():
           if "Fitted ligand" in name:
              list = [name]
              # BL says: I think there must be a cleverer way!
-             for i in molecule_centre(imol):
+             for i in coot_utils.molecule_centre(imol):
                 list.append(i)
              return list
           else:
@@ -595,7 +595,7 @@ def molecules_matching_criteria(test_func):
         # is greater than 0.
 
         passed_molecules = []
-        for molecule_numbers in molecule_number_list():
+        for molecule_numbers in coot_utils.molecule_number_list():
 
             if (test_func(molecule_numbers)):
                passed_molecules.append(molecule_numbers)
@@ -610,7 +610,7 @@ def molecules_matching_criteria(test_func):
            def centre_on_mol(widget, imol, name):
                s = "Centred on " + name
                add_status_bar_text(s)
-               centre = molecule_centre(imol)
+               centre = coot_utils.molecule_centre(imol)
                set_rotation_centre(*centre)
 
            window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -743,33 +743,33 @@ def sphere_refine_regularize_generic(use_map=True, radius=3, expand=False):
             alt_conf  = active_atom[5]
             centred_residue = active_atom[1:4]
             other_residues = coot.residues_near_residue_py(imol, centred_residue, radius)
-            all_residues = [centred_residue]
-            all_residues += other_residues
+            coot_utils.all_residues = [centred_residue]
+            coot_utils.all_residues += other_residues
 
             # extend?
             if expand:
-                print("in sphere_refine_regularize_generic, all_residues is", all_residues)
-                all_residues.sort()
-                tmp_ls = all_residues[:]
+                print("in sphere_refine_regularize_generic, coot_utils.all_residues is", all_residues)
+                coot_utils.all_residues.sort()
+                tmp_ls = coot_utils.all_residues[:]
                 for res in tmp_ls:
                     before_res = res[:]
                     after_res = res[:]
                     before_res[1] = before_res[1]-1
                     after_res[1] = after_res[1]+1
-                    if not before_res in all_residues:
-                        all_residues.append(before_res)
-                    if not after_res in all_residues:
-                        all_residues.append(after_res)
-                all_residues.sort()  # not needed
+                    if not before_res in coot_utils.all_residues:
+                        coot_utils.all_residues.append(before_res)
+                    if not after_res in coot_utils.all_residues:
+                        coot_utils.all_residues.append(after_res)
+                coot_utils.all_residues.sort()  # not needed
 
-            print("imol: %s residues: %s" %(imol, all_residues))
+            print("imol: %s residues: %s" %(imol, coot_utils.all_residues))
             if use_map:
                 # don't use 'soft-mode/hard-mode' at the moment
                 # (not sure how to integrate weight change into dragged refinement)
-                coot.refine_residues_with_modes_with_alt_conf_py(imol, all_residues, "",
+                coot.refine_residues_with_modes_with_alt_conf_py(imol, coot_utils.all_residues, "",
                                                                  '#soft-mode/hard-mode', False, False)
             else:
-                coot.regularize_residues_py(imol, all_residues)
+                coot.regularize_residues_py(imol, coot_utils.all_residues)
         
 # Sphere refinement (around radius)
 #
@@ -872,16 +872,16 @@ def add_extra_restraints_to_other_molecule(imol, chain_id,
 def add_extra_start_pos_restraints(imol, residue_spec, esd):
 
     ri = residue_info(imol,
-                      residue_spec_to_chain_id(residue_spec),
-                      residue_spec_to_res_no(residue_spec),
-                      residue_spec_to_ins_code(residue_spec))
+                      res_spec_utils.residue_spec_to_chain_id(residue_spec),
+                      res_spec_utils.residue_spec_to_res_no(residue_spec),
+                      coot_utils.residue_spec_to_ins_code(residue_spec))
     for atom_info in ri:
-        atom_name = residue_atom2atom_name(atom_info)
-        alt_conf  = residue_atom2alt_conf(atom_info)
+        atom_name = coot_utils.residue_atom2atom_name(atom_info)
+        alt_conf  = coot_utils.residue_atom2alt_conf(atom_info)
         add_extra_start_pos_restraint(imol,
-                                      residue_spec_to_chain_id(residue_spec),
-                                      residue_spec_to_res_no(residue_spec),
-                                      residue_spec_to_ins_code(residue_spec),
+                                      res_spec_utils.residue_spec_to_chain_id(residue_spec),
+                                      res_spec_utils.residue_spec_to_res_no(residue_spec),
+                                      coot_utils.residue_spec_to_ins_code(residue_spec),
                                       atom_name, alt_conf, esd)
 
         

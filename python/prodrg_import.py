@@ -38,7 +38,7 @@ sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
 # this is for BL win machine
 home = os.getenv("HOME")
-if (not home and is_windows()):
+if (not home and coot_utils.is_windows()):
     home = os.getenv("COOT_HOME")
 if home:
     prodrg_xyzin      = os.path.join(home, "Projects",
@@ -93,7 +93,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
         if (not restraints):
             return False
         else:
-            if not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
+            if not coot_utils.residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, ""):
                 return False
             else:
                 print "----------- overlap-ligands %s %s %s %s ------------" \
@@ -170,7 +170,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
         # we have an active residue to match to
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf]:
-            if not residue_is_close_to_screen_centre_qm(
+            if not coot_utils.residue_is_close_to_screen_centre_qm(
                 aa_imol, aa_chain_id, aa_res_no, ""):
 
                 # not close, no overlap
@@ -226,10 +226,10 @@ def import_from_prodrg(minimize_mode, res_name):
     mini_mode = "NO" if (minimize_mode == 'mini-no') else "PREP"
     # see if we have cprodrg
     if not (os.path.isfile(cprodrg) or
-            command_in_path_qm(cprodrg)):
+            coot_utils.command_in_path_qm(cprodrg)):
         info_dialog("BL INFO:: No cprodrg found")
     else:
-        status = popen_command(cprodrg,
+        status = coot_utils.popen_command(cprodrg,
                                ["XYZIN",  prodrg_xyzin,
                                 "XYZOUT", prodrg_xyzout,
                                 "LIBOUT", prodrg_cif],
@@ -278,11 +278,11 @@ def mdl_update_timeout_func():
                     tlc_symbol = fin.readline()  # need to read more? FIXME
                     fin.close()
                     imol = get_ccp4srs_monomer_and_dictionary(tlc_symbol)
-                    if not valid_model_molecule_qm(imol):
+                    if not coot_utils.valid_model_molecule_qm(imol):
                         print "failed to get SBase molecule for", tlc_symbol
                     else:
                         # it was read OK, do an overlap
-                        using_active_atom(overlap_ligands, imol,
+                        coot_utils.using_active_atom(overlap_ligands, imol,
                                           "aa_imol", "aa_chain_id", "aa_res_no")
                 except:
                     print "BL ERROR:: reading sbase file", sbase_to_coot_tlc
@@ -346,7 +346,7 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
                 "XYZOUT", prodrg_output_pdb_file,
                 "LIBOUT", prodrg_output_lib_file]
     print "arg_list", arg_list
-    status = popen_command(cprodrg,
+    status = coot_utils.popen_command(cprodrg,
                            arg_list,
                            ["COORDS BOTH", "MINI FLAT", "END"],
                            prodrg_log, True)
@@ -382,7 +382,7 @@ def prodrg_plain(mode, imol_in, chain_id_in, res_no_in):
     prodrg_log    = stub + ".log"
 
     write_pdb_file(imol, prodrg_xyzin)
-    result = popen_command(cprodrg,
+    result = coot_utils.popen_command(cprodrg,
                            ["XYZIN",  prodrg_xyzin,
                             "XYZOUT", prodrg_xyzout,
                             "LIBOUT", prodrg_cif],
@@ -412,7 +412,7 @@ def fle_view(imol, chain_id, res_no, ins_code):
         aa_imol     = active_atom[0]
         aa_chain_id = active_atom[1]
         aa_res_no   = active_atom[2]
-        fle_view_internal(aa_imol, aa_chain_id, aa_res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+        fle_view_internal(aa_imol, aa_chain_id, aa_res_no, "",  # should be from active_atom!!     coot_utils.using_active_atom([[]])
                           imol_ligand_fragment,
                           prodrg_output_flat_mol_file_name,
                           prodrg_output_flat_pdb_file_name,
@@ -439,7 +439,7 @@ def fle_view(imol, chain_id, res_no, ins_code):
         #    else:
         #        subprocess.call("copy NUL " + lbg_ready, shell=True)
         #else:
-        #    popen_command("touch",
+        #    coot_utils.popen_command("touch",
         #                  [os.path.join("coot-ccp4",
         #                                ".coot-to-lbg-mol-ready")],
         #                  [],
@@ -467,7 +467,7 @@ def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
         prodrg_output_flat_pdb_file_name = r_flat[2]
         prodrg_output_cif_file_name      = r_flat[3]
         prodrg_output_3d_pdb_file_name   = r_plain[1]
-        fle_view_internal_to_png(imol, chain_id, res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+        fle_view_internal_to_png(imol, chain_id, res_no, "",  # should be from active_atom!!     coot_utils.using_active_atom([[]])
                                  imol_ligand_fragment,
                                  prodrg_output_flat_mol_file_name,
                                  prodrg_output_flat_pdb_file_name,

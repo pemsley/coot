@@ -70,12 +70,12 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
                     return False
                 else:
                     return [[residue_spec_to_chain_id(residue_spec),
-                             residue_spec_to_res_no(residue_spec),
-                             residue_spec_to_ins_code(residue_spec),
+                             res_spec_utils.residue_spec_to_res_no(residue_spec),
+                             coot_utils.residue_spec_to_ins_code(residue_spec),
                              at_name_1, ""],
                             [residue_spec_to_chain_id(parent_residue_spec),
-                             residue_spec_to_res_no(parent_residue_spec),
-                             residue_spec_to_ins_code(parent_residue_spec),
+                             res_spec_utils.residue_spec_to_res_no(parent_residue_spec),
+                             coot_utils.residue_spec_to_ins_code(parent_residue_spec),
                              at_name_2, ""],
                             mean, cho_geman_mcclure_sigma_scale]
 
@@ -130,7 +130,7 @@ def add_cho_restraints_for_residue_with_id(imol, residue_spec, glyco_id):
 def test_get_cho_restraints(imol):
     raw_carbo_tree_list = []
 
-    for chain_id in chain_ids(imol):
+    for chain_id in coot_utils.chain_ids(imol):
         for res_serial in range(chain_n_residues(chain_id, imol)):
             res_no = seqnum_from_serial_number(imol, chain_id, res_serial)
             rn = residue_name(imol, chain_id, res_no, "")

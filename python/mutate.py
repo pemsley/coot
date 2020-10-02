@@ -64,7 +64,7 @@ def multi_mutate(mutate_function, imol, start_res_no, chain_id, sequence):
 #
 def mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, sequence):
 
-   if is_nucleotide_chain_qm(imol, chain_id):
+   if coot_utils.is_nucleotide_chain_qm(imol, chain_id):
       mutate_nucleotide_range(imol, chain_id,
                               start_res_no, stop_res_no, sequence)
    else:
@@ -108,7 +108,7 @@ def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
           score = auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
                                         imol, mol_for_map, clash, 0.5)
           print("   Best score: ", score)
-#          number_list(start_res_no,stop_res_no)
+#          coot_utils.number_list(start_res_no,stop_res_no)
        if (backup_mode == 1) :
            turn_on_backup(imol)
    else:
@@ -247,7 +247,7 @@ def poly_ala(imol, res_type = False):
       else:
          single_letter_code = "A"
 
-      for chain_id in chain_ids(imol):
+      for chain_id in coot_utils.chain_ids(imol):
          n_residues = chain_n_residues(chain_id,imol)
          for serial_number in range(n_residues):
             mutate_single_residue_by_serial_number(serial_number,
@@ -268,7 +268,7 @@ def delete_sidechain_range(imol, chain_id, resno_start, resno_end):
    make_backup(imol)
    backup_mode = backup_state(imol)
    turn_off_backup(imol)
-   for resno in number_list(resno_start,resno_end):
+   for resno in coot_utils.number_list(resno_start,resno_end):
       delete_residue_sidechain(imol, chain_id, resno, "", 0)
    if (backup_mode == 1):
       turn_on_backup(imol)

@@ -146,12 +146,12 @@ def bones_it(map_file_name):
                   "5",
                   "quit"]
 
-    popen_command(mapman_exe, [], data_lines, "coot-mapman.log", True)
+    coot_utils.popen_command(mapman_exe, [], data_lines, "coot-mapman.log", True)
     # now read in bones_file
     generic_object_from_bones(bones_file)
 
 # add a menu item:
-menu = coot_menubar_menu("Mapman")
+menu = coot_gui.coot_menubar_menu("Mapman")
 
 def bonesing_func(imol):
     print("bonesing", imol)
@@ -163,7 +163,7 @@ def bonesing_func(imol):
         os.remove("tmp.map")
 
 add_simple_coot_menu_menuitem(menu, "Mapman Bones...",
-                              lambda func: map_molecule_chooser_gui("Map to Bonesify:",
+                              lambda func: coot_gui.map_molecule_chooser_gui("Map to Bonesify:",
                                                        lambda imol: bonesing_func(imol)))
 
 #generic_object_from_bones("my.bones")

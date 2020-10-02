@@ -32,7 +32,7 @@ def use_unimodal_pyranose_ring_torsions():
 def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
     "---------------- multi-add-linked-residue", imol, res_spec
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     wm = matrix_state()
     set_matrix(wm/4.)
 
@@ -42,7 +42,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
 
     for residue_to_add in residues_to_add:
 
-        set_go_to_atom_from_res_spec(current_residue_spec)
+        coot_utils.set_go_to_atom_from_res_spec(current_residue_spec)
         set_dragged_refinement_steps_per_frame(300)
 
         if (not isinstance(current_residue_spec, list)):
@@ -61,9 +61,9 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                     new_link = residue_to_add[1]
 
                     new_res_spec = add_linked_residue(imol,
-                                                      res_spec_to_chain_id(current_residue_spec),
-                                                      res_spec_to_res_no(current_residue_spec),
-                                                      res_spec_to_ins_code(current_residue_spec),
+                                                      coot_utils.res_spec_to_chain_id(current_residue_spec),
+                                                      coot_utils.res_spec_to_res_no(current_residue_spec),
+                                                      coot_utils.res_spec_to_ins_code(current_residue_spec),
                                                       new_res, new_link, 2) # add and fit mode
 
 
@@ -71,7 +71,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                     if new_res_spec:
                         ls = residues_near_residue(imol, current_residue_spec, 1.9)
 
-                        add_cho_restraints_for_residue(imol, new_res_spec)
+                        cho_restraints_from_models.add_cho_restraints_for_residue(imol, new_res_spec)
 
                         with AutoAccept():
                             refine_residues(imol, [current_residue_spec] + ls)
@@ -299,14 +299,14 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
             c = map_to_model_correlation(imol, [res_spec], neighbs, 0,
                                          imol_refinement_map())
             print("######## new residue %s density correlation: %s" %(res_spec, c))
-            if (not isNumber(c)):
+            if (not coot_utils.isNumber(c)):
                 return False
             else:
                 if c > add_linked_residue_tree_correlation_cut_off:
                     symm_clash = clashes_with_symmetry(imol,
-                                                       residue_spec_to_chain_id(res_spec),
-                                                       residue_spec_to_res_no(res_spec),
-                                                       residue_spec_to_ins_code(res_spec),
+                                                       res_spec_utils.residue_spec_to_chain_id(res_spec),
+                                                       res_spec_utils.residue_spec_to_res_no(res_spec),
+                                                       coot_utils.residue_spec_to_ins_code(res_spec),
                                                        2.0)
                     if (symm_clash == 1):
                         return False
@@ -317,9 +317,9 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
 
     def centre_view_on_residue_centre(res_spec):
         res_centre = residue_centre(imol,
-                                    residue_spec_to_chain_id(res_spec),
-                                    residue_spec_to_res_no(res_spec),
-                                    residue_spec_to_ins_code(res_spec))
+                                    res_spec_utils.residue_spec_to_chain_id(res_spec),
+                                    res_spec_utils.residue_spec_to_res_no(res_spec),
+                                    coot_utils.residue_spec_to_ins_code(res_spec))
         if (isinstance(res_centre, list)):
             set_rotation_centre(*res_centre)
 
@@ -344,16 +344,16 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
                                                       tree_residues)
 
             new_res_spec = add_linked_residue(imol,
-                                              res_spec_to_chain_id(parent),
-                                              res_spec_to_res_no(parent),
-                                              res_spec_to_ins_code(parent),
+                                              coot_utils.res_spec_to_chain_id(parent),
+                                              coot_utils.res_spec_to_res_no(parent),
+                                              coot_utils.res_spec_to_ins_code(parent),
                                               new_res_type, new_link, 2)
             # 2 = add and link mode
             set_mol_displayed(imol_save, 0)
             set_mol_active(imol_save, 0)
             ls = residues_near_residue(imol, parent, 1.9)
             local_ls = [parent] + ls
-            add_cho_restraints_for_residue(imol, new_res_spec)
+            cho_restraints_from_models.add_cho_restraints_for_residue(imol, new_res_spec)
             rotate_y_scene(100, 0.5)
             with AutoAccept():
                 refine_residues(imol, local_ls)
@@ -371,7 +371,7 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
                     print("----------- That was not well fitting. Deleting:", preped_new_res_spec)
                     delete_extra_restraints_for_residue_spec(imol,
                                                              preped_new_res_spec)
-                    delete_residue_by_spec(*preped_new_res_spec)
+                    coot_utils.delete_residue_by_spec(*preped_new_res_spec)
                     # restore glyco-tree residues from imol_save
                     replace_fragment(imol, imol_save, "//")
                     return False
@@ -418,9 +418,9 @@ def add_linked_residue_tree(imol, parent, tree):
                                                aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
                     res_spec = aa_res_spec
                     rn = residue_name(imol,
-                                      residue_spec_to_chain_id(res_spec),
-                                      residue_spec_to_res_no(res_spec),
-                                      residue_spec_to_ins_code(res_spec))
+                                      res_spec_utils.residue_spec_to_chain_id(res_spec),
+                                      res_spec_utils.residue_spec_to_res_no(res_spec),
+                                      coot_utils.residue_spec_to_ins_code(res_spec))
                     if not isinstance(rn, str):
                         return False
                     else:
@@ -434,8 +434,8 @@ def add_linked_residue_tree(imol, parent, tree):
     wm = matrix_state()
     set_matrix(wm / 4.)
     set_residue_selection_flash_frames_number(1)
-    set_go_to_atom_molecule(imol)
-    set_go_to_atom_from_res_spec(parent)
+    coot_utils.set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_from_res_spec(parent)
     previous_m = default_new_atoms_b_factor()
     m = median_temperature_factor(imol)
     try:
@@ -462,7 +462,7 @@ def add_linked_residue_tree(imol, parent, tree):
             print("start_tree:", start_tree)
         else:
             # OK, continue
-            start_pos_view = add_view_here("Glyco Tree Start Pos")
+            start_pos_view = coot_utils.add_view_here("Glyco Tree Start Pos")
             process_tree(parent, tree, add_linked_residue_add_cho_function)
             go_to_view_number(start_pos_view, 0)
             with AutoAccept():
@@ -498,7 +498,7 @@ def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
         new_res_spec = add_linked_residue(aa_imol, aa_chain_id, aa_res_no,
                                           aa_ins_code, new_res_type, link_type, 2)
         if isinstance(new_res_spec, list):
-            add_cho_restraints_for_residue(aa_imol, new_res_spec)
+            cho_restraints_from_models.add_cho_restraints_for_residue(aa_imol, new_res_spec)
             # refine that
             with AutoAccept():
                 residues = [aa_res_spec] + residues_near_residue(aa_imol, aa_res_spec, 1.9)
@@ -509,9 +509,9 @@ def delete_all_cho():
     delete_cho_ls = []
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                aa_atom_name, aa_alt_conf]:
-        if valid_model_molecule_qm(aa_imol):
+        if coot_utils.valid_model_molecule_qm(aa_imol):
             with NoBackups(aa_imol):
-                for chain_id in chain_ids(aa_imol):
+                for chain_id in coot_utils.chain_ids(aa_imol):
                     for res_serial in range(chain_n_residues(chain_id, aa_imol)):
                         res_no = seqnum_from_serial_number(aa_imol,
                                                            chain_id, res_serial)
@@ -524,8 +524,8 @@ def delete_all_cho():
 #                now we have delete_residues, we don't need to delete them one by one
 #                for cho_res_spec in delete_cho_ls:
 #                    delete_residue(aa_imol,
-#                                   residue_spec_to_chain_id(cho_res_spec),
-#                                   residue_spec_to_res_no(cho_res_spec), "")
+#                                   res_spec_utils.residue_spec_to_chain_id(cho_res_spec),
+#                                   res_spec_utils.residue_spec_to_res_no(cho_res_spec), "")
                 delete_residues(aa_imol, delete_cho_ls)
 
 

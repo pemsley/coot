@@ -36,39 +36,39 @@ if (have_coot_python):
      #           coot news dialog and updates dialog
      # --------------------------------------------------
 #   comment these out for now     
-#      menu = coot_menubar_menu("About")
+#      menu = coot_gui.coot_menubar_menu("About")
 #      if (menu):
-#        add_simple_coot_menu_menuitem(menu, "Coot News...",
-#                                      lambda func: whats_new_dialog())
+#        coot_gui.add_simple_coot_menu_menuitem(menu, "Coot News...",
+#                                      lambda func: coot_gui.whats_new_dialog())
 
 #        os_type = os.name
 #        if not os_type == 'mac':
-#          add_simple_coot_menu_menuitem(menu, "Check for Updates...",
+#          coot_gui.add_simple_coot_menu_menuitem(menu, "Check for Updates...",
 #                                        lambda func: (printf("checking for updates..."),
-#                                                      check_for_updates_gui()))
+#                                                      check_for_updates.check_for_updates_gui()))
 
 
      # --------------------------------------------------
      #           coordinated water validation dialog
      # --------------------------------------------------
 
-     menu = coot_menubar_menu("Validate")
+     menu = coot_gui.coot_menubar_menu("Validate")
      if menu:
-       add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
-                                     lambda func: water_coordination_gui())
+       coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
+                                     lambda func: coot_gui.water_coordination_gui())
 
        def validation_outliers_func():
          with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
            imol_map = imol_refinement_map()
-           if not valid_map_molecule_qm(imol_map):
+           if not coot_utils.valid_map_molecule_qm(imol_map):
              info_dialog_and_text("Refinement Map is currently not set")
            else:
-             validation_outliers_dialog(aa_imol, imol_map)
-       add_simple_coot_menu_menuitem(menu, "Validation Outliers",
+             find_baddies.validation_outliers_dialog(aa_imol, imol_map)
+       coot_gui.add_simple_coot_menu_menuitem(menu, "Validation Outliers",
                                      lambda func: validation_outliers_func())
 
-       add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
+       coot_gui.add_simple_coot_menu_menuitem(menu, "List Ramachandran outliers...",
                                      lambda func: rama_outlier_gui())
 
 
@@ -77,7 +77,7 @@ if (have_coot_python):
      # --------------------------------------------------
 
      def add_module_user_defined_restraints():
-       menu = coot_menubar_menu("Restraints")
+       menu = coot_gui.coot_menubar_menu("Restraints")
        load_from_search_load_path("user_define_restraints.py")
      
 
@@ -86,7 +86,7 @@ if (have_coot_python):
      #           extensions
      # ---------------------------------------------
 
-     menu = coot_menubar_menu("E_xtensions")
+     menu = coot_gui.coot_menubar_menu("E_xtensions")
 
      # make submenus:
      submenu_all_molecule = gtk.Menu()
@@ -157,38 +157,38 @@ if (have_coot_python):
      #
      #---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "[Post MR] Fill Partial Residues...",
-       lambda func: molecule_chooser_gui("Find and Fill residues with missing atoms",
+       lambda func: coot_gui.molecule_chooser_gui("Find and Fill residues with missing atoms",
 		lambda imol: fill_partial_residues(imol)))
 
 
      # old style - not interruptable
-     #     add_simple_coot_menu_menuitem(
+     #     coot_gui.add_simple_coot_menu_menuitem(
      #       submenu_all_molecule,
      #       "[Post MR] Fit Protein...",
-     #       lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
+     #       lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Rotamer Search",
      #		lambda imol: (imol_refinement_map() == -1 and
      #                              add_status_bar_text("oops. Must set a map to fit") or
-     #                              fit_protein(imol))))
+     #                              fitting.fit_protein(imol))))
      #
      #
-     #     add_simple_coot_menu_menuitem(
+     #     coot_gui.add_simple_coot_menu_menuitem(
      #       submenu_all_molecule,
      #       "[Post MR] Stepped Refine...",
-     #       lambda func: molecule_chooser_gui("Stepped Refine: ",
+     #       lambda func: coot_gui.molecule_chooser_gui("Stepped Refine: ",
      #		lambda imol: (imol_refinement_map() == -1 and
      #                              add_status_bar_text("oops. Must set a map to fit") or
-     #                              stepped_refine_protein(imol))))
+     #                              fitting.stepped_refine_protein(imol))))
      #
-     #     add_simple_coot_menu_menuitem(
+     #     coot_gui.add_simple_coot_menu_menuitem(
      #       submenu_all_molecule,
      #       "Refine/Improve Ramachandran Plot...",
-     #       lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
+     #       lambda func: coot_gui.molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
      #                lambda imol: (imol_refinement_map() == -1 and
      #                              add_status_bar_text("oops. Must set a map to fit") or
-     #                              stepped_refine_protein_for_rama(imol))))
+     #                              fitting.stepped_refine_protein_for_rama(imol))))
      #                                         
 
      # BL says:: we cannot do this with lambda functions in python
@@ -199,13 +199,13 @@ if (have_coot_python):
        else:
          global continue_multi_refine
          continue_multi_refine = True
-         interruptible_fit_protein(imol, fit_protein_fit_function)
+         interruptible_fitting.fit_protein(imol, fitting.fit_protein_fit_function)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "Fit Protein...",
-       lambda func: molecule_chooser_gui("Fit Protein using Rotamer Search",
-		lambda imol: fit_protein_func1(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Rotamer Search",
+		lambda imol: fitting.fit_protein_func1(imol)))
 
 
      def fit_protein_func2(imol):
@@ -214,13 +214,13 @@ if (have_coot_python):
        else:
          global continue_multi_refine
          continue_multi_refine = True
-         interruptible_fit_protein(imol, fit_protein_stepped_refine_function)
+         interruptible_fitting.fit_protein(imol, fitting.fit_protein_stepped_refine_function)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "Stepped Refine...",
-       lambda func: molecule_chooser_gui("Fit Protein using Real-Space Refinement",
-		lambda imol: fit_protein_func2(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Real-Space Refinement",
+		lambda imol: fitting.fit_protein_func2(imol)))
 
 
      def fit_protein_func3(imol):
@@ -229,13 +229,13 @@ if (have_coot_python):
        else:
          global continue_multi_refine
          continue_multi_refine = True
-         interruptible_fit_protein(imol, fit_protein_rama_fit_function)
+         interruptible_fitting.fit_protein(imol, fitting.fit_protein_rama_fit_function)
          
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_all_molecule,
        "Refine/Improve Ramachandran Plot...",
-       lambda func: molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
-                lambda imol: fit_protein_func3(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
+                lambda imol: fitting.fit_protein_func3(imol)))
                                          
 
      #---------------------------------------------------------------------
@@ -245,7 +245,7 @@ if (have_coot_python):
 
      def mask_map_func():
        f = ""
-       molecule_list = molecule_number_list()
+       molecule_list = coot_utils.molecule_number_list()
        if not molecule_list == []:
           for i in molecule_list:
             if is_valid_map_molecule(molecule_list[i]):
@@ -296,11 +296,11 @@ if (have_coot_python):
        else:
          return "default"
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Mask Map by Atom Selection...",
-       lambda func: molecule_chooser_gui("Define the molecule that has atoms to mask the map",
-             lambda imol: generic_multiple_entries_with_check_button(
+       lambda func: coot_gui.molecule_chooser_gui("Define the molecule that has atoms to mask the map",
+             lambda imol: coot_gui.generic_multiple_entries_with_check_button(
                          [[" Map molecule number: ", mask_map_func()],
                           [" Atom selection: ", "//A/1"],
                           ["Radius around atoms: ", mask_map_radius_func()]],
@@ -308,49 +308,49 @@ if (have_coot_python):
                          "  Mask Map  ", lambda text_list, invert: mask_map_func2(imol, text_list, invert))))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Copy Map...",
-       lambda func: map_molecule_chooser_gui("Map to Copy...", 
+       lambda func: coot_gui.map_molecule_chooser_gui("Map to Copy...", 
                                              lambda imol: copy_molecule(imol)))
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Make a Smoother Copy...", 
-       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+       lambda func: coot_gui.map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
                                              lambda imol: smooth_map(imol, 1.25)))
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Make a Very Smooth Copy...", 
-       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+       lambda func: coot_gui.map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
                                              lambda imol: smooth_map(imol, 2.0)))
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Make a Difference Map...",
-       lambda func: make_difference_map_gui())
+       lambda func: coot_gui.make_difference_map_gui())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Transform map by LSQ model fit...",
-       lambda func: transform_map_using_lsq_matrix_gui())
+       lambda func: coot_gui.transform_map_using_lsq_matrix_gui())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Average Maps...",
-       lambda func: average_map_gui())
+       lambda func: coot_gui.average_map_gui())
 
-#      add_simple_coot_menu_menuitem(
+#      coot_gui.add_simple_coot_menu_menuitem(
 #        submenu_maps,
 #        "Export map...",
-#        lambda func: generic_chooser_and_file_selector("Export Map: ",
-#                 valid_map_molecule_qm, "File_name: ", "",
+#        lambda func: coot_gui.generic_chooser_and_file_selector("Export Map: ",
+#                 coot_utils.valid_map_molecule_qm, "File_name: ", "",
 #                 lambda imol, text: (export_map(imol, text) == 1 and
 #                                     add_status_bar_text("Map " + str(imol) + " exported to " + text))))
                                     
@@ -362,15 +362,15 @@ if (have_coot_python):
 #        except:
 #          print "BL WARNING:: radius %s was no number!" %(radius_string)
 #        if (radius >= 0):
-#          export_map_fragment(*([imol] + rotation_centre() + \
+#          export_map_fragment(*([imol] + coot_utils.rotation_centre() + \
 #                                [radius, file_name]))
          
-#      add_simple_coot_menu_menuitem(
+#      coot_gui.add_simple_coot_menu_menuitem(
 #        submenu_maps,
 #        "Export Local Map Fragment...", # (for Pymol, say)
-#        lambda func: generic_chooser_entry_and_file_selector(
+#        lambda func: coot_gui.generic_chooser_entry_and_file_selector(
 #                "Export Map: ",
-#                valid_map_molecule_qm,
+#                coot_utils.valid_map_molecule_qm,
 #                "Radius (A): ", "10",
 #                "File-name: ",
 #                lambda imol, radius_string, file_name:
@@ -379,41 +379,41 @@ if (have_coot_python):
 #        )
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Map Density Histogram...",
-       lambda func: map_molecule_chooser_gui("Choose the map",
+       lambda func: coot_gui.map_molecule_chooser_gui("Choose the map",
 		lambda imol: map_histogram(imol)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Brighten Maps",
-       lambda func: brighten_maps())
+       lambda func: coot_utils.brighten_maps())
 
 
      def set_diff_map_func(imol):
        print("setting map number %s to be a difference map" %imol)
        set_map_is_difference_map(imol)
         
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Set map is a difference map...",
-       lambda func: map_molecule_chooser_gui("Which map should be considered a difference map?",
+       lambda func: coot_gui.map_molecule_chooser_gui("Which map should be considered a difference map?",
 		lambda imol: set_diff_map_func(imol)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Another (contour) level...",
        lambda func: another_level())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_maps,
        "Multi-chicken...",
-       lambda func: map_molecule_chooser_gui("Choose a molecule for multiple contouring",
-		lambda imol: (set_map_displayed(imol, 0), multi_chicken(imol))))
+       lambda func: coot_gui.map_molecule_chooser_gui("Choose a molecule for multiple contouring",
+		lambda imol: (set_map_displayed(imol, 0), coot_utils.multi_chicken(imol))))
 
      
      #---------------------------------------------------------------------
@@ -429,52 +429,52 @@ if (have_coot_python):
      def add_hydrogens_refmac_func():
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
-         add_hydrogens_using_refmac(aa_imol)
+         coot_utils.add_hydrogens_using_refmac(aa_imol)
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Add Hydrogens",
        lambda func: add_hydrogens_with_coot_reduce())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Add Hydrogens using Refmac",
        lambda func: add_hydrogens_refmac_func())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Add Other Solvent Molecules...",
-       lambda func: solvent_ligands_gui())
+       lambda func: coot_gui.solvent_ligands_gui())
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Arrange Waters Around Protein...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
           "Arrange waters in molecule: ",
           lambda imol: move_waters_to_around_protein(imol)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Assign (force) HETATMs for this Residue",
-       lambda func: using_active_atom(hetify_residue,
+       lambda func: coot_utils.using_active_atom(hetify_residue,
                                       "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Assign HETATM to molecule...", 
-       lambda func: molecule_chooser_gui("Assign HETATMs as per PDB definition", 
+       lambda func: coot_gui.molecule_chooser_gui("Assign HETATMs as per PDB definition", 
 		lambda imol: assign_hetatms(imol)))
 
      # in main menu now
-     # add_simple_coot_menu_menuitem(
+     # coot_gui.add_simple_coot_menu_menuitem(
      #   submenu_models,
      #   "Copy Coordinates Molecule...", 
-     #   lambda func: molecule_chooser_gui("Molecule to Copy...", 
+     #   lambda func: coot_gui.molecule_chooser_gui("Molecule to Copy...", 
      #    	lambda imol: copy_molecule(imol)))
 
 
@@ -484,12 +484,12 @@ if (have_coot_python):
      #   print "BL DEBUG:: imol, text, button_state", imol, text, button_state
      #   jmol = new_molecule_by_atom_selection(imol, text)
      #   if button_state:
-     #     move_molecule_to_screen_centre(jmol)
-     #   return valid_model_molecule_qm(jmol)
-     # add_simple_coot_menu_menuitem(
+     #     coot_utils.move_molecule_to_screen_centre(jmol)
+     #   return coot_utils.valid_model_molecule_qm(jmol)
+     # coot_gui.add_simple_coot_menu_menuitem(
      #   submenu_models,
      #   "Copy Fragment...", 
-     #   lambda func: generic_chooser_and_entry_and_check_button("Create a new Molecule\n \
+     #   lambda func: coot_gui.generic_chooser_and_entry_and_check_button("Create a new Molecule\n \
      #                              From which molecule shall we copy the fragment?", 
      #                                                           "Atom selection for fragment", "//A/1-10", "Move molecule here?", 
      #    	                                               lambda imol, text, button_state: atom_selection_from_fragmemt_func(imol, text, button_state),
@@ -498,10 +498,10 @@ if (have_coot_python):
      # --- D ---
 
      # now in main menu
-##     add_simple_coot_menu_menuitem(
+##     coot_gui.add_simple_coot_menu_menuitem(
 ##       submenu_models,
 ##       "DB Loop...",
-##       lambda func: click_protein_db_loop_gui())
+##       lambda func: coot_gui.click_protein_db_loop_gui())
 
      
      # errr... move this...(??)
@@ -512,10 +512,10 @@ if (have_coot_python):
      menu.append(menuitem2)
      menuitem2.show()
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Dock Sequence...", 
-       lambda func: cootaneer_gui_bl())
+       lambda func: coot_gui.cootaneer_gui_bl())
 
 
      def associate_seq_func(imol, chain_id, pir_file):
@@ -535,9 +535,9 @@ if (have_coot_python):
      #add_simple_coot_menu_menuitem(
      #  submenu,
      #  "Associate Sequence...",
-     #  lambda func: generic_chooser_entry_and_file_selector(
+     #  lambda func: coot_gui.generic_chooser_entry_and_file_selector(
      #    "Associate Sequence to Model: ",
-     #    valid_model_molecule_qm,
+     #    coot_utils.valid_model_molecule_qm,
      #    "Chain ID",
      #    "",
      #    "Select PIR file",
@@ -551,9 +551,9 @@ if (have_coot_python):
      #add_simple_coot_menu_menuitem(
      #  submenu,
      #  "Associate Sequence to Molecule...",
-     #  lambda func:    generic_chooser_and_file_selector(
+     #  lambda func:    coot_gui.generic_chooser_and_file_selector(
      #                  "Associate Sequence with Molecule: ",
-     #                  valid_model_molecule_qm,
+     #                  coot_utils.valid_model_molecule_qm,
      #                  "Select Sequence File",
      #                  "",
      #                  lambda imol, sequence_file_name:
@@ -561,16 +561,16 @@ if (have_coot_python):
      #                                            sequence_file_name)
      #  ))
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Associate Sequence to Chain...",
-       lambda func: associate_sequence_with_chain_gui()) # no alignment on OK press
+       lambda func: coot_gui.associate_sequence_with_chain_gui()) # no alignment on OK press
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Duplicate range (pick atoms)",
-       lambda func: duplicate_range_by_atom_pick())
+       lambda func: coot_gui.duplicate_range_by_atom_pick())
      
      # ---- F ---------
 
@@ -582,12 +582,12 @@ if (have_coot_python):
      submenu_models.append(menuitem2)
      menuitem2.show()
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Find Helices", 
        lambda func: find_helices())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Find Strands", 
        lambda func: find_strands())
@@ -598,29 +598,29 @@ if (have_coot_python):
          comp_id = residue_name(aa_imol, aa_chain_id,
                                 aa_res_no, aa_ins_code)
          # print "BL INFO:: here with residue name", comp_id
-         get_SMILES_for_comp_id_from_pdbe(comp_id)
+         coot_utils.get_SMILES_for_comp_id_from_pdbe(comp_id)
                          
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Fetch PDBe description for this ligand",
        lambda func: get_smiles_pdbe_func())
 
 
      def get_pdbe_ligand_func(comp_id):
-         status = get_SMILES_for_comp_id_from_pdbe(comp_id)
+         status = coot_utils.get_SMILES_for_comp_id_from_pdbe(comp_id)
          get_monomer(comp_id)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Fetch PDBe Ligand Description",
-       lambda func: generic_single_entry("Fetch PDBe Ligand Desciption for comp_id:",
+       lambda func: coot_gui.generic_single_entry("Fetch PDBe Ligand Desciption for comp_id:",
                                          "", " Fetch ", lambda comp_id: get_pdbe_ligand_func(comp_id)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Fix Nomenclature Errors...",
-       lambda func: molecule_chooser_gui("Fix Nomenclature Error in molecule:",
+       lambda func: coot_gui.molecule_chooser_gui("Fix Nomenclature Error in molecule:",
                                          lambda imol: fix_nomenclature_errors(imol)))
 
 
@@ -632,7 +632,7 @@ if (have_coot_python):
              invert_chiral_centre(aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name)
              
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
          submenu_models,
          "Invert This Chiral Centre",
          lambda func:
@@ -641,11 +641,11 @@ if (have_coot_python):
 
      # --- J --------
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "JLigand launch",
        lambda func:
-          launch_jligand_function())
+          jligand_gui.launch_jligand_function())
      
 
      # --- M ---
@@ -653,8 +653,8 @@ if (have_coot_python):
      def make_link_ext_func(*args):
        m_spec_1 = args[0]
        m_spec_2 = args[1]
-       imol_1 = atom_spec_to_imol(m_spec_1)
-       imol_2 = atom_spec_to_imol(m_spec_2)
+       imol_1 = coot_utils.atom_spec_to_imol(m_spec_1)
+       imol_2 = coot_utils.atom_spec_to_imol(m_spec_2)
        spec_1 = m_spec_1[2:]
        spec_2 = m_spec_2[2:]
        if not (imol_1 == imol_2):
@@ -662,31 +662,31 @@ if (have_coot_python):
        else:
          make_link(imol_1, spec_1, spec_2, "dummy", 0.1)
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Make Link (click 2 atoms)...",
        lambda func:
        user_defined_click(2, make_link_ext_func))
 
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Merge Water Chains...",
-       lambda func: molecule_chooser_gui("Merge Water Chains in molecule:",
-                                         lambda imol: merge_solvent_chains(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Merge Water Chains in molecule:",
+                                         lambda imol: coot_utils.merge_solvent_chains(imol)))
 
 
      def mon_dict_func(text):
        idealized = 0
        new_model = get_monomer_from_dictionary(text, idealized)
-       if not valid_model_molecule_qm(new_model):
+       if not coot_utils.valid_model_molecule_qm(new_model):
          get_monomer(text)
          
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Monomer from Dictionary",
        lambda func:
-         generic_single_entry("Pull coordinates from CIF dictionary for 3-letter-code:", "",
+         coot_gui.generic_single_entry("Pull coordinates from CIF dictionary for 3-letter-code:", "",
                               " Get Coords ",
                               lambda text: mon_dict_func(text)))
                               
@@ -696,13 +696,13 @@ if (have_coot_python):
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          morph_fit_chain(aa_imol, aa_chain_id, radius)
          
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Morph Fit Chain (Averaging Radius 7)",
        lambda func: morph_fit_chain_func(7)
        )
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Morph Fit Chain (Averaging Radius 11)",
        lambda func: morph_fit_chain_func(11)
@@ -714,7 +714,7 @@ if (have_coot_python):
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          morph_fit_by_secondary_structure_elements(aa_imol, aa_chain_id)
          
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Morph Fit Chain based on Secondary Structure",
        lambda func: morph_fit_chain_func(7)
@@ -728,13 +728,13 @@ if (have_coot_python):
          radius = float(text)
        except:
          print("WARNING:: no valid radius", text)
-       args = [imol] + rotation_centre() + [radius, 0]
+       args = [imol] + coot_utils.rotation_centre() + [radius, 0]
        new_molecule_by_sphere_selection(*args)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "New Molecule by Sphere...",
-       lambda func: generic_chooser_and_entry(
+       lambda func: coot_gui.generic_chooser_and_entry(
           "Choose a molecule from which to select a sphere of atoms:",
           "Radius:", "10.0",
           lambda imol, text: new_mol_sphere_func1(imol, text)))
@@ -751,10 +751,10 @@ if (have_coot_python):
                                pre_shift[1],
                                pre_shift[2])
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "New Molecule from Symmetry Op...",
-       lambda func: generic_chooser_and_entry(
+       lambda func: coot_gui.generic_chooser_and_entry(
           "Molecule from which to generate a symmetry copy",
           "SymOp", "X,Y,Z",
           lambda imol, text: new_mol_sym_func1(imol, text)))
@@ -762,18 +762,18 @@ if (have_coot_python):
 
      # --- P ---
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Phosphorylate this residue",
-       lambda func: phosphorylate_active_residue())
+       lambda func: coot_utils.phosphorylate_active_residue())
 
 
      # FIXME:: for now only when prodrg in path
      if (command_in_path_qm("cprodrg")):
-       add_simple_coot_menu_menuitem(
+       coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Prodrg-ify this residue (generate restraints)",
-       lambda func: using_active_atom(prodrg_ify,
+       lambda func: coot_utils.using_active_atom(prodrg_ify,
                                       "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
      
 
@@ -781,108 +781,108 @@ if (have_coot_python):
 
      # --- Ren --- 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Rename Residue...",
-       lambda func: rename_residue_gui())
+       lambda func: coot_gui.rename_residue_gui())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Renumber Waters...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
           "Renumber waters of which molecule?",
           lambda imol: renumber_waters(imol)))
 
      # --- Reo ---
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Reorder Chains...",
-       lambda func: molecule_chooser_gui("Sort Chain IDs in molecule:",
+       lambda func: coot_gui.molecule_chooser_gui("Sort Chain IDs in molecule:",
                                          lambda imol: sort_chains(imol))) # an internal function
 
      # --- Rep ---
 
      # BL says:: may work, not sure about function entirely
      # this is in main menu now
-     # add_simple_coot_menu_menuitem(
+     # coot_gui.add_simple_coot_menu_menuitem(
      #   submenu_models,
      #   "Replace Fragment...",
-     #   lambda func: molecule_chooser_gui("Define the molecule that needs updating",
-     #    	lambda imol_base: generic_chooser_and_entry(
+     #   lambda func: coot_gui.molecule_chooser_gui("Define the molecule that needs updating",
+     #    	lambda imol_base: coot_gui.generic_chooser_and_entry(
      #    			"Molecule that contains the new fragment:",
      #    			"Atom Selection","//",
      #    			lambda imol_fragment, atom_selection_str:
      #    			replace_fragment(imol_base, imol_fragment, atom_selection_str))))
 
      # in main menu now
-     # add_simple_coot_menu_menuitem(
+     # coot_gui.add_simple_coot_menu_menuitem(
      #   submenu_models,
      #   "Replace Residue...",
-     #   lambda func: generic_single_entry("Replace this residue with residue of type:",
+     #   lambda func: coot_gui.generic_single_entry("Replace this residue with residue of type:",
      #                                     "ALA", "Mutate",
-     #                                     lambda text: using_active_atom(mutate_by_overlap,
+     #                                     lambda text: coot_utils.using_active_atom(mutate_by_overlap,
      #                                                                    "aa_imol", "aa_chain_id", "aa_res_no",
      #                                                                    text)))
 
      # --- Res ---
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Residue Type Selection...",
-	lambda func: generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
+	lambda func: coot_gui.generic_chooser_and_entry("Choose a molecule to select residues from: ","Residue Type:","",
                                                lambda imol, text: (new_molecule_by_residue_type_selection(imol, text),
                                                                    update_go_to_atom_window_on_new_mol())))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Residues with Alt Confs...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
          "Which molecule to check for Alt Confs?",
-         lambda imol: alt_confs_gui(imol)))
+         lambda imol: coot_gui.alt_confs_gui(imol)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Residues with Cis Peptide Bonds...",
-       lambda func: molecule_chooser_gui("Choose a molecule for checking for Cis Peptides",
-                                         lambda imol: cis_peptides_gui(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Choose a molecule for checking for Cis Peptides",
+                                         lambda imol: coot_gui.cis_peptides_gui(imol)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Residues with Missing Atoms...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
          "Which molecule to check for Missing Atoms?",
-         lambda imol: missing_atoms_gui(imol)))
+         lambda imol: coot_gui.missing_atoms_gui(imol)))
 
      # --- Rig ---
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Rigid Body Fit Residue Ranges...",
        lambda func:
-       residue_range_gui(lambda imol, ls: rigid_body_refine_by_residue_ranges(imol, ls),
+       coot_gui.residue_range_gui(lambda imol, ls: rigid_body_refine_by_residue_ranges(imol, ls),
                          "Rigid Body Refine",
                          "  Fit  "))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Rigid Body Fit Molecule...",
-       lambda func: molecule_chooser_gui("Rigid Body Fit Molecule",
+       lambda func: coot_gui.molecule_chooser_gui("Rigid Body Fit Molecule",
                 lambda imol: rigid_body_refine_by_atom_selection(imol, "//")))                                         
        
      # ---- S --------
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Superpose ligands",
-       lambda func: superpose_ligand_gui())
+       lambda func: coot_gui.superpose_ligand_gui())
      
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Symm Shift Reference Chain Here",
        lambda func: move_reference_chain_to_symm_chain_position())
@@ -897,23 +897,23 @@ if (have_coot_python):
      submenu_models.append(menuitem2)
      menuitem2.show()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Use \"Backrub\" Rotamers",
        lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
        )
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "DONT use \"Backrub\" Rotamers",
        lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
        )
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Use SEGIDs...",
-       lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
+       lambda func: coot_gui.molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
 		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
 
      
@@ -929,7 +929,7 @@ if (have_coot_python):
            n if isinstance(n, str) else " <no-name-found>"
        add_status_bar_text(s)
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "What's this?",
        lambda func: whats_this()
@@ -937,12 +937,12 @@ if (have_coot_python):
      
      
      # an python extra, this is
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_models,
        "Atoms with Zero Occupancies...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
          "Which molecule to check for Atoms with zero occupancies?",
-         lambda imol: zero_occ_atoms_gui(imol)))
+         lambda imol: coot_gui.zero_occ_atoms_gui(imol)))
 
      
      #---------------------------------------------------------------------
@@ -954,7 +954,7 @@ if (have_coot_python):
        try:
          r1 = int(text1)
          r2 = int(text2)
-         if (chain_id == ncs_master_chain_id(imol)):
+         if (chain_id == ncs.ncs_master_chain_id(imol)):
            # hunkey dorey
            copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
          else:
@@ -964,7 +964,7 @@ if (have_coot_python):
                  %(ncs_master_chain_id(imol), chain_id)
            txt += "Apply this master change?\n\n"
            txt += "N.B. if no, then nothing is copied."
-           r = yes_no_dialog(txt, "Change Master")
+           r = coot_gui.yes_no_dialog(txt, "Change Master")
            if r:
              ncs_control_change_ncs_master_to_chain_id(imol, chain_id)
              copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
@@ -974,13 +974,13 @@ if (have_coot_python):
        except:
          print("BL WARNING:: no valid number input")
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_ncs,
        "Copy NCS Residue Range...",
-       lambda func: generic_chooser_and_entry("Apply NCS Range from Master",
+       lambda func: coot_gui.generic_chooser_and_entry("Apply NCS Range from Master",
                                               "Master Chain ID",
-                                              get_first_ncs_master_chain(),  # returns "" on fail
-                lambda imol, chain_id: generic_double_entry("Start of Residue Number Range",
+                                              coot_utils.get_first_ncs_master_chain(),  # returns "" on fail
+                lambda imol, chain_id: coot_gui.generic_double_entry("Start of Residue Number Range",
                                        "End of Residue Number Range",
                                        "", "", False, False,
                                        "Apply NCS Residue Range",
@@ -991,7 +991,7 @@ if (have_coot_python):
        ncs_chains = ncs_chain_ids(imol)
        if (ncs_chains):
          # maybe this could be a function to avoid repetition.
-         if (chain_id == ncs_master_chain_id(imol)):
+         if (chain_id == ncs.ncs_master_chain_id(imol)):
            # hunkey dorey
            copy_from_ncs_master_to_others(imol, chain_id)
          else:
@@ -1001,7 +1001,7 @@ if (have_coot_python):
                  %(ncs_master_chain_id(imol), chain_id)
            txt += "Apply this master change?\n\n"
            txt += "N.B. if no, then nothing is copied."
-           r = yes_no_dialog(txt, "Change Master")
+           r = coot_gui.yes_no_dialog(txt, "Change Master")
            if r:
              ncs_control_change_ncs_master_to_chain_id(imol, chain_id)
              copy_from_ncs_master_to_others(imol, chain_id)
@@ -1012,12 +1012,12 @@ if (have_coot_python):
          s = "You need to define NCS operators for molecule " + str(imol)
          info_dialog(s)
            
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_ncs,
        "Copy NCS Chain...",
-       lambda func: generic_chooser_and_entry("Apply NCS edits from NCS Master Chain to Other Chains",
+       lambda func: coot_gui.generic_chooser_and_entry("Apply NCS edits from NCS Master Chain to Other Chains",
                                               "Master Chain ID",
-                                              get_first_ncs_master_chain(),  # can return  "".
+                                              coot_utils.get_first_ncs_master_chain(),  # can return  "".
                                               lambda imol, chain_id: copy_ncs_chain_func(imol, chain_id)))
 
 
@@ -1043,35 +1043,35 @@ if (have_coot_python):
              # but we ignore NCS other that
              # that of the first type.
              ghost_chain_list = ghost_ncs_chain_ids[0]
-             manual_ncs_ghosts(imol, resno_1, resno_2, ghost_chain_list)
+             ncs.manual_ncs_ghosts(imol, resno_1, resno_2, ghost_chain_list)
          
-       generic_double_entry(label_1, label_2, entry_1_default_text,
+       coot_gui.generic_double_entry(label_1, label_2, entry_1_default_text,
                             entry_2_default_text, False, False,
                             go_button_label, handle_go_function)
        
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_ncs,
        "NCS Ghosts by Residue Range...",
-       lambda func: molecule_chooser_gui("Make local NCS ghosts for molecule:",
+       lambda func: coot_gui.molecule_chooser_gui("Make local NCS ghosts for molecule:",
                                          lambda imol: ncs_ghost_res_range_func(imol)))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_ncs,
        "Update NCS Ghosts using Local Match",
-       lambda func: update_ncs_ghosts_by_local_sphere())
+       lambda func: ncs.update_ncs_ghosts_by_local_sphere())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_ncs,
        "NCS Jumping...",
-       lambda func: ncs_jumping_gui())
+       lambda func: coot_gui.ncs_jumping_gui())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_ncs,
        "NCS ligands...",
-       lambda func: ncs_ligand_gui())
+       lambda func: coot_gui.ncs_ligand_gui())
 
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("NCS matrix type...")
@@ -1085,19 +1085,19 @@ if (have_coot_python):
        coot_tooltips.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
      menuitem2.show()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Accurate (SSM)",
        lambda func: set_ncs_matrix_type(0))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Fast (LSQ)",
        lambda func: set_ncs_matrix_type(1))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Extra Fast (LSQ, only every 2nd CA)",
        lambda func: set_ncs_matrix_type(2))
@@ -1108,10 +1108,10 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
      #
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "Set Refinement Options...",
-       lambda func: refinement_options_gui())
+       lambda func: coot_gui.refinement_options_gui())
  
      submenu = gtk.Menu()
      menuitem2 = gtk.MenuItem("Peptide Restraints...")
@@ -1124,7 +1124,7 @@ if (have_coot_python):
         print('Planar Peptide Restraints added')
         add_planar_peptide_restraints()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Add Planar Peptide Restraints",
        lambda func: add_restr_func1())
@@ -1134,7 +1134,7 @@ if (have_coot_python):
         print('Planar Peptide Restraints removed')
         remove_planar_peptide_restraints()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu, "Remove Planar Peptide Restraints",
        lambda func: add_restr_func2())
 
@@ -1150,8 +1150,8 @@ if (have_coot_python):
        h_sep = gtk.HSeparator()
 
        window.add(vbox)
-       option_menu_mol_list_pair = generic_molecule_chooser(vbox, chooser_hint_text)
-       entry = file_selector_entry(vbox, entry_hint_text)
+       option_menu_mol_list_pair = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text)
+       entry = coot_gui.file_selector_entry(vbox, entry_hint_text)
 
        def shelx_delete_event(*args):
          window.destroy()
@@ -1160,12 +1160,12 @@ if (have_coot_python):
        def shelx_go_funcn_event(*args):
          import operator
          txt = entry.get_text()
-         imol = get_option_menu_active_molecule(*option_menu_mol_list_pair)
+         imol = coot_gui.get_option_menu_active_molecule(*option_menu_mol_list_pair)
          if (isinstance(imol, numbers.Number)):
            if (len(txt) == 0):
-             shelxl_refine(imol)
+             shelx.shelxl_refine(imol)
            else:
-             shelxl_refine(imol, txt)
+             shelx.shelxl_refine(imol, txt)
          window.destroy()
          return False
 
@@ -1178,26 +1178,26 @@ if (have_coot_python):
        hbox.pack_start(cancel_button, True, False, 0)
        window.show_all()
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "SHELXL Refine...", 
        lambda func: shelx_ref_func())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "Read REFMAC logfile...",
-       lambda func: generic_chooser_and_file_selector("Read Refmac log file",
-                       valid_model_molecule_qm, "Logfile name: ", "",
-                       lambda imol, text: read_refmac_log(imol, text)))
+       lambda func: coot_gui.generic_chooser_and_file_selector("Read Refmac log file",
+                       coot_utils.valid_model_molecule_qm, "Logfile name: ", "",
+                       lambda imol, text: refmac.read_refmac_log(imol, text)))
                        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "Occupancy refinement input for REFMAC...",
-       lambda func: generic_chooser_and_file_selector("Extra restraints file",
-                       valid_model_molecule_qm, "Restraints file name: ",
+       lambda func: coot_gui.generic_chooser_and_file_selector("Extra restraints file",
+                       coot_utils.valid_model_molecule_qm, "Restraints file name: ",
                        "refmac_extra_params.txt",
-                       lambda imol, text: restraints_for_occupancy_refinement(imol, text)))
+                       lambda imol, text: refmac.restraints_for_occupancy_refinement(imol, text)))
        
 
      # An example with a submenu:
@@ -1208,51 +1208,51 @@ if (have_coot_python):
      submenu_refine.append(menuitem2)
      menuitem2.show()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Molasses Refinement mode", 
        lambda func: (printf("Molasses..."),
                      set_dragged_refinement_steps_per_frame(4)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Smooth Refinement mode",
        lambda func: (set_dragged_refinement_steps_per_frame(42)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Crocodile Refinement mode", 
        lambda func: (printf("Crock..."),
                      set_dragged_refinement_steps_per_frame(220)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Normal Refinement mode (1 Emsley)", 
        lambda func: (printf("Default Speed (1 Emsley)..."),
                      set_dragged_refinement_steps_per_frame(140)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "Auto-weight refinement",
-       lambda func: auto_weight_for_refinement())
+       lambda func: coot_utils.auto_weight_for_refinement())
      
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "Set Undo Molecule...",
-       lambda func: molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
+       lambda func: coot_gui.molecule_chooser_gui("Set the Molecule for 'Undo' Operations",
                     lambda imol: set_undo_molecule(imol)))
 
 
      # BL says: has no checking for text = number yet
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "B factor bonds scale factor...",
-       lambda func: generic_chooser_and_entry("Choose a molecule to which the B-factor colour scale is applied:",
+       lambda func: coot_gui.generic_chooser_and_entry("Choose a molecule to which the B-factor colour scale is applied:",
                 "B-factor scale:", "1.0", 
                 lambda imol, text: set_b_factor_bonds_scale_factor(imol,float(text))))
 
@@ -1267,10 +1267,10 @@ if (have_coot_python):
         else:
                 add_status_bar_text("Failed to read a number")
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
        "Set Matrix (Refinement Weight)...",
-       lambda func: generic_single_entry("set matrix: (smaller means better geometry)", 
+       lambda func: coot_gui.generic_single_entry("set matrix: (smaller means better geometry)", 
                 str(matrix_state()), "Set it", 
                 lambda text: set_mat_func(text)))
 
@@ -1291,22 +1291,22 @@ if (have_coot_python):
 #      #     Recent structures from the PDBe
 #      # ---------------------------------------------------------------------
 #      #
-#      add_simple_coot_menu_menuitem(
+#      coot_gui.add_simple_coot_menu_menuitem(
 #        submenu_pdbe, "PDBe recent structures...",
-#        lambda func: pdbe_latest_releases_gui())
+#        lambda func: get_recent_pdbe.pdbe_latest_releases_gui())
 
 #      # we do test for refmac at startup not runtime (for simplicity)
-#      if command_in_path_qm("refmac5"):
+#      if coot_utils.command_in_path_qm("refmac5"):
 #        mess = " Get it "
 #      else:
 #        mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
        
-#      add_simple_coot_menu_menuitem(
+#      coot_gui.add_simple_coot_menu_menuitem(
 #        submenu_pdbe, "Get from PDBe...",
-#        lambda func: generic_single_entry("Get PDBe accession code",
+#        lambda func: coot_gui.generic_single_entry("Get PDBe accession code",
 #                                          "", " Get it ",
 #                                          lambda text:
-#                                          pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
+#                                          get_recent_pdbe.pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip().lstrip())))
 
 #      # ---------------------------------------------------------------------
 #      #     Tutorial data
@@ -1331,7 +1331,7 @@ if (have_coot_python):
 #            make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
 #            make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
        
-#      add_simple_coot_menu_menuitem(
+#      coot_gui.add_simple_coot_menu_menuitem(
 #        menu,
 #        "Load tutorial model and data",
 #        lambda func: load_tutorial_data_func()
@@ -1343,7 +1343,7 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
      #
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Undo Symmetry View",
        lambda func: undo_symmetry_view())
@@ -1355,38 +1355,38 @@ if (have_coot_python):
 
 
      global default_ball_and_stick_selection    # maybe should be at the top of the file
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Ball & Stick...",
-       lambda func: generic_chooser_and_entry("Ball & Stick",
+       lambda func: coot_gui.generic_chooser_and_entry("Ball & Stick",
                                               "Atom Selection:",
                                               default_ball_and_stick_selection,
                                               lambda imol, text: make_ball_n_stick_func(imol, text)))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Add Balls to Simple Sticks",
-       lambda func: [set_draw_stick_mode_atoms(imol, 1) for imol in molecule_number_list()])
+       lambda func: [set_draw_stick_mode_atoms(imol, 1) for imol in coot_utils.molecule_number_list()])
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Simple Sticks (No Balls)",
-       lambda func: [set_draw_stick_mode_atoms(imol, 0) for imol in molecule_number_list()])
+       lambda func: [set_draw_stick_mode_atoms(imol, 0) for imol in coot_utils.molecule_number_list()])
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Clear Ball & Stick...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
          "Choose a molecule from which to clear Ball&Stick objects",
          lambda imol: clear_ball_and_stick(imol)))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Electrostatic Surface...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
           "Choose a molecule to represent as a surface..." + \
           "\n" + \
           "Can be SLOW",
@@ -1418,23 +1418,23 @@ if (have_coot_python):
        else:
          do_surface(imol_copy, 1)
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Clipped Surface Here (This Residue)",
        lambda func:
          surface_func1(1))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Full Surface Around Here (This Residue)",
        lambda func:
          surface_func1())
      
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Un-Surface...",
-       lambda func: molecule_chooser_gui(
+       lambda func: coot_gui.molecule_chooser_gui(
           "Choose a molecule to represent conventionally...",
           lambda imol: do_surface(imol, 0)))
 
@@ -1445,9 +1445,9 @@ if (have_coot_python):
          centre_residue_spec = [active_atom[1],
                                 active_atom[2],
                                 active_atom[3]]
-         hilight_binding_site(imol, centre_residue_spec, 230,4)
+         coot_utils.hilight_binding_site(imol, centre_residue_spec, 230,4)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Highlight Interesting Site (here)...",
        lambda func: hilight_site_func())
@@ -1459,10 +1459,10 @@ if (have_coot_python):
         dots_handle = dots(imol, text, text, 2, 1)
         print("dots handle: ", dots_handle)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Dotted Surface...",
-       lambda func: generic_chooser_and_entry("Surface for molecule", 
+       lambda func: coot_gui.generic_chooser_and_entry("Surface for molecule", 
                 "Atom Selection:", "//A/1-2", 
                 lambda imol, text: make_dot_surf_func(imol, text)))
 
@@ -1474,10 +1474,10 @@ if (have_coot_python):
         except:
           print("BL WARNING:: dots handle number shall be an integer!!")
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Clear Surface Dots...",
-       lambda func: generic_chooser_and_entry("Molecule with Dotted Surface", 
+       lambda func: coot_gui.generic_chooser_and_entry("Molecule with Dotted Surface", 
                 "Dots Handle Number:", "0", 
                 lambda imol, text: clear_dot_surf_func(imol, text)))
 
@@ -1492,10 +1492,10 @@ if (have_coot_python):
        except:
            set_model_display_radius(0, 10)
          
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Limit Model Display Radius...",
-       lambda func: generic_single_entry("Display Radius Limit (0 for \'no limit\') ",
+       lambda func: coot_gui.generic_single_entry("Display Radius Limit (0 for \'no limit\') ",
                                          #  "15.0" ;; maybe this should be the map radius
                                          # BL says:: I think it should be the current one
                                          str(get_map_radius()),
@@ -1503,16 +1503,16 @@ if (have_coot_python):
                                          lambda text: limit_model_disp_func(text)))
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
          submenu_representation,
          "HOLE...",
-         lambda func: hole_ify())
+         lambda func: test_hole.hole_ify())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation,
        "Label All CAs...",
-       lambda func: molecule_chooser_gui("Choose a molecule to label",
-                                         lambda imol: label_all_CAs(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Choose a molecule to label",
+                                         lambda imol: coot_utils.label_all_CAs(imol)))
  
      # Views submenu
      submenu = gtk.Menu()
@@ -1522,43 +1522,43 @@ if (have_coot_python):
      menu.append(menuitem2)
      menuitem2.show()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Add View...",
-       lambda func: view_saver_gui())
+       lambda func: coot_gui.view_saver_gui())
 
      # BL says:: maybe check if number at some point
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Add a Spin View...",
-       lambda func: generic_double_entry("Number of Steps", 
+       lambda func: coot_gui.generic_double_entry("Number of Steps", 
                          "Number of Degrees (total)", "3600", "360", 
                          False, False,                 #check button text and callback
                          "  Add Spin  ",
                          lambda text_1, text_2: add_spin_view("Spin", int(text_1), float(text_2))))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Views Panel...",
-       lambda func: views_panel_gui())
+       lambda func: coot_gui.views_panel_gui())
  
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Play Views",
        lambda func: list(map(eval,["go_to_first_view(1)",
                               "time.sleep(1)", "play_views()"])))
  
      # BL says:: maybe check if number at some point
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu, "Set Views Play Speed...",
-       lambda func: generic_single_entry("Set Views Play Speed",
+       lambda func: coot_gui.generic_single_entry("Set Views Play Speed",
                         str(views_play_speed()), "  Set it  ",
                         lambda text: set_views_play_speed(float(text))))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu, "Save Views...",
-       lambda func: generic_single_entry("Save Views",
+       lambda func: coot_gui.generic_single_entry("Save Views",
                                          "coot-views.py", " Save ",
                                          lambda txt: save_views(txt)))
 
@@ -1574,43 +1574,43 @@ if (have_coot_python):
      submenu_representation.append(menuitem2)
      menuitem2.show()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Annotate position...",
-       lambda func: generic_single_entry("Annotation: ", "",
+       lambda func: coot_gui.generic_single_entry("Annotation: ", "",
                                          "Make Annotation",
-                                         lambda txt: add_annotation_here(txt)))
+                                         lambda txt: coot_utils.add_annotation_here(txt)))
 
 
      # BL says:: maybe this (and next) should have a file chooser/selector!?
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Save Annotations...",
-       lambda func: generic_single_entry("Save Annotations",
+       lambda func: coot_gui.generic_single_entry("Save Annotations",
                                          "coot_annotations.py",
                                          " Save ",
-                                         lambda file_name: save_annotations(file_name)))
+                                         lambda file_name: coot_utils.save_annotations(file_name)))
        
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Load Annotations...",
-       lambda func: generic_single_entry("Load Annotations",
+       lambda func: coot_gui.generic_single_entry("Load Annotations",
                                          "coot_annotations.py",
                                          " Load ",
-                                         lambda file_name: load_annotations(file_name)))
+                                         lambda file_name: coot_utils.load_annotations(file_name)))
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Remove annotation here",
-       lambda func: remove_annotation_here())
+       lambda func: coot_utils.remove_annotation_here())
 
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu,
        "Remove annotation near click",
-       lambda func: remove_annotation_at_click())
+       lambda func: coot_utils.remove_annotation_at_click())
      
 
      #---------------------------------------------------------------------
@@ -1627,8 +1627,8 @@ if (have_coot_python):
             ccp4mg_exe = "winccp4mg.exe"
         else:
           ccp4mg_exe = "ccp4mg"
-        if command_in_path_qm(ccp4mg_exe):
-          ccp4mg_file_exe = find_exe(ccp4mg_exe, "PATH")
+        if coot_utils.command_in_path_qm(ccp4mg_exe):
+          ccp4mg_file_exe = coot_utils.find_exe(ccp4mg_exe, "PATH")
           pd_file_name = os.path.abspath(pd_file_name)
           args = [ccp4mg_file_exe, "-pict", pd_file_name]
           try:
@@ -1641,7 +1641,7 @@ if (have_coot_python):
         else:
           print("BL WARNING:: sorry cannot find %s in $PATH" %ccp4mg_exe)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_representation, "CCP4MG...",
        lambda func: ccp4mg_func1())
 
@@ -1650,48 +1650,48 @@ if (have_coot_python):
      #     PISA Interface and Assemblies
      # ---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_pisa, "PISA Assemblies...",
        lambda func:
-       molecule_chooser_gui("Choose molecule for PISA assembly analysis",
+       coot_gui.molecule_chooser_gui("Choose molecule for PISA assembly analysis",
                             lambda imol:
-                            pisa_assemblies(imol)))
+                            parse_pisa_xml.pisa_assemblies(imol)))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_pisa, "PISA Interfaces...",
        lambda func:
-       molecule_chooser_gui("Choose molecule for PISA interface analysis",
+       coot_gui.molecule_chooser_gui("Choose molecule for PISA interface analysis",
                             lambda imol:
-                            pisa_interfaces(imol)))
+                            parse_pisa_xml.pisa_interfaces(imol)))
 
 
      # ---------------------------------------------------------------------
      #     Modules
      # ---------------------------------------------------------------------
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_modules, "CCP4...",
-       lambda func: add_module_ccp4())
+       lambda func: coot_gui.add_module_ccp4())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_modules, "SHELX...",
-       lambda func: add_module_shelx())
+       lambda func: shelx_extensions.add_module_shelx())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_modules, "User-defined Restraints...",
        lambda func: add_module_user_defined_restraints())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "ProSMART",
-         lambda func: add_module_prosmart())
+         lambda func: gui_prosmart.add_module_prosmart())
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Carbohydrate",
-         lambda func: add_module_carbohydrate_gui())
+         lambda func: gui_add_linked_cho.add_module_carbohydrate_gui())
      
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
          submenu_modules, "Cryo-EM",
-         lambda func: add_module_cryo_em())
+         lambda func: coot_gui.add_module_cryo_em())
 
      
      # ---------------------------------------------------------------------
@@ -1705,54 +1705,54 @@ if (have_coot_python):
      submenu_settings.append(menuitem2)
      menuitem2.show()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu, "Rotate About Fragment Centre",
        lambda func: set_rotate_translate_zone_rotates_about_zone_centre(1))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu, "Rotate About Second Clicked Atom",
        lambda func: set_rotate_translate_zone_rotates_about_zone_centre(0))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings,
        "Set Density Fit Graph Weight...",
-       lambda func: generic_single_entry("set weight (smaller means apparently better fit)",
+       lambda func: coot_gui.generic_single_entry("set weight (smaller means apparently better fit)",
                 str("%.2f" %residue_density_fit_scale_factor()), "Set it",
                 lambda text: set_den_gra_func(text)))
 
      # BL says:: maybe check if number at some point
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings,
        "Set Spin Speed",
-       lambda func: generic_single_entry("Set Spin Speed (smaller is slower)",
+       lambda func: coot_gui.generic_single_entry("Set Spin Speed (smaller is slower)",
                         str(idle_function_rotate_angle()), "Set it",
                         lambda text: set_idle_function_rotate_angle(float(text))))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "Nudge Centre...",
-       lambda func: nudge_screen_centre_gui())
+       lambda func: coot_gui.nudge_screen_centre_gui())
 
 
      def all_mol_symm_func():
-        for imol in molecule_number_list():
-                if valid_model_molecule_qm(imol):
+        for imol in coot_utils.molecule_number_list():
+                if coot_utils.valid_model_molecule_qm(imol):
                         set_symmetry_whole_chain(imol, 1)
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "All Molecules use \"Near Chains\" Symmetry", 
        lambda func: [valid_model_molecule_qm(imol) and
-                         set_symmetry_whole_chain(imol, 1) for imol in molecule_number_list()])
+                         set_symmetry_whole_chain(imol, 1) for imol in coot_utils.molecule_number_list()])
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine, "Question Accept Refinement", 
        lambda func: set_refinement_immediate_replacement(0))
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "Save Graphics Size and Positions",
        lambda func: graphics_window_size_and_position_to_preferences())
 
@@ -1790,20 +1790,20 @@ if (have_coot_python):
 
        window.show_all()
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "Save Dialog Positions...",
        lambda func: save_dialog_func())
 
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "Key Bindings...",
-       lambda func: key_bindings_gui())
+       lambda func: coot_gui.key_bindings_gui())
 
      def install_and_show_key_bindings():
-          file_to_preferences("template_key_bindings.py") # copy and evaluate
-          key_bindings_gui()
+          coot_utils.file_to_preferences("template_key_bindings.py") # copy and evaluate
+          coot_gui.key_bindings_gui()
        
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "Python: Install Template Keybindings",
        lambda func: install_and_show_key_bindings())
 
@@ -1814,10 +1814,10 @@ if (have_coot_python):
        except:
          print("BL INFO:: could not add timer for auto save!")
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        submenu_settings, "Enable Quick-Save checkpointing...",
        lambda func:
-          generic_single_entry("Checkpoint interval (seconds)",
+          coot_gui.generic_single_entry("Checkpoint interval (seconds)",
                                "30",
                                " Start Auto-saving ",
                                lambda txt:
@@ -1825,18 +1825,18 @@ if (have_coot_python):
 
      # Doesnt seem to be working right currently, so comment out?! Not any more?!
      # add to validate menu
-     menu = coot_menubar_menu("Validate")
+     menu = coot_gui.coot_menubar_menu("Validate")
 
-     add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
-                                   lambda func: molecule_chooser_gui(
+     coot_gui.add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
+                                   lambda func: coot_gui.molecule_chooser_gui(
        "Choose a molecule for ribose pucker analysis",
-       lambda imol: pukka_puckers_qm(imol)))
+       lambda imol: coot_utils.pukka_puckers_qm(imol)))
 
-     add_simple_coot_menu_menuitem(
+     coot_gui.add_simple_coot_menu_menuitem(
        menu,
        "Alignment vs PIR...",
-       lambda func: molecule_chooser_gui("Alignment vs PIR info for molecule:",
-                                         lambda imol: wrapper_alignment_mismatches_gui(imol)))
+       lambda func: coot_gui.molecule_chooser_gui("Alignment vs PIR info for molecule:",
+                                         lambda imol: coot_gui.wrapper_alignment_mismatches_gui(imol)))
           
 
   else:

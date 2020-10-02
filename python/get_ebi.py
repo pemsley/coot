@@ -27,7 +27,7 @@ pdbe_file_name_tail = "ent"
 # 20151126-PE No, we can't have coot-download created on coot-startup, it must be
 #             made only when we need it.
 # global coot_tmp_dir
-# coot_tmp_dir = get_directory("coot-download")
+# coot_tmp_dir = coot_utils.get_directory("coot-download")
 
 # e.g. (ebi-get-pdb "1crn")
 # 
@@ -103,7 +103,7 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 
     #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
-    coot_tmp_dir = get_directory("coot-download")	
+    coot_tmp_dir = coot_utils.get_directory("coot-download")	
     if (data_type == "pdb"):
        pdb_file_name = coot_tmp_dir + "/" + id + ".pdb." + pdbe_file_name_tail
        check_dir_and_get_url(coot_tmp_dir,pdb_file_name,url_string)
@@ -151,7 +151,7 @@ def get_ebi_pdb(id):
     imol_coords = get_url_str(id, url_str, "pdb", None)
     # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
     #      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
-    if valid_model_molecule_qm(imol_coords):
+    if coot_utils.valid_model_molecule_qm(imol_coords):
         pdb_validate(down_id, imol_coords)
     return imol_coords
 
@@ -189,7 +189,7 @@ def get_eds_pdb_and_mtz(id):
 
     def get_cached_eds_files(accession_code):
         down_code = string.lower(accession_code)
-        dir_name = get_directory("coot-download")
+        dir_name = coot_utils.get_directory("coot-download")
         pdb_file_name = os.path.join(dir_name,
                                      "pdb" + down_code + ".ent")
         mtz_file_name = os.path.join(dir_name,
@@ -205,8 +205,8 @@ def get_eds_pdb_and_mtz(id):
                 imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
                 imol_map_d = make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
                 if not (valid_model_molecule_qm(imol) and
-                        valid_map_molecule_qm(imol_map) and
-                        valid_map_molecule_qm(imol_map_d)):
+                        coot_utils.valid_map_molecule_qm(imol_map) and
+                        coot_utils.valid_map_molecule_qm(imol_map_d)):
                     close_molecule(imol)
                     close_molecule(imol_map)
                     close_molecule(imol_map_d)
@@ -238,8 +238,8 @@ def get_eds_pdb_and_mtz(id):
     if isinstance(cached_status, list):
         return cached_status
     else:
-        coot_tmp_dir = get_directory("coot-download")	
-        r = coot_mkdir(coot_tmp_dir)
+        coot_tmp_dir = coot_utils.get_directory("coot-download")	
+        r = coot_utils.coot_mkdir(coot_tmp_dir)
 
         if (r):
             down_id = string.lower(id)
@@ -288,12 +288,12 @@ def get_eds_pdb_and_mtz(id):
 
             if os.path.isfile(s1):
                 r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-                if not valid_model_molecule_qm(r_imol):
+                if not coot_utils.valid_model_molecule_qm(r_imol):
                     s1_cif = coot_urlretrieve(model_cif_url, dir_target_cif_file)
                     print("INFO:: read cif model status: ",s1_cif)
                     if (s1_cif == 0):
                         r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-                        if not valid_model_molecule_qm(r_imol):
+                        if not coot_utils.valid_model_molecule_qm(r_imol):
                             return False
                         else:
                             return r_imol

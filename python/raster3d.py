@@ -41,7 +41,7 @@ def render_image():
         coot_image_file_name = "coot.png"
         image_format = " -png "
     raster3d(coot_r3d_file_name)
-    r3d_exe = find_exe("render", "PATH")
+    r3d_exe = coot_utils.find_exe("render", "PATH")
     if (r3d_exe):
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
@@ -90,7 +90,7 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
     else:
         render_exe = "render"
         image_format = " -png "
-    r3d_exe = find_exe("render", "CCP4_BIN", "PATH")
+    r3d_exe = coot_utils.find_exe("render", "CCP4_BIN", "PATH")
     if (r3d_exe):
        r3d_dir = os.path.dirname(r3d_exe)
        os.environ['R3D_LIB'] = r3d_dir + "/materials"
@@ -129,7 +129,7 @@ def raytrace(image_type, source_file_name, image_file_name, x_size, y_size):
     #BL says: conversion of filename, again! Windows is driving me crazy...
     image_file_name = os.path.normpath(image_file_name)
     # again, we just assume povray exe is pvengine on all systems
-    povray_exe = find_exe(povray_command_name, "PATH")
+    povray_exe = coot_utils.find_exe(povray_command_name, "PATH")
     if (povray_exe):
       image_file_name_mod, source_file_name_mod, space_flag = \
         check_file_names_for_space_and_move(image_file_name, source_file_name)
@@ -236,14 +236,14 @@ def raster3d_version():
 
     import os
 
-    raster3d_exe = find_exe("render", "CCP4_BIN", "PATH")
+    raster3d_exe = coot_utils.find_exe("render", "CCP4_BIN", "PATH")
 
     if not raster3d_exe:
         return False
     else:
         log_file = "raster3_version.tmp"
         # BL note: currently -i is a bogus switch, so gives info
-        status = popen_command(raster3d_exe, ["-i"], [], log_file)
+        status = coot_utils.popen_command(raster3d_exe, ["-i"], [], log_file)
         if (status != 0):
             return False
         else:

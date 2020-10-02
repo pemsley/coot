@@ -2,24 +2,24 @@
 # this function is not at startup?
 
 def deactivate_molecules_except(imol):
-    for i in model_molecule_list():
+    for i in coot_utils.model_molecule_list():
         if (i != imol):
             set_mol_active(i, 0)
 
 
 # This will hydrogenate the active residue, not imol
-# returns the probe clash score
+# returns the generic_objects.probe clash score
 #
 def contact_score_ligand(imol, res_spec):
 
     deactivate_molecules_except(imol)
 
-    chain_id = res_spec_to_chain_id(res_spec)
-    res_no = res_spec_to_res_no(res_spec)
-    ins_code = res_spec_to_ins_code(res_spec)
+    chain_id = coot_utils.res_spec_to_chain_id(res_spec)
+    res_no = coot_utils.res_spec_to_res_no(res_spec)
+    ins_code = coot_utils.res_spec_to_ins_code(res_spec)
     ss = "//" + chain_id + "/" + str(res_no)
     imol_selection = new_molecule_by_atom_selection(imol, ss)
-    coot_molprobity_dir = get_directory("coot-molprobity")
+    coot_molprobity_dir = coot_utils.get_directory("coot-molprobity")
     ligand_selection_pdb = os.path.join(coot_molprobity_dir,
                                         "tmp-selected-ligand-for-probe-" + str(imol) + ".pdb")
     protein_selection_pdb = os.path.join(coot_molprobity_dir,
@@ -28,7 +28,7 @@ def contact_score_ligand(imol, res_spec):
                                   "probe-" + chain_id + "-" + str(res_no) + ".dots")
     set_mol_active(imol_selection, 0)
     set_mol_displayed(imol_selection, 0)
-    set_go_to_atom_molecule(imol)
+    coot_utils.set_go_to_atom_molecule(imol)
     rc = residue_centre(imol, chain_id, res_no, ins_code)
     set_rotation_centre(*rc)
     hydrogenate_region(6)
@@ -37,7 +37,7 @@ def contact_score_ligand(imol, res_spec):
     write_pdb_file(imol, protein_selection_pdb)
 
     args = ["-q", "-unformated", "-once", # -once or -both
-                                  # "-outside", # crashes probe
+                                  # "-outside", # crashes generic_objects.probe
                                   # first pattern
                                   "CHAIN" + chain_id + " " + str(res_no),
                                   # second pattern
@@ -45,12 +45,12 @@ def contact_score_ligand(imol, res_spec):
                                   # consider og33 (occ > 0.33)
                                   "-density50",
                                   ligand_selection_pdb, protein_selection_pdb]
-    popen_command(probe_command, args, [], dots_file_name, False)
+    coot_utils.popen_command(probe_command, args, [], dots_file_name, False)
 
-    # debugging!?
+    # coot_utils.debugging!?
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
 
-    cs = probe_clash_score(dots_file_name)
+    cs = generic_objects.probe_clash_score(dots_file_name)
     graphics_draw()
     return cs
 

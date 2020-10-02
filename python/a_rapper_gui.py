@@ -42,7 +42,7 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
     def all_chars_qm(ls):
         return all(map(lambda x: x.isalpha(), ls))
 
-    if (not valid_model_molecule_qm(imol)):
+    if (not coot_utils.valid_model_molecule_qm(imol)):
         return False
     else:
         single_letter_code_list = []
@@ -58,7 +58,7 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
 def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models):
 
     imol_map = imol_refinement_map()
-    if (not valid_map_molecule_qm(imol_map)):
+    if (not coot_utils.valid_map_molecule_qm(imol_map)):
         print "No valid map molecule given (possibly ambiguous)"
     else:
         str = "//" + chain_id + "/" + str(start_no) + \
@@ -104,7 +104,7 @@ def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models
                                     "--enforce-sidechain-centroid-restraints", "true",
                                     "--edm-fit", "true",
                                     "--rapper-dir", rapper_dir]
-        rapper_status = popen_command(rapper_command,
+        rapper_status = coot_utils.popen_command(rapper_command,
                                       rapper_command_line_args,
                                       [],
                                       "rapper.log",
@@ -134,7 +134,7 @@ def a_rapper_gui(loop_building_tool):
 
     def rapper_go_func(*args):
         from types import IntType
-        imol = get_option_menu_active_molecule(option_menu_pdb, model_mol_list)
+        imol = coot_gui.get_option_menu_active_molecule(option_menu_pdb, model_mol_list)
         if (not (type(imol) is IntType)):
             print "bad active model"
         else:
@@ -214,7 +214,7 @@ def a_rapper_gui(loop_building_tool):
     entry_models = gtk.Entry()
 
     #
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu_pdb)
+    model_mol_list = coot_gui.fill_option_menu_with_coordinates_mol_options(option_menu_pdb)
 
     #text_sequence.set_usize(-1, 80) # ?? using text view!?
     pdb_hbox.pack_start(label_pdb, False, False, 2)
@@ -261,7 +261,7 @@ def a_rapper_gui(loop_building_tool):
 
     window.show_all()
 
-menu = coot_menubar_menu("Loop")
+menu = coot_gui.coot_menubar_menu("Loop")
 add_simple_coot_menu_menuitem(menu, "RAPPER...",
                               lambda func: a_rapper_gui('rapper'))
 

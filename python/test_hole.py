@@ -20,7 +20,7 @@ def hole_ify():
     end_button   = gtk.Button("Set End Point")
     calculate_button = gtk.Button("Calculate")
     cancel_button = gtk.Button("Cancel")
-    option_menu_and_model_mol_list = generic_molecule_chooser(hbox,
+    option_menu_and_model_mol_list = coot_gui.generic_molecule_chooser(hbox,
                                                               "HOLE-ify molecule: ")
 
     window.add(vbox)
@@ -34,7 +34,7 @@ def hole_ify():
 
     def start_button_cb(*args):
         global start_pos
-        start_pos = rotation_centre()
+        start_pos = coot_utils.rotation_centre()
         print "Start pos set to:", start_pos
         status_bar_pos(start_pos, "start")
         
@@ -42,7 +42,7 @@ def hole_ify():
 
     def end_button_cb(*args):
         global end_pos
-        end_pos = rotation_centre()
+        end_pos = coot_utils.rotation_centre()
         print "End pos set to:", end_pos
         status_bar_pos(end_pos, "end")
         
@@ -54,7 +54,7 @@ def hole_ify():
     
     def calculate_button_cb(*args):
         global start_pos, end_pos
-        imol = get_option_menu_active_molecule(*option_menu_and_model_mol_list)
+        imol = coot_gui.get_option_menu_active_molecule(*option_menu_and_model_mol_list)
         if isinstance(imol, int):
             print start_pos, end_pos
             if not isinstance(start_pos, list):
@@ -80,8 +80,8 @@ def hole_ify():
 
 if (have_coot_python):
     if coot_python.main_menubar():
-        menu = coot_menubar_menu("Test Hole")
-        add_simple_coot_menu_menuitem(
+        menu = coot_gui.coot_menubar_menu("Test Hole")
+        coot_gui.add_simple_coot_menu_menuitem(
             menu,
             "Test",
             lambda func: hole_ify()

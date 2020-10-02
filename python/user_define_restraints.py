@@ -71,19 +71,19 @@ def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
   #                     "2.0",
   #                     "OK...",
   #                     lambda text: make_restr(text))
-  generic_multiple_entries_with_check_button(
+  coot_gui.generic_multiple_entries_with_check_button(
     [["Add a User-defined extra distance restraint",
       str(bond_length)]],
     ["Stay open?", lambda active_state: stay_open(active_state)],
     "OK...",
     lambda text, stay_open_qm: make_restr(text, stay_open_qm))
 
-# spec_1 and spec_2 are 7-element atom_specs
+# spec_1 and spec_2 are 7-element coot_utils.atom_specs
 #
 def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
 
   """
-  spec_1 and spec_2 are 7-element atom_specs
+  spec_1 and spec_2 are 7-element coot_utils.atom_specs
   """
 
   print("add_base_restraint", imol, spec_1, spec_2, atom_name_1, atom_name_2, dist)
@@ -288,14 +288,14 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
 
   write_pdb_file(imol_target, target_pdb_file_name)
   write_pdb_file(imol_ref, reference_pdb_file_name)
-  prosmart_exe = find_exe("prosmart")
+  prosmart_exe = coot_utils.find_exe("prosmart")
   if prosmart_exe:
     l = ["-p1", target_pdb_file_name,
          "-p2", reference_pdb_file_name,
          "-restrain_seqid", "30"]
     if include_side_chains:
       l += ["-side"]
-    popen_command(prosmart_exe,
+    coot_utils.popen_command(prosmart_exe,
                   l,
                   [],
                   os.path.join(dir_stub, "prosmart.log"),
@@ -367,8 +367,8 @@ def add_parallel_planes_restraint(imol, rs_0, rs_1):
 
   print("in add_parallel_planes_restraint: rs_0: %s rs_1 %s" %(rs_0, rs_1))
 
-  rn_0 = residue_spec_to_residue_name(imol, rs_0)
-  rn_1 = residue_spec_to_residue_name(imol, rs_1)
+  rn_0 = coot_utils.residue_spec_to_residue_name(imol, rs_0)
+  rn_1 = coot_utils.residue_spec_to_residue_name(imol, rs_1)
   atom_ls_0 = res_name2plane_atom_name_list(rn_0)
   atom_ls_1 = res_name2plane_atom_name_list(rn_1)
 
@@ -384,18 +384,18 @@ def user_defined_add_planes_restraint():
   def make_restr(*args):
     atom_0 = args[0]
     atom_1 = args[1]
-    rs_0 = atom_spec_to_residue_spec(atom_0)
-    rs_1 = atom_spec_to_residue_spec(atom_1)
-    imol = atom_spec_to_imol(atom_0)
+    rs_0 = coot_utils.atom_spec_to_residue_spec(atom_0)
+    rs_1 = coot_utils.atom_spec_to_residue_spec(atom_1)
+    imol = coot_utils.atom_spec_to_imol(atom_0)
 
     rn_0 = residue_name(imol,
-                        residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_0)),
-                        residue_spec_to_res_no(atom_spec_to_residue_spec(atom_0)),
-                        residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_0)))
+                        res_spec_utils.residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_0)),
+                        res_spec_utils.residue_spec_to_res_no(atom_spec_to_residue_spec(atom_0)),
+                        coot_utils.residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_0)))
     rn_1 = residue_name(imol,
-                        residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_1)),
-                        residue_spec_to_res_no(atom_spec_to_residue_spec(atom_1)),
-                        residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_1)))
+                        res_spec_utils.residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_1)),
+                        res_spec_utils.residue_spec_to_res_no(atom_spec_to_residue_spec(atom_1)),
+                        coot_utils.residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_1)))
 
     print("BL DEBUG:: got resname 0", rn_0)
     print("BL DEBUG:: got resname 1", rn_1)
@@ -413,37 +413,37 @@ def user_defined_add_planes_restraint():
 if (have_coot_python):
   if coot_python.main_menubar():
     
-    menu = coot_menubar_menu("Restraints")
+    menu = coot_gui.coot_menubar_menu("Restraints")
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Add Simple C-C Single Bond Restraint...",
       lambda func: user_defined_add_single_bond_restraint())
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Add Distance Restraint...",
       lambda func: user_defined_add_arbitrary_length_bond_restraint())
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Add Helix Restraints...",
       lambda func: user_defined_add_helix_restraints())
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "RNA A form bond restraints...",
       lambda func: user_defined_RNA_A_form())
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "DNA B form bond restraints...",
       lambda func: user_defined_DNA_B_form())
 
     def launch_prosmart_gui():
       def go_button_cb(*args):
-        imol_tar = get_option_menu_active_molecule(*option_menu_mol_list_pair_tar)
-        imol_ref = get_option_menu_active_molecule(*option_menu_mol_list_pair_ref)
+        imol_tar = coot_gui.get_option_menu_active_molecule(*option_menu_mol_list_pair_tar)
+        imol_ref = coot_gui.get_option_menu_active_molecule(*option_menu_mol_list_pair_ref)
         do_side_chains = check_button.get_active()
         run_prosmart(imol_tar, imol_ref, do_side_chains)
         window.destroy()
@@ -457,9 +457,9 @@ if (have_coot_python):
       cancel_button = gtk.Button("  Cancel  ")
       check_button = gtk.CheckButton("Include Side-chains")
 
-      option_menu_mol_list_pair_tar = generic_molecule_chooser(vbox,
+      option_menu_mol_list_pair_tar = coot_gui.generic_molecule_chooser(vbox,
                                                                chooser_hint_text_1)
-      option_menu_mol_list_pair_ref = generic_molecule_chooser(vbox,
+      option_menu_mol_list_pair_ref = coot_gui.generic_molecule_chooser(vbox,
                                                                chooser_hint_text_2)
 
       vbox.pack_start(check_button, False, False, 2)
@@ -475,28 +475,28 @@ if (have_coot_python):
                         option_menu_mol_list_pair_ref)
       window.show_all()
       
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "ProSMART...",
       lambda func: launch_prosmart_gui()
       )
 
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Read Refmac Extra Restraints...",
       lambda func:
-      generic_chooser_and_file_selector("Apply restraints to molecule",
-                                        valid_model_molecule_qm,
+      coot_gui.generic_chooser_and_file_selector("Apply restraints to molecule",
+                                        coot_utils.valid_model_molecule_qm,
                                         "File:", "",
                                         lambda imol, file_name:
                                         add_refmac_extra_restraints(imol, file_name)))
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Delete Extra Restraints...",
       lambda func:
-      molecule_chooser_gui("Delete Extra Restraints for Molecule:",
+      coot_gui.molecule_chooser_gui("Delete Extra Restraints for Molecule:",
                            lambda imol:
                            delete_all_extra_restraints(imol)))
       
@@ -507,13 +507,13 @@ if (have_coot_python):
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         set_extra_restraints_prosmart_sigma_limits(aa_imol, low, high)
     
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "ProSMART restraints interesting limit to 0.5...",
       lambda func: set_prosmart_sigma_limit_func(-0.5, 0.5)
       )
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "ProSMART restraints interesting limit to 2.5...",
       lambda func: set_prosmart_sigma_limit_func(-2.5, 2.5)
@@ -525,13 +525,13 @@ if (have_coot_python):
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         set_show_extra_restraints(aa_imol, state)
     
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Undisplay Extra Restraints",
       lambda func: set_prosmart_display_func(0)
       )
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Display ProSMART Extra Restraints",
       lambda func: set_prosmart_display_func(1)
@@ -543,17 +543,17 @@ if (have_coot_python):
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
       
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Extra Restraints to CA",
       lambda func: set_prosmart_display_CA_func(1))
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Extra Restraints Standard Representation",
       lambda func: set_prosmart_display_CA_func(0))
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Delete an Extra Restraint...",
       lambda func: user_defined_delete_restraint())
@@ -562,7 +562,7 @@ if (have_coot_python):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
         delete_extra_restraints_for_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
         
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Delete Restraints for this residue",
       lambda func: delete_restraints_func()
@@ -576,27 +576,27 @@ if (have_coot_python):
       except:
         print("BL WARNING:: no float given")
       
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Delete Deviant Extra Restraints...",
-      lambda func: generic_single_entry("Delete Restraints worse than ",
+      lambda func: coot_gui.generic_single_entry("Delete Restraints worse than ",
                                         "4.0", " Delete Outlying Restraints ",
                                         lambda text: del_deviant_restr_func(text))
       )
     
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Save as REFMAC restraints...",
       lambda func:
-      generic_chooser_and_file_selector("Save REFMAC restraints for molecule",
-                                        valid_model_molecule_qm,
+      coot_gui.generic_chooser_and_file_selector("Save REFMAC restraints for molecule",
+                                        coot_utils.valid_model_molecule_qm,
                                         " Restraints file name:  ", 
                                         "refmac-restraints.txt",
                                         lambda imol, file_name:
                                           extra_restraints2refmac_restraints_file(imol, file_name)))
     
 
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
       menu,
       "Add Parallel Planes Restraint...",
       lambda func:

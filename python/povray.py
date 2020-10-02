@@ -40,7 +40,7 @@ else:
 	povray_command_name = "povray"
 
 # args not including the output filename
-#def povray_args():
+#def raster3d.povray_args():
 #    return " +FN16 +A"
 # BL says: dont know how usefull this function is/will be....
 # BL says:: this is actually defined in raster3d.py
@@ -54,16 +54,16 @@ def povray_image():
     import sys
 
     povray(coot_povray_file_name)
-    print("calling povray with args: ", povray_args())
+    print("calling povray with args: ", raster3d.povray_args())
     extra_args = "-UV +H600 +W600"
     if (os.name == 'nt'):
         args = " /EXIT /RENDER "
     else:
         args = " "
-    args = args + coot_povray_file_name + " " + povray_args() + " " + extra_args
+    args = args + coot_povray_file_name + " " + raster3d.povray_args() + " " + extra_args
     # BL says: dunno what povray exe is called on other systems,
     # just assume is same for now
-    povray_exe = find_exe(povray_command_name, "PATH")
+    povray_exe = coot_utils.find_exe(povray_command_name, "PATH")
     if (povray_exe):
       povray_call = povray_exe + args + " +o" + coot_povray_png_file_name
       print("BL DEBUG:: povray_call", povray_call)

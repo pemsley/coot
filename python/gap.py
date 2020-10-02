@@ -147,7 +147,7 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
 
             # only show if more than 1 loop left
             if (len(buttons) >1):
-               dialog_box_of_radiobuttons("Select Loop", [200, 100],
+               coot_gui.dialog_box_of_radiobuttons("Select Loop", [200, 100],
                                           buttons, "  Accept  ",
                                           go_function, selected_button,
                                           "  Reject  ", cancel_function)
@@ -237,11 +237,11 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
       if (not sequence == "" and not has_sequence_qm(imol, chain_id)):
          print("mutate-and-autofit-residue-range ",imol, chain_id, start_resno,stop_resno, sequence)
          if direction == "forwards":
-            mutate_and_autofit_residue_range(imol, chain_id,
+            mutate.mutate_and_autofit_residue_range(imol, chain_id,
                                              start_resno, stop_resno,
                                              sequence)
          else:
-            mutate_and_autofit_residue_range(imol, chain_id,
+            mutate.mutate_and_autofit_residue_range(imol, chain_id,
                                              stop_resno, start_resno,
                                              sequence)
 
@@ -249,16 +249,16 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
       # Refine new zone
       # -----------------------------------------------
 
-      if residue_exists_qm(imol,chain_id,start_resno - 1,""):
+      if coot_utils.residue_exists_qm(imol,chain_id,start_resno - 1,""):
          print("Test finds")
       else:
          print("Test: not there")
 
-      if residue_exists_qm(imol,chain_id,start_resno - 1,""):
+      if coot_utils.residue_exists_qm(imol,chain_id,start_resno - 1,""):
          low_end = start_resno - 1
       else:
          low_end = start_resno
-      if residue_exists_qm(imol,chain_id,stop_resno + 1,""):
+      if coot_utils.residue_exists_qm(imol,chain_id,stop_resno + 1,""):
          high_end = stop_resno + 1
       else:
          high_end = stop_resno

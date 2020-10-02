@@ -18,7 +18,7 @@
 # given a number and a gtk text widget @var{text} (textbuffer!), put tip number
 # @var{n} into the widget.
 def show_coot_tip_from_list(n, text):
-    tip = tip_list()[n]
+    tip = tips.tip_list()[n]
     textbuffer = text.get_buffer()
     textbuffer.set_text(tip)
 

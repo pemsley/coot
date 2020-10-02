@@ -2946,7 +2946,7 @@ def pukka_puckers_qm(imol):
                    "\"" + str(at_name) + "\")"]
                   ]
             buttons.append(ls)
-        dialog_box_of_buttons("Non-pukka puckers",
+        coot_gui.dialog_box_of_buttons("Non-pukka puckers",
                               [370, 250],
                               buttons,
                               "  Close  ")
@@ -3682,7 +3682,7 @@ def find_exe(program_name, *args, **kwargs):
     search_disk = False
     if (use_gui_qm and not no_search):
         try:
-            search_disk = search_disk_dialog(program_name, path_ls)
+            search_disk = coot_gui.search_disk_dialog(program_name, path_ls)
         except NameError as e:
             pass
     if search_disk:
@@ -3845,7 +3845,7 @@ def kill_process(pid):
 
 
 # some example function for the toolbutton
-# maybe should go in coot_gui!?
+# maybe should go in coot_gui.coot_gui!?
 def stereo_mono_toggle():
     display_state = stereo_mode_state()
     if (display_state == 0):
@@ -4061,9 +4061,9 @@ merge_water_chains = merge_solvent_chains
     # args which is a tuple
     # optionally pass sleep time in ms (default is 20) - usefull
     # for computationally expensive threads which may have run longer
-    # N.B. requires gobject hence in coot_gui.py
+    # N.B. requires gobject hence in coot_gui.coot_gui.py
     #
-    # def run_python_thread(function, args):
+    # def coot_gui.run_python_thread(function, args):
 
     #     class MyThread(threading.Thread):
     #         def __init__(self):

@@ -65,7 +65,7 @@ def generic_objects_gui():
     except:
       print("BL WARNING:: no pygtk2. Function wont work!!!")
 
-    if (pygtk_flag and using_gui()):
+    if (pygtk_flag and coot_utils.using_gui()):
       # Now we run the gui
       def delete_event(*args):
         # BL says: first we shall close the generic objects
@@ -173,12 +173,12 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
   global reduce_command
   
   print("running reduce on", pdb_in)
-  # could try find_exe too!
-  if not command_in_path_qm(reduce_command):
+  # could try coot_utils.find_exe too!
+  if not coot_utils.command_in_path_qm(reduce_command):
     print("command for reduce %s is not found in path" %reduce_command)
   else:
     # need full path to find het dict
-    full_reduce_command = find_exe(reduce_command, "PATH")
+    full_reduce_command = coot_utils.find_exe(reduce_command, "PATH")
 
     nshl = non_standard_residue_names(imol)
     ext = "-".join(nshl)
@@ -198,7 +198,7 @@ def reduce_on_pdb_file_generic(imol, no_flip_or_build, pdb_in, pdb_out):
           %(reduce_command,
             [mode, pdb_in] + dict_args,
             pdb_out))
-    status = popen_command(reduce_command,
+    status = coot_utils.popen_command(reduce_command,
                            [mode, pdb_in] + dict_args,
                            [],
                            pdb_out)
@@ -228,10 +228,10 @@ def probe(imol):
   if is_valid_model_molecule(imol):
 
     if not (os.path.isfile(reduce_command)):
-      reduce_command = find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
+      reduce_command = coot_utils.find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
     # we need to check if probe_command is defined too
     if not(os.path.isfile(probe_command)):
-      probe_command = find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
+      probe_command = coot_utils.find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
     make_directory_maybe("coot-molprobity")
     mol_pdb_file = "coot-molprobity/for-reduce.pdb"
     reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
@@ -260,7 +260,7 @@ def probe(imol):
             %(reduce_command , arg_list, reduce_out_pdb_file))
       print("BL INFO:: running reduce: REDUCE_HET_DICT env var:", os.getenv('REDUCE_HET_DICT'))
       
-      reduce_status = popen_command(reduce_command,
+      reduce_status = coot_utils.popen_command(reduce_command,
                                     arg_list,
                                     [],
                                     reduce_out_pdb_file)
@@ -270,13 +270,13 @@ def probe(imol):
         # couldnt find probe
         print("BL WARNING:: Could not locate the program probe!! Please check if installed!")
       else:
-        probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
+        probe_name_stub = coot_utils.strip_extension(strip_path(molecule_name(imol)))
         probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
         probe_out = "coot-molprobity/probe-dots.out"
 
         prepare_file_for_probe(reduce_out_pdb_file, probe_pdb_in)
 
-        probe_status = popen_command(probe_command,
+        probe_status = coot_utils.popen_command(probe_command,
                                      ["-u", "-mc", "ALL", probe_pdb_in],
                                      [],
                                      probe_out)
@@ -299,10 +299,10 @@ def probe(imol):
             set_recentre_on_read_pdb(1)
 
           # show the GUI for USER MODS
-          if using_gui():
-            user_mods_gui(imol_probe, reduce_out_pdb_file)
+          if coot_utils.using_gui():
+            coot_gui.user_mods_gui(imol_probe, reduce_out_pdb_file)
 
-          # toggle_active_mol(imol_probe) let's not do
+          # coot_utils.toggle_active_mol(imol_probe) let's not do
           # that actually.  I no longer think that the
           # new probe molecule should not be clickable
           # when it is initally displayed (that plus
@@ -402,7 +402,7 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
         interactive_probe_is_OK_qm = 'no'
         
     if (interactive_probe_is_OK_qm == 'yes'):
-       status = popen_command(probe_command,
+       status = coot_utils.popen_command(probe_command,
 			      ["-mc", "-u", "-quiet", "-drop", "-both",
 			       atom_sel, "file2",
 			       probe_pdb_in_1, probe_pdb_in_2],
@@ -422,10 +422,10 @@ def get_probe_dots_from(pdb_file_name, point, radius):
   import os
   # if unset, then set it, try to make dir too
   if (interactive_probe_is_OK_qm == 'unset'):
-    if (not command_in_path_qm(probe_command)):
+    if (not coot_utils.command_in_path_qm(probe_command)):
       interactive_probe_is_OK_qm = 'no'
     else:
-      dir_name = get_directory("coot-molprobity")
+      dir_name = coot_utils.get_directory("coot-molprobity")
       if (dir_name):    # OK, we had it or made it
         interactive_probe_is_OK_qm = 'yes'
       else:
@@ -448,7 +448,7 @@ def get_probe_dots_from(pdb_file_name, point, radius):
             # within_str  # problems with atom selection
             pdb_file_name]
     print("popen_comand on", probe_command, args)
-    popen_command(probe_command, args, [], probe_out, False)
+    coot_utils.popen_command(probe_command, args, [], probe_out, False)
     handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
     graphics_draw()
 
@@ -467,7 +467,7 @@ def probe_local_sphere(imol, radius):
   # are not selected but non-alt-confs are which leads to missing atoms
   # in a bond angle and therefore clashes.
 
-  pt = rotation_centre()
+  pt = coot_utils.rotation_centre()
   imol_new = new_molecule_by_sphere_selection(imol, pt[0], pt[1], pt[2],
                                               radius, 0)
   set_mol_displayed(imol_new, 0)
@@ -491,7 +491,7 @@ def probe_local_sphere_active_atom(radius=5.0):
 #
 def write_pdb_file_for_molprobity(imol, pdb_name):
 
-  tmp_pdb_name = file_name_sans_extension(pdb_name) + "-tmp.pdb"
+  tmp_pdb_name = coot_utils.file_name_sans_extension(pdb_name) + "-tmp.pdb"
 
   write_pdb_file(imol, tmp_pdb_name)
 
@@ -522,7 +522,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
         fn_all.write(data)
     fn_all.close()
 
-# not sure if the following ones should reside here?! Maybe rather in coot_gui?
+# not sure if the following ones should reside here?! Maybe rather in coot_gui.coot_gui?
 
 # a toggle function for the main toolbar to switch on probe dots post refine
 # and for chis/rotamers
@@ -595,7 +595,7 @@ def set_reduce_het_dict():
       # not from ccp4
       
       # we assume the dic is in same dir as reduce command
-      full_reduce_command = find_exe(reduce_command, "PATH")
+      full_reduce_command = coot_utils.find_exe(reduce_command, "PATH")
       dir, tmp = os.path.split(full_reduce_command)
       red_het_dict = os.path.join(dir, red_het_file)
       if (os.path.isfile(red_het_dict)):

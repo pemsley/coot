@@ -26,20 +26,20 @@ def write_file_for_jligand(resname_1, resname_2):
 if (have_coot_python):
   if coot_python.main_menubar():
       
-      menu = coot_menubar_menu("JLigand")
+      menu = coot_gui.coot_menubar_menu("JLigand")
 
       def launch_jligand():
           if not os.path.isfile(jligand_jar):
               s = "jligand java jar file: " + jligand_jar + " not found"
               info_dialog(s)
           else:
-              java_exe = find_exe(java_command)
+              java_exe = coot_utils.find_exe(java_command)
               if java_exe:
-                  run_concurrently(java_exe, jligand_args)
+                  coot_utils.run_concurrently(java_exe, jligand_args)
               else:
                   print "BL INFO:: no java found"
           
-      add_simple_coot_menu_menuitem(
+      coot_gui.add_simple_coot_menu_menuitem(
           menu, "Launch Jligand",
           lambda func: launch_jligand()
           )
@@ -69,7 +69,7 @@ if (have_coot_python):
                           
           user_defined_click(2, link_em)
           
-      add_simple_coot_menu_menuitem(
+      coot_gui.add_simple_coot_menu_menuitem(
           menu, "Send Link to JLigand (click 2 monomers)",
           lambda func: make_jligand_link()
           )
@@ -80,7 +80,7 @@ def handle_read_from_jligand_file():
         read_cif_dictionary(from_jligand_secret_file_name)
 
 global startup_mtime
-startup_mtime = get_file_latest_time(from_jligand_secret_file_name)
+startup_mtime = prodrg_import.get_file_latest_time(from_jligand_secret_file_name)
 
 def jligand_timeout_func():
     
@@ -89,7 +89,7 @@ def jligand_timeout_func():
 
     import operator
     
-    now_time = get_file_latest_time(from_jligand_secret_file_name)
+    now_time = prodrg_import.get_file_latest_time(from_jligand_secret_file_name)
     #print "startup-mtime: %s   now-time: %s" %(startup_mtime, now_time)
     if operator.isNumberType(now_time):
         if not operator.isNumberType(startup_mtime):

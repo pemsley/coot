@@ -20,7 +20,7 @@ def new_version_on_server(stri, is_pre_release):
 
         # pre-releases are handle with svn revision numbers (as ints).
         #
-        server_rev = get_revision_from_string(stri)
+        server_rev = coot_utils.get_revision_from_string(stri)
         if server_rev:
             return server_rev > svn_revision()
         else:
@@ -138,7 +138,7 @@ def download_binary_dialog(version_string, use_curl=False):
                             print("run_download_binary_curl failed")
                             pending_install_in_place = "fail"
 
-                    run_python_thread(threaded_func, [])
+                    coot_gui.run_python_thread(threaded_func, [])
 
         #  and a timeout checking the progress of the download:
         def idle_func():
@@ -166,11 +166,11 @@ def download_binary_dialog(version_string, use_curl=False):
             "\n"                      + \
             "\n"                      + \
             version_string
-        revision = get_revision_from_string(version_string)
+        revision = coot_utils.get_revision_from_string(version_string)
 
         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         dialog_name = "Download "
-        if is_windows():
+        if coot_utils.is_windows():
             dialog_name += "installer"
         else:
             dialog_name += "binary"
@@ -214,7 +214,7 @@ def download_binary_dialog(version_string, use_curl=False):
     # main line
     coot_prefix = os.getenv("COOT_PREFIX")
     coot_prefix = os.path.normpath(coot_prefix) # needed for WinCoot?! FIXME
-    if not directory_is_modifiable_qm(coot_prefix):
+    if not coot_utils.directory_is_modifiable_qm(coot_prefix):
         if not coot_prefix:
             info_dialog("COOT_PREFIX is not set.  Download not started.")
         else:
@@ -235,7 +235,7 @@ def restart_dialog(extra_text=""):
     def ok_button_event(*args):
         coot_command = "coot"
         coot_args =[]
-        if is_windows():
+        if coot_utils.is_windows():
             # we need the name of the installer, should be in pending-install
             coot_command = get_latest_pending_version()  # shall be full path name
             prefix_dir = os.getenv("COOT_PREFIX")
@@ -245,7 +245,7 @@ def restart_dialog(extra_text=""):
                         "/autoupdate"]
             
         # create a coot background subprocess
-        run_concurrently(coot_command, coot_args)
+        coot_utils.run_concurrently(coot_command, coot_args)
             
         window.destroy()
         coot_real_exit(0)
@@ -300,7 +300,7 @@ def check_for_updates_gui(use_curl=False):
             server_info_status = txt_from_server
     
     def get_server_info_status_thread():
-        url = make_latest_version_url()
+        url = coot_utils.make_latest_version_url()
         print("INFO:: get URL", url)
         if use_curl:
             # non pythonic
@@ -323,8 +323,8 @@ def check_for_updates_gui(use_curl=False):
 
     # main line
     #
-    run_python_thread(get_server_info_status_thread, ())
-    is_pre_release = pre_release_qm()  # BL: why?
+    coot_gui.run_python_thread(get_server_info_status_thread, ())
+    is_pre_release = coot_utils.pre_release_qm()  # BL: why?
     global count
     count = 0
     def timeout_count():
@@ -369,7 +369,7 @@ def check_for_updates_gui(use_curl=False):
 # returns latest installer version in pending-install or empty string ""
 # if no installer for windows use only!
 def get_latest_pending_version():
-    if is_windows():
+    if coot_utils.is_windows():
         import glob
         prefix_dir = os.getenv("COOT_PREFIX")
         pending_dir = os.path.join(prefix_dir, "pending-install")
@@ -397,7 +397,7 @@ def get_latest_pending_version():
 # hack to check if a pending install for WinCoot?!
 # if so, show the restart dialog?!
 # not sure yet how to do it otherwise (without chaning runwincoot.bat)
-if is_windows():
+if coot_utils.is_windows():
     pending_version_full = get_latest_pending_version()
     if pending_version_full:
         pending_version = os.path.basename(pending_version_full)

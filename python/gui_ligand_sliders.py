@@ -48,7 +48,7 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 
     global cache_ligand_metrics
 
-    m = get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
+    m = ligand_check.get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
                                refmac_input_mtz_file_name,
                                fp_col, sigfp_col, rfree_col, refmac_dir)
 
@@ -96,7 +96,7 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
                                 ["            Mogul Z-worst", percentile_mwz, mwz],
                                 ["             Bad contacts", percentile_bc, bc]]
 
-            ligand_validation_metrics_gui_list_wrapper(input_to_sliders)
+            ligand_validation_sliders.ligand_validation_metrics_gui_list_wrapper(input_to_sliders)
                 
             
         
@@ -104,13 +104,13 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
 #if (use_gui_qm != 2):
 # disable for now since I cannot run mogul and test it in real...
 if (0):
-    menu = coot_menubar_menu("Ligand")
+    menu = coot_gui.coot_menubar_menu("Ligand")
 
     def ligand_metric_slider_func():
         
         imol_map = imol_refinement_map()
 
-        if (not valid_map_molecule_qm(imol_map)):
+        if (not coot_utils.valid_map_molecule_qm(imol_map)):
             add_status_bar_text("No valid refinement map molecule")
         else:
             l = refmac_parameters(imol_map)
@@ -118,7 +118,7 @@ if (0):
                 refmac_input_mtz_file_name = l[0]
             else:
                 refmac_input_mtz_file_name = mtz_file_name(imol_map)
-            refmac_dir = get_directory("coot-refmac")
+            refmac_dir = coot_utils.get_directory("coot-refmac")
 
             f_col_label, sigf_col_label, r_free_col_label = \
                          mtz_file_name2refinement_column_labels(refmac_input_mtz_file_name)
@@ -128,13 +128,13 @@ if (0):
 
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
-                ligand_validation_metrics_gui_list_wrapper_pre(
+                ligand_validation_sliders.ligand_validation_metrics_gui_list_wrapper_pre(
                     aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                     refmac_input_mtz_file_name,
                     f_col_label, sigf_col_label, r_free_col_label,
                     refmac_dir)
         
-    add_simple_coot_menu_menuitem(
+    coot_gui.add_simple_coot_menu_menuitem(
         menu, "Ligand Metric Sliders",
         lambda func: ligand_metric_slider_func())
         

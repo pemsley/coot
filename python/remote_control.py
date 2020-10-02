@@ -53,7 +53,7 @@ def open_coot_listener_socket(port_number, host_adress = "127.0.0.1"):
         set_coot_listener_socket_state_internal(1)
 
     # threads? Needed?
-    status = run_python_thread(coot_listener_idle_function_proc,())
+    status = coot_gui.run_python_thread(coot_listener_idle_function_proc,())
 
 # yet another go to make a coot port reader work.  This time, we use
 # a gtk-timer to read stuff from the socket.  
