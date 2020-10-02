@@ -1450,6 +1450,7 @@ fi
    
 
 start_dir=$PWD
+echo start_dir $start_dir
 cd $AUTOBUILD_BUILD
 if [ $? -ne 0 ] ; then
 	echo $AUTOBUILD_BUILD failed for some reason. Now in `pwd`
@@ -3135,13 +3136,14 @@ fi
 ###############################################################################
 #
 echo 222222222222222 Now Coot.....
+cd $start_dir
 date
 pwd
 
-if [ -e ../../coot ] ; then
+if [ -e coot ] ; then
    echo CASE 1 coot directory exists
    pwd
-   cd ../../coot
+   cd coot
    echo now in this dir:
    pwd
    echo 33333333333333333333333 and about to fetch and merge...
@@ -3157,7 +3159,6 @@ if [ -e ../../coot ] ; then
 else
    echo CASE 2 coot directory not exists
    save_dir=$(pwd)
-   cd ../..
    git clone https://github.com/pemsley/coot.git -b gtk3
    cd coot
    rm -rf autom4te.cache
@@ -3227,7 +3228,7 @@ echo PATH: $PATH
 # the gtk3 branch, have run autogen.sh
 # and have placed that directory somewhere sensible relative to here
 
-echo ../../coot/configure $coot_prefix \
+echo ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       SHELL=/bin/bash \
@@ -3244,7 +3245,7 @@ echo ../../coot/configure $coot_prefix \
       $coot_extra_args    \
       $extra_args_for_darwin
 
-bash ../../coot/configure $coot_prefix \
+bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       SHELL=/bin/bash \
       PYTHON=python3 \
