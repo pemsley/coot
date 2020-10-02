@@ -34,6 +34,7 @@ import time
 import string
 import os, sys
 import getpass
+import coot
 
 def coot_says_hello():
 
@@ -68,10 +69,10 @@ def coot_says_hello():
    l2 = os.getenv("LANGUAGE")
    if l1 == "ja": name_strings.reverse() # perhaps beginswith
    if l2 == "ja": name_strings.reverse()
-   personal_name = string.capitalize(first_non_trivial_name(name_strings))
-   hello_str = "Good %s %s, Welcome to Coot version %s" %(time_str, personal_name, coot_version())
+   personal_name = str.capitalize(first_non_trivial_name(name_strings))
+   hello_str = "Good %s %s, Welcome to Coot version %s" %(time_str, personal_name, coot.coot_version())
    print(hello_str)
-   set_display_intro_string(hello_str)
+   coot.set_display_intro_string(hello_str)
 
 # check for main
 #if __name__ == "__main__":

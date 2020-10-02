@@ -16,6 +16,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import coot
+
 global probe_command
 global reduce_command
 global reduce_molecule_updates_current
@@ -33,11 +35,11 @@ interactive_probe_is_OK_qm = 'unset'
 # BL says:: just to be consistent with Paul's names
 # map to scheme names:
 # deftexi generic_object_is_displayed_qm
-generic_object_is_displayed_qm = generic_object_is_displayed_p
+generic_object_is_displayed_qm = coot.generic_object_is_displayed_p
 
 # map to scheme names:
 # deftexi is_closed_generic_object_qm 
-is_closed_generic_object_qm = is_closed_generic_object_p
+is_closed_generic_object_qm = coot.is_closed_generic_object_p
 
 # return a new generic object number for the given object obj-name.
 # If there is no such object with name obj-name, then create a new
