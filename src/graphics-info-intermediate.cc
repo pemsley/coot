@@ -197,12 +197,24 @@ graphics_info_t::backrub_rotamer_intermediate_atoms() {
 	 }
       }
 
-      if (at_close) {
+      if (! at_close) {
+
+         std::pair<int, mmdb::Atom *> aa = get_active_atom();
+         if (is_valid_model_molecule(aa.first)) {
+            mmdb::Atom *at = aa.second;
+            if (at) {
+               mmdb::Residue *residue_p = at->residue;
+               setup_invalid_residue_pulse(residue_p);
+               std::string m = "Residue " + coot::residue_spec_t(residue_p).format() + " is not ";
+               m += "in the moving atoms set";
+               add_status_bar_text(m);
+            }
+         }
+
+      } else {
 
 	 std::string chain_id = at_close->GetChainID();
-	 int res_no = at_close->GetSeqNum();
-	 std::string ins_code = at_close->GetInsCode();
-	 std::string alt_conf = at_close->altLoc;
+         std::string alt_conf = at_close->altLoc;
 	 mmdb::Manager *mol = moving_atoms_asc->mol;
 	 mmdb::Residue *this_res = at_close->residue;
 	 mmdb::Residue *next_res = coot::util::get_following_residue(this_res, mol);

@@ -18,7 +18,7 @@ std::pair<std::vector<glm::vec3>, std::vector<g_triangle> >
 tessellate_hemisphere_patch(unsigned int num_subdivisions);
 
 std::pair<std::vector<glm::vec3>, std::vector<g_triangle> >
-tessellate_octasphere(unsigned int num_subdivisions);
+tessellate_octasphere(unsigned int num_subdivisions, bool remove_redundant_vertices_flag=false);
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 make_octasphere(unsigned int num_subdivisions, const glm::vec3 &position,

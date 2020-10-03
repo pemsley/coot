@@ -4,6 +4,7 @@
 
 #include <vector>
 #include "generic-vertex.hh"
+#include "g_triangle.hh"
 
 // this is not the right way, I think. Perhaps use inheritance?
 // But then we have to worry about the layout of the memory...
@@ -16,6 +17,7 @@ class cylinder_with_rotation_translation {
    glm::mat3 model_rotation_matrix;
    glm::vec3 model_translation;
    unsigned int n_slices;
+   unsigned int n_stacks;
 public:
    std::vector<vertex_with_rotation_translation> vertices;
    std::vector<g_triangle> triangle_indices_vec;
@@ -25,6 +27,7 @@ public:
                                       unsigned int n_slices, unsigned int n_stacks);
    void add_flat_end_cap();
    void add_flat_start_cap();
+   void add_spiral();
 };
 
 #endif

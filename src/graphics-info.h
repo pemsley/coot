@@ -4285,12 +4285,16 @@ string   static std::string sessionid;
    static LinesMesh lines_mesh_for_delete_item_pulse;
    static glm::vec3 identification_pulse_centre;
    static void draw_identification_pulse();
+   static void draw_invalid_residue_pulse();
    static void draw_delete_item_pulse();
    static std::vector<glm::vec3> delete_item_pulse_centres;
    std::vector<glm::vec3> residue_to_positions(mmdb::Residue *residue_p) const;
    void setup_delete_item_pulse(mmdb::Residue *residue_p);
    void setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues);
-   
+   void setup_invalid_residue_pulse(mmdb::Residue *residue_p);
+   static gboolean invalid_residue_pulse_function(GtkWidget *widget,  // return the continue-status
+                                                  GdkFrameClock *frame_clock,
+                                                  gpointer data);
 
    static Mesh mesh_for_boids; // with instancing
    static fun::boids_container_t boids;

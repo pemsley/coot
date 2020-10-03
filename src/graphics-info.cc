@@ -1135,7 +1135,8 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
          gpointer user_data = reinterpret_cast<void *>(pulse_data);
          identification_pulse_centre = cartesian_to_glm(current_centre);
          gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-         lines_mesh_for_identification_pulse.setup_pulse(&shader_for_lines_pulse);
+         bool broken_line_mode = true;
+         lines_mesh_for_identification_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
          gtk_widget_add_tick_callback(glareas[0], identification_pulse_func, user_data, NULL);
 
       }

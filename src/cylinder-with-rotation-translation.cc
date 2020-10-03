@@ -22,7 +22,7 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
                                                                        float top_radius_in,
                                                                        float height_in,
                                                                        unsigned int n_slices_in,
-                                                                       unsigned int n_stacks) {
+                                                                       unsigned int n_stacks_in) {
 
    // n_stacks*n_slices = 12
    // cylinder_vertex vertices[12];
@@ -31,6 +31,7 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
 
    height = height_in;
    n_slices = n_slices_in;
+   n_stacks = n_stacks_in;
    base_radius = base_radius_in;
    top_radius = top_radius_in;
    const glm::vec3 &start  = pos_pair.first;
@@ -47,7 +48,6 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
 
    triangle_indices_vec.resize(n_stacks * n_slices * 2);
    vertices.resize((n_stacks + 1) * n_slices);
-   unsigned int idx = 0;
 
    float one_over_n_slices = 1.0/static_cast<float>(n_slices);
    float one_over_n_stacks = 1.0/static_cast<float>(n_stacks-1);
@@ -81,7 +81,6 @@ cylinder_with_rotation_translation::cylinder_with_rotation_translation(const std
          v.normal = glm::vec3(x,y,0.0f);
          v.model_rotation_matrix = glm::transpose(ori);
          v.model_translation = t;
-         idx++;
       }
    }
 
@@ -129,9 +128,6 @@ cylinder_with_rotation_translation::add_flat_cap(float z) {
    glm::vec3 n(0,0,1);
    if (z == 0.0f) n = -n;
 
-   unsigned int idx_base = vertices.size();
-   unsigned int idx_base_tri = triangle_indices_vec.size();
-
    vertex_with_rotation_translation vertex;
    vertex.pos    = glm::vec3(0,0,z);
    vertex.normal = n;
@@ -155,12 +151,25 @@ cylinder_with_rotation_translation::add_flat_cap(float z) {
       vertices.push_back(v);
    }
 
+   unsigned int idx_base = vertices.size();
    for (unsigned int i=0; i<n_slices; i++) {
       unsigned int i_next = idx_base + i + 1 + 1;
       if (i == (n_slices-1)) i_next = idx_base + 1;
       g_triangle triangle(idx_base, idx_base + i + 1, i_next);
       triangle_indices_vec.push_back(triangle);
    }
+}
 
+void
+cylinder_with_rotation_translation::add_spiral() {
 
+   glm::vec4 white(0.8, 0.8, 0.8,1.0);
+   for (unsigned int i=0; i<n_stacks; i++) {
+      unsigned int idx_1 = n_stacks * i + i;
+      unsigned int idx_2 = n_stacks * i + i + 1;
+      if (idx_2 == (n_stacks * (i+1))) idx_2 = n_stacks * i;
+      vertices[idx_1].colour = white;
+      vertices[idx_2].colour = white;
+   }
+   
 }

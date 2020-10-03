@@ -15,7 +15,9 @@ class LinesMesh {
    GLuint buffer_id;
    GLuint index_buffer_id;
    void init();
-   void make_vertices_for_pulse(const glm::vec4 &colour, float radius, float theta_offset);
+   void make_vertices_for_pulse(const glm::vec4 &colour, float radius,
+                                unsigned int n_rings,
+                                float theta_offset, bool broken_mode);
    glm::vec3 central_position;
    std::string name;
 
@@ -31,10 +33,12 @@ public:
    std::vector<unsigned int> indices;
    void set_name(const std::string &n) { name = n; }
    void setup(Shader *shader_p);
-   void setup_pulse(Shader *shader_p);
+   void setup_pulse(Shader *shader_p, bool broken_line_mode);
    void update_buffers_for_pulse(float delta_time, int direction=1); // delta time in ms.
+   void update_buffers_for_invalid_residue_pulse(unsigned int n_times_called);
    void draw(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation=false);
-   void draw(Shader *shader_p, const glm::vec3 &atom_position, const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation=false);
+   void draw(Shader *shader_p, const glm::vec3 &atom_position, const glm::mat4 &mvp,
+             const glm::mat4 &view_rotation, bool use_view_rotation=false);
    void clear();
    bool empty() const { return (vertices.size() == 0); }
 };

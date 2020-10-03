@@ -105,6 +105,7 @@ LinesMesh::draw(Shader *shader_p,
    glUseProgram(0);
 }
 
+// identification pulse
 void
 LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
                 const glm::mat4 &mvp, const glm::mat4 &view_rotation, bool use_view_rotation) {
@@ -125,9 +126,11 @@ LinesMesh::draw(Shader *shader_p, const glm::vec3 &atom_position,
    glEnableVertexAttribArray(2);
    err = glGetError(); if (err) std::cout << "error:: LinesMesh::draw C()\n";
 
-   // we are using 2 (at the moment) different shaders for this class
+   // we are using 2 (at the moment) different shaders for this class.
+   // Hmmm... lines-pulse.shader uses atom_position, and that's the only shader
+   // for this mesh. so use_view_rotation should always be true?
    if (use_view_rotation) {
-      // nstd::cout << "sending atom_centre " << glm::to_string(atom_position) << std::endl;
+      // std::cout << "sending atom_centre " << glm::to_string(atom_position) << std::endl;
       glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
       shader_p->set_vec3_for_uniform("atom_centre", atom_position);
    }
@@ -189,7 +192,8 @@ LinesMesh::setup(Shader *shader_p) {
 }
 
 void
-LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall, float theta_offset) {
+LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall,
+                                   unsigned int n_rings, float theta_offset, bool broken_mode) {
 
    // we have just simply constructed this object. Now add some vertices.
 
@@ -200,7 +204,6 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
 
    glm::vec3 normal(0,0,1);
    const unsigned int n_line_segments = 30;
-   unsigned int n_rings = 3;
    for (unsigned int j=0; j<n_rings; j++) {
       unsigned int idx_base = vertices.size();
       float r = 0.06 * radius_overall * static_cast<float>(j+1);
@@ -213,7 +216,8 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
          vertices.push_back(v);
       }
       for (unsigned int i=0; i<n_line_segments; i++) {
-         if ((j+i) %2 == 0) continue;
+         if (broken_mode)
+            if ((j+i) %2 == 0) continue;
          unsigned int i_this = i;
          unsigned int i_next = i+1;
          if (i_next == n_line_segments)
@@ -225,10 +229,11 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
 }
 
 void
-LinesMesh::setup_pulse(Shader *shader_p) {
+LinesMesh::setup_pulse(Shader *shader_p, bool broken_line_mode) {
 
    glm::vec4 colour(0.2, 0.8, 0.2, 1.0);
-   make_vertices_for_pulse(colour, 2.0, 0.0);
+   unsigned int n_rings = 3;
+   make_vertices_for_pulse(colour, 2.0, n_rings, 0.0, broken_line_mode);
    setup(shader_p);
 }
 
@@ -251,9 +256,30 @@ LinesMesh::update_buffers_for_pulse(float n_steps, int direction) { // delta tim
    if (direction == -1)
       theta_offset = static_cast<float>(n_steps) * - 0.05;
 
+   bool broken_line_mode =  true;
    unsigned int n_vertices = vertices.size();
+   unsigned int n_rings = 3;
    glBindVertexArray(vao);
-   make_vertices_for_pulse(colour, r, theta_offset);
+   make_vertices_for_pulse(colour, r, n_rings, theta_offset, broken_line_mode);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_vertices * sizeof(s_generic_vertex), &(vertices[0]));
+}
+
+
+void
+LinesMesh::update_buffers_for_invalid_residue_pulse(unsigned int n_times_called) {
+
+   unsigned int n_vertices = vertices.size();
+   float r_1 = static_cast<float>(n_times_called)/48.0;
+   float r = 2.5 + 2.5 * sin(r_1 * 9.0);
+   // std::cout << "update_buffers_for_invalid_residue_pulse: n " << n_times_called << " r " << r << std::endl;
+   float theta_offset = 0.0;
+   bool broken_line_mode = false;
+   glBindVertexArray(vao);
+   unsigned int n_rings = 1;
+   glm::vec4 colour(0.8, 0.2, 0.2, 1.0);
+   make_vertices_for_pulse(colour, r, n_rings, theta_offset, broken_line_mode);
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_vertices * sizeof(s_generic_vertex), &(vertices[0]));
+
 }

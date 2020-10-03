@@ -2100,6 +2100,8 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
       draw_delete_item_pulse();
 
+      draw_invalid_residue_pulse();
+
       glBindVertexArray(0); // here is not the place to call this.
    }
 
@@ -2400,7 +2402,8 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    std::vector<glm::vec3> positions = residue_to_positions(residue_p);
    delete_item_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+   bool broken_line_mode = true;
+   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -2442,10 +2445,61 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
    }
    delete_item_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
-   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+   bool broken_line_mode = true;
+   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
+
+// static
+gboolean
+graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
+                                                GdkFrameClock *frame_clock,
+                                                gpointer data) {
+
+   gboolean continue_status = 1;
+   pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+   pulse_data->n_pulse_steps += 1;
+   if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+      continue_status = 0;
+      lines_mesh_for_identification_pulse.clear();
+      delete_item_pulse_centres.clear(); // we sneakily use this vector (but no longer)
+   } else {
+      float ns = pulse_data->n_pulse_steps;
+      lines_mesh_for_identification_pulse.update_buffers_for_invalid_residue_pulse(ns);
+   }
+   graphics_draw();
+   return gboolean(continue_status);
+}
+
+void
+graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
+
+   pulse_data_t *pulse_data = new pulse_data_t(0, 24);
+   gpointer user_data = reinterpret_cast<void *>(pulse_data);
+   std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
+   delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   bool broken_line_mode = false;
+   lines_mesh_for_identification_pulse.setup_pulse(&shader_for_lines_pulse, broken_line_mode);
+   gtk_widget_add_tick_callback(glareas[0], invalid_residue_pulse_function, user_data, NULL);
+
+}
+
+
+void
+graphics_info_t::draw_invalid_residue_pulse() {
+
+   if (! lines_mesh_for_identification_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glLineWidth(3.0);
+      for (auto pulse_centre : delete_item_pulse_centres)
+         lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
+                                                  pulse_centre, mvp,
+                                                  view_rotation_matrix, true);
+   }
+}
 
 
 void
@@ -2732,7 +2786,6 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_u,      key_bindings_t(l16, "Undo Move")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
-   //   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_e,      key_bindings_t(l20, "EigenFlip Active Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l22, "Particles")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
@@ -2836,14 +2889,17 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
    key_bindings_t ctrl_arrow_down_key_binding(lc7, "R/T Down");
+   key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
+   std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);
    kb_vec.push_back(p6);
    kb_vec.push_back(p7);
+   kb_vec.push_back(p8);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); it++)
@@ -2881,7 +2937,6 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1)
          graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count++;
-      int contour_idle_token = g_idle_add(idle_contour_function, glareas[0]);
       std::cout << "INFO:: contour level for map " << imol_scroll << " is "
                 << molecules[imol_scroll].contour_level << std::endl;
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
