@@ -175,6 +175,8 @@ float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 coot::command_history_t graphics_info_t::command_history;
 
+std::vector<Instanced_Markup_Mesh> graphics_info_t::instanced_meshes;
+
 Texture graphics_info_t::texture_for_hud_geometry_labels;
 
 HUDTextureMesh graphics_info_t::mesh_for_hud_geometry_labels = HUDTextureMesh("tmesh-for-hud-geometry-labels");

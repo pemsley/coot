@@ -948,6 +948,11 @@ graphics_info_t::setup_rama_balls() {
 void
 graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls) {
 
+   // so this function should be called set_rama_balls_new positions_and_colours
+
+   // the calling function calls
+   // rama_balls_mesh.update_instancing_buffers(balls) after this function
+
    auto rr = saved_dragged_refinement_results;
 
    balls->clear();
@@ -1518,6 +1523,8 @@ graphics_info_t::draw_instanced_meshes() {
          }
       }
    }
+   if (! instanced_meshes.empty())
+      have_meshes_to_draw = true;
 
    if (have_meshes_to_draw) {
       glm::vec3 eye_position = get_world_space_eye_position();
@@ -1533,6 +1540,15 @@ graphics_info_t::draw_instanced_meshes() {
                m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
                                            view_rotation, lights, eye_position, bg_col, do_depth_fog);
             }
+         }
+      }
+
+      // And draw our own
+
+      if (! instanced_meshes.empty()) {
+         for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
+            instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
+                                      view_rotation, lights, eye_position, bg_col, do_depth_fog);
          }
       }
    }

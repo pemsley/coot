@@ -168,7 +168,6 @@ int test_function(int i, int j) {
    // Is this the function you are really looking for (these days)?
 
    if (true) {
-      g.setup_draw_for_particles();
    }
 
 #ifdef USE_ASSIMP

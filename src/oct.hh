@@ -22,7 +22,7 @@ tessellate_octasphere(unsigned int num_subdivisions, bool remove_redundant_verti
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 make_octasphere(unsigned int num_subdivisions, const glm::vec3 &position,
-                float radius, const glm::vec4 &colour_in);
+                float radius, const glm::vec4 &colour_in, bool remove_redundant_vertices=false);
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 make_octasphere_dish(unsigned int num_subdivisions, const glm::vec3 &position,

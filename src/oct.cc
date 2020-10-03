@@ -246,12 +246,12 @@ find_same_vertices(const std::vector<glm::vec3> &verts) {
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 make_octasphere(unsigned int num_subdivisions, const glm::vec3 &centre,
-                float radius, const glm::vec4 &colour_in) {
+                float radius, const glm::vec4 &colour_in, bool remove_redundant_vertices) {
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > r;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > vp =
-      tessellate_octasphere(num_subdivisions);
+      tessellate_octasphere(num_subdivisions, remove_redundant_vertices);
    r.first.resize(vp.first.size());
    r.second = vp.second;
 

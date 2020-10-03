@@ -193,19 +193,23 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
    // really wee want a version of make_octasphere that only returns
    // vectors (glm::vec3) and triangles - radius 1.
 
-      glm::vec3 position(0,0,0);
+   glm::vec3 position(0,0,0);
    glm::vec4 colour(0, 0, 0, 1);
    float radius = 1.0;
 
+   // num_subdivisions = 3;
+   //
+   bool remove_redundant_vertices_flag = false; // seems not to fully work.
+
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-      oct = make_octasphere(num_subdivisions, position, radius, colour);
+      oct = make_octasphere(num_subdivisions, position, radius, colour, remove_redundant_vertices_flag);
 
    const std::vector<s_generic_vertex> &v1 = oct.first;
    const std::vector<g_triangle> &v2 = oct.second;
 
    vertices.resize(v1.size());
 
-   float irm = 1.0f / static_cast<float>(RAND_MAX);
+   // float irm = 1.0f / static_cast<float>(RAND_MAX);
 
    for (unsigned int i=0; i<v1.size(); i++) {
       vertices[i].position = v1[i].pos;
@@ -213,7 +217,7 @@ Instanced_Markup_Mesh::setup_octasphere(unsigned int num_subdivisions) {
 
       // sadly not - octaspheres have edges of the same position, different index.
       // (that could be fixed - by merging when we create the octasphere).
-      // vertices[i].displacement = 0.6 * (1.0 - irm * coot::util::random());
+      // vertices[i].displacement = 0.6 * (1.0 - irm * static_cast<float>(coot::util::random()));
       // If we are going to do this then the normals need to be perturbed too.
       // and they will need to be part of a Instanced_Markup_Mesh_Vertex_attrib_t
       // Another time.
