@@ -1365,6 +1365,8 @@ graphics_info_t::draw_molecules() {
 
    draw_generic_objects();
 
+   draw_hydrogen_bonds_mesh(); // like boids
+
    draw_boids();
 
    draw_particles();
@@ -2365,6 +2367,19 @@ graphics_info_t::draw_boids() {
 
       lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, view_rotation_matrix);
    }
+}
+
+void
+graphics_info_t::draw_hydrogen_bonds_mesh() {
+
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::vec3 eye_position = get_world_space_eye_position();
+   glm::mat4 view_rotation_matrix = get_view_rotation();
+   glm::vec4 bg_col(background_colour, 1.0);
+
+   mesh_for_hydrogen_bonds.draw(&shader_for_instanced_objects,
+                                mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                shader_do_depth_fog_flag);
 }
 
 

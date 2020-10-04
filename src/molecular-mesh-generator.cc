@@ -806,7 +806,7 @@ molecular_mesh_generator_t::update_mats_and_colours() {
 
    bool do_GM_restraints = false;
 
-   // what is the glm function that does this? - not glm::length()
+   // what is the glm function that does this? - it's glm::distance() not glm::length()
    auto vec_length = [](const glm::vec3 &v) {
                         float s = v.x * v.x + v.y * v.y + v.z * v.z;
                         return sqrtf(s);

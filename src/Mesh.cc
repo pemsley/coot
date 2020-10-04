@@ -25,27 +25,31 @@ Mesh::init() {
    clear();
    first_time = true;
    is_instanced = false;
+   is_instanced_colours = false;
    is_instanced_with_rts_matrix = false;
    use_blending = false;
    draw_this_mesh = true;
+   hydrogen_bond_cylinders_angle = 0.0;
    normals_are_setup = false;
    this_mesh_is_closed = false;
+   n_instances = 0;
+   n_instances_allocated = 0;
    vao = VAO_NOT_SET; // use UNSET_VAO
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
 
    init();
-   vertices = indexed_vertices.first;
-   triangle_vertex_indices = indexed_vertices.second;
+   vertices  = indexed_vertices.first;
+   triangles = indexed_vertices.second;
 }
 
 // a molecular_triangles_mesh_t is a poor man's Mesh. Why does it exist?
 Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
 
    init();
-   vertices = mtm.vertices;
-   triangle_vertex_indices = mtm.triangles;
+   vertices  = mtm.vertices;
+   triangles = mtm.triangles;
    name = mtm.name;
 }
 
@@ -62,40 +66,42 @@ void
 Mesh::import(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
 
    is_instanced = false;
+   is_instanced_colours = false;
    is_instanced_with_rts_matrix = false;
    use_blending = false;
 
    unsigned int idx_base = vertices.size();
-   unsigned int idx_tri_base = triangle_vertex_indices.size();
+   unsigned int idx_tri_base = triangles.size();
    vertices.insert(vertices.end(), indexed_vertices.first.begin(), indexed_vertices.first.end());
-   triangle_vertex_indices.insert(triangle_vertex_indices.end(),
-                                  indexed_vertices.second.begin(),
-                                  indexed_vertices.second.end());
-   for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
-      triangle_vertex_indices[i].rebase(idx_base);
+   triangles.insert(triangles.end(),
+                    indexed_vertices.second.begin(),
+                    indexed_vertices.second.end());
+   for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+      triangles[i].rebase(idx_base);
 }
 
 void
 Mesh::import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triangle> &indexed_vertices) {
 
    is_instanced = false;
+   is_instanced_colours = false;
    is_instanced_with_rts_matrix = false;
 
    unsigned int idx_base = vertices.size();
-   unsigned int idx_tri_base = triangle_vertex_indices.size();
+   unsigned int idx_tri_base = triangles.size();
    vertices.insert(vertices.end(), gv.begin(), gv.end());
-   triangle_vertex_indices.insert(triangle_vertex_indices.end(),
-                                  indexed_vertices.begin(),
-                                  indexed_vertices.end());
-   for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
-      triangle_vertex_indices[i].rebase(idx_base);
+   triangles.insert(triangles.end(),
+                    indexed_vertices.begin(),
+                    indexed_vertices.end());
+   for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+      triangles[i].rebase(idx_base);
 }
 
 void
 Mesh::debug() const {
 
    std::cout << "Mesh::debug() " << name << " n-vertices " << vertices.size()
-             << " n-triangles " << triangle_vertex_indices.size() << std::endl;
+             << " n-triangles " << triangles.size() << std::endl;
 }
 
 
@@ -163,9 +169,9 @@ Mesh::fill_one_dodec() {
       g_triangle gt_0(face[0], face[1], face[2]);
       g_triangle gt_1(face[0], face[2], face[3]);
       g_triangle gt_2(face[0], face[3], face[4]);
-      triangle_vertex_indices.push_back(gt_0);
-      triangle_vertex_indices.push_back(gt_1);
-      triangle_vertex_indices.push_back(gt_2);
+      triangles.push_back(gt_0);
+      triangles.push_back(gt_1);
+      triangles.push_back(gt_2);
    }
 
 }
@@ -207,11 +213,11 @@ Mesh::add_one_ball(float scale, const glm::vec3 &centre) { // i.e. a smooth-shad
       g_triangle gt_2(idx_base, idx_base + 3, idx_base + 4);
       g_triangle gt_3(idx_base, idx_base + 4, idx_base + 5);
       g_triangle gt_4(idx_base, idx_base + 5, idx_base + 1);
-      triangle_vertex_indices.push_back(gt_0);
-      triangle_vertex_indices.push_back(gt_1);
-      triangle_vertex_indices.push_back(gt_2);
-      triangle_vertex_indices.push_back(gt_3);
-      triangle_vertex_indices.push_back(gt_4);
+      triangles.push_back(gt_0);
+      triangles.push_back(gt_1);
+      triangles.push_back(gt_2);
+      triangles.push_back(gt_3);
+      triangles.push_back(gt_4);
    }
 }
 
@@ -225,7 +231,7 @@ Mesh::add_one_origin_ball() { // i.e. a smooth-shaded pentakis dodec
    std::vector<clipper::Coord_orth> v = penta_dodec.pkdd.d.coords();
 
    unsigned int vertex_index_start_base   = vertices.size();
-   unsigned int triangle_index_start_base = triangle_vertex_indices.size(); // needed?
+   unsigned int triangle_index_start_base = triangles.size(); // needed?
 
    const std::vector<clipper::Coord_orth> &pv = penta_dodec.pkdd.pyrimid_vertices;
    for (unsigned int i=0; i<12; i++) {
@@ -254,11 +260,11 @@ Mesh::add_one_origin_ball() { // i.e. a smooth-shaded pentakis dodec
       g_triangle gt_2(idx_base, idx_base + 3, idx_base + 4);
       g_triangle gt_3(idx_base, idx_base + 4, idx_base + 5);
       g_triangle gt_4(idx_base, idx_base + 5, idx_base + 1);
-      triangle_vertex_indices.push_back(gt_0);
-      triangle_vertex_indices.push_back(gt_1);
-      triangle_vertex_indices.push_back(gt_2);
-      triangle_vertex_indices.push_back(gt_3);
-      triangle_vertex_indices.push_back(gt_4);
+      triangles.push_back(gt_0);
+      triangles.push_back(gt_1);
+      triangles.push_back(gt_2);
+      triangles.push_back(gt_3);
+      triangles.push_back(gt_4);
    }
 }
 
@@ -278,7 +284,7 @@ Mesh::add_one_origin_dodec() { // i.e. a smooth-shaded pentakis dodec
       vertices.push_back(gv0);
       vertices.push_back(gv1);
       vertices.push_back(gv2);
-      triangle_vertex_indices.push_back(g_triangle(0,1,2));
+      triangles.push_back(g_triangle(0,1,2));
    }
 
    if (true) {
@@ -309,9 +315,9 @@ Mesh::add_one_origin_dodec() { // i.e. a smooth-shaded pentakis dodec
          g_triangle gt_0(idx_base, idx_base + 1, idx_base + 2);
          g_triangle gt_1(idx_base, idx_base + 2, idx_base + 3);
          g_triangle gt_2(idx_base, idx_base + 3, idx_base + 4);
-         triangle_vertex_indices.push_back(gt_0);
-         triangle_vertex_indices.push_back(gt_1);
-         triangle_vertex_indices.push_back(gt_2);
+         triangles.push_back(gt_0);
+         triangles.push_back(gt_1);
+         triangles.push_back(gt_2);
       }
    }
 }
@@ -328,13 +334,13 @@ Mesh::add_one_origin_cylinder(unsigned int n_slices, unsigned int n_stacks) {
    // triangle_vertex_indices = std::move(c.triangle_indices_vec);
 
    unsigned int idx_base = vertices.size();
-   unsigned int idx_tri_base = triangle_vertex_indices.size();
+   unsigned int idx_tri_base = triangles.size();
    vertices.insert(vertices.end(), c.vertices.begin(), c.vertices.end());
-   triangle_vertex_indices.insert(triangle_vertex_indices.end(),
-                                  c.triangle_indices_vec.begin(),
-                                  c.triangle_indices_vec.end());
-   for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
-      triangle_vertex_indices[i].rebase(idx_base);
+   triangles.insert(triangles.end(),
+                    c.triangle_indices_vec.begin(),
+                    c.triangle_indices_vec.end());
+   for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+      triangles[i].rebase(idx_base);
 
 }
 
@@ -357,7 +363,7 @@ Mesh::add_one_origin_octahemisphere(unsigned int num_subdivisions) {
       vertices[i].normal = glm::rotate(oct.first[i], angle, z_axis);
       vertices[i].color  = atom_colour;
    }
-   triangle_vertex_indices = oct.second;
+   triangles = oct.second;
 
 }
 
@@ -380,7 +386,7 @@ Mesh::add_one_origin_octasphere(unsigned int num_subdivisions) {
       vertices[i].normal = glm::rotate(oct.first[i], angle, z_axis);
       vertices[i].color  = atom_colour;
    }
-   triangle_vertex_indices = oct.second;
+   triangles = oct.second;
 
 }
 
@@ -404,6 +410,7 @@ Mesh::setup_debugging_instancing_buffers() {
    // put these in their own file - make inst_matrices be member data
 
    is_instanced = true;
+   is_instanced_colours = true;
    std::vector<glm::vec3> inst_trans_matrices;
    inst_trans_matrices.push_back(glm::vec3(0.25, 0.25, -0.2));
    inst_trans_matrices.push_back(glm::vec3(0.25, 0.25, -0.1));
@@ -428,6 +435,7 @@ Mesh::setup_debugging_instancing_buffers() {
    }
 
    n_instances = inst_trans_matrices.size();
+   n_instances_allocated = n_instances;
 
    // has the vao been genvertexarrayed before this is called?
    glBindVertexArray(vao);
@@ -452,7 +460,7 @@ Mesh::setup_debugging_instancing_buffers() {
 void
 Mesh::setup_buffers() {
 
-   if (triangle_vertex_indices.empty()) return;
+   if (triangles.empty()) return;
    if (vertices.empty()) return;
 
    if (first_time) {
@@ -484,7 +492,7 @@ Mesh::setup_buffers() {
                           reinterpret_cast<void *>(sizeof(glm::vec3)));
 
    // colour
-   if (! is_instanced) {
+   if (! is_instanced_colours) {
       // when the colour attribute is instanced (like the model_translation), so set up the colours
       // when we do the model_translation in setup_instancing_buffers(), not here.
       glEnableVertexAttribArray(2);
@@ -492,7 +500,7 @@ Mesh::setup_buffers() {
                             reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
    }
 
-   unsigned int n_triangles = triangle_vertex_indices.size();
+   unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
 
    if (first_time) {
@@ -513,12 +521,12 @@ Mesh::setup_buffers() {
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
 
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_STATIC_DRAW);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
    GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
 
    glDisableVertexAttribArray (0);
    glDisableVertexAttribArray (1);
-   if (! is_instanced) glDisableVertexAttribArray(2);
+   if (! is_instanced_colours) glDisableVertexAttribArray(2);
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glUseProgram(0);
    glBindVertexArray(0);
@@ -529,6 +537,7 @@ void
 Mesh::setup_instanced_debugging_objects(Shader *shader_p, const Material &material_in) {
 
    material = material_in; // not currently used in the shader.
+   shader_p->Use();
    unsigned int n_vert = vertices.size();
    add_one_origin_dodec(); // flat-faced for debugging
    // move the dodec
@@ -546,7 +555,9 @@ void
 Mesh::setup_instanced_dodecs(Shader *shader_p, const Material &material_in) {
 
    is_instanced = true;
+   is_instanced_colours =  true; //  I think.
    material = material_in; // not currently used in the shader.
+   shader_p->Use();
    add_one_origin_dodec(); // flat-faced for debugging
    setup_buffers(); // sets the vao
 
@@ -556,22 +567,27 @@ Mesh::setup_instanced_dodecs(Shader *shader_p, const Material &material_in) {
 
 // rts rotation, translation & scale
 void
-Mesh::setup_instanced_cylinders(Shader *shader_p,
-                                const Material &material_in,
-                                const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours) {
+Mesh::import_and_setup_instanced_cylinders(Shader *shader_p,
+                                           const Material &material_in,
+                                           const std::vector<glm::mat4> &mats,
+                                           const std::vector<glm::vec4> &colours) {
 
-   GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_cylinders() -- start -- "
-                                                 << err << std::endl;
+   GLenum err = glGetError();
+   if (err) std::cout << "error import_and_setup_instanced_cylinders() -- start -- "
+                      << err << std::endl;
    is_instanced = true;
+   is_instanced_colours = true;
    is_instanced_with_rts_matrix = true;
 
+   shader_p->Use();
    material = material_in; // not currently used in the shader.
    add_one_origin_cylinder(16);
    setup_buffers();
 
    n_instances = mats.size();
+   n_instances_allocated = n_instances;
    setup_matrix_and_colour_instancing_buffers(mats, colours);
-   err = glGetError(); if (err) std::cout << "   error setup_instanced_cylinders() -- end -- "
+   err = glGetError(); if (err) std::cout << "error import_and_setup_instanced_cylinders() -- end -- "
                                           << err << std::endl;
 
 }
@@ -584,6 +600,7 @@ Mesh::setup_rtsc_instancing(Shader *shader_p,
                             const Material &material_in) {
 
    is_instanced = true;
+   is_instanced_colours = true;
    is_instanced_with_rts_matrix = true;
 
    shader_p->Use();
@@ -591,12 +608,14 @@ Mesh::setup_rtsc_instancing(Shader *shader_p,
 
    setup_buffers();
    n_instances = n_instances_in;
+   n_instances_allocated = n_instances;
+
    setup_matrix_and_colour_instancing_buffers(mats, colours);
    GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_cylinders() -- end -- "
                                                  << err << std::endl;
 
    std::cout << "setup_rtsc_instancing(): " << vertices.size() << " vertices" << std::endl;
-   std::cout << "setup_rtsc_instancing(): " << triangle_vertex_indices.size()
+   std::cout << "setup_rtsc_instancing(): " << triangles.size()
              << " triangles" << std::endl;
 }
 
@@ -609,14 +628,17 @@ Mesh::setup_instanced_octahemispheres(Shader *shader_p,
    GLenum err = glGetError(); if (err) std::cout << "   error setup_instanced_octahemispheres() "
                                                  << " -- start -- " << err << std::endl;
    is_instanced = true;
+   is_instanced_colours = true;
    is_instanced_with_rts_matrix = true;
 
    material = material_in; // not currently used in the shader.
+   shader_p->Use();
    add_one_origin_octahemisphere(2);
    setup_buffers();
    n_instances = mats.size();
+   n_instances_allocated = n_instances;
 
-   setup_matrix_and_colour_instancing_buffers(mats, colours); // maybe pass a flag MATS_AND_COLOURS 
+   setup_matrix_and_colour_instancing_buffers(mats, colours); // maybe pass a flag MATS_AND_COLOURS
                                             // because we might have
                                             // other instanced geometry that doesn't change colour.
                                             // How about HOLE balls?
@@ -637,6 +659,7 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    // them, so n_instances is 0.
    //
    n_instances = 0;
+   n_instances_allocated = n_particles;
 
    glm::vec3 n(0,0,1);
    glm::vec4 c(0.8, 0.4, 0.8, 0.8);
@@ -708,7 +731,7 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
    err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
-   unsigned int n_triangles = triangle_vertex_indices.size();
+   unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
    if (true)
       std::cout << "debug:: setup_instancing_buffers() particles: "
@@ -716,7 +739,7 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
                 << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_DYNAMIC_DRAW);
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_DYNAMIC_DRAW);
    err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
 }
 
@@ -726,6 +749,13 @@ void
 Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats,
                                                  const std::vector<glm::vec4> &colours) {
 
+   // this function doesn't make sense in it's current form.
+   // Instead, I need to *make space* for n_mats and n_colours.
+   //
+   // I don't need matrices with values here - because they will be updated/replaced by
+   // the tick function. So this function should be changed to pass the size of
+   // matrix and colour vectors, not the actual values.
+
    std::cout << "----- setup_instancing_buffers(): mats size " << mats.size()
              << " colours size " << colours.size() << std::endl;
 
@@ -734,26 +764,47 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
                       << err << std::endl;
 
    n_instances = mats.size();
+   n_instances_allocated = n_instances;
+
    std::vector<glm::mat4> inst_rts_matrices = mats;
    std::vector<glm::vec4> inst_col_matrices = colours;
 
-   err = glGetError(); if (err) std::cout << "   error setup_instancing_cylinder_buffers() A "
-                                          << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() A "
+                      << err << std::endl;
 
    glBindVertexArray(vao);
 
+   err = glGetError();
+   if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B binding-vao "
+                      << err << " with vao " << vao << std::endl;
+
+   // rama balls we want to have instanced colours but hydrogen bond rotating cylinders we do not.
+
    // -------- colours -----------
 
-   glGenBuffers(1, &inst_colour_buffer_id);
-   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   std::cout << "setup_matrix_and_colour_instancing_buffers() allocating colour buffer data "
-             << n_instances * sizeof(glm::vec4) << std::endl;
-   glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
-   glEnableVertexAttribArray(2);
-   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-   glVertexAttribDivisor(2, 1);
-   err = glGetError(); if (err) std::cout << "   error setup_instancing_cylinder_buffers() B "
-                                          << err << std::endl;
+   if (is_instanced_colours) {
+      glGenBuffers(1, &inst_colour_buffer_id);
+      glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+      err = glGetError();
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B0 "
+                         << err << std::endl;
+      std::cout << "setup_matrix_and_colour_instancing_buffers() allocating colour buffer data "
+                << n_instances * sizeof(glm::vec4) << std::endl;
+      glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(glm::vec4), &(inst_col_matrices[0]), GL_DYNAMIC_DRAW); // dynamic
+      glEnableVertexAttribArray(2);
+      err = glGetError();
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B1 "
+                         << err << std::endl;
+      glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+      err = glGetError();
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B2 "
+                         << err << std::endl;
+      glVertexAttribDivisor(2, 1);
+      err = glGetError();
+      if (err) std::cout << "error setup_matrix_and_colour_instancing_buffers() B3 "
+                         << err << std::endl;
+   }
 
    // -------- rotation/translation/scale matrices -----------
 
@@ -788,10 +839,10 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    
 }
 
-void
-Mesh::setup_instanced_balls(Shader *shader_p, const Material &material_in) {
+// void
+// Mesh::setup_instanced_balls(Shader *shader_p, const Material &material_in) {
 
-}
+// }
 
 
 
@@ -831,8 +882,8 @@ Mesh::fill_with_simple_triangles_vertices() {
    g_triangle gt_0(idx_base,   idx_base+1, idx_base+2);
    g_triangle gt_1(idx_base+3, idx_base+4, idx_base+5);
 
-   triangle_vertex_indices.push_back(gt_0);
-   triangle_vertex_indices.push_back(gt_1);
+   triangles.push_back(gt_0);
+   triangles.push_back(gt_1);
 
 }
 
@@ -881,9 +932,9 @@ Mesh::fill_with_direction_triangles() {
    g_triangle gt_0(base,base+1,base+2);
    g_triangle gt_1(base+3,base+4,base+5);
    g_triangle gt_2(base+6,base+7,base+8);
-   triangle_vertex_indices.push_back(gt_0);
-   triangle_vertex_indices.push_back(gt_1);
-   triangle_vertex_indices.push_back(gt_2);
+   triangles.push_back(gt_0);
+   triangles.push_back(gt_1);
+   triangles.push_back(gt_2);
 
 }
 
@@ -930,10 +981,10 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
          tmp_colours.push_back(glm::vec4(0.4, 0.4, 0.7, 1.0));
       }
 
-      for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
-         const glm::vec3 &p0 = vertices[triangle_vertex_indices[i].point_id[0]].pos;
-         const glm::vec3 &p1 = vertices[triangle_vertex_indices[i].point_id[1]].pos;
-         const glm::vec3 &p2 = vertices[triangle_vertex_indices[i].point_id[2]].pos;
+      for (unsigned int i=0; i<triangles.size(); i++) {
+         const glm::vec3 &p0 = vertices[triangles[i].point_id[0]].pos;
+         const glm::vec3 &p1 = vertices[triangles[i].point_id[1]].pos;
+         const glm::vec3 &p2 = vertices[triangles[i].point_id[2]].pos;
          glm::vec3 delta_0(0.0001, 0.0001, 0.0001);
          glm::vec3 delta_1(0.0001, 0.0001, 0.0001);
          glm::vec3 delta_2(0.0001, 0.0001, 0.0001);
@@ -961,7 +1012,7 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
       }
    }
 
-   unsigned int n_normals = triangle_vertex_indices.size() * 6 + 2 * vertices.size();
+   unsigned int n_normals = triangles.size() * 6 + 2 * vertices.size();
 
    if (! normals_are_setup)
       glGenBuffers(1, &normals_buffer_id);
@@ -997,11 +1048,11 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
 
    if (false)
       std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
-                << triangle_vertex_indices.size() << std::endl;
+                << triangles.size() << std::endl;
 
    // this can happen when all the particles have life 0 - and have been removed.
    if (n_instances == 0) return;
-   if (triangle_vertex_indices.empty()) return;
+   if (triangles.empty()) return;
 
    shader_p->Use();
    glBindVertexArray(vao);
@@ -1031,7 +1082,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-   unsigned int n_verts = 3 * triangle_vertex_indices.size();
+   unsigned int n_verts = 3 * triangles.size();
    if (false)
       std::cout << "draw_particles() " << name << " with shader " << shader_p->name
                 << " drawing n_instances " << n_instances << std::endl;
@@ -1053,11 +1104,12 @@ Mesh::draw(Shader *shader_p,
            const glm::vec4 &background_colour,
            bool do_depth_fog) {
 
-   // std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << std::endl;
+   // std::cout << "start:: Mesh::draw() " << name << " " << shader_p->name << " " << draw_this_mesh
+   // << std::endl;
 
    if (! draw_this_mesh) return;
 
-   unsigned int n_triangles = triangle_vertex_indices.size();
+   unsigned int n_triangles = triangles.size();
    GLuint n_verts = 3 * n_triangles;
 
    // At the moment, I don't think that it's an error to come here if there are no triangles (yet)
@@ -1093,7 +1145,7 @@ Mesh::draw(Shader *shader_p,
 
    // add material properties, use class built-ins this time.
 
-   // not using the build-in - hmm.
+   // not using the built-in - hmm.
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
 
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
@@ -1140,7 +1192,7 @@ Mesh::draw(Shader *shader_p,
    if (err) std::cout << "error:: Mesh::draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
                       << " with GL err " << err << std::endl;
 
-   if (vao == 99999999)
+   if (vao == VAO_NOT_SET)
       std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
                 << shader_p->name << std::endl;
 
@@ -1159,24 +1211,26 @@ Mesh::draw(Shader *shader_p,
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
-   if (is_instanced) {
+   if (is_instanced_colours) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
       err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst col "
                                              << err << std::endl;
+   }
 
+   if (is_instanced)
       glEnableVertexAttribArray(3);
-      if (is_instanced_with_rts_matrix) {
-         glEnableVertexAttribArray(4);
-         glEnableVertexAttribArray(5);
-         glEnableVertexAttribArray(6);
-         glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-         err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst rts "
-                                                << err << std::endl;
-      } else {
-         glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-         err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst trans "
-                                                << err << std::endl;
-      }
+
+   if (is_instanced_with_rts_matrix) {
+      glEnableVertexAttribArray(4);
+      glEnableVertexAttribArray(5);
+      glEnableVertexAttribArray(6);
+      glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
+      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst rts "
+                                             << err << std::endl;
+   } else {
+      glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
+      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst trans "
+                                             << err << std::endl;
    }
 
    err = glGetError();
@@ -1188,13 +1242,17 @@ Mesh::draw(Shader *shader_p,
    }
 
    if (is_instanced) {
+
+      // If you are here, did you remember to use gtk_gl_area_attach_buffers(GTK_GL_AREA(di.gl_area));
+      // before making a new VAO?
+
       if (false)
          std::cout << "debug:: Mesh::draw() instanced: " << name << " " << shader_p->name
                    << " drawing " << n_verts
-                   << " triangle vertices"  << std::endl;
+                   << " triangle vertices"  << " in " << n_instances << " instances" << std::endl;
       glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
       err = glGetError();
-      if (err) std::cout << "   error draw() glDrawElementsInstanced()"
+      if (err) std::cout << "error draw() glDrawElementsInstanced()"
                          << " shader: " << shader_p->name
                          << " vao: " << vao
                          << " n_triangle_verts: " << n_verts
@@ -1230,7 +1288,7 @@ Mesh::draw(Shader *shader_p,
    if (is_instanced) glDisableVertexAttribArray(4);
    if (is_instanced) glDisableVertexAttribArray(5);
    if (is_instanced) glDisableVertexAttribArray(6);
-   glUseProgram (0);
+   glUseProgram(0);
 
 }
 
@@ -1264,7 +1322,11 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
    //                   GLsizeiptr    size,
    //                   const GLvoid *data);
 
-   unsigned int n_mats =    mats.size();
+   int n_mats =    mats.size();
+   if (n_mats > n_instances_allocated) {
+      std::vector<glm::vec4> dummy;
+      setup_matrix_and_colour_instancing_buffers(mats, dummy);
+   }
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
@@ -1278,13 +1340,14 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
    GLenum err = glGetError();
    if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A0 "
                       << "binding vao " << vao << std::endl;
-               
+
    n_instances = particles.size();
+
    if (false)
       std::cout << "debug:: update_instancing_buffer_data() transfering " << n_instances
                 << " particle/instances " << std::endl;
 
-   if (vao == 99999999)
+   if (vao == VAO_NOT_SET)
       std::cout << "You forget to setup this Mesh " << name << std::endl;
 
    glBindVertexArray(vao);
@@ -1331,45 +1394,45 @@ Mesh::smooth_triangles() {
 
    int n = vertices.size();
    std::map<unsigned int, std::set<unsigned int> > m;
-   for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
-      for (unsigned int j=i; j<triangle_vertex_indices.size(); j++) {
+   for (unsigned int i=0; i<triangles.size(); i++) {
+      for (unsigned int j=i; j<triangles.size(); j++) {
          if (i != j) {
             // raw compare glm::vec3
-            if (vertices[triangle_vertex_indices[i].point_id[0]].pos == vertices[triangle_vertex_indices[j].point_id[0]].pos) {
-               m[triangle_vertex_indices[i].point_id[0]].insert(triangle_vertex_indices[j].point_id[0]);
-               m[triangle_vertex_indices[j].point_id[0]].insert(triangle_vertex_indices[i].point_id[0]);
+            if (vertices[triangles[i].point_id[0]].pos == vertices[triangles[j].point_id[0]].pos) {
+               m[triangles[i].point_id[0]].insert(triangles[j].point_id[0]);
+               m[triangles[j].point_id[0]].insert(triangles[i].point_id[0]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[0]].pos == vertices[triangle_vertex_indices[j].point_id[1]].pos) {
-               m[triangle_vertex_indices[i].point_id[0]].insert(triangle_vertex_indices[j].point_id[1]);
-               m[triangle_vertex_indices[j].point_id[1]].insert(triangle_vertex_indices[i].point_id[0]);
+            if (vertices[triangles[i].point_id[0]].pos == vertices[triangles[j].point_id[1]].pos) {
+               m[triangles[i].point_id[0]].insert(triangles[j].point_id[1]);
+               m[triangles[j].point_id[1]].insert(triangles[i].point_id[0]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[0]].pos == vertices[triangle_vertex_indices[j].point_id[2]].pos) {
-               m[triangle_vertex_indices[i].point_id[0]].insert(triangle_vertex_indices[j].point_id[2]);
-               m[triangle_vertex_indices[j].point_id[2]].insert(triangle_vertex_indices[i].point_id[0]);
+            if (vertices[triangles[i].point_id[0]].pos == vertices[triangles[j].point_id[2]].pos) {
+               m[triangles[i].point_id[0]].insert(triangles[j].point_id[2]);
+               m[triangles[j].point_id[2]].insert(triangles[i].point_id[0]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[1]].pos == vertices[triangle_vertex_indices[j].point_id[0]].pos) {
-               m[triangle_vertex_indices[i].point_id[1]].insert(triangle_vertex_indices[j].point_id[0]);
-               m[triangle_vertex_indices[j].point_id[0]].insert(triangle_vertex_indices[i].point_id[1]);
+            if (vertices[triangles[i].point_id[1]].pos == vertices[triangles[j].point_id[0]].pos) {
+               m[triangles[i].point_id[1]].insert(triangles[j].point_id[0]);
+               m[triangles[j].point_id[0]].insert(triangles[i].point_id[1]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[1]].pos == vertices[triangle_vertex_indices[j].point_id[1]].pos) {
-               m[triangle_vertex_indices[i].point_id[1]].insert(triangle_vertex_indices[j].point_id[1]);
-               m[triangle_vertex_indices[j].point_id[1]].insert(triangle_vertex_indices[i].point_id[1]);
+            if (vertices[triangles[i].point_id[1]].pos == vertices[triangles[j].point_id[1]].pos) {
+               m[triangles[i].point_id[1]].insert(triangles[j].point_id[1]);
+               m[triangles[j].point_id[1]].insert(triangles[i].point_id[1]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[1]].pos == vertices[triangle_vertex_indices[j].point_id[2]].pos) {
-               m[triangle_vertex_indices[i].point_id[1]].insert(triangle_vertex_indices[j].point_id[2]);
-               m[triangle_vertex_indices[j].point_id[2]].insert(triangle_vertex_indices[i].point_id[1]);
+            if (vertices[triangles[i].point_id[1]].pos == vertices[triangles[j].point_id[2]].pos) {
+               m[triangles[i].point_id[1]].insert(triangles[j].point_id[2]);
+               m[triangles[j].point_id[2]].insert(triangles[i].point_id[1]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[2]].pos == vertices[triangle_vertex_indices[j].point_id[0]].pos) {
-               m[triangle_vertex_indices[i].point_id[2]].insert(triangle_vertex_indices[j].point_id[0]);
-               m[triangle_vertex_indices[j].point_id[0]].insert(triangle_vertex_indices[i].point_id[2]);
+            if (vertices[triangles[i].point_id[2]].pos == vertices[triangles[j].point_id[0]].pos) {
+               m[triangles[i].point_id[2]].insert(triangles[j].point_id[0]);
+               m[triangles[j].point_id[0]].insert(triangles[i].point_id[2]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[2]].pos == vertices[triangle_vertex_indices[j].point_id[1]].pos) {
-               m[triangle_vertex_indices[i].point_id[2]].insert(triangle_vertex_indices[j].point_id[1]);
-               m[triangle_vertex_indices[j].point_id[1]].insert(triangle_vertex_indices[i].point_id[2]);
+            if (vertices[triangles[i].point_id[2]].pos == vertices[triangles[j].point_id[1]].pos) {
+               m[triangles[i].point_id[2]].insert(triangles[j].point_id[1]);
+               m[triangles[j].point_id[1]].insert(triangles[i].point_id[2]);
             }
-            if (vertices[triangle_vertex_indices[i].point_id[2]].pos == vertices[triangle_vertex_indices[j].point_id[2]].pos) {
-               m[triangle_vertex_indices[i].point_id[2]].insert(triangle_vertex_indices[j].point_id[2]);
-               m[triangle_vertex_indices[j].point_id[2]].insert(triangle_vertex_indices[i].point_id[2]);
+            if (vertices[triangles[i].point_id[2]].pos == vertices[triangles[j].point_id[2]].pos) {
+               m[triangles[i].point_id[2]].insert(triangles[j].point_id[2]);
+               m[triangles[j].point_id[2]].insert(triangles[i].point_id[2]);
             }
 
          }
@@ -1467,15 +1530,15 @@ Mesh::setup_camera_facing_quad() {
    glm::vec4 col(1.0, 1.0, 1.0, 1.0);
 
    vertices.clear();
-   triangle_vertex_indices.clear();
+   triangles.clear();
 
    vertices.push_back(s_generic_vertex(glm::vec3( scale_x,  scale_y, 0.0f), n, col));
    vertices.push_back(s_generic_vertex(glm::vec3(-scale_x,  scale_y, 0.0f), n, col));
    vertices.push_back(s_generic_vertex(glm::vec3(-scale_x, -scale_y, 0.0f), n, col));
    vertices.push_back(s_generic_vertex(glm::vec3( scale_x, -scale_y, 0.0f), n, col));
 
-   triangle_vertex_indices.push_back(g_triangle(0,1,2));
-   triangle_vertex_indices.push_back(g_triangle(2,3,0));
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(2,3,0));
 
    setup_buffers();
 
@@ -1501,7 +1564,7 @@ Mesh::setup_camera_facing_hex() {
    s_generic_vertex g5(s * glm::vec3(-tt,  ot, 0), n, c);
    s_generic_vertex g6(s * glm::vec3(  0,   1, 0), n, c);
    unsigned int idx_base = vertices.size();
-   unsigned int idx_tri_base = triangle_vertex_indices.size();
+   unsigned int idx_tri_base = triangles.size();
    vertices.push_back(g0);
    vertices.push_back(g1);
    vertices.push_back(g2);
@@ -1509,15 +1572,15 @@ Mesh::setup_camera_facing_hex() {
    vertices.push_back(g4);
    vertices.push_back(g5);
    vertices.push_back(g6);
-   triangle_vertex_indices.push_back(g_triangle(0,1,2));
-   triangle_vertex_indices.push_back(g_triangle(0,2,3));
-   triangle_vertex_indices.push_back(g_triangle(0,3,4));
-   triangle_vertex_indices.push_back(g_triangle(0,4,5));
-   triangle_vertex_indices.push_back(g_triangle(0,5,6));
-   triangle_vertex_indices.push_back(g_triangle(0,6,1));
+   triangles.push_back(g_triangle(0,1,2));
+   triangles.push_back(g_triangle(0,2,3));
+   triangles.push_back(g_triangle(0,3,4));
+   triangles.push_back(g_triangle(0,4,5));
+   triangles.push_back(g_triangle(0,5,6));
+   triangles.push_back(g_triangle(0,6,1));
    if (idx_tri_base != 0)
-      for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
-         triangle_vertex_indices[i].rebase(idx_base);
+      for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+         triangles[i].rebase(idx_base);
 
    // setup_buffers();
  
@@ -1533,7 +1596,7 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides) {
    glm::vec4  col(0.4, 0.4, 0.4, 0.951);
 
    unsigned int idx_base = vertices.size();
-   unsigned int idx_tri_base = triangle_vertex_indices.size();
+   unsigned int idx_tri_base = triangles.size();
    vertices.push_back(s_generic_vertex(glm::vec3(0.0f, 0.0f, 0.0f), n, ccol));
    for (unsigned int i=0; i<n_sides; i++) {
       float a = static_cast<float>(i) * turn_per_step;
@@ -1544,12 +1607,157 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides) {
    for (unsigned int idx=1; idx<=n_sides; idx++) {
       unsigned int idx_next = idx + 1;
       if (idx == n_sides) idx_next = 1;
-      triangle_vertex_indices.push_back(g_triangle(0, idx, idx_next));
+      triangles.push_back(g_triangle(0, idx, idx_next));
    }
    if (idx_tri_base != 0)
-      for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
-         triangle_vertex_indices[i].rebase(idx_base);
+      for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+         triangles[i].rebase(idx_base);
 
+}
+
+#include "cylinder-with-rotation-translation.hh"
+
+void
+Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in) {
+
+   // call this
+   // gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   // before calling this function
+
+   // Make some space (allocate the buffers) for the rotatation/translation instances also.
+   // (the colours are not instanced)
+
+   is_instanced_colours = false; // keep the original colours
+   is_instanced = true;
+   is_instanced_with_rts_matrix = true;
+
+   material = material_in;
+   shader_p->Use();
+
+   unsigned int n_slices = 20;
+   unsigned int n_stacks = 80;
+   glm::vec3 start_pos(0, 0, 0);
+   glm::vec3 end_pos(1, 0, 0);
+   std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
+   float height = glm::distance(start_pos, end_pos);
+   float radius = 0.05;
+   cylinder_with_rotation_translation c(pp, radius, radius, height, n_slices, n_stacks);
+   if (true)
+      c.add_spiral(); // take 2 colours
+
+   // now convert the vertices
+   std::vector<s_generic_vertex> new_vertices(c.vertices.size());
+   for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
+      const vertex_with_rotation_translation &v = c.vertices[ii];
+      s_generic_vertex gv(v.pos, v.normal, v.colour);
+      // gv.color = glm::vec4(0,1,0,1);
+      new_vertices[ii] = gv;
+   }
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_tri_base = triangles.size();
+   vertices.insert(vertices.end(), new_vertices.begin(), new_vertices.end());
+   triangles.insert(triangles.end(), c.triangle_indices_vec.begin(), c.triangle_indices_vec.end());
+   for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++)
+      triangles[ii].rebase(idx_base);
+
+   setup_buffers();
+
+   std::vector<glm::mat4> mats(1000, glm::mat4(1.0f));
+   std::vector<glm::vec4> colours; //dummy
+   n_instances = mats.size();
+   setup_matrix_and_colour_instancing_buffers(mats, colours);
+}
+
+
+void
+Mesh::test_cyclinders(Shader *shader_p, const Material &material_in) {
+
+   // call this
+   // gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+   // before calling this function
+
+   is_instanced_colours = false; // keep the original colours
+   is_instanced = true;
+   is_instanced_with_rts_matrix = true;
+
+   material = material_in;
+   shader_p->Use();
+
+   unsigned int n_slices = 20;
+   unsigned int n_stacks = 80;
+   glm::vec3 start_pos(0, 0, 0);
+   glm::vec3 end_pos(1, 0, 0);
+   std::pair<glm::vec3, glm::vec3> pp(start_pos, end_pos);
+   float height = glm::distance(start_pos, end_pos);
+   float radius = 0.05;
+   cylinder_with_rotation_translation c(pp, radius, radius, height, n_slices, n_stacks);
+   if (true)
+      c.add_spiral(); // take 2 colours
+
+   // now convert the vertices
+   std::vector<s_generic_vertex> new_vertices(c.vertices.size());
+   for (unsigned int ii=0; ii<c.vertices.size(); ii++) {
+      const vertex_with_rotation_translation &v = c.vertices[ii];
+      s_generic_vertex gv(v.pos, v.normal, v.colour);
+      // gv.color = glm::vec4(0,1,0,1);
+      new_vertices[ii] = gv;
+   }
+   unsigned int idx_base = vertices.size();
+   unsigned int idx_tri_base = triangles.size();
+   vertices.insert(vertices.end(), new_vertices.begin(), new_vertices.end());
+   triangles.insert(triangles.end(), c.triangle_indices_vec.begin(), c.triangle_indices_vec.end());
+   for (unsigned int ii=idx_tri_base; ii<triangles.size(); ii++)
+      triangles[ii].rebase(idx_base);
+
+
+   setup_buffers();
+
+   // some test cylinders
+   std::vector<glm::mat4> mats;
+   std::vector<glm::vec4> colours; // empty
+
+   for (auto i=0; i<10; i++) {
+      float x = static_cast<float>(i);
+      glm::mat4 m(1.0);
+      glm::vec3 t(2 * x, 0, 0);
+      m += glm::translate(t);
+      mats.push_back(m);
+
+      // see get_bond_matrix() in update_mats_and_colours() in the generator
+   }
+
+   glm::vec3 p1(42.08, 9.67, 14.42);
+   glm::vec3 p2(40.59, 5.68, 13.24);
+
+   glm::vec3 p3(44.88, 12.95, 8.76);
+   glm::vec3 p4(46.13, 10.59, 9.97);
+
+   float theta = 1.0;
+
+   mats.push_back(make_hydrogen_bond_cylinder_orientation(p1, p2, theta));
+   mats.push_back(make_hydrogen_bond_cylinder_orientation(p3, p4, theta));
+
+   n_instances = mats.size();
+   setup_matrix_and_colour_instancing_buffers(mats, colours);
+
+
+}
+
+// static
+glm::mat4
+Mesh::make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::vec3 &p2, float theta) {
+
+   glm::mat4 u(1.0f);
+   glm::vec3 delta(p2-p1);
+   float h = glm::distance(p1, p2);
+   glm::mat4 sc = glm::scale(u, glm::vec3(1.0f, 1.0f, h));
+   glm::mat4 rot = glm::rotate(u, theta, glm::vec3(0.0f, 0.0f, 1.0f));
+   glm::vec3 normalized_bond_orientation(glm::normalize(delta));
+   glm::mat4 ori = glm::orientation(normalized_bond_orientation,
+                                    glm::vec3(0.0f, 0.0f, 1.0f));
+   glm::mat4 t = glm::translate(u, p1);
+   glm::mat4 m = t * ori * rot * sc;
+   return m;
 }
 
 #include <fstream>
@@ -1581,8 +1789,8 @@ Mesh::export_as_obj_internal(const std::string &file_name) const {
          const s_generic_vertex &vert = vertices[i];
          f << "vn " << -vert.normal.x << " " << -vert.normal.y << " " << -vert.normal.z << "\n";
       }
-      for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
-         const g_triangle &tri = triangle_vertex_indices[i];
+      for (unsigned int i=0; i<triangles.size(); i++) {
+         const g_triangle &tri = triangles[i];
          f << "f "
            << tri.point_id[0]+1 << "//" << tri.point_id[0]+1 << " "
            << tri.point_id[1]+1 << "//" << tri.point_id[1]+1 << " "
@@ -1605,6 +1813,8 @@ bool
 Mesh::export_as_obj_via_assimp(const std::string &file_name) const {
 
    unsigned int status = false;
+
+   std::cout << "exporting to " << file_name << std::endl;
 
 #ifdef USE_ASSIMP
 
@@ -1685,14 +1895,14 @@ Mesh::generate_scene() const {
 
    //  --- triangles ---
 
-   pMesh->mFaces = new aiFace[triangle_vertex_indices.size()];
-   pMesh->mNumFaces = triangle_vertex_indices.size();
-   for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
+   pMesh->mFaces = new aiFace[triangles.size()];
+   pMesh->mNumFaces = triangles.size();
+   for (unsigned int i=0; i<triangles.size(); i++) {
       aiFace &face = pMesh->mFaces[i];
       face.mIndices = new unsigned int[3];
-      face.mIndices[0] = triangle_vertex_indices[i].point_id[0];
-      face.mIndices[1] = triangle_vertex_indices[i].point_id[1];
-      face.mIndices[2] = triangle_vertex_indices[i].point_id[2];
+      face.mIndices[0] = triangles[i].point_id[0];
+      face.mIndices[1] = triangles[i].point_id[1];
+      face.mIndices[2] = triangles[i].point_id[2];
    }
 
    return scene;

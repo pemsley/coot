@@ -3055,6 +3055,7 @@ public:
    static void draw_generic_text();
    static void draw_particles();
    static void draw_boids();
+   static void draw_hydrogen_bonds_mesh(); // like boids
    void setup_draw_for_particles();
    void clear_simple_distances();
    void clear_last_simple_distance();
@@ -4301,11 +4302,18 @@ string   static std::string sessionid;
    static LinesMesh lines_mesh_for_boids_box;
    void setup_draw_for_boids();
 
+   // Let's base dynamic hydrogen bonds on how boids worked.
+   static Mesh mesh_for_hydrogen_bonds; // with instancing, because dynamic
+   void setup_draw_for_hydrogen_bonds();
+   // this can be made more sophisticated later
+   static std::vector<std::pair<glm::vec3, glm::vec3> > hydrogen_bonds_atom_position_pairs;
+   static std::chrono::time_point<std::chrono::high_resolution_clock> tick_hydrogen_bond_mesh_t_previous;
+
    static bool do_tick_particles;
    static bool do_tick_spin;
    static bool do_tick_boids;
-   
-   
+   static bool do_tick_hydrogen_bonds_mesh;
+
 };
 
 

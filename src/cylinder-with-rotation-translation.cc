@@ -163,11 +163,18 @@ cylinder_with_rotation_translation::add_flat_cap(float z) {
 void
 cylinder_with_rotation_translation::add_spiral() {
 
+   glm::vec4 base_colour(0.4, 0.1, 0.4, 1.0);
    glm::vec4 white(0.8, 0.8, 0.8,1.0);
+
+   for (unsigned int i=0; i<vertices.size(); i++)
+      vertices[i].colour = base_colour;
+
+   unsigned int istep = 1;
    for (unsigned int i=0; i<n_stacks; i++) {
-      unsigned int idx_1 = n_stacks * i + i;
-      unsigned int idx_2 = n_stacks * i + i + 1;
-      if (idx_2 == (n_stacks * (i+1))) idx_2 = n_stacks * i;
+      unsigned int idx_1 = n_slices * i + istep * i;
+      unsigned int idx_2 = n_slices * i + istep * i + 1;
+      if (idx_1 >= (n_stacks * (i+1))) idx_1 -= n_slices;
+      if (idx_2 >= (n_stacks * (i+1))) idx_2 -= n_slices;
       vertices[idx_1].colour = white;
       vertices[idx_2].colour = white;
    }

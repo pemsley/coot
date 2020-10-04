@@ -154,14 +154,22 @@ unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by defa
 bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_boids = false;
+bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 int graphics_info_t::n_particles = 300;
 Mesh graphics_info_t::mesh_for_particles;
 particle_container_t graphics_info_t::particles;
 glm::vec3 graphics_info_t::identification_pulse_centre;
 
+std::vector<std::pair<glm::vec3, glm::vec3> > graphics_info_t::hydrogen_bonds_atom_position_pairs;
+
+std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::tick_hydrogen_bond_mesh_t_previous = std::chrono::high_resolution_clock::now();
+
+
 fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
+
+Mesh graphics_info_t::mesh_for_hydrogen_bonds;;
 
 LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
 LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;

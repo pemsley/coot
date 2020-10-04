@@ -161,6 +161,8 @@
 #include <assimp/postprocess.h>     // Post processing flags
 #endif
 
+#include "draw-2.hh" // for glarea_tick_func
+
 int test_function(int i, int j) {
 
    graphics_info_t g;
@@ -168,6 +170,24 @@ int test_function(int i, int j) {
    // Is this the function you are really looking for (these days)?
 
    if (true) {
+
+      std::cout << "Hydrogen bonds mesh test" << std::endl;
+      Material material;
+      material.shininess = 10.0;
+      material.specular_strength = 0.02;
+      Mesh mesh("Test cyclinders");
+      glm::vec3 p1(42.08, 9.67, 14.42);
+      glm::vec3 p2(40.59, 5.68, 13.24);
+      glm::vec3 p3(44.88, 12.95, 8.76);
+      glm::vec3 p4(46.13, 10.59, 9.97);
+      graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p1, p2));
+      graphics_info_t::hydrogen_bonds_atom_position_pairs.push_back(std::pair<glm::vec3, glm::vec3>(p3, p4));
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      graphics_info_t::mesh_for_hydrogen_bonds = mesh;
+      Shader &shader = graphics_info_t::shader_for_instanced_objects;
+      graphics_info_t::mesh_for_hydrogen_bonds.setup_hydrogen_bond_cyclinders(&shader, material);
+      graphics_info_t::do_tick_hydrogen_bonds_mesh = true;
+      int new_tick_id = gtk_widget_add_tick_callback(graphics_info_t::glareas[0], glarea_tick_func, 0, 0);
    }
 
 #ifdef USE_ASSIMP

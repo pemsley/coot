@@ -24,12 +24,14 @@ class Mesh {
    void setup_buffers();
    // rts rotation, translation & scale
    void setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
-   int n_instances;
+   int n_instances; // instances to be drawn
+   int n_instances_allocated; // that we made space for in glBufferData()
    bool normals_are_setup;
    GLuint normals_vao;
    GLuint normals_buffer_id;
    GLuint normals_colour_buffer_id;
    bool first_time;
+   float hydrogen_bond_cylinders_angle;
    void init();
 #if USE_ASSIMP
    aiScene generate_scene() const;
@@ -45,10 +47,11 @@ public:
    bool this_mesh_is_closed;
    bool draw_this_mesh;
    bool is_instanced;
+   bool is_instanced_colours;
    bool is_instanced_with_rts_matrix;
    bool use_blending;
    std::vector<s_generic_vertex> vertices;
-   std::vector<g_triangle> triangle_vertex_indices; // just call it triangles
+   std::vector<g_triangle> triangles;
    Shader shader_for_draw_normals;
    std::string name;
 
@@ -62,9 +65,10 @@ public:
    void clear() {
       // delete some gl buffers here
       is_instanced = false;
+      is_instanced_colours = false;
       is_instanced_with_rts_matrix = false;
       vertices.clear();
-      triangle_vertex_indices.clear();
+      triangles.clear();
       use_blending = false;
       normals_are_setup = false;
    }
@@ -94,19 +98,22 @@ public:
    void setup_instanced_debugging_objects(Shader *shader_p, const Material &material_in);
 
    // this is an import function, name it so.
-   void setup_instanced_cylinders(Shader *shader_p,
-                                  const Material &material_in,
-                                  const std::vector<glm::mat4> &mats,
-                                  const std::vector<glm::vec4> &colours);
+   void import_and_setup_instanced_cylinders(Shader *shader_p,
+                                             const Material &material_in,
+                                             const std::vector<glm::mat4> &mats,
+                                             const std::vector<glm::vec4> &colours);
    // this is an import function, name it so.
    void setup_instanced_octahemispheres(Shader *shader_p,
                                         const Material &material_in,
                                         const std::vector<glm::mat4> &mats,
                                         const std::vector<glm::vec4> &colours);
+
+   void test_cyclinders(Shader *shader_p, const Material &material_in);
    void setup_camera_facing_outline();
    void setup_camera_facing_quad();
    void setup_camera_facing_hex();
    void setup_camera_facing_polygon(unsigned int n_sides = 8);
+   void setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in);
 
    void setup_rtsc_instancing(Shader *shader_p,
                               const std::vector<glm::mat4> &mats,
@@ -139,6 +146,9 @@ public:
    bool export_as_obj_via_assimp(const std::string &file_name) const;
    bool export_as_obj_internal(const std::string &file_name) const;
    bool export_as_obj(const std::string &file_name) const;
+
+   // make the matrix (called several times). After which, the calling function calls update_instancing_buffer_data()
+   static glm::mat4 make_hydrogen_bond_cylinder_orientation(const glm::vec3 &p1, const glm::vec3 &p2, float theta);
 
 };
 
