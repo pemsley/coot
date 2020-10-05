@@ -3065,7 +3065,7 @@ public:
    void unset_geometry_dialog_torsion_togglebutton();
    void unset_geometry_dialog_dynamic_distance_togglebutton();
    static bool setup_draw_for_particles_semaphore;
-
+   static bool particles_have_been_shown_already_for_this_round_flag;
 
    static bool find_hydrogen_torsions_flag;
 

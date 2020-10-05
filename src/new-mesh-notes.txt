@@ -45,3 +45,14 @@ in coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_
       though? Hmm) So the balls were the wrong colour and drawn at the origin.
 
 
+-------
+
+    Are the any vertices?
+
+    Are the vertices in the same place?
+
+------
+
+    For object in the world but facing the camera, use the transpose of the view rotation matrix.
+    e.g. in particles.shader or lines-pulse.shader
+     

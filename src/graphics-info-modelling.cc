@@ -607,9 +607,12 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // (with success?).
 
    if (setup_draw_for_particles_semaphore) {
-      graphics_info_t g;
-      g.setup_draw_for_particles();
-      setup_draw_for_particles_semaphore = false;
+      if (! particles_have_been_shown_already_for_this_round_flag) {
+         graphics_info_t g;
+         g.setup_draw_for_particles();
+         setup_draw_for_particles_semaphore = false; // it's done it's job
+         particles_have_been_shown_already_for_this_round_flag = true; // only once per round
+      }
    }
 
    if (restraints_lock) {
@@ -1225,6 +1228,7 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 		<< std::endl;
 
    all_atom_pulls_off();
+   particles_have_been_shown_already_for_this_round_flag = false;
 
    int n_restraints = last_restraints->make_restraints(imol_moving_atoms,
 						       *Geom_p(), flags,

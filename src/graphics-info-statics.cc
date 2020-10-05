@@ -160,6 +160,7 @@ Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
 bool graphics_info_t::setup_draw_for_particles_semaphore = false;
 glm::vec3 graphics_info_t::identification_pulse_centre;
+bool graphics_info_t::particles_have_been_shown_already_for_this_round_flag = false;
 
 std::vector<std::pair<glm::vec3, glm::vec3> > graphics_info_t::hydrogen_bonds_atom_position_pairs;
 
