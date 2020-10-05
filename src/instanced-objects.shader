@@ -62,8 +62,16 @@ struct LightSource {
     float linearAttenuation;
     float quadraticAttenuation;
 };
+struct Material {
+   float shininess;
+   float specular_strength;
+   vec4 specular;
+};
 uniform LightSource light_sources[2];
 uniform vec3 eye_position;
+uniform Material material;
+uniform bool is_perspective_projection;
+uniform vec4 background_colour;
 
 in vec4 frag_pos_transfer;
 in vec4 colour_transfer; // for instanced objects, the colour is set in the generic vertex, not the material
@@ -71,11 +79,25 @@ in vec3 normal_transfer;
 
 out vec4 outputColor;
 
+float get_fog_amount(float depth_in) {
+
+   if (! is_perspective_projection) {
+      return depth_in * depth_in;
+   } else {
+      // needs tweaking
+      float d = depth_in;
+      float d4 = d * d * d * d;
+      return d4;
+   }
+}
+
 void main() {
 
    vec4 ct = colour_transfer;
    // ct = vec4(1,1,1,1);
    outputColor = vec4(0,0,0,0);
+
+   float fog_amount = get_fog_amount(gl_FragCoord.z);
 
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
@@ -95,7 +117,7 @@ void main() {
 
          // specular
 
-         float shininess = 122.6;
+         float shininess = material.shininess;
          vec3 eye_pos = eye_position;
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer.xyz);
          vec3 light_dir_v3 = light_dir.xyz;
@@ -105,7 +127,7 @@ void main() {
          dp_view_reflect = max(dp_view_reflect, 0.0);
          dp_view_reflect = min(dp_view_reflect, 1.0);
 
-         float spec = pow(dp_view_reflect, shininess);
+         float spec = material.specular_strength * pow(dp_view_reflect, shininess);
          // spec = 0;
          vec4 specular = spec * light_sources[i].specular;
 
@@ -126,6 +148,8 @@ void main() {
 
       }
    }
+
+   outputColor = mix(outputColor, background_colour, fog_amount);
 
 
 }

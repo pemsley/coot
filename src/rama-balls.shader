@@ -79,14 +79,14 @@ layout(location = 0) out vec4 outputColor;
 
 float get_fog_amount(float depth_in) {
 
-   if (false) {
+   if (is_perspective_projection) {
       return depth_in;
    } else {
       // needs tweaking
       float d = depth_in;
 
-      float d2 = depth_in - 0.5;
-      float d3 = 30.0 * d2 * d2 * d2 * d2;
+      float d2 = d - 0.5;
+      float d3 = 2.0 * d2 * d2 * d2 * d2;
       float d4 = clamp(d3, 0.0, 1.0);
       return d4;
    }

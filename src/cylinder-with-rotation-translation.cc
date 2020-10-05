@@ -164,7 +164,7 @@ void
 cylinder_with_rotation_translation::add_spiral() {
 
    glm::vec4 base_colour(0.4, 0.1, 0.4, 1.0);
-   glm::vec4 white(0.8, 0.8, 0.8,1.0);
+   glm::vec4 white(0.6, 0.6, 0.6,1.0);
 
    for (unsigned int i=0; i<vertices.size(); i++)
       vertices[i].colour = base_colour;

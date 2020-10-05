@@ -13,27 +13,24 @@ Particle::update() {
    v_scale = 0.015;
    glm::vec3 delta = v_scale * velocity;
    position += delta;
-   velocity *= 0.994f;
+   velocity *= 0.992f;
    // colour.w *= 0.99;
-   colour.g += 0.01;
-   colour.r -= 0.004;
-   colour.b += 0.004;
+   colour.g += 0.02;
+   colour.r -= 0.02;
+   colour.b += 0.001;
    life -= 0.18;
    float r = 0.5 * (1.0 + random());
-   rotation += 0.01 * r;
+   rotation += 0.01 * r; // currently a uniform is used, not this (which means they all spin at the same rate)
 }
 
 void
 particle_container_t::remove_old_particles() {
 
-#if 0
    auto remover = [] (const Particle &p) {
                      return (p.life <= 0.0);
                   };
 
-   //  particles.erase(std::remove_if(particles.begin(), particles.end(), remover), particles.end());
-   // std::cout << "in remove_old_particles() particles.size() " << particles.size() << std::endl;
-#endif
+   particles.erase(std::remove_if(particles.begin(), particles.end(), remover), particles.end());
 
    if (! particles.empty()) {
       if (particles[0].life <= 0.0)
@@ -63,16 +60,11 @@ particle_container_t::make_particles(unsigned int n_particles) {
           p0 = 2.0 * random() - 1.0;
           p1 = 2.0 * random() - 1.0;
       }
-      float sc_pos = 2.0f;
-      float sc_vel = 5.1;
-      glm::vec3 pos(sc_pos * p0, sc_pos * p1, sc_pos * p2);
-      glm::vec3 n = glm::normalize(pos);
-      float v0 = p0 * sc_vel;
-      float v1 = p1 * sc_vel;
-      float v2 = p2 * sc_vel;
+      float sc_pos = 0.1f;
+      float sc_vel = 12.1f;
+      glm::vec3 pos = sc_pos * glm::vec3(p0, p1, p2);
+      glm::vec3 vel = sc_vel * glm::vec3(p0, p1, p2);
       glm::vec4 col(0.96, 0.26, 0.4, 1.0);
-      glm::vec3 vel(v0, v1, v2);
-      vel = sc_vel * n;
       if (false)
          std::cout << "Particle " << i << " " << glm::to_string(pos) << "\tvelocity "
                    << glm::to_string(vel) << " \t" << glm::to_string(col) << std::endl;
@@ -85,8 +77,8 @@ particle_container_t::make_particles(unsigned int n_particles) {
 void
 particle_container_t::update_particles() {
 
-   for (unsigned int i=0; i<particles.size(); i++) {
+   for (unsigned int i=0; i<particles.size(); i++)
       particles[i].update();
-   }
+
    remove_old_particles();
 }

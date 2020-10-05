@@ -46,8 +46,10 @@ glarea_tick_func(GtkWidget *widget,
    if (graphics_info_t::do_tick_particles) {
       if (graphics_info_t::particles.empty()) {
          graphics_info_t::do_tick_particles = false;
-         return FALSE;
+         std::cout << "removing do_tick_particles " << std::endl;
       } else {
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
+         // std::cout << "glarea_tick_func() calls update_particles() " << std::endl;
          graphics_info_t::particles.update_particles();
          graphics_info_t::mesh_for_particles.update_instancing_buffer_data_for_particles(graphics_info_t::particles);
       }
@@ -71,25 +73,31 @@ glarea_tick_func(GtkWidget *widget,
    }
 
    if (graphics_info_t::do_tick_hydrogen_bonds_mesh) {
-      std::chrono::time_point<std::chrono::high_resolution_clock> tp_now =
-         std::chrono::high_resolution_clock::now();
-      std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev =
-         graphics_info_t::tick_hydrogen_bond_mesh_t_previous;
-      auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_prev);
-      float theta = 0.001 * delta.count();
-      // std::cout << "delta from time " << delta.count() << " theta " << theta << std::endl;
-      std::vector<glm::mat4> mats;
-      for (unsigned int i=0; i<graphics_info_t::hydrogen_bonds_atom_position_pairs.size(); i++) {
-         const std::pair<glm::vec3, glm::vec3> &p = graphics_info_t::hydrogen_bonds_atom_position_pairs[i];
-         mats.push_back(Mesh::make_hydrogen_bond_cylinder_orientation(p.first, p.second, theta));
+      if (graphics_info_t::mesh_for_hydrogen_bonds.draw_this_mesh) {
+         std::chrono::time_point<std::chrono::high_resolution_clock> tp_now =
+            std::chrono::high_resolution_clock::now();
+         std::chrono::time_point<std::chrono::high_resolution_clock> tp_prev =
+            graphics_info_t::tick_hydrogen_bond_mesh_t_previous;
+         auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(tp_now - tp_prev);
+         float theta = 0.002 * delta.count();
+         // std::cout << "delta from time " << delta.count() << " theta " << theta << std::endl;
+         std::vector<glm::mat4> mats;
+         for (unsigned int i=0; i<graphics_info_t::hydrogen_bonds_atom_position_pairs.size(); i++) {
+            const std::pair<glm::vec3, glm::vec3> &p = graphics_info_t::hydrogen_bonds_atom_position_pairs[i];
+            mats.push_back(Mesh::make_hydrogen_bond_cylinder_orientation(p.first, p.second, theta));
+         }
+         // std::cout << "mesh_for_hydrogen_bonds.update_instancing_buffer_data(mats) " << mats.size() << std::endl;
+         graphics_info_t::mesh_for_hydrogen_bonds.update_instancing_buffer_data(mats);
       }
-      graphics_info_t::mesh_for_hydrogen_bonds.update_instancing_buffer_data(mats);
    }
 
    gtk_widget_queue_draw(widget); // needed?
 
-
-   return TRUE;
+   if (graphics_info_t::do_tick_particles || graphics_info_t::do_tick_spin ||
+       graphics_info_t::do_tick_boids || graphics_info_t::do_tick_hydrogen_bonds_mesh)
+      return TRUE;
+   else
+      return FALSE;
 }
 
 
@@ -174,13 +182,6 @@ on_glarea_realize(GtkGLArea *glarea) {
    }
 
    g.setup_lights();
-
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
-   g.particles.make_particles(g.n_particles);
-   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
-   g.mesh_for_particles.setup_instancing_buffers_for_particles(g.particles.size());
-
-   g.mesh_for_particles.set_name("mesh for particles");
 
    g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
 

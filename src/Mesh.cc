@@ -34,6 +34,7 @@ Mesh::init() {
    this_mesh_is_closed = false;
    n_instances = 0;
    n_instances_allocated = 0;
+   particle_draw_count = 0;
    vao = VAO_NOT_SET; // use UNSET_VAO
 }
 
@@ -464,22 +465,24 @@ Mesh::setup_buffers() {
    if (vertices.empty()) return;
 
    if (first_time) {
-      glGenVertexArrays (1, &vao);
-      first_time = false;
+      glGenVertexArrays(1, &vao);
    }
-   glBindVertexArray (vao);
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error setup_buffers() on binding vao " << vao << " error "
+                      << err << std::endl;
 
    unsigned int n_vertices = vertices.size();
 
    if (first_time) {
       glGenBuffers(1, &buffer_id);
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
    } else {
       glDeleteBuffers(1, &buffer_id);
       glGenBuffers(1, &buffer_id);
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
    }
 
    // position
@@ -522,14 +525,16 @@ Mesh::setup_buffers() {
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
 
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_STATIC_DRAW);
-   GLenum err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
 
-   glDisableVertexAttribArray (0);
-   glDisableVertexAttribArray (1);
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
    if (! is_instanced_colours) glDisableVertexAttribArray(2);
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glUseProgram(0);
    glBindVertexArray(0);
+
+   first_time = false;
 
 }
 
@@ -652,7 +657,7 @@ Mesh::setup_instanced_octahemispheres(Shader *shader_p,
 // instancing buffer for particles. Make *space* for n_particles, but set
 // n_instances = 0.
 void
-Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
+Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles) {
 
    // we want to allocate space for n_particles instances, but until the particles
    // are created, and the particle bufffer data updated, we don't want to draw
@@ -660,40 +665,18 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    //
    n_instances = 0;
    n_instances_allocated = n_particles;
+   particle_draw_count = 0;
 
-   glm::vec3 n(0,0,1);
-   glm::vec4 c(0.8, 0.4, 0.8, 0.8);
+   // glm::vec3 n(0,0,1);
+   // glm::vec4 c(0.8, 0.4, 0.8, 0.8);
 
-   setup_camera_facing_polygon(4);
+   setup_camera_facing_polygon(5, 0.3); // calls setup_buffers() for the vertices and sets the VAO
 
-   glGenVertexArrays (1, &vao);
    glBindVertexArray (vao);
-
    GLenum err = glGetError();
-   if (err) std::cout << "GL error ##################################################"
-                      << " setup_instancing_buffers_for_particles() B "
+   if (err) std::cout << "GL error ####"
+                      << " setup_vertex_and_instancing_buffers_for_particles() B "
                       << err << std::endl;
-   std::cout << "debug:: Mesh::setup_instancing_buffers_for_particles() " << vao << std::endl;
-
-   // allocate buffer for vertices with position, normal and colour
-   glGenBuffers(1, &buffer_id);
-   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
-   unsigned int n_vertices = vertices.size();
-   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
-
-   // position
-   glEnableVertexAttribArray(0);
-   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex), 0);
-
-   // normal - not used in the shader currently
-   glEnableVertexAttribArray(1);
-   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
-                         reinterpret_cast<void *>(sizeof(glm::vec3)));
-
-   // colour
-   glEnableVertexAttribArray(2);
-   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
-                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
 
 
    // a Particle has position, velocity and colour. We need position and colour
@@ -702,19 +685,19 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    // Look at how the Mesh for ribbons does it.
 
    // instanced position
+
+   unsigned int n_bytes = n_particles * sizeof(Particle);
+
    glGenBuffers(1, &inst_model_translation_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_bytes, nullptr, GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(3);
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), 0);
    glVertexAttribDivisor(3, 1);
    err = glGetError();
-   if (err) std::cout << "GL error ##################################################"
+   if (err) std::cout << "GL error #####"
                       << " setup_instancing_buffers_for_particles() B "
                       << err << std::endl;
-   std::cout << "debug ################ setup_instancing_buffers_for_particles()"
-             << " inst_model_translation_buffer_id "
-             << inst_model_translation_buffer_id << std::endl;   
 
    // instanced colours - setup another buffer - extravagent.
    glGenBuffers(1, &inst_colour_buffer_id);
@@ -732,15 +715,24 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
    err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
    unsigned int n_triangles = triangles.size();
-   unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (true)
-      std::cout << "debug:: setup_instancing_buffers() particles: "
+   n_bytes = n_triangles * 3 * sizeof(unsigned int);
+   if (false)
+      std::cout << "debug:: setup_vertex_and_instancing_buffers_for_particles() "
                 << "vao " << vao
                 << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
-                << " allocating with size: " << n_bytes << " bytes" << std::endl;
+                << " allocating with size: " << n_bytes << " bytes for triangles"
+                << std::endl;
    glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangles[0], GL_DYNAMIC_DRAW);
    err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
+
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err) std::cout << "GL error #####"
+                      << " setup_vertex_and_instancing_buffers_for_particles() --- end --- "
+                      << err << std::endl;
+   glBindVertexArray(0);
+
 }
 
 
@@ -947,10 +939,11 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 
    if (! normals_are_setup) {
       glGenVertexArrays(1, &normals_vao);
+      std::cout << "####### draw_normals() new normals_vao " << normals_vao << std::endl;
    }
    glBindVertexArray(normals_vao);
 
-   auto vec_length = [](const glm::vec3 &v) {
+   auto vec_length = [] (const glm::vec3 &v) {
                         float s = v.x * v.x + v.y * v.y + v.z * v.z;
                         return sqrtf(s);
                      };
@@ -1044,7 +1037,7 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 }
 
 void
-Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
+Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation) {
 
    if (false)
       std::cout << "in draw_particles() with n_instances " << n_instances << " and n_triangles: "
@@ -1054,6 +1047,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    if (n_instances == 0) return;
    if (triangles.empty()) return;
 
+   particle_draw_count += 1;
    shader_p->Use();
    glBindVertexArray(vao);
    GLenum err = glGetError();
@@ -1078,6 +1072,16 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    err = glGetError();
    if (err) std::cout << "error:: draw_particles() " << shader_p->name
                       << " draw() post mvp uniform " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: draw_particles() " << shader_p->name
+                      << " draw() post view_rotation uniform " << err << std::endl;
+
+   //
+   float rotation_angle = 0.05f * static_cast<float>(particle_draw_count);
+
+   shader_p->set_float_for_uniform("rotation_angle", rotation_angle);
 
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1304,6 +1308,8 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    unsigned int n_mats =    mats.size();
    unsigned int n_cols = colours.size();
 
+   // No binding of the VAO?  !!!????
+
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
       glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * 4 * sizeof(glm::vec4), &(mats[0]));
@@ -1322,6 +1328,8 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
    //                   GLsizeiptr    size,
    //                   const GLvoid *data);
 
+   // No binding of the VAO?  !!!????
+
    int n_mats =    mats.size();
    if (n_mats > n_instances_allocated) {
       std::vector<glm::vec4> dummy;
@@ -1339,6 +1347,11 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
 
    GLenum err = glGetError();
    if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A0 "
+                      << "binding vao " << vao << " error " << err << std::endl;
+
+   glBindVertexArray(vao);
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A1 "
                       << "binding vao " << vao << std::endl;
 
    n_instances = particles.size();
@@ -1348,19 +1361,19 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
                 << " particle/instances " << std::endl;
 
    if (vao == VAO_NOT_SET)
-      std::cout << "You forget to setup this Mesh " << name << std::endl;
+      std::cout << "You forgot to setup this Mesh " << name << std::endl;
 
    glBindVertexArray(vao);
 
    err = glGetError();
-   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A1 "
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A2 "
                       << "binding vao " << vao << " error " << err << std::endl;
 
    // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position)
    //           << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
    err = glGetError();
-   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A2 "
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A3 "
                       << " vao " << vao
                       << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
                       << "\n";
@@ -1587,9 +1600,10 @@ Mesh::setup_camera_facing_hex() {
 }
 
 void
-Mesh::setup_camera_facing_polygon(unsigned int n_sides) {
+Mesh::setup_camera_facing_polygon(unsigned int n_sides, float scale) {
 
-   float scale = 0.25; // pass this
+   bool stellation = true; // pass this 
+
    float turn_per_step = 2.0f * M_PI / static_cast<float>(n_sides);
    glm::vec3 n(0,0,1);
    glm::vec4 ccol(1.0, 1.0, 1.0, 1.00);
@@ -1598,22 +1612,50 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides) {
    unsigned int idx_base = vertices.size();
    unsigned int idx_tri_base = triangles.size();
    vertices.push_back(s_generic_vertex(glm::vec3(0.0f, 0.0f, 0.0f), n, ccol));
-   for (unsigned int i=0; i<n_sides; i++) {
-      float a = static_cast<float>(i) * turn_per_step;
-      float s = sinf(a);
-      float c = cosf(a);
-      vertices.push_back(s_generic_vertex(scale * glm::vec3(s, c, 0.0f), n, col));
+
+   if (stellation) {
+      for (unsigned int i=0; i<n_sides; i++) {
+         float a1 = static_cast<float>(i) * turn_per_step;
+         float a2 = (static_cast<float>(i) + 0.5f) * turn_per_step;
+         float s1 = sinf(a1);
+         float c1 = cosf(a1);
+         float s2 = sinf(a2);
+         float c2 = cosf(a2);
+         glm::vec3 v1 = 1.0f * scale * glm::vec3(s1, c1, 0.0f);
+         glm::vec3 v2 = 0.3f * scale * glm::vec3(s2, c2, 0.0f);
+         vertices.push_back(s_generic_vertex(v1, n, col));
+         vertices.push_back(s_generic_vertex(v2, n, col));
+      }
+      for (unsigned int idx=0; idx<n_sides; idx++) {
+         unsigned int idx_this                = 2 * idx + 1;
+         unsigned int idx_for_in_vertex       = 2 * idx + 2;
+         unsigned int idx_for_next_out_vertex = 2 * idx + 3;
+         if (idx_for_next_out_vertex == 2 * n_sides + 1) idx_for_next_out_vertex = 1;
+         triangles.push_back(g_triangle(0, idx_this, idx_for_in_vertex));
+         triangles.push_back(g_triangle(0, idx_for_in_vertex, idx_for_next_out_vertex));
+      }
+      
+   } else {
+      for (unsigned int i=0; i<n_sides; i++) {
+         float a = static_cast<float>(i) * turn_per_step;
+         float s = sinf(a);
+         float c = cosf(a);
+         vertices.push_back(s_generic_vertex(scale * glm::vec3(s, c, 0.0f), n, col));
+      }
+      for (unsigned int idx=1; idx<=n_sides; idx++) {
+         unsigned int idx_next = idx + 1;
+         if (idx == n_sides) idx_next = 1;
+         triangles.push_back(g_triangle(0, idx, idx_next));
+      }
+      if (idx_tri_base != 0)
+         for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
+            triangles[i].rebase(idx_base);
    }
-   for (unsigned int idx=1; idx<=n_sides; idx++) {
-      unsigned int idx_next = idx + 1;
-      if (idx == n_sides) idx_next = 1;
-      triangles.push_back(g_triangle(0, idx, idx_next));
-   }
-   if (idx_tri_base != 0)
-      for (unsigned int i=idx_tri_base; i<triangles.size(); i++)
-         triangles[i].rebase(idx_base);
+
+   setup_buffers(); // this was not here - why not?
 
 }
+
 
 #include "cylinder-with-rotation-translation.hh"
 

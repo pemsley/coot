@@ -251,74 +251,8 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       std::cout << "get_molecule_mvp: " << glm::to_string(projection_matrix) << std::endl;
       std::cout << "get_molecule_mvp: " << glm::to_string(mvp) << std::endl;
    }
-
-
    return mvp;
 }
-
-// static
-glm::mat4
-graphics_info_t::get_particle_mvp() {
-
-   float w = static_cast<float>(graphics_x_size);
-   float h = static_cast<float>(graphics_y_size);
-   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
-   float sr = screen_ratio;
-
-   glm::mat4 model_matrix(1.0);
-
-   float z = zoom * 0.04;
-   GLfloat near = -0.1 * zoom * clipping_front;
-   GLfloat far  =  0.3 * zoom * clipping_back;
-
-   glm::mat4 proj = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
-                               -0.3f*zoom,    0.3f*zoom,
-                               near, far);
-
-   glm::vec3 rc = get_rotation_centre();
-   glm::mat4 view_matrix = glm::toMat4(glm_quat);
-   // view_matrix = glm::translate(view_matrix, -rc);
-   if (true) {
-      glm::mat3 rot_mat(view_matrix);
-      if (false)
-         std::cout << "   view " << glm::to_string(view_matrix)
-                   << "\nrot_mat " << glm::to_string(rot_mat) << std::endl;
-      glm::mat3 tt = glm::transpose(rot_mat);
-      glm::vec4 trans = view_matrix[3];
-      view_matrix = glm::mat4(1.0f);
-      // view_matrix = glm::mat4(tt);
-      // view_matrix = glm::translate(view_matrix, rc);
-   }
-
-   glm::mat4 mvp = proj * view_matrix * model_matrix;
-
-   if (perspective_projection_flag) {
-
-      float fov = 35.0; // degrees, the smaller this value, the more we seem to be
-                        // "zoomed in."
-      float screen_ratio = 1.0;
-      float z_front = 0.1;
-      float z_back = 160;
-      // glm::mat4 quat_mat(mouse_button_info.quat);
-      glm::mat4 quat_mat = glm::toMat4(glm_quat);
-
-      glm::vec3 ep_ori = get_world_space_eye_position();
-      glm::vec3 rc = get_rotation_centre();
-      glm::vec3 ep = ep_ori + rc; // is this right?
-      glm::vec3 up = get_camera_up_direction(quat_mat);
-      view_matrix = glm::lookAt(ep, rc, up);
-      for (unsigned int i=0; i<3; i++)
-         for (unsigned int j=0; j<3; j++)
-            view_matrix[i][j] = 0.0f;
-      for (unsigned int j=0; j<3; j++)
-         view_matrix[j][j] = 1.0f;
-      proj = glm::perspective(glm::radians(fov), screen_ratio, z_front, z_back);
-      mvp = proj * view_matrix * model_matrix;
-   }
-
-   return mvp;
-}
-
 
 // can we work out the eye position without needing to unproject? (because that depends
 // on get_molecule_mvp()...
@@ -1252,7 +1186,7 @@ graphics_info_t::draw_atom_pull_restraints() {
             if (err) std::cout << "   error draw_atom_pull_restraints() glBindBuffer() for index"
                                << " with GL err " << err << std::endl;
 
-            // Uniforms
+            // Uniforms - how are these not used!?
             glm::mat4 mvp = get_molecule_mvp();
             glm::mat4 view_rotation = get_view_rotation();
             GLuint mvp_location = shader.mvp_uniform_location;
@@ -1329,14 +1263,11 @@ graphics_info_t::draw_molecular_triangles() {
 void
 graphics_info_t::draw_particles() {
 
-   return;
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
-         std::cout << "drawing particles: size " << particles.size() << std::endl;
-         glm::mat4 mvp_particle = get_particle_mvp();
          glm::mat4 mvp = get_molecule_mvp();
-         mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
-         std::cout << "done drawing particles: size " << particles.size() << std::endl;
+         glm::mat4 view_rotation = get_view_rotation();
+         mesh_for_particles.draw_particles(&shader_for_particles, mvp, view_rotation);
       }
    }
 
@@ -2229,7 +2160,7 @@ graphics_info_t::translate_in_screen_z(float step_size) {
    // more zoomed in has smaller zoom than zoomed out. Zoomed out is ~100. Zoomed in is ~25
    glm::vec3 step = 0.005 * step_size * zoom * delta_uv;
 
-   if (true) // debug
+   if (false) // debug
       std::cout << "ep " << glm::to_string(ep) << " rc " << glm::to_string(rc)
                 << " zoom " << zoom << " step " << glm::to_string(step) << std::endl;
 
@@ -2240,7 +2171,9 @@ graphics_info_t::translate_in_screen_z(float step_size) {
 void
 graphics_info_t::setup_draw_for_particles() {
 
-   std::cout << "setup_draw_for_particles(): -- start -- " << std::endl;
+   std::cout << "setup_draw_for_particles(): -- start -- n_particles " << particles.size()
+             <<  std::endl;
+
    if (particles.empty()) {
       std::cout << "setup_draw_for_particles(): let's make new particles " << std::endl;
 
@@ -2259,7 +2192,9 @@ graphics_info_t::setup_draw_for_particles() {
       particles.make_particles(n_particles);
       std::cout << "setup_draw_for_particles(): done making " << n_particles << " particles"
                 << std::endl;
+
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+      mesh_for_particles.setup_vertex_and_instancing_buffers_for_particles(n_particles);
       mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
       std::cout << "setup_draw_for_particles(): done mesh instancing buffers "
                 << std::endl;
@@ -2372,14 +2307,16 @@ graphics_info_t::draw_boids() {
 void
 graphics_info_t::draw_hydrogen_bonds_mesh() {
 
-   glm::mat4 mvp = get_molecule_mvp();
-   glm::vec3 eye_position = get_world_space_eye_position();
-   glm::mat4 view_rotation_matrix = get_view_rotation();
-   glm::vec4 bg_col(background_colour, 1.0);
+   if (mesh_for_hydrogen_bonds.draw_this_mesh) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
 
-   mesh_for_hydrogen_bonds.draw(&shader_for_instanced_objects,
-                                mvp, view_rotation_matrix, lights, eye_position, bg_col,
-                                shader_do_depth_fog_flag);
+      mesh_for_hydrogen_bonds.draw(&shader_for_instanced_objects,
+                                   mvp, view_rotation_matrix, lights, eye_position, bg_col,
+                                   shader_do_depth_fog_flag);
+   }
 }
 
 
@@ -2565,12 +2502,12 @@ graphics_info_t::draw_delete_item_pulse() {
 void
 graphics_info_t::move_forwards() {
    // these are the other way round in perspective - that's interesting.
-   translate_in_screen_z(1.0);
+   translate_in_screen_z(3.0);
 }
 
 void
 graphics_info_t::move_backwards() {
-   translate_in_screen_z(-1.0);
+   translate_in_screen_z(-3.0);
 }
 
 #include <glm/gtx/rotate_vector.hpp>

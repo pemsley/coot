@@ -156,7 +156,7 @@ bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_boids = false;
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
 int graphics_info_t::n_particles = 300;
-Mesh graphics_info_t::mesh_for_particles;
+Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
 glm::vec3 graphics_info_t::identification_pulse_centre;
 

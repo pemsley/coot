@@ -4122,7 +4122,6 @@ string   static std::string sessionid;
    void init_hud_text();
    static void draw_hud_geometry_bars();
    static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
-   static glm::mat4 get_particle_mvp();
    static glm::mat4 get_model_view_matrix();
    static glm::vec3 get_world_space_eye_position();
    static glm::vec4 unproject(float z);

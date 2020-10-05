@@ -32,6 +32,7 @@ class Mesh {
    GLuint normals_colour_buffer_id;
    bool first_time;
    float hydrogen_bond_cylinders_angle;
+   unsigned int particle_draw_count;
    void init();
 #if USE_ASSIMP
    aiScene generate_scene() const;
@@ -86,7 +87,7 @@ public:
              const glm::vec3 &eye_position, // eye position in view space (not molecule space)
              const glm::vec4 &background_colour,
              bool do_depth_fog);
-   void draw_particles(Shader *shader_p, const glm::mat4 &mvp);
+   void draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation);
    void draw_normals(const glm::mat4 &mvp, float normal_scaling); // debugging
 
    // testing/example functions
@@ -112,7 +113,7 @@ public:
    void setup_camera_facing_outline();
    void setup_camera_facing_quad();
    void setup_camera_facing_hex();
-   void setup_camera_facing_polygon(unsigned int n_sides = 8);
+   void setup_camera_facing_polygon(unsigned int n_sides = 8, float scale=1.0);
    void setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_in);
 
    void setup_rtsc_instancing(Shader *shader_p,
@@ -128,7 +129,7 @@ public:
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats);
 
    // void setup_instancing_buffers(const particle_container_t &particles);
-   void setup_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
+   void setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
    void update_instancing_buffer_data_for_particles(const particle_container_t &particles);
 
    void fill_rama_balls(); // make up some balls

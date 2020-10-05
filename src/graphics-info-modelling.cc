@@ -559,14 +559,12 @@ graphics_info_t::refinement_loop_threaded() {
       }
 
       if (rr.progress == GSL_SUCCESS) {
-         graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
-         rr = graphics_info_t::saved_dragged_refinement_results;
+         graphics_info_t g;
+         g.continue_update_refinement_atoms_flag = false; // not sure what this does
+         rr = g.saved_dragged_refinement_results;
          continue_threaded_refinement_loop = false;
          if (false) { // too crashy at the moment.
             if (rr.hooray()) {
-               graphics_info_t g;
-               std::cout << "------------------------ hooray() passed - calling setup_draw_for_particles() "
-                         << std::endl;
                g.setup_draw_for_particles();
             }
          }

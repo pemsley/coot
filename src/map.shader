@@ -182,7 +182,6 @@ void main() {
       }
    }
 
-   if (true)
-      out_col = mix(out_col, background_colour, fog_amount);
+   out_col = mix(out_col, background_colour, fog_amount);
    
 }
