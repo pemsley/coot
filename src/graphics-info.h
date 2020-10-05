@@ -3064,6 +3064,7 @@ public:
    void unset_geometry_dialog_angle_togglebutton();
    void unset_geometry_dialog_torsion_togglebutton();
    void unset_geometry_dialog_dynamic_distance_togglebutton();
+   static bool setup_draw_for_particles_semaphore;
 
 
    static bool find_hydrogen_torsions_flag;
@@ -4279,6 +4280,7 @@ string   static std::string sessionid;
    static Mesh mesh_for_particles;
    static int n_particles;
    static particle_container_t particles;
+   static std::vector<glm::vec3> get_particle_centre_positions();
 
    // these are "setup" by the function that starts them
    static LinesMesh lines_mesh_for_identification_pulse;

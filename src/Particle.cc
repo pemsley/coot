@@ -15,9 +15,9 @@ Particle::update() {
    position += delta;
    velocity *= 0.992f;
    // colour.w *= 0.99;
-   colour.g += 0.02;
-   colour.r -= 0.02;
-   colour.b += 0.001;
+   colour.g += colour_change_rate * 0.02;
+   colour.r -= colour_change_rate * 0.02;
+   colour.b += colour_change_rate * 0.001;
    life -= 0.18;
    float r = 0.5 * (1.0 + random());
    rotation += 0.01 * r; // currently a uniform is used, not this (which means they all spin at the same rate)
@@ -48,28 +48,39 @@ particle_container_t::random() const {
 }
 
 void
-particle_container_t::make_particles(unsigned int n_particles) {
+particle_container_t::make_particles(unsigned int n_particles_per_burst,
+                                     const std::vector<glm::vec3> &positions) {
 
    particles.clear();
-   particles.reserve(n_particles);
-   for (unsigned int i=0; i<n_particles; i++) {
-      float p0 = 2.0 * random() - 1.0;
-      float p1 = 2.0 * random() - 1.0;
-      float p2 = 2.0 * random() - 1.0;
-      while((p0*p0 + p1*p1) > 1.0) { // don't be "boxy"
-          p0 = 2.0 * random() - 1.0;
-          p1 = 2.0 * random() - 1.0;
+   particles.reserve(n_particles_per_burst * positions.size());
+
+   for (unsigned int ipos=0; ipos<positions.size(); ipos++) {
+      const glm::vec3 atom_position = positions[ipos];
+      for (unsigned int i=0; i<n_particles_per_burst; i++) {
+         float p0 = 2.0 * random() - 1.0;
+         float p1 = 2.0 * random() - 1.0;
+         float p2 = 2.0 * random() - 1.0;
+         while((p0*p0 + p1*p1 + p2*p2) > 1.1) { // don't be "boxy"
+            p0 = 2.0 * random() - 1.0;
+            p1 = 2.0 * random() - 1.0;
+            p2 = 2.0 * random() - 1.0;
+         }
+         glm::vec3 pp(p0,  p1, p2);
+         glm::vec3 n = glm::normalize(pp);
+         pp = n;
+         float sc_pos = 0.1f;
+         float sc_vel = 12.1f;
+         glm::vec3 pos = sc_pos * pp;
+         glm::vec3 vel = sc_vel * pp;
+         glm::vec4 col(0.96, 0.26, 0.4, 1.0);
+         if (false)
+            std::cout << "Particle " << i << " " << glm::to_string(pos) << "\tvelocity "
+                      << glm::to_string(vel) << " \t" << glm::to_string(col) << std::endl;
+         Particle p(pos + atom_position, vel, col, 10.0f - 9.0f * random());
+         float ccr = 0.2 + 0.9 * random();
+         p.colour_change_rate = ccr;
+         particles.push_back(p);
       }
-      float sc_pos = 0.1f;
-      float sc_vel = 12.1f;
-      glm::vec3 pos = sc_pos * glm::vec3(p0, p1, p2);
-      glm::vec3 vel = sc_vel * glm::vec3(p0, p1, p2);
-      glm::vec4 col(0.96, 0.26, 0.4, 1.0);
-      if (false)
-         std::cout << "Particle " << i << " " << glm::to_string(pos) << "\tvelocity "
-                   << glm::to_string(vel) << " \t" << glm::to_string(col) << std::endl;
-      Particle p(pos, vel, col, 10.0f - 9.0f * random());
-      particles.push_back(p);
    }
 }
 

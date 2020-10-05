@@ -155,9 +155,10 @@ bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_boids = false;
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
-int graphics_info_t::n_particles = 300;
+int graphics_info_t::n_particles = 600;
 Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
+bool graphics_info_t::setup_draw_for_particles_semaphore = false;
 glm::vec3 graphics_info_t::identification_pulse_centre;
 
 std::vector<std::pair<glm::vec3, glm::vec3> > graphics_info_t::hydrogen_bonds_atom_position_pairs;

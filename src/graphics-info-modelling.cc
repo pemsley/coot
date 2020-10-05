@@ -563,9 +563,12 @@ graphics_info_t::refinement_loop_threaded() {
          g.continue_update_refinement_atoms_flag = false; // not sure what this does
          rr = g.saved_dragged_refinement_results;
          continue_threaded_refinement_loop = false;
-         if (false) { // too crashy at the moment.
+         if (true) { // too crashy at the moment.
             if (rr.hooray()) {
-               g.setup_draw_for_particles();
+               // we can't touch Gtk or OpenGL because this we are in a thread
+               // (not the main thread)
+               // g.setup_draw_for_particles();
+               g.setup_draw_for_particles_semaphore = true;
             }
          }
 
@@ -602,6 +605,12 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // check_and_warn_inverted_chirals_and_cis_peptides()
    // get called several times when the refine loop ends
    // (with success?).
+
+   if (setup_draw_for_particles_semaphore) {
+      graphics_info_t g;
+      g.setup_draw_for_particles();
+      setup_draw_for_particles_semaphore = false;
+   }
 
    if (restraints_lock) {
       if (false)

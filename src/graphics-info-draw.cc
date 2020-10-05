@@ -2168,11 +2168,45 @@ graphics_info_t::translate_in_screen_z(float step_size) {
 
 }
 
+// static
+std::vector<glm::vec3>
+graphics_info_t::get_particle_centre_positions() {
+
+   auto mmdb_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   get_moving_atoms_lock(__FUNCTION__);
+
+   std::vector<glm::vec3> v;
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+            if (! at->isTer()) {
+               std::string atom_name(at->GetAtomName());
+               if (atom_name == " CA " || atom_name == " N1 " || atom_name == " N9 ") {
+                  glm::vec3 p = mmdb_to_glm(at);
+                  v.push_back(p);
+               }
+            }
+         }
+      }
+   }
+   release_moving_atoms_lock(__FUNCTION__);
+
+   if (v.empty()) {
+      glm::vec3 rc = get_rotation_centre();
+      v.push_back(rc);
+   }
+
+   return v;
+}
+
 void
 graphics_info_t::setup_draw_for_particles() {
 
-   std::cout << "setup_draw_for_particles(): -- start -- n_particles " << particles.size()
-             <<  std::endl;
+   if (false) // from the days when particle drawing was a problem!
+      std::cout << "setup_draw_for_particles(): -- start -- n_particles " << particles.size()
+                <<  std::endl;
 
    if (particles.empty()) {
       std::cout << "setup_draw_for_particles(): let's make new particles " << std::endl;
@@ -2188,16 +2222,14 @@ graphics_info_t::setup_draw_for_particles() {
       if (err) std::cout << "GL Error - setup_draw_for_particles() Post Use() err is "
                          << err << std::endl;
 
-      std::cout << "setup_draw_for_particles(): making " << n_particles << std::endl;
-      particles.make_particles(n_particles);
-      std::cout << "setup_draw_for_particles(): done making " << n_particles << " particles"
-                << std::endl;
+      std::vector<glm::vec3> positions = get_particle_centre_positions();
+      particles.make_particles(n_particles, positions);
+      std::cout << "setup_draw_for_particles(): done making " << n_particles << " particles "
+                << " for " << positions.size() << " positions" << std::endl;
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-      mesh_for_particles.setup_vertex_and_instancing_buffers_for_particles(n_particles);
+      mesh_for_particles.setup_vertex_and_instancing_buffers_for_particles(particles.size());
       mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
-      std::cout << "setup_draw_for_particles(): done mesh instancing buffers "
-                << std::endl;
       glUseProgram(0);
    }
    // passing user_data and Notify function at the end
@@ -2206,7 +2238,8 @@ graphics_info_t::setup_draw_for_particles() {
       int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
       graphics_info_t::idle_function_spin_rock_token = new_tick_id;
    }
-   std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
+
+   // std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
 }
 
 void
