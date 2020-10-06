@@ -2422,7 +2422,7 @@ namespace coot {
       mmdb::Atom *add_atom_pull_restraint(const atom_spec_t &spec, clipper::Coord_orth pos);
       void clear_atom_pull_restraint(const atom_spec_t &spec); // clear any previous restraint for this atom.
       void clear_all_atom_pull_restraints();
-      unsigned int n_atom_pull_restraints() const;
+      unsigned int n_atom_pull_restraints() const; // counts closed pull restraints also.
 
       void add_extra_restraints(int imol,
                                 const std::string &description,

@@ -161,6 +161,8 @@ particle_container_t graphics_info_t::particles;
 bool graphics_info_t::setup_draw_for_particles_semaphore = false;
 glm::vec3 graphics_info_t::identification_pulse_centre;
 bool graphics_info_t::particles_have_been_shown_already_for_this_round_flag = false;
+int graphics_info_t::wait_for_hooray_refinement_tick_id = -1; // delete this tick function on refinement
+                                                              // shutdown
 
 std::vector<std::pair<glm::vec3, glm::vec3> > graphics_info_t::hydrogen_bonds_atom_position_pairs;
 

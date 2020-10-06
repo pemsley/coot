@@ -8036,12 +8036,20 @@ coot::refinement_results_t::hooray() const {
       std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
       float crit_value = 1.4;
       if (light.name == "Trans_peptide")
-         crit_value = 5.0;
+         crit_value = 6.0;
       if (light.value > crit_value) {
          std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
          status = false;
       }
    }
+
+   // to prevent hooray() returning true "too often" only make it return true if there
+   // have been pull restraints
+   //
+   int n_pull_restraints = n_atom_pull_restraints();
+   if (n_pull_restraints == 0)
+      status = false;
+
    return status;
 }
 #endif // HAVE_GSL

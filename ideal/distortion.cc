@@ -703,9 +703,9 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       }
 
       if ( this_restraint.restraint_type == coot::TARGET_POS_RESTRAINT) { // atom pull restraint
-         double d = coot::distortion_score_target_pos(this_restraint,
+         double dist = coot::distortion_score_target_pos(this_restraint,
                                                       restraints->log_cosh_target_distance_scale_factor, v);
-         *distortion += d;
+         *distortion += dist;
          // std::cout << "dsm: target_pos single-thread idx " << i << " " << d << std::endl;
       }
    }
@@ -814,10 +814,10 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 
       if (restraints->restraints_usage_flag & coot::IMPROPER_DIHEDRALS_MASK) {
          if (this_restraint.restraint_type == coot::IMPROPER_DIHEDRAL_RESTRAINT) {
-            double d = coot::distortion_score_improper_dihedral(this_restraint, v);
+            double dist = coot::distortion_score_improper_dihedral(this_restraint, v);
             // std::cout << "dsm: improper_dihedral_restraint thread_idx "
             //           << thread_id << " idx " << i << " " << d << std::endl;
-            local_sum += d;
+            local_sum += dist;
          }
       }
 

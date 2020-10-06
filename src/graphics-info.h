@@ -4297,6 +4297,10 @@ string   static std::string sessionid;
    static gboolean invalid_residue_pulse_function(GtkWidget *widget,  // return the continue-status
                                                   GdkFrameClock *frame_clock,
                                                   gpointer data);
+   static gboolean wait_for_hooray_refinement_tick_func(GtkWidget *widget,
+                                                        GdkFrameClock *frame_clock,
+                                                        gpointer data);
+   static int wait_for_hooray_refinement_tick_id;
 
    static Mesh mesh_for_boids; // with instancing
    static fun::boids_container_t boids;

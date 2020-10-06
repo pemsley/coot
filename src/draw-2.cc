@@ -46,7 +46,6 @@ glarea_tick_func(GtkWidget *widget,
    if (graphics_info_t::do_tick_particles) {
       if (graphics_info_t::particles.empty()) {
          graphics_info_t::do_tick_particles = false;
-         std::cout << "removing do_tick_particles " << std::endl;
       } else {
          gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
          // std::cout << "glarea_tick_func() calls update_particles() " << std::endl;

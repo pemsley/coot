@@ -563,13 +563,15 @@ graphics_info_t::refinement_loop_threaded() {
          g.continue_update_refinement_atoms_flag = false; // not sure what this does
          rr = g.saved_dragged_refinement_results;
          continue_threaded_refinement_loop = false;
-         if (true) { // too crashy at the moment.
-            if (rr.hooray()) {
-               // we can't touch Gtk or OpenGL because this we are in a thread
-               // (not the main thread)
-               // g.setup_draw_for_particles();
-               g.setup_draw_for_particles_semaphore = true;
-            }
+
+         // The hooray() function goes off too frequently.
+         // It shouldn't go off if there is no manual intervention.
+         //
+         if (rr.hooray()) {
+            // we can't touch Gtk or OpenGL because this we are in a thread
+            // (not the main thread)
+            // g.setup_draw_for_particles();
+            g.setup_draw_for_particles_semaphore = true;
          }
 
       } else {
@@ -606,14 +608,6 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
    // get called several times when the refine loop ends
    // (with success?).
 
-   if (setup_draw_for_particles_semaphore) {
-      if (! particles_have_been_shown_already_for_this_round_flag) {
-         graphics_info_t g;
-         g.setup_draw_for_particles();
-         setup_draw_for_particles_semaphore = false; // it's done it's job
-         particles_have_been_shown_already_for_this_round_flag = true; // only once per round
-      }
-   }
 
    if (restraints_lock) {
       if (false)
@@ -811,6 +805,10 @@ graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(g
                       << std::endl;
          g.clear_up_moving_atoms(); // get the restraints lock, deletes last_restraints
          g.clear_moving_atoms_object();
+
+         if (glareas[0])
+            gtk_widget_remove_tick_callback(glareas[0], wait_for_hooray_refinement_tick_id);
+
          if (accept_reject_dialog_docked_flag == coot::DIALOG) {
 	       // this calls clear_up_moving_atoms() and clears atom pull restraint.
 	       gtk_widget_destroy(accept_reject_dialog);
@@ -1229,6 +1227,12 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
 
    all_atom_pulls_off();
    particles_have_been_shown_already_for_this_round_flag = false;
+   if (glareas[0])
+      wait_for_hooray_refinement_tick_id =
+         gtk_widget_add_tick_callback(glareas[0],
+                                      wait_for_hooray_refinement_tick_func, 0, 0);
+   // elsewhere do this:
+   // gtk_widget_remove_tick_callback(glareas[0], wait_for_hooray_refinement_tick_id);
 
    int n_restraints = last_restraints->make_restraints(imol_moving_atoms,
 						       *Geom_p(), flags,

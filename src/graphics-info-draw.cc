@@ -2242,6 +2242,26 @@ graphics_info_t::setup_draw_for_particles() {
    // std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
 }
 
+//static
+gboolean
+graphics_info_t::wait_for_hooray_refinement_tick_func(GtkWidget *widget,
+                                                      GdkFrameClock *frame_clock,
+                                                      gpointer data) {
+   gboolean continue_status = 1;
+
+   if (setup_draw_for_particles_semaphore) {
+      if (! particles_have_been_shown_already_for_this_round_flag) {
+         graphics_info_t g;
+         g.setup_draw_for_particles();
+         setup_draw_for_particles_semaphore = false; // it's done it's job
+         particles_have_been_shown_already_for_this_round_flag = true; // only once per round
+         continue_status = 0; // job done.
+      }
+   }
+   return continue_status;
+}
+
+
 void
 graphics_info_t::setup_draw_for_boids() {
 
