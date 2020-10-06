@@ -8896,6 +8896,29 @@ molecule_class_info_t::water_chain_from_shelx_ins() const {
    return water_chain;
 }
 
+bool
+molecule_class_info_t::is_het_residue(mmdb::Residue *residue_p) const {
+
+   bool status = false;
+
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            if (at->Het) {
+               status =  true;
+               break;
+            }
+         }
+      }
+   }
+   return status;
+}
+
+
 
 // return state, max_resno + 1, or 0, 1 of no residues in chain.
 //
@@ -8914,16 +8937,21 @@ molecule_class_info_t::next_residue_number_in_chain(mmdb::Chain *w,
 	 for (int ires=nres-1; ires>=0; ires--) {
 	    residue_p = w->GetResidue(ires);
 	    if (residue_p->seqNum > max_res_no) {
-	       max_res_no = residue_p->seqNum;
-	       if (new_res_no_by_hundreds) {
-		  if (max_res_no < 9999) {
-		     int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
-		     p = std::pair<short int, int>(1, res_no+1);
-		  }
-	       } else {
-		  if (max_res_no < 9999) {
-		     p = std::pair<short int, int>(1, max_res_no+1);
-		  }
+               max_res_no = residue_p->seqNum;
+               bool is_het_residue_flag = is_het_residue(residue_p);
+               if (is_het_residue_flag) {
+                  p = std::pair<short int, int>(1, residue_p->seqNum+1);
+               } else {
+                  if (new_res_no_by_hundreds) {
+                     if (max_res_no < 9999) {
+                        int res_no = coot::util::round_up_by_hundreds(max_res_no+1);
+                        p = std::pair<short int, int>(1, res_no+1);
+                     }
+                  } else {
+                     if (max_res_no < 9999) {
+                        p = std::pair<short int, int>(1, max_res_no+1);
+                     }
+                  }
 	       }
 	    }
 	 }
