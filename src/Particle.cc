@@ -69,7 +69,7 @@ particle_container_t::make_particles(unsigned int n_particles_per_burst,
          glm::vec3 n = glm::normalize(pp);
          pp = n;
          float sc_pos = 0.1f;
-         float sc_vel = 12.1f;
+         float sc_vel = 6.1f;
          glm::vec3 pos = sc_pos * pp;
          glm::vec3 vel = sc_vel * pp;
          glm::vec4 col(0.96, 0.26, 0.4, 1.0);
