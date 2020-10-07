@@ -1710,8 +1710,8 @@ graphics_info_t::draw_hud_geometry_bars() {
    auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                        unsigned int bar_index,
                        std::vector<HUD_bar_attribs_t> *new_bars_p,
-                       auto distortion_to_rotation_amount,
-                       auto distortion_to_bar_size) {
+                       float (*distortion_to_rotation_amount)(float),
+                       float (*distortion_to_bar_size)(float)) {
 
                          glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                          float sum_l = 0;
@@ -1743,7 +1743,7 @@ graphics_info_t::draw_hud_geometry_bars() {
                                           unsigned int bar_index,
                                           rotamer_markup_container_t *rotamer_markups,
                                           int n_rotamer_markups,
-                                          auto probability_to_rotation_amount) {
+                                          float (*probability_to_rotation_amount)(float)) {
 
                               // this code has to be the same as the check_if_hud_bar_clicked code
 
@@ -1759,8 +1759,8 @@ graphics_info_t::draw_hud_geometry_bars() {
                               unsigned int n_rota_max = 20;
                               if (v.size() > n_rota_max) {
                                  unsigned int n_for_deletion = v.size() - n_rota_max;
-                                 std::vector<rotamer_markup_container_t>::const_iterator v_begin = v.begin();
-                                 std::vector<rotamer_markup_container_t>::const_iterator v_last;
+                                 std::vector<rotamer_markup_container_t>::iterator v_begin = v.begin();
+                                 std::vector<rotamer_markup_container_t>::iterator v_last;
                                  v_last = v_begin + n_for_deletion; // (line length)
                                  v.erase(v_begin, v_last);
                               }
@@ -1868,7 +1868,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
 
    auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                                                  unsigned int bar_index,
-                                                 auto distortion_to_bar_size) {
+                                                 float (*distortion_to_bar_size)(float)) {
 
                           bool status = false;
                           glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
@@ -1940,8 +1940,8 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                unsigned int n_rota_max = 20;
                                if (v.size() > n_rota_max) {
                                   unsigned int n_for_deletion = v.size() - n_rota_max;
-                                  std::vector<rotamer_markup_container_t>::const_iterator v_begin = v.begin();
-                                  std::vector<rotamer_markup_container_t>::const_iterator v_last  = v_begin + n_for_deletion;
+                                  std::vector<rotamer_markup_container_t>::iterator v_begin = v.begin();
+                                  std::vector<rotamer_markup_container_t>::iterator v_last  = v_begin + n_for_deletion;
                                   v.erase(v_begin, v_last);
                                }
 
