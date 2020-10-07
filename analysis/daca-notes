@@ -129,3 +129,40 @@ Wed 22 Jul 21:21:23 BST 2020
   happen after smoothing.
   
 
+---
+Thu  3 Sep 20:37:49 BST 2020
+
+  To extract the solvent content used by Whatif, use the output of dssp and parse it
+  like this:
+
+$ awk -f dssp-out-to-ACC.awk 1eoi.dssp > 1eoi.ACC.tab
+
+---
+Sun  6 Sep 14:28:55 BST 2020
+
+  Use zip-coot-and-whatif-se-v3.awk to combine coot-daca solvent content with
+  dssp whatif (e.g. 1eoi.ACC.tab) to make "combi.tab"
+
+a = read.table('combi.r')
+plot(a$V4, a$V6, main="Solvent Content Comparison: 1eoi",
+     xlab="DSSP Solvent Content Score",
+     ylab="Coot Solvent Score")
+abline(lm)
+
+----------------
+Wed 23 Sep 20:32:40 BST 2020
+
+Split the solvent content vs data score into Helix and STC (strand/turn,coil)
+
+try using the new dssp to get the secondary structure assignment.
+
+Try without sidechain masking
+
+Try with different blur factors in the "cook" function.
+
+use blast for multiple sequence alignement input to clustalw?
+Getting seuenquces is not that hard any more.
+Perhaps even search against the PDB?
+Try the API from the PDB.
+
+

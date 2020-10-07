@@ -394,6 +394,7 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
 	       }
 	    }
 	 }
+         delete [] pscontact;
       }
    }
    auto tp_6 = std::chrono::high_resolution_clock::now();

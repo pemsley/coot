@@ -44,11 +44,26 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
 
    std::vector<mmdb::Residue *> residues_for_fixed_atoms;
 
+   if (false) { // debug
+      std::cout << "------ in add_fixed_atoms_from_flanking_residues() here are the elements of the bpc" << std::endl;
+      for (unsigned int i=0; i<bpc.size(); i++) {
+         std::cout << " bpc " << i << " " << bpc[i] << std::endl;
+      }
+   }
+
    for (unsigned int i=0; i<bpc.size(); i++) {
       if (bpc[i].is_fixed_first)
 	 residues_for_fixed_atoms.push_back(bpc[i].res_1);
       if (bpc[i].is_fixed_second)
 	 residues_for_fixed_atoms.push_back(bpc[i].res_2);
+   }
+
+   if (false) { // debug
+      std::cout << "----in add_fixed_atoms_from_flanking_residues() here are the residues_for_fixed_atoms"
+                << std::endl;
+      for (unsigned int i=0; i<residues_for_fixed_atoms.size(); i++) {
+         std::cout << "             " << residue_spec_t(residues_for_fixed_atoms[i]) << std::endl;
+      }
    }
 
    for (unsigned int i=0; i<residues_for_fixed_atoms.size(); i++) {
@@ -378,10 +393,10 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 		  if (! link_type.empty()) {
 		     const bool &order_switch_flag = l.second;
 		     if (! order_switch_flag) {
-			coot::bonded_pair_t bp(*it_set, it->first, 1, 0, link_type);
+			coot::bonded_pair_t bp(*it_set, it->first, true, false, link_type);
 			bpc.try_add(bp);
 		     } else {
-			coot::bonded_pair_t bp(it->first, *it_set, 0, 1, link_type);
+			coot::bonded_pair_t bp(it->first, *it_set, false, true, link_type);
 			bpc.try_add(bp);
 		     }
 		  }
@@ -390,7 +405,11 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const s
 	 }
       }
    }
+
+   // does your linking problem lie in here?
+   //
    bpc.filter();
+
    return bpc;
 }
 

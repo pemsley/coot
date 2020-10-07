@@ -34,6 +34,8 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
+// #include <utils/backward.hpp>
+
 // need gtk things
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
@@ -110,7 +112,11 @@
 #endif // HAVE_CURL_H
 #endif
 
+#include "Texture.hh"
 #include "TextureMesh.hh"
+#include "HUDMesh.hh"
+#include "HUDTextureMesh.hh"
+#include "Instanced-Markup-Mesh.hh"
 
 #include "boids.hh"
 
@@ -156,6 +162,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 #include "meshed-generic-display-object.hh"
 
 #include "simple-distance-object.hh"
+
 
 namespace coot {
    enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
@@ -216,13 +223,9 @@ namespace coot {
 	float fp;
 	float fpp;
 	float lambda;
-        sad_atom_info_t(std::string atom_name_in, float &fp_in,
-			float &fpp_in, float &lambda_in) {
-	  atom_name = atom_name_in;
-	  fp = fp_in;
-	  fpp = fpp_in;
-	  lambda = lambda_in;
-	}
+        sad_atom_info_t(const std::string &atom_name_in, float &fp_in,
+			float &fpp_in, float &lambda_in) :
+           atom_name(atom_name_in), fp(fp_in), fpp(fpp_in), lambda(lambda_in) { }
      };
    }
 
@@ -240,7 +243,7 @@ namespace coot {
 					  const std::vector<coot::command_arg_t> &args);
 
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
    void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
    GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type);
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
@@ -253,39 +256,37 @@ namespace coot {
    };
 
    class intermediate_atom_distance_t {
-     Cartesian static_position;
-     mmdb::Atom *dynamic_atom;
-     bool static_pos_filled_flag;
+      coot::Cartesian static_position;
+      mmdb::Atom *dynamic_atom;
+      bool static_pos_filled_flag;
 
    public:
-     intermediate_atom_distance_t() {
-       dynamic_atom = 0;
-       static_pos_filled_flag = 0;
-     }
-     intermediate_atom_distance_t(const coot::Cartesian &pt) {
-       dynamic_atom = 0;
-       static_position = pt;
-       static_pos_filled_flag = 1;
-     }
-     intermediate_atom_distance_t(mmdb::Atom *at) {
-       dynamic_atom = at;
-       static_pos_filled_flag = 0;
-     }
-     void draw_dynamic_distance() const;
-     bool static_position_is_filled() const { return static_pos_filled_flag; }
-     bool atom_is_filled() const {
-       return (dynamic_atom != 0);
-     }
-     void add_atom(mmdb::Atom *at) {
-       dynamic_atom = at;
-     }
-     void add_static_point(Cartesian &pt) {
-       static_position = pt;
-       static_pos_filled_flag = 1;
-     }
-     bool filled() const {
-       return (static_pos_filled_flag && dynamic_atom);
-     }
+      intermediate_atom_distance_t() {
+         dynamic_atom = 0;
+         static_pos_filled_flag = 0;
+      }
+      explicit intermediate_atom_distance_t(const coot::Cartesian &pt) : static_position(pt) {
+         dynamic_atom = 0;
+         static_pos_filled_flag = 1;
+      }
+      explicit intermediate_atom_distance_t(mmdb::Atom *at) : dynamic_atom(at) {
+         static_pos_filled_flag = 0;
+      }
+      void draw_dynamic_distance() const;
+      bool static_position_is_filled() const { return static_pos_filled_flag; }
+      bool atom_is_filled() const {
+         return (dynamic_atom != 0);
+      }
+      void add_atom(mmdb::Atom *at) {
+         dynamic_atom = at;
+      }
+      void add_static_point(Cartesian &pt) {
+         static_position = pt;
+         static_pos_filled_flag = 1;
+      }
+      bool filled() const {
+         return (static_pos_filled_flag && dynamic_atom);
+      }
    };
 
    class ramachandran_points_container_t {
@@ -867,9 +868,16 @@ class graphics_info_t {
    void update_restraints_with_atom_pull_restraints(); // make static also?
    coot::restraint_usage_Flags set_refinement_flags() const; // make static?
    void debug_refinement();
+
    static void get_restraints_lock(const std::string &calling_function_name);
    static void release_restraints_lock(const std::string &calling_function_name);
    static std::string restraints_locking_function_name; //  static because it is set by above
+
+   // similar for moving atoms:
+   static void get_moving_atoms_lock(const std::string &calling_function_name);
+   static void release_moving_atoms_lock(const std::string &calling_function_name);
+   static std::string moving_atoms_locking_function_name; //  static because it is set by above
+
 
    // 201803004:
    // refinement now uses references to Xmaps.
@@ -1329,7 +1337,8 @@ public:
    void reorienting_next_residue(bool dir);
    static bool reorienting_next_residue_mode;
 
-   void setRotationCentre(coot::Cartesian centre);
+   // return the "I did a jump" status
+   bool setRotationCentre(coot::Cartesian centre, bool force_jump=false);
    void setRotationCentreAndZoom(coot::Cartesian centre,
 				 float target_zoom);
    void setRotationCentreSimple(const coot::Cartesian &c);
@@ -1338,6 +1347,8 @@ public:
    // old style: soon to be redundent
    void setRotationCentre(const symm_atom_info_t &symm_atom_info);
    void setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom);
+
+   static void set_rotation_centre(const clipper::Coord_orth &pt);
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
@@ -1354,6 +1365,7 @@ public:
    float Y() { return rotation_centre_y; };
    float Z() { return rotation_centre_z; };
 
+   // why isn't this static? Make it static
    coot::Cartesian RotationCentre() const
       { return coot::Cartesian(rotation_centre_x,
 			       rotation_centre_y,
@@ -2358,6 +2370,9 @@ public:
    void add_distance_labels_for_environment_distances();
    static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
    static TextureMesh tmesh_for_labels;
+   static HUDMesh mesh_for_hud_geometry;
+   static Texture texture_for_hud_geometry_labels; // image to texture for
+   static HUDTextureMesh mesh_for_hud_geometry_labels; // labels for the bars
 
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
@@ -2385,6 +2400,7 @@ public:
    static short int guile_history;
    void add_history_command(const std::vector<std::string> &command_strings);
    static coot::history_list_t history_list;
+   static coot::command_history_t command_history;
 
    // this does not quote strings - it just copies out the arguments
    // "bare".  If the arguments are strings they should be quoted
@@ -2473,6 +2489,7 @@ public:
    void delete_sidechain_range(int imol,
 			       const coot::residue_spec_t &res_1,
 			       const coot::residue_spec_t &res_2);
+   void delete_active_residue();
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
    //
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
@@ -2772,6 +2789,8 @@ public:
    int check_if_in_range_defines(GdkEventButton *event,
 				 const GdkModifierType &state);
    bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
+
+   bool check_if_hud_bar_clicked(double x, double y);
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
@@ -3085,7 +3104,12 @@ public:
 						    int resno_2) const;
    atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol,
 						    const std::vector<mmdb::Residue *> &residues) const;
-   static bool moving_atoms_displayed_p() { return moving_atoms_asc->mol; }
+   static bool moving_atoms_displayed_p() {
+      if (moving_atoms_asc)
+         if (moving_atoms_asc->mol)
+            return true;
+      return false;
+   }
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    //
@@ -3588,11 +3612,16 @@ public:
    // -------- Base Pairing (Watson Crick) -------------
    static int in_base_paring_define;
 
+   // these are for non-molecule based generic display objects using instancing
+   static std::vector<Instanced_Markup_Mesh> instanced_meshes;
+
    static meshed_generic_display_object mesh_for_environment_distances;
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
    int new_generic_object_number(const std::string &name) {
-      generic_display_objects.push_back(Mesh(name));
+      Mesh mesh(name);
+      meshed_generic_display_object meshed(mesh);
+      generic_display_objects.push_back(meshed);
       return generic_display_objects.size() - 1;
    }
    static int generic_object_index(const std::string &name) {
@@ -3631,6 +3660,7 @@ public:
    // -- default bond width
    static int default_bond_width;
    static int default_bonds_box_type; // Phil want to configure this.
+   static bool draw_stick_mode_atoms_default; // true,
 
    // ---- default sigma level:
    static float default_sigma_level_for_map;
@@ -3949,6 +3979,14 @@ string   static std::string sessionid;
    static bool do_intermediate_atoms_rama_markup; // true
    static bool do_intermediate_atoms_rota_markup; // false
 
+   static Instanced_Markup_Mesh rama_balls_mesh;
+   void setup_rama_balls();
+   void update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls_p);
+
+   static float contact_dots_density; // 1 by default
+   void coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol); // creates/updates
+   // meshes in molecules.
+
    static void fill_rotamer_probability_tables() {
 
      if (! rot_prob_tables.tried_and_failed()) {
@@ -4052,8 +4090,12 @@ string   static std::string sessionid;
    static Shader shader_for_screen;
    static Shader shader_for_blur;
    static Shader shader_for_lines;
+   static Shader shader_for_rama_balls;
    static Shader shader_for_particles;
-   static Shader shader_for_instanced_cylinders;
+   static Shader shader_for_instanced_objects;
+   static Shader shader_for_hud_geometry_bars;
+   static Shader shader_for_hud_geometry_labels; // for labels image
+   static Shader shader_for_lines_pulse; // "you are here" pulse
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
@@ -4077,6 +4119,7 @@ string   static std::string sessionid;
    void init_central_cube();
    void init_buffers();
    void init_hud_text();
+   static void draw_hud_geometry_bars();
    static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
    static glm::mat4 get_particle_mvp();
    static glm::mat4 get_model_view_matrix();
@@ -4089,17 +4132,20 @@ string   static std::string sessionid;
                                   const glm::mat4 &mvp,
                                   const glm::mat4 &view_rotation,
                                   float density_surface_opacity);
-   static gboolean render(bool render_to_screendump_framebuffer_flag=false);
+   static gboolean render(bool render_to_screendump_framebuffer_flag=false, const std::string &output_file_name="coot-screendump.tga");
    static void render_scene_to_base_framebuffer();
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_model_molecules();
    static void draw_intermediate_atoms();
+   static void draw_intermediate_atoms_rama_balls();
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_molecular_triangles();
    static void draw_molecules();
    static void draw_meshes();
+   static void draw_meshed_generic_display_object_meshes();
+   static void draw_instanced_meshes();
    static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
@@ -4222,11 +4268,29 @@ string   static std::string sessionid;
    //
    static std::map<unsigned int, lights_info_t> lights;
 
+   void setup_hud_geometry_bars();
+   static float hud_geometry_distortion_to_bar_size_nbc(float distortion);
+   static float hud_geometry_distortion_to_bar_size_atom_pull(float distortion);
+   static float hud_geometry_distortion_to_bar_size_rama(float distortion);
+   static float hud_geometry_distortion_to_rotation_amount_rama(float distortion);
+
    // Mesh mesh_for_particles("mesh-for-particles");
    // int n_particles = 100;
    static Mesh mesh_for_particles;
    static int n_particles;
    static particle_container_t particles;
+
+   // these are "setup" by the function that starts them
+   static LinesMesh lines_mesh_for_identification_pulse;
+   static LinesMesh lines_mesh_for_delete_item_pulse;
+   static glm::vec3 identification_pulse_centre;
+   static void draw_identification_pulse();
+   static void draw_delete_item_pulse();
+   static std::vector<glm::vec3> delete_item_pulse_centres;
+   std::vector<glm::vec3> residue_to_positions(mmdb::Residue *residue_p) const;
+   void setup_delete_item_pulse(mmdb::Residue *residue_p);
+   void setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues);
+   
 
    static Mesh mesh_for_boids; // with instancing
    static fun::boids_container_t boids;

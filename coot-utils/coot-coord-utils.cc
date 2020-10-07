@@ -543,6 +543,7 @@ coot::residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> >
 	    }
 	 }
       }
+      delete [] pscontact;
       mol->DeleteSelection(SelectionHandle);
    }
    return m;
@@ -5130,14 +5131,15 @@ coot::util::compare_residues(const std::pair<mmdb::Residue *, int> &a,
 
 // Use the results of the above to give us a sequence string:
 std::string
-coot::util::model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa) {
+coot::util::model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa,
+                           bool allow_ligands) {
 
    std::string s;
    char r[10];
    for (unsigned int i=0; i<sa.size(); i++) {
       std::string this_residue = "X";
       std::string res_name = sa[i].first->GetResName();
-      if (res_name != "HOH") { 
+      if (is_standard_amino_acid_name(res_name) || allow_ligands) {
 	 mmdb::Get1LetterCode(res_name.c_str(), r);
 	 this_residue = r[0];
 	 s += this_residue;
@@ -5646,7 +5648,7 @@ coot::util::interesting_things_list_py(const std::vector<atom_spec_t> &v) {
 // 
 std::string
 coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_spec_and_button_info_t> &v,
-					     const std::string error_type) {
+					     const std::string &error_type) {
 
 #ifdef USE_GUILE
    // e.g. (list) for empty v
@@ -5753,7 +5755,7 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
 // python version
 std::string
 coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::atom_spec_and_button_info_t> &v,
-						const std::string error_type) {
+						const std::string &error_type) {
 #ifdef USE_PYTHON
 // BL says:: here again we need a [] list in python 
    std::string r = "[";
@@ -7247,8 +7249,13 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 					  int model_number,
 					  bool strictly_cis_flag) {
 
-   //    std::vector<atom_quad> v;
    std::vector<cis_peptide_quad_info_t> v;
+
+   if (!mol) {
+      std::cout << "ERROR:: in cis_peptide_quads_from_coords() null mol " << std::endl;
+      return v;
+   }
+
    int mol_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
 
    int n_models = mol->GetNumberOfModels();
@@ -9507,16 +9514,27 @@ coot::util::residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in
       for (int ichain=0; ichain<n_chains; ichain++) {
          mmdb::Chain *chain_p = model_p->GetChain(ichain);
          if (std::string(chain_p->GetChainID()) == chain_id_in) {
-            int nres = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<nres; ires++) {
-               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-               v.push_back(residue_p);
-            }
+            v = residues_in_chain(chain_p);
          }
       }
    }
    return v;
 }
+
+std::vector<mmdb::Residue *>
+coot::util::residues_in_chain(mmdb::Chain *chain_p) {
+
+   std::vector<mmdb::Residue *> v;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) {
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+         v.push_back(residue_p);
+      }
+   }
+   return v;
+}
+
 
 std::pair<std::set<mmdb::Residue *>, std::set<mmdb::Residue *> >
 coot::interface_residues(mmdb::Manager *mol,

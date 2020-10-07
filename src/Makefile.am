@@ -118,8 +118,12 @@ subpkgdata_DATA = dynarama.glade
 
 cootdatadir = $(pkgdatadir)/shaders
 dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
-                     hud-text.shader  map.shader  model.shader screen.shader \
-		     moleculestotriangles.shader
+                     hud-text.shader  hud-bars.shader hud-labels.shader \
+                     map.shader model.shader screen.shader \
+		     moleculestotriangles.shader \
+                     instanced-objects.shader particles.shader lines.shader \
+                     draw-map-cap.shader lines-pulse.shader rama-balls.shader
+
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
@@ -391,6 +395,7 @@ coot_bin_SOURCES = \
 	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
+	clippter-to-glm.hh       \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
@@ -494,6 +499,12 @@ coot_bin_SOURCES = \
 	gtk-manual.hh		 \
 	guile-fixups.h		 \
 	history_list.hh		 \
+	HUDMesh.cc               \
+	HUDMesh.hh               \
+	HUDTextureMesh.cc        \
+	HUDTextureMesh.hh        \
+	Instanced-Markup-Mesh.hh \
+	Instanced-Markup-Mesh.cc \
         idles.hh                 \
 	interface.h              \
 	key-bindings.cc		 \
@@ -505,6 +516,9 @@ coot_bin_SOURCES = \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
+	make-a-dodec.cc make-a-dodec.hh \
+	matrix-utils.hh          \
+	matrix-utils.cc          \
         map-statistics.hh        \
 	Mesh.cc Mesh.hh          \
 	meshed-generic-display-object.hh \
@@ -556,6 +570,7 @@ coot_bin_SOURCES = \
 	python-classes.hh	 \
 	python-3-interface.hh 	 \
 	Particle.cc Particle.hh  \
+	pulse-data.hh            \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \

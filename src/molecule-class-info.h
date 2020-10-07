@@ -140,6 +140,8 @@ namespace molecule_map_type {
 
 #include "g_triangle.hh"
 
+#include "fresnel-settings.hh"
+
 glm::vec3 cartesian_to_glm(const coot::Cartesian &c);
 
 namespace coot {
@@ -258,6 +260,7 @@ namespace coot {
 
 #include "Mesh.hh"
 #include "LinesMesh.hh"
+#include "Instanced-Markup-Mesh.hh"
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -1002,10 +1005,13 @@ public:        //                      public
                                             bool all_atoms_mode,
                                             bool draw_missing_loops_flag);
 
-   void make_bonds_type_checked();
+   void make_bonds_type_checked(const char *s = __builtin_FUNCTION());
 
-   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices);
-   void make_glsl_bonds_type_checked();
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
+                                const char *s = __builtin_FUNCTION());
+   void make_glsl_bonds_type_checked(const char *s = __builtin_FUNCTION());
+   float atom_radius_scale_factor; // 3 is quite nice, 1 by default.
+   void set_atom_radius_scale_factor(float sf); // regenerate
 
    void draw_atom_labels(int brief_atom_labels_flag,
                          short int seg_ids_in_atom_labels_flag,
@@ -1048,8 +1054,6 @@ public:        //                      public
    void unset_dots_colour() {
       dots_colour_set = false; // back to default
    }
-
-   void initialize_on_read_molecule();
 
    void initialize_map_things_on_read_molecule(std::string name,
 					       bool is_diff_map,
@@ -1658,6 +1662,11 @@ public:        //                      public
    short int delete_residue(int model_number,
 			    const std::string &chain_id, int resno,
                             const std::string &inscode);
+
+   // delete from all models
+   // wraps above
+   short int delete_residue(const coot::residue_spec_t &spec);
+
    // Delete only the atoms of the residue that have the same altconf (as
    // the selected atom).  If the selected atom has altconf "", you
    // should call simply delete_residue().
@@ -1696,6 +1705,8 @@ public:        //                      public
    int delete_waters(); // return status of atoms deleted (0 -> none deleted).
 
    int delete_chain(const std::string &chain_id);
+
+   bool delete_sidechain(mmdb::Residue *residue_p);
 
    int delete_sidechains_for_chain(const std::string &chain_id);
 
@@ -1754,6 +1765,7 @@ public:        //                      public
    void apply_pir_renumber(const coot::pir_alignment_t &a, mmdb::Chain *chain_p);
    // this is where the PIR alignments are stored, the key is the chain-id
    std::map<std::string, coot::pir_alignment_t> pir_alignments;
+
 
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
@@ -1907,6 +1919,7 @@ public:        //                      public
       other_map_for_colouring_p = NULL;
       colour_map_using_other_map_flag = false;
    }
+   fresnel_settings_t fresnel_settings;
 
    // save yourself and update have_unsaved_changes_flag status
    //
@@ -2544,8 +2557,10 @@ public:        //                      public
    coot::util::missing_atom_info
    fill_partial_residues(coot::protein_geometry *geom_p, int imol_refinement_map);
    // return 1 if the residue was filled, 0 if the residue was not found
-   int fill_partial_residue(coot::residue_spec_t &residue_spec,
-			     coot::protein_geometry *geom_p, int imol_refinement_map);
+   int fill_partial_residue(const coot::residue_spec_t &residue_spec,
+                            const coot::protein_geometry *geom_p, int imol_refinement_map);
+
+   std::vector<std::string> get_chain_ids() const;
 
    // Ribosome People:
    int exchange_chain_ids_for_seg_ids();
@@ -2947,10 +2962,13 @@ public:        //                      public
    void post_process_map_triangles();
    void setup_glsl_map_rendering();
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
-   make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour) const;
+   make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour, float atom_radius_scale_factor=1.0) const;
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
+   make_generic_vertices_for_rama_balls(float ball_scale_factor, const glm::vec3 &screen_up_dir) const;
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_bad_CA_CA_distances() const;
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > make_end_cap(float z);
+   std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> > fun(float radius_scale) const;
 
    void setup_glsl_bonds_buffers(const std::vector<vertex_with_rotation_translation> &vertices,
                                  const std::vector<g_triangle> &triangles);
@@ -2979,6 +2997,9 @@ public:        //                      public
    GLuint m_VertexBuffer_for_map_cap_ID;  // more on map cap below
    GLuint m_IndexBuffer_for_map_cap_ID;
    GLuint n_vertices_for_map_cap;
+
+   bool map_mesh_first_time;
+   bool model_mesh_first_time;
 
    float density_surface_opacity;
    bool is_an_opaque_map() const { return density_surface_opacity == 1.0; } // needs explicit assignment to 1.0
@@ -3377,6 +3398,10 @@ public:        //                      public
    mean_and_variance<float> map_histogram_values;
    mean_and_variance<float> set_and_get_histogram_values(unsigned int n_bins); // fill above
 
+   void resolve_clashing_sidechains_by_deletion(const coot::protein_geometry *geom_p);
+   void resolve_clashing_sidechains_by_rebuilding(const coot::protein_geometry *geom_p,
+                                                  int imol_refinement_map);
+
    static int watch_mtz(gpointer data); // return 0 to stop watching
    bool continue_watching_mtz;
    updating_map_params_t updating_map_previous;
@@ -3436,8 +3461,28 @@ public:        //                      public
    GdkRGBA position_to_colour_using_other_map(const clipper::Coord_orth &position);
 
    coot::density_contour_triangles_container_t export_molecule_as_x3d() const;
+   bool export_molecule_as_obj(const std::string &file_name);
+   bool export_map_molecule_as_obj(const std::string &file_name) const;
+   bool export_model_molecule_as_obj(const std::string &file_name);
 
+   void export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
+                                  const std::vector<g_triangle> &triangles);
+
+   bool write_model_vertices_and_triangles_to_file_mode;
+   bool export_vertices_and_triangles_func(const std::vector<vertex_with_rotation_translation> &vertices,
+                                           const std::vector<g_triangle> &triangles);
+   std::string export_vertices_and_triangles_file_name_for_func;
+
+   // These meshes are not the way coot 0.9 organized generic display objects.
+   //
+   // meshes are drawn with draw_meshed_generic_display_object_meshes()
+   // and instanced_meshes are drawn with draw_instanced_meshes().
+   //
+   // these are for specific molecule-based objects using regular Mesh
    std::vector<Mesh> meshes;
+   // these are for specific molecule-based objects using instancing Mesh
+   std::vector<Instanced_Markup_Mesh> instanced_meshes;
+   Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
 
 
 };

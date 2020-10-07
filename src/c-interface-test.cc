@@ -81,7 +81,7 @@
 #include <direct.h>
 #endif // _MSC_VER
 
-#include "clipper/ccp4/ccp4_map_io.h"
+#include <clipper/ccp4/ccp4_map_io.h>
 
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -155,53 +155,88 @@
 
 #include "c-interface-widgets.hh" // for wrapped_create_generic_objects_dialog();
 
+#ifdef USE_ASSIMP
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+#endif
+
 int test_function(int i, int j) {
 
    graphics_info_t g;
 
    // Is this the function you are really looking for (these days)?
 
+   if (true) {
+      g.setup_draw_for_particles();
+   }
+
+#ifdef USE_ASSIMP
+   if (false) {
+      std::string file_name = "cube.obj";
+      file_name = "cessna.obj";
+
+      Assimp::Importer importer;
+
+      // And have it read the given file with some example postprocessing
+      // Usually - if speed is not the most important aspect for you - you'll
+      // probably to request more postprocessing than we do in this example.
+      const aiScene* scene = importer.ReadFile(file_name,
+                                                aiProcess_CalcTangentSpace       |
+                                                aiProcess_Triangulate            |
+                                                aiProcess_JoinIdenticalVertices  |
+                                                aiProcess_SortByPType);
+
+      // If the import failed, report it
+      if( !scene) {
+         std::cout << "Error in read of " <<  file_name << " " << importer.GetErrorString() << std::endl;
+      } else {
+         std::cout << "------------ scene read OK from " << file_name << std::endl;
+      }
+   }
+#endif
+
    if (0) {
 
       if (is_valid_model_molecule(i)) {
-	 if (is_valid_map_molecule(j)) {
-	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
-	    mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
-	    int imol = 0; // dummy
-	    std::vector<coot::residue_spec_t> v;
-	    v.push_back(coot::residue_spec_t("G", 160, ""));
-	    v.push_back(coot::residue_spec_t("G", 847, ""));
+         if (is_valid_map_molecule(j)) {
+            const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
+            mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
+            int imol = 0; // dummy
+            std::vector<coot::residue_spec_t> v;
+            v.push_back(coot::residue_spec_t("G", 160, ""));
+            v.push_back(coot::residue_spec_t("G", 847, ""));
 
-	    unsigned int n_rounds = 10;
-	    for (unsigned int iround=0; iround<n_rounds; iround++) {
+            unsigned int n_rounds = 10;
+            for (unsigned int iround=0; iround<n_rounds; iround++) {
 
-	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+               mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
-	       std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
+               std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
 
-	       // do we need to send over the base atom too?  Or just say
-	       // that it's the first atom in moving_mol?
-	       //
-	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
+               // do we need to send over the base atom too?  Or just say
+               // that it's the first atom in moving_mol?
+               //
+               coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, avoid_these_atoms, 400, g.Geom_p());
 
-	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
+               atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
-	       std::pair<mmdb::Manager *, int> new_mol =
-		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
-	       atom_selection_container_t asc_new = make_asc(new_mol.first);
-	       std::string name = "test-" + coot::util::int_to_string(iround);
-	       bool shelx_flag = 0;
-	       int imol_new = g.create_molecule();
-	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
+               std::pair<mmdb::Manager *, int> new_mol =
+                  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
+               atom_selection_container_t asc_new = make_asc(new_mol.first);
+               std::string name = "test-" + coot::util::int_to_string(iround);
+               bool shelx_flag = 0;
+               int imol_new = g.create_molecule();
+               g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 
-	       // Don't update - not at the moment at least.
-	       //
-	       // g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
+               // Don't update - not at the moment at least.
+               //
+               // g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
 
-	       delete moving_mol;
-	       graphics_draw();
-	    }
-	 }
+               delete moving_mol;
+               graphics_draw();
+            }
+         }
       }
    }
 

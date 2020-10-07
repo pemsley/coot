@@ -775,15 +775,16 @@ void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem
 						      gpointer         user_data) {
    
    int imol = GPOINTER_TO_INT(user_data);
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 #ifdef HAVE_GSL
    graphics_info_t g;
-   g.ncs_diffs_from_mol(imol);
+   // g.ncs_diffs_from_mol(imol);
+   std::cout << "fixme in validation_graph_ncs_diffs_mol_selector_activate() " << std::endl;
 #else
    printf("not compiled with GSL - remake\n");
 #endif /* HAVE_GSL */
 #else    
-   printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+   printf("not compiled with GOO_CANVAS - remake\n"); 
 #endif /* HAVE_GTK_CANVAS */
 
 }

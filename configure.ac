@@ -277,6 +277,12 @@ else
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
+
+AM_PATH_GOOCANVAS
+if test "$GOOCANVAS_CFLAGS" != "" ; then
+   GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
+fi
+
 # this can go away in 2020 - no one will try to use that old RDKit.
 #
 # was RDKIT used and if it was does it have Cairo support (if it does
@@ -438,6 +444,7 @@ data/cho-models/Makefile
 data/cho-acedrg/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
+textures/Makefile
 rama-data/Makefile
 man/Makefile
 pli/Makefile

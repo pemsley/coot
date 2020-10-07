@@ -575,6 +575,13 @@ coot::is_hydrogen(const std::string &ele) {
       return false;
 }
 
+bool
+coot::is_deuterium(const std::string &ele) {
+   if (ele == " D")
+      return true;
+   else
+      return false;
+}
 
 void
 debug_atom_selection_container(atom_selection_container_t asc) {

@@ -1389,6 +1389,44 @@ else
 fi
 
 
+
+########################################################################
+# cmake
+########################################################################
+
+r=$(cmake --version)
+echo $r
+
+case $r in
+
+cmake\ version\ 3.1[0-9]*)
+    echo found recent cmake
+    cmake_is_good=true
+    ;;
+
+cmake\ version\ 3.[2-9]*)
+    echo found recent cmake
+    cmake_is_good=true
+    ;;
+
+cmake\ version\ 4*)
+    echo found recent cmake
+    cmake_is_good=true
+    ;;
+
+esac
+
+echo cmake_is_good: $cmake_is_good
+if [ "$cmake_is_good" = true  ] ; then
+    echo cmake passes
+else
+    echo $r
+    echo cmake too old - Version 3.2 or later is needed. Ending now.
+    exit 2
+fi
+
+
+
 # create $AUTOBUILD_BUILD directory
 
 if [ ! -d "$AUTOBUILD_BUILD" ] ; then
@@ -2899,9 +2937,48 @@ if [ "$build_boost" = true ] ; then
 
       # bjam no longer exists
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
-      cd - 
+      cd -
    fi
    ) > $HOSTLOGDIR/16-boost.txt
+fi
+
+
+
+#################################################################
+# goocanvas
+#################################################################
+#
+
+if [ -e $install_top_dir/include/goocanvas-2.0/goocanvas.h ] ; then
+   build_goocanvas=no
+fi
+
+
+if [ "$build_goocanvas" != "no" ] ; then
+    echo BUILDING goocanvas
+    ${WGET} http://ftp.gnome.org/pub/GNOME/sources/goocanvas/2.0/goocanvas-2.0.0.tar.gz
+    (date
+     echo building in: $PWD
+     echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+     echo CFLAGS: $CFLAGS
+     echo CXXFLAGS: $CXXFLAGS
+     echo CPPFLAGS: $CPPFLAGS
+     echo LDFLAGS: $LDFLAGS
+     pwd
+     gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-2.0.0.tar.gz | tar xf -
+     cd goocanvas-2.0.0
+     # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
+     # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
+     if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
+        if ! $MAKE ; then
+           echo make of goocanvas failed
+        else
+            $MAKE install
+        fi
+     else
+        echo goocanvas configure failed
+     fi
+     ) > $HOSTLOGDIR/17-goocanvas.txt 2>&1
 fi
 
 
@@ -3033,17 +3110,60 @@ else
     if $MAKE ; then
        make install
     fi
-    ) > $HOSTLOGDIR/16-glm.txt 2>&1
+    ) > $HOSTLOGDIR/17-glm.txt 2>&1
 fi
 
 
+###############################################################################
+# pygobject
+###############################################################################
+# this needs to find gobject-introspection-1.0 >= 1.46.0
+# and it does if PKG_CONFIG_PATH is set correctly
+if [ -e $install/include/pygobject-3.0/pygobject.h ] ; then
+    echo pygobject is installed
+else
+    echo installing pygobject
+    echo PKG_CONFIG_PATH $PKG_CONFIG_PATH
+    which pip3
+    pip3 install wheel
+    pip3 install pygobject
+fi
+
 
 ###############################################################################
-##########         get Coot                                       #############
+##########         Coot is now built from git repo                #############
 ###############################################################################
 #
+echo 222222222222222 Now Coot.....
 date
 pwd
+
+if [ -e ../../coot ] ; then
+   echo CASE 1 coot directory exists
+   pwd
+   cd ../../coot
+   echo now in this dir:
+   pwd
+   echo 33333333333333333333333 and about to fetch and merge...
+   git fetch
+   git merge
+   echo 44444444444444444444444 done fetch and merge
+   rm -rf autom4te.cache
+   echo 5555555555555555555555 bash autogen.sh
+   echo bash autogen.sh
+   bash autogen.sh
+   echo 66666666666666666666 done bash autogen.sh
+   cd -
+else
+   echo CASE 2 coot directory not exists
+   save_dir=$(pwd)
+   cd ../..
+   git clone https://github.com/pemsley/coot.git -b gtk3
+   cd coot
+   rm -rf autom4te.cache
+   bash autogen.sh
+   cd $save_dir
+fi
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
@@ -3115,6 +3235,7 @@ echo ../../coot/configure $coot_prefix \
       --with-modern-language-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
+      --with-goocanvas-prefix=$install_top_dir \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \
@@ -3131,6 +3252,7 @@ bash ../../coot/configure $coot_prefix \
       --with-modern-language-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
+      --with-goocanvas-prefix=$install_top_dir \
       $guile_scripting    \
       $python_scripting   \
       $sqlite_config_args \

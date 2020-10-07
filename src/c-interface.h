@@ -1745,9 +1745,8 @@ void info_dialog_and_text(const char *txt);
 
 /*! \brief as above, create a dialog with information
 
-This dialog is left-justified and can use markup such as <tt> or <i>
-
- */
+This dialog is left-justified and can use markup such as angled bracketted tt or i
+*/
 void info_dialog_with_markup(const char *txt);
 
 
@@ -4695,6 +4694,9 @@ void set_use_variable_bond_thickness(short int state);
 /*! \brief set bond colour for molecule */
 void set_bond_colour_rotation_for_molecule(int imol, float f);
 
+/*! \brief set default for the drawing of atoms in stick mode (default is on (1)) */
+void set_draw_stick_mode_atoms_default(short int state);
+
 
 /*! \brief get the bond colour for molecule.
 
@@ -6338,6 +6340,14 @@ void setup_base_pairing(int state);
 
 /*! \brief Print the sequence to the console of the given molecule */
 void print_sequence_chain(int imol, const char *chain_id);
+
+/*! \brief optionally write the sequence to the file for the given molecule,
+    optionally in PIR format */
+void print_sequence_chain_general(int imol, const char *chain_id,
+                                  short int pir_format,
+                                  short int file_output,
+                                  const char *file_name);
+
 /*! \brief Assign a FASTA sequence to a given chain in the  molecule */
 void assign_fasta_sequence(int imol, const char *chain_id_in, const char *seq);
 /*! \brief Assign a PIR sequence to a given chain in the molecule.  If

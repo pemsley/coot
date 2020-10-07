@@ -1154,6 +1154,7 @@ void side_by_side_stereo_mode(short int use_wall_eye_flag) {
          } else {
             std::cout << "WARNING:: switch to side by side mode failed!\n";
          }
+
       } else {
 
          if (use_wall_eye_flag == 1) {
@@ -2601,6 +2602,16 @@ PyObject *export_molecule_as_x3d(int imol) {
 
 }
 
+bool export_molecule_as_obj(int imol, const std::string &fn)  {
+
+   bool status = false;
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol)) {
+      status = graphics_info_t::molecules[imol].export_molecule_as_obj(fn);
+   }
+   return status;
+}
+
+
 
 // -------------------------------------------------------------------
 
@@ -3131,6 +3142,11 @@ get_aniso_probability() {
 /*  ---------------------------------------------------------------------- */
 /*                         Display Functions                               */
 /*  ---------------------------------------------------------------------- */
+
+/*! \brief set default for the drawing of atoms in stick mode (default is on (1)) */
+void set_draw_stick_mode_atoms_default(short int state) {
+   graphics_info_t::draw_stick_mode_atoms_default = state;
+}
 
 void set_default_bond_thickness(int t) {
 
@@ -5724,37 +5740,53 @@ void display_maps_py(PyObject *pyo) {
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
 
+   if (false)
+      std::cout << "start: set_display_control_button_state() " << imol << " " << button_type
+                << " new_state: " << state << std::endl;
+
    graphics_info_t g;
    if (g.display_control_window()) {
 
       std::string button_name = "";
+      int nn = 3;
+      if (imol > 9) nn = 2;
+      if (imol > 99) nn = 1;
+      std::string four_char_imol(nn, '0');
+      four_char_imol += coot::util::int_to_string(imol);
 
       if (button_type == "Displayed") {
-	 button_name = "displayed_button_";
-	 button_name += coot::util::int_to_string(imol);
+	 button_name = "display_mol_button_";
+	 button_name += four_char_imol;
       }
 
       if (button_type == "Active") {
-	 button_name = "active_button_";
-	 button_name += coot::util::int_to_string(imol);
+	 button_name = "active_mol_button_";
+	 button_name += four_char_imol;
       }
+
+      // std::cout << "lookup_widget() using button_name " << button_name << std::endl;
       GtkWidget *button = lookup_widget(g.display_control_window(), button_name.c_str());
       if (button) {
 
 	 // Don't make unnecessary changes (creates redraw events?)
 	 //
 	 bool is_active_now = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
-	 if (state && is_active_now) {
+	 if (state != 0) {
+            if (is_active_now) {
 	    // nothing
-	 } else {
-	    if ( (state == 0) && ! is_active_now) {
-	       // nothing again
-	    } else {
+            } else {
 	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
+            }
+         } else {
+	    if (is_active_now) {
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
+	    } else {
+	       // nothing again, it's already off.
 	    }
 	 }
+
       } else {
-	 std::cout << "Opps failed to find " << button_type << " button for mol "
+	 std::cout << "ERROR:: Opps failed to find button_type " << button_type << " button for mol "
 		   << imol << std::endl;
       }
    }
@@ -5910,10 +5942,14 @@ void set_only_last_model_molecule_displayed() {
 	 // set_mol_displayed(turn_these_off[j], 0);
 	 // set_mol_active(turn_these_off[j], 0);
 
+         std::cout << ".....  turning off " << turn_these_off[j] << std::endl;
+
 	 g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
 	 g.molecules[turn_these_off[j]].set_mol_is_active(0);
 	 if (g.display_control_window())
 	    set_display_control_button_state(turn_these_off[j], "Displayed", 0);
+	 if (g.display_control_window())
+	    set_display_control_button_state(turn_these_off[j], "Active", 0);
 
       }
    }
@@ -7230,6 +7266,14 @@ void destroy_edit_backbone_rama_plot() {
 //
 void print_sequence_chain(int imol, const char *chain_id) {
 
+   print_sequence_chain_general(imol, chain_id, 0, 0, "");
+}
+
+void print_sequence_chain_general(int imol, const char *chain_id,
+                                   short int pir_format,
+                                   short int file_output,
+                                   const char *file_name) {
+
    std::string seq;
    bool with_spaces = false; // block spaced output is easier to read
 
@@ -7273,20 +7317,50 @@ void print_sequence_chain(int imol, const char *chain_id) {
             }
          }
       }
-      std::cout << ">" << graphics_info_t::molecules[imol].name_sans_extension(0)
-                << " chain " << chain_id << std::endl;
-      std::cout << seq << std::endl;
+
+      std::string full_seq;
+      if (pir_format) {
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         full_seq = ">P1;";
+         full_seq += n;
+         full_seq += " ";
+         full_seq += chain_id;
+         full_seq += "\n\n";
+         full_seq += seq;
+         full_seq += "\n*\n";
+      } else {
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         full_seq = "> ";
+         full_seq += n;
+         full_seq += " ";
+         full_seq += chain_id;
+         full_seq += "\n";
+         full_seq += seq;
+         full_seq += "\n";
+      }
+
+      if (file_output) {
+         std::ofstream f(file_name);
+         if (f) {
+            f << full_seq;
+            f.close();
+         } else {
+            std::cout << "WARNING:: failed to open " << file_name << std::endl;
+         }
+      } else {
+         std::cout << full_seq;
+      }
    }
 }
 
 void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
-      bool do_old_style = 0;
+      bool do_old_style = false;
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
-      if (r.size() > 0) {
-         do_old_style = 1;
+      if (! r.empty()) {
+         do_old_style = true;
       } else {
          // was it a big shelx molecule?
          if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {

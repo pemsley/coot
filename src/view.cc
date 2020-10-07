@@ -112,6 +112,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
                                   coot::Cartesian this_step_delta = graphics_info_t::smooth_scroll_delta * frac;
                                   graphics_info_t::smooth_scroll_current_step += 1; // update now
                                   if (i_current_step < n_steps) {
+
                                      graphics_info_t::add_vector_to_rotation_centre(this_step_delta);
 
                                      // now the orientation
@@ -147,6 +148,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
             // std::cout << "smooth scroll on-going " << std::endl;
             // Don't start a new one, just reset to the start the one that's running.
          } else {
+            graphics_info_t::smooth_scroll_delta = view2.rotation_centre - view1.rotation_centre;
             gtk_widget_add_tick_callback(graphics_info_t::glareas[0], animation_func, user_data, NULL);
          }
 

@@ -9509,6 +9509,64 @@ Mon 15 Jun 08:57:41 BST 2020
     rewrote ERRAT with a continuous distance weighting scheme, which
     led to more stable and robust behavior.
 
+
 ---
 
+   Fresnel
    https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/
+
+---
+lipids Carol Robinson
+
+http://blogs.nature.com/ofschemesandmemes/2014/06/09/under-the-covers-nature-revealed-5-june-2014
+
+---
+Mon 24 Aug 2020 16:52:58 BST
+
+   high res dna 3p4j
+
+---
+Mon 24 Aug 2020 17:50:49 BST
+
+  what is the "ERRASER set" (published with the paper describing the rosetta updates)
+
+---
+Fri 21 Aug 15:46:31 BST 2020
+
+    Header-only C++ libraries
+
+    https://github.com/p-ranav/awesome-hpp
+
+    A Treasure Trove.
+
+    Look at stack trace and command line argument parser(s)
+
+    https://github.com/bombela/backward-cpp
+
+
+---
+Fri  4 Sep 15:13:15 BST 2020
+
+   header guards, wrapper ifndef
+   http://www.dawnofthedata.com/2013/08/a-handful-of-emacs-utilities.html
+
+   https://elpy.readthedocs.io/en/latest/
+
+   https://martinsosic.com/development/emacs/2017/12/09/emacs-cpp-ide.html
+
+---
+Sat 12 Sep 07:22:01 BST 2020
+
+   assimp compiles out of the box
+
+   817	7:19	cmake -DCMAKE_INSTALL_PREFIX=$HOME/assimp CMakeLists.txt
+   818	7:20	make -j 15
+   819	7:21	make install
+
+---
+Tue 29 Sep 14:55:03 BST 2020
+
+   examples of how how to do stuff:
+
+   https://cpp.hotexamples.com/
+

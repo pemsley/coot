@@ -99,7 +99,7 @@ TextureMesh::setup_buffers() {
    err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
    unsigned int n_triangles = triangles.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (true)
+   if (false)
       std::cout << "debug:: glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
@@ -179,7 +179,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
                       << " post is_perspective_projection " << err << std::endl;
 
    if (vao == 99999999)
-      std::cout << "You forget to setup this mesh " << name << " " << shader_p->name << std::endl;
+      std::cout << "You forget to setup this TextureMesh " << name << " " << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
    err = glGetError();
@@ -229,7 +229,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
 #endif
 
    std::string::const_iterator c; // call this it_c
-   for (c = atom_label.begin(); c != atom_label.end(); c++) {
+   for (c = atom_label.begin(); c != atom_label.end(); ++c) {
       std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*c);
       if (it == ft_characters.end()) {
          std::cout << "Failed to lookup glyph for " << *c << std::endl;
@@ -433,7 +433,15 @@ TextureMesh::draw(Shader *shader_p,
 
    glUseProgram (0);
 
-   
+}
+
+
+void
+TextureMesh::import(const std::vector<TextureMeshVertex> &verts_in, const std::vector<g_triangle> &triangles_in) {
+
+   vertices = verts_in;
+   triangles = triangles_in;
+   draw_this_mesh = true;
 }
 
 

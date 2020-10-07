@@ -71,6 +71,23 @@ coot::restraints_container_t::clear() {
    init(); // resets lock, fwiw
 }
 
+void
+coot::restraints_container_t::get_restraints_lock() {
+
+   bool unlocked = false;
+   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
+      std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+      unlocked = false;
+   }
+}
+
+void
+coot::restraints_container_t::release_restraints_lock() {
+
+   restraints_lock = false;
+}
+
+
 
 coot::restraints_container_t::~restraints_container_t() {
    if (from_residue_vector) {
@@ -80,11 +97,16 @@ coot::restraints_container_t::~restraints_container_t() {
 	 // Oh we can't do this here because we copy the
 	 // restraints in simple_refine_residues() and that
 	 // shallow copies the atom pointer - the original
-	 // restriants go out of scope and call this destructor.
+	 // restraints go out of scope and call this destructor.
 	 //
 	 // We need a new way to get rid of atom - c.f. the
 	 // linear/conventional way?
 	 //
+         // 20200820-PE I don't know what simple_refine_residues() is
+         // I am going to ignore the above message and delete the atoms
+         // now.
+         // atom needs to be a shared_ptr so that I can copy
+         // restraints containers.
 	 // delete [] atom;
 	 // atom = NULL;
       }
@@ -468,7 +490,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
       std::cout << "debug:: in init_from_mol() here are the " << fixed_atom_indices.size()
 		<< " fixed_atom indices: \n";
       std::set<int>::const_iterator it;
-      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); it++)
+      for (it=fixed_atom_indices.begin(); it!=fixed_atom_indices.end(); ++it)
 	 std::cout << " " << *it;
       std::cout << "\n";
 
@@ -785,6 +807,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // debug:
    bool debug = false;
+
    if (debug) {
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 	 mmdb::PAtom *res_atom_selection = NULL;
@@ -853,7 +876,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // function:
    set_non_bonded_neighbour_residues_by_residue_vector(neighbour_set, bpc, geom);
 
-   if (false) { // debug
+   if (debug) { // debug
 
       std::cout << "############## neighbour set: " << std::endl;
       for(it_map=neighbour_set.begin(); it_map!=neighbour_set.end(); it_map++) {
@@ -929,7 +952,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 all_residues.push_back(non_bonded_neighbour_residues[ires]);
    }
 
-   if (0) {
+   if (debug) {
       std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
 		<< all_residues.size() << " residues total (including flankers)"
 		<< " with " << non_bonded_neighbour_residues.size()
@@ -996,12 +1019,12 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 fixed_residue_set.insert(residues_vec[i].second);
 
    if (false) { // debug
-      for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+      for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
 	 mmdb::Residue *r = it_map->first;
 	 std::cout << "###### debugging rnr: Residue " << coot::residue_spec_t(r) << std::endl;
 	 const std::set<mmdb::Residue *> &s = it_map->second;
 	 std::set<mmdb::Residue *>::const_iterator it_set;
-	 for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+	 for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
 	    mmdb::Residue *residue_neighb = *it_set;
 	    std::cout << "###### debugging rnr:    Neighb: " << coot::residue_spec_t(residue_neighb)
 		      << " " << residue_neighb << std::endl;
@@ -1010,11 +1033,11 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    }
 
    
-   for(it_map=rnr.begin(); it_map!=rnr.end(); it_map++) {
+   for(it_map=rnr.begin(); it_map!=rnr.end(); ++it_map) {
       mmdb::Residue *r = it_map->first;
       const std::set<mmdb::Residue *> &s = it_map->second;
       std::set<mmdb::Residue *>::const_iterator it_set;
-      for (it_set=s.begin(); it_set!=s.end(); it_set++) {
+      for (it_set=s.begin(); it_set!=s.end(); ++it_set) {
 	 mmdb::Residue *residue_neighb = *it_set;
 	 // if residue_neigh is fixed and r is not then add residue_neigh as a neighbour of r
 	 if (residues_vec_moving_set.find(residue_neighb) == residues_vec_moving_set.end()) {
@@ -1028,7 +1051,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    init_shared_post(fixed_atom_specs); // use n_atoms, fills fixed_atom_indices
 
-   if (false) {
+   if (true) {
       std::cout << "---- after init_shared_post(): here are the "<< fixed_atom_indices.size()
 		<< " fixed atoms " << std::endl;
       std::set<int>::const_iterator it;
@@ -1532,7 +1555,10 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
    // std::cout << "After update atoms " << std::endl;
 
    // (we don't get here unless restraints were found)
-   coot::refinement_results_t rr(1, status, lights_vec);
+   bool found_restraints_flag = true;
+   coot::refinement_results_t rr(found_restraints_flag, status, lights_vec);
+   if (refinement_results_add_details)
+      add_details_to_refinement_results(&rr);
 
    // std::cout << "After rr" << std::endl;
 
@@ -1568,6 +1594,206 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 
    n_refiners_refining--;
    return rr;
+}
+
+coot::refinement_results_for_rama_t::refinement_results_for_rama_t(mmdb::Atom *at_1,
+                                                                   mmdb::Atom *at_2,
+                                                                   mmdb::Atom *at_3,
+                                                                   mmdb::Atom *at_4,
+                                                                   mmdb::Atom *at_5,
+                                                                   float distortion_in) {
+   distortion = distortion_in;
+   atom_spec_CA = atom_spec_t(at_3);
+   ball_pos_x = 0; ball_pos_y = 0; ball_pos_z = 0;
+   if (at_3) {
+      ball_pos_x = at_3->x + 0.5;
+      ball_pos_y = at_3->y;
+      ball_pos_z = at_3->z;
+   }
+   if (at_1 && at_2 && at_3 && at_4 && at_5) {
+      clipper::Coord_orth p2 = co(at_2);
+      clipper::Coord_orth p3 = co(at_3);
+      clipper::Coord_orth p4 = co(at_4);
+      clipper::Coord_orth v1(p3 - p2);
+      clipper::Coord_orth v2(p3 - p4);
+      clipper::Coord_orth v3(p4 - p2);
+      clipper::Coord_orth v1_uv(v1.unit());
+      clipper::Coord_orth v2_uv(v2.unit());
+      clipper::Coord_orth v3_uv(v3.unit());
+      clipper::Coord_orth v4(clipper::Coord_orth::cross(v2_uv, v1_uv));
+      clipper::Coord_orth p2p24_mid_point(0.5 * (p4+p2));
+      clipper::Coord_orth mid_point_to_CA(p3 - p2p24_mid_point);
+      clipper::Coord_orth delta = 0.2 * mid_point_to_CA + 0.4 * v4;
+      ball_pos_x = delta.x() + at_3->x;
+      ball_pos_y = delta.y() + at_3->y;
+      ball_pos_z = delta.z() + at_3->z;
+   }
+}
+
+void
+coot::restraints_container_t::add_details_to_refinement_results(refinement_results_t *rr) const {
+
+   auto tp_1 = std::chrono::high_resolution_clock::now();
+   int n_restraints = size();
+   std::map<int, float> nbc_baddies;
+   std::map<int, float> rama_baddies;
+   unsigned int n_non_bonded_restraints = 0;
+   unsigned int n_rama_restraints = 0;
+   double nbc_distortion_score_sum = 0;
+   double rama_distortion_score_sum = 0;
+   const gsl_vector *v = m_s->x;
+   std::vector<refinement_results_for_rama_t> all_ramas;
+   all_ramas.reserve(100);
+
+   for (int i=0; i<n_restraints; i++) {
+      const simple_restraint &restraint = restraints_vec[i];
+
+      if (restraint.restraint_type == coot::TARGET_POS_RESTRAINT) {
+          double dist = distortion_score_target_pos(restraint, 1.0, v);
+          mmdb::Atom *at = atom[restraint.atom_index_1];
+          std::pair<atom_spec_t, float> p(atom_spec_t(at), dist);
+          // not sorted yet
+          rr->sorted_atom_pulls.push_back(p);
+          rr->overall_atom_pull_score += dist;
+      }
+
+      if (restraints_usage_flag & coot::NON_BONDED_MASK) {
+         if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+            n_non_bonded_restraints++;
+            double dist = distortion_score_non_bonded_contact(restraint, lennard_jones_epsilon, v);
+            // std::cout << "nbc " << dist << std::endl;  Vast majority < -0.05
+            if (dist > 0.05) {
+               nbc_distortion_score_sum += dist;
+               nbc_baddies[restraint.atom_index_1] += 0.5 * dist;
+               nbc_baddies[restraint.atom_index_2] += 0.5 * dist;
+            }
+         }
+      }
+      if (restraints_usage_flag & coot::RAMA_PLOT_MASK) {
+         if (restraint.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+            n_rama_restraints++;
+            if (rama_type == restraints_container_t::RAMA_TYPE_ZO) {
+               // std::cout << "----------------------- ZO type RAMA! " << std::endl;
+               double dd_raw = distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
+               double dd = dd_raw / rama_plot_weight;
+               dd *= 50.0; // scale to non-ZO non weighted
+               if (false) // range -13 to 0 with weight 1.4, and 100 times that with weight 140
+                  std::cout << "zo-rama distortion for restraint " << i << " distortion is "
+                            << dd_raw << " " << " (post-mod) " << dd << " "
+                            << atom_spec_t(atom[restraint.atom_index_3])
+                            << std::endl;
+               rama_distortion_score_sum += dd;
+               if (dd > -200.01) {
+                  rama_baddies[restraint.atom_index_3] += dd;
+               }
+               refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
+                                                atom[restraint.atom_index_2],
+                                                atom[restraint.atom_index_3],
+                                                atom[restraint.atom_index_4],
+                                                atom[restraint.atom_index_5], dd);
+               all_ramas.push_back(rp);
+            } else {
+               double dd = distortion_score_rama(restraint, v, LogRama());  // mean is about -200
+               rama_distortion_score_sum += dd;
+               if (false)
+                  std::cout << "rama for restraint " << i << " distortion " << dd << " "
+                            << atom_spec_t(atom[restraint.atom_index_3])
+                            << std::endl;
+
+               mmdb::Atom *at = atom[restraint.atom_index_3];
+               refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
+                                                atom[restraint.atom_index_2],
+                                                atom[restraint.atom_index_3],
+                                                atom[restraint.atom_index_4],
+                                                atom[restraint.atom_index_5], dd);
+               all_ramas.push_back(rp);
+               // this cutoff (or dd) should take account of the rama weight
+               // When we are plotting coloured balls and bars, we are not interested
+               // in the contribution of this rama to the target function, we want to
+               // know how probable this rama value is. So needs unweighting.
+               //
+               // Actually, only the ZO rama scores are weighted.
+               //
+               if (dd > -200.0) {
+                  // GLY have naturally lower probabilities densities, hence higher -logPr
+                  std::string rn(atom[restraint.atom_index_3]->residue->GetResName());
+                  if (rn == "GLY") {
+                     dd -= 50.0; // utter guess
+                  }
+                  rama_baddies[restraint.atom_index_3] += dd;
+               }
+            }
+         }
+      }
+   }
+
+   // --- non-bonded contacts ---
+
+   std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size());
+   std::map<int, float>::const_iterator it;
+   unsigned int idx = 0;
+   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); it++)
+      nbc_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
+
+   auto sorter = [] (const std::pair<int, float> &v1,
+                     const std::pair<int, float> &v2) {
+                    return v2.second < v1.second;
+                 };
+   std::sort(nbc_baddies_vec.begin(), nbc_baddies_vec.end(), sorter);
+   if (nbc_baddies_vec.size() > 20)
+      nbc_baddies_vec.resize(20);
+   std::vector<std::pair<atom_spec_t, float> > nbc_baddies_with_spec_vec(nbc_baddies_vec.size());
+   for (unsigned int i=0; i<nbc_baddies_vec.size(); i++) {
+      nbc_baddies_with_spec_vec[i].first  = atom_spec_t(atom[nbc_baddies_vec[i].first]);
+      nbc_baddies_with_spec_vec[i].second = nbc_baddies_vec[i].second;
+   }
+   rr->overall_nbc_score = nbc_distortion_score_sum;
+   rr->sorted_nbc_baddies = nbc_baddies_with_spec_vec;
+   rr->refinement_results_contain_overall_nbc_score = true;
+
+
+   // --- rama ---
+
+   if (n_rama_restraints > 0) {
+      std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
+      idx = 0;
+      for (it=rama_baddies.begin(); it!=rama_baddies.end(); it++)
+         rama_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
+      std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
+      if (rama_baddies_vec.size() > 20)
+         rama_baddies_vec.resize(20);
+      std::vector<std::pair<atom_spec_t, float> > rama_baddies_with_spec_vec(rama_baddies_vec.size());
+      for (unsigned int i=0; i<rama_baddies_vec.size(); i++) {
+         rama_baddies_with_spec_vec[i].first  = atom_spec_t(atom[rama_baddies_vec[i].first]);
+         rama_baddies_with_spec_vec[i].second = rama_baddies_vec[i].second;
+         if (false)
+            std::cout << "debug:: rama_baddies_with_spec_vec " << i << " "
+                      << rama_baddies_with_spec_vec[i].first << " "
+                      << rama_baddies_with_spec_vec[i].second << std::endl;
+      }
+      rr->refinement_results_contain_overall_rama_plot_score = true;
+      rr->all_ramas = all_ramas;
+      rr->sorted_rama_baddies = rama_baddies_with_spec_vec;
+      rr->overall_rama_plot_score = rama_distortion_score_sum;
+   }
+
+   // --- atom pulls ---
+
+   {
+      auto sorter = [] (const std::pair<atom_spec_t, float> &v1,
+                        const std::pair<atom_spec_t, float> &v2) {
+                       return v2.second < v1.second;
+                    };
+      std::sort(rr->sorted_atom_pulls.begin(), rr->sorted_atom_pulls.end(), sorter);
+   }
+      
+   if (false) {
+      // ~1ms for 100 residues
+      auto tp_2 = std::chrono::high_resolution_clock::now();
+      auto d21 = std::chrono::duration_cast<std::chrono::microseconds>(tp_2 - tp_1).count();
+      std::cout << "info:: add_details_to_refinement_results(): " << d21 << " microseconds\n";
+   }
+
 }
 
 // this should be a static member function of refinement_lights_info_t
@@ -7810,7 +8036,7 @@ coot::refinement_results_t::hooray() const {
       std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
       float crit_value = 1.4;
       if (light.name == "Trans_peptide")
-         crit_value = 3.0;
+         crit_value = 5.0;
       if (light.value > crit_value) {
          std::cout << "Boo for lights index " << i << " " << light.name << " " << light.value << std::endl;
          status = false;

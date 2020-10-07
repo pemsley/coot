@@ -33,7 +33,7 @@
 #define snprintf _snprintf
 #endif
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
 #include <string.h>
 #include <iostream>
@@ -46,9 +46,7 @@
 
 #include "rama_plot.hh" // has gtk/gtk.h which interface.h needs
 
-#ifdef HAVE_GOOCANVAS
 #include <goocanvas.h>
-#endif
 
 #include <cairo.h>
 #if CAIRO_HAS_PDF_SURFACE
@@ -392,13 +390,11 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    gtk_widget_set_size_request(canvas, 400, 400);
    gtk_container_add(GTK_CONTAINER(scrolled_window),
                      canvas);
-   gtk_widget_ref(canvas);
-   gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-   g_object_set_data(G_OBJECT(canvas), "user_data", (gpointer) this);
-   gtk_object_set_user_data(GTK_OBJECT(dynawin), (gpointer) this);
-   g_object_set(G_OBJECT(canvas),
-                "has-tooltip", TRUE,
-                NULL);
+   // gtk_widget_ref(canvas);
+   g_object_set_data(G_OBJECT(canvas),  "rama_plot", (gpointer) this);
+   g_object_set_data(G_OBJECT(canvas), " user_data", (gpointer) this);
+   g_object_set_data(G_OBJECT(dynawin), "dynawin", (gpointer) this);
+   g_object_set(G_OBJECT(canvas), "has-tooltip", TRUE, NULL);
 
    gtk_widget_add_events(GTK_WIDGET(canvas),
                          GDK_EXPOSURE_MASK      |
@@ -409,8 +405,10 @@ coot::rama_plot::init_internal(const std::string &mol_name,
                          GDK_POINTER_MOTION_HINT_MASK);
 
 
-   if (dialog_position_x > -1)
-      gtk_widget_set_uposition(dynawin, dialog_position_x, dialog_position_y);
+   if (dialog_position_x > -1) {
+      // gtk_window_set_position(dynawin, dialog_position_x, dialog_position_y);
+      std::cout << "rama set the window position here " << std::endl;
+   }
 
    gtk_widget_show (canvas);
 
@@ -1328,21 +1326,21 @@ coot::rama_plot::key_release_event(GtkWidget *widget, GdkEventKey *event) {
 
    switch (event->keyval) {
 
-   case GDK_plus:
-   case GDK_equal:  // unshifted plus, usually.
+   case GDK_KEY_plus:
+   case GDK_KEY_equal:  // unshifted plus, usually.
 
       zoom_in();
       break;
 
-   case GDK_minus:
+   case GDK_KEY_minus:
       zoom_out();
       break;
    }
 
    /* prevent the default handler from being run */
-   gtk_signal_emit_stop_by_name(GTK_OBJECT(canvas),"key_release_event");
+   // gtk_signal_emit_stop_by_name(GTK_OBJECT(canvas),"key_release_event");
 
-   return 0;
+   return TRUE;
 }
 
 
@@ -2015,7 +2013,7 @@ coot::rama_plot::button_press_editphipsi (GooCanvasItem *item, GdkEventButton *e
 
    if (event->button == 1) {
 //      fleur = gdk_cursor_new (GDK_FLEUR);
-      fleur = gdk_cursor_new (GDK_TOP_LEFT_ARROW);
+      fleur = gdk_cursor_new(GDK_TOP_LEFT_ARROW);
 
       GdkEventMask mask = GdkEventMask(GDK_POINTER_MOTION_MASK
                                        | GDK_POINTER_MOTION_HINT_MASK
@@ -3147,15 +3145,19 @@ coot::rama_plot::draw_axes() {
       shift = -60.0;
       shift_label = -40.0;
    }
+
+   std::string colour = "black";
+   colour = "white";
+
    axis_grp = goo_canvas_group_new(root, NULL);
    item = goo_canvas_text_new(axis_grp,
                               "Phi",
                               -10.0,
                               230.0 + shift,
                               -1,
-                              GTK_ANCHOR_WEST,
+                              GOO_CANVAS_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
-                              "fill-color", "black",
+                              "fill-color", colour.c_str(),
                               NULL);
 
    item = goo_canvas_text_new(axis_grp,
@@ -3163,9 +3165,9 @@ coot::rama_plot::draw_axes() {
                               -230.0,
                               15.0 + shift_label,
                               -1,
-                              GTK_ANCHOR_WEST,
+                              GOO_CANVAS_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
-                              "fill-color", "black",
+                              "fill-color", colour.c_str(),
                               NULL);
 
 
@@ -3209,7 +3211,7 @@ coot::rama_plot::draw_axes() {
                                           pnts[i].start_x(), pnts[i].start_y(),
                                           pnts[i].end_x(), pnts[i].end_y(),
                                           "line-width", 1.,
-                                          "fill-color", "black",
+                                          "fill-color", colour.c_str(),
                                           NULL);
    }
 
@@ -3251,9 +3253,9 @@ coot::rama_plot::draw_axes() {
                                  -230.0,
                                  -tick_text_psi[i] +0.0,
                                  -1,
-                                 GTK_ANCHOR_WEST,
+                                 GOO_CANVAS_ANCHOR_WEST,
                                  "font", fixed_font_str.c_str(),
-                                 "fill-color", "black",
+                                 "fill-color", colour.c_str(),
                                  NULL);
 
 
@@ -3267,9 +3269,9 @@ coot::rama_plot::draw_axes() {
                                  tick_text_phi[i] - 10.0,
                                  200.0 + shift,
                                  -1,
-                                 GTK_ANCHOR_WEST,
+                                 GOO_CANVAS_ANCHOR_WEST,
                                  "font", fixed_font_str.c_str(),
-                                 "fill-color", "black",
+                                 "fill-color", colour.c_str(),
                                  NULL);
 
    }
@@ -3689,53 +3691,51 @@ coot::rama_plot::plot_type_changed() {
          // show selections (fill maybe FIXME - and set tick?)
          // gtk_widget_show(selection_checkbutton);
          draw_it(mols().first);
-         if (GTK_TOGGLE_BUTTON(selection_checkbutton)->active) {
+         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(selection_checkbutton))) {
             apply_selection_from_widget();
          }
-      }
-      else
-         std::cout<< "BL INFO:: no molecule found, please read one in."<<std::endl;
-   } else {
-      // kleywegt plot
-      gtk_widget_show(kleywegt_chain_box);
-      gtk_widget_hide(rama_stats_frame);
-      gtk_widget_show(selection_hbox);
-      // hide the selection stuff
-      gtk_widget_hide(selection_checkbutton);
-      gtk_widget_hide(selection_entry);
-      gtk_widget_hide(selection_apply_button);
-      // either do a default kleywegt plot, or
-      // dont do anything until things are selected and applied
-      // better to do the latter. BUT what to do in the reverse direction?
-      // should work with saved chains e.g. as well...
 
-      // if not done, fill box with chains. How? Need to have a molecule...
-      // should we save the molecule from the normal Rama?!
-      // may be different in Coot compared to a stand alone version
-      // FIXME:: very crude implementation, needs setting of chains! e.g.
-      if (mols().first) {
-         //clear_canvas_items();
-         set_kleywegt_plot_state(1);
-         std::vector<std::string> chains = coot::util::chains_in_molecule(mols().first);
-         std::vector<std::string> chains2 = coot::util::chains_in_molecule(mols().second);
-         unsigned int i_chain_id2 = 0;
-         if (chains2.size() > 0)
-            i_chain_id2 = 1;
-	 if (chains.size() > 0) {
-	    if (chains2.size() > i_chain_id2) {
-	       chain_ids_ = std::pair<std::string, std::string> (chains[0], chains2[i_chain_id2]);
-
-	       draw_it(molecule_numbers().first, molecule_numbers().second,
-		       mols().first, mols().second,
-		       chain_ids().first, chain_ids().second);
-	       fill_kleywegt_comboboxes(mols().first, mols().second);
-	       kleywegt_plot_uses_chain_ids = 1;
-	    }
-	 }
       } else {
-         std::cout<< "BL INFO:: no molecule found, please read one in."<<std::endl;
-      }
+         // kleywegt plot
+         gtk_widget_show(kleywegt_chain_box);
+         gtk_widget_hide(rama_stats_frame);
+         gtk_widget_show(selection_hbox);
+         // hide the selection stuff
+         gtk_widget_hide(selection_checkbutton);
+         gtk_widget_hide(selection_entry);
+         gtk_widget_hide(selection_apply_button);
+         // either do a default kleywegt plot, or
+         // dont do anything until things are selected and applied
+         // better to do the latter. BUT what to do in the reverse direction?
+         // should work with saved chains e.g. as well...
 
+         // if not done, fill box with chains. How? Need to have a molecule...
+         // should we save the molecule from the normal Rama?!
+         // may be different in Coot compared to a stand alone version
+         // FIXME:: very crude implementation, needs setting of chains! e.g.
+         if (mols().first) {
+            //clear_canvas_items();
+            set_kleywegt_plot_state(1);
+            std::vector<std::string> chains = coot::util::chains_in_molecule(mols().first);
+            std::vector<std::string> chains2 = coot::util::chains_in_molecule(mols().second);
+            unsigned int i_chain_id2 = 0;
+            if (chains2.size() > 0)
+               i_chain_id2 = 1;
+            if (chains.size() > 0) {
+               if (chains2.size() > i_chain_id2) {
+                  chain_ids_ = std::pair<std::string, std::string> (chains[0], chains2[i_chain_id2]);
+
+                  draw_it(molecule_numbers().first, molecule_numbers().second,
+                          mols().first, mols().second,
+                          chain_ids().first, chain_ids().second);
+                  fill_kleywegt_comboboxes(mols().first, mols().second);
+                  kleywegt_plot_uses_chain_ids = 1;
+               }
+            }
+         } else {
+            std::cout<< "BL INFO:: no molecule found, please read one in."<<std::endl;
+         }
+      }
    }
 }
 

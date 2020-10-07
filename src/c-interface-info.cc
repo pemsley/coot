@@ -2828,6 +2828,16 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
    GtkWidget *spgr_text = lookup_widget(window, "single_map_properties_sg_text");
    GtkWidget *reso_text = lookup_widget(window, "single_map_properties_reso_text");
 
+   GtkWidget *line_width_frame = lookup_widget(window, "map_properties_dialog_line_width_frame");
+   GtkWidget *specular_frame   = lookup_widget(window, "map_properties_dialog_specularity_frame");
+   GtkWidget *fresnel_frame    = lookup_widget(window, "map_properties_dialog_fresnel_frame");
+
+   if (false) { // true for gtk2 version
+      gtk_widget_hide(line_width_frame);
+      gtk_widget_hide(specular_frame);
+      gtk_widget_hide(fresnel_frame);
+   }
+
    std::string cell_text_string;
    std::string spgr_text_string;
    std::string reso_text_string;
@@ -2992,8 +3002,13 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 
 			// draw the contour level bar
 			float cl = graphics_info_t::molecules[imol].get_contour_level();
-			std::vector<float> map_colours = graphics_info_t::molecules[imol].map_colours();
-			if (map_colours.size() > 2) {
+
+                        // std::pair<GdkRGBA, GdkRGBA> map_colours() const;
+			std::pair<GdkRGBA, GdkRGBA> map_colours =
+                           graphics_info_t::molecules[imol].map_colours();
+
+#if 0
+			if (true) { // this test is needed?
 			   coot::colour_holder ch(map_colours);
 			   void (*func)(int, float) = set_contour_level_absolute;
 			   GtkWidget *canvas = g->get_canvas();
@@ -3006,6 +3021,7 @@ fill_map_histogram_widget(int imol, GtkWidget *map_contour_frame) {
 			   gtk_widget_show(canvas);
 			   gtk_container_add(GTK_CONTAINER(map_contour_frame), canvas);
 			}
+#endif
 		     }
 		  }
 	       }

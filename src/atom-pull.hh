@@ -1,15 +1,17 @@
 
+#include <clipper/core/coords.h>
+#include "geometry/residue-and-atom-specs.hh"
+
 class atom_pull_info_t {
 
    bool status;
 public:
-   clipper::Coord_orth pos;
    coot::atom_spec_t spec;
+   clipper::Coord_orth pos;
 
    atom_pull_info_t() { status = false; }
-   atom_pull_info_t(const coot::atom_spec_t &spec_in, const clipper::Coord_orth &pos_in) {
-      spec = spec_in;
-      pos = pos_in;
+   atom_pull_info_t(const coot::atom_spec_t &spec_in, const clipper::Coord_orth &pos_in) :
+      spec(spec_in), pos(pos_in) {
       status = true;
    }
 

@@ -26,6 +26,34 @@ GtkWidget *graphics_info_t::main_window = NULL;
 float graphics_info_t::clipping_front = 1.0;
 float graphics_info_t::clipping_back  = 1.0;
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
+std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
+#endif // USE_MOLECULES_TO_TRIANGLES
+
+// --------------------------------------------------------------------------------------------
+
+float *graphics_info_t::mvp = new float[16];
+int    graphics_info_t::mvp_location = -1;
+int    graphics_info_t::view_rotation_location = -1;
+glm::quat graphics_info_t::glm_quat = glm::quat(1,0,0,0);
+GLuint graphics_info_t::programID_for_central_cube = 0;
+GLuint graphics_info_t::central_cube_vertexarray_id = 0;
+GLuint graphics_info_t::central_cube_array_buffer_id = 0;
+GLuint graphics_info_t::central_cube_index_buffer_id = 0;
+GLuint graphics_info_t::hud_text_vertexarray_id = 0;
+GLuint graphics_info_t::hud_text_array_buffer_id = 0;
+GLuint graphics_info_t::screen_quad_vertex_array_id = 0;
+GLuint graphics_info_t::blur_quad_vertex_array_id = 0;
+GLuint graphics_info_t::textureColorbuffer_screen = 0;
+GLuint graphics_info_t::textureColorbuffer_blur = 0;
+framebuffer graphics_info_t::screen_framebuffer;
+framebuffer graphics_info_t::blur_framebuffer;
+bool graphics_info_t::perspective_projection_flag = false;
+
+
+// --------------------------------------------------------------------------------------------
+
 // GLuint graphics_info_t::programID_for_maps = 0; in a shader now  - as
 //programID_for_central_cube should be
 Shader graphics_info_t::shader_for_maps;
@@ -35,12 +63,16 @@ Shader graphics_info_t::shader_for_moleculestotriangles;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
 Shader graphics_info_t::shader_for_hud_text;
+Shader graphics_info_t::shader_for_hud_geometry_bars;
+Shader graphics_info_t::shader_for_hud_geometry_labels;
 Shader graphics_info_t::shader_for_atom_labels;
+Shader graphics_info_t::shader_for_rama_balls;
 Shader graphics_info_t::shader_for_screen;
 Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_lines;
+Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
-Shader graphics_info_t::shader_for_instanced_cylinders; // better name needed? used for boids
+Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
@@ -110,6 +142,8 @@ graphics_info_t::make_gl_context_current(bool gl_context_current_request_index) 
 #endif
 }
 
+float graphics_info_t::contact_dots_density = 1.0;
+
 bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
@@ -123,13 +157,28 @@ bool graphics_info_t::do_tick_boids = false;
 int graphics_info_t::n_particles = 300;
 Mesh graphics_info_t::mesh_for_particles;
 particle_container_t graphics_info_t::particles;
+glm::vec3 graphics_info_t::identification_pulse_centre;
 
 fun::boids_container_t graphics_info_t::boids;
 Mesh graphics_info_t::mesh_for_boids;
 LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 
+LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
+LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
+std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
+
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
+HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
 
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
+
+coot::command_history_t graphics_info_t::command_history;
+
+Texture graphics_info_t::texture_for_hud_geometry_labels;
+
+HUDTextureMesh graphics_info_t::mesh_for_hud_geometry_labels = HUDTextureMesh("tmesh-for-hud-geometry-labels");
+
+Instanced_Markup_Mesh graphics_info_t::rama_balls_mesh = Instanced_Markup_Mesh("rama-balls");
+bool graphics_info_t::draw_stick_mode_atoms_default = true;
 

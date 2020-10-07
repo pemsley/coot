@@ -651,54 +651,29 @@ graphics_info_t::reorienting_next_residue(bool dir) {
    // graphics_draw();
 }
 
+// static
+void
+graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
+
+   graphics_info_t g;
+   coot::Cartesian centre(pt.x(), pt.y(), pt.z());
+   bool done_centre_jump = g.setRotationCentre(centre);
+   if (done_centre_jump)
+      g.update_things_on_move_and_redraw();
+
+}
+
+
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
    mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
-
    float x = atom->x;
    float y = atom->y;
    float z = atom->z;
+   clipper::Coord_orth pt(x,y,z);
+   set_rotation_centre(pt);
 
-   set_old_rotation_centre(RotationCentre());
-
-   bool do_zoom_flag = false;
-
-   bool needs_a_centre_jump = true;
-   if (smooth_scroll == 1) {
-      // this (usually) launches a timeout/tick function
-      if (smooth_scroll_maybe(x,y,z, do_zoom_flag, 100.0))
-         needs_a_centre_jump = false;
-   }
-
-   if (needs_a_centre_jump) {
-      // set it now.
-      rotation_centre_x = x;
-      rotation_centre_y = y;
-      rotation_centre_z = z;
-   }
-
-   update_ramachandran_plot_point_maybe(imol, atom);
-   setup_graphics_ligand_view(imol, atom->residue, atom->altLoc);
-
-   if (environment_show_distances) {
-      mol_no_for_environment_distances = imol;
-      update_environment_graphics_object(index, imol);
-      // label new centre
-      if (environment_distance_label_atom) {
-         molecules[imol].unlabel_last_atom();
-         molecules[imol].add_to_labelled_atom_list(index);
-      }
-      if (show_symmetry)
-         update_symmetry_environment_graphics_object(index, imol);
-   } else {
-
-      if (label_atom_on_recentre_flag) {
-         molecules[imol].unlabel_last_atom();
-         molecules[imol].add_to_labelled_atom_list(index);
-      }
-   }
-   run_post_set_rotation_centre_hook();
 }
 
 // update the green square, where we are.
@@ -928,10 +903,11 @@ graphics_info_t::smooth_scroll_animation_func(GtkWidget *widget,
                    << " Rotation centre now " << glm::to_string(get_rotation_centre()) << std::endl;
 
       graphics_draw(); // adds to the queue
-      glFlush();
 
       return G_SOURCE_CONTINUE;
    } else {
+      graphics_info_t g;
+      g.update_things_on_move_and_redraw();
       return G_SOURCE_REMOVE;
    }
 }
@@ -1101,10 +1077,24 @@ graphics_info_t::setRotationCentreSimple(const coot::Cartesian &c) {
 
 }
 
-void
-graphics_info_t::setRotationCentre(coot::Cartesian centre) {
+// return true if this function did the (simple and immediate) jump to the centre
+bool
+graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) {
 
-   set_old_rotation_centre(RotationCentre());
+   bool needs_centre_jump = true;
+
+   class pulse_data_t {
+   public:
+      int n_pulse_steps;
+      int n_pulse_steps_max;
+      pulse_data_t(int n1, int n2) {
+         n_pulse_steps = n1;
+         n_pulse_steps_max = n2;
+      }
+   };
+
+   coot::Cartesian current_centre = RotationCentre();
+   set_old_rotation_centre(current_centre);
 
    // smooth_scroll_maybe
 
@@ -1114,21 +1104,65 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
    // because the timeout function  will use "centre"
    // as the place from which to start moving :-)
 
-   bool needs_centre_jump = true;
-   if (graphics_info_t::smooth_scroll == 1) {
-      // don't zoom and dummy value
-      bool status = smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 0, 100.0);
-      if (status) needs_centre_jump = false; // all in hand
+   // If we are already here then don't animate a move.
+   //
+   bool already_here = false;
+   coot::Cartesian position_delta = new_centre - current_centre;
+   if (position_delta.amplitude() < 0.4) {
+
+      {
+         auto identification_pulse_func = [] (GtkWidget *widget,
+                                              GdkFrameClock *frame_clock,
+                                              gpointer data) {
+                                             gboolean continue_status = 1;
+                                             pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+                                             pulse_data->n_pulse_steps += 1;
+                                             // std::cout << "pulse: " << pulse_data->n_pulse_steps << std::endl;
+                                             if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+                                                continue_status = 0;
+                                                lines_mesh_for_identification_pulse.clear();
+                                             } else {
+                                                float ns = pulse_data->n_pulse_steps;
+                                                lines_mesh_for_identification_pulse.update_buffers_for_pulse(ns);
+                                             }
+                                             graphics_draw();
+                                             return gboolean(continue_status);
+                                        };
+
+         // Here I need to check that there isn't already a pulse running!
+         // (happens when mouse double clicked)
+         pulse_data_t *pulse_data = new pulse_data_t(0, 30);
+         gpointer user_data = reinterpret_cast<void *>(pulse_data);
+         identification_pulse_centre = cartesian_to_glm(current_centre);
+         gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+         lines_mesh_for_identification_pulse.setup_pulse(&shader_for_lines_pulse);
+         gtk_widget_add_tick_callback(glareas[0], identification_pulse_func, user_data, NULL);
+
+      }
+
+      already_here = true;
+      needs_centre_jump = false;
    }
 
-   if (needs_centre_jump)  {
+   if (!already_here) {
+      if (force_jump) {
+         setRotationCentreSimple(new_centre);
+         run_post_set_rotation_centre_hook();
+      } else {
+         if (graphics_info_t::smooth_scroll == 1) {
+            // don't zoom and dummy value
+            bool status = smooth_scroll_maybe(new_centre.x(), new_centre.y(), new_centre.z(), 0, 100.0);
+            if (status) needs_centre_jump = false; // all in hand
+         }
 
-      rotation_centre_x = centre.get_x();
-      rotation_centre_y = centre.get_y();
-      rotation_centre_z = centre.get_z();
-      run_post_set_rotation_centre_hook();
+         if (needs_centre_jump)  {
+            setRotationCentreSimple(new_centre);
+            run_post_set_rotation_centre_hook();
+         }
+      }
    }
 
+   return needs_centre_jump;
 }
 
 void
@@ -1995,18 +2029,18 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       //
       coot::rotamer_probability_tables *tables_pointer = NULL;
       if (do_rota_markup) {
-    if (! rot_prob_tables.tried_and_failed()) {
-       if (rot_prob_tables.is_well_formatted()) {
-          tables_pointer = &rot_prob_tables;
-       } else {
-          rot_prob_tables.fill_tables();
-          if (rot_prob_tables.is_well_formatted()) {
-     tables_pointer = &rot_prob_tables;
-          }
-       }
-    } else {
-       do_rota_markup = false;
-    }
+         if (! rot_prob_tables.tried_and_failed()) {
+            if (rot_prob_tables.is_well_formatted()) {
+               tables_pointer = &rot_prob_tables;
+            } else {
+               rot_prob_tables.fill_tables();
+               if (rot_prob_tables.is_well_formatted()) {
+                  tables_pointer = &rot_prob_tables;
+               }
+            }
+         } else {
+            do_rota_markup = false;
+         }
       }
 
       int draw_hydrogens_flag = 0;
@@ -2029,107 +2063,24 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       moving_atoms_bonds_lock = 0; // unlocked
    }
 
-   moving_atoms_molecule.bonds_box = regularize_object_bonds_box;
+   moving_atoms_molecule.bonds_box = regularize_object_bonds_box; // needed? or does
+                                                                  // make_glsl_bonds_type_checked()
+                                                                  // update this?
    moving_atoms_molecule.is_intermediate_atoms_molecule = true;
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   shader_for_models.Use();
    moving_atoms_molecule.make_glsl_bonds_type_checked();
+
    setup_atom_pull_restraints_glsl();
 
-}
-
-
-// Display the graphical object of the regularization.
-// static
-// moving atoms are intermediate atoms
-void
-graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) {
-
-#if 0
-
-   // old - delete this
-
-   // very much most of the time, this will be zero
-   //
-   if (regularize_object_bonds_box.num_colours > 0) {
-
-      if (moving_atoms_bonds_lock) {
-    std::cout << "in draw_moving_atoms_graphics_object() moving_atoms_bonds_lock was locked"
-      << std::endl;
-    return;
-      }
-
-      unsigned int unlocked = false;
-      while (! moving_atoms_bonds_lock.compare_exchange_weak(unlocked, 1) && !unlocked) {
-    std::this_thread::sleep_for(std::chrono::microseconds(10));
-    unlocked = 0;
-      }
-
-      if (against_a_dark_background) {
-	 // now we want to draw out our bonds in white,
-	 glColor3f (0.8, 0.8, 0.6);
-      } else {
-	 glColor3f (0.3, 0.3, 0.3);
-      }
-
-      float bw = graphics_info_t::bond_thickness_intermediate_atoms;
-      float current_bond_width = bw;
-      glLineWidth(bw);
-      for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
-
-      switch(i) {
-	 case BLUE_BOND:
-	    glColor3f (0.40, 0.4, 0.79);
-	    break;
-	 case RED_BOND:
-	    glColor3f (0.79, 0.40, 0.640);
-	    break;
-	 default:
-	    if (against_a_dark_background)
-	       glColor3f (0.7, 0.7, 0.4);
-	    else
-	       glColor3f (0.5, 0.5, 0.5);
-	 }
-
-	 graphical_bonds_lines_list<graphics_line_t> &ll = regularize_object_bonds_box.bonds_[i];
-
-	 // std::cout << "   debug colour ii = " << i << " has  "
-	 // << regularize_object_bonds_box.bonds_[i].num_lines << " lines" << std::endl;
-
-         float new_bond_width = bw;
-         if (ll.thin_lines_flag)
-            new_bond_width = bw * 0.5;
-
-         if (new_bond_width != current_bond_width) {
-       glLineWidth(new_bond_width);
-            current_bond_width = new_bond_width;
-         }
-
-    glBegin(GL_LINES);
-    for (int j=0; j< regularize_object_bonds_box.bonds_[i].num_lines; j++) {
-
-       coot::CartesianPair &pair = ll.pair_list[j].positions;
-
-       glVertex3f(pair.getStart().get_x(),
-          pair.getStart().get_y(),
-          pair.getStart().get_z());
-       glVertex3f(pair.getFinish().get_x(),
-          pair.getFinish().get_y(),
-          pair.getFinish().get_z());
-    }
-    glEnd();
-      }
-
-      draw_moving_atoms_atoms(against_a_dark_background);
-      draw_moving_atoms_peptide_markup();
-      draw_ramachandran_goodness_spots();
-      draw_rotamer_probability_object();
-
-      moving_atoms_bonds_lock = false; // unlock.
+   { // put this somewhere
+      std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+      update_rama_balls(&balls);
+      rama_balls_mesh.update_instancing_buffers(balls);
    }
 
-#endif
-
 }
-
 
 void
 graphics_info_t::draw_moving_atoms_peptide_markup() {
@@ -2249,50 +2200,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 
 #include "utils/dodec.hh"
 
-// static
-void
-graphics_info_t::draw_rotamer_probability_object() {
-
-#if 0
-   graphics_info_t g;
-   std::vector<coot::generic_display_object_t::dodec_t> dodecs = g.get_rotamer_dodecs();
-
-   if (dodecs.size()) {
-
-      glDisable(GL_COLOR_MATERIAL);
-      glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
-
-      // draw with:
-      glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT1);
-      glEnable(GL_LIGHT0);
-
-      // glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-      // glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-      for (unsigned int i=0; i<dodecs.size(); i++) {
-
-    float feature_opacity = 0.6;
-    const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
-    GLfloat  mat_diffuse[]  = {dodec.col.red,
-       dodec.col.green,
-       dodec.col.blue,
-       feature_opacity};
-    GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
-    GLfloat  mat_shininess[] = {100};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-    g.graphics_object_internal_dodec(dodec);
-      }
-      glDisable(GL_LIGHTING);
-   }
-#endif
-}
-
-// can this be const?
+// delete this function?
 std::vector<coot::old_generic_display_object_t::dodec_t>
 graphics_info_t::get_rotamer_dodecs() {
 
@@ -2906,7 +2814,7 @@ graphics_info_t::graphics_object_internal_dodec(const coot::old_generic_display_
    if (false) {
       glBegin(GL_POINTS);
       for (unsigned int i=0; i<v.size(); i++) {
-    glVertex3d(v[i].x(), v[i].y(), v[i].z());
+         glVertex3d(v[i].x(), v[i].y(), v[i].z());
       }
       glEnd();
    }
@@ -2916,17 +2824,19 @@ graphics_info_t::graphics_object_internal_dodec(const coot::old_generic_display_
       const std::vector<unsigned int> &face = dodec.d.face(i);
       clipper::Coord_orth sum_vertex(0,0,0);
       for (unsigned int j=0; j<5; j++)
-    sum_vertex += v[face[j]];
+         sum_vertex += v[face[j]];
       clipper::Coord_orth face_normal(sum_vertex.unit());
       for (unsigned int j=0; j<5; j++) {
-    glNormal3d(face_normal.x(), face_normal.y(), face_normal.z());
-    glVertex3d(v[face[j]].x(),  v[face[j]].y(),  v[face[j]].z());
+         glNormal3d(face_normal.x(), face_normal.y(), face_normal.z());
+         glVertex3d(v[face[j]].x(),  v[face[j]].y(),  v[face[j]].z());
       }
       glEnd();
    }
    glPopMatrix();
+#endif
 }
 
+#if 0
 void
 graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec) {
 
@@ -2995,8 +2905,8 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
       }
    }
    glPopMatrix();
-#endif
 }
+#endif
 
 
 void
@@ -3564,6 +3474,7 @@ graphics_info_t::update_things_on_move() {
       molecules[ii].update_clipper_skeleton();
       molecules[ii].update_symmetry();
    }
+   make_pointer_distance_objects();
    setup_graphics_ligand_view_aa();
 }
 

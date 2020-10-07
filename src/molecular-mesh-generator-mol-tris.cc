@@ -27,7 +27,6 @@ molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::share
    r->redraw();
    std::vector<std::shared_ptr<DisplayPrimitive> > vdp = r->getDisplayPrimitives();
    auto displayPrimitiveIter = vdp.begin();
-   int i=0;
    std::vector<s_generic_vertex> vertices;
    std::vector<g_triangle> triangles;
 
@@ -158,17 +157,19 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
    return vp;
 }
 
-std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
+std::vector<molecular_triangles_mesh_t>
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &selection_string, // mmdb-format
                                                          const std::string &colour_scheme,
                                                          const std::string &style) {
 
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
+   std::vector<molecular_triangles_mesh_t> mtm;
+
+   // std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
    if (! mol) {
       std::cout << "ERROR:: null mol " << __FUNCTION__ << "()" << std::endl;
-      return vp;
+      return mtm;
    }
 
    int imodel = 1;
@@ -202,9 +203,9 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 
          std::cout << "here with colorRampChainsScheme" << std::endl;
          for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-            mmdb::Model *model_p = mol->GetModel(imod);
+            mmdb::Model *model_inner_p = mol->GetModel(imod);
             if (model_p) {
-               int n_chains = model_p->GetNumberOfChains();
+               int n_chains = model_inner_p->GetNumberOfChains();
                for (int ichain=0; ichain<n_chains; ichain++) {
                   mmdb::Chain *chain_p = model_p->GetChain(ichain);
                   int nres = chain_p->GetNumberOfResidues();
@@ -287,17 +288,20 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
             triangles.resize(surface.nTriangles());
             for (unsigned int iTriangle=0; iTriangle<surface.nTriangles(); iTriangle++){
                g_triangle &gt = triangles[iTriangle];
-               for (int i=0; i<3; i++)
-                  gt[i] = indexArray[3*iTriangle+i];
+               for (int ii=0; ii<3; ii++)
+                  gt[ii] = indexArray[3*iTriangle+ii];
             }
-            add_to_mesh(&vp, vertices, triangles);
+            // add_to_mesh(&vp, vertices, triangles);
+            // mtm.add_to_mesh(vertices, triangles);
+            std::string prim_name = "displayPrimitiveNameHere";
+            molecular_triangles_mesh_t prim(vertices, triangles, prim_name);
+            mtm.push_back(prim);
          }
       }
    }
 
-   std::cout << "INFO:: " << __FUNCTION__  << "() n_vert: " << vp.first.size()
-             << " n_tri: " << vp.second.size() << std::endl;
-   return vp;
+   std::cout << "INFO:: " << __FUNCTION__  << "() n_primitives: " << mtm.size() << std::endl;
+   return mtm;
 
 }
 

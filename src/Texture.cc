@@ -4,6 +4,8 @@
 #include "Texture.hh"
 #include "stb_image.h"
 
+#include "utils/coot-utils.hh"
+
 Texture::Texture(const std::string &file_name) {
    init(file_name);
 }
@@ -11,9 +13,27 @@ Texture::Texture(const std::string &file_name) {
 void
 Texture::init(const std::string &file_name) {
 
+   std::string fn = file_name;
+
+#ifdef THIS_IS_HMT
+#else
+   std::string default_directory = coot::package_data_dir();
+   default_directory += "/textures";
+
+   if (! coot::file_exists(fn)) {
+      fn = default_directory + "/" + file_name;
+   }
+
+   if (! coot::file_exists(fn)) {
+      std::cout << "ERROR:: missing file " << file_name << std::endl;
+      std::cout << "ERROR:: not in " << default_directory << std::endl;
+      return;
+   }
+#endif // THIS_IS_HMT
+
    int width, height, num_components;
-   stbi_uc* image_data = stbi_load(file_name.c_str(), &width, &height, &num_components, 4);
-   id = file_name;
+   stbi_uc* image_data = stbi_load(fn.c_str(), &width, &height, &num_components, 4);
+   id = 0;
 
    if (!image_data) {
       std::string s = stbi_failure_reason();
@@ -33,7 +53,23 @@ Texture::init(const std::string &file_name) {
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 
    stbi_image_free(image_data);
+   // std::cout << "debug::  done Texture::init() " << file_name << std::endl;
 }
+
+void
+Texture::init(const std::string &file_name, const std::string &directory) {
+
+   std::string full_file_name = directory + "/" + file_name;
+   init(full_file_name);
+
+}
+
+
+void
+Texture::set_default_directory(const std::string &dir) {
+   default_directory = dir;
+}
+
 
 void
 Texture::close() {

@@ -3,6 +3,8 @@
 #define FT_CHARACTER_HH
 
 // let's try not to need OpenGL headers to compile whith this header
+//  glm is OK
+#include <glm/glm.hpp>
 
 // FreeType
 #include <ft2build.h>

@@ -188,6 +188,16 @@ void set_map_specular_strength(int imol, float specular_strength) {
    }
 }
 
+void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      m.fresnel_settings = fresnel_settings_t(state, bias, scale, power);
+      graphics_draw();
+   }
+
+}
+
 void set_draw_normals(short int state) {
 
    graphics_info_t::draw_normals_flag = state;
@@ -240,7 +250,32 @@ void set_model_material_specular(int imol, float specular_strength, float shinin
    }
 }
 
-   
+
+void reload_map_shader() {
+
+   graphics_info_t g;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0]));
+   std::cout << "reload map shader" << std::endl;
+   g.shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
+   graphics_draw();
+}
+
+void reload_model_shader() {
+
+   graphics_info_t g;
+   g.shader_for_models.init("model.shader", Shader::Entity_t::MODEL);
+   graphics_draw();
+}
+
+void set_atom_radius_scale_factor(int imol, float scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_atom_radius_scale_factor(scale_factor);
+   }
+   graphics_draw();
+}
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         single-model view */

@@ -80,7 +80,6 @@ void coot::set_occlusions(std::vector<occlusion_triangle> &tris, const std::vect
       idx_3d[2] = static_cast<int> ((t.mid_point.z() - lower_left[2]) * inv_brick_size);
    }
 
-
 }
 
 
@@ -237,6 +236,31 @@ coot::occlusion_of_positions_within_bricks(const std::vector<std::set<unsigned i
             }
          }
       }
+   }
+}
+
+
+
+#include "transfer-occlusions.hh"
+
+namespace coot {
+
+   // I guess that this should live somewhere else? occlusion.cc perhaps.
+   // But density_contour_triangles_container_t is not used in occlusion.hh
+
+   void
+   transfer_occlusions(const std::vector<coot::augmented_position> &positions,
+                       coot::density_contour_triangles_container_t *tri_con_p) {
+
+      if (positions.size() != tri_con_p->points.size()) {
+         std::cout << "ERROR:: mismatches sizes positions tri_con_p " << std::endl;
+         return;
+      }
+
+      tri_con_p->occlusion_factor.resize(positions.size(), 0.0f);
+      for (unsigned int i=0; i<positions.size(); i++)
+         tri_con_p->occlusion_factor[i] = positions[i].occlusion_factor;
+
    }
 }
 

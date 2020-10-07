@@ -20,6 +20,7 @@ template<class T> class graphical_bonds_lines_list {
    bool thin_lines_flag;
 
    graphical_bonds_lines_list() {
+      num_lines = 0;
       pair_list = NULL;
       thin_lines_flag = 0;
    }
@@ -39,9 +40,9 @@ public:
                        // if some other part of the code has deleted the atom.
    int model_number; // -1 is unset
    int atom_index;
-   graphical_bonds_atom_info_t(const coot::Cartesian &pos, int atom_index_in, bool is_hydrogen_atom_in) {
+   graphical_bonds_atom_info_t(const coot::Cartesian &pos, int atom_index_in, bool is_hydrogen_atom_in) :
+      position(pos) {
       model_number = -1;
-      position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
       is_water = false;
       atom_index = atom_index_in;
@@ -143,6 +144,7 @@ public:
    }
 
    graphical_bonds_cis_peptide_markup() {
+      model_number = -1;
       is_pre_pro_cis_peptide = false;
    } 
 };

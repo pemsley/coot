@@ -38,11 +38,8 @@ namespace coot {
       parallel_plane_atoms_t() {}
       parallel_plane_atoms_t(const residue_spec_t &res_spec_in,
 			     const std::vector<std::string> &atom_names_in,
-			     const std::string &alt_conf_in) {
-	 res_spec = res_spec_in;
-	 atom_names = atom_names_in;
-	 alt_conf = alt_conf_in;
-      }
+			     const std::string &alt_conf_in) :
+         res_spec(res_spec_in), atom_names(atom_names_in), alt_conf(alt_conf_in) {}
       unsigned int size() const { return atom_names.size(); }
    };
    
@@ -75,7 +72,7 @@ namespace coot {
 	 matches = false; // not parsed from a line (shouldn't matter)
 	 distance = std::pair<bool, double> (false,0);
       }
-      parallel_planes_t(const std::string &line);
+      explicit parallel_planes_t(const std::string &line);
       void set_target_angle(double t) { target_angle = t; }
       void set_sigma_angle(double s) { sigma_angle = s; }
       void set_distance(double d) { distance = std::pair<bool,double> (true,d); }

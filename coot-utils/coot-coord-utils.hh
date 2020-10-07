@@ -67,7 +67,7 @@ namespace coot {
    public:
       enum index_type { UNASSIGNED = -1 };
       map_index_t() { index_ = UNASSIGNED; }
-      map_index_t(int i) { index_ = i; }
+      explicit map_index_t(int i) { index_ = i; }
       int index() const { return index_; }
       bool is_assigned() const { return (index_ != UNASSIGNED); }
       bool operator==(const map_index_t &ti) const {
@@ -97,22 +97,20 @@ namespace coot {
       torsion(const std::pair<int, atom_spec_t> &atom_1_in,
 	      const std::pair<int, atom_spec_t> &atom_2_in,
 	      const std::pair<int, atom_spec_t> &atom_3_in,
-	      const std::pair<int, atom_spec_t> &atom_4_in) {
-	 atom_1 = atom_1_in;
-	 atom_2 = atom_2_in;
-	 atom_3 = atom_3_in;
-	 atom_4 = atom_4_in;
-      }
+	      const std::pair<int, atom_spec_t> &atom_4_in) :
+         atom_1(atom_1_in),
+         atom_2(atom_2_in),
+         atom_3(atom_3_in),
+         atom_4(atom_4_in) {}
       torsion(int imol,
 	      const atom_spec_t &atom_1_in,
 	      const atom_spec_t &atom_2_in,
 	      const atom_spec_t &atom_3_in,
-	      const atom_spec_t &atom_4_in) {
-	 atom_1 = std::pair<int, atom_spec_t> (imol, atom_1_in);
-	 atom_2 = std::pair<int, atom_spec_t> (imol, atom_2_in);
-	 atom_3 = std::pair<int, atom_spec_t> (imol, atom_3_in);
-	 atom_4 = std::pair<int, atom_spec_t> (imol, atom_4_in);
-      }
+	      const atom_spec_t &atom_4_in) :
+	 atom_1(std::pair<int, atom_spec_t> (imol, atom_1_in)),
+	 atom_2(std::pair<int, atom_spec_t> (imol, atom_2_in)),
+	 atom_3(std::pair<int, atom_spec_t> (imol, atom_3_in)),
+	 atom_4(std::pair<int, atom_spec_t> (imol, atom_4_in)) {}
 
       // Find 4 atoms in residue that match the torsion spec.  If the
       // returning vector is not of size 4, then this function has
@@ -157,50 +155,61 @@ namespace coot {
       std::string reference_alt_conf;
       std::string matcher_atom_name;
       std::string matcher_alt_conf;
-      lsq_range_match_info_t() { is_single_atom_match = 0;};
+      lsq_range_match_info_t() {
+         is_single_atom_match = false;
+         match_type_flag = 0;
+         from_matcher_start_resno = -1;
+         from_matcher_end_resno = -1;
+         to_reference_start_resno = -1;
+         to_reference_end_resno = -1;
+         model_number_reference = -1;
+         model_number_matcher = -1;
+      };
       lsq_range_match_info_t(int to_reference_start_resno_in,
 			     int to_reference_end_resno_in,
-			     std::string reference_chain_id_in,
+			     const std::string &reference_chain_id_in,
 			     int from_matcher_start_resno_in,
 			     int from_matcher_end_resno_in,
-			     std::string matcher_chain_id_in,
-			     short int match_type_flag_in) {
+			     const std::string &matcher_chain_id_in,
+			     short int match_type_flag_in) :
+         reference_chain_id(reference_chain_id_in), matcher_chain_id(matcher_chain_id_in) {
 	 is_single_atom_match = 0;
 	 match_type_flag = match_type_flag_in;
 	 to_reference_start_resno = to_reference_start_resno_in;
 	 to_reference_end_resno = to_reference_end_resno_in;
 	 from_matcher_start_resno = from_matcher_start_resno_in;
 	 from_matcher_end_resno = from_matcher_end_resno_in;
-	 reference_chain_id = reference_chain_id_in;
-	 matcher_chain_id = matcher_chain_id_in;
 	 model_number_matcher = 0;
 	 model_number_reference = 0;
       }
 
-      lsq_range_match_info_t(std::string reference_chain_id_in,
+      lsq_range_match_info_t(const std::string &reference_chain_id_in,
 			     int reference_resno_in,
-			     std::string reference_insertion_code_in,
-			     std::string reference_atom_name_in,
-			     std::string reference_alt_conf_in,
-			     std::string matcher_chain_id_in,
+			     const std::string &reference_insertion_code_in,
+			     const std::string &reference_atom_name_in,
+			     const std::string &reference_alt_conf_in,
+			     const std::string &matcher_chain_id_in,
 			     int matcher_resno_in,
-			     std::string matcher_insertion_code_in,
-			     std::string matcher_atom_name_in,
-			     std::string matcher_alt_conf_in) {
+			     const std::string &matcher_insertion_code_in,
+			     const std::string &matcher_atom_name_in,
+			     const std::string &matcher_alt_conf_in) :
+         reference_chain_id(reference_chain_id_in),
+         matcher_chain_id(matcher_chain_id_in),
+         reference_atom_name(reference_atom_name_in),
+         reference_alt_conf(reference_alt_conf_in),
+         matcher_atom_name(matcher_atom_name_in),
+         matcher_alt_conf(matcher_alt_conf_in)
+      {
 	 is_single_atom_match = 1;
 	 match_type_flag = COOT_LSQ_ALL;
 	 to_reference_start_resno = reference_resno_in;
 	 to_reference_end_resno   = reference_resno_in;
 	 from_matcher_start_resno = matcher_resno_in;
 	 from_matcher_end_resno   = matcher_resno_in;
-	 reference_chain_id       = reference_chain_id_in;
- 	 matcher_chain_id         = matcher_chain_id_in;
-	 reference_atom_name      = reference_atom_name_in;
-	 reference_alt_conf       = reference_alt_conf_in;
-	 matcher_atom_name        = matcher_atom_name_in;
-	 matcher_alt_conf         = matcher_alt_conf_in;
 	 model_number_matcher = 0;
 	 model_number_reference = 0;
+         std::string somethinga = reference_insertion_code_in; // make orange lines above be
+         std::string somethingb = matcher_insertion_code_in;   // green lines here
       }
       void set_model_number_reference(int ino) {
 	 model_number_reference = ino;
@@ -242,7 +251,7 @@ namespace coot {
    public:
       lsq_plane_info_t() {}
       // can throw an exception
-      lsq_plane_info_t(const std::vector<clipper::Coord_orth> &v);
+      explicit lsq_plane_info_t(const std::vector<clipper::Coord_orth> &v);
       // can throw an exception
       double plane_deviation(const clipper::Coord_orth &pt) const {
 	 if (abcd.size() == 4)
@@ -394,7 +403,7 @@ namespace coot {
       //
       mmdb::Manager *combined_mol;
    public:
-      close_residues_from_different_molecules_t() {};
+      close_residues_from_different_molecules_t() { combined_mol = 0; };
       std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> >
 	 close_residues(mmdb::Manager *mol1, mmdb::Manager *mol2, float dist);
       void clean_up() { delete combined_mol; }
@@ -547,8 +556,8 @@ namespace coot {
 
       class stats_data {
       public:
-	 stats_data(const std::vector<float> &d);
-	 stats_data(const std::vector<double> &d);
+	 explicit stats_data(const std::vector<float> &d);
+	 explicit stats_data(const std::vector<double> &d);
 	 float mean;
 	 float sd;
 	 float iqr;
@@ -559,8 +568,7 @@ namespace coot {
 	 int n_bins;
 	 double gaussian(const double &mean, const double &sd, const double &v);
       public:
-	 qq_plot_t(const std::vector<double> &d){
-	    data = d;
+	 explicit qq_plot_t(const std::vector<double> &d) : data(d) {
 	    n_bins = 50;
 	 }
 	 std::vector<std::pair<double, double> > qq_norm(); // sorts data.
@@ -584,13 +592,11 @@ namespace coot {
 	 std::string button_label;
 	 std::string callback_func;
 	 atom_spec_and_button_info_t(atom_spec_t as_in,
-				     std::string button_label_in,
-				     std::string callback_func_in) {
-	    as = as_in;
-	    button_label = button_label_in;
-	    callback_func = callback_func_in;
-	 }
+				     const std::string &button_label_in,
+				     const std::string &callback_func_in) :
+            as(as_in), button_label(button_label_in), callback_func(callback_func_in) {}
       };
+
 
       // weighted RTop_orth with deviance
       class w_rtop_orth : public clipper::RTop_orth {
@@ -615,7 +621,7 @@ namespace coot {
 	    q2 = q2in;
 	    q3 = q3in;
 	 }
-	 quaternion(const clipper::Mat33<double> &mat_in);
+	 explicit quaternion(const clipper::Mat33<double> &mat_in);
 	 clipper::Mat33<double> matrix() const;
 	 float convert_sign(const float &x, const float &y) const;
 	 friend std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
@@ -764,6 +770,7 @@ namespace coot {
 
       std::vector<std::string> chains_in_molecule(mmdb::Manager *mol);
       std::vector<mmdb::Residue *> residues_in_chain(mmdb::Manager *mol, const std::string &chain_id_in);
+      std::vector<mmdb::Residue *> residues_in_chain(mmdb::Chain *chain_p);
       int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
       int max_number_of_residues_in_chain(mmdb::Manager *mol);
@@ -843,9 +850,10 @@ namespace coot {
 	    metal_type = ELE_UNASSIGNED;
 	 }
 	 contact_atoms_info_t(mmdb::Atom *at_central_in,
-			      const contact_atom_t &con_at) {
-	    at = at_central_in;
+			      const contact_atom_t &con_at) :
+            at(at_central_in) {
 	    contact_atoms.push_back(con_at);
+            metal_type = ELE_UNASSIGNED;
 	 }
 	 unsigned int size() const {
 	    return contact_atoms.size();
@@ -1175,7 +1183,8 @@ namespace coot {
 								      int nResidues);
 
       // Use the results of the above to give us a sequence string:
-      std::string model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa);
+      std::string model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa,
+                                 bool allow_ligands = true);
       bool compare_residues(const std::pair<mmdb::Residue *, int> &a,
 			    const std::pair<mmdb::Residue *, int> &b);
 
@@ -1226,7 +1235,7 @@ namespace coot {
 						     const std::string &altconf);
 
       // return "" on no canonical name found
-      std::string canonical_base_name(const std::string res_name_in, base_t rna_or_dna);
+      std::string canonical_base_name(const std::string &res_name_in, base_t rna_or_dna);
 
       // Return the RTop that matches moving to reference.  Don't move
       // moving though.
@@ -1274,10 +1283,10 @@ namespace coot {
       // error_type is e.g. "Z score", "Clash gap"
       std::string
       interesting_things_list_with_fix(const std::vector<atom_spec_and_button_info_t> &v,
-				       const std::string error_type);
+				       const std::string &error_type);
       std::string
       interesting_things_list_with_fix_py(const std::vector<atom_spec_and_button_info_t> &v,
-				          const std::string error_type);
+				          const std::string &error_type);
 
 
       // return a set of residue specifiers and a string to put on the

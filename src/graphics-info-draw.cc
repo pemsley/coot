@@ -58,7 +58,7 @@ graphics_info_t::init_screen_quads() {
    glEnableVertexAttribArray(1);
    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
    GLenum err = glGetError();
-   if (true) std::cout << "init_screen_quads() err is " << err << std::endl;
+   if (err) std::cout << "init_screen_quads() err is " << err << std::endl;
 
 }
 void
@@ -77,7 +77,7 @@ graphics_info_t::init_blur_quads() {
    glEnableVertexAttribArray(1);
    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(2 * sizeof(float)));
    GLenum err = glGetError();
-   if (true) std::cout << "init_blur_quads() err is " << err << std::endl;
+   if (err) std::cout << "init_blur_quads() err is " << err << std::endl;
 
 }
 
@@ -137,7 +137,6 @@ graphics_info_t::init_central_cube() {
 void
 graphics_info_t::init_hud_text() {
 
-   std::cout << "------------------ init_hud_text() ---------------------\n";
    graphics_info_t g;
    g.load_freetype_font_textures();
    glUseProgram(g.shader_for_hud_text.get_program_id());
@@ -158,7 +157,6 @@ graphics_info_t::init_hud_text() {
 
    glBindBuffer(GL_ARRAY_BUFFER, 0);
    glBindVertexArray(0);
-   std::cout << "------------------ done init_hud_text() ---------------------\n";
 }
 
 // static
@@ -203,7 +201,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
                                             -0.3f*zoom,    0.3f*zoom,
                                             near, far);
-   
+
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    // std::cout << "rotation centre " << glm::to_string(rc) << std::endl;
@@ -221,7 +219,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       // along screen-Z.
 
       glm::mat4 trackball_matrix = glm::toMat4(graphics_info_t::glm_quat);
-      
+
       glm::vec3 ep = eye_position; // in view space i.e. (0,0,z) (z = 40, say)
       glm::vec3 up(0,1,0);
       glm::vec3 origin(0,0,0);
@@ -355,7 +353,7 @@ graphics_info_t::get_world_space_eye_position() {
 
       // I need to convert that to world coordinates and then rotate
       // and translate the world according to rotation centre and mouse-based
-      // quaternion (ther order of operations is not yet clear to me).
+      // quaternion
 
       glm::vec3 ep = eye_position;
       glm::vec4 ep_4(ep, 1.0);
@@ -467,22 +465,33 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
    //
 
-   bool cosine_dependent_map_opacity = false;
+   bool cosine_dependent_map_opacity = true;
 
    unsigned int n_transparent_maps = 0;
-   if (draw_transparent_maps) {
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+   unsigned int n_maps_to_draw = 0;
+   for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+      const molecule_class_info_t &m = graphics_info_t::molecules[ii];
+      if (draw_transparent_maps) {
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
-         const molecule_class_info_t &m = graphics_info_t::molecules[ii];
          if (! m.draw_it_for_map) continue;
-         if (! m.is_an_opaque_map())
+         if (! m.is_an_opaque_map()) {
             n_transparent_maps++;
+            n_maps_to_draw += 1;
+         }
+      } else {
+         if (m.is_an_opaque_map()) {
+            if (m.draw_it_for_map)
+               n_maps_to_draw += 1;
+         }
       }
-      if (n_transparent_maps > 0) {
-         needs_blend_reset = true;
-         glEnable(GL_BLEND);
-         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      }
+   }
+
+   if (n_maps_to_draw == 0) return;
+
+   if (n_transparent_maps > 0) {
+      needs_blend_reset = true;
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    }
 
    if (cosine_dependent_map_opacity) {
@@ -515,13 +524,20 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
          molecule_class_info_t &m = graphics_info_t::molecules[ii]; // not const because shader changes
          if (! graphics_info_t::is_valid_map_molecule(ii)) continue;
          if (! m.draw_it_for_map) continue;
-         if (draw_transparent_maps)
+         if (draw_transparent_maps) {
             if (m.is_an_opaque_map())
                continue; // not this round
+         } else {
+            // only draw (completely) opaque (that's what the question means)
+            if (! m.is_an_opaque_map())
+               continue;
+         }
 
          if (m.n_vertices_for_map_VertexArray > 0) {
 
-            err = glGetError(); if (err) std::cout << "   draw_map_molecules() --- map start --- error " << std::endl;
+            err = glGetError();
+            if (err) std::cout << "draw_map_molecules() --- draw map loop start --- error "
+                               << std::endl;
 
             bool draw_with_lines = true;
             if (!m.draw_it_for_map_standard_lines) draw_with_lines = false;
@@ -553,6 +569,21 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             shader.set_vec4_for_uniform( "material.specular",  material.specular);
             shader.set_float_for_uniform("material.shininess", material.shininess);
             shader.set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+            // --- background ---
+
+            GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
+            glm::vec4 bgc(background_colour, 1.0);
+            glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
+            err = glGetError();
+            if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
+
+            // --- fresnel ---
+
+            shader.set_bool_for_uniform("do_fresnel",     m.fresnel_settings.state);
+            shader.set_float_for_uniform("fresnel_bias",  m.fresnel_settings.bias);
+            shader.set_float_for_uniform("fresnel_scale", m.fresnel_settings.scale);
+            shader.set_float_for_uniform("fresnel_power", m.fresnel_settings.power);
 
             // --- draw ---
 
@@ -589,7 +620,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                if (! m.is_an_opaque_map()) {
                   // sort the triangles
                   clipper::Coord_orth eye_pos_co(ep.x, ep.y, ep.z);
-                  graphics_info_t::molecules[ii].sort_map_triangles(eye_pos_co);
+                  m.sort_map_triangles(eye_pos_co);
                }
 
                glBindVertexArray(m.m_VertexArrayID_for_map);
@@ -606,12 +637,6 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
                glUniformMatrix4fv(shader.view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
                err = glGetError();
                if (err) std::cout << "   draw_map_molecules() glUniformMatrix4fv() " << err << std::endl;
-
-               GLuint background_colour_uniform_location = shader.background_colour_uniform_location;
-               glm::vec4 bgc(background_colour, 1.0);
-               glUniform4fv(background_colour_uniform_location, 1, glm::value_ptr(bgc));
-               err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glUniform4fv() for bg  " << err << std::endl;
 
                // opacity:
                // GLuint opacity_uniform_location = graphics_info_t::shader_for_maps.map_opacity_uniform_location;
@@ -750,7 +775,7 @@ graphics_info_t::draw_model_molecules() {
          err = glGetError();
          if (err) std::cout << "   error draw_model_molecules() post-material "
                             << shader.name << " with err " << err << std::endl;
- 
+
          // draw with the vertex count, not the index count.
          GLuint n_verts = graphics_info_t::molecules[ii].n_indices_for_model_triangles;
 
@@ -837,27 +862,25 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
    if (true) {
       const molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
 
-      if (false)
-         std::cout << " moving atoms molecule: n_vertices_for_model_VertexArray "
-                   << m.n_vertices_for_model_VertexArray << std::endl;
-
       if (m.n_vertices_for_model_VertexArray > 0) {
 
          glDisable(GL_BLEND); // stop semi-transparent bonds - but why do we have them?
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-         shader.Use();
-         GLuint err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
-                            << err << std::endl;
-
          glBindVertexArray(m.m_VertexArray_for_model_ID);
-         err = glGetError();
-         if (err) std::cout << "   error draw_intermediate_atoms() glBindVertexArray() "
+         GLenum err = glGetError();
+         if (err) std::cout << "error draw_intermediate_atoms() glBindVertexArray() "
                             << m.m_VertexArray_for_model_ID
                             << " with GL err " << err << std::endl;
 
-         // should not be needed?
+         shader.Use();
+         err = glGetError();
+         if (err) std::cout << "   error draw_intermediate_atoms() glUseProgram() "
+                            << err << std::endl;
+
+#if 0
+         // should not be needed? - the VAO contains this information.  Needs testing.
+
          glBindBuffer(GL_ARRAY_BUFFER, m.m_VertexBuffer_for_model_ID);
          err = glGetError();
          if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() v "
@@ -866,6 +889,8 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
          err = glGetError();
          if (err) std::cout << "   error draw_intermediate_atoms() glBindBuffer() i "
                             << err << std::endl;
+
+#endif
 
          GLuint mvp_location           = shader.mvp_uniform_location;
          GLuint view_rotation_location = shader.view_rotation_uniform_location;
@@ -910,6 +935,84 @@ graphics_info_t::draw_intermediate_atoms() { // draw_moving_atoms()
    }
 }
 
+
+#include "Instanced-Markup-Mesh.hh"
+
+void
+graphics_info_t::setup_rama_balls() {
+
+   rama_balls_mesh.setup_octasphere(2);
+   rama_balls_mesh.setup_instancing_buffers(3000);
+}
+
+void
+graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *balls) {
+
+   auto rr = saved_dragged_refinement_results;
+
+   balls->clear();
+
+  glm::vec3 screen_up_dir(0.2, 0.3, 0.3);
+
+   // std::cout << "update rama ball for " << rr.all_ramas.size() << " balls " << std::endl;
+   for (unsigned int i=0; i<rr.all_ramas.size(); i++) {
+
+      float rama_score = rr.all_ramas[i].distortion;
+
+      const coot::atom_spec_t &spec_CA = rr.all_ramas[i].atom_spec_CA;
+      mmdb::Atom *at = spec_CA.get_atom(moving_atoms_asc->mol);
+      if (at) {
+
+         float d = rr.all_ramas[i].distortion;
+         glm::vec3 atom_position(at->x, at->y, at->z);
+         glm::vec3 ball_position(rr.all_ramas[i].ball_pos_x,
+                                 rr.all_ramas[i].ball_pos_y,
+                                 rr.all_ramas[i].ball_pos_z);
+         float size = 0.38;
+         // std::cout << "debug d " << d << std::endl;
+         float ra = hud_geometry_distortion_to_rotation_amount_rama(d);
+         coot::colour_t cc(0.1, 0.9, 0.2);
+         cc.rotate(ra);
+         glm::vec4 col = cc.to_glm();
+         Instanced_Markup_Mesh_attrib_t ball(col, ball_position, size);
+         float d1 = d + 85.0;
+         float d2 = - d1 * 0.016;
+         if (d2 < 0.0) d2 = 0.0;
+         if (d2 > 1.0) d2 = 1.0;
+         ball.specular_strength = 0.01 + d2;
+         ball.shininess = 0.9 + 155.0 * d2;
+         balls->push_back(ball);
+      }
+   }
+}
+
+
+
+void
+graphics_info_t::draw_intermediate_atoms_rama_balls() {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+
+   Shader &shader = graphics_info_t::shader_for_rama_balls;
+
+   glm::mat4 mvp = get_molecule_mvp();
+   glm::vec3 eye_position = get_world_space_eye_position();
+   glm::mat4 view_rotation = get_view_rotation();
+   glm::vec4 bg_col(background_colour, 1.0);
+   bool do_depth_fog = true;
+   // this is a bit ugly
+
+   // the balls are updated after a refinement cycle has finished -
+   // no need to do it here
+   // graphics_info_t g;
+   // std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+   // update_rama_balls(&balls);
+   // rama_balls_mesh.update_instancing_buffers(balls);
+   rama_balls_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, bg_col, do_depth_fog);
+
+}
+
 void
 graphics_info_t::setup_atom_pull_restraints_glsl() {
 
@@ -939,8 +1042,8 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
       n_vertices_for_atom_pull_restraints  += n_stacks_for_arrow_tip * n_slices * 2 * n_atom_pulls;
       n_triangles_for_atom_pull_restraints += n_stacks_for_arrow_tip * n_slices * 2 * n_atom_pulls;
       // the indices of the vertices in the triangles (3 indices per triangle)
-      unsigned int     *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
-      unsigned int     *flat_indices_start = flat_indices;
+      unsigned int *flat_indices = new unsigned int[n_triangles_for_atom_pull_restraints * 3];
+      unsigned int *flat_indices_start = flat_indices;
       unsigned int ifi = 0; // index into flat indices - running
       vertex_with_rotation_translation *vertices =
          new vertex_with_rotation_translation[n_vertices_for_atom_pull_restraints];
@@ -1221,11 +1324,14 @@ graphics_info_t::draw_molecular_triangles() {
 void
 graphics_info_t::draw_particles() {
 
+   return;
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
+         std::cout << "drawing particles: size " << particles.size() << std::endl;
          glm::mat4 mvp_particle = get_particle_mvp();
          glm::mat4 mvp = get_molecule_mvp();
          mesh_for_particles.draw_particles(&shader_for_particles, mvp_particle);
+         std::cout << "done drawing particles: size " << particles.size() << std::endl;
       }
    }
 
@@ -1237,9 +1343,14 @@ graphics_info_t::draw_molecules() {
    // opaque things
 
    draw_intermediate_atoms();
+
+   draw_intermediate_atoms_rama_balls();
+
    draw_atom_pull_restraints();
 
-   draw_meshes(); // get a better name
+   draw_meshed_generic_display_object_meshes();
+
+   draw_instanced_meshes();
 
    draw_map_molecules(false); // transparency
 
@@ -1251,6 +1362,8 @@ graphics_info_t::draw_molecules() {
 
    draw_boids();
 
+   draw_particles();
+
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
    // might be better.
@@ -1258,8 +1371,6 @@ graphics_info_t::draw_molecules() {
    draw_model_molecules();
 
    // transparent things...
-
-   draw_particles();
 
    draw_map_molecules(true);
 
@@ -1339,7 +1450,7 @@ graphics_info_t::draw_unit_cells() {
 }
 
 void
-graphics_info_t::draw_meshes() {
+graphics_info_t::draw_meshed_generic_display_object_meshes() {
 
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
@@ -1391,6 +1502,49 @@ graphics_info_t::draw_meshes() {
          }
       }
    }
+}
+
+void
+graphics_info_t::draw_instanced_meshes() {
+
+   // presumes opaque-only
+
+   bool have_meshes_to_draw = false;
+   for (int i=n_molecules()-1; i>=0; i--) {
+      if (! molecules[i].instanced_meshes.empty()) {
+         if (molecules[i].draw_it) {
+            have_meshes_to_draw = true;
+            break;
+         }
+      }
+   }
+
+   if (have_meshes_to_draw) {
+      glm::vec3 eye_position = get_world_space_eye_position();
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation = get_view_rotation();
+      glm::vec4 bg_col(background_colour, 1.0);
+      bool do_depth_fog = shader_do_depth_fog_flag;
+      glDisable(GL_BLEND);
+      for (int ii=n_molecules()-1; ii>=0; ii--) {
+         molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
+         if (molecules[ii].draw_it) {
+            for (unsigned int jj=0; jj<m.instanced_meshes.size(); jj++) {
+               m.instanced_meshes[jj].draw(&shader_for_rama_balls, mvp,
+                                           view_rotation, lights, eye_position, bg_col, do_depth_fog);
+            }
+         }
+      }
+   }
+}
+
+void
+graphics_info_t::draw_meshes() {
+
+   // presumes opaque-only
+
+   draw_meshed_generic_display_object_meshes();
+   draw_instanced_meshes();
 }
 
 void
@@ -1498,8 +1652,414 @@ graphics_info_t::setup_lights() {
    light.direction = glm::normalize(glm::vec3(-1.0, 0.5, 1.0));
    graphics_info_t::lights[1] = light;
 }
+
+void
+graphics_info_t::setup_hud_geometry_bars() {
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   float aspect_ratio = static_cast<float>(w)/static_cast<float>(h);
+
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   shader_for_hud_geometry_bars.Use();
+
+   mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
+   mesh_for_hud_geometry.setup_instancing_buffer(100);
+
+   // If not found in this directory, then try default directory.
+   texture_for_hud_geometry_labels.set_default_directory(coot::package_data_dir());
+   texture_for_hud_geometry_labels.init("hud-label-nbc-rama.png");
+
+   // Do I need to Use() the shader_for_hud_geometry_labels here?
+   shader_for_hud_geometry_labels.Use();
+   mesh_for_hud_geometry_labels.setup_quad();
+   // mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.87), 0.037); // was 0.35
+   glm::vec2 position(-0.98, 0.903);
+   glm::vec2 scales(0.04/aspect_ratio, 0.06);
+   mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
+}
+
+float
+graphics_info_t::hud_geometry_distortion_to_bar_size_rama(float distortion) {
+   float d1 = distortion + 200.0;
+   float d2 = d1 * 0.0003;
+   if (d2 < 0.0) d2 = 0.0;
+   float d3 = 100.0 * d2 * d2;
+   return d3;
+}
+
+float
+graphics_info_t::hud_geometry_distortion_to_bar_size_nbc(float distortion) {
+   return distortion * 0.002;
+}
+
+
+float
+graphics_info_t::hud_geometry_distortion_to_bar_size_atom_pull(float distortion) {
+   return distortion * 0.0008;
+}
+
+
+float
+graphics_info_t::hud_geometry_distortion_to_rotation_amount_rama(float distortion) {
+   distortion += 200.0;
+   // float rotation_amount = 1.0 - 0.0022 * distortion;
+   float rotation_amount = 1.0 - 0.0028 * distortion;
+   if (rotation_amount < 0.68) rotation_amount = 0.68; // red cap
+   if (rotation_amount > 1.0) rotation_amount = 1.0;
+   return rotation_amount;
+}
+
+
+void
+graphics_info_t::draw_hud_geometry_bars() {
+
+   if (! moving_atoms_asc) return;
+   if (! moving_atoms_asc->mol) return;
+
+   glEnable(GL_DEPTH_TEST); // needed?
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   // first draw the text (labels) texture
+
+   coot::refinement_results_t &rr = saved_dragged_refinement_results;
+   
+   if (! rr.refinement_results_contain_overall_rama_plot_score) {
+      // std::cout << "chopping the texture " << std::endl;
+      mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_only();
+   } else {
+      mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_and_rama();
+   }
+
+   texture_for_hud_geometry_labels.Bind(0);
+   mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
+
+   // now draw the bars
+
+   auto probability_to_rotation_amount = [] (float probability) {
+                                            // high probability should have low rotation
+                                            float q_1 = 0.01 * (100.0 - probability);
+                                            // if (q < 0) q = 0;
+                                            // if (q > 1) q = 1;
+                                            float q_2 = 0.68 * q_1;
+                                            return q_2;
+                                         };
+
+   auto distortion_to_rotation_amount_nbc = [] (float distortion) {
+                                               // we want to rotate to red (which is negative direction) but
+                                               // rotate() doesn't work with negative rotations, so make it
+                                               // 1.0 - amount (1.0 being a full rotation).
+                                               float rotation_amount = 1.0 - 0.012 * distortion;
+                                               if (rotation_amount < 0.68) rotation_amount = 0.68;
+                                               return rotation_amount;
+                                            };
+
+   auto add_bars = [] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
+                       unsigned int bar_index,
+                       std::vector<HUD_bar_attribs_t> *new_bars_p,
+                       auto distortion_to_rotation_amount,
+                       auto distortion_to_bar_size) {
+
+                         glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                         float sum_l = 0;
+                         int n = baddies.size();
+                         for (int i=(n-1); i>=0; i--) {
+                            coot::colour_t cc(0.1, 0.9, 0.2);
+                            float d = baddies[i].second;
+                            float rotation_amount = distortion_to_rotation_amount(d);
+                            cc.rotate(rotation_amount);
+                            glm::vec4 col = cc.to_glm();
+                            col.w = 0.7;
+                            glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                            float bar_length = distortion_to_bar_size(d);
+                            HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                            new_bars_p->push_back(bar);
+                            sum_l += bar_length + 0.005; // with a gap between bars
+                          }
+                       };
+
+   auto rota_sorter = [] (const rotamer_markup_container_t &rmc_1,
+                          const rotamer_markup_container_t &rmc_2) {
+                         if (rmc_2.rpi.probability < rmc_1.rpi.probability)
+                            return true;
+                         else
+                            return false;
+                      };
+
+   auto add_rotamer_bars = [rota_sorter] (std::vector<HUD_bar_attribs_t> *new_bars_p,
+                                          unsigned int bar_index,
+                                          rotamer_markup_container_t *rotamer_markups,
+                                          int n_rotamer_markups,
+                                          auto probability_to_rotation_amount) {
+
+                              // this code has to be the same as the check_if_hud_bar_clicked code
+
+                              glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                              std::vector<rotamer_markup_container_t> v;
+                              // filter out the goodies
+                              for (int i=0; i<n_rotamer_markups; i++)
+                                 if (rotamer_markups[i].rpi.probability < 40) // 40 %
+                                    if (rotamer_markups[i].rpi.probability >= 0)
+                                       v.push_back(rotamer_markups[i]);
+                              // sort the baddies
+                              std::sort(v.begin(), v.end(), rota_sorter);
+                              unsigned int n_rota_max = 20;
+                              if (v.size() > n_rota_max) {
+                                 unsigned int n_for_deletion = v.size() - n_rota_max;
+                                 std::vector<rotamer_markup_container_t>::const_iterator v_begin = v.begin();
+                                 std::vector<rotamer_markup_container_t>::const_iterator v_last;
+                                 v_last = v_begin + n_for_deletion; // (line length)
+                                 v.erase(v_begin, v_last);
+                              }
+
+                              float sum_l = 0;
+                              for (unsigned int i=0; i<v.size(); i++) {
+                                 float pr = v[i].rpi.probability;
+                                 float q = 0.01 * (48.0f - v[i].rpi.probability);
+                                 if (q > 1.0) q = 1.0;
+                                 if (q < 0.0) q = 0.0;
+                                 float bar_length = std::pow(q, 6.0) * 4.0;
+
+                                 if (false)
+                                    std::cout << "bar i " << i << " " << v[i].spec << " " << v[i].col
+                                              << " pr " << pr << " length " << bar_length << std::endl;
+
+                                 const coot::colour_holder &ch = v[i].col;
+                                 glm::vec4 col(ch.red, ch.green, ch.blue, 0.7);
+
+                                 glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                                 HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                                 new_bars_p->push_back(bar);
+                                 sum_l += bar_length + 0.005; // with a gap between bars
+                              }
+                           };
+
+   std::vector<HUD_bar_attribs_t> new_bars;
+
+   // add to new_bars
+   add_bars(rr.sorted_atom_pulls, 0, &new_bars,
+            distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_atom_pull);
+
+   if (rr.refinement_results_contain_overall_nbc_score)
+      add_bars(rr.sorted_nbc_baddies, 1, &new_bars,
+               distortion_to_rotation_amount_nbc, hud_geometry_distortion_to_bar_size_nbc);
+
+   if (rr.refinement_results_contain_overall_rama_plot_score)
+      add_bars(rr.sorted_rama_baddies, 2, &new_bars,
+               hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
+
+   // add to new_bars
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
+         if (nrms > 0) {
+            add_rotamer_bars(&new_bars, 3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms,
+                             probability_to_rotation_amount);
+         }
+      }
+   }
+
+   if (! new_bars.empty()) {
+      // std::cout << "new bar size " << new_bars.size() << std::endl;
+      mesh_for_hud_geometry.update_instancing_buffer_data(new_bars);
+      Shader &shader = shader_for_hud_geometry_bars;
+      mesh_for_hud_geometry.draw(&shader);
+   }
+   glDisable(GL_BLEND);
+
+}
+
+bool
+graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
+
+   bool status = false;
+   if (! moving_atoms_asc) return false;
+   if (! moving_atoms_asc->mol) return false;
+
+   coot::refinement_results_t &rr = saved_dragged_refinement_results;
+
+   // this values in this loop must match those in the loop above
+   // (draw_hud_geometry_bars())
+
+   GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+   int w = allocation.width;
+   int h = allocation.height;
+   double frac_x = mouse_x/static_cast<double>(w);
+   double frac_y = 1.0 - mouse_y/static_cast<double>(h);
+   glm::vec2 mouse_in_opengl_coords(2.0 * frac_x - 1.0, 2.0 * frac_y - 1.0);
+
+   // these functions are copies of those in the above function. If you edit them again, make them
+   // member functions.
+
+   auto rota_sorter = [] (const rotamer_markup_container_t &rmc_1,
+                          const rotamer_markup_container_t &rmc_2) {
+                         if (rmc_2.rpi.probability < rmc_1.rpi.probability)
+                            return true;
+                         else
+                            return false;
+                      };
+
+   auto distortion_to_bar_size_rama = [] (float distortion) {
+                                         distortion += 200.0;
+                                         float d2 = distortion * 0.0003;
+                                         if (d2 < 0.0) d2 = 0.0;
+                                         float d3 = 100.0 * d2 * d2;
+                                         return d3;
+                                      };
+
+   auto distortion_to_bar_size_nbc = [] (float distortion) {
+                                        return distortion * 0.002;
+                                     };
+
+   auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
+                                                 unsigned int bar_index,
+                                                 auto distortion_to_bar_size) {
+
+                          bool status = false;
+                          glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                          float sum_l = 0;
+                          int n = baddies.size();
+                          for (int i=(n-1); i>=0; i--) {
+                             float d = baddies[i].second;
+                             glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                             float bar_length = distortion_to_bar_size(d);
+                             sum_l += bar_length + 0.005; // with a gap between bars
+
+                             if (false) {
+                                glm::vec2 position_offset_far_point = position_offset;
+                                position_offset_far_point.x += bar_length;
+                                std::cout << "checking "
+                                          << glm::to_string(position_offset) << " "
+                                          << glm::to_string(position_offset_far_point) << " "
+                                          << " " << bar_length
+                                          << " vs mouse " << glm::to_string(mouse_in_opengl_coords)
+                                          << std::endl;
+                             }
+
+                             if (mouse_in_opengl_coords.x >= position_offset.x) {
+                                if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+
+                                   // std::cout << ":::::::::: x hit bar_index " << bar_index
+                                   // << " i " << i << " " << baddies[i].first << std::endl;
+
+                                   float tiny_y_offset = -0.01; // not sure why I need this
+                                   if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
+                                      // 0.03 is the bar height in setup_camera_facing_quad()
+                                      float bar_height = 0.03;
+                                      if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
+                                         coot::atom_spec_t spec(baddies[i].first);
+                                         if (moving_atoms_asc->mol) {
+                                            mmdb::Atom *at = spec.get_atom(moving_atoms_asc->mol);
+                                            if (at) {
+                                               clipper::Coord_orth pt = coot::co(at);
+                                               std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
+                                                         << std::endl;
+                                               set_rotation_centre(pt);
+                                               status = true;
+                                            }
+                                         } else {
+                                            std::cout << "ERROR:: no moving atoms mol" << std::endl;
+                                         }
+                                      }
+                                   }
+                                }
+                             }
+                          }
+                          return status;
+                       };
+
+   auto check_rota_blocks = [mouse_in_opengl_coords,
+                             rota_sorter] (unsigned int bar_index,
+                                           rotamer_markup_container_t *rotamer_markups,
+                                           int n_rotamer_markups) {
+                               bool status = false;
+                               glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
+                               std::vector<rotamer_markup_container_t> v;
+                               // filter out the goodies
+                               for (int i=0; i<n_rotamer_markups; i++)
+                                  if (rotamer_markups[i].rpi.probability < 40) // 40 %
+                                    if (rotamer_markups[i].rpi.probability >= 0)
+                                       v.push_back(rotamer_markups[i]);
+                               // sort the baddies
+                               std::sort(v.begin(), v.end(), rota_sorter);
+                               unsigned int n_rota_max = 20;
+                               if (v.size() > n_rota_max) {
+                                  unsigned int n_for_deletion = v.size() - n_rota_max;
+                                  std::vector<rotamer_markup_container_t>::const_iterator v_begin = v.begin();
+                                  std::vector<rotamer_markup_container_t>::const_iterator v_last  = v_begin + n_for_deletion;
+                                  v.erase(v_begin, v_last);
+                               }
+
+                               float sum_l = 0;
+                               for (unsigned int i=0; i<v.size(); i++) {
+                                  float pr = v[i].rpi.probability;
+                                  float q = 0.01 * (48.0f - v[i].rpi.probability);
+                                  if (q > 1.0) q = 1.0;
+                                  if (q < 0.0) q = 0.0;
+                                  float bar_length = std::pow(q, 6.0) * 4.0;
+                                  glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+
+                                  if (mouse_in_opengl_coords.x >= position_offset.x) {
+                                     if (mouse_in_opengl_coords.x <= (position_offset.x + bar_length)) {
+                                        // std::cout << ":::::::::: x hit bar_index " << bar_index
+                                        //           << " i " << i << " " << baddies[i].first << std::endl;
+                                        float tiny_y_offset = -0.01; // not sure why I need this
+                                        if (mouse_in_opengl_coords.y >= (to_top_left.y + tiny_y_offset)) {
+                                           // 0.03 is the bar height in setup_camera_facing_quad()
+                                           float bar_height = 0.03;
+                                           if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
+
+                                              std::cout << "rama bar hit! " << i << " "
+                                                        << v[i].spec << " "
+                                                        << v[i].col << " "
+                                                        << "probability " << v[i].rpi.probability << std::endl;
+
+                                              if (moving_atoms_asc->mol) {
+                                                 clipper::Coord_orth pos = v[i].pos;
+                                                 status = true;
+                                                 graphics_info_t::set_rotation_centre(pos);
+                                              }
+                                           }
+                                        }
+                                     }
+                                  }
+                                  sum_l += bar_length + 0.005; // with a gap between bars
+                               }
+                               return status;
+                            };
+
+   status = check_blocks(rr.sorted_atom_pulls, 0, hud_geometry_distortion_to_bar_size_atom_pull);
+
+   if (!status)
+      if (rr.refinement_results_contain_overall_nbc_score)
+         status = check_blocks(rr.sorted_nbc_baddies, 1, hud_geometry_distortion_to_bar_size_nbc);
+
+   if (!status)
+      if (rr.refinement_results_contain_overall_rama_plot_score)
+         status = check_blocks(rr.sorted_rama_baddies, 2, hud_geometry_distortion_to_bar_size_rama);
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
+         if (nrms > 0) {
+            status = check_rota_blocks(3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
+         }
+      }
+   }
+   return status;
+}
+
+
 gboolean
-graphics_info_t::render(bool to_screendump_framebuffer) {
+graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {
+
+   auto tp_0 = std::chrono::high_resolution_clock::now();
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
@@ -1534,6 +2094,12 @@ graphics_info_t::render(bool to_screendump_framebuffer) {
 
       draw_molecules();
 
+      draw_hud_geometry_bars();
+
+      draw_identification_pulse();
+
+      draw_delete_item_pulse();
+
       glBindVertexArray(0); // here is not the place to call this.
    }
 
@@ -1548,7 +2114,7 @@ graphics_info_t::render(bool to_screendump_framebuffer) {
       screendump_framebuffer.bind();
       render_scene_to_base_framebuffer();
       gtk_gl_area_attach_buffers(gl_area);
-      screendump_tga_internal("new-framebuffer-dump.tga", w, h, sf, screendump_framebuffer.get_fbo());
+      screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
    } else {
       glViewport(0, 0, w, h);
@@ -1559,6 +2125,9 @@ graphics_info_t::render(bool to_screendump_framebuffer) {
 
    glEnable(GL_DEPTH_TEST);
 
+   // auto tp_1 = std::chrono::high_resolution_clock::now();
+   // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+   // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
 
    return FALSE;
 }
@@ -1597,8 +2166,8 @@ graphics_info_t::reset_frame_buffers(int width, int height) {
    graphics_info_t g;
    unsigned int sf = framebuffer_scale;
    unsigned int index_offset = 0;
-   std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
-             << width << " x " << height << std::endl;
+   // std::cout << "debug:: reset_frame_buffers() with sf " << sf << " "
+   // << width << " x " << height << std::endl;
    g.screen_framebuffer.init(sf * width, sf * height, index_offset, "screen");
    GLenum err = glGetError(); if (err) std::cout << "reset_frame_buffers() err " << err << std::endl;
 
@@ -1650,12 +2219,31 @@ graphics_info_t::translate_in_screen_z(float step_size) {
 
 void
 graphics_info_t::setup_draw_for_particles() {
-   graphics_info_t g;
+
+   std::cout << "setup_draw_for_particles(): -- start -- " << std::endl;
    if (particles.empty()) {
+      std::cout << "setup_draw_for_particles(): let's make new particles " << std::endl;
+
       gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
-      glm::vec3 rc = g.get_rotation_centre();
-      std::cout << "making " << n_particles << " around " << glm::to_string(rc) << std::endl;
-      particles.make_particles(n_particles, rc);
+      GLenum err = glGetError();
+      if (err) std::cout << "GL Error - setup_draw_for_particles() Post attach buffers err is "
+                         << err << std::endl;
+
+      shader_for_particles.Use();
+
+      err = glGetError();
+      if (err) std::cout << "GL Error - setup_draw_for_particles() Post Use() err is "
+                         << err << std::endl;
+
+      std::cout << "setup_draw_for_particles(): making " << n_particles << std::endl;
+      particles.make_particles(n_particles);
+      std::cout << "setup_draw_for_particles(): done making " << n_particles << " particles"
+                << std::endl;
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+      mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
+      std::cout << "setup_draw_for_particles(): done mesh instancing buffers "
+                << std::endl;
+      glUseProgram(0);
    }
    // passing user_data and Notify function at the end
    if (! do_tick_particles) {
@@ -1663,6 +2251,7 @@ graphics_info_t::setup_draw_for_particles() {
       int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
       graphics_info_t::idle_function_spin_rock_token = new_tick_id;
    }
+   std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
 }
 
 void
@@ -1690,7 +2279,7 @@ graphics_info_t::setup_draw_for_boids() {
          colours[i] = glm::vec4(0.2, 0.6, 0.4, 1.0);
       }
       Material material;
-      mesh_for_boids.setup_rtsc_instancing(&shader_for_instanced_cylinders,
+      mesh_for_boids.setup_rtsc_instancing(&shader_for_instanced_objects,
                                            mats, colours, n_boids, material);
 
       do_tick_boids = true;
@@ -1752,11 +2341,138 @@ graphics_info_t::draw_boids() {
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 view_rotation_matrix = get_view_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
-      mesh_for_boids.draw(&shader_for_instanced_cylinders,
+      mesh_for_boids.draw(&shader_for_instanced_objects,
                           mvp, view_rotation_matrix, lights, eye_position, bg_col,
                           shader_do_depth_fog_flag);
 
-      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp);
+      lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, view_rotation_matrix);
+   }
+}
+
+
+std::vector<glm::vec3>
+graphics_info_t::residue_to_positions(mmdb::Residue *residue_p) const {
+   std::vector<glm::vec3> v;
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for(int iat=0; iat<n_residue_atoms; iat++) {
+      mmdb::Atom *at = residue_atoms[iat];
+      if (! at->isTer()) {
+         glm::vec3 p(at->x, at->y, at->z);
+         v.push_back(p);
+      }
+   }
+   return v;
+};
+
+#include "pulse-data.hh"
+
+void
+graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
+
+   // next you use this functionn make it a member of graphics_info_t
+   // gboolean delete_item_pulse_func(GtkWidget *widget,
+   //                                 GdkFrameClock *frame_clock,
+   //                                 gpointer data)
+   // 
+   auto delete_item_pulse_func = [] (GtkWidget *widget,
+                                     GdkFrameClock *frame_clock,
+                                     gpointer data) {
+
+                                    gboolean continue_status = 1;
+                                    pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+                                    pulse_data->n_pulse_steps += 1;
+                                    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+                                       continue_status = 0;
+                                       lines_mesh_for_delete_item_pulse.clear();
+                                       delete_item_pulse_centres.clear();
+                                    } else {
+                                       float ns = pulse_data->n_pulse_steps;
+                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                    }
+                                    graphics_draw();
+                                    return gboolean(continue_status);
+                                 };
+
+   pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+   gpointer user_data = reinterpret_cast<void *>(pulse_data);
+   std::vector<glm::vec3> positions = residue_to_positions(residue_p);
+   delete_item_pulse_centres = positions;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+   gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+};
+
+void
+graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues) {
+
+   // next you use this functionn make it a member of graphics_info_t
+   // gboolean delete_item_pulse_func(GtkWidget *widget,
+   //                                 GdkFrameClock *frame_clock,
+   //                                 gpointer data)
+   // 
+   auto delete_item_pulse_func = [] (GtkWidget *widget,
+                                     GdkFrameClock *frame_clock,
+                                     gpointer data) {
+
+                                    gboolean continue_status = 1;
+                                    pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+                                    pulse_data->n_pulse_steps += 1;
+                                    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+                                       continue_status = 0;
+                                       lines_mesh_for_delete_item_pulse.clear();
+                                       delete_item_pulse_centres.clear();
+                                    } else {
+                                       float ns = pulse_data->n_pulse_steps;
+                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                    }
+                                    graphics_draw();
+                                    return gboolean(continue_status);
+                                 };
+
+   pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
+   gpointer user_data = reinterpret_cast<void *>(pulse_data);
+   std::vector<glm::vec3> all_positions;
+   for (unsigned int i=0; i<residues.size(); i++) {
+      mmdb::Residue *residue_p = residues[i];
+      std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
+      all_positions.insert(all_positions.end(), residue_positions.begin(), residue_positions.end());
+   }
+   delete_item_pulse_centres = all_positions;
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   lines_mesh_for_delete_item_pulse.setup_pulse(&shader_for_lines_pulse);
+   gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
+
+};
+
+
+void
+graphics_info_t::draw_identification_pulse() {
+
+   if (! lines_mesh_for_identification_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glLineWidth(2.0);
+      lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
+                                               identification_pulse_centre,
+                                               mvp, view_rotation_matrix, true);
+   }
+}
+
+void
+graphics_info_t::draw_delete_item_pulse() {
+
+   if (! lines_mesh_for_delete_item_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 view_rotation_matrix = get_view_rotation();
+      glLineWidth(2.0);
+      for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {
+         lines_mesh_for_delete_item_pulse.draw(&shader_for_lines_pulse,
+                                               delete_item_pulse_centres[i],
+                                               mvp, view_rotation_matrix, true);
+      }
    }
 }
 
@@ -1771,6 +2487,9 @@ void
 graphics_info_t::move_backwards() {
    translate_in_screen_z(-1.0);
 }
+
+#include <glm/gtx/rotate_vector.hpp>
+#include "matrix-utils.hh"
 
 void
 graphics_info_t::setup_key_bindings() {
@@ -1921,6 +2640,78 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
+   auto l28 = [] () {
+
+                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+                 if (aa_spec_pair.first) {
+                    int imol = aa_spec_pair.second.first;
+                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+                    mmdb::Residue *residue_p = at->GetResidue();
+                    if (residue_p) {
+                       std::string this_chain_id = residue_p->GetChainID();
+                       coot::residue_spec_t residue_spec(residue_p);
+                       std::vector<std::vector<std::string> > ghost_chains_sets = molecules[imol].ncs_ghost_chains();
+                       unsigned int n_ghost_chain_sets = ghost_chains_sets.size();
+                       for (unsigned int i=0; i<n_ghost_chain_sets; i++) {
+                          const std::vector<std::string> &chain_ids = ghost_chains_sets[i];
+                          if (std::find(chain_ids.begin(), chain_ids.end(), this_chain_id) != chain_ids.end()) {
+                             unsigned int idx_next = 0;
+                             for (unsigned int j=0; j<chain_ids.size(); j++) {
+                                if (chain_ids[j] == this_chain_id) {
+                                   idx_next = j + 1;
+                                   if (idx_next == chain_ids.size())
+                                      idx_next = 0;
+                                   break;
+                                }
+                             }
+                             std::string chain_id_next = chain_ids[idx_next];
+                             clipper::Coord_orth current_position = coot::co(at);
+                             bool forward_flag = true;
+                             glm::mat4 quat_mat = glm::toMat4(glm_quat);
+                             clipper::Mat33<double> current_view_mat = glm_to_mat33(quat_mat);
+
+                             if (molecules[imol].ncs_ghosts_have_rtops_p() == 0)
+                                molecules[imol].fill_ghost_info(1, ncs_homology_level);
+
+                             std::pair<bool, clipper::RTop_orth> new_ori =
+                                molecules[imol].apply_ncs_to_view_orientation(current_view_mat,
+                                                                              current_position,
+                                                                              this_chain_id, chain_id_next,
+                                                                              forward_flag);
+                             if (new_ori.first) {
+                                coot::util::quaternion q(new_ori.second.rot());
+                                glm::quat q_ncs = coot_quaternion_to_glm(q);
+                                glm_quat = glm::normalize(glm_quat * q_ncs); // wrong
+                                clipper::Coord_orth t(new_ori.second.trn());
+                                set_rotation_centre(t);
+
+                                glm::quat q_ncs_1 = glm::rotate(q_ncs,   3.1415926f, glm::vec3(1,0,0));
+                                glm::quat q_ncs_2 = glm::rotate(q_ncs_1, 3.1415926f, glm::vec3(1,0,0));
+                                glm::quat q_ncs_3 = glm::inverse(q_ncs_2);
+
+                                coot::util::quaternion cq = glm_to_coot_quaternion(q_ncs_3);
+
+                                std::cout << "debug q_ncs  : " << glm::to_string(q_ncs)   << std::endl;
+                                std::cout << "debug q_ncs_1: " << glm::to_string(q_ncs_1) << std::endl;
+                                std::cout << "debug q_ncs_2: " << glm::to_string(q_ncs_2) << std::endl;
+                                std::cout << "debug q_ncs_3: " << glm::to_string(q_ncs_3) << std::endl;
+                                std::cout << "before: " << q << " after " << cq << std::endl;
+
+                                graphics_info_t g;
+                                g.update_things_on_move();
+
+                             }
+                             break;
+                          }
+                       }
+                    } else {
+                       std::cout << "ERROR:: no residue" << std::endl;
+                    }
+                 }
+                 graphics_draw();
+                 return gboolean(TRUE);
+              };
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -1948,6 +2739,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l28, "NCS Other Chain")));
 
    // control keys
 
@@ -1965,6 +2757,29 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t redo_key_binding(lc3, "Redo");
    std::pair<keyboard_key_t, key_bindings_t> p3(keyboard_key_t(GDK_KEY_y, true), redo_key_binding);
    kb_vec.push_back(p3);
+
+   auto ldr = [] () {
+                 graphics_info_t g;
+                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+                 if (aa_spec_pair.first) {
+                    int imol = aa_spec_pair.second.first;
+                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+                    mmdb::Residue *residue_p = at->GetResidue();
+                    if (residue_p) {
+                       // for this to work I need to move setup_delete_item_pulse() into
+                       // graphics_info_t. Not today.
+                       g.setup_delete_item_pulse(residue_p);
+                       coot::residue_spec_t residue_spec(residue_p);
+                       g.molecules[imol].delete_residue(residue_spec);
+                    }
+                 }
+                 return gboolean(TRUE);
+              };
+   key_bindings_t delete_residue_key_binding(ldr, "Delete Residue");
+   std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
+   kb_vec.push_back(pdel);
+
+
 
    // left
    auto lc4 = []() {
@@ -2039,7 +2854,7 @@ graphics_info_t::setup_key_bindings() {
 
 void
 graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
-   
+
    int imol_scroll = scroll_wheel_map;
    if (! is_valid_map_molecule(imol_scroll)) {
 

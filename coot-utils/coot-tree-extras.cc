@@ -196,7 +196,7 @@ coot::atom_tree_t::fill_name_map(const std::string &altconf) {
 	 std::cout << "debug:: comparing altconf of this atom :" << atom_altl
 		   << ": to (passed arg) :" << altconf << ": or blank" << std::endl; 
       if (atom_altl == "" || atom_altl == altconf)
-	 name_to_index[atom_name] = iat;
+	 name_to_index[atom_name] = map_index_t(iat);
    }
 }
 
@@ -582,7 +582,7 @@ coot::atom_tree_t::add_unique_forward_atom(int this_index, int forward_atom_inde
    }
 
    std::pair<int, std::vector<coot::map_index_t> >
-      forward_atoms_of_forward_atom_index_pair = get_forward_atoms(forward_atom_index, forward_atom_index);
+      forward_atoms_of_forward_atom_index_pair = get_forward_atoms(map_index_t(forward_atom_index), map_index_t(forward_atom_index));
 
    if (0) 
       std::cout << " in add_unique_forward_atom get_forward_atoms called "
@@ -1012,7 +1012,7 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
 
    if (index3_is_forward) {
       std::pair<int, std::vector<coot::map_index_t> > moving_atom_indices_pair =
-	 get_forward_atoms(index3, index3);
+	 get_forward_atoms(map_index_t(index3), map_index_t(index3));
       std::vector<coot::map_index_t> moving_atom_indices = moving_atom_indices_pair.second;
       
       if (debug) 
@@ -1048,7 +1048,7 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
       bool xor_reverse = reversed_flag ^ internal_reversed;
       if (xor_reverse) {
 	 unique_moving_atom_indices = complementary_indices(unique_moving_atom_indices,
-							    index2, index3);
+							    map_index_t(index2), map_index_t(index3));
 	 if (debug)
 	    for (unsigned int imov=0; imov<unique_moving_atom_indices.size(); imov++) {
 	       std::cout << "now post-reverse  moving atom[" << imov << "] is "
@@ -1091,7 +1091,7 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
 	 // set the new_torsion (return value) if possible.
 	 // 
 	 if (atom_vertex_vec[index2].torsion_quad.first) {
-	    new_torsion = quad_to_torsion(index2);
+	    new_torsion = quad_to_torsion(map_index_t(index2));
 	 }
       } else {
 	 std::cout << "ERROR:: null atom rotate_about() - this should not happen"
@@ -1143,7 +1143,7 @@ coot::atom_tree_t::get_back_atoms(const coot::map_index_t &index) const {
    
    // all of these
    for (unsigned int ib=0; ib<atom_vertex_vec[index.index()].backward.size(); ib++) {
-      v.push_back(atom_vertex_vec[index.index()].backward[ib]);
+      v.push_back(map_index_t(atom_vertex_vec[index.index()].backward[ib]));
    }
 
    // and the back atoms of back atoms.
@@ -1151,7 +1151,7 @@ coot::atom_tree_t::get_back_atoms(const coot::map_index_t &index) const {
       int index_back = atom_vertex_vec[index.index()].backward[ib];
       coot::map_index_t back_index(index_back); // ho ho
       std::vector<coot::map_index_t> nv = 
-	 coot::atom_tree_t::get_back_atoms(index_back);
+	 coot::atom_tree_t::get_back_atoms(map_index_t(index_back));
       for (unsigned int inv=0; inv<nv.size(); inv++)
 	 v.push_back(nv[inv]);
    }
@@ -1202,7 +1202,7 @@ coot::atom_tree_t::get_forward_atoms(const coot::map_index_t &base_index,
    }
    
    for (unsigned int ifo=0; ifo<atom_vertex_vec[index.index()].forward.size(); ifo++) { 
-      v.push_back(atom_vertex_vec[index.index()].forward[ifo]);
+      v.push_back(map_index_t(atom_vertex_vec[index.index()].forward[ifo]));
       if (debug) 
 	 std::cout << " adding to forward atoms " << atom_vertex_vec[index.index()].forward[ifo]
 		   << " which is atom_vertex_vec[" << index.index() << "].forward[" << ifo << "]"
@@ -1277,7 +1277,7 @@ coot::atom_tree_t::complementary_indices(const std::vector<coot::map_index_t> &m
       if (ifound == 0)
 	 if (index2.index() != ivert)
 	    if (index3.index() != ivert)
-	       v.push_back(ivert);
+	       v.push_back(map_index_t(ivert));
    }
    
    return v;
@@ -1536,7 +1536,7 @@ coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
 	 if (residue_atoms[iat] == atom) {
-	    idx = iat;
+	    idx = map_index_t(iat);
 	    break;
 	 } 
       }
@@ -1544,7 +1544,7 @@ coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
    if (atom_selection) {
       for (int iat=0; iat<n_selected_atoms; iat++) {
 	 if (atom_selection[iat] == atom) {
-	    idx = iat;
+	    idx = map_index_t(iat);
 	    break;
 	 }
       }

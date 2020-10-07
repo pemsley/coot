@@ -11,9 +11,10 @@
 */
 
 // We don't need to SWIG this one...
+#ifndef SWIG
 std::pair<mmdb::Residue *, int>
 new_molecule_sans_biggest_ligand(int imol);
-
+#endif
 
 // return a new molecule number
 int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
@@ -157,7 +158,11 @@ void switch_HIS_protonation_py(int imol, PyObject *residue_spec);
 #endif
 
 // this is not a ligand function - it does not belong here.
+//! \brief add Hydrogen atoms to the molecule
+void coot_add_hydrogen_atoms(int imol);
+
 void coot_reduce(int imol);
+
 
 
 #ifdef USE_GUILE
@@ -166,7 +171,7 @@ void coot_contact_dots_for_ligand_scm(int imol, SCM residue_spec_scm);
 void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 #endif
 
-
+void set_contact_dots_density(float density);
 
 // we want to read in the built-in database to convert these scores to percentiles
 // return -1 (test for negative) on failure

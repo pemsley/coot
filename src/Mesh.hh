@@ -9,8 +9,14 @@
 #include "Shader.hh"
 #include "Material.hh"
 #include "Particle.hh"
+#include "molecular-triangles-mesh.hh"
+
+#if USE_ASSIMP
+#include <assimp/scene.h>
+#endif
 
 class Mesh {
+   enum { VAO_NOT_SET = 99999999 };
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
    Material material;
    void setup_instanced_balls( Shader *shader_p, const Material &material_in);
@@ -25,6 +31,9 @@ class Mesh {
    GLuint normals_colour_buffer_id;
    bool first_time;
    void init();
+#if USE_ASSIMP
+   aiScene generate_scene() const;
+#endif
 
 public:
    GLuint vao;
@@ -39,16 +48,15 @@ public:
    bool is_instanced_with_rts_matrix;
    bool use_blending;
    std::vector<s_generic_vertex> vertices;
-   std::vector<g_triangle> triangle_vertex_indices;
+   std::vector<g_triangle> triangle_vertex_indices; // just call it triangles
    Shader shader_for_draw_normals;
    std::string name;
 
    Mesh() { init(); }
    // import from somewhere else
-   Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
-   Mesh(const std::string &name_in) : name(name_in) {
-      init();
-   }
+   explicit Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices);
+   explicit Mesh(const std::string &name_in) : name(name_in) { init(); }
+   explicit Mesh(const molecular_triangles_mesh_t &mtm);
 
    void debug() const;
    void clear() {
@@ -115,7 +123,7 @@ public:
    // void setup_instancing_buffers(const particle_container_t &particles);
    void setup_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
    void update_instancing_buffer_data_for_particles(const particle_container_t &particles);
-   
+
    void fill_rama_balls(); // make up some balls
    void add_one_ball(float scale, const glm::vec3 &centre);
    void add_one_origin_ball();
@@ -128,6 +136,9 @@ public:
    void smooth_triangles();  // needs implementation.
    bool is_closed() const { return this_mesh_is_closed; }
    bool have_instances() const { return (n_instances > 0); }
+   bool export_as_obj_via_assimp(const std::string &file_name) const;
+   bool export_as_obj_internal(const std::string &file_name) const;
+   bool export_as_obj(const std::string &file_name) const;
 
 };
 

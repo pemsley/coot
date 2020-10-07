@@ -271,6 +271,9 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    int idx_1, idx_2, idx_3, idx_4;
    mmdb::realtype occ_1, occ_2, occ_3;
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
+
+      std::cout << "now examining restraint number " << i << " type "
+                << dc.geometry_distortion[i].restraint.restraint_type << std::endl;
       
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::BOND_RESTRAINT) {
 	 idx_1 = dc.geometry_distortion[i].restraint.atom_index_1;
@@ -1016,7 +1019,7 @@ coot::geometry_graphs::setup_canvas(int n_chains, int max_chain_length) {
          GtkWidget *vbox = gtk_hbox_new(FALSE, 0);
          GtkWidget *button = gtk_button_new_with_label("Rescale");
          GtkWidget *entry = gtk_entry_new();
-         gtk_entry_set_text(GTK_ENTRY(entry), "1.2");
+         gtk_entry_set_text(GTK_ENTRY(entry), "1.0");
          gtk_box_pack_start (GTK_BOX (vbox), entry,  FALSE, FALSE, 3);
          gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 3);
          gtk_widget_show(entry);

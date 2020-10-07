@@ -17,10 +17,7 @@ namespace coot {
       public:
 	 std::string res_name;
 	 std::string atom_name;
-	 key(const std::string &r, const std::string &a) {
-	    res_name = r;
-	    atom_name = a;
-	 }
+	 key(const std::string &r, const std::string &a) : res_name(r), atom_name(a) {}
 	 // this one is less than the key_in?
 	 bool operator<(const key &key_in) const {
 	    if (res_name < key_in.res_name) {

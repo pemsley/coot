@@ -108,7 +108,7 @@ vec3 occlude() {
          if ((depth_sampled+bias) < depth_centre)
             n_long_scale++;
       }
-      scale_from_long = 1.0 - 0.8 * float(n_long_scale)/float(n_long_scale_samples); // was 0.5
+      scale_from_long = 1.0 - 0.95 * float(n_long_scale)/float(n_long_scale_samples); // was 0.5
       scale_from_long = clamp(scale_from_long, 0.0f, 1.0f);
    }
    if (n_sampled > 0) {
@@ -117,7 +117,7 @@ vec3 occlude() {
          float aos = float(n_closer_neighbours)/float(n_sampled);
          aos = float(n_closer_neighbours)/float(n_sampled); // 0.5 to 1
          float f = 2.0 * aos - 1.0;  // 0.0 to 1.0 (very occluded to no occluded)
-         float ff = 1.0 - f * 0.9; // was 0.7
+         float ff = 1.0 - f * 0.95; // was 0.7
          r *= ff;
          r *= scale_from_long;
          if (scale_from_long == 0.0) r = vec3(1.0, 0.0, 0.0);

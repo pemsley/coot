@@ -1,4 +1,6 @@
 
+#ifndef COOT_MATERIAL_HH
+#define COOT_MATERIAL_HH
 
 #include <glm/ext.hpp>
 
@@ -23,3 +25,6 @@ public:
       specular_strength = 1.0;
    }
 };
+
+
+#endif // COOT_MATERIAL_HH

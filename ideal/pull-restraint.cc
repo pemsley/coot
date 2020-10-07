@@ -1,4 +1,10 @@
+
 #include <algorithm>
+#include <thread>
+
+#ifndef HAVE_GSL
+#define HAVE_GSL // flycheck needs this - otherwise it doesn't properly parse simple-restraint.hh
+#endif
 
 #include "simple-restraint.hh"
 
@@ -11,17 +17,12 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
    // 20180217 now we replace the target position if we can, rather than delete and add.
 
    std::vector<simple_restraint>::iterator it;
-   for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) {
+   for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
       if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
 	 if (it->atom_spec == spec) {
 	    at = atom[it->atom_index_1];
 
-	    // wait until you get the lock
-	    bool unlocked = false;
-	    while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-	       std::this_thread::sleep_for(std::chrono::nanoseconds(10));
-	       unlocked = false;
-	    }
+            get_restraints_lock();
             bool is_different = true;
             double d2 = (it->atom_pull_target_pos-pos).lengthsq();
             if (d2 < 0.0001)
@@ -32,16 +33,19 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
                needs_reset = true;
             if (use_proportional_editing)
                pull_restraint_displace_neighbours(at, pos, pull_restraint_neighbour_displacement_max_radius);
-	    restraints_lock = false; // unlocked
             if (false) // debugging
                std::cout << "add_atom_pull_restraint() update position for " << it->atom_index_1 << " "
                          << atom_spec_t(at) << " " << pos.format() << "\n";
+            release_restraints_lock();
 	    break;
 	 }
       }
    }
 
    if (! at) {
+      if (false)
+         std::cout << "##################### " << restraints_vec.size()
+                   << " No match to pull restraints ----------- add a new one " << std::endl;
       for (int iat=0; iat<n_atoms; iat++) {
 	 atom_spec_t atom_spec(atom[iat]);
 	 if (atom_spec == spec) {
@@ -54,6 +58,8 @@ coot::restraints_container_t::add_atom_pull_restraint(const atom_spec_t &spec, c
       }
    }
 
+   release_restraints_lock();
+
    // needs_reset = true; // always true makes the refinement smoother for some reason.
    return at;
 }
@@ -65,24 +71,37 @@ coot::restraints_container_t::add_target_position_restraint(int idx, const atom_
 
    simple_restraint r(TARGET_POS_RESTRAINT, idx, spec, target_pos);
 
-#ifdef HAVE_CXX_THREAD
-   // wait until you get the lock
-   bool unlocked = false;
-   while (! restraints_lock.compare_exchange_weak(unlocked, true)) {
-      // std::cout << "waiting in add_target_position_restraint()" << std::endl;
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      unlocked = false;
-   }
+   get_restraints_lock();
 
    if (false) // debug
       std::cout << "add_target_position_restraint() for " << idx << " "
                 << spec << target_pos.format() << "\n";
 
-   restraints_vec.push_back(r); // push_back_restraint()
-   post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
-   restraints_lock = false; // unlock
-   needs_reset = true;
-#endif // HAVE_CXX_THREAD
+   bool add_it = true;
+   std::vector<simple_restraint>::const_iterator it;
+   for (it=restraints_vec.begin(); it!=restraints_vec.end(); ++it) {
+      if (it->restraint_type == restraint_type_t(TARGET_POS_RESTRAINT)) {
+	 if (it->atom_spec == spec) {
+            std::cout << "already there! no double add!" << std::endl;
+            add_it = false;
+            break;
+         }
+      }
+   }
+
+   if (add_it) {
+      unsigned int restraints_vec_size_pre = restraints_vec.size();
+      restraints_vec.push_back(r); // push_back_restraint()
+      unsigned int restraints_vec_size_post = restraints_vec.size();
+
+      std::cout << "addition of target position restraints: pre and post sizes: "
+                << restraints_vec_size_pre << " " << restraints_vec_size_post << std::endl;
+      post_add_new_restraint(); // adds new restraint to one of the vectors of the restraint indices
+      restraints_lock = false; // unlock
+      needs_reset = true;
+   }
+
+   release_restraints_lock();
 }
 
 

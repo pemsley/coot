@@ -1,7 +1,11 @@
 
-
 #ifndef DENSITY_CONTOUR_TRIANGLES_HH
 #define DENSITY_CONTOUR_TRIANGLES_HH
+
+#include <map>
+
+#include <clipper/core/coords.h>
+#include "geometry/residue-and-atom-specs.hh"
 
 struct POINT3DID {
    unsigned int newID;
@@ -16,12 +20,17 @@ public:
    bool reject_this; // set in post-processing
    clipper::Coord_orth mid_point;
    double back_front_projection_distance;
+   float occlusion_factor;
    clipper::Coord_orth normal_for_flat_shading;
    bool operator<(const TRIANGLE &t) const {
       return (back_front_projection_distance < t.back_front_projection_distance);
    }
    TRIANGLE() {
       reject_this = false;
+      mid_point = clipper::Coord_orth(0,0,0);
+      back_front_projection_distance = 999.9;
+      normal_for_flat_shading = clipper::Coord_orth(0,0,1);
+      occlusion_factor = 0.0;
    }
 };
 
@@ -30,8 +39,10 @@ namespace coot {
 
    class density_contour_triangles_container_t {
    public:
+      // every vertex has a point, a normal and an occlusion_factor
       std::vector<clipper::Coord_orth> points;
-      std::vector<clipper::Coord_orth> normals; // for Gouraud shading
+      std::vector<clipper::Coord_orth> normals;
+      std::vector<float> occlusion_factor;
       std::vector<TRIANGLE> point_indices;
       void depth_sort(const clipper::Coord_orth &back_plane_point,
                       const clipper::Coord_orth &front_plane_point);

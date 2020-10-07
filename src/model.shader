@@ -6,7 +6,7 @@
 layout(location = 0) in vec3 model_rotation_matrix_0;
 layout(location = 1) in vec3 model_rotation_matrix_1;
 layout(location = 2) in vec3 model_rotation_matrix_2;
-layout(location = 3) in vec3 model_translation;
+layout(location = 3) in vec3 model_translation; // where the atom is in molecular space
 layout(location = 4) in vec3 position; // origin-based cylinder
 layout(location = 5) in vec3 normal;   // ditto
 layout(location = 6) in vec4 colour;
@@ -28,7 +28,7 @@ void main() {
 
    vec4 n1 = vec4(normal * model_rotation_matrix, 1.0);
 
-   frag_pos_transfer =  p3.xyz;
+   frag_pos_transfer = p3.xyz;
    normal_transfer = n1.xyz;
    colour_transfer = colour;
 }
@@ -69,7 +69,7 @@ struct Material {
 };
 uniform Material material;
 
-uniform vec4 eye_position; // perversely different to moleculestotriangles.shader
+uniform vec3 eye_position;
 uniform vec4 background_colour;
 uniform bool is_perspective_projection;
 uniform bool do_depth_fog;
@@ -84,7 +84,7 @@ float get_fog_amount(float depth_in) {
       // needs tweaking
       float d = depth_in;
       float d4 = d * d * d * d;
-      return d * d;;
+      return d * d;
    }
 
 }
@@ -95,7 +95,9 @@ void main() {
    vec4 bg_col = background_colour;
    vec4 sum_col = vec4(0,0,0,0);
 
-   float specular_strength = material.specular_strength;
+   float specular_strength = 0.4 * material.specular_strength;
+
+   // if (gl_FragCoord.z < 0.5) discard; // useful later maybe (in another shader)
 
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
@@ -104,18 +106,16 @@ void main() {
          // we can't have specular lights where there is no diffuse light
          if (dp <= 0.0)
             specular_strength = 0.0;
-         dp = clamp(dp, 0.1, 1.0); // no negative dot products for diffuse
+         dp = clamp(dp, 0.0, 1.0); // no negative dot products for diffuse
 
-         vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0);
+         vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0); // fix these
          vec4 lsd = vec4(0.6, 0.6, 0.6, 1.0);
          vec4 ambient  = colour_transfer * lsa * 0.15;
          vec4 diffuse  = colour_transfer * lsd * dp * 0.9;
 
-         colour_transfer * lsa * 0.1;
-
          // specular
          float shininess = 150.0;
-         vec3 eye_pos = eye_position.xyz; // vec4 to vec3
+         vec3 eye_pos = eye_position;
          vec3 norm_2 = normalize(normal_transfer); // not needed, I think
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
          vec3 reflect_dir = reflect(-light_dir, norm_2);

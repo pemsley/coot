@@ -30,19 +30,25 @@ Mesh::init() {
    draw_this_mesh = true;
    normals_are_setup = false;
    this_mesh_is_closed = false;
-   vao = 99999999; // unset
+   vao = VAO_NOT_SET; // use UNSET_VAO
 }
 
 Mesh::Mesh(const std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > &indexed_vertices) {
 
-   draw_this_mesh = true;
-   is_instanced = false;
-   is_instanced_with_rts_matrix = false;
-   use_blending = false;
+   init();
    vertices = indexed_vertices.first;
    triangle_vertex_indices = indexed_vertices.second;
-   vao = 99999999;
 }
+
+// a molecular_triangles_mesh_t is a poor man's Mesh. Why does it exist?
+Mesh::Mesh(const molecular_triangles_mesh_t &mtm) {
+
+   init();
+   vertices = mtm.vertices;
+   triangle_vertex_indices = mtm.triangles;
+   name = mtm.name;
+}
+
 
 void
 Mesh::close() {
@@ -83,7 +89,6 @@ Mesh::import(const std::vector<s_generic_vertex> &gv, const std::vector<g_triang
                                   indexed_vertices.end());
    for (unsigned int i=idx_tri_base; i<triangle_vertex_indices.size(); i++)
       triangle_vertex_indices[i].rebase(idx_base);
-
 }
 
 void
@@ -96,6 +101,17 @@ Mesh::debug() const {
 
 void
 Mesh::setup(Shader *shader_p, const Material &material_in) {
+
+   // Generic objects need a lot of reworking
+   // because I want to "setup" only after all objects have been added - not
+   // after adding every object (say 1000 spheres/dots).
+   // But I don't want to draw if the object is not setup. Hmm.
+   // Also adding thousands of balls is slow!
+   // HOLE dots is a good example of where I should be using instancing
+
+   // if (setup_has_been_done)
+   // return;
+
    material = material_in;
    shader_p->Use();
    setup_buffers();
@@ -164,7 +180,6 @@ Mesh::add_one_ball(float scale, const glm::vec3 &centre) { // i.e. a smooth-shad
    std::vector<clipper::Coord_orth> v = penta_dodec.pkdd.d.coords();
 
    unsigned int vertex_index_start_base   = vertices.size();
-   unsigned int triangle_index_start_base = triangle_vertex_indices.size(); // needed?
 
    const std::vector<clipper::Coord_orth> &pv = penta_dodec.pkdd.pyrimid_vertices;
    for (unsigned int i=0; i<12; i++) {
@@ -623,73 +638,90 @@ Mesh::setup_instancing_buffers_for_particles(unsigned int n_particles) {
    //
    n_instances = 0;
 
-   float s = 0.05;
    glm::vec3 n(0,0,1);
-   glm::vec4 c(0.4, 0.4, 0.4, 0.4);
+   glm::vec4 c(0.8, 0.4, 0.8, 0.8);
 
-   setup_camera_facing_polygon();
+   setup_camera_facing_polygon(4);
 
    glGenVertexArrays (1, &vao);
    glBindVertexArray (vao);
 
-   // vertex position
+   GLenum err = glGetError();
+   if (err) std::cout << "GL error ##################################################"
+                      << " setup_instancing_buffers_for_particles() B "
+                      << err << std::endl;
+   std::cout << "debug:: Mesh::setup_instancing_buffers_for_particles() " << vao << std::endl;
+
+   // allocate buffer for vertices with position, normal and colour
    glGenBuffers(1, &buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    unsigned int n_vertices = vertices.size();
-   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(vertices[0]), &(vertices[0]), GL_STATIC_DRAW);
+   glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
+
+   // position
    glEnableVertexAttribArray(0);
    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex), 0);
 
-   // vertex colour, skip over the vertex position and normal
+   // normal - not used in the shader currently
    glEnableVertexAttribArray(1);
-   glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
+   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
+                         reinterpret_cast<void *>(sizeof(glm::vec3)));
+
+   // colour
+   glEnableVertexAttribArray(2);
+   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(s_generic_vertex),
                          reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+
+
+   // a Particle has position, velocity and colour. We need position and colour
 
    // I shouldn't need to make 2 buffers (ie. 2 calls to glBufferData) here!
    // Look at how the Mesh for ribbons does it.
 
-   // instanced colours
-   glGenBuffers(1, &inst_colour_buffer_id);
-   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   // glBufferData(GL_ARRAY_BUFFER, n_instances * sizeof(Particle), &(particles.particles[0]), GL_DYNAMIC_DRAW);
-   glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
-   glEnableVertexAttribArray(2);
-   // Particle: position, velocity, colour - skip over position and velocity
-   glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
-                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
-   glVertexAttribDivisor(2, 1);
-
-   // instanced translations
+   // instanced position
    glGenBuffers(1, &inst_model_translation_buffer_id);
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
    glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
    glEnableVertexAttribArray(3);
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), 0);
    glVertexAttribDivisor(3, 1);
-   GLenum err = glGetError(); if (err) std::cout << "   error setup_instancing_buffers() B "
-                                                 << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "GL error ##################################################"
+                      << " setup_instancing_buffers_for_particles() B "
+                      << err << std::endl;
+   std::cout << "debug ################ setup_instancing_buffers_for_particles()"
+             << " inst_model_translation_buffer_id "
+             << inst_model_translation_buffer_id << std::endl;   
+
+   // instanced colours - setup another buffer - extravagent.
+   glGenBuffers(1, &inst_colour_buffer_id);
+   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+   glBufferData(GL_ARRAY_BUFFER, n_particles * sizeof(Particle), nullptr, GL_DYNAMIC_DRAW);
+   glEnableVertexAttribArray(4);
+   glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Particle),
+                         reinterpret_cast<void *>(2 * sizeof(glm::vec3)));
+   glVertexAttribDivisor(4, 1);
+
+   // index the quad/hex/polygon
 
    glGenBuffers(1, &index_buffer_id);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
    unsigned int n_triangles = triangle_vertex_indices.size();
    unsigned int n_bytes = n_triangles * 3 * sizeof(unsigned int);
-   if (false)
+   if (true)
       std::cout << "debug:: setup_instancing_buffers() particles: "
-                << "vao" << vao
+                << "vao " << vao
                 << " glBufferData for index buffer_id " << index_buffer_id
                 << " n_triangles: " << n_triangles
                 << " allocating with size: " << n_bytes << " bytes" << std::endl;
-   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_STATIC_DRAW);
-   err = glGetError(); if (err) std::cout << "GL error setup_simple_triangles()\n";
+   glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes, &triangle_vertex_indices[0], GL_DYNAMIC_DRAW);
+   err = glGetError(); if (err) std::cout << "GL error setup_instancing_buffers_for_particles()\n";
 }
 
 
 
-// not really cylinders - anything that uses a rotation/translation/scale matrix
-//
-// rename this when it works.
 void
 Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats,
                                                  const std::vector<glm::vec4> &colours) {
@@ -982,13 +1014,14 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp) {
    err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() v "
                                           << err << std::endl;
    glEnableVertexAttribArray(0); // vertex positions
-   glEnableVertexAttribArray(1); // vertex colours
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // vertex colours
 
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   glEnableVertexAttribArray(2); // instanced model/particle colours (time varying)
+   glEnableVertexAttribArray(3); // instanced model/particle colours (time varying)
 
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   glEnableVertexAttribArray(3); // instanced model/particle translations (time varying)
+   glEnableVertexAttribArray(4); // instanced model/particle translations (time varying)
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
@@ -1108,7 +1141,7 @@ Mesh::draw(Shader *shader_p,
                       << " with GL err " << err << std::endl;
 
    if (vao == 99999999)
-      std::cout << "You forget to setup this mesh " << name << " "
+      std::cout << "ERROR:: You forgot to setup this Mesh " << name << " "
                 << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
@@ -1219,7 +1252,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    }
    if (n_cols > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-      glBufferSubData(GL_ARRAY_BUFFER, 0, n_mats * sizeof(glm::vec4), &(colours[0]));
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_cols * sizeof(glm::vec4), &(colours[0]));
    }
 }
 
@@ -1242,15 +1275,41 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats) {
 void
 Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &particles) {
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A0 "
+                      << "binding vao " << vao << std::endl;
+               
    n_instances = particles.size();
    if (false)
       std::cout << "debug:: update_instancing_buffer_data() transfering " << n_instances
                 << " particle/instances " << std::endl;
-   // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position) << std::endl;
+
+   if (vao == 99999999)
+      std::cout << "You forget to setup this Mesh " << name << std::endl;
+
+   glBindVertexArray(vao);
+
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A1 "
+                      << "binding vao " << vao << " error " << err << std::endl;
+
+   // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position)
+   //           << std::endl;
    glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() A2 "
+                      << " vao " << vao
+                      << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
+                      << "\n";
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() B\n";
    glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() C\n";
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+   err = glGetError();
+   if (err) std::cout << "GL error Mesh::update_instancing_buffer_data_for_particles() D\n";
 
 }
 
@@ -1492,3 +1551,150 @@ Mesh::setup_camera_facing_polygon(unsigned int n_sides) {
          triangle_vertex_indices[i].rebase(idx_base);
 
 }
+
+#include <fstream>
+
+bool
+Mesh::export_as_obj(const std::string &file_name) const {
+   return export_as_obj_internal(file_name);
+}
+
+
+bool
+Mesh::export_as_obj_internal(const std::string &file_name) const {
+
+   bool status = true;
+
+   std::ofstream f(file_name.c_str());
+   if (f) {
+      f << "# " << name << "\n";
+      f << "# " << "\n";
+      f << "" << "\n";
+      f << "g exported_obj\n";
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const s_generic_vertex &vert = vertices[i];
+         f << "v " << vert.pos.x << " " << vert.pos.y << " " << vert.pos.z;
+         f << " " << vert.color.r << " " << vert.color.g << " " << vert.color.b;
+         f << "\n";
+      }
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const s_generic_vertex &vert = vertices[i];
+         f << "vn " << -vert.normal.x << " " << -vert.normal.y << " " << -vert.normal.z << "\n";
+      }
+      for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
+         const g_triangle &tri = triangle_vertex_indices[i];
+         f << "f "
+           << tri.point_id[0]+1 << "//" << tri.point_id[0]+1 << " "
+           << tri.point_id[1]+1 << "//" << tri.point_id[1]+1 << " "
+           << tri.point_id[2]+1 << "//" << tri.point_id[2]+1 << "\n";
+      }
+   } else {
+      status = false;
+   }
+   return status;
+}
+
+
+#ifdef USE_ASSIMP
+// We import from assimp from Model and export from Mesh - at the moment
+//
+#include <assimp/Exporter.hpp>
+#endif // USE_ASSIMP
+
+bool
+Mesh::export_as_obj_via_assimp(const std::string &file_name) const {
+
+   unsigned int status = false;
+
+#ifdef USE_ASSIMP
+
+   if (! vertices.empty()) {
+      // this will do a copy. Is that what I want?
+      aiScene scene = generate_scene();
+      // now export scener to file_name;
+      Assimp::Exporter ae;
+
+      if (false) { // 20 formats - "obj" is one of them
+         size_t n_formats = ae.GetExportFormatCount();
+         for (size_t i=0; i<n_formats; i++) {
+            const aiExportFormatDesc *fd = ae.GetExportFormatDescription(i);
+            std::cout << i << " " << fd->id << " " << fd->description << std::endl;
+         }
+      }
+
+      std::string format_id = "obj";
+
+      std::cout << "----- calling ae.Export() " << std::endl;
+      std::cout << "----- calling ae.Export() scene: " << &scene << std::endl;
+      std::cout << "----- calling ae.Export() mMaterials " << scene.mMaterials << std::endl;
+      std::cout << "----- calling ae.Export() mMaterials[0] " << scene.mMaterials[0] << std::endl;
+      // Oh, scene gets copies in Export()!
+      aiReturn air = ae.Export(&scene, format_id.c_str(), file_name.c_str(), 0);
+      std::cout << "export status " << air << std::endl;
+
+   }
+#endif
+   return status;
+}
+
+#if USE_ASSIMP
+// Use make_shared and a shared or unique? pointer as the return value
+aiScene
+Mesh::generate_scene() const {
+
+   aiScene scene;
+   scene.mRootNode = new aiNode();
+
+   std::cout << "debug:: scene.mNumMaterials " << scene.mNumMaterials << std::endl;
+
+   // Materials? Maybe we have to.
+   // else when Exporter::Export() does the scene copy the scene.mMaterials gets
+   // set to null and GetMaterialName() fails
+
+   scene.mNumMaterials = 1;
+   scene.mMaterials = new aiMaterial *[1];
+   scene.mMaterials[0] = new aiMaterial();
+
+   aiMesh mesh;
+   scene.mMeshes = new aiMesh *[1];
+   scene.mNumMeshes = 1;
+   scene.mMeshes[0] = new aiMesh();
+   std::cout << "new aimesh mMaterialIndex " << scene.mMeshes[0]->mMaterialIndex << std::endl;
+   scene.mMeshes[0]->mMaterialIndex = 0; // Hmm? Dangerous?
+   scene.mRootNode->mMeshes = new unsigned int[1];
+   scene.mRootNode->mMeshes[0] = 0;
+   scene.mRootNode->mNumMeshes = 1;
+   aiMesh *pMesh = scene.mMeshes[0];
+
+   //  --- vertices ---
+
+   pMesh->mVertices = new aiVector3D[vertices.size()];
+   pMesh->mNumVertices = vertices.size();
+   pMesh->mTextureCoords[0] = new aiVector3D[vertices.size()];       // needed?
+   pMesh->mNumUVComponents[0] = vertices.size();                     // needed?
+   for (unsigned int i=0; i<vertices.size(); i++) {
+      const s_generic_vertex &vert = vertices[i];
+      aiVector3D aiv(vert.pos.x, vert.pos.y, vert.pos.z);
+      // std::cout << "vertex " << i << " " << glm::to_string(vert.pos)  << std::endl;
+      pMesh->mVertices[i] = aiv;
+      pMesh->mTextureCoords[0][i] = aiVector3D(0,0,0); // for now
+   }
+
+   //  --- normals ---
+
+
+   //  --- triangles ---
+
+   pMesh->mFaces = new aiFace[triangle_vertex_indices.size()];
+   pMesh->mNumFaces = triangle_vertex_indices.size();
+   for (unsigned int i=0; i<triangle_vertex_indices.size(); i++) {
+      aiFace &face = pMesh->mFaces[i];
+      face.mIndices = new unsigned int[3];
+      face.mIndices[0] = triangle_vertex_indices[i].point_id[0];
+      face.mIndices[1] = triangle_vertex_indices[i].point_id[1];
+      face.mIndices[2] = triangle_vertex_indices[i].point_id[2];
+   }
+
+   return scene;
+}
+#endif

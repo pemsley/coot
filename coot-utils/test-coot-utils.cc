@@ -1363,6 +1363,22 @@ test_fibonacci() {
 
 }
 
+#include "polar-atoms.hh"
+
+void
+test_polar_atom_analysis(int argc, char **argv) {
+
+   if (argc > 1) {
+      std::string pdb_file_name = argv[1]; // 6lzg
+      std::cout << "Getting atoms... " << std::endl;
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
+      if (asc.read_success) {
+         coot::buried_unsatisfied_polar_atoms(asc.mol);
+      }
+   }
+   
+}
+
 
 int main(int argc, char **argv) {
 
@@ -1455,8 +1471,11 @@ int main(int argc, char **argv) {
    if (false)
       test_interface_residues(argc, argv);
 
-   if (true)
+   if (false)
       test_fibonacci();
+
+   if (true)
+      test_polar_atom_analysis(argc, argv);
 
    return 0;
 }

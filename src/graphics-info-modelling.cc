@@ -133,6 +133,30 @@ graphics_info_t::release_restraints_lock(const std::string &calling_function_nam
 
 }
 
+// similar for moving atoms:
+void
+graphics_info_t::get_moving_atoms_lock(const std::string &calling_function_name) {
+
+   bool unlocked = false;
+   while (! moving_atoms_lock.compare_exchange_weak(unlocked, true)) {
+      std::cout << "WARNING:: calling function: " << calling_function_name
+		<< " moving atoms locked by " << moving_atoms_locking_function_name
+		<< std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      unlocked = false;
+   }
+
+   moving_atoms_locking_function_name = calling_function_name;
+}
+
+void
+graphics_info_t::release_moving_atoms_lock(const std::string &calling_function_name) {
+
+   moving_atoms_lock = false;
+   moving_atoms_locking_function_name = "";
+}
+
+
 void
 graphics_info_t::stop_refinement_internal() {
 
@@ -458,6 +482,8 @@ std::atomic<unsigned int> graphics_info_t::moving_atoms_bonds_lock(0);
 std::atomic<bool> graphics_info_t::restraints_lock(false);
 std::atomic<bool> graphics_info_t::moving_atoms_lock(false); // not locked
 std::string graphics_info_t::restraints_locking_function_name = "unset";
+std::string graphics_info_t::moving_atoms_locking_function_name = "unset";
+
 int  graphics_info_t::threaded_refinement_loop_counter = 0;
 int  graphics_info_t::threaded_refinement_loop_counter_bonds_gen = -1; // initial value is "less than" so that
                                                                        // the regeneration is activated.
@@ -513,6 +539,25 @@ graphics_info_t::refinement_loop_threaded() {
 								  spf, pr_chi_sqds, *Geom_p());
       graphics_info_t::saved_dragged_refinement_results = rr;
 
+      if (false) {
+         if (rr.refinement_results_contain_overall_nbc_score) {
+            std::cout << "-------------- nbc baddies " << std::endl;
+            for (unsigned int i=0; i<rr.sorted_nbc_baddies.size(); i++)
+               std::cout << "       nbc number " << i
+                         << ":  " << rr.sorted_nbc_baddies[i].first
+                         << " "  << rr.sorted_nbc_baddies[i].second << std::endl;
+         }
+      }
+      if (false) {
+         if (rr.refinement_results_contain_overall_rama_plot_score) {
+            std::cout << "-------------- rama baddies " << std::endl;
+            for (unsigned int i=0; i<rr.sorted_rama_baddies.size(); i++)
+               std::cout << "       rama number " << i
+                         << ":  " << rr.sorted_rama_baddies[i].first
+                         << " "  << rr.sorted_rama_baddies[i].second << std::endl;
+         }
+      }
+
       if (rr.progress == GSL_SUCCESS) {
          graphics_info_t::continue_update_refinement_atoms_flag = false; // not sure what this does
          rr = graphics_info_t::saved_dragged_refinement_results;
@@ -520,6 +565,8 @@ graphics_info_t::refinement_loop_threaded() {
          if (false) { // too crashy at the moment.
             if (rr.hooray()) {
                graphics_info_t g;
+               std::cout << "------------------------ hooray() passed - calling setup_draw_for_particles() "
+                         << std::endl;
                g.setup_draw_for_particles();
             }
          }
@@ -963,8 +1010,8 @@ graphics_info_t::refine_residues_vec(int imol,
 
    bool use_map_flag = 1;
 
-   if (true)
-      std::cout << "debug:: in refine_residues_vec() with altconf \""
+   if (false)
+      std::cout << "INFO:: refine_residues_vec() with altconf \""
 		<< alt_conf << "\"" << std::endl;
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
@@ -5172,6 +5219,19 @@ graphics_info_t::delete_sidechain_range(int imol,
    graphics_draw();
 
 }
+
+void
+graphics_info_t::delete_active_residue() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+   if (aa.first) {
+      int imol = aa.second.first;
+      coot::residue_spec_t rs(aa.second.second);
+      molecules[imol].delete_residue(rs);
+   }
+   graphics_draw();
+}
+
 
 
 

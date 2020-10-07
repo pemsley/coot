@@ -19,22 +19,12 @@
  * 02110-1301, USA
  */
 
-#if defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
-#ifndef HAVE_STRING
 #include <string>
-#define HAVE_STRING
-#endif
+#include <goocanvas.h>
 
 #include <mmdb2/mmdb_manager.h>
-
-#ifdef HAVE_GNOME_CANVAS
-#include <gtk/gtk.h>
-#include <libgnomecanvas/libgnomecanvas.h>
-#endif
-#ifdef HAVE_GOOCANVAS
-#include <goocanvas.h>
-#endif
 
 #include "coot-utils/coot-coord-utils.hh"
 
@@ -62,7 +52,7 @@ namespace exptl {
       class spec_and_object {
       public:
 	 int mol_no;
-	 GnomeCanvasItem *obj;
+	 GooCanvasItem *obj;
 	 coot::atom_spec_t atom_spec;
          coot::residue_spec_t residue_spec;
 	 int position_number;
@@ -73,7 +63,7 @@ namespace exptl {
             residue_spec = coot::residue_spec_t(atom_spec);
 	    position_number = position_number_in;
 	 } 
-	 void add_rect_attribs(GnomeCanvasItem *rect_item_in) { 
+	 void add_rect_attribs(GooCanvasItem *rect_item_in) { 
 	    obj = rect_item_in;
 	 }
       };
@@ -81,15 +71,12 @@ namespace exptl {
 
       int molecule_number;
       GtkWidget *scrolled_window; // we use this for regenerate().
-      std::vector<GnomeCanvasItem *> canvas_item_vec;
-#ifdef HAVE_GOOCANVAS
+      std::vector<GooCanvasItem *> canvas_item_vec;
+
       GooCanvasItem *canvas_group;
       GtkWidget *canvas;
       std::map<mmdb::Residue *, GooCanvasItem *> rect_residue_map;
       mmdb::Residue *current_highlight_residue;
-#else
-      GnomeCanvas *canvas;
-#endif
       
       // return the canvas y size
       int setup_canvas(mmdb::Manager *mol);
@@ -97,10 +84,10 @@ namespace exptl {
       bool use_graphics_interface_flag;
       static void on_nsv_close_button_clicked (GtkButton *button,
 					       gpointer         user_data);
-      static void on_nsv_dialog_destroy (GtkObject *obj,
+      static void on_nsv_dialog_destroy (GObject *obj,
 					 gpointer user_data);
-      static gint letter_event (GtkObject *obj, GdkEvent *event, gpointer data);
-#ifdef HAVE_GOOCANVAS
+      static gint letter_event (GObject *obj, GdkEvent *event, gpointer data);
+
       static gboolean rect_notify_event (GooCanvasItem *item,
                                          GooCanvasItem *target,
                                          GdkEvent *event,
@@ -109,9 +96,6 @@ namespace exptl {
                                         GooCanvasItem *target,
                                         GdkEventButton *event,
                                         gpointer data);
-#else
-      static gint rect_event   (GtkObject *obj, GdkEvent *event, gpointer data);
-#endif
       void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b, double x_offset);
       std::string fixed_font_str;
       int pixels_per_letter;

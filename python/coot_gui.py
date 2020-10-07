@@ -1410,8 +1410,8 @@ def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
 #
 def alt_confs_gui(imol):
 
-   interesting_residues_gui(imol, "Residues with Alt Confs",
-                            residues_with_alt_confs(imol))
+   residues_list = residues_with_alt_confs(imol)
+   interesting_residues_gui(imol, "Residues with Alt Confs", residues_list)
 
 # Make an interesting things GUI for residues with missing atoms
 #
@@ -1444,6 +1444,12 @@ def interesting_residues_gui(imol, title, interesting_residues):
    centre_atoms = []
    if valid_model_molecule_qm(imol):
       residues = interesting_residues
+      for i in range(len(residues)):
+         # if we get here with a 4-element spec, then fix that now
+         sp = residues[i]
+         if len(sp) == 4:
+            residues[i] = sp[1:]
+
       for spec in residues:
          if (type(spec) is ListType):
             centre_atoms.append(residue_spec_to_atom_for_centre(imol, *spec))
@@ -1461,7 +1467,6 @@ def interesting_residues_gui(imol, title, interesting_residues):
               centre_atom[0], centre_atom[1]] if centre_atom else
               ["[oops - why did this happen?]", 0, 0, 0, 0, 0, 0],
              residues, centre_atoms)))
-      
    else:
       print("BL WARNING:: no valid molecule", imol)
 

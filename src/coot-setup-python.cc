@@ -74,6 +74,8 @@ void setup_python(int argc, char **argv) {
 
    std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
 
+   std::cout << "debug:: in setup_python() pydirectory is " << pydirectory << std::endl;
+
    int err = import_python_module("coot", 0);
    if (err == -1) {
       std::cout << "ERROR:: could not import coot.py" << std::endl;

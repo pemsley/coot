@@ -8,24 +8,32 @@
 #include <glm/gtx/string_cast.hpp>
 #include "graphics-info.h"
 
+
 void
 graphics_info_t::init_shaders() {
 
    std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
+                                                           shader_for_map_caps,
                                                            shader_for_models,
                                                            shader_for_central_cube,
                                                            shader_for_origin_cube,
                                                            shader_for_hud_text,
+                                                           shader_for_hud_geometry_bars,
+                                                           shader_for_hud_geometry_labels,
                                                            shader_for_atom_labels,
                                                            shader_for_moleculestotriangles,
                                                            shader_for_lines,
+                                                           shader_for_lines_pulse,
+                                                           shader_for_rama_balls,
+                                                           shader_for_particles,
+                                                           shader_for_instanced_objects,
                                                            shader_for_screen,
                                                            shader_for_blur};
    std::string p = coot::package_data_dir();
    std::string d = coot::util::append_dir_dir(p, "shaders");
    std::cout << "INFO:: shader default dir: " << d << std::endl;
    std::vector<std::reference_wrapper<Shader> >::iterator it;
-   for (it=shaders.begin(); it!=shaders.end(); it++)
+   for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
@@ -34,11 +42,15 @@ graphics_info_t::init_shaders() {
    shader_for_central_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_origin_cube.init("central-cube.shader", Shader::Entity_t::INFRASTRUCTURE);
    shader_for_hud_text.init("hud-text.shader", Shader::Entity_t::HUD_TEXT);
+   shader_for_hud_geometry_bars.init("hud-bars.shader", Shader::Entity_t::HUD_TEXT);
+   shader_for_hud_geometry_labels.init("hud-labels.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_atom_labels.init("atom-label.shader", Shader::Entity_t::MODEL);
    shader_for_moleculestotriangles.init("moleculestotriangles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_lines.init("lines.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
-   shader_for_particles.init("particles.shader", Shader::Entity_t::MODEL);
-   shader_for_instanced_cylinders.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
+   shader_for_lines_pulse.init("lines-pulse.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
+   shader_for_particles.init("particles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.
@@ -275,8 +287,123 @@ graphics_info_t::update_view_quaternion(int area_width, int area_height) {
 
    tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
    glm::quat product = tb_quat * glm_quat;
-   float delta_x = mouse_current_x - g.GetMouseBeginX(); // use static mouse_begin.first
-   float delta_y = mouse_current_y - g.GetMouseBeginY();
    glm_quat = glm::normalize(product);
+
+}
+
+
+#include "coot-utils/atom-overlaps.hh"
+
+
+// probably not the right place for this function
+//
+void
+graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int imol) {
+
+
+   unsigned int octasphere_subdivisions = 1; // make a member of graphics_info_t with an API
+
+   if (true) {
+      bool ignore_waters = true;
+      // I don't like this part
+      std::map<std::string, coot::colour_holder> colour_map;
+      colour_map["blue"      ] = colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = colour_values_from_colour_name("greentint");
+      colour_map["darkpurple"] = colour_values_from_colour_name("darkpurple");
+      colour_map["green"     ] = colour_values_from_colour_name("green");
+      colour_map["orange"    ] = colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = colour_values_from_colour_name("magenta");
+      colour_map["royalblue" ] = colour_values_from_colour_name("royalblue");
+
+      auto colour_string_to_colour_holder = [colour_map] (const std::string &c) {
+                                               return colour_map.find(c)->second;
+                                            };
+
+      coot::atom_overlaps_dots_container_t c;
+      // get_moving_atoms_lock(__FUNCTION__);
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            if (moving_atoms_asc->n_selected_atoms > 0) {
+               coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
+               c = overlaps.all_atom_contact_dots(contact_dots_density, true);
+            }
+         }
+      }
+      // release_moving_atoms_lock(__FUNCTION__);
+
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      std::string molecule_name_stub = "Contact Dots for Molecule ";
+      molecule_name_stub += coot::util::int_to_string(imol);
+      molecule_name_stub += ": ";
+
+      std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+      for (it=c.dots.begin(); it!=c.dots.end(); ++it) {
+	 const std::string &type = it->first;
+	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+         float point_size = 0.10;
+         float specular_strength = 0.5; // default
+         if (type == "vdw-surface") specular_strength= 0.1; // dull, reduces zoomed out speckles
+         if (type == "vdw-surface") point_size = 0.03;
+         std::string mesh_name = molecule_name_stub + type;
+
+         Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
+         im.clear();
+         im.setup_octasphere(octasphere_subdivisions);
+         im.setup_instancing_buffers(v.size());
+         std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+         balls.resize(v.size());
+         // I now do simple-minded colour caching here
+         std::string previous_colour_string;
+         glm::vec4 previous_colour(0,0,0,1);
+         for (unsigned int i=0; i<v.size(); i++) {
+            glm::vec3 position(v[i].pos.x(), v[i].pos.y(), v[i].pos.z());
+            const std::string &colour_string = v[i].col;
+            if (colour_string == previous_colour_string) {
+               Instanced_Markup_Mesh_attrib_t attribs(previous_colour, position, point_size);
+               attribs.specular_strength = specular_strength;
+               balls[i] = attribs;
+            } else {
+               coot::colour_holder ch = colour_string_to_colour_holder(colour_string);
+               glm::vec4 colour(ch.red, ch.green, ch.blue, 1.0);
+               Instanced_Markup_Mesh_attrib_t attribs(colour, position, point_size);
+               attribs.specular_strength = specular_strength;
+               balls[i] = attribs;
+               previous_colour_string = colour_string;
+               previous_colour = colour;
+            }
+         }
+         im.update_instancing_buffers(balls);
+      }
+
+      // now clashes.................
+
+      // we can't do cylinders with this shader! So make a ball instead
+
+      coot::colour_holder clash_col = colour_values_from_colour_name("#ff59b4");
+      glm::vec4 clash_col_glm(clash_col.red, clash_col.green, clash_col.red, 1.0);
+      std::vector<Instanced_Markup_Mesh_attrib_t> balls;
+      balls.resize(c.clashes.size());
+      std::string mesh_name = molecule_name_stub + "clashes";
+      Instanced_Markup_Mesh &im = graphics_info_t::molecules[imol].find_or_make_new(mesh_name);
+      im.clear();
+      im.setup_octasphere(octasphere_subdivisions);
+      im.setup_instancing_buffers(c.clashes.size());
+      const float point_size = 0.13;
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+         glm::vec3 position(c.clashes[i].first.x(), c.clashes[i].first.y(), c.clashes[i].first.z());
+         Instanced_Markup_Mesh_attrib_t attribs(clash_col_glm, position, point_size);
+         balls[i] = attribs;
+      }
+      im.update_instancing_buffers(balls);
+   }
 
 }

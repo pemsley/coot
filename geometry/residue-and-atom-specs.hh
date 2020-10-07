@@ -49,6 +49,7 @@ namespace coot {
 	 ins_code = "";
 	 model_number = -1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       atom_spec_t(const std::string &chain_in,
 		  int resno_in,
@@ -62,6 +63,7 @@ namespace coot {
 	 alt_conf = alt_conf_in;
 	 model_number = 1;
 	 int_user_data = -1;
+         float_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(mmdb::Atom *at) {
@@ -77,9 +79,9 @@ namespace coot {
 	    res_no = mmdb::MinInt4;
 	    ins_code = "";
 	    model_number = -1;
-	    int_user_data = -1;
 	 }
 	 int_user_data = -1; // mark as "unset" (better than not setting it)
+         float_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(mmdb::Atom *at, const std::string &user_data_string) {
@@ -90,6 +92,8 @@ namespace coot {
 	 atom_name = at->name;
 	 alt_conf = at->altLoc;
 	 string_user_data = user_data_string;
+         float_user_data = -1;
+         int_user_data = -1;
       }
 
       bool empty() const {
@@ -197,6 +201,10 @@ namespace coot {
 	 }
 	 return r;
       }
+
+      // return null on failure to find atom in mol
+      // (this is the inside out version of the function in molecule_class_info_t)
+      mmdb::Atom *get_atom(mmdb::Manager *mol) const;
       
       
 #ifndef SWIG

@@ -182,14 +182,21 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 		   << " "
 		   << graphics_info_t::accept_reject_dialog_y_position
 		   << std::endl;
-      if ((graphics_info_t::accept_reject_dialog_x_position > -100) &&
+
+      if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
 	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
-	 if (true)
-	    std::cout << "Fix the uposition Here...... inside if setting ..... "
+	 if (false)
+	    std::cout << "Here in do_accept_reject_dialog() ...... inside if setting ..... "
 		      << graphics_info_t::accept_reject_dialog_x_position
 		      << " "
 		      << graphics_info_t::accept_reject_dialog_y_position
 		      << std::endl;
+
+         std::cout << "INFO:: gtk_widget_set_uposition() " << window << " "
+                   << graphics_info_t::accept_reject_dialog_x_position << " "
+                   << graphics_info_t::accept_reject_dialog_y_position << " "
+                   << std::endl;
+
 	 // gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_NONE);
 	 // gtk_widget_set_uposition(window,
 	// 			  graphics_info_t::accept_reject_dialog_x_position,
@@ -1891,7 +1898,8 @@ graphics_info_t::fill_combobox_with_coordinates_options(GtkWidget *combobox,
          ss += "...";
       ss += molecules[imol].name_.substr(left_size, ilen);
 
-      std::cout << "debug:: --- in fill_combobox_with_coordinates_options() " << imol << " " << ss << std::endl;
+      //  std::cout << "debug:: --- in fill_combobox_with_coordinates_options() "
+      //            << imol << " " << ss << std::endl;
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
 
@@ -4217,19 +4225,16 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
 
    // not used in the callback now that the button contains a pointer
    // to this info:
-   diff_map_peaks->resize(0);
+   diff_map_peaks->clear();
    for (unsigned int i=0; i<centres.size(); i++)
       diff_map_peaks->push_back(centres[i].first);
    max_diff_map_peaks = centres.size();
 
-   if (centres.size() > 0) {
+   if (! centres.empty()) {
       graphics_info_t g;
       coot::Cartesian c(centres[0].first.x(), centres[0].first.y(), centres[0].first.z());
-      g.setRotationCentre(c);
-      for(int ii=0; ii<n_molecules(); ii++) {
-	 molecules[ii].update_map();
-	 molecules[ii].update_symmetry();
-      }
+      g.setRotationCentre(c, true);
+      g.update_things_on_move();
       graphics_draw();
    }
    return w;
@@ -4241,20 +4246,25 @@ void
 graphics_info_t::on_diff_map_peak_button_selection_toggled (GtkButton       *button,
 							    gpointer         user_data) {
 
-   coot::diff_map_peak_helper_data *hd = (coot::diff_map_peak_helper_data *) user_data;
-   // int i = hd->ipeak;
+   coot::diff_map_peak_helper_data *hd = static_cast<coot::diff_map_peak_helper_data *>(user_data);
+
+   coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
+   int button_state = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+   if (false)
+      std::cout << "debug:: Here in on_diff_map_peak_button_selection_toggled() " << c << " "
+                <<  button_state << std::endl;
 
    graphics_info_t g;
-   // std::cout << "button number " << i << " pressed\n";
-   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-      // std::cout << "button number " << i << " was active\n";
-      coot::Cartesian c(hd->pos.x(), hd->pos.y(), hd->pos.z());
-      g.setRotationCentre(c);
-      for(int ii=0; ii<n_molecules(); ii++) {
-	 molecules[ii].update_map();
-	 molecules[ii].update_symmetry();
+
+   if (button_state) {
+
+      bool force_jump = true; // No slide, so that the following updates are done
+                              // when we reach the new centre.
+      bool have_jumped = g.setRotationCentre(c, force_jump);
+      bool do_updates_now = have_jumped;
+      if (do_updates_now) {
+         g.update_things_on_move();
       }
-      g.make_pointer_distance_objects();
       graphics_draw();
       std::string s = "Difference map peak number ";
       s += int_to_string(hd->ipeak);

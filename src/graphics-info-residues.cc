@@ -311,6 +311,8 @@ graphics_info_t::graphics_ligand_view() {
    }
 }
 
+#include <glm/gtx/rotate_vector.hpp>
+#include "matrix-utils.hh"
 
 void
 graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t &residue_spec) {
@@ -408,59 +410,10 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
             // the rotations are applied is important.  The flags are
             // set so that screen-x rotation happens last.
 
-            bool need_x_rotate = false;
-            bool need_y_rotate = false;
-            bool need_z_rotate = false;
-
             coot::util::quaternion vq(md);
-
-            // convert a coot::util::quaternion to a float *.
-
-            // ugly - we should have equivalent of this in the quaternion class.
-            //
-            float vqf[4];
-            vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
-            glm::quat target_quat(vq.q0, vq.q1, vq.q2, vq.q3);
-
-            // test: initally along screen Y?
-            if (eigens[1] > eigens[0]) {
-               if (eigens[1] > eigens[2]) {
-                  need_z_rotate = true;
-                  if (eigens[2] > eigens[0]) // minor correction
-                     need_x_rotate = true;
-               }
-            }
-
-            // test: initally along screen Z?
-            if (eigens[2] > eigens[0]) {
-               if (eigens[2] > eigens[1]) {
-                  need_y_rotate = true;
-                  if (eigens[0] > eigens[1]) // minor correction
-                     need_x_rotate = true;
-               }
-            }
-
-            // test: initally along screen X? (only minor correction may be needed)
-            if (eigens[0] > eigens[1])
-               if (eigens[0] > eigens[2])
-                  if (eigens[2] > eigens[1])
-                     need_x_rotate = true;
-
-            if (need_z_rotate) {
-               float spin_quat[4];
-               trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
-               add_quats(spin_quat, vqf, vqf);
-            }
-            if (need_y_rotate) {
-               float spin_quat[4];
-               trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
-               add_quats(spin_quat, vqf, vqf);
-            }
-            if (need_x_rotate) {
-               float spin_quat[4];
-               trackball(spin_quat, 0, 0, 0.0, 0.0174533*45, 0.8);
-               add_quats(spin_quat, vqf, vqf);
-            }
+            glm::quat target_quat(0,0,0,1);
+            // target_quat *= glm::rotate(target_quat, 1.57f, glm::vec3(0,1,0));
+            target_quat *= glm::conjugate(glm::quat(vq.q1, vq.q2, vq.q3, vq.q0));
 
             // interpolate between current view and new view
             //
@@ -470,6 +423,8 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
             coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
             coot::Cartesian rot_centre = RotationCentre();
             coot::view_info_t view1(g.glm_quat,  rot_centre,      zoom, "current");
+            // target_quat in view2 has been wrongly calculated
+            std::cout << "calling interpolate with view2 position " << res_centre << std::endl;
             coot::view_info_t view2(target_quat, res_centre, nice_zoom, "ligand-perp");
             int nsteps = 60;
             coot::view_info_t::interpolate(view1, view2, nsteps);

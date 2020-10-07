@@ -1,5 +1,13 @@
 
+#ifndef OCT_HH
+#define OCT_HH
+
+#include <map>
+#include <set>
+#include <vector>
+
 #include "generic-vertex.hh"
+#include "g_triangle.hh"
 
 std::vector<g_triangle>
 make_octasphere_triangles(unsigned int i_row,
@@ -21,3 +29,11 @@ make_octasphere_dish(unsigned int num_subdivisions, const glm::vec3 &position,
                      float radius, float radiusAlongNormal,
                      const glm::vec3 &dish_normal,
                      const glm::vec4 &colour_in);
+
+std::map<unsigned int, std::set<unsigned int> >
+find_same_vertices(const std::vector<glm::vec3> &verts);
+
+
+
+#endif // OCT_HH
+

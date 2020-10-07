@@ -175,22 +175,12 @@ void to_generic_object_add_point(int object_number,
                                  float from_z1) {
 
    graphics_info_t g;
-   clipper::Coord_orth x1(from_x1, from_y1, from_z1);
+   clipper::Coord_orth pt(from_x1, from_y1, from_z1);
    std::string c(colour_name);
-   coot::colour_holder colour =
-      coot::old_generic_display_object_t::colour_values_from_colour_name(c);
+   coot::colour_holder colour = coot::old_generic_display_object_t::colour_values_from_colour_name(c);
 
-//    std::cout << "debug:: colour input " << c << " gave colour "
-//      << colour << std::endl;
+   to_generic_object_add_point_internal(object_number, colour_name, colour, point_width, pt);
 
-   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
-
-      g.generic_display_objects[object_number].add_point(colour, c, point_width, x1);
-
-   } else {
-      std::cout << "BAD object_number in to_generic_object_add_point: "
-                << object_number << std::endl;
-   }
 }
 
 void to_generic_object_add_point_internal(int object_number,
@@ -201,7 +191,14 @@ void to_generic_object_add_point_internal(int object_number,
    graphics_info_t g;
 
    if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
-      g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
+      gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      unsigned int object_number_u(object_number);
+      if (object_number_u < g.generic_display_objects.size()) {
+         meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+         Material material;
+         g.generic_display_objects[object_number].add_point(colour, colour_name, point_width, pt);
+         obj.mesh.setup(&g.shader_for_moleculestotriangles, material); // fast return if already done
+      }
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
                 << object_number << std::endl;
@@ -253,6 +250,44 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
       std::cout << "BAD object_number in to_generic_object_add_point: "
                 << object_number << std::endl;
    }
+}
+
+void to_generic_object_add_torus_internal(int object_number,
+                                          const std::string &colour_name,
+                                          const clipper::Coord_orth &position,
+                                          const clipper::Coord_orth &normal,
+                                          float radius_1,
+                                          float radius_2) {
+
+   graphics_info_t g;
+   if (is_valid_generic_display_object_number(object_number)) {
+      meshed_generic_display_object::torus_t torus(position, normal, radius_1, radius_2);
+      coot::colour_holder colour =
+         coot::old_generic_display_object_t::colour_values_from_colour_name(colour_name);
+      torus.col = colour;
+      g.generic_display_objects[object_number].add_torus(torus);
+      meshed_generic_display_object &obj = g.generic_display_objects[object_number];
+      Material material;
+      obj.mesh.setup(&g.shader_for_moleculestotriangles, material);
+   }
+}
+
+void to_generic_object_add_torus(int object_number,
+                               const char *colour_name,
+                               float radius,
+                               float radius_inner,
+                               float centre_point_x,
+                               float centre_point_y,
+                               float centre_point_z,
+                               float normal_x,
+                               float normal_y,
+                               float normal_z) {
+
+   clipper::Coord_orth position(centre_point_x, centre_point_y, centre_point_z);
+   clipper::Coord_orth normal(normal_x, normal_y, normal_z);
+   to_generic_object_add_torus_internal(object_number, std::string(colour_name),
+                                        position, normal, radius, radius_inner);
+
 }
 
 

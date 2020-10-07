@@ -60,7 +60,10 @@ atom_colour(const std::string &element) {
 	       return GREEN_BOND;
 	    } else {
 	       if (coot::is_hydrogen(element)) {
-		  return HYDROGEN_GREY_BOND;
+                  if (coot::is_deuterium(element))
+                     return DEUTERIUM_PINK;
+                  else
+                     return HYDROGEN_GREY_BOND;
 	       }
 	    }
 	 }

@@ -109,7 +109,6 @@ coot::atom_id_mmdb_expand(const std::string &atomname) {
 	 // But what about CA! - argh! we shouldn't be using this function.
 	 // We need to know the residue name to pad correctly.
 	 //
-	 bool done = false;
 	 if (atomname == "MG" || atomname == "NA" || atomname == "LI" || atomname == "LI" || atomname == "AL" || atomname == "SI" ||
 	     atomname == "CL" || atomname == "SC" || atomname == "TI" || atomname == "CR" || atomname == "MN" || atomname == "FE" ||
 	     atomname == "CO" || atomname == "NI" || atomname == "CU" || atomname == "ZN" || atomname == "GA" || atomname == "AS" ||
@@ -2282,7 +2281,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
 
 bool
-coot::protein_geometry::is_non_auto_load_ligand(const std::string resname) const {
+coot::protein_geometry::is_non_auto_load_ligand(const std::string &resname) const {
 
    bool r = false;
    std::vector<std::string>::const_iterator it;
@@ -2546,7 +2545,7 @@ coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_res
 
 
 std::vector <coot::dict_chiral_restraint_t>
-coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_type,
+coot::protein_geometry::get_monomer_chiral_volumes(const std::string &monomer_type,
 						   int imol_enc) const { 
 
    bool ifound = 0;

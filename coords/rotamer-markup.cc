@@ -84,6 +84,8 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 					      coot::rotamer_probability_tables *rpt) {
 
    rotamer_markup_container_t rmc;
+   coot::residue_spec_t res_spec(ra.first);
+   rmc.spec = res_spec;
 
    // old: integer probabilities
    // coot::rotamer rot(residue_p);
@@ -102,17 +104,26 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 
 	    if (pr.state != coot::rotamer_probability_info_t::RESIDUE_IS_GLY_OR_ALA) {
 	       // OK or MISSING_ATOMS or ROTAMER_NOT_FOUND
-	       double size = 0.5;
 	       clipper::Coord_orth pos = coot::co(ra.second);
 	       double z = 0;
                bool use_deuteranomaly_mode = false;
 	       coot::colour_holder col(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
 	       if (pr.state == coot::rotamer_probability_info_t::OK) {
+
+                  if (false)
+                     std::cout << "in get_rotamer_probability() OK "
+                               << res_spec << " " << pr.probability << std::endl;
+
+                  // pr should be between 0 and 100.
+                  //
 		  // pr is high, z low, -> green
 		  // pr is ~0, z is ~1 -> red
-		  z = 1.0 - sqrt(sqrt(pr.probability*0.01));
+                  //
+		  z = 1.0 - sqrt(pr.probability*0.01);
+
 		  // args fraction, min, max, dummy-not-colour-triple-flag
 		  col = coot::colour_holder(z, 0.0, 1.0, use_deuteranomaly_mode, std::string(""));
+                  col.brighten(0.1);
 	       }
 	       if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
 		  col = coot::colour_holder("#bb22bb"); // purple
@@ -124,7 +135,7 @@ Bond_lines_container::get_rotamer_probability(const std::pair<mmdb::Residue *, m
 			    << " hal pr " << pr.probability
 			    << " has col " << col << std::endl;
 
-	       rmc = rotamer_markup_container_t(pos, col);
+	       rmc = rotamer_markup_container_t(res_spec, pos, col, pr);
 	    }
 	 }
       }

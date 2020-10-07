@@ -28,58 +28,60 @@ namespace coot {
 			    residue_spec_t res1,
 			    residue_spec_t res2,
 			    int model_number_in,
-			    float tors_in) {
+			    float tors_in) :
+            chain_id_1(chain_id),
+            ins_code_1(res1.ins_code),
+            chain_id_2(chain_id),
+            ins_code_2(res2.ins_code)
+         {
 	    model_number = model_number_in;
 	    serial_number = -1; // unset
-	    chain_id_1 = chain_id;
-	    chain_id_2 = chain_id;
 	    resno_1 = res1.res_no;
 	    resno_2 = res2.res_no;
-	    ins_code_1 = res1.ins_code;
-	    ins_code_2 = res2.ins_code;
 	    omega_torsion_angle = tors_in;
 	 }
 
 	 // Full constructor
 	 cis_peptide_info_t(int serial_number_in,
-			    std::string chain_id_1_in,
-			    std::string residue_name_1_in,
+			    const std::string &chain_id_1_in,
+			    const std::string &residue_name_1_in,
 			    int resno_1_in,
-			    std::string ins_code_1_in,
-			    std::string chain_id_2_in,
-			    std::string residue_name_2_in,
+			    const std::string &ins_code_1_in,
+			    const std::string &chain_id_2_in,
+			    const std::string &residue_name_2_in,
 			    int resno_2_in,
-			    std::string ins_code_2_in,
+			    const std::string &ins_code_2_in,
 			    int model_number_in,
-			    float omega_torsion_angle_in) {
+			    float omega_torsion_angle_in) :
+            serial_number(serial_number_in),
+            chain_id_1(chain_id_1_in),
+            residue_name_1(residue_name_1_in),
+            ins_code_1(ins_code_1_in),
+            chain_id_2(chain_id_2_in),
+            residue_name_2(residue_name_2_in),
+            ins_code_2(ins_code_2_in)
+         {
 
 	    serial_number = serial_number_in;
-	    chain_id_1 = chain_id_1_in;
-	    residue_name_1 = residue_name_1_in;
 	    resno_1 = resno_1_in;
-	    ins_code_1 = ins_code_1_in;
-	    chain_id_2 = chain_id_2_in;
-	    residue_name_2 = residue_name_2_in;
 	    resno_2 = resno_2_in;
-	    ins_code_2 = ins_code_2_in;
 	    model_number = model_number_in;
 	    omega_torsion_angle = omega_torsion_angle_in;
 	 }
 
 	 // Full from mmdb structure
-	 cis_peptide_info_t(mmdb::CisPep *cis) {
-	    serial_number = cis->serNum;
-	    chain_id_1 = cis->chainID1;
-	    residue_name_1 = cis->pep1;
-	    resno_1 = cis->seqNum1;
-	    ins_code_1 = cis->icode1;
-	    chain_id_2 = cis->chainID2;
-	    residue_name_2 = cis->pep2;
-	    resno_2 = cis->seqNum2;
-	    ins_code_2 = cis->icode2;
-	    model_number = cis->modNum;
-	    omega_torsion_angle = cis->measure;
-	 }
+	 explicit cis_peptide_info_t(mmdb::CisPep *cis) :
+            serial_number(cis->serNum),
+            chain_id_1(cis->chainID1),
+            residue_name_1(cis->pep1),
+            resno_1(cis->seqNum1),
+            ins_code_1(cis->icode1),
+            chain_id_2(cis->chainID2),
+            residue_name_2(cis->pep2),
+            resno_2(cis->seqNum2),
+            ins_code_2(cis->icode2),
+            model_number(cis->modNum),
+            omega_torsion_angle(cis->measure) {}
 
 	 std::string string() const;
 
@@ -130,6 +132,7 @@ namespace coot {
 	 cis_peptide_quad_info_t(const atom_quad &q, const atom_index_quad &iq, type_t t_in) :
 	    quad(q), index_quad(iq), type(t_in) {}
       };
+
 
 
    }

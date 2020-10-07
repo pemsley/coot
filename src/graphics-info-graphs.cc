@@ -86,7 +86,7 @@
 
 
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
 void
 coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog) {
@@ -146,7 +146,7 @@ coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
 
 GtkWidget *
 coot::get_validation_graph(int imol, coot::geometry_graph_type type) {

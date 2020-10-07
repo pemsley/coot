@@ -1,5 +1,6 @@
 
 #include <iomanip>
+
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
@@ -1277,12 +1278,11 @@ coot::restraints_container_t::make_non_bonded_contact_restraints_ng(int imol,
       }
    }
 
-   std::cout << "debug:: D make_df_restraints_indicies() called here\n";
    make_df_restraints_indices();
-	// is the following needed? I doubt.
+   // is the following needed? I doubt.
    make_distortion_electron_density_ranges();
 
-	return n_nbc_restraints;
+   return n_nbc_restraints;
 
 }
 
@@ -1315,6 +1315,8 @@ coot::restraints_container_t::make_link_restraints_for_link_ng(const std::string
 							       const coot::protein_geometry &geom) {
 
    link_restraints_counts lrc;
+
+   // restraints_usage_flag = BONDS_ANGLES_AND_CHIRALS;
 
    if (false)
       std::cout << "make_link_restraints_for_link_ng(): "
@@ -1779,7 +1781,7 @@ coot::restraints_container_t::add_header_metal_link_bond_ng(const coot::atom_spe
 	 break;
    }
 
-   if (true)
+   if (false)
       std::cout << "debug:: in add_header_metal_link_bond_ng() indices: " << index_1 << " " << index_2
 		<< std::endl;
 
@@ -1800,7 +1802,7 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
 
    int imol = protein_geometry::IMOL_ENC_ANY;
    for (std::size_t i=0; i<links.size(); i++) {
-      const mmdb::Link &link = links[i];
+     const mmdb::Link &link = links[i];
       atom_spec_t a1(link.chainID1, link.seqNum1, link.insCode1, link.atName1, link.aloc1);
       atom_spec_t a2(link.chainID2, link.seqNum2, link.insCode2, link.atName2, link.aloc2);
       if ((a1.alt_conf == a2.alt_conf) || a1.alt_conf.empty() || a2.alt_conf.empty()) {
@@ -1823,15 +1825,19 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
 	    if (da_1.second.type_symbol == "N") is_nitrogen_a1 = true;
 	 }
 	 if (da_2.first) {
-	    if (da_2.second.type_symbol == "O") is_oxygen_a1   = true;
-	    if (da_2.second.type_symbol == "S") is_sulfur_a1   = true;
-	    if (da_2.second.type_symbol == "N") is_nitrogen_a1 = true;
+	    if (da_2.second.type_symbol == "O") is_oxygen_a2   = true;
+	    if (da_2.second.type_symbol == "S") is_sulfur_a2   = true;
+	    if (da_2.second.type_symbol == "N") is_nitrogen_a2 = true;
 	 }
+
+         if (false)
+            std::cout << "here with link "
+                      << a1 << " " << is_oxygen_a1 << " "
+                      << a2 << " " << is_oxygen_a2 << std::endl;
 
 	 if (is_oxygen_a1) {
 	    std::map<std::string, double>::const_iterator it = geom.metal_O_map.find(rn_2);
 	    if (it != geom.metal_O_map.end()) {
-	       // std::cout << "Yay! Make metal O bond restraint " << a1 << " to metal " << a2 << std::endl;
 	       add_header_metal_link_bond_ng(a1, a2, it->second);
 	    }
 	 }
@@ -1852,7 +1858,6 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
 	 if (is_oxygen_a2) {
 	    std::map<std::string, double>::const_iterator it = geom.metal_O_map.find(rn_1);
 	    if (it != geom.metal_O_map.end()) {
-	       // std::cout << "Yay! Make metal O bond restraint " << a2 << " to metal " << a1 << std::endl;
 	       add_header_metal_link_bond_ng(a1, a2, it->second);
 	    }
 	 }
@@ -1908,6 +1913,23 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    cb.find_the_contacts(&vcontacts, only_between_different_residues_flag);
 
    std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > tested_but_nothing;
+
+   bool debug_vcontacts = false;
+   if (debug_vcontacts) {
+      for (std::size_t i=0; i<vcontacts.size(); i++) {
+         const std::set<unsigned int> &n_set = vcontacts[i];
+         if (! n_set.empty()) {
+            mmdb::Atom *at_1 = atom[i];
+            std::cout << "vcontact for " << i << " " << atom_spec_t(at_1) << ": ";
+            std::set<unsigned int>::const_iterator it;
+            for (it=n_set.begin(); it!=n_set.end(); it++) {
+               mmdb::Atom *at_2 = atom[*it];
+               std::cout << " " << atom_spec_t(at_2);
+            }
+            std::cout << std::endl;
+         }
+      }
+   }
 
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];

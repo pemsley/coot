@@ -10,6 +10,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
+#include <glm/gtx/rotate_vector.hpp>
 
 #include "meshed-generic-display-object.hh"
 #include "oct.hh"
@@ -345,17 +346,27 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
    const float pi = 3.1415926535;
    glm::vec4 col = colour_holder_to_glm(torus.col);
 
+   glm::vec4 centre(torus.position.x(), torus.position.y(), torus.position.z(), 1.0);
+   glm::vec3 ring_normal(torus.normal.x(), torus.normal.y(), torus.normal.z());
+   glm::mat4 ori = glm::orientation(ring_normal, glm::vec3(0,0,1));
+
    for (unsigned int ip=0; ip<n_phi_steps; ip++) {
       float phi = 2.0f * pi * static_cast<float>(ip)/static_cast<float>(n_phi_steps);
       for (unsigned int it=0; it<n_theta_steps; it++) {
          float theta = 2.0f * pi * static_cast<float>(it)/static_cast<float>(n_theta_steps);
          s_generic_vertex v;
-         v.pos.x = (R + r * cosf(theta)) * cosf(phi);
-         v.pos.y = (R + r * cosf(theta)) * sinf(phi);
-         v.pos.z = r * sinf(theta);
-         v.normal.x = cosf(theta) * cosf(phi);
-         v.normal.y = cosf(theta) * sinf(phi);
-         v.normal.z = sinf(theta);
+         glm::vec4 pos;
+         pos.x = (R + r * cosf(theta)) * cosf(phi);
+         pos.y = (R + r * cosf(theta)) * sinf(phi);
+         pos.z = r * sinf(theta);
+         pos.w = 1.0; // or 0?
+         v.pos = glm::vec3(pos * ori) + glm::vec3(centre);
+         glm::vec4 normal;
+         normal.x = cosf(theta) * cosf(phi);
+         normal.y = cosf(theta) * sinf(phi);
+         normal.z = sinf(theta);
+         normal.w = 1.0;
+         v.normal = glm::vec3(normal * ori);
          v.color = col;
          vertices[ip * n_theta_steps + it] = v;
       }

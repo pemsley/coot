@@ -104,11 +104,12 @@ on_glarea_realize(GtkGLArea *glarea) {
    g.init_shaders();
    g.init_buffers();
    err = glGetError();
-   std::cout << "on_glarea_realize() post init_shaders() err is " << err << std::endl;
+   if (err) std::cout << "error:: on_glarea_realize() post init_shaders() err is " << err << std::endl;
 
    graphics_info_t::shader_for_screen.Use(); // needed?
 
-   err = glGetError(); std::cout << "start on_glarea_realize() err is " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "error:: start on_glarea_realize() err is " << err << std::endl;
 
    unsigned int index_offset = 0;
    graphics_info_t::screen_framebuffer.init(w, h, index_offset, "screen/occlusion");
@@ -158,17 +159,24 @@ on_glarea_realize(GtkGLArea *glarea) {
    g.setup_lights();
 
    gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
-   g.particles.make_particles(g.n_particles, g.get_rotation_centre());
+   g.particles.make_particles(g.n_particles);
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(g.glareas[0])); // needed?   
    g.mesh_for_particles.setup_instancing_buffers_for_particles(g.particles.size());
-
-   err = glGetError();
-   if (err) std::cout << "on_glarea_realize() --end-- with err " << err << std::endl;
 
    g.mesh_for_particles.set_name("mesh for particles");
 
    g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
 
+   g.setup_hud_geometry_bars();
+
+   g.setup_rama_balls();
+
    g.setup_key_bindings();
+   
+   err = glGetError();
+   if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
+                      << err << std::endl;
+
 }
 
 gboolean
@@ -236,24 +244,39 @@ on_glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    gdk_window_get_device_position(event->window, mouse, &x_as_int, &y_as_int, &mask);
 
    bool was_a_double_click = false;
-   if (event->type==GDK_2BUTTON_PRESS)
+   if (event->type == GDK_2BUTTON_PRESS)
       was_a_double_click = true;
 
    GdkModifierType state;
 
+   // if (true) { // check here for left-mouse click
+   // if (event->state & GDK_BUTTON1_PRESS) {
    if (true) { // check here for left-mouse click
 
-      // implicit type cast
-      gboolean handled = g.check_if_moving_atom_pull(was_a_double_click);
+      bool handled = false;
+
+      if (false)
+         std::cout << "click event: " << event->x << " " << event->y << " "
+                   << x_as_int << " " << y_as_int << std::endl;
+
+      // first thing to test is the HUD bar
+      handled = g.check_if_hud_bar_clicked(event->x, event->y);
 
       if (! handled) {
-         if (was_a_double_click) {
-            pick_info nearest_atom_index_info = g.atom_pick_gtk3(false);
-            if (nearest_atom_index_info.success == GL_TRUE) {
-               int im = nearest_atom_index_info.imol;
-               g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-               g.add_picked_atom_info_to_status_bar(im, nearest_atom_index_info.atom_index);
-               g.graphics_draw();
+         // implicit type cast
+         handled = g.check_if_moving_atom_pull(was_a_double_click);
+
+         if (! handled) {
+            if (was_a_double_click) {
+               bool intermediate_atoms_only_flag = false;
+               pick_info nearest_atom_index_info = g.atom_pick_gtk3(intermediate_atoms_only_flag);
+               if (nearest_atom_index_info.success == GL_TRUE) {
+                  handled = true;
+                  int im = nearest_atom_index_info.imol;
+                  g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+                  g.add_picked_atom_info_to_status_bar(im, nearest_atom_index_info.atom_index);
+                  g.graphics_draw();
+               }
             }
          }
       }
@@ -349,33 +372,79 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.mouse_current_x = event->x;
    g.mouse_current_y = event->y;
 
-   if (event->state & GDK_BUTTON1_MASK) {
-      if (control_is_pressed) {
-         do_drag_pan_gtk3(widget);
-      } else {
+   auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget, int x_as_int, int y_as_int) {
+                               graphics_info_t g;
+                               if (control_is_pressed) {
+                                  do_drag_pan_gtk3(widget);
+                               } else {
+                                  GtkAllocation allocation;
+                                  gtk_widget_get_allocation(widget, &allocation);
+                                  int w = allocation.width;
+                                  int h = allocation.height;
+                                  graphics_info_t::update_view_quaternion(w, h);
+                               }
+                            };
 
-         bool handled = false;
-         if (g.in_moving_atoms_drag_atom_mode_flag) {
-            if (g.last_restraints_size() > 0) {
-               // move an already picked atom
-               g.move_atom_pull_target_position(x_as_int, y_as_int);
-               handled = true;
-            } else {
-               // don't allow translation drag of the
-               // intermediate atoms when they are a rotamer:
-               //
-               if (! g.rotamer_dialog) {
-                  // e.g. translate an added peptide fragment.
-                  g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
-               }
+   auto mouse_zoom = [] (double delta_x, double delta_y) {
+                        // Zooming
+                        double fx = 1.0 + delta_x/300.0;
+                        double fy = 1.0 + delta_y/300.0;
+                        if (fx > 0.0) graphics_info_t::zoom /= fx;
+                        if (fy > 0.0) graphics_info_t::zoom /= fy;
+                        if (false)
+                           std::cout << "zooming with perspective_projection_flag "
+                                     << graphics_info_t::perspective_projection_flag
+                                     << " " << graphics_info_t::zoom << std::endl;
+                        if (! graphics_info_t::perspective_projection_flag) {
+                           // std::cout << "now zoom: " << g.zoom << std::endl;
+                        } else {
+                           // Move the eye towards the rotation centre (don't move the rotation centre)
+                           if (fabs(delta_y) > fabs(delta_x))
+                              delta_x = delta_y;
+                           float sf = 1.0 - delta_x * 0.003;
+                           graphics_info_t::eye_position.z *= sf;
+
+                           { // own graphics_info_t function - c.f. adjust clipping
+                              double  l = graphics_info_t::eye_position.z;
+                              double zf = graphics_info_t::screen_z_far_perspective;
+                              double zn = graphics_info_t::screen_z_near_perspective;
+
+                              graphics_info_t::screen_z_near_perspective *= sf;
+                              graphics_info_t::screen_z_far_perspective  *= sf;
+
+                              float screen_z_near_perspective_limit = l * 0.95;
+                              float screen_z_far_perspective_limit  = l * 1.05;
+                              if (graphics_info_t::screen_z_near_perspective < 2.0)
+                                 graphics_info_t::screen_z_near_perspective = 2.0;
+                              if (graphics_info_t::screen_z_far_perspective > 1000.0)
+                                 graphics_info_t::screen_z_far_perspective = 1000.0;
+
+                              if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
+                                 graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
+                              if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
+                                 graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+                              if (false)
+                                 std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+                                           << graphics_info_t::screen_z_near_perspective << " "
+                                           << graphics_info_t::screen_z_far_perspective << std::endl;
+                           }
+                        }
+                     };
+
+   if (event->state & GDK_BUTTON1_MASK) {
+
+      if (g.in_moving_atoms_drag_atom_mode_flag) {
+         if (g.last_restraints_size() > 0) {
+            // move an already picked atom
+            g.move_atom_pull_target_position(x_as_int, y_as_int);
+         } else {
+            // don't allow translation drag of the
+            // intermediate atoms when they are a rotamer:
+            //
+            if (! g.rotamer_dialog) {
+               // e.g. translate an added peptide fragment.
+               g.move_moving_atoms_by_simple_translation(x_as_int, y_as_int);
             }
-         }
-         if (! handled) {
-            GtkAllocation allocation;
-            gtk_widget_get_allocation(widget, &allocation);
-            int w = allocation.width;
-            int h = allocation.height;
-            graphics_info_t::update_view_quaternion(w, h);
          }
       }
    }
@@ -386,51 +455,51 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    }
 
    if (event->state & GDK_BUTTON3_MASK) {
-      // Zooming
-      double delta_x = event->x - g.GetMouseBeginX();
-      double delta_y = event->y - g.GetMouseBeginY();
-      double fx = 1.0 + delta_x/300.0;
-      double fy = 1.0 + delta_y/300.0;
-      if (fx > 0.0) g.zoom /= fx;
-      if (fy > 0.0) g.zoom /= fy;
-      if (false)
-         std::cout << "zooming with perspective_projection_flag "
-                   << graphics_info_t::perspective_projection_flag
-                   << " " << g.zoom << std::endl;
-      if (! graphics_info_t::perspective_projection_flag) {
-         // std::cout << "now zoom: " << g.zoom << std::endl;
+
+      if (event->state & GDK_BUTTON1_MASK) {
+         double delta_x = event->x - g.GetMouseBeginX();
+         double delta_y = event->y - g.GetMouseBeginY();
+         mouse_zoom(delta_x, delta_y);
       } else {
-         // Move the eye towards the rotation centre (don't move the rotation centre)
-         float sf = 1.0 - delta_x * 0.003;
-         graphics_info_t::eye_position.z *= sf;
-
-         { // own graphics_info_t function - c.f. adjust clipping
-            double  l = graphics_info_t::eye_position.z;
-            double zf = graphics_info_t::screen_z_far_perspective;
-            double zn = graphics_info_t::screen_z_near_perspective;
-
-            graphics_info_t::screen_z_near_perspective *= sf;
-            graphics_info_t::screen_z_far_perspective  *= sf;
-
-            float screen_z_near_perspective_limit = l * 0.95;
-            float screen_z_far_perspective_limit  = l * 1.05;
-            if (graphics_info_t::screen_z_near_perspective < 2.0)
-               graphics_info_t::screen_z_near_perspective = 2.0;
-            if (graphics_info_t::screen_z_far_perspective > 1000.0)
-               graphics_info_t::screen_z_far_perspective = 1000.0;
-
-            if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
-               graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
-            if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
-               graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
-            if (false)
-               std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
-                         << graphics_info_t::screen_z_near_perspective << " "
-                         << graphics_info_t::screen_z_far_perspective << std::endl;
+         if (!shift_is_pressed) {
+            mouse_view_rotate(widget, x_as_int, y_as_int);
          }
-
+         if (shift_is_pressed) {
+            double delta_x = event->x - g.GetMouseBeginX();
+            double delta_y = event->y - g.GetMouseBeginY();
+            mouse_zoom(delta_x, delta_y);
+         }
       }
    }
+
+   if (g.delete_item_widget) { 
+      if (g.delete_item_water) {
+	 pick_info naii = g.atom_pick_gtk3(false);
+         GdkDisplay *display = gdk_display_get_default();
+         GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(widget));
+         GdkCursor *current_cursor = gdk_window_get_cursor(window);
+         // std::cout << "current cursor " << gdk_cursor_get_cursor_type(current_cursor) << std::endl;
+	 if (naii.success == GL_TRUE) {
+            int imol = naii.imol;
+            molecule_class_info_t &m = graphics_info_t::molecules[imol];
+            std::string res_name = m.atom_sel.atom_selection[naii.atom_index]->GetResName();
+            if (res_name == "HOH") {
+               GdkCursor *c = gdk_cursor_new_from_name (display, "crosshair");
+               // std::cout << "crosshair type " << gdk_cursor_get_cursor_type(c) << std::endl;
+               gdk_window_set_cursor(window, c);
+            } else {
+               GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
+               // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+               gdk_window_set_cursor(window, c);
+            }
+         } else {
+            GdkCursor *c = gdk_cursor_new_from_name (display, "not-allowed");
+            // std::cout << "not-allowed type " << gdk_cursor_get_cursor_type(c) << std::endl;
+            gdk_window_set_cursor(window, c);
+         }
+      }
+   }
+
 
    // for next motion
    g.SetMouseBegin(event->x,event->y);
@@ -498,7 +567,7 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
    if (it != g.key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
      if (true)
-        std::cout << "key-binding for key: " << it->first.gdk_key << " : "
+        std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
      kb.run();
      found =  true;

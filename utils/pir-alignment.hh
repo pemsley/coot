@@ -45,7 +45,7 @@ namespace coot {
                                  // we are mutating).
       int resno_end_structure;  // the last residue number in the range (combined with resno_end_structure)
                                 // if is -1, then no "resno_end_structure" was specified in pir alignment file.
-      pir_alignment_t(const std::string &s);
+      explicit pir_alignment_t(const std::string &s);
       void read_file(const std::string &file_name);
       pir_alignment_t();
       // any number of alignments can be read - most typically there will be

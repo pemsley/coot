@@ -1368,6 +1368,10 @@ gboolean
 coot_checked_exit(int retval) {
 
    graphics_info_t g;
+
+   // 20200822-PE save the (new) python history
+   g.command_history.write_history();
+
    int i_unsaved = g.check_for_unsaved_changes();
    std::string cmd = "coot-checked-exit";
    std::vector<coot::command_arg_t> args;
@@ -1471,6 +1475,9 @@ coot_real_exit(int retval) {
 
 void
 coot_no_state_real_exit(int retval) {
+
+   graphics_info_t g;
+   g.command_history.write_history();
 
    // this is called (only) from on_window1_delete_event()
    coot_save_state_and_exit(retval, 0);
@@ -1784,6 +1791,30 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 /*              scripting gtk interface                                      */
 /*  ------------------------------------------------------------------------ */
 
+
+// extern "C" G_MODULE_EXPORT
+gboolean
+on_python_window_entry_key_press_event(GtkWidget   *entry,
+                                       GdkEventKey *event,
+                                       gpointer     user_data) {
+
+   if (event->keyval == GDK_KEY_Up) {
+      graphics_info_t g;
+      std::string t = g.command_history.get_previous_command();
+      // std::cout << "previous-command: \"" << t << "\"" << std::endl;
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      return TRUE;
+   }
+   if (event->keyval == GDK_KEY_Down) {
+      graphics_info_t g;
+      std::string t = g.command_history.get_next_command();
+      gtk_entry_set_text(GTK_ENTRY(entry), t.c_str());
+      return TRUE;
+   }
+
+   return FALSE;
+}
+
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
 void
@@ -1793,13 +1824,18 @@ setup_python_window_entry(GtkWidget *entry) {
 
    // add python entry in entry callback code here...
 
-    g_signal_connect(G_OBJECT(entry), "activate",
-		     G_CALLBACK(python_window_enter_callback),
-		     (gpointer) entry);
+   g_signal_connect(G_OBJECT(entry), "activate",
+                    G_CALLBACK(python_window_enter_callback),
+                    (gpointer) entry);
+
+   g_signal_connect(G_OBJECT(entry), "key-press-event",
+                    G_CALLBACK(on_python_window_entry_key_press_event),
+                    (gpointer) entry);
 
 #endif // USE_PYTHON
-
 }
+
+
 
 // We want to evaluate the string when we get a carriage return
 // in this entry widget
@@ -1808,41 +1844,33 @@ setup_guile_window_entry(GtkWidget *entry) {
 
 #ifdef USE_GUILE
    g_signal_connect(G_OBJECT(entry), "activate",
-		    G_CALLBACK(guile_window_enter_callback),
-		    (gpointer) entry);
+                    G_CALLBACK(guile_window_enter_callback),
+                    (gpointer) entry);
 #endif //  USE_GUILE
 
 }
 
 #ifdef USE_PYTHON
-void python_window_enter_callback( GtkWidget *widget,
-				   GtkWidget *entry )
-{
+void python_window_enter_callback(GtkWidget *widget,
+                                  GtkWidget *entry ) {
 
-  const gchar *entry_text;
-  entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
-
-  // Sigh. PyRun_SimpleString needs a (char *), not a (const gchar *):
-  size_t new_length = strlen(entry_text)+1;
-  char *new_text;
-  new_text = new char[new_length];
-  strncpy(new_text, entry_text, new_length);
-  printf("Running string: %s\n", new_text);
-
-  PyRun_SimpleString(new_text);
+  const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
+  std::string entry_text_as_string(entry_text); // important to make a copy
+  PyRun_SimpleString(entry_text);
 
   // clear the entry
-  gtk_entry_set_text(GTK_ENTRY(entry),"");
+  gtk_entry_set_text(GTK_ENTRY(entry), "");
 
-  delete [] new_text;
+  graphics_info_t g;
+  g.command_history.add_to_history(entry_text_as_string);
+
 }
 #endif
 
 
 #ifdef USE_GUILE
-void guile_window_enter_callback( GtkWidget *widget,
-				  GtkWidget *entry )
-{
+void guile_window_enter_callback(GtkWidget *widget,
+                                 GtkWidget *entry ) {
   const gchar *entry_text;
   entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
   printf("Entry contents: %s\n", entry_text);
@@ -1856,7 +1884,7 @@ void guile_window_enter_callback( GtkWidget *widget,
 
    SCM handler = scm_c_eval_string ("(lambda (key . args) "
      "(display (list \"Error in proc:\" key \" args: \" args)) (newline))");
-			   // "(newline))");
+                           // "(newline))");
 
   // scm_catch(SCM_BOOL_T, scm_c_eval_string(entry_text), handler);
 
@@ -4147,9 +4175,9 @@ void set_map_colour(int imol, float red, float green, float blue) {
 
    if (is_valid_map_molecule(imol)) {
       GdkRGBA colour;
-      colour.red = red;
-      colour.green = green;
-      colour.red = red;
+      colour.red   = red   * 65535.0;
+      colour.green = green * 65535.0;
+      colour.blue   = blue * 65535.0;
       short int swap_col = graphics_info_t::swap_difference_map_colours;
       graphics_info_t::molecules[imol].handle_map_colour_change(colour, swap_col,
                                                                 graphics_info_t::GL_CONTEXT_MAIN);
@@ -5236,7 +5264,8 @@ void set_sequence_view_is_docked(short int state) {
 
 void nsv(int imol) {
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#ifdef HAVE_GOOCANVAS
+
    if (is_valid_model_molecule(imol)) {
 
       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
@@ -5251,7 +5280,8 @@ void nsv(int imol) {
 	 GtkWidget *widget = lookup_widget(canvas, "nsv_dialog");
 
 	 if (widget) {
-	    if (!GTK_WIDGET_MAPPED(widget)) {
+	    // if (!GTK_WIDGET_MAPPED(widget)) { // gone
+            if (true) {
 	       gtk_widget_show(widget);
 	    } else {
 	       std::cout << "GTK-FIXME no raise" << std::endl;
@@ -5263,10 +5293,12 @@ void nsv(int imol) {
 
 	    widget = lookup_widget(canvas, "sequence_view_dialog");
 	    if (widget) {
-	       if (!GTK_WIDGET_MAPPED(widget)) {
+	       //if (!GTK_WIDGET_MAPPED(widget)) { // gone
+               if (true) {
 		  gtk_widget_show(widget);
 	       } else {
-		  gdk_window_raise(widget->window);
+                  GdkWindow *w = gtk_widget_get_window(widget);
+		  gdk_window_raise(w);
 	       }
 	    }
 	 }
@@ -5275,7 +5307,7 @@ void nsv(int imol) {
 	 graphics_info_t g;
          GtkWidget *main_window_vbox = 0;
          if (g.sequence_view_is_docked_flag) {
-            main_window_vbox = lookup_widget(g.glarea, "main_window_vbox");
+            main_window_vbox = lookup_widget(g.glareas[0], "main_window_vbox");
          }
 	 std::string name = g.molecules[imol].name_for_display_manager();
 	 exptl::nsv *seq_view =
@@ -5289,7 +5321,7 @@ void nsv(int imol) {
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
-#endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#endif // GOOCANVAS
 }
 
 void set_nsv_canvas_pixel_limit(int cpl) {
@@ -5746,6 +5778,29 @@ on_generic_objects_dialog_object_toggle_button_toggled(GtkButton       *button,
 }
 
 void
+on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled(GtkToggleButton *button,
+                                                                      gpointer user_data) {
+
+   int combo_ints = GPOINTER_TO_INT(user_data);
+   int imol = combo_ints/1000;
+   int obj_no = combo_ints - imol;
+   bool state = false;
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+      state = 1;
+
+   std::cout << "debug imol " << imol << " obj_no " << obj_no << std::endl;
+   if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
+      molecule_class_info_t &m = graphics_info_t::molecules[imol];
+      int n_meshes = m.instanced_meshes.size();
+      if (obj_no >=0 && obj_no < n_meshes) {
+         m.instanced_meshes[obj_no].set_draw_status(state);
+         graphics_draw();
+      }
+   }
+
+}
+
+void
 generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_object &gdo,
                                                 GtkWidget *dialog,
                                                 GtkWidget *grid,
@@ -5784,28 +5839,19 @@ generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_obj
 
 }
 
-
-// Get rid of this
-//
-// This presumes that the table is big enough to add the widgets for
-// the given object number.
-//
 void
-generic_objects_dialog_grid_add_object_internal(const coot::old_generic_display_object_t &gdo,
+generic_objects_dialog_grid_add_object_internal(int imol,
+                                                const Instanced_Markup_Mesh &imm,
                                                 GtkWidget *dialog,
                                                 GtkWidget *grid,
-                                                int io) {
+                                                int i_position) {
 
-   if (! gdo.is_closed_flag) {
-
+   if (! imm.is_closed()) {
       GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (_("Display"));
-      std::string label_str = gdo.name;
+      std::string label_str = imm.get_name();
       GtkWidget *label = gtk_label_new(label_str.c_str());
 
-      std::cout << "generic_objects_dialog_grid_add_object_internal() set alignment" << std::endl;
-      // gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5); // not gtk_label_set_justify
-
-      std::string stub = "generic_object_" + coot::util::int_to_string(io);
+      std::string stub = "generic_object_" + std::to_string(i_position);
       std::string toggle_button_name = stub + "_toggle_button";
       std::string label_name = stub + "_label";
 
@@ -5815,28 +5861,24 @@ generic_objects_dialog_grid_add_object_internal(const coot::old_generic_display_
       g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
       g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
 
-      gtk_grid_attach (GTK_GRID (grid), label, 0, 1, 1, 1);
+      // grid child left top width height
+      gtk_grid_attach (GTK_GRID (grid), label,       0, i_position, 1, 1);
+      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, i_position, 1, 1);
 
-      // (GtkAttachOptions) (GTK_FILL),
-      // (GtkAttachOptions) (0), 8, 0); // pad-x pad-y
-
-      gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, 2, 1, 1);
-
-      // (GtkAttachOptions) (GTK_FILL),
-      // (GtkAttachOptions) (0), 0, 0);
-
-      if (gdo.is_displayed_flag)
+      if (imm.get_draw_status())
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
 
       g_signal_connect(G_OBJECT(checkbutton), "toggled",
-		       G_CALLBACK(on_generic_objects_dialog_object_toggle_button_toggled),
-		       GINT_TO_POINTER(io));
+		       G_CALLBACK(on_instanced_mesh_generic_objects_dialog_object_toggle_button_toggled),
+		       GINT_TO_POINTER(imol * 1000 + i_position));
 
       gtk_widget_show (label);
       gtk_widget_show (checkbutton);
-   }
 
+   }
 }
+
+
 
 
 GtkWidget *wrapped_create_generic_objects_dialog() {
@@ -5853,10 +5895,27 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
    gtk_container_add(GTK_CONTAINER(generic_objects_viewport), generic_objects_dialog_grid);
 
    if (generic_objects_dialog_grid) {
+      unsigned int io_count = 0;
       unsigned int n_objs = g.generic_display_objects.size();
       for (unsigned int io=0; io<n_objs; io++) {
 	 const meshed_generic_display_object &gdo = g.generic_display_objects.at(io);
-	 generic_objects_dialog_grid_add_object_internal(gdo, w, generic_objects_dialog_grid, io);
+         if (! gdo.mesh.is_closed()) {
+            generic_objects_dialog_grid_add_object_internal(gdo, w, generic_objects_dialog_grid, io);
+            io_count++;
+         }
+      }
+
+      unsigned int im_count = 0;
+      for (unsigned int i=0; i<g.molecules.size(); i++) {
+         const molecule_class_info_t &m = g.molecules[i];
+         for (unsigned int j=0; j<m.instanced_meshes.size(); j++) {
+            const Instanced_Markup_Mesh &imm = m.instanced_meshes[j];
+            if (! imm.is_closed()) {
+               generic_objects_dialog_grid_add_object_internal(i, imm, w, generic_objects_dialog_grid,
+                                                               im_count+io_count);
+               im_count++;
+            }
+         }
       }
    }
    return w;
@@ -5890,10 +5949,11 @@ int add_generic_display_object(const meshed_generic_display_object &gdo) {
 #include <boost/crc.hpp>
 #endif
 
-bool
+std::pair<bool, std::string>
 checksums_match(const std::string &file_name, const std::string &checksum) {
 
    bool state = false;
+   std::string message;
 
 #ifdef HAVE_BOOST
    std::ifstream f(file_name.c_str());
@@ -5904,13 +5964,15 @@ checksums_match(const std::string &file_name, const std::string &checksum) {
       // boost::crc_basic<16> crc_ccitt1( 0x1021, 0xFFFF, 0, false, false );
       boost::crc_basic<16> crc_ccitt1(0xffff, 0x0, 0, false, false );
       crc_ccitt1.process_bytes(dl_str.c_str(), dl_str.size());
-      // std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
+      std::cout << "checksum compare " << crc_ccitt1.checksum() << " " << checksum << std::endl;
       std::string s = coot::util::int_to_string(crc_ccitt1.checksum());
       if (s == checksum)
 	 state = true;
+      else
+         message = s + " vs " + checksum;
    }
 #endif // HAVE_BOOST
-   return state;
+   return std::pair<bool, std::string> (state, message);
 }
 
 
@@ -5942,7 +6004,8 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
       } else {
          // Happy path
          if (coot::file_exists(dl_fn)) {
-            if (checksums_match(dl_fn, checksum)) {
+            std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
+            if (checksum_result.first) {
                // I want a function that returns preferences_dir
                char *home = getenv("HOME");
                if (home) {
@@ -5968,7 +6031,7 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                   std::cout << "No HOME env var" << std::endl;
                }
             } else {
-               std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+               std::cout << "WARNING:: Failure in checksum match " << dl_fn << " " << checksum_result.second << std::endl;
             }
          } else {
             std::cout << "WARNING:: download target file " << dl_fn << " does not exist" << std::endl;
@@ -6062,7 +6125,8 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
 			if (coot::file_exists(dl_fn)) {
 			   std::string checksum;
 			   if (checksum_cstr) checksum = checksum_cstr;
-			   if (checksums_match(dl_fn, checksum)) {
+                           std::pair<bool, std::string> checksum_result = checksums_match(dl_fn, checksum);
+                           if (checksum_result.first) {
 			      // I want a function that returns preferences_dir
 			      char *home = getenv("HOME");
 			      if (home) {
@@ -6092,7 +6156,7 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
                                  std::cout << "No HOME env var" << std::endl;
                               }
 			   } else {
-			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << std::endl;
+			      std::cout << "WARNING:: Failure in checksum match " << dl_fn << " " << checksum_result.second << std::endl;
 			   }
 			} else {
 			   std::cout << "WARNING:: file does not exist " << file_name << std::endl;

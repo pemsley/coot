@@ -74,8 +74,8 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                                                 bool swap_difference_map_colours_flag,
                                                 bool main_or_secondary) {
 
-   if (false)
-      std::cout << "handle change to colour "
+   if (true)
+      std::cout << "debug:: handle_map_colour_change() handle change to colour "
                 << map_col_in.red << " "
                 << map_col_in.green << " "
                 << map_col_in.blue << std::endl;

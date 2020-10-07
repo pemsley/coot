@@ -146,6 +146,54 @@ coot::residue_spec_t::label(const std::string &residue_name) const {
 }
 
 
+// return null on failure to find atom in mol
+// (this is the inside out version of the function in molecule_class_info_t)
+mmdb::Atom *
+coot::atom_spec_t::get_atom(mmdb::Manager *mol) const {
+
+   mmdb::Atom *at = 0;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string this_chain_id(chain_p->GetChainID());
+         if (this_chain_id == chain_id) {
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               int this_res_no = residue_p->GetSeqNum();
+               if (this_res_no == this->res_no) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *this_at = residue_p->GetAtom(iat);
+                     if (! this_at->isTer()) {
+                        std::string this_atom_name(this_at->GetAtomName());
+                        std::string this_alt_loc = (this_at->altLoc);
+                        if (this_atom_name == this->atom_name) {
+                           if (this_alt_loc == this->alt_conf) {
+                              at = this_at;
+                           }
+                        }
+                     }
+                     if (at) break;
+                  }
+                  if (at) break;
+               }
+               if (at) break;
+            }
+            if (at) break;
+         }
+         if (at) break;
+      }
+   }
+
+   return at;
+}
+
+
+
 bool
 coot::atom_spec_t::matches_spec(mmdb::Atom *atom) const {
 
@@ -255,3 +303,4 @@ coot::link_atoms(mmdb::LinkR *link, mmdb::Model *model_p) {
 
    return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
 }
+

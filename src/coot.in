@@ -177,9 +177,10 @@ COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
  
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
-   COOT_PYTHON_DIR=$COOT_PREFIX/python27/lib/site-packages/coot
+    # this needs fixing
+    COOT_PYTHON_DIR=$COOT_PREFIX/python27/lib/site-packages/coot
 else
-   COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
+    COOT_PYTHON_DIR=$COOT_PREFIX/lib/python3.6/site-packages/coot
 fi
 
 # Added 20090429 - take this out when trying internationalization.

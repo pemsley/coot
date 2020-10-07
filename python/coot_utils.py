@@ -4297,6 +4297,31 @@ def rename_alt_confs_active_residue():
 
         rename_alt_confs(imol, chain_id, resno, inscode)
 
+def write_current_sequence_as_pir(imol, ch_id, file_name):
+    print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+
+def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
+
+    current_sequence_pir_file = "current-sequence.pir"
+    aligned_sequence_pir_file = "aligned-sequence.pir"
+    clustalw2_output_file_name = "clustalw2-output-file.log"
+
+    if os.path.exists("aligned-sequence.pir"):
+        os.remove("aligned-sequence.pir")
+    if os.path.exists("aligned-sequence.dnd"):
+        os.remove("aligned-sequence.dnd")
+    if os.path.exists("current-sequence.dnd"):
+        os.remove("current-sequence.dnd")
+
+    write_current_sequence_as_pir(imol, ch_id, current_sequence_pir_file)
+
+    data_lines = ["3", "1", target_sequence_pir_file, "2", current_sequence_pir_file,
+                  "9", "2", "", "4", "", aligned_sequence_pir_file, "", "x", "", "x"]
+    popen_command("clustalw2", [], data_lines, clustalw2_output_file_name, 0)
+    associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
+    apply_pir_alignment(imol, ch_id)
+    simple_fill_partial_residues(imol)
+
 
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe

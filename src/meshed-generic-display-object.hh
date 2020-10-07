@@ -24,7 +24,7 @@ class meshed_generic_display_object {
 public:
    class arrow_t {
    public:
-      arrow_t() { fract_head_size = 0.3;}
+      arrow_t() { fract_head_size = 0.3; radius = 0.15; }
       arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
          start_point = pt1;
          end_point = pt2;
@@ -39,8 +39,7 @@ public:
    class sphere_t {
    public:
       sphere_t() {}
-      sphere_t(const clipper::Coord_orth &centre_in, float r) {
-         centre = centre_in;
+      sphere_t(const clipper::Coord_orth &centre_in, float r) : centre(centre_in) {
          radius = r;
       }
       clipper::Coord_orth centre;
@@ -50,17 +49,13 @@ public:
    class torus_t {
    public:
       torus_t() {}
-      torus_t(const clipper::Coord_orth &pt1,
-              const clipper::Coord_orth &pt2,
-              float r1, float r2) {
-         start_point = pt1;
-         end_point   = pt2;
-         radius_1 = r1;
-         radius_2 = r2;
+      torus_t(const clipper::Coord_orth &p,
+              const clipper::Coord_orth &n,
+              float r1, float r2) : position(p), normal(n), radius_1(r1), radius_2(r2) {
          n_ring_atoms = 6;
       }
-      clipper::Coord_orth start_point;
-      clipper::Coord_orth end_point;
+      clipper::Coord_orth position;
+      clipper::Coord_orth normal;
       coot::colour_holder col;
       float radius_1;
       float radius_2;
@@ -103,11 +98,8 @@ public:
    };
    class dodec_t {
    public:
-      dodec_t(const dodec &d_in, double size_in, const clipper::Coord_orth &pos_in) {
-         d = d_in;
-         size = size_in;
-         position = pos_in;
-      }
+      dodec_t(const dodec &d_in, double size_in, const clipper::Coord_orth &pos_in) :
+         d(d_in), size(size_in), position(pos_in) { }
       dodec d;
       double size;
       clipper::Coord_orth position;
@@ -117,11 +109,7 @@ public:
    class pentakis_dodec_t { // perhaps this should inherit from above
    public:
       pentakis_dodec_t(const pentakis_dodec &pkdd_in, double size_in,
-                       const clipper::Coord_orth &pos_in) {
-         pkdd = pkdd_in;
-         size = size_in;
-         position = pos_in;
-      }
+                       const clipper::Coord_orth &pos_in) : pkdd(pkdd_in), size(size_in), position(pos_in) { }
       pentakis_dodec pkdd;
       double size;
       clipper::Coord_orth position;
@@ -129,7 +117,7 @@ public:
    };
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
    meshed_generic_display_object() { imol = UNDEFINED; }
-   meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
+   explicit meshed_generic_display_object(const Mesh &mesh_in) : mesh(mesh_in) { imol = UNDEFINED; }
    std::map<unsigned int, std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > > origin_octasphere_map;
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
       wrapped_make_octasphere(unsigned int num_subdivisions, const glm::vec3 &position,
@@ -145,7 +133,7 @@ public:
    void clear() { mesh.clear(); imol = UNDEFINED; }
    void close_yourself() { clear(); mesh.close(); }
    void add(const sphere_t &sphere) {
-      std::cout << "add a sphere here" << std::endl;
+      std::cout << "add a sphere here" << sphere.centre.format() << std::endl;
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);

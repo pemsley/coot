@@ -96,8 +96,8 @@ void main() {
 
          vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0);
          vec4 lsd = vec4(0.6, 0.6, 0.6, 1.0);
-         vec4 ambient  = colour_transfer * lsa * 0.1;
-         vec4 diffuse  = colour_transfer * lsd * dp * 0.8;
+         vec4 ambient = colour_transfer * lsa * 0.1;
+         vec4 diffuse = colour_transfer * lsd * dp * 0.8;
 
          // specular
          float shininess = 150.0;

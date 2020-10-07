@@ -337,9 +337,16 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
 
          bool use_biased_density_scoring = false; // not for all-molecule
          r = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-                                                             xmap_blur, map_sigma,
-                                                             n_trials, jiggle_scale_factor,
-                                                             use_biased_density_scoring, chains);
+                                                           xmap_blur, map_sigma,
+                                                           n_trials, jiggle_scale_factor,
+                                                           use_biased_density_scoring, chains);
+         // now fit to original map, just a few trials will do, becuase the rigid body fit
+         // is what we really want
+         r = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+                                                           xmap, map_sigma,
+                                                           12, 0.4,
+                                                           use_biased_density_scoring, chains);
+
          mol->DeleteSelection(SelHnd);
          graphics_draw();
       }

@@ -1835,6 +1835,7 @@ void set_delete_atom_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-atom-mode");
 }
 
@@ -1849,6 +1850,7 @@ void set_delete_residue_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-residue-mode");
 }
 
@@ -1863,6 +1865,7 @@ void set_delete_residue_hydrogens_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-residue-hydrogens-mode");
 
 }
@@ -1892,6 +1895,7 @@ void set_delete_water_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-residue-water-mode");
 
 }
@@ -1908,6 +1912,7 @@ void set_delete_sidechain_mode() {
    g.delete_item_chain = 0;
    g.delete_item_sidechain = 1;
    g.delete_item_sidechain_range = 0;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
@@ -1924,6 +1929,7 @@ void set_delete_sidechain_range_mode() {
    g.delete_item_chain = 0;
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 1;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-sidechain-range-mode");
 }
 
@@ -1940,6 +1946,7 @@ void set_delete_chain_mode() {
    g.delete_item_sidechain = 0;
    g.delete_item_sidechain_range = 0;
    g.delete_item_chain = 1;
+   pick_cursor_maybe();
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
@@ -3303,13 +3310,16 @@ void assign_pir_sequence(int imol, const char *chain_id_in, const char *seq) {
 
 void assign_sequence_from_file(int imol, const char *file) {
    if (is_valid_model_molecule(imol)) {
-    graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
-  }
-  std::string cmd = "assign-sequence-from-file";
-  std::vector<coot::command_arg_t> args;
-  args.push_back(imol);
-  args.push_back(single_quote(file));
-  add_to_history_typed(cmd, args);
+      graphics_info_t::molecules[imol].assign_sequence_from_file(std::string(file));
+   } else {
+      std::cout << "WARNING:: assign_sequence_from_file() molecule number " << imol
+                << " is not a valid molecule" << std::endl;
+   }
+   std::string cmd = "assign-sequence-from-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(single_quote(file));
+   add_to_history_typed(cmd, args);
 }
 
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq) {

@@ -50,6 +50,7 @@
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
 
 #include "geometry/bonded-quad.hh"
+#include "mmdb-crystal.h"
 
 namespace coot {
 
@@ -179,7 +180,13 @@ class Bond_lines_container {
 	 return true;
       else
 	 return false; 
-   } 
+   }
+   bool is_deuterium(const std::string &ele) const {
+      if (ele == " D")
+	 return true;
+      else
+	 return false; 
+   }
 
    void construct_from_atom_selection(const atom_selection_container_t &asc,
 				      const mmdb::PPAtom atom_selection_1,
@@ -271,7 +278,9 @@ class Bond_lines_container {
 		       int atom_index_1,
 		       int atom_index_2,
 		       int atom_colour_type,
-                       coot::my_atom_colour_map_t *atom_colour_map_p);
+                       coot::my_atom_colour_map_t *atom_colour_map_p,
+                       bool add_begin_end_cap,
+                       bool add_end_end_cap);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // We pass udd_atom_index_handle because we need the atom index (not residue atom index) for
@@ -382,23 +391,28 @@ class Bond_lines_container {
    // and the bonds between the above monomers
    void add_polymer_bonds(const atom_selection_container_t &asc,
                           int atom_colour_type,
+                          coot::my_atom_colour_map_t *atom_colour_map_p,
                           int draw_hydrogens_flag,
                           bool draw_missing_loops_flag,
                           bool do_goodsell_colour_mode);
    void add_peptide_bonds(const atom_selection_container_t &asc,
                           int atom_colour_type,
+                          coot::my_atom_colour_map_t *atom_colour_map_p,
                           int draw_hydrogens_flag,
                           bool do_goodsell_colour_mode);
    void add_phosphodiester_bonds(const atom_selection_container_t &asc,
                                  int atom_colour_type,
+                                 coot::my_atom_colour_map_t *atom_colour_map_p,
                                  int draw_hydrogens_flag,
                                  bool do_goodsell_colour_mode);
    void add_carbohydrate_bonds(const atom_selection_container_t &asc, // oh. Tricky.
                                int atom_colour_type,
+                               coot::my_atom_colour_map_t *atom_colour_map_p,
                                int draw_hydrogens_flag,
                                bool do_goodsell_colour_mode);
    void add_polymer_bonds_generic(const atom_selection_container_t &asc,
                                   int atom_colour_type,
+                                  coot::my_atom_colour_map_t *atom_colour_map_p,
                                   int draw_hydrogens_flag,
                                   const std::string &res_1_atom_name, // in "res1"
                                   const std::string &res_2_atom_name, // in "res2"

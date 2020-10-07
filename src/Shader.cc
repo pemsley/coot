@@ -78,6 +78,7 @@ Shader::close() {
 
 void
 Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
+
    GLuint err = glGetError();
    if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name << " start err " << err << std::endl;
    GLint loc = glGetUniformLocation_internal(uniform_name.c_str());
@@ -85,8 +86,9 @@ Shader::set_int_for_uniform(const std::string &uniform_name, int value) {
                                           << " A err " << err << std::endl;
    glUniform1i(loc,value);
    err = glGetError(); if (err) std::cout << "error:: Shader::set_int_for_uniform() " << name
-                                          << " B glUniform1i for loc: " << loc << " value: "
-                                          << value << " err " << err << std::endl;
+                                          << " B glUniform1i for uniform " << uniform_name
+                                          << " loc: " << loc << " value: " << value
+                                          << " err " << err << std::endl;
 }
 
 void
@@ -265,6 +267,13 @@ Shader::set_vec3_for_uniform(const std::string &u_name, const glm::vec3 &v) {
 
    GLuint idx = glGetUniformLocation_internal(u_name);
    glUniform3fv(idx, 1, glm::value_ptr(v));
+}
+
+void
+Shader::set_vec2_for_uniform(const std::string &u_name, const glm::vec2 &v) {
+
+   GLuint idx = glGetUniformLocation_internal(u_name);
+   glUniform2fv(idx, 1, glm::value_ptr(v));
 }
 
 void Shader::set_more_uniforms_for_molecular_triangles() {

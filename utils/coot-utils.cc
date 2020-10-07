@@ -415,7 +415,7 @@ coot::util::float_to_string(float f) {
    return std::string(s);
 #endif
 
-   return std::to_string(f);
+   return float_to_string_using_dec_pl(f, 2);
 
 }
 
@@ -436,7 +436,7 @@ coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    // initialized.
 
    std::stringstream s;
-   s << std::fixed;
+   s << std::right << std::fixed;
    s << std::setprecision(n_dec_pl);
    s << f;
    std::string ss = s.str();

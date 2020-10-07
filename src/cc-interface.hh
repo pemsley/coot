@@ -323,6 +323,8 @@ PyObject *export_molecule_as_x3d(int imol);
 
 #endif
 
+bool export_molecule_as_obj(int imol, const std::string &file_name);
+
 void
 colour_map_by_other_map_turn_off(int imol_map);
 
@@ -1378,18 +1380,34 @@ void set_map_shininess(int imol, float shininess);
 //! \brief set the map specular strength
 void set_map_specular_strength(int imol, float specular_strength);
 
+//! \brief
 void set_draw_normals(short int state);
 
+//! \brief
 int draw_normals_state();
 
+//! \brief
 void set_draw_mesh(int imol, int mesh_index, short int state);
 
-// return -1 on unable to lookup mesh
+//! \brief return -1 on unable to lookup mesh
 int draw_mesh_state(int imol, int mesh_index);
 
+//! \brief
 void set_map_material_specular(int imol, float specular_strength, float shininess);
 
+//! \brief
 void set_model_material_specular(int imol, float specular_strength, float shininess);
+
+//! \brief
+void set_map_fresnel_settings(int imol, short int state, float bias, float scale, float power);
+
+//! \brief
+void reload_map_shader();
+
+//! \brief
+void reload_model_shader();
+
+void set_atom_radius_scale_factor(int imol, float scale_factor);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
@@ -1859,6 +1877,9 @@ SCM spherical_density_overlap(SCM i_scm, SCM j_scm);
 #endif // USE_GUILE
 #endif // __cplusplus
 
+void resolve_clashing_sidechains_by_deletion(int imol);
+
+void resolve_clashing_sidechains_by_rebuilding(int imol);
 
 /*  ----------------------------------------------------------------------- */
 /*                  GUIL Utility Functions                                  */

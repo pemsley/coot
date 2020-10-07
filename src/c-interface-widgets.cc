@@ -130,7 +130,7 @@ void remarks_dialog(int imol) {
 	    g_object_set_data(G_OBJECT(d), "remarks_dialog", d);
 	    // is this correct!?
 	    // GtkWidget *vbox = GTK_DIALOG(d)->vbox;
-	    GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
+	    GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d));
 	    GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
 	    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
 	    // gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
@@ -525,8 +525,7 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       g_object_set_data(G_OBJECT(d), "simple_text_dialog", d);
       gtk_window_set_title (GTK_WINDOW (d), _(dialog_title.c_str()));
 
-      // is this correct?
-      GtkWidget *vbox = gtk_dialog_get_header_bar(GTK_DIALOG(d));
+      GtkWidget *vbox = gtk_dialog_get_content_area(GTK_DIALOG(d)); // new method to get vbox fromm dialog
       GtkWidget *vbox_inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
       GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
       //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
