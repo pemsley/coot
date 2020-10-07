@@ -3255,248 +3255,249 @@ void keypad_translate_xyz(short int axis, short int direction) {
 gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 {
 
-   // try to correct cntrl and shift anomalies:
-   //
-   if (event->state & GDK_CONTROL_MASK)
-      graphics_info_t::control_is_pressed = 1;
-   else
-      graphics_info_t::control_is_pressed = 0;
-   if (event->state & GDK_SHIFT_MASK)
-      graphics_info_t::shift_is_pressed = 1;
-   else
-      graphics_info_t::shift_is_pressed = 0;
+//    // try to correct cntrl and shift anomalies:
+//    //
+//    if (event->state & GDK_CONTROL_MASK)
+//       graphics_info_t::control_is_pressed = 1;
+//    else
+//       graphics_info_t::control_is_pressed = 0;
+//    if (event->state & GDK_SHIFT_MASK)
+//       graphics_info_t::shift_is_pressed = 1;
+//    else
+//       graphics_info_t::shift_is_pressed = 0;
 
-   // we are getting key release events as the key is pressed (but not
-   // released) :-).
-   //
-   // std::cout << "key release event" << std::endl;
-   graphics_info_t g;
-   int s = graphics_info_t::scroll_wheel_map;
-   if (s < graphics_info_t::n_molecules()) {
-      if (s >= 0) {
-	 if (! graphics_info_t::molecules[s].has_xmap()) {  // NXMAP-FIXME
-	    s = -1; // NO MAP
-	 }
-      }
-   } else {
-      s = -1; // NO MAP
-   }
-
-
-   std::vector<int> num_displayed_maps = g.displayed_map_imols();
-   if (num_displayed_maps.size() == 1)
-      s = num_displayed_maps[0];
-   short int istate = 0;
-
-   switch (event->keyval) {
-   case GDK_KEY_Control_L:
-   case GDK_KEY_Control_R:
-
-//       std::cout << "DEBUG ctrl key release: graphics_info_t::control_is_pressed "
-// 		<< graphics_info_t::control_is_pressed
-// 		<< " graphics_info_t::pick_pending_flag "
-// 		<< graphics_info_t::pick_pending_flag << std::endl;
-
-      graphics_info_t::control_is_pressed = 0; // FALSE.
-      if (graphics_info_t::in_edit_chi_mode_flag)
-	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
-      if (graphics_info_t::in_edit_torsion_general_flag)
-	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
-      if (graphics_info_t::in_multi_residue_torsion_mode)
-	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
-
-      if (graphics_info_t::control_key_for_rotate_flag) {
-	 if (graphics_info_t::pick_pending_flag) {
-	    pick_cursor_maybe();
-	 } else {
-	    normal_cursor();
-	 }
-      } else {
-	 // control key is for pick
-	 if (graphics_info_t::pick_pending_flag) {
-	    normal_cursor();
-	 } else {
-	    pick_cursor_maybe();
-	 }
-      }
+//    // we are getting key release events as the key is pressed (but not
+//    // released) :-).
+//    //
+//    // std::cout << "key release event" << std::endl;
+//    graphics_info_t g;
+//    int s = graphics_info_t::scroll_wheel_map;
+//    if (s < graphics_info_t::n_molecules()) {
+//       if (s >= 0) {
+// 	 if (! graphics_info_t::molecules[s].has_xmap()) {  // NXMAP-FIXME
+// 	    s = -1; // NO MAP
+// 	 }
+//       }
+//    } else {
+//       s = -1; // NO MAP
+//    }
 
 
-      // When we don't have active map dragging, we want to renew the map at
-      // control release, not anywhere else.
-      //
-      for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	 graphics_info_t::molecules[ii].update_map();
-	 graphics_info_t::molecules[ii].update_clipper_skeleton();
-      }
-      g.make_pointer_distance_objects();
-      g.graphics_draw();
-      break;
-   case GDK_KEY_minus:
-      //
-      // let the object decide which level change it needs (and if it needs it)
-      // using graphics_info_t static members
-      if (s >= 0) {
+//    std::vector<int> num_displayed_maps = g.displayed_map_imols();
+//    if (num_displayed_maps.size() == 1)
+//       s = num_displayed_maps[0];
+//    short int istate = 0;
 
-	 // std::cout << "here in key_release_event for -" << std::endl;
-	 // istate = graphics_info_t::molecules[s].change_contour(-1); // no longer needed
-	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
-	 g.set_density_level_string(s, g.molecules[s].contour_level);
-	 g.display_density_level_this_image = 1;
+//    switch (event->keyval) {
+//    case GDK_KEY_Control_L:
+//    case GDK_KEY_Control_R:
 
-	 // g.graphics_draw();
-      } else {
-	 std::cout << "WARNING: No map - Can't change contour level.\n";
-      }
-      break;
-   case GDK_KEY_plus:
-   case GDK_KEY_equal:  // unshifted plus, usually.
-      //
+// //       std::cout << "DEBUG ctrl key release: graphics_info_t::control_is_pressed "
+// // 		<< graphics_info_t::control_is_pressed
+// // 		<< " graphics_info_t::pick_pending_flag "
+// // 		<< graphics_info_t::pick_pending_flag << std::endl;
 
-      // let the object decide which level change it needs:
-      //
-      if (s >= 0) {
+//       graphics_info_t::control_is_pressed = 0; // FALSE.
+//       if (graphics_info_t::in_edit_chi_mode_flag)
+// 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+//       if (graphics_info_t::in_edit_torsion_general_flag)
+// 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+//       if (graphics_info_t::in_multi_residue_torsion_mode)
+// 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
 
-	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
-	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+//       if (graphics_info_t::control_key_for_rotate_flag) {
+// 	 if (graphics_info_t::pick_pending_flag) {
+// 	    pick_cursor_maybe();
+// 	 } else {
+// 	    normal_cursor();
+// 	 }
+//       } else {
+// 	 // control key is for pick
+// 	 if (graphics_info_t::pick_pending_flag) {
+// 	    normal_cursor();
+// 	 } else {
+// 	    pick_cursor_maybe();
+// 	 }
+//       }
 
-	 // graphics_info_t::molecules[s].change_contour(1); // positive change
-	 // graphics_info_t::molecules[s].update_map();
 
-	 g.set_density_level_string(s, g.molecules[s].contour_level);
-	 g.display_density_level_this_image = 1;
+//       // When we don't have active map dragging, we want to renew the map at
+//       // control release, not anywhere else.
+//       //
+//       for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
+// 	 graphics_info_t::molecules[ii].update_map();
+// 	 graphics_info_t::molecules[ii].update_clipper_skeleton();
+//       }
+//       g.make_pointer_distance_objects();
+//       g.graphics_draw();
+//       break;
+//    case GDK_KEY_minus:
+//       //
+//       // let the object decide which level change it needs (and if it needs it)
+//       // using graphics_info_t static members
+//       if (s >= 0) {
 
-	 // g.graphics_draw();
-      } else {
-	 std::cout << "WARNING: No map - Can't change contour level.\n";
-      }
-      break;
+// 	 std::cout << "here in key_release_event for -" << std::endl;
+// 	 graphics_info_t::molecules[s].pending_contour_level_change_count--;
+//          std::cout << "graphics_info_t::molecules[s].pending_contour_level_change_count now "
+//                    << graphics_info_t::molecules[s].pending_contour_level_change_count << std::endl;
+// 	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
+// 	 g.set_density_level_string(s, g.molecules[s].contour_level);
+// 	 g.display_density_level_this_image = 1;
 
-   case GDK_KEY_A:
-   case GDK_KEY_a:
-      graphics_info_t::a_is_pressed = 0;
-      break;
+// 	 // g.graphics_draw();
+//       } else {
+// 	 std::cout << "WARNING: No map - Can't change contour level.\n";
+//       }
+//       break;
+//    case GDK_KEY_plus:
+//    case GDK_KEY_equal:  // unshifted plus, usually.
+//       //
 
-   case GDK_KEY_B:
-   case GDK_KEY_b:
-      // Only toggle baton mode if we are showing a baton!
-      // (Otherwise confusion reigns!)
-      if (g.draw_baton_flag)
-	 g.toggle_baton_mode();
-      break;
+//       // let the object decide which level change it needs:
+//       //
+//       if (s >= 0) {
 
-   case GDK_KEY_c:
-      if (graphics_info_t::control_is_pressed) {
-         g.copy_active_atom_molecule();
-      } else {
-	 if (! graphics_info_t::shift_is_pressed) {
-	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
-	    g.crosshairs_text();
-	 }
-      }
-      g.graphics_draw();
-      break;
+// 	 graphics_info_t::molecules[s].pending_contour_level_change_count++;
+// 	 int contour_idle_token = g_idle_add(idle_contour_function, g.glareas[0]);
 
-   case GDK_KEY_e:
-      if (graphics_info_t::control_is_pressed) {
-	 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
-	 if (active_atom.first) {
-	    if (is_valid_model_molecule(active_atom.second.first)) {
-	       // environment graphics object doesn't work this way.  There is
-	       // only one of it and its display is controlled by having its bonds box
-	       // filled or not.
-	       // graphics_info_t::molecules[imol].toggle_display_environment_graphics_object();
-	       graphics_draw();
-	    }
-	 }
-      }
-      break;
+// 	 // graphics_info_t::molecules[s].change_contour(1); // positive change
+// 	 // graphics_info_t::molecules[s].update_map();
 
-   case GDK_KEY_s:
-   case GDK_KEY_S:
-      if (graphics_info_t::control_is_pressed) {
-	 // quick_save() is on button-press
-      } else {
-	 // as it used to be
-	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
-	    graphics_info_t::molecules[ii].update_clipper_skeleton();
-	 g.graphics_draw();
-      }
-      break;
+// 	 g.set_density_level_string(s, g.molecules[s].contour_level);
+// 	 g.display_density_level_this_image = 1;
 
-   case GDK_KEY_i:
-   case GDK_KEY_I:
-      if (! graphics_info_t::control_is_pressed) {
-	 toggle_idle_spin_function();
-      } else {
-	 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-	 if (pp.first) {
-	    const coot::atom_spec_t &spec = pp.second.second;
-	    residue_info_dialog(pp.second.first, spec.chain_id.c_str(), spec.res_no,
-				spec.ins_code.c_str());
-	 }
-      }
-      break;
+// 	 // g.graphics_draw();
+//       } else {
+// 	 std::cout << "WARNING: No map - Can't change contour level.\n";
+//       }
+//       break;
 
-   case GDK_KEY_l:
-   case GDK_KEY_L:
-      // something here, L is released.
-      break;
+//    case GDK_KEY_A:
+//    case GDK_KEY_a:
+//       graphics_info_t::a_is_pressed = 0;
+//       break;
 
-   case GDK_KEY_Shift_L:
-   case GDK_KEY_Shift_R:
-      graphics_info_t::shift_is_pressed = 0;
-      break;
+//    case GDK_KEY_B:
+//    case GDK_KEY_b:
+//       // Only toggle baton mode if we are showing a baton!
+//       // (Otherwise confusion reigns!)
+//       if (g.draw_baton_flag)
+// 	 g.toggle_baton_mode();
+//       break;
 
-   case GDK_KEY_z:
-   case GDK_KEY_Z:
-      graphics_info_t::z_is_pressed = 0;
-      break;
+//    case GDK_KEY_c:
+//       if (graphics_info_t::control_is_pressed) {
+//          g.copy_active_atom_molecule();
+//       } else {
+// 	 if (! graphics_info_t::shift_is_pressed) {
+// 	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
+// 	    g.crosshairs_text();
+// 	 }
+//       }
+//       g.graphics_draw();
+//       break;
 
-   case GDK_KEY_y:
-   case GDK_KEY_Y:
-      graphics_info_t::y_is_pressed = 0;
-      break;
+//    case GDK_KEY_e:
+//       if (graphics_info_t::control_is_pressed) {
+// 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+// 	 if (active_atom.first) {
+// 	    if (is_valid_model_molecule(active_atom.second.first)) {
+// 	       // environment graphics object doesn't work this way.  There is
+// 	       // only one of it and its display is controlled by having its bonds box
+// 	       // filled or not.
+// 	       // graphics_info_t::molecules[imol].toggle_display_environment_graphics_object();
+// 	       graphics_draw();
+// 	    }
+// 	 }
+//       }
+//       break;
 
-   case GDK_KEY_space:
-      // go to next residue
-//       int next = 1;
-//       if (graphics_info_t::shift_is_pressed == 1)
-// 	 next = -1;  // i.e. previous
+//    case GDK_KEY_s:
+//    case GDK_KEY_S:
+//       if (graphics_info_t::control_is_pressed) {
+// 	 // quick_save() is on button-press
+//       } else {
+// 	 // as it used to be
+// 	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
+// 	    graphics_info_t::molecules[ii].update_clipper_skeleton();
+// 	 g.graphics_draw();
+//       }
+//       break;
 
-      // std::cout << "got a space acting on " << g.go_to_atom_chain()
-// 		<< " " << g.go_to_atom_residue()+ next
-// 		<<  " " << g.go_to_atom_atom_name() << std::endl;
+//    case GDK_KEY_i:
+//    case GDK_KEY_I:
+//       if (! graphics_info_t::control_is_pressed) {
+// 	 toggle_idle_spin_function();
+//       } else {
+// 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+// 	 if (pp.first) {
+// 	    const coot::atom_spec_t &spec = pp.second.second;
+// 	    residue_info_dialog(pp.second.first, spec.chain_id.c_str(), spec.res_no,
+// 				spec.ins_code.c_str());
+// 	 }
+//       }
+//       break;
 
-      // commented 030805:
-//       set_go_to_atom_chain_residue_atom_name(g.go_to_atom_chain(),
-// 					     g.go_to_atom_residue()+next,
-// 					     g.go_to_atom_atom_name());
+//    case GDK_KEY_l:
+//    case GDK_KEY_L:
+//       // something here, L is released.
+//       break;
 
-      bool reorienting = graphics_info_t::reorienting_next_residue_mode;
-      if (reorienting) {
-	 if (graphics_info_t::shift_is_pressed) {
-	    g.reorienting_next_residue(false); // backwards
-	 } else {
-	    g.reorienting_next_residue(true); // forwards
-	 }
-      } else {
-	 // old/standard simple translation
-	 if (graphics_info_t::shift_is_pressed) {
-	    g.intelligent_previous_atom_centring(g.go_to_atom_window);
-	 } else {
-	    g.intelligent_next_atom_centring(g.go_to_atom_window);
-	 }
-      }
-      break;
-   }
+//    case GDK_KEY_Shift_L:
+//    case GDK_KEY_Shift_R:
+//       graphics_info_t::shift_is_pressed = 0;
+//       break;
 
-   /* prevent the default handler from being run */
-   // gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "key_release_event");
+//    case GDK_KEY_z:
+//    case GDK_KEY_Z:
+//       graphics_info_t::z_is_pressed = 0;
+//       break;
 
-   std::cout << "---------- GTK-FIXME gtk_signal_emit_stop_by_name() " << std::endl;
-   g_signal_emit_by_name(G_OBJECT(widget), "stop", "key_release_event");
-   return TRUE;
+//    case GDK_KEY_y:
+//    case GDK_KEY_Y:
+//       graphics_info_t::y_is_pressed = 0;
+//       break;
+
+//    case GDK_KEY_space:
+//       // go to next residue
+// //       int next = 1;
+// //       if (graphics_info_t::shift_is_pressed == 1)
+// // 	 next = -1;  // i.e. previous
+
+//       // std::cout << "got a space acting on " << g.go_to_atom_chain()
+// // 		<< " " << g.go_to_atom_residue()+ next
+// // 		<<  " " << g.go_to_atom_atom_name() << std::endl;
+
+//       // commented 030805:
+// //       set_go_to_atom_chain_residue_atom_name(g.go_to_atom_chain(),
+// // 					     g.go_to_atom_residue()+next,
+// // 					     g.go_to_atom_atom_name());
+
+//       bool reorienting = graphics_info_t::reorienting_next_residue_mode;
+//       if (reorienting) {
+// 	 if (graphics_info_t::shift_is_pressed) {
+// 	    g.reorienting_next_residue(false); // backwards
+// 	 } else {
+// 	    g.reorienting_next_residue(true); // forwards
+// 	 }
+//       } else {
+// 	 // old/standard simple translation
+// 	 if (graphics_info_t::shift_is_pressed) {
+// 	    g.intelligent_previous_atom_centring(g.go_to_atom_window);
+// 	 } else {
+// 	    g.intelligent_next_atom_centring(g.go_to_atom_window);
+// 	 }
+//       }
+//       break;
+//    }
+
+//    /* prevent the default handler from being run */
+//    // gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "key_release_event");
+
+//    std::cout << "---------- GTK-FIXME gtk_signal_emit_stop_by_name() " << std::endl;
+//    g_signal_emit_by_name(G_OBJECT(widget), "stop", "key_release_event");
+//    return TRUE;
 
   return TRUE;
 }
@@ -3515,7 +3516,9 @@ gint idle_contour_function(gpointer data) {
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
          int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
+
          // std::cout << "---    imol: " << imol << " cc: " << cc << std::endl;
+
          if (cc != 0) {
 
 	          if (cc < 0) {
@@ -4095,6 +4098,8 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 }
 
 void handle_scroll_density_level_event(int scroll_up_down_flag) {
+
+   std::cout << "debug:: handle_scroll_density_level_event() " << scroll_up_down_flag << std::endl;
 
    graphics_info_t info;
 

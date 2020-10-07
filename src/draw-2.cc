@@ -219,6 +219,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 gboolean
 on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
+
    int direction = 1;
    if (event->direction == GDK_SCROLL_UP)
       direction = -1;
@@ -232,6 +233,7 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    
    if (control_is_pressed) {
       if (shift_is_pressed){
+
          if (direction == 1)
             change_model_molecule_representation_mode(-1);
          else
@@ -240,8 +242,14 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
       }
    }
 
-   if (! handled)
+   if (! handled) {
+      // start the idle function - why is this needed? The contouring used to
+      // work (i.e. the idle function was added somewhere (else)).
+      if (graphics_info_t::glareas.size() > 0) {
+         g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
+      }
       g.contour_level_scroll_scrollable_map(direction);
+   }
    return TRUE;
 }
 
@@ -586,12 +594,13 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
      if (true)
         std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+     std::cout << "----------------- run the run function of that: " << std::endl;
      kb.run();
      found =  true;
    }
 
-   // fix the type here
-   if (int(event->keyval) == graphics_info_t::update_go_to_atom_from_current_residue_key) {
+   int kv = event->keyval;
+   if (kv == graphics_info_t::update_go_to_atom_from_current_residue_key) {
       update_go_to_atom_from_current_position();
       handled = TRUE;
    }
