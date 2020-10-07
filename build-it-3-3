@@ -3132,6 +3132,259 @@ fi
 
 
 ###############################################################################
+##########         build numpy                                    #############
+###############################################################################
+
+build_numpy=true
+
+# Let's stop at the beginning if we need a fortran compiler and don't have it.
+#
+if [ "$build_numpy" = true ] ; then
+   if gfortran --version > /dev/null ; then
+      echo found fortran compiler
+   else
+      echo fortran compiler not found.
+      exit 2
+   fi
+fi
+
+if [ true = true ] ; then
+   skip_this=false
+   if [ -e $install_top_dir/lib/python2.7/site-packages/numpy/lib/info.py ] ;  then
+         echo numpy is found, skip
+         skip_this=true
+   fi
+   if [ $skip_this = false ] ;  then
+      (
+      echo building ========================= numpy ==============================
+      # this needs fortran compiler gfortran
+
+      # maybe get numpy from github?
+      # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
+      # numpy needset setuptools
+      # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
+      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      #
+      tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      cd numpy-$numpy_version/
+      # we need to check that we have a fortran compiler, in this case gnu95
+      #
+      if gfortran --version ; then
+        echo found fortran compiler
+      else
+        echo fortran compiler not found.
+        exit 2
+      fi
+      python setup.py build --fcompiler=gfortran
+      python setup.py install
+      if [ ! $? ] ; then
+         echo something bad about numpy.
+         exit 2
+      fi
+      cd -
+      ) > $HOSTLOGDIR/17-a-numpy.log 2>&1
+   fi
+fi
+
+# this is a hack for charybdis   - we need cmake version 3.1 or later
+export PATH=$HOME/cmake/bin:$PATH
+
+build_rdkit=true
+rdkit_version=2017_09_3
+# rdkit_version=2019_09_1 # python 3
+# rdkit_version=2018_09_2 # Atom pointers gone, needs coot patch
+rdkit_home=https://github.com/rdkit/rdkit/archive
+rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
+rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
+
+if [ "$build_rdkit" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/rdkit/DistGeom/TriangleSmooth.h ] ;  then
+         echo rdkit is found, skip
+         skip_this=true
+      fi
+   fi
+
+   # hack
+   # skip_this=false
+
+   if [ $skip_this = false ] ;  then
+
+      echo building rdkit
+      (
+      echo building ========================= rdkit ==============================
+
+      # at last we can compile rdkit
+      RDKIT=$install_top_dir
+      RDBASE=$install_top_dir
+      CMAKE_INSTALL_PREFIX=$install_top_dir
+      export RDKIT
+      export RDBASE
+      export CMAKE_INSTALL_PREFIX
+
+      # shall we build from github rdkit?
+      github_rdkit=false
+
+      if [ $(uname) = Darwin ] ; then
+         echo LD_LIBRARY_FALLBACK_PATH  $LD_LIBRARY_FALLBACK_PATH
+	 # what is unexport in bash?
+         export LD_LIBRARY_PATH=
+      fi
+
+      echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
+      echo ==================== PYTHONPATH is $PYTHONPATH
+
+      if [ "$github_rdkit" = true ] ; then
+         echo PATH A - pull
+         if [ ! -d rdkit-github/build ] ; then
+            mkdir -p rdkit-github/build
+         fi
+         echo pulling...
+         # cd rdkit-github/rdkit && git pull && cd -
+         cd rdkit-github/build
+         pwd
+         tree_from_build=../rdkit
+      else
+
+         # old wget $rdkit_home/$rdkit_tar_host_file_name -P ${AUTOBUILD_SOURCES} -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         echo PATH B
+
+         # OK, So, AFAICS, -N doesn't work with this file. So check the size
+         get_the_rdkit_tar_file=true
+         if [ -e  ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name ] ; then
+            echo found the file $rdkit_tar_download_file_name
+            size=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name)
+            echo size: $size
+            if [ "$size" = 29567648 ] ; then
+               get_the_rdkit_tar_file=false
+            fi
+         fi
+         echo C here with get_the_rdkit_tar_file $get_the_rdkit_tar_file
+
+         if [ $get_the_rdkit_tar_file = true ] ; then
+            # $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            echo $WGET $rdkit_home/$rdkit_tar_host_file_name 
+            $WGET $rdkit_home/$rdkit_tar_host_file_name
+            echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         fi
+
+         pwd
+         tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+         ls
+         if [ ! -e rdkit-Release_$rdkit_version ] ; then
+             echo RDKit untar dir not found: rdkit-Release_$rdkit_version
+             exit 2
+         fi
+         cd rdkit-Release_$rdkit_version
+         mkdir -p build
+         cd build
+         pwd
+         tree_from_build=..
+      fi
+
+
+      # New (1.60) boost uses BOOST_PYTHON not Boost_PYTHON
+      #
+      echo which cmake
+      which cmake
+
+      # No help:  -DBoost_INCLUDE_DIR=$install_top_dir/include
+      # Cmake policy:	 -DMACOSX_RPATH=ON
+
+      # old verisons of boost (before 1.60?) can't find boost python
+      # with new (github Feb 2016) rdkit
+
+      # -DPYTHON_LIBRARY=$install_top_dir/lib/libpython2.7.$extension_type
+
+      # no help apparently
+      # -DBoost_EXTERNAL_OBJECTS=$install_top_dir/lib/libboost_python.$extension_type
+      # -DBoost_INCLUDE_DIR=$install_top_dir/include
+      #
+      #  -DBOOST_ROOT=$install_top_dir
+      # -DBoost_INCLUDE_DIR=$install_top_dir/include
+      #  -DBoost_LIBRARY_DIRS=$install_top_dir/lib
+      #  -DBoost_PYTHON_LIBRARY=$install_top_dir/lib/libboost_python.$extension_type
+      #  -DBoost_REGEX_LIBRARY=$install_top_dir/lib/libboost_regex.$extension_type
+
+
+      # catches correctly (no need to specify)
+      # 	 -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python2.7
+
+      if [ $(uname) = Darwin ] ; then
+         cmake_macosx_rpath=-DCMAKE_MACOSX_RPATH=ON
+      fi
+
+      # last time I looked, the include files of RDKit MolDraw2D were wrong.
+      # I had to hack in GraphMol/MolDraw2D into include/rdkit and copy the files
+      # there.
+
+      # -- Could NOT find InChI in system locations (missing:  INCHI_LIBRARY INCHI_INCLUDE_DIR)
+      # CMake Warning at External/INCHI-API/CMakeLists.txt:43 (message):
+      #   ** NO INCHI SOFTWARE FOUND
+      #
+      #   InChI support will be turned off.  If you want to add InChI support, please
+      #   follow the instructions inside $RDBASE/External/INCHI-API/README to
+      #   download a copy of InChI software and then rerun cmake.
+      #
+      # http://www.inchi-trust.org/download/105/INCHI-1-SRC.zip
+
+      # now libboost_python comes with an extended name: libboost_python27
+      libboost_pthon_ext=3.6m
+      libboost_pthon_ext=
+      extension_type=so
+
+      if [ $(uname) = Darwin ] ; then
+         extension_type=dylib
+      else
+         extension_type=so
+      fi
+
+      echo will configure with cmake like this:
+      echo cmake -DRDK_INSTALL_INTREE=0  \
+	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+         -DPYTHON_LIBRARY=$install_top_dir/lib/libpython3.6m.$extension_type \
+         -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
+         -DPYTHON_INSTDIR=$install_top_dir \
+	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_THREADSAFE_SSS=OFF  \
+         -DRDK_BUILD_INCHI_SUPPORT=OFF   \
+         $cmake_macosx_rpath \
+         -DCMAKE_INSTALL_PREFIX=$install_top_dir $tree_from_build
+
+
+      if cmake -DRDK_INSTALL_INTREE=0  \
+	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+         -DPYTHON_LIBRARY=$install_top_dir/lib/libpython3.6m.$extension_type \
+         -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
+         -DPYTHON_INSTDIR=$install_top_dir \
+	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
+	 -DRDK_TEST_MULTITHREADED=OFF    \
+         -DRDK_BUILD_THREADSAFE_SSS=OFF  \
+         -DRDK_BUILD_INCHI_SUPPORT=OFF   \
+         $cmake_macosx_rpath \
+         -DCMAKE_INSTALL_PREFIX=$install_top_dir $tree_from_build ; then
+
+         if $MAKE ; then
+            make install
+         else
+            echo problem making the RDKit.
+            exit 1
+         fi
+      else
+         echo problem configuring the RDKit.
+         exit 1
+      fi
+      cd ..
+      cd ..
+      ) > $HOSTLOGDIR/18-rdkit.log 2>&1
+   fi
+fi
+
+
+
+###############################################################################
 ##########         Coot is now built from git repo                #############
 ###############################################################################
 #
@@ -3228,12 +3481,16 @@ echo PATH: $PATH
 # the gtk3 branch, have run autogen.sh
 # and have placed that directory somewhere sensible relative to here
 
+rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python27 -lpython3.6m"
+rdkit_install_dir=$install_top_dir
+
 echo ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       SHELL=/bin/bash \
       PYTHON=python3 \
       --with-modern-language-tools   \
+      --with-enhanced-ligand-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
       --with-goocanvas-prefix=$install_top_dir \
@@ -3243,7 +3500,9 @@ echo ../coot/configure $coot_prefix \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
-      $extra_args_for_darwin
+      $extra_args_for_darwin \
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
+   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 
 bash ../coot/configure $coot_prefix \
       --with-fftw-prefix=$install_top_dir  \
@@ -3251,6 +3510,7 @@ bash ../coot/configure $coot_prefix \
       PYTHON=python3 \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       --with-modern-language-tools   \
+      --with-enhanced-ligand-tools   \
       --with-boost=$install_top_dir  \
       --with-python=$install_top_dir \
       --with-goocanvas-prefix=$install_top_dir \
@@ -3260,7 +3520,9 @@ bash ../coot/configure $coot_prefix \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args    \
-      $extra_args_for_darwin
+      $extra_args_for_darwin \
+   RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit  -DRDKIT_HAS_CAIRO_SUPPORT" \
+   RDKIT_LIBS="\"-L$rdkit_install_dir/lib $rdkit_libs\""
 
 
 $MAKE
