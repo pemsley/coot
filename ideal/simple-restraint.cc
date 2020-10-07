@@ -8046,9 +8046,13 @@ coot::refinement_results_t::hooray() const {
    // to prevent hooray() returning true "too often" only make it return true if there
    // have been pull restraints
    //
+
+#if 0
+   // perhaps the calling function should pass this? Or perhaps, it's given in the constructor?
    int n_pull_restraints = n_atom_pull_restraints();
    if (n_pull_restraints == 0)
       status = false;
+#endif
 
    return status;
 }
