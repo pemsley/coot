@@ -565,13 +565,19 @@ graphics_info_t::refinement_loop_threaded() {
          continue_threaded_refinement_loop = false;
 
          // The hooray() function goes off too frequently.
-         // It shouldn't go off if there is no manual intervention.
+         // Maybe It shouldn't go off if there is no intervention.
+         // Unless it's really good.
          //
-         if (rr.hooray()) {
+         std::pair<bool, std::string> hooray = rr.hooray();
+
+         if (hooray.first) {
             // we can't touch Gtk or OpenGL because this we are in a thread
             // (not the main thread)
             // g.setup_draw_for_particles();
             g.setup_draw_for_particles_semaphore = true;
+         } else {
+            // set up a semaphore or something to put some text
+            // (hooray.second) into the status bar
          }
 
       } else {

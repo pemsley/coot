@@ -8027,10 +8027,11 @@ coot::restraints_container_t::df_by_thread_results_size() const {
 // Rama outliers - and that would be misleading for most people (not
 // me).
 //
-bool
+std::pair<bool, std::string>
 coot::refinement_results_t::hooray() const {
 
    bool status = true;
+   std::string message;
    for (unsigned int i=0; i<lights.size(); i++) {
       const refinement_lights_info_t &light = lights[i];
       std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
@@ -8054,6 +8055,6 @@ coot::refinement_results_t::hooray() const {
       status = false;
 #endif
 
-   return status;
+   return std::pair<bool, std::string> (status, message);
 }
 #endif // HAVE_GSL

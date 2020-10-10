@@ -77,7 +77,7 @@ namespace coot {
          overall_rama_plot_score = 0.0;
          overall_atom_pull_score = 0.0;
       }
-      bool hooray() const;
+      std::pair<bool, std::string> hooray() const;
    };
 }
 
