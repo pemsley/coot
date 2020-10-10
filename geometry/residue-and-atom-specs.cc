@@ -84,6 +84,22 @@ coot::atom_spec_t::label() const {
    return s;
 }
 
+std::string
+coot::atom_spec_t::simple_label(const std::string &residue_name) const {
+   std::string s;
+   s += chain_id;
+   s += " ";
+   s += util::int_to_string(res_no);
+   s += " ";
+   s += util::remove_whitespace(atom_name);
+   if (! residue_name.empty()) {
+      s += " ";
+      s += residue_name;
+   }
+   return s;
+}
+
+
 
 // formatted as if you'd clicked on it in the graphics window
 // Use the passed residue type.
@@ -143,6 +159,38 @@ coot::residue_spec_t::label(const std::string &residue_name) const {
    s += "/";
    s += chain_id;
    return s;
+}
+
+// return null on failure to find residue in mol
+mmdb::Residue *
+coot::residue_spec_t::get_residue(mmdb::Manager *mol) const {
+
+   mmdb::Residue *r = 0;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string this_chain_id(chain_p->GetChainID());
+         if (this_chain_id == chain_id) {
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               int this_res_no = residue_p->GetSeqNum();
+               if (this_res_no == this->res_no) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  if (n_atoms > 0) {
+                     r = residue_p;
+                  }
+               }
+               if (r) break;
+            }
+         }
+         if (r) break;
+      }
+   }
+   return r;
 }
 
 

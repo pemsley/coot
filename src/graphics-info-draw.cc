@@ -1605,6 +1605,8 @@ graphics_info_t::setup_lights() {
 void
 graphics_info_t::setup_hud_geometry_bars() {
 
+   if (! glareas[0]) return;
+
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -1616,19 +1618,31 @@ graphics_info_t::setup_hud_geometry_bars() {
    shader_for_hud_geometry_bars.Use();
 
    mesh_for_hud_geometry.setup_camera_facing_quad_for_bar();
-   mesh_for_hud_geometry.setup_instancing_buffer(100);
+   mesh_for_hud_geometry.setup_instancing_buffer(500);
 
    // If not found in this directory, then try default directory.
    texture_for_hud_geometry_labels.set_default_directory(coot::package_data_dir());
    texture_for_hud_geometry_labels.init("hud-label-nbc-rama.png");
 
+   // above?
+   texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
+   // texture_for_hud_tooltip_background.init("hud-label-nbc-rama.png");
+   texture_for_hud_tooltip_background.init("hud-tooltip.png"); // 94x47
+   float sc_x = 0.001 * static_cast<float>(94);
+   float sc_y = 0.001 * static_cast<float>(47);
+
    // Do I need to Use() the shader_for_hud_geometry_labels here?
    shader_for_hud_geometry_labels.Use();
    mesh_for_hud_geometry_labels.setup_quad();
-   // mesh_for_hud_geometry_labels.set_position_and_scale(glm::vec2(-0.96, 0.87), 0.037); // was 0.35
    glm::vec2 position(-0.98, 0.903);
    glm::vec2 scales(0.04/aspect_ratio, 0.06);
-   mesh_for_hud_geometry_labels.set_position_and_scales(position, scales);
+   mesh_for_hud_geometry_labels.set_position_and_scales(position, scales); // ""NBC, Pull"" texture
+
+   mesh_for_hud_tooltip_background.setup_quad();
+   mesh_for_hud_tooltip_background.set_scales(glm::vec2(sc_x, sc_y));
+   mesh_for_hud_tooltip_background.setup_texture_coords_for_nbcs_and_rama();
+
+   tmesh_for_hud_geometry_tooltip_label.setup_quad();
 }
 
 float
@@ -1676,7 +1690,7 @@ graphics_info_t::draw_hud_geometry_bars() {
    // first draw the text (labels) texture
 
    coot::refinement_results_t &rr = saved_dragged_refinement_results;
-   
+
    if (! rr.refinement_results_contain_overall_rama_plot_score) {
       // std::cout << "chopping the texture " << std::endl;
       mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_only();
@@ -1684,8 +1698,9 @@ graphics_info_t::draw_hud_geometry_bars() {
       mesh_for_hud_geometry_labels.setup_texture_coords_for_nbcs_and_rama();
    }
 
-   texture_for_hud_geometry_labels.Bind(0);
-   mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
+   // Restore me when fixed                                                       
+   // texture_for_hud_geometry_labels.Bind(0);
+   // mesh_for_hud_geometry_labels.draw(&shader_for_hud_geometry_labels);
 
    // now draw the bars
 
@@ -1822,12 +1837,12 @@ graphics_info_t::draw_hud_geometry_bars() {
 
 }
 
-bool
-graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
+std::pair<bool, mmdb::Atom *>
+graphics_info_t::check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double mouse_x, double mouse_y, bool act_on_hit) {
 
-   bool status = false;
-   if (! moving_atoms_asc) return false;
-   if (! moving_atoms_asc->mol) return false;
+   std::pair<bool, mmdb::Atom *> status_pair(false, 0);
+   if (! moving_atoms_asc) return std::pair<bool, mmdb::Atom *>(false, 0);
+   if (! moving_atoms_asc->mol) return std::pair<bool, mmdb::Atom *>(false, 0);
 
    coot::refinement_results_t &rr = saved_dragged_refinement_results;
 
@@ -1854,23 +1869,16 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                             return false;
                       };
 
-   auto distortion_to_bar_size_rama = [] (float distortion) {
-                                         distortion += 200.0;
-                                         float d2 = distortion * 0.0003;
-                                         if (d2 < 0.0) d2 = 0.0;
-                                         float d3 = 100.0 * d2 * d2;
-                                         return d3;
-                                      };
-
-   auto distortion_to_bar_size_nbc = [] (float distortion) {
-                                        return distortion * 0.002;
-                                     };
-
+   // the act_on_hit flag is check to see if the move should be made, or that we merely return
+   // a success status (we want to act when clicked, but return a status when moused-over)
+   //
    auto check_blocks = [mouse_in_opengl_coords] (const std::vector<std::pair<coot::atom_spec_t, float> > &baddies,
                                                  unsigned int bar_index,
-                                                 float (*distortion_to_bar_size)(float)) {
+                                                 float (*distortion_to_bar_size)(float),
+                                                 bool act_on_hit) {
 
                           bool status = false;
+                          mmdb::Atom *at_out = 0;
                           glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                           float sum_l = 0;
                           int n = baddies.size();
@@ -1906,11 +1914,14 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                          if (moving_atoms_asc->mol) {
                                             mmdb::Atom *at = spec.get_atom(moving_atoms_asc->mol);
                                             if (at) {
-                                               clipper::Coord_orth pt = coot::co(at);
-                                               std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
-                                                         << std::endl;
-                                               set_rotation_centre(pt);
+                                               at_out = at;
                                                status = true;
+                                               if (act_on_hit) {
+                                                  clipper::Coord_orth pt = coot::co(at);
+                                                  std::cout << "INFO: geom bar atom: " << coot::atom_spec_t(at)
+                                                            << std::endl;
+                                                  set_rotation_centre(pt);
+                                               }
                                             }
                                          } else {
                                             std::cout << "ERROR:: no moving atoms mol" << std::endl;
@@ -1920,14 +1931,18 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                 }
                              }
                           }
-                          return status;
+                          return std::pair<bool, mmdb::Atom *>(status, at_out);
                        };
 
    auto check_rota_blocks = [mouse_in_opengl_coords,
                              rota_sorter] (unsigned int bar_index,
                                            rotamer_markup_container_t *rotamer_markups,
-                                           int n_rotamer_markups) {
+                                           int n_rotamer_markups,
+                                           bool act_on_hit) {
+
                                bool status = false;
+                               mmdb::Atom *at_out = 0;
+                               coot::residue_spec_t spec_for_at_out;
                                glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                                std::vector<rotamer_markup_container_t> v;
                                // filter out the goodies
@@ -1947,7 +1962,7 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
 
                                float sum_l = 0;
                                for (unsigned int i=0; i<v.size(); i++) {
-                                  float pr = v[i].rpi.probability;
+                                  // float pr = v[i].rpi.probability;
                                   float q = 0.01 * (48.0f - v[i].rpi.probability);
                                   if (q > 1.0) q = 1.0;
                                   if (q < 0.0) q = 0.0;
@@ -1964,15 +1979,19 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                            float bar_height = 0.03;
                                            if (mouse_in_opengl_coords.y <= (to_top_left.y+tiny_y_offset+bar_height)) {
 
-                                              std::cout << "rama bar hit! " << i << " "
-                                                        << v[i].spec << " "
-                                                        << v[i].col << " "
-                                                        << "probability " << v[i].rpi.probability << std::endl;
+                                              if (false)
+                                                 std::cout << "rama bar hit! " << i << " "
+                                                           << v[i].spec << " "
+                                                           << v[i].col << " "
+                                                           << "probability " << v[i].rpi.probability << std::endl;
 
                                               if (moving_atoms_asc->mol) {
-                                                 clipper::Coord_orth pos = v[i].pos;
                                                  status = true;
-                                                 graphics_info_t::set_rotation_centre(pos);
+                                                 spec_for_at_out = v[i].spec;
+                                                 if (act_on_hit) {
+                                                    clipper::Coord_orth pos = v[i].pos;
+                                                    graphics_info_t::set_rotation_centre(pos);
+                                                 }
                                               }
                                            }
                                         }
@@ -1980,35 +1999,134 @@ graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
                                   }
                                   sum_l += bar_length + 0.005; // with a gap between bars
                                }
-                               return status;
+                               // I need this function to return an atom (so that it's like the other geometry bars)
+                               // - because that atom spec gets turned into an tooltip label.
+                               if (status) {
+                                  // I first need to find the first residue
+                                  mmdb::Residue *residue_p = spec_for_at_out.get_residue(moving_atoms_asc->mol);
+                                  if (residue_p) {
+                                     int n_atoms = residue_p->GetNumberOfAtoms();
+                                     if (n_atoms > 0) at_out = residue_p->GetAtom(0);
+                                     if (n_atoms > 1) at_out = residue_p->GetAtom(1); // CA, usually
+                                  }
+                               }
+                               return std::pair<bool, mmdb::Atom *>(status, at_out);
                             };
 
-   status = check_blocks(rr.sorted_atom_pulls, 0, hud_geometry_distortion_to_bar_size_atom_pull);
+   status_pair = check_blocks(rr.sorted_atom_pulls, 0, hud_geometry_distortion_to_bar_size_atom_pull, act_on_hit);
 
-   if (!status)
+   if (!status_pair.first)
       if (rr.refinement_results_contain_overall_nbc_score)
-         status = check_blocks(rr.sorted_nbc_baddies, 1, hud_geometry_distortion_to_bar_size_nbc);
+         status_pair = check_blocks(rr.sorted_nbc_baddies, 1, hud_geometry_distortion_to_bar_size_nbc, act_on_hit);
 
-   if (!status)
+   if (!status_pair.first)
       if (rr.refinement_results_contain_overall_rama_plot_score)
-         status = check_blocks(rr.sorted_rama_baddies, 2, hud_geometry_distortion_to_bar_size_rama);
+         status_pair = check_blocks(rr.sorted_rama_baddies, 2, hud_geometry_distortion_to_bar_size_rama, act_on_hit);
 
-   if (moving_atoms_asc) {
-      if (moving_atoms_asc->mol) {
-         int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
-         if (nrms > 0) {
-            status = check_rota_blocks(3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
+   if (!status_pair.first) {
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
+            if (nrms > 0) {
+               status_pair = check_rota_blocks(3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms, act_on_hit);
+            }
          }
       }
    }
-   return status;
+
+
+   if (act_on_hit) {
+      if (status_pair.first) {
+         mmdb::Atom *at = status_pair.second;
+         if (at) {
+            mmdb::Residue *residue_p = at->residue;
+            moving_atoms_visited_residues.insert(residue_p);
+            active_atom_for_hud_geometry_bar = at;
+         }
+      }
+   }
+
+   return status_pair;
+}
+
+std::pair<bool, mmdb::Atom *>
+graphics_info_t::check_if_moused_over_hud_bar(double mouse_x, double mouse_y) {
+
+   // copied from check_if_hud_bar_clicked().
+   // Now that we have act_on_hit, we can extract most of this code to a common function
+   // called check_if_hud_bar_mouse_over_or_act_on_hurd_bar_click()
+
+   bool act_on_hit = false;
+   return check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(mouse_x, mouse_y, act_on_hit);
+}
+
+bool
+graphics_info_t::check_if_hud_bar_clicked(double mouse_x, double mouse_y) {
+
+   if (! moving_atoms_asc) return false;
+   if (! moving_atoms_asc->mol) return false;
+   bool act_on_hit = true;
+   std::pair<bool, mmdb::Atom *> r = check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(mouse_x, mouse_y, act_on_hit);
+   return  r.first;
+}
+
+void
+graphics_info_t::draw_hud_geometry_tooltip() {
+
+   // this flag is set when the user mouses over a HUD bar
+   // and removed when they move from a hud bar.
+
+   glEnable(GL_DEPTH_TEST);
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   if (draw_hud_tooltip_flag) {
+
+      texture_for_hud_tooltip_background.Bind(0);
+      mesh_for_hud_tooltip_background.draw(&shader_for_hud_geometry_labels);
+
+      // now the text that goes into (on top of) the background
+
+      std::string label = "W 356 CA"; // checking the HUD bars (on mouse-over) should
+                                     // return this - and the position, which means
+                                     // that they need to return
+                                     // something other than a bool. Store it in
+                                     // graphics_info_t somewhere.
+                                     // HUD_geometry_tooltip_text_position
+                                     // HUD_geometry_tooltip_text_label
+      label = label_for_hud_geometry_tooltip;
+
+      // do this elsewhere (on_glarea_motion_notify())
+      // glm::vec2 label_position(-0.64, 0.72);
+      // tmesh_for_hud_geometry_tooltip_label.set_position(label_position);
+
+      glm::vec2 label_scale(0.00015, 0.00015); // fixed.
+      tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
+
+      mmdb::Residue *residue_p = 0; // oops - how does this get set!?
+      if (active_atom_for_hud_geometry_bar)
+         residue_p = active_atom_for_hud_geometry_bar->residue;
+
+      bool use_label_highlight = true;
+      if (moving_atoms_visited_residues.find(residue_p) != moving_atoms_visited_residues.end()) {
+         use_label_highlight = false;
+         std::cout << "found residue " << coot::residue_spec_t(residue_p) << " in visited moving residues" << std::endl;
+      }
+
+      std::cout << "moving_atoms_visited_residues size " << moving_atoms_visited_residues.size()
+                << " use_label_highlight " << use_label_highlight << std::endl;
+
+      tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
+                                                      &shader_for_hud_geometry_tooltip_text,
+                                                      ft_characters);
+   }
 }
 
 
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer, const std::string &output_file_name) {
 
-   auto tp_0 = std::chrono::high_resolution_clock::now();
+   // auto tp_0 = std::chrono::high_resolution_clock::now();
 
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
@@ -2044,6 +2162,8 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
       draw_molecules();
 
       draw_hud_geometry_bars();
+
+      draw_hud_geometry_tooltip(); // background and text
 
       draw_identification_pulse();
 

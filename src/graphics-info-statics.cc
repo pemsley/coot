@@ -73,12 +73,16 @@ Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
+Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
 std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
+std::set<mmdb::Residue *> graphics_info_t::moving_atoms_visited_residues;
+mmdb::Atom *graphics_info_t::active_atom_for_hud_geometry_bar = 0;
+
 
 glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
 float graphics_info_t::screen_z_near_perspective =  76.0; // was 83
@@ -183,6 +187,9 @@ std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
 HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
 
+HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label =
+   HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");
+
 float graphics_info_t::pull_restraint_neighbour_displacement_max_radius = 1.0;
 
 coot::command_history_t graphics_info_t::command_history;
@@ -190,9 +197,13 @@ coot::command_history_t graphics_info_t::command_history;
 std::vector<Instanced_Markup_Mesh> graphics_info_t::instanced_meshes;
 
 Texture graphics_info_t::texture_for_hud_geometry_labels;
+Texture graphics_info_t::texture_for_hud_tooltip_background;
+bool graphics_info_t::draw_hud_tooltip_flag = false;
 
 HUDTextureMesh graphics_info_t::mesh_for_hud_geometry_labels = HUDTextureMesh("tmesh-for-hud-geometry-labels");
+HUDTextureMesh graphics_info_t::mesh_for_hud_tooltip_background = HUDTextureMesh("tmesh-for-hud-tooltip-background");
 
 Instanced_Markup_Mesh graphics_info_t::rama_balls_mesh = Instanced_Markup_Mesh("rama-balls");
 bool graphics_info_t::draw_stick_mode_atoms_default = true;
 
+std::string graphics_info_t::label_for_hud_geometry_tooltip;

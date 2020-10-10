@@ -22,7 +22,8 @@ void main() {
                   p1.x * sin(a) + p1.y * cos(a), 0.0, 1.0);
    mat4 trans = transpose(view_rotation);
    vec4 p3 = trans * p2;
-   gl_Position = mvp * vec4(p3 + vec4(instance_translation, 1.0));
+   vec4 p4 = p3 + vec4(instance_translation, 0.0);
+   gl_Position = mvp * p4;
    colour_transfer = instance_colour; // * instance_colour;
 
 }

@@ -1777,6 +1777,7 @@ graphics_info_t::clear_up_moving_atoms() {
       unlocked_atoms = false;
    }
 
+   moving_atoms_visited_residues.clear();
    continue_update_refinement_atoms_flag = false;
    continue_threaded_refinement_loop = false;
    if (moving_atoms_asc) {

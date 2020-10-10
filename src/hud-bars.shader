@@ -16,8 +16,10 @@ out vec4 colour_transfer;
 
 void main()
 {
+   // we want the tooltip to appear "over" this bar. Maybe
+   // I could turn of depth cueing for that? Hmm. Not done at the moment
    gl_Position = vec4(scale * vertex.x + position_offset.x,
-                      vertex.y + position_offset.y, -1.0, 1.0);
+                      vertex.y + position_offset.y, -0.999, 1.0);
    colour_transfer = colour;
 }
 

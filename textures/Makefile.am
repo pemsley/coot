@@ -25,6 +25,7 @@ coottexturedir = $(pkgdatadir)/textures
 # no longer use xpms.
 
 dist_coottexture_DATA = \
-	hud-label-nbc-rama.png
+	hud-label-nbc-rama.png \
+	hud-tooltip.png
 
 

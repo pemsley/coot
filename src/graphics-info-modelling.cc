@@ -1234,6 +1234,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
    // elsewhere do this:
    // gtk_widget_remove_tick_callback(glareas[0], wait_for_hooray_refinement_tick_id);
 
+   moving_atoms_visited_residues.clear(); // this is used for HUD label colour
+
    int n_restraints = last_restraints->make_restraints(imol_moving_atoms,
 						       *Geom_p(), flags,
 						       do_residue_internal_torsions,

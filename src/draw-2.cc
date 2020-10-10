@@ -397,8 +397,42 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    g.mouse_current_x = event->x;
    g.mouse_current_y = event->y;
 
-   auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget, int x_as_int, int y_as_int) {
-                               graphics_info_t g;
+   std::pair<bool, mmdb::Atom *> handled_pair = g.check_if_moused_over_hud_bar(event->x, event->y);
+
+   if (handled_pair.first) {
+      g.draw_hud_tooltip_flag = true;
+
+      // gtk mouse position to OpenGL (clip?) coordinates
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(widget, &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      float xx =    2.0 * g.mouse_current_x/static_cast<float>(w) - 1.0f;
+      float yy = - (2.0 * g.mouse_current_y/static_cast<float>(h) - 1.0f);
+      glm::vec2 pos(xx, yy);
+      glm::vec2 scales(0.11, 0.05); // the scales of the tooltip background is not up to this function!
+                                    // it should be in the draw function - if anywhere.
+      // this makes the top-left of the tooltip bubble point at the hud geometry bar box (mouse position)
+      // without it, the tooltip middle is at the cursor position
+      glm::vec2 background_texture_offset(0.08f, -0.058f);
+      glm::vec2 label_texture_offset(0.0f, -0.086f);
+      glm::vec2 background_texture_pos = pos + background_texture_offset;
+      glm::vec2 atom_label_position = pos + label_texture_offset;
+      g.mesh_for_hud_tooltip_background.set_position(background_texture_pos); // used in uniforms
+      g.tmesh_for_hud_geometry_tooltip_label.set_position(atom_label_position);
+
+      mmdb::Atom *at = handled_pair.second;
+      coot::atom_spec_t at_spec(at);
+      g.label_for_hud_geometry_tooltip = at_spec.simple_label(at->residue->GetResName()); // e.g. A 65 CA
+      g.active_atom_for_hud_geometry_bar = at;
+      graphics_draw();
+      return TRUE;
+   } else {
+      g.draw_hud_tooltip_flag = false;
+   }
+
+
+   auto mouse_view_rotate = [control_is_pressed] (GtkWidget *widget) {
                                if (control_is_pressed) {
                                   do_drag_pan_gtk3(widget);
                                } else {
@@ -487,7 +521,7 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
          mouse_zoom(delta_x, delta_y);
       } else {
          if (!shift_is_pressed) {
-            mouse_view_rotate(widget, x_as_int, y_as_int);
+            mouse_view_rotate(widget);
          }
          if (shift_is_pressed) {
             double delta_x = event->x - g.GetMouseBeginX();

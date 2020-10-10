@@ -1732,7 +1732,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    std::vector<std::pair<int, float> > nbc_baddies_vec(nbc_baddies.size());
    std::map<int, float>::const_iterator it;
    unsigned int idx = 0;
-   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); it++)
+   for (it=nbc_baddies.begin(); it!=nbc_baddies.end(); ++it)
       nbc_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
 
    auto sorter = [] (const std::pair<int, float> &v1,
@@ -1757,7 +1757,7 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    if (n_rama_restraints > 0) {
       std::vector<std::pair<int, float> > rama_baddies_vec(rama_baddies.size());
       idx = 0;
-      for (it=rama_baddies.begin(); it!=rama_baddies.end(); it++)
+      for (it=rama_baddies.begin(); it!=rama_baddies.end(); ++it)
          rama_baddies_vec[idx++] = std::pair<int, float>(it->first, it->second);
       std::sort(rama_baddies_vec.begin(), rama_baddies_vec.end(), sorter);
       if (rama_baddies_vec.size() > 20)
@@ -1780,11 +1780,11 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
    // --- atom pulls ---
 
    {
-      auto sorter = [] (const std::pair<atom_spec_t, float> &v1,
-                        const std::pair<atom_spec_t, float> &v2) {
-                       return v2.second < v1.second;
+      auto sorter_ap = [] (const std::pair<atom_spec_t, float> &v1,
+                           const std::pair<atom_spec_t, float> &v2) {
+                          return v2.second < v1.second;
                     };
-      std::sort(rr->sorted_atom_pulls.begin(), rr->sorted_atom_pulls.end(), sorter);
+      std::sort(rr->sorted_atom_pulls.begin(), rr->sorted_atom_pulls.end(), sorter_ap);
    }
       
    if (false) {

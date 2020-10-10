@@ -2,6 +2,7 @@
 #ifndef REFINEMENT_RESULTS_T_HH
 #define REFINEMENT_RESULTS_T_HH
 
+#include <vector>
 #include "refinement-lights.hh"
 
 #include "geometry/residue-and-atom-specs.hh"

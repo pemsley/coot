@@ -1460,7 +1460,7 @@ void toggle_idle_spin_function() {
 
    if (g.idle_function_spin_rock_token == 0) {
       // g.idle_function_spin_rock_token = gtk_idle_add((GtkFunction)animate_idle_spin, g.glarea);
-      g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glareas[0]);
+      // g.idle_function_spin_rock_token = g_idle_add(animate_idle_spin, g.glareas[0]);
    } else {
 
       std::cout << "GTK-FIXME remove spin idle function here!" << std::endl;
@@ -1473,8 +1473,8 @@ void toggle_idle_spin_function() {
 
 void toggle_idle_rock_function() {
 
+#if 0
    graphics_info_t g;
-
    if (g.idle_function_spin_rock_token == 0) {
       g.idle_function_spin_rock_token =
 // 	 g_timeout_add(25, // 40 fps
@@ -1490,6 +1490,7 @@ void toggle_idle_rock_function() {
       // g_idle_remove(g.idle_function_spin_rock_token);
       // g.idle_function_spin_rock_token = 0;
    }
+#endif
    add_to_history_simple("toggle-idle-rock-function");
 }
 

@@ -3517,8 +3517,6 @@ gint idle_contour_function(gpointer data) {
       if (graphics_info_t::molecules[imol].has_xmap()) { // FIXME or nxmap : needs test for being a map molecule
          int &cc = graphics_info_t::molecules[imol].pending_contour_level_change_count;
 
-         // std::cout << "---    imol: " << imol << " cc: " << cc << std::endl;
-
          if (cc != 0) {
 
 	          if (cc < 0) {
@@ -3538,6 +3536,8 @@ gint idle_contour_function(gpointer data) {
            graphics_info_t g;
 	   g.molecules[imol].update_map();
 	   continue_status = 0;
+           std::cout << "--- idle_contour_function() imol: " << imol << " contour level: "
+                     << g.molecules[imol].contour_level << std::endl;
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            g.display_density_level_this_image = 1;
            something_changed = true;
@@ -3547,68 +3547,10 @@ gint idle_contour_function(gpointer data) {
    // std::cout << "Here with something_changed: " << something_changed << std::endl;
 
    // is this needed?
-   if (something_changed)
-      graphics_draw();
+   // if (something_changed)
+   //    graphics_draw();
    // std::cout << "--- debug:: idle_contour_function() done " << continue_status << std::endl;
    return continue_status;
-}
-
-
-// widget is the glarea.
-//
-gint
-animate_idle_spin(gpointer data) {
-
-   // get rid of this function
-
-#if 0
-   float spin_quat[4];
-   graphics_info_t g;
-
-   // spin it 1 degree * user angle setting
-   trackball(spin_quat, 0, 0, g.idle_function_rotate_angle*0.0174,
-	     0.0, g.get_trackball_size());
-   add_quats(spin_quat, g.quat, g.quat);
-
-   g.graphics_draw();
-#endif
-
-   return 1;
-}
-
-// widget is the glarea.
-//
-gint
-animate_idle_rock(gpointer user_data) {
-
-#if 0 // get rid of this function
-   graphics_info_t g;
-   double target_angle = get_idle_function_rock_target_angle();
-   double curr_angle = g.idle_function_rock_angle_previous;
-
-   double angle_diff = target_angle - curr_angle;
-
-   if (0)
-      std::cout << "target_angle: " << target_angle
-		<< "   curr_angle: " << curr_angle
-		<< "   angle_diff: " << angle_diff
-		<< std::endl;
-
-   // we don't need to see every angle - that is fine-grained and
-   // full-on, we just need to do an animation where the angle
-   // difference is a big bigger than tiny, otherwise sleep.
-
-   if (fabs(angle_diff) > 0.0004) {
-
-      float spin_quat[4];
-      trackball(spin_quat, 0, 0, angle_diff, 0.0, g.get_trackball_size());
-      add_quats(spin_quat, g.quat, g.quat);
-      g.graphics_draw();
-      g.idle_function_rock_angle_previous = target_angle; // for next round
-
-   }
-#endif
-   return 1;  // keep going
 }
 
 double

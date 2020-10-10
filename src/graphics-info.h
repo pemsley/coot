@@ -2365,14 +2365,23 @@ public:
    static short int environment_distance_label_atom;
 
    // private?
+   static std::set<mmdb::Residue *> moving_atoms_visited_residues; // visited during an rsr. Reset on "make_restraints"
+   static mmdb::Atom *active_atom_for_hud_geometry_bar;
    void update_environment_graphics_object(int atom_index, int imol);
    void update_symmetry_environment_graphics_object(int atom_index, int imol);
    void add_distance_labels_for_environment_distances();
    static std::vector<atom_label_info_t> labels;  // environment distances, maybe other things too.
    static TextureMesh tmesh_for_labels;
    static HUDMesh mesh_for_hud_geometry;
-   static Texture texture_for_hud_geometry_labels; // image to texture for
+   static std::string label_for_hud_geometry_tooltip;
+   static Texture texture_for_hud_geometry_labels;     // image to texture for
    static HUDTextureMesh mesh_for_hud_geometry_labels; // labels for the bars
+   static HUDTextureMesh mesh_for_hud_tooltip_background;
+   static Texture texture_for_hud_tooltip_background;
+   static HUDTextureMesh tmesh_for_hud_geometry_tooltip_label;
+   static Shader shader_for_hud_geometry_tooltip_text; // shader for the above tmesh (not like atom labels
+                                                       // HUD labels are in 2D, don't need mvp, eye position
+                                                       // etc.).
 
    void add_label(const std::string &l, const glm::vec3 &p, const glm::vec4 &c);
 
@@ -2790,7 +2799,10 @@ public:
 				 const GdkModifierType &state);
    bool check_if_moving_atom_pull(bool was_a_double_click); // and setup moving atom-drag if we are.
 
-   bool check_if_hud_bar_clicked(double x, double y);
+   bool check_if_hud_bar_clicked(double x, double y); // if true, set draw_hud_tooltip_flag
+   std::pair<bool, mmdb::Atom *> check_if_moused_over_hud_bar(double mouse_x, double mouse_y);
+   // most of the above function is comment, so put it here:
+   std::pair<bool, mmdb::Atom *> check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked(double mouse_x, double mouse_y, bool act_on_hit);
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
@@ -4122,6 +4134,8 @@ string   static std::string sessionid;
    void init_buffers();
    void init_hud_text();
    static void draw_hud_geometry_bars();
+   static void draw_hud_geometry_tooltip();
+   static bool draw_hud_tooltip_flag;
    static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
    static glm::mat4 get_model_view_matrix();
    static glm::vec3 get_world_space_eye_position();

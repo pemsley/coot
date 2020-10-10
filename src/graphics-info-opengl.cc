@@ -20,6 +20,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_hud_text,
                                                            shader_for_hud_geometry_bars,
                                                            shader_for_hud_geometry_labels,
+                                                           shader_for_hud_geometry_tooltip_text,
                                                            shader_for_atom_labels,
                                                            shader_for_moleculestotriangles,
                                                            shader_for_lines,
@@ -51,6 +52,7 @@ graphics_info_t::init_shaders() {
    shader_for_rama_balls.init("rama-balls.shader", Shader::Entity_t::MODEL);
    shader_for_particles.init("particles.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
+   shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.

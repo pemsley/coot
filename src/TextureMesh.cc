@@ -139,7 +139,8 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    if (n_triangles == 0) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_p->name << " -- start -- " << err << std::endl;
+   if (err) std::cout << "   error draw_atom_label() " << shader_p->name << " -- start -- error "
+                      << err << std::endl;
 
    glEnable(GL_BLEND);
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

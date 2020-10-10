@@ -128,6 +128,9 @@ namespace coot {
 
       std::string label(const std::string &residue_name) const;
 
+      // A 65 CA
+      std::string simple_label(const std::string &residue_name="") const;
+
 #ifndef SWIG
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;
@@ -360,6 +363,9 @@ namespace coot {
       std::string label() const;
 
       std::string label(const std::string &residue_name) const;
+
+      // return null on failure to find residue in mol
+      mmdb::Residue *get_residue(mmdb::Manager *mol) const;
 
       // return an atom selection handle for the selection in the mol
       // that matches the spec.  Caller is responsible for deleting

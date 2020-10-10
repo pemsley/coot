@@ -2,6 +2,7 @@
 #ifndef REFINEMENT_LIGHTS_HH
 #define REFINEMENT_LIGHTS_HH
 
+#include <string>
 #include "rama-types.hh"
 
 namespace coot {
@@ -14,7 +15,7 @@ namespace coot {
             is_set = true;
             restraints_index = -1;
          }
-         the_worst_t() { is_set = false; value = -99999;}
+         the_worst_t() { is_set = false; value = -99999; restraints_index = -1; }
          int restraints_index; // can be -1
          float value;
          bool is_set;

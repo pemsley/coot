@@ -459,6 +459,7 @@ coot_bin_SOURCES = \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
 	globularize.cc           \
+	glarea_tick_function.hh  \
 	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
