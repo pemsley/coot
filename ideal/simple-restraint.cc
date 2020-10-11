@@ -1700,7 +1700,6 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
                             << atom_spec_t(atom[restraint.atom_index_3])
                             << std::endl;
 
-               mmdb::Atom *at = atom[restraint.atom_index_3];
                refinement_results_for_rama_t rp(atom[restraint.atom_index_1],
                                                 atom[restraint.atom_index_2],
                                                 atom[restraint.atom_index_3],
@@ -1744,8 +1743,14 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
       nbc_baddies_vec.resize(20);
    std::vector<std::pair<atom_spec_t, float> > nbc_baddies_with_spec_vec(nbc_baddies_vec.size());
    for (unsigned int i=0; i<nbc_baddies_vec.size(); i++) {
-      nbc_baddies_with_spec_vec[i].first  = atom_spec_t(atom[nbc_baddies_vec[i].first]);
+      int atom_index = nbc_baddies_vec[i].first;
+      nbc_baddies_with_spec_vec[i].first  = atom_spec_t(atom[atom_index]);
       nbc_baddies_with_spec_vec[i].second = nbc_baddies_vec[i].second;
+      // set user data meaning "is_in_a_moving_atoms_residue"
+      if (fixed_atom_indices.find(atom_index) != fixed_atom_indices.end())
+         nbc_baddies_with_spec_vec[i].first.int_user_data = 0;
+      else
+         nbc_baddies_with_spec_vec[i].first.int_user_data = 1;
    }
    rr->overall_nbc_score = nbc_distortion_score_sum;
    rr->sorted_nbc_baddies = nbc_baddies_with_spec_vec;
@@ -1764,8 +1769,14 @@ coot::restraints_container_t::add_details_to_refinement_results(refinement_resul
          rama_baddies_vec.resize(20);
       std::vector<std::pair<atom_spec_t, float> > rama_baddies_with_spec_vec(rama_baddies_vec.size());
       for (unsigned int i=0; i<rama_baddies_vec.size(); i++) {
-         rama_baddies_with_spec_vec[i].first  = atom_spec_t(atom[rama_baddies_vec[i].first]);
+         int atom_index = rama_baddies_vec[i].first;
+         rama_baddies_with_spec_vec[i].first  = atom_spec_t(atom[atom_index]);
          rama_baddies_with_spec_vec[i].second = rama_baddies_vec[i].second;
+         // set user data meaning "is_in_a_moving_atoms_residue"
+         if (fixed_atom_indices.find(atom_index) != fixed_atom_indices.end())
+            rama_baddies_with_spec_vec[i].first.int_user_data = 0;
+         else
+            rama_baddies_with_spec_vec[i].first.int_user_data = 1;
          if (false)
             std::cout << "debug:: rama_baddies_with_spec_vec " << i << " "
                       << rama_baddies_with_spec_vec[i].first << " "

@@ -123,15 +123,22 @@ HUDMesh::setup_instancing_buffer(unsigned int n_boxes) {
                          reinterpret_cast<void *>(sizeof(glm::vec4)));
    glVertexAttribDivisor(2, 1);
 
-   // scale (width of the bar - along the x axis) - instanced
+   // scale_x (width of the bar - along the x axis) - instanced
    glEnableVertexAttribArray(3);
    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(HUD_bar_attribs_t),
                          reinterpret_cast<void *>(sizeof(glm::vec4) + sizeof(glm::vec2)));
    glVertexAttribDivisor(3, 1);
 
+   // scale_y (height of the bar) - instanced
+   glEnableVertexAttribArray(4);
+   glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(HUD_bar_attribs_t),
+                         reinterpret_cast<void *>(sizeof(glm::vec4) + sizeof(glm::vec2) + sizeof(float)));
+   glVertexAttribDivisor(4, 1);
+
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
 
    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -167,6 +174,7 @@ HUDMesh::draw(Shader *shader_p) {
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
    glEnableVertexAttribArray(3);
+   glEnableVertexAttribArray(4);
 
    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, n_instances);
    GLenum err = glGetError();
@@ -179,6 +187,7 @@ HUDMesh::draw(Shader *shader_p) {
    glDisableVertexAttribArray(1);
    glDisableVertexAttribArray(2);
    glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
    glUseProgram(0);
 
 }

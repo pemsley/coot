@@ -4360,7 +4360,8 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 	       int  udd_is_fixed_during_refinement = 0;
 
 	       if (udd_fixed_during_refinement_handle > 0) {
-	          these_are_moving_atoms = true;
+	          these_are_moving_atoms = true; // a moving atoms molecule, I mean
+                                                 // (that can contain fixed atoms)
 	       }
 
 	       res_start_back->GetAtomTable(residue_atoms_pp_1, n_atoms_pp_1);

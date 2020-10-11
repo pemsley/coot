@@ -13,9 +13,14 @@ class HUD_bar_attribs_t {
 public:
    glm::vec4 colour;
    glm::vec2 position_offset;
-   float scale;
+   // if this_is_a_non_moving_atoms_residue then we want to make 2 bars, an 80% thickness bar
+   // and a small "grey" bar below. same x coords.
+   float scale_x;
+   float scale_y;
    HUD_bar_attribs_t(const glm::vec4 &c, const glm::vec2 &p, const float &l) :
-      colour(c), position_offset(p), scale(l) {}
+      colour(c), position_offset(p), scale_x(l) {
+      scale_y = 1.0;
+   }
 };
 
 class HUDMesh {

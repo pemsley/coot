@@ -2061,7 +2061,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       }
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds(ramachandrans_container,
-          do_rama_markup, do_rama_markup);
+                                                               do_rama_markup, do_rama_markup);
       moving_atoms_bonds_lock = 0; // unlocked
    }
 

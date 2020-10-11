@@ -1731,6 +1731,7 @@ graphics_info_t::draw_hud_geometry_bars() {
                          glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                          float sum_l = 0;
                          int n = baddies.size();
+                         glm::vec4 col_white(0.8,0.8, 0.8, 0.7);
                          for (int i=(n-1); i>=0; i--) {
                             coot::colour_t cc(0.1, 0.9, 0.2);
                             float d = baddies[i].second;
@@ -1740,8 +1741,28 @@ graphics_info_t::draw_hud_geometry_bars() {
                             col.w = 0.7;
                             glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
                             float bar_length = distortion_to_bar_size(d);
-                            HUD_bar_attribs_t bar(col, position_offset, bar_length);
-                            new_bars_p->push_back(bar);
+                            bool this_atom_is_in_a_moving_atoms_residue = baddies[i].first.int_user_data;
+
+                            // the vector of HUD_bar_attribs_t is fed directly to a opengl buffer.
+                            // So I need "expand" to 2 bars right here - one with a "thin bar" attribute
+                            //
+                            if (! this_atom_is_in_a_moving_atoms_residue) {
+                               float bar_height = 0.03; // universal
+                               float bar_slither_y_scale = 0.3; // looks nice
+                               float y_offset_main = bar_height * bar_slither_y_scale;
+                               glm::vec2 position_offset_for_main = position_offset + glm::vec2(0, y_offset_main);
+                               HUD_bar_attribs_t bar_main(col, position_offset_for_main, bar_length);
+                               bar_main.scale_y = 1.0 - bar_slither_y_scale;
+                               new_bars_p->push_back(bar_main);
+                               // slither bar
+                               glm::vec2 position_offset_for_slither = position_offset + glm::vec2(0,0);
+                               HUD_bar_attribs_t bar_slither(col_white, position_offset_for_slither, bar_length);
+                               bar_slither.scale_y = bar_slither_y_scale;
+                               new_bars_p->push_back(bar_slither);
+                            } else {
+                               HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                               new_bars_p->push_back(bar);
+                            }
                             sum_l += bar_length + 0.005; // with a gap between bars
                           }
                        };
@@ -1757,11 +1778,11 @@ graphics_info_t::draw_hud_geometry_bars() {
    auto add_rotamer_bars = [rota_sorter] (std::vector<HUD_bar_attribs_t> *new_bars_p,
                                           unsigned int bar_index,
                                           rotamer_markup_container_t *rotamer_markups,
-                                          int n_rotamer_markups,
-                                          float (*probability_to_rotation_amount)(float)) {
+                                          int n_rotamer_markups) {
 
                               // this code has to be the same as the check_if_hud_bar_clicked code
 
+                              glm::vec4 col_white(0.8,0.8, 0.8, 0.7);
                               glm::vec2 to_top_left(-0.90, 0.943 - 0.05 * static_cast<float>(bar_index));
                               std::vector<rotamer_markup_container_t> v;
                               // filter out the goodies
@@ -1782,6 +1803,9 @@ graphics_info_t::draw_hud_geometry_bars() {
 
                               float sum_l = 0;
                               for (unsigned int i=0; i<v.size(); i++) {
+
+                                 bool this_atom_is_in_a_moving_atoms_residue = v[i].spec.int_user_data;
+
                                  float pr = v[i].rpi.probability;
                                  float q = 0.01 * (48.0f - v[i].rpi.probability);
                                  if (q > 1.0) q = 1.0;
@@ -1795,9 +1819,27 @@ graphics_info_t::draw_hud_geometry_bars() {
                                  const coot::colour_holder &ch = v[i].col;
                                  glm::vec4 col(ch.red, ch.green, ch.blue, 0.7);
 
-                                 glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
-                                 HUD_bar_attribs_t bar(col, position_offset, bar_length);
-                                 new_bars_p->push_back(bar);
+                                 if (! this_atom_is_in_a_moving_atoms_residue) {
+                                    float bar_height = 0.03; // universal
+                                    float bar_slither_y_scale = 0.3; // looks nice
+                                    float y_offset_main = bar_height * bar_slither_y_scale;
+                                    glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                                    glm::vec2 position_offset_for_main = position_offset + glm::vec2(0, y_offset_main);
+                                    HUD_bar_attribs_t bar_main(col, position_offset_for_main, bar_length);
+                                    bar_main.scale_y = 1.0 - bar_slither_y_scale;
+                                    new_bars_p->push_back(bar_main);
+                                    // slither bar
+                                    glm::vec2 position_offset_for_slither = position_offset + glm::vec2(0,0);
+                                    HUD_bar_attribs_t bar_slither(col_white, position_offset_for_slither, bar_length);
+                                    bar_slither.scale_y = bar_slither_y_scale;
+                                    new_bars_p->push_back(bar_slither);
+
+
+                                 } else {
+                                    glm::vec2 position_offset = to_top_left + glm::vec2(sum_l, 0.0);
+                                    HUD_bar_attribs_t bar(col, position_offset, bar_length);
+                                    new_bars_p->push_back(bar);
+                                 }
                                  sum_l += bar_length + 0.005; // with a gap between bars
                               }
                            };
@@ -1816,13 +1858,12 @@ graphics_info_t::draw_hud_geometry_bars() {
       add_bars(rr.sorted_rama_baddies, 2, &new_bars,
                hud_geometry_distortion_to_rotation_amount_rama, hud_geometry_distortion_to_bar_size_rama);
 
-   // add to new_bars
+   // add rotas to new_bars
    if (moving_atoms_asc) {
       if (moving_atoms_asc->mol) {
          int nrms = moving_atoms_molecule.bonds_box.n_rotamer_markups;
          if (nrms > 0) {
-            add_rotamer_bars(&new_bars, 3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms,
-                             probability_to_rotation_amount);
+            add_rotamer_bars(&new_bars, 3, moving_atoms_molecule.bonds_box.rotamer_markups, nrms);
          }
       }
    }
@@ -2110,11 +2151,7 @@ graphics_info_t::draw_hud_geometry_tooltip() {
       bool use_label_highlight = true;
       if (moving_atoms_visited_residues.find(residue_p) != moving_atoms_visited_residues.end()) {
          use_label_highlight = false;
-         std::cout << "found residue " << coot::residue_spec_t(residue_p) << " in visited moving residues" << std::endl;
       }
-
-      std::cout << "moving_atoms_visited_residues size " << moving_atoms_visited_residues.size()
-                << " use_label_highlight " << use_label_highlight << std::endl;
 
       tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
                                                       &shader_for_hud_geometry_tooltip_text,

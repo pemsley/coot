@@ -13,6 +13,7 @@ std::vector<rotamer_markup_container_t>
 Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) const {
 
    std::vector<rotamer_markup_container_t> dodecs;
+   int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
 
 #ifdef HAVE_CXX_THREAD
    unsigned int n_threads = coot::get_max_number_of_threads();
@@ -37,8 +38,17 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 		  if (residue_p) {
 		     mmdb::Atom *atom_p = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
 		     if (atom_p) {
-			std::pair<mmdb::Residue *, mmdb::Atom *> p(residue_p, atom_p);
-			residues.push_back(p);
+                        int udd_is_fixed_during_refinement = 0;
+                        atom_p->GetUDData(udd_fixed_during_refinement_handle,
+                                          udd_is_fixed_during_refinement);
+                        if (udd_is_fixed_during_refinement == 1) {
+                           if (false) // quite a few of them are fixed in sphere refine
+                              std::cout << "rotamers: ignore this fixed residue "
+                                        << coot::residue_spec_t(residue_p) << std::endl;
+                        } else {
+                           std::pair<mmdb::Residue *, mmdb::Atom *> p(residue_p, atom_p);
+                           residues.push_back(p);
+                        }
 		     }
 		  }
 	       }
