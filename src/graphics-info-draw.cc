@@ -1602,6 +1602,7 @@ graphics_info_t::setup_lights() {
    graphics_info_t::lights[1] = light;
 }
 
+// this is called from realize()
 void
 graphics_info_t::setup_hud_geometry_bars() {
 
@@ -1628,8 +1629,8 @@ graphics_info_t::setup_hud_geometry_bars() {
    texture_for_hud_tooltip_background.set_default_directory(coot::package_data_dir());
    // texture_for_hud_tooltip_background.init("hud-label-nbc-rama.png");
    texture_for_hud_tooltip_background.init("hud-tooltip.png"); // 94x47
-   float sc_x = 0.001 * static_cast<float>(94);
-   float sc_y = 0.001 * static_cast<float>(47);
+   float sc_x = 0.001 * static_cast<float>(103) / aspect_ratio;
+   float sc_y = 0.001 * static_cast<float>(50);
 
    // Do I need to Use() the shader_for_hud_geometry_labels here?
    shader_for_hud_geometry_labels.Use();
@@ -1638,11 +1639,14 @@ graphics_info_t::setup_hud_geometry_bars() {
    glm::vec2 scales(0.04/aspect_ratio, 0.06);
    mesh_for_hud_geometry_labels.set_position_and_scales(position, scales); // ""NBC, Pull"" texture
 
-   mesh_for_hud_tooltip_background.setup_quad();
+   mesh_for_hud_tooltip_background.setup_quad(); // does setup_buffers()
    mesh_for_hud_tooltip_background.set_scales(glm::vec2(sc_x, sc_y));
-   mesh_for_hud_tooltip_background.setup_texture_coords_for_nbcs_and_rama();
+   // mesh_for_hud_tooltip_background.setup_texture_coords_for_nbcs_and_rama();  // surely not needed?
 
    tmesh_for_hud_geometry_tooltip_label.setup_quad();
+   glm::vec2 label_scale(0.00015/aspect_ratio, 0.00015);
+   tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
+
 }
 
 float
@@ -2141,17 +2145,18 @@ graphics_info_t::draw_hud_geometry_tooltip() {
       // glm::vec2 label_position(-0.64, 0.72);
       // tmesh_for_hud_geometry_tooltip_label.set_position(label_position);
 
-      glm::vec2 label_scale(0.00015, 0.00015); // fixed.
-      tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
+      // this is now done in setup_hud_geometry_bars() which is called by resize()
+      // glm::vec2 label_scale(0.00015, 0.00015); // fixed.
+      // tmesh_for_hud_geometry_tooltip_label.set_scales(label_scale);
 
-      mmdb::Residue *residue_p = 0; // oops - how does this get set!?
-      if (active_atom_for_hud_geometry_bar)
-         residue_p = active_atom_for_hud_geometry_bar->residue;
 
       bool use_label_highlight = true;
-      if (moving_atoms_visited_residues.find(residue_p) != moving_atoms_visited_residues.end()) {
-         use_label_highlight = false;
-      }
+      mmdb::Residue *residue_p = 0;
+      if (active_atom_for_hud_geometry_bar)
+         residue_p = active_atom_for_hud_geometry_bar->residue;
+      if (residue_p)
+         if (moving_atoms_visited_residues.find(residue_p) != moving_atoms_visited_residues.end())
+            use_label_highlight = false;
 
       tmesh_for_hud_geometry_tooltip_label.draw_label(label, use_label_highlight,
                                                       &shader_for_hud_geometry_tooltip_text,
@@ -2176,12 +2181,15 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
    // is this needed? - does the context ever change?
    gtk_gl_area_make_current(gl_area);
-   err = glGetError(); if (err) std::cout << "render() post gtk_gl_area_make_current() err " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "render() post gtk_gl_area_make_current() err " << err << std::endl;
 
    glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
-   err = glGetError(); if (err) std::cout << "render() post glViewport() err " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "render() post glViewport() err " << err << std::endl;
    screen_framebuffer.bind();
-   err = glGetError(); if (err) std::cout << "render() post screen_framebuffer bind() err " << err << std::endl;
+   err = glGetError();
+   if (err) std::cout << "render() post screen_framebuffer bind() err " << err << std::endl;
 
    glEnable(GL_DEPTH_TEST);
 
@@ -2215,7 +2223,7 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
       glDisable(GL_DEPTH_TEST);
       unsigned int sf = framebuffer_scale;
-      glViewport(0, 0, sf * w, sf *h);
+      glViewport(0, 0, sf * w, sf * h);
       framebuffer screendump_framebuffer;
       unsigned int index_offset = 0;
       screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");

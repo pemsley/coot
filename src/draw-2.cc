@@ -213,6 +213,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    setup_hud_text(width, height, g.shader_for_hud_text, false);
    setup_hud_text(width, height, g.shader_for_atom_labels, true); // change the function name
 
+   g.setup_hud_geometry_bars(); // because they depend on the aspect ratio
+
    g.reset_frame_buffers(width, height);
 }
 
@@ -410,11 +412,14 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
       float xx =    2.0 * g.mouse_current_x/static_cast<float>(w) - 1.0f;
       float yy = - (2.0 * g.mouse_current_y/static_cast<float>(h) - 1.0f);
       glm::vec2 pos(xx, yy);
-      glm::vec2 scales(0.11, 0.05); // the scales of the tooltip background is not up to this function!
-                                    // it should be in the draw function - if anywhere.
       // this makes the top-left of the tooltip bubble point at the hud geometry bar box (mouse position)
       // without it, the tooltip middle is at the cursor position
-      glm::vec2 background_texture_offset(0.08f, -0.058f);
+      // 0.1  too much to the left
+      // 0.07 too much to the left
+      // 0.05 too much to the left (not much)
+      // 0.0  too much to the right
+      float ww = 0.04f * (static_cast<float>(w)/900.0 - 1.0); //  hard-coded inital width - hmmm.
+      glm::vec2 background_texture_offset(0.08f - ww, -0.058f);
       glm::vec2 label_texture_offset(0.0f, -0.086f);
       glm::vec2 background_texture_pos = pos + background_texture_offset;
       glm::vec2 atom_label_position = pos + label_texture_offset;

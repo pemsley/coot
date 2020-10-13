@@ -2,10 +2,16 @@
 
 Have you really filled the vertices and indices?
 
+Make sure you're calling setup() for the vertices - and instances.
+
 Call this before setup():
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-If you don't then, there will be a crash on glDrawElements() or glDrawArrays().
+   If you don't then, there will be a crash on glDrawElements() or glDrawArrays().
+
+Double and triple check the layout: vertex attributes match the shader layout. Are
+you using the shader that you think that you're using?
+
 
 Use() the shader in setup().
 
@@ -49,7 +55,7 @@ in coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_
 
     Are the any vertices?
 
-    Are the vertices in the same place?
+    Are the vertices all in the same coordinates?
 
 ------
 
