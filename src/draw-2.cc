@@ -633,9 +633,8 @@ on_glarea_key_press_notify(GtkWidget *widget, GdkEventKey *event) {
      if (true)
         std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
                   << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
-     std::cout << "----------------- run the run function of that: " << std::endl;
-     kb.run();
-     found =  true;
+     handled = kb.run();
+     found = true;
    }
 
    int kv = event->keyval;

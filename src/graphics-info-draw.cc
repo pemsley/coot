@@ -3019,10 +3019,9 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(pdel);
 
 
-
-   // left
+   // ctrl left
    auto lc4 = []() {
-                 if (graphics_info_t::control_is_pressed) {
+                 if (true) { // we don't get here unless Ctrl is pressed. No need to test it again here.
                     if (graphics_info_t::shift_is_pressed)
                        graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Left);
                     else
@@ -3033,9 +3032,9 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
-   // right
+   // ctrl right
    auto lc5 = []() {
-                 if (graphics_info_t::control_is_pressed) {
+                 if (true) { // we don't get here unless Ctrl is pressed.
                     if (graphics_info_t::shift_is_pressed)
                        graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Right);
                     else
@@ -3046,9 +3045,9 @@ graphics_info_t::setup_key_bindings() {
                  return gboolean(TRUE);
               };
 
-   // up
+   // ctrl up
    auto lc6 = []() {
-                 if (graphics_info_t::control_is_pressed) {
+                 if (true) { // we don't get here unless Ctrl is pressed.
                     if (graphics_info_t::shift_is_pressed)
                        graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Up);
                     else
@@ -3058,9 +3057,9 @@ graphics_info_t::setup_key_bindings() {
                  }
                  return gboolean(TRUE);
               };
-   // down
+   // ctrl down
    auto lc7 = []() {
-                 if (graphics_info_t::control_is_pressed) {
+                 if (true) { // we don't get here unless Ctrl is pressed.
                     if (graphics_info_t::shift_is_pressed)
                        graphics_info_t::nudge_active_residue_by_rotate(GDK_KEY_Down);
                     else
@@ -3076,11 +3075,13 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
    key_bindings_t ctrl_arrow_down_key_binding(lc7, "R/T Down");
    key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
+
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
+
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);
    kb_vec.push_back(p6);

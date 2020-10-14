@@ -4,6 +4,9 @@
 
 // Python header has already been loaded by now.
 
+#include <string>
+#include <gtk/gtk.h>
+
 #ifdef USE_GUILE
 #include <cstdio> /* for std::FILE in gmp.h for libguile.h */
 #include <libguile.h>
@@ -60,40 +63,47 @@ public:
 #endif
    std::string description;
    gboolean (*func)();
-   key_bindings_t() { type = NONE; function_py = 0; func = 0; }
+   key_bindings_t() { type = NONE;
+#ifdef USE_PYTHON
+      function_py = 0;
+#endif
+      func = 0; }
    // external
 #ifdef USE_GUILE
-   key_bindings_t(SCM thunk_in, const std::string &descr) {
+   key_bindings_t(SCM thunk_in, const std::string &descr) : thunk(thunk_in), description(descr) {
       type = SCHEME;
-      thunk = thunk_in;
-      description = descr;
       func = 0;
    }
 #endif
 #ifdef USE_PYTHON
-   key_bindings_t(PyObject *func_py, const std::string &descr) {
+   key_bindings_t(PyObject *func_py, const std::string &descr) : description(descr) {
       type = PYTHON;
       function_py = func_py;
-      description = descr;
       func = 0;
    }
-   key_bindings_t(const std::string function_as_string, const std::string &descr) {
+   key_bindings_t(const std::string &function_as_string, const std::string &descr) :
+      scripting_function_text(function_as_string), description(descr) {
       type = PYTHON;
       function_py = 0;
-      scripting_function_text = function_as_string;
-      description = descr;
       func = 0;
    }
 #endif
    key_bindings_t(binding_type bt, const std::string &fn, const std::string &description_in) :
-      type(bt), scripting_function_text(fn), description(description_in) {}
+      type(bt), scripting_function_text(fn), description(description_in) {
+#ifdef USE_PYTHON
+      function_py = 0;
+#endif
+      func = 0;
+   }
    // internal
-   key_bindings_t(gboolean (*func_in) (), const std::string &description_in) {
-      description = description_in;
+   key_bindings_t(gboolean (*func_in) (), const std::string &description_in) : description(description_in) {
       type = BUILT_IN;
       func = func_in;
+#ifdef USE_PYTHON
+      function_py = 0;
+#endif
    }
-   void run() const;
+   gboolean run() const;
 };
 
 #endif // KEY_BINDINGS_HH

@@ -4030,6 +4030,8 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 void
 graphics_info_t::nudge_active_residue(guint direction) {
 
+   std::cout << "nudge_active_residue() " << std::endl;
+
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
    if (active_atom.first) {
       clipper::Coord_orth shift(0,0,0);
