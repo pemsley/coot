@@ -198,7 +198,7 @@ AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
 
-coot_gtk2=TRUE
+# coot_gtk2=TRUE
 
 
 # AM_PATH_GTK(2.4.14)
@@ -341,18 +341,8 @@ AC_SUBST(COOT_BUILD_INFO_STRING)
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
-if test $coot_gtk2 = TRUE ; then
-  SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
-else
-  # the creation of coot.py in the src dir (currently) relies on
-  # SWIG_FLAGS being blank for the GTK1 version.
-  SWIG_FLAGS=""
-fi
-dnl echo ....... SWIG_FLAGS=$SWIG_FLAGS
+SWIG_FLAGS="-DCOOT_USE_GTK2_INTERFACE"
 AC_SUBST(SWIG_FLAGS)
-
-AM_CONDITIONAL(USING_GTK2_VERSION, test x$coot_gtk2 = xTRUE)
-
 
 
 dnl check for guile modules www and gtk here.
