@@ -110,7 +110,7 @@ IndexedModel OBJModel::ToIndexedModel()
            if (currentIndex->uvIndex < uvs.size()) {
               currentTexCoord = uvs[currentIndex->uvIndex];
            } else {
-              std::cout << "texcoords indexing error i " << i << " " << currentIndex->uvIndex << std::endl;
+              std::cout << "texcoords hassUVs indexing error i " << i << " " << currentIndex->uvIndex << std::endl;
               currentTexCoord = glm::vec2(0,0);
            }
         else
@@ -222,7 +222,7 @@ unsigned int OBJModel::FindLastVertexIndex(const std::vector<OBJIndex*>& indexLo
                        if (currentIndex->uvIndex < uvs.size()) {
                           currentTexCoord = uvs[currentIndex->uvIndex];
                        } else {
-                          std::cout << "texcoords indexing error i " << i << " " << currentIndex->uvIndex << std::endl;
+                          std::cout << "texcoords hasUVs other indexing error i " << i << " " << currentIndex->uvIndex << std::endl;
                           currentTexCoord = glm::vec2(0,0);
                        }
                     else

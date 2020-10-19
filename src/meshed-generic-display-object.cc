@@ -34,7 +34,7 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
                                          const int &size_in,
                                          const clipper::Coord_orth &coords_in) {
 
-   unsigned int num_subdivisions = 3;
+   unsigned int num_subdivisions = 1;
    float radius = 0.03 * size_in; // changing the scaling is fun
    glm::vec4 col(colour_in.red, colour_in.green, colour_in.blue, 1.0);
    glm::vec3 position = coord_orth_to_glm(coords_in);
@@ -48,7 +48,6 @@ void
 meshed_generic_display_object::add_arrow(const arrow_t &arrow) {
 
    unsigned int n_slices = 8;
-   float arrow_radius = 0.1;
    std::pair<glm::vec3, glm::vec3 > start_end(coord_orth_to_glm(arrow.start_point),
                                               coord_orth_to_glm(arrow.end_point));
    add_cylinder(start_end, arrow.col, arrow.radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);

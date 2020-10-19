@@ -9570,3 +9570,16 @@ Tue 29 Sep 14:55:03 BST 2020
 
    https://cpp.hotexamples.com/
 
+---
+ Wed 14 Oct 16:09:39 BST 2020
+
+   bash iterate
+
+   for i in $(seq 1 $END) ;
+   do
+      echo $i
+   done
+
+   https://stackoverflow.com/questions/169511/how-do-i-iterate-over-a-range-of-numbers-defined-by-variables-in-bash
+
+
