@@ -160,7 +160,7 @@ This time perhaps without drawing the restraints:
   - _yank as needed_
   - **OK**
 
-... or with different cut-off for the Geman-McClure restraints, or a different alpha for the Geman-McClure restraints, or a different weight for the map. Or a different blur for the map. You can delete the current extra restraints with **ProSMART** &rarr; **Delete All Extra Restraints**.
+... or with different cut-off for the Geman-McClure restraints, or a different alpha for the Geman-McClure restraints, or a different weight for the map. Or a different blur for the map. You can delete the current extra restraints with **Restraints** &rarr; **Delete All Extra Restraints**.
 
   - Try proportial editing: with the Real Space Refinement active, use Ctrl Middle-mouse scroll
     to change the radius of the atoms affected by the atom pull displacement.
