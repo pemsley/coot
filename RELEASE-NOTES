@@ -1,5 +1,5 @@
 
-  Pre-release 0.9.1
+  Release 0.9.1
 
   o FEATURE: fat atoms for some metals and halides
 
@@ -28,25 +28,25 @@
 
   o FEATURE: add_nucleotide() added to the API [Gianluca Cascarano]
 
-  o FEATURE: distances added to raster3d output [Vito Calderone]
+  o FEATURE: Distances added to raster3d output [Vito Calderone]
 
-  o CHANGE: waters can no longer be placed directly on top of another atom
+  o CHANGE: Waters can no longer be placed directly on top of another atom
 
   o CHANGE: Sequence view is docked by default - now with current-residue highlighting
 
   o CHANGE: Bond orders used for colour-by-chain mode
 
-  o CHANGE: increase weight on atom-pull restraint
+  o CHANGE: Increase weight on atom-pull restraint
 
   o CHANGE: More sane rotation Ctrl-base rotation in Rotation/Translation mode [Mattias Barone]
 
-  o CHANGE: contact dots now use Fibonacci spheres
+  o CHANGE: contact dots now use Fibonacci spheres - goodbye UV pole crowding
 
   o CHANGE: improvements to dictionary reading and reporting of mismatches
 
   o CHANGE: single-letter entry added to residue type selector for mutations
 
-  o CHANGE: rework the liking algorithm so that residues with a residue number gap but close
+  o CHANGE: rework the linking algorithm so that residues with a residue number gap but close
             N and C atoms can now be linked.
 
   o CHANGE: Fourier filtered Jiggle-Fit now followed by rigid-body refinement at full
@@ -57,6 +57,9 @@
   o BUG-FIX: fix the generation of link metal oxygens restraints when the atoms are reversed.
 
   o BUG-FIX: fix crash in lbg network molecule retrival
+
+  o BUG-FIX: Merging a ligand in merge-molecules no longer steps the residue number by 100 when
+             adding the same ligand type [Keith Wilson]
 
   o BUG-FIX: Curlew's "Install" and "Uninstall" buttons work better
 
@@ -70,8 +73,9 @@
 
   o BUG-FIX: remove neighbour-generation memory leak
 
-  o BUG-FIX: getopt usage reworked
+  o BUG-FIX: getopt usage reworked - the command line should behave better on some systems
 
+-----
 
   Release 0.9
 

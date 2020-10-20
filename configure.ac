@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT(coot, 0.9.1-pre)
+AC_INIT(coot, 0.9.1)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -312,6 +312,8 @@ if test x$coot_enhanced_ligand_additions = xtrue ; then
 else 	
    ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
+
+echo ENHANCED_LIGAND_TOOLS_CFLAGS $ENHANCED_LIGAND_TOOLS_CFLAGS
 
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",

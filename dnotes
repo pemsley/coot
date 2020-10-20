@@ -3979,7 +3979,7 @@ INFO::
    o Artists acknowledged in glade/aboutdialog?
    o Use glade-2
         Change the splash screen
-        Fix the release name in the About dialog (aboutdialog)
+        Fix the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
@@ -8866,7 +8866,7 @@ vulkan and cuda:
 
 https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
 
-So can I do marching cudes with cuda and display them with vulkan?
+So can I do marching cubes with CUDA and display them with vulkan?
 
 Does that mean moving everything to vulkan?
 
@@ -8890,6 +8890,7 @@ Sun 10 Mar 2019 12:39:28 GMT
 
    https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
 
+* Forget that, clustalw2 can be installed as part of the build. Now there's an interface for that.
 
 ---
 Tue 12 Mar 2019 17:34:23 GMT
@@ -9338,8 +9339,6 @@ Wed 20 May 19:11:11 BST 2020
 
    http://click2drug.org/ for interesting applications
 
-
-
 ---
 Mon 25 May 2020 11:13:41 BST
 
@@ -9403,3 +9402,9 @@ Fri 21 Aug 15:46:31 BST 2020
     Look at stack trace and command line argument parser(s)
 
     https://github.com/bombela/backward-cpp
+
+---
+Mon 12 Oct 15:28:53 BST 2020
+
+   o microtubule - massive structure: code: 6u42
+

@@ -743,7 +743,7 @@ coot::daca::fill_helix_flags(mmdb::Model *model_p, mmdb::Manager *mol) {
 
       std::vector<mmdb::Residue *> helical_residues_in_chain = like_a_helix(mol, residue_selection_handle);
       for (unsigned int i=0; i<helical_residues_in_chain.size(); i++)
-      helical_residues.push_back(helical_residues_in_chain[i]);
+         helical_residues.push_back(helical_residues_in_chain[i]);
 
       mol->DeleteSelection(residue_selection_handle);
    }
@@ -791,13 +791,13 @@ coot::daca::atom_is_neighbour_mainchain(mmdb::Atom *at, mmdb::Residue *reference
 void
 coot::daca::presize_boxes(mode_t mode) {
 
-   std::vector<std::string> types = { "GLY", "ALA", "CYS", "ASP", "GLU", "PHE", "HIS", "ILE", "LYS", "LEU",
-                                      "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP",
-                                      "TYR"};
+   std::vector<std::string> residue_types = { "GLY", "ALA", "CYS", "ASP", "GLU", "PHE", "HIS", "ILE", "LYS", "LEU",
+                                              "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP",
+                                              "TYR"};
 
    if (mode == REFERENCE) {
       boxes_have_been_resized = true;
-      for (auto type : types) {
+      for (auto type : residue_types) {
          const std::vector<std::string> h_types = {"-helical", "-non-helical"};
          for (auto h : h_types) {
             std::string key = type + h;
@@ -806,7 +806,7 @@ coot::daca::presize_boxes(mode_t mode) {
       }
    }
    if (mode == ANALYSIS) {
-      for (auto type : types) {
+      for (auto type : residue_types) {
          const std::vector<std::string> h_types = {"-helical", "-non-helical"};
          for (auto h : h_types) {
             std::string key = type + h;
@@ -953,7 +953,8 @@ coot::daca::write_tables_using_reference_structures_from_dir(const std::string &
          std::cout << "write_tables()... read pdb file " << fn << std::endl;
 
          if (false) { // bring this back when the consolidated tables are in  place.
-            std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol);
+            bool side_chain_only = false;
+            std::vector<std::pair<mmdb::Residue *, float> > se = solvent_exposure(asc.mol, side_chain_only);
             for (unsigned int ii=0; ii<se.size(); ii++) {
                std::string rn(se[ii].first->GetResName());
                std::cout << "se " << fn << " " << coot::residue_spec_t(se[ii].first)
@@ -1039,8 +1040,11 @@ coot::daca::score_molecule(const std::string &pdb_file_name) {
                                   << " " << rt << " in map of size " << se_as_map.size()
                                   << std::endl;
                      }
+                     std::string ss_type = "helix";
+                     if (std::find(helical_residues.begin(), helical_residues.end(), residue_p) == helical_residues.end())
+                        ss_type = "non-helical";
                      std::cout << "residue_number " << res_number << " type " << rt
-                               << " score " << daca_score
+                               << " SS-type " << ss_type << " score " << daca_score
                                << " daca_sum_score " << score << " solvent_exposure " << se_score
                                << "\n";
                   }

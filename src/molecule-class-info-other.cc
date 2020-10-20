@@ -592,6 +592,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
    int istate = 0;
    if (has_model()) {
       if (v.size() > 0) {
+         make_backup();
 	 for (unsigned int iv=0; iv<v.size(); iv++) {
 	    int SelectionHandle = atom_sel.mol->NewSelection();
 	    atom_sel.mol->SelectAtoms(SelectionHandle, 0,

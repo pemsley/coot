@@ -4816,6 +4816,9 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
    return udd_handle;
 }
 
+#include "geometry/main-chain.hh"
+#include "geometry/hydrophobic.hh"
+
 
 // atom_colour_map is an optional arg.  It is passed in the case of
 // long_bonded atoms or MET/MSE residues. Default value 0 (NULL).
@@ -4851,6 +4854,24 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
 
       } else {
+
+         if (bond_colour_type == coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN) {
+            mmdb::Residue *r = at->residue;
+            if (r) {
+               std::string res_name(r->GetResName());
+               if (coot::util::is_standard_amino_acid_name(res_name)) {
+                  std::string atom_name(at->GetAtomName());
+                  if (coot::is_main_chain_p(at)) {
+                     col = 50; // or the chain indexed colour in future
+                  } else {
+                     if (coot::is_hydrophobic_atom(res_name, atom_name))
+                        col = 1;
+                     else
+                        col = 2;
+                  }
+               }
+            }
+         }
 
 	 if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
 	    int sse = at->residue->SSE;
@@ -6269,6 +6290,20 @@ Bond_lines_container::add_carbohydrate_bonds(const atom_selection_container_t &a
    add_polymer_bonds_generic(asc, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, " O6 ", " C1 ", true, gm);
 
 }
+
+// main-chain colour as in colour-by-chain
+// and either orange (hydrophobic) or blue
+
+void
+Bond_lines_container::do_colour_by_hydrophobic_side_chains(const atom_selection_container_t &asc,
+                                                           int imol,
+                                                           bool draw_missing_loops_flag,
+                                                           int draw_hydrogens_flag) {
+
+   // somthing here
+   int atom_colour_type =  coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN;
+}
+
 
 
 void

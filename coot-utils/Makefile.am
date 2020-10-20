@@ -119,7 +119,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
-   $(CLIPPER_LIBS)
+   $(CLIPPER_LIBS) $(GSL_LIBS)
 
 libcoot_map_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 

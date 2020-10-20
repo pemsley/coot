@@ -3680,7 +3680,7 @@ if [ "$gtk_minor_version" = "4" ] ; then
     apply_guile_gtk_patches=1
     # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
     ${WGET} $extras_place/guile-gtk-2.1-for-gtk-2.4.patch
-else 
+else
     echo GTK minor version is good enough, $gtk_minor_version
 fi
 (

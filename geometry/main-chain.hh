@@ -1,4 +1,7 @@
 
+#ifndef MAIN_CHAIN_HH
+#define MAIN_CHAIN_HH
+
 #include <string>
 #include <mmdb2/mmdb_manager.h>
 
@@ -20,3 +23,7 @@ namespace coot {
    bool is_main_chain_or_cb_p(const std::string &atom_name);
 
 }
+
+
+#endif // MAIN_CHAIN_HH
+
