@@ -77,7 +77,8 @@ Go To Residue:
 
   - "Ctrl G" _{see the little dialog?}_
   - Type the residue number (and the chain id, if needed)
-  - Also 3 single-letter-code letters, e.g.``HEY``
+  - Press Enter _{Coot recentres on the specified residue}_
+  - The recentering also works with 3 single-letter-code letters, e.g.``HEY``
 
 You can toggle spin and rock the view with:
 	- "I", "Ctrl R"
@@ -86,7 +87,7 @@ You can toggle spin and rock the view with:
 
   - Right-mouse click on the right-hand side of the horizontal tool-button bar
   - Add "**Sphere Refine +**", "**Tandem Refine**" and "**Backrub Rotamers**"
-  - Toggle on the "**Backrub Rotamers**" button
+  - Toggle on the "**Backrub Rotamers**" button _{the button will turn pink}_
 
 ### 3.2 Install Key-bindings
 
@@ -162,7 +163,9 @@ So, let's fix this with Real Space Refine and flipping:
 5: Now To the Demo Box!
 ----------------------------
 
-For these refinements, it might be useful to use Coot Probe dots:
+The point of this exercise is for you to see/learn how Coot behaves with lower resolution data.
+
+For these refinements, it might be useful to use the Coot atom interaction dots:
 
 **Calculate** &rarr; **Scripting** &rarr; **Python**
    - `set_do_coot_probe_dots_during_refine(1)`
@@ -190,7 +193,6 @@ Now try that with a blurred map:
  - Blur to about 60 or 70&Aring;&sup2;  _{to resemble cryo-EM map}_
  - **Tandem Refine** again
 
-The point of this exercise is for you to see/learn how coot behaves with lower resolution data.
 
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbLTE5OTM1ODM3MzAsNjUyMTIzNzQ5LDEyNj
