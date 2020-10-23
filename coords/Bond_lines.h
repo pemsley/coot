@@ -594,7 +594,8 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom);
-   void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
+   void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type,
+                         coot::my_atom_colour_map_t *atom_colour_map = 0);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
 			mmdb::PPAtom ligand_atoms_selection, int n_ligand_atoms);
    std::vector<rotamer_markup_container_t> dodecs;
