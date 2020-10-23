@@ -4852,6 +4852,9 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
    return udd_handle;
 }
 
+#include "geometry/main-chain.hh"
+#include "geometry/hydrophobic.hh"
+
 
 // atom_colour_map is an optional arg.  It is passed in the case of
 // long_bonded atoms or MET/MSE residues. Default value 0 (NULL).
@@ -4887,6 +4890,24 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	 }
 
       } else {
+
+         if (bond_colour_type == coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN) {
+            mmdb::Residue *r = at->residue;
+            if (r) {
+               std::string res_name(r->GetResName());
+               if (coot::util::is_standard_amino_acid_name(res_name)) {
+                  std::string atom_name(at->GetAtomName());
+                  if (coot::is_main_chain_p(at)) {
+                     col = 50; // or the chain indexed colour in future
+                  } else {
+                     if (coot::is_hydrophobic_atom(res_name, atom_name))
+                        col = 1;
+                     else
+                        col = 2;
+                  }
+               }
+            }
+         }
 
 	 if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
 	    int sse = at->residue->SSE;
@@ -5753,7 +5774,16 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
    bool is_het = false;
 
    std::map<std::string, std::vector<mmdb::Residue *> >::const_iterator it;
-   std::map<std::string, std::vector<std::vector<std::tuple<std::string, std::string, std::string> > > > atom_name_ele_map; // and alt-conf
+   class atom_string_bits_t {
+   public:
+      std::string atom_name;
+      std::string ele;
+      std::string alt_loc;
+      mmdb::Atom *at;
+      atom_string_bits_t(const std::string &a, const std::string &e, const std::string &altloc, mmdb::Atom *at_in) : atom_name(a), ele(e), alt_loc(altloc), at(at_in) {}
+   };
+   // std::map<std::string, std::vector<std::vector<std::tuple<std::string, std::string, std::string> > > > atom_name_ele_map; // and alt-conf
+   std::map<std::string, std::vector<std::vector<atom_string_bits_t> > > atom_name_ele_map; // and alt-conf
    for (it=residue_monomer_map.begin(); it!=residue_monomer_map.end(); it++) {
       const std::string &monomer_name(it->first);
       const std::vector<mmdb::Residue *> &v = it->second;
@@ -5769,7 +5799,8 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                std::string atom_name(at->name);
                std::string ele(at->element);
                std::string alt_loc(at->altLoc);
-               atom_name_ele_map[monomer_name][i].push_back(std::tuple<std::string, std::string, std::string>(atom_name, ele, alt_loc));
+               atom_string_bits_t asb(atom_name, ele, alt_loc, at);
+               atom_name_ele_map[monomer_name][i].push_back(asb);
                if (at->Het)
                   is_het = true;
             }
@@ -5908,11 +5939,10 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                      }
                   }
 
-                  const std::vector<std::tuple<std::string, std::string, std::string> > &atom_name_ele_vec =
-                     atom_name_ele_map[monomer_name][i];
+                  const std::vector<atom_string_bits_t> &atom_name_ele_vec = atom_name_ele_map[monomer_name][i];
 
                   std::set<std::string>::const_iterator it;
-                  for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); it++) {
+                  for(it=residue_alt_confs.begin(); it!=residue_alt_confs.end(); ++it) {
 
                      const std::string &alt_loc(*it);
 
@@ -5920,47 +5950,58 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                      // those indices to find the same atom names in the other vectors
                      int iat = -1;
                      int jat = -1;
+                     mmdb::Atom *bond_atom_1 = 0;
+                     mmdb::Atom *bond_atom_2 = 0;
+                     // tuple: atom_name, ele, alt_loc
                      for (unsigned int ii=0; ii<atom_name_ele_vec.size(); ii++) {
-                        if (iat == -1)
-                           if (std::get<0>(atom_name_ele_vec[ii]) == dict_atom_name_1)
-                              if (std::get<2>(atom_name_ele_vec[ii]) == alt_loc || std::get<2>(atom_name_ele_vec[ii]).empty())
-                                 iat = ii;
-                        if (jat == -1)
-                           if (std::get<0>(atom_name_ele_vec[ii]) == dict_atom_name_2)
-                              if (std::get<2>(atom_name_ele_vec[ii]) == alt_loc || std::get<2>(atom_name_ele_vec[ii]).empty())
-                                 jat = ii;
+                        if (! bond_atom_1)
+                           if (atom_name_ele_vec[ii].atom_name == dict_atom_name_1)
+                              if (atom_name_ele_vec[ii].alt_loc == alt_loc || atom_name_ele_vec[ii].alt_loc.empty())
+                                 if (! residue_atoms[ii]->isTer()) {
+                                    bond_atom_1 = atom_name_ele_vec[ii].at;
+                                    iat = ii;
+                                 }
+                        if (! bond_atom_2)
+                           if (atom_name_ele_vec[ii].atom_name == dict_atom_name_2)
+                              if (atom_name_ele_vec[ii].alt_loc == alt_loc || atom_name_ele_vec[ii].alt_loc.empty())
+                                 if (! residue_atoms[ii]->isTer()) {
+                                    bond_atom_2 = atom_name_ele_vec[ii].at;
+                                    jat = ii;
+                                 }
                      }
-                     if (iat != -1) {
-                        if (jat != -1) {
+                     if (bond_atom_1) {
+                        if (bond_atom_2) {
 
-                           mmdb::Atom **residue_atoms = 0;
-                           int n_residue_atoms = 0;
                            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
                            int ierr = 0;
                            int atom_idx_1 = -1;  // atom index in the asc atom selection
                            int atom_idx_2 = -1;
                            ierr = residue_atoms[iat]->GetUDData(udd_atom_index_handle, atom_idx_1);
                            if (ierr != mmdb::UDDATA_Ok)
-                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error " << udd_atom_index_handle << std::endl;
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error A " << udd_atom_index_handle << std::endl;
                            ierr = residue_atoms[jat]->GetUDData(udd_atom_index_handle, atom_idx_2);
                            if (ierr != mmdb::UDDATA_Ok)
-                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error " << udd_atom_index_handle << std::endl;
+                              std::cout << "ERROR:: add_residue_monomer_bonds() UDD Index error B " << udd_atom_index_handle << std::endl;
 
-                           std::string element_1 = std::get<1>(atom_name_ele_vec[iat]);
-                           std::string element_2 = std::get<1>(atom_name_ele_vec[jat]);
-                           mmdb::Atom *atom_p_1 = residue_atoms[iat];
-                           mmdb::Atom *atom_p_2 = residue_atoms[jat];
+                           mmdb::Atom *atom_p_1 = bond_atom_1;
+                           mmdb::Atom *atom_p_2 = bond_atom_2;
+                           std::string element_1(atom_p_1->element);
+                           std::string element_2(atom_p_2->element);
                            coot::Cartesian p1(atom_p_1->x, atom_p_1->y, atom_p_1->z);
                            coot::Cartesian p2(atom_p_2->x, atom_p_2->y, atom_p_2->z);
                            int iat_1_atom_index = -1;
                            int iat_2_atom_index = -1;
 
+                           if (false)
+                              std::cout << "debug/diag:: " << dict_atom_name_1 << " " << dict_atom_name_2 << " " << iat << " " << jat
+                                        << atom_idx_1 << " " << atom_idx_2 << " "
+                                        << coot::atom_spec_t(atom_p_1) << " "
+                                        << coot::atom_spec_t(atom_p_2) << " "
+                                        << std::endl;
+
+                           // getting the UDD data again? A mistake I think.
                            residue_atoms[iat]->GetUDData(udd_atom_index_handle, iat_1_atom_index);
                            residue_atoms[jat]->GetUDData(udd_atom_index_handle, iat_2_atom_index);
-
-                           if (false)
-                              std::cout << "Here with atom iat " << coot::atom_spec_t(residue_atoms[iat])
-                                        << " jat " << coot::atom_spec_t(residue_atoms[jat]) << std::endl;
 
                            if (element_1 != element_2) {
                               if (!is_hydrogen(element_1) && !is_hydrogen(element_2)) {
@@ -5968,7 +6009,7 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                  if (bt == "double") {
                                     if (br.aromaticity == coot::dict_bond_restraint_t::AROMATIC) {
 
-                                       add_half_bonds(p1, p2, residue_atoms[iat], residue_atoms[jat],
+                                       add_half_bonds(p1, p2, atom_p_1, atom_p_2,
                                                       model_number, iat_1_atom_index, iat_2_atom_index,
                                                       atom_colour_type, atom_colour_map, false, false);
 
@@ -6168,7 +6209,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   add_atom_centres(asc, atom_colour_type);
+   add_atom_centres(asc, atom_colour_type, &atom_colour_map);
 
 }
 
@@ -6312,6 +6353,20 @@ Bond_lines_container::add_carbohydrate_bonds(const atom_selection_container_t &a
 
 }
 
+// main-chain colour as in colour-by-chain
+// and either orange (hydrophobic) or blue
+
+void
+Bond_lines_container::do_colour_by_hydrophobic_side_chains(const atom_selection_container_t &asc,
+                                                           int imol,
+                                                           bool draw_missing_loops_flag,
+                                                           int draw_hydrogens_flag) {
+
+   // somthing here
+   int atom_colour_type =  coot::COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN;
+}
+
+
 
 void
 Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
@@ -6345,6 +6400,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 					       bool do_goodsell_colour_mode) {
 
 
+   coot::my_atom_colour_map_t atom_colour_map;
 
    if (true) { // testing new bonding mode
       do_colour_by_dictionary_and_by_chain_bonds(asc,
@@ -6435,7 +6491,6 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 			    contact, ncontacts,
 			    0, &my_matt, i_contact_group);
 
-      coot::my_atom_colour_map_t atom_colour_map;
       int res1, res2;
 
       // Now, let's not forget that some atoms don't have contacts, so
@@ -6604,7 +6659,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-   add_atom_centres(asc, atom_colour_type);
+   add_atom_centres(asc, atom_colour_type, &atom_colour_map);
    int model_number = 0; // for all cis peptide markup (hmm, this function should be pass a model number?)
    add_cis_peptide_markup(asc, model_number);
 }
@@ -6875,7 +6930,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    // atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL;
 
    std::cout << "in " << __FUNCTION__ << " with atom_colour_type " << atom_colour_type << std::endl;
-   add_atom_centres(asc, atom_colour_type);
+   add_atom_centres(asc, atom_colour_type, &atom_colour_map);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
    if (draw_missing_loops_flag)
@@ -7275,7 +7330,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_MOLECULE;
-   add_atom_centres(asc, atom_colour_type);
+   add_atom_centres(asc, atom_colour_type, nullptr);
 }
 
 
@@ -7396,18 +7451,26 @@ Bond_lines_container::add_rotamer_goodness_markup(const atom_selection_container
    dodecs = get_rotamer_dodecs(SelAtom);
 }
 
+// you can use the atom_colour_map here - it might be null
 void
 Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom,
-				       int atom_colour_type) {
+				       int atom_colour_type,
+                                       coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    atom_centres.clear();
    atom_centres_colour.clear();
 
-   coot::my_atom_colour_map_t *atom_colour_map = 0;
-   if (atom_colour_type == coot::COLOUR_BY_CHAIN ||
-       atom_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY ||
-       atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-      atom_colour_map = new coot::my_atom_colour_map_t;
+   std::cout << "debug:: in add_atom_centres() atom_colour_map_p was " << atom_colour_map_p << std::endl;
+
+   // coot::my_atom_colour_map_t *atom_colour_map = 0;
+   bool locally_created_atom_colour_map = false;
+   if (atom_colour_map_p == 0) {
+      if (atom_colour_type == coot::COLOUR_BY_CHAIN ||
+          atom_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY ||
+          atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+         atom_colour_map_p = new coot::my_atom_colour_map_t;
+         locally_created_atom_colour_map = true;
+      }
    }
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
@@ -7425,13 +7488,14 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
                if (is_H_flag) p.is_hydrogen_atom = true;
 	       p.atom_p = at;
 	       atom_centres.push_back(p);
-	       int icol = atom_colour(at, atom_colour_type, atom_colour_map);
+	       int icol = atom_colour(at, atom_colour_type, atom_colour_map_p);
 	       atom_centres_colour.push_back(icol);
          }
       }
    }
-   if (atom_colour_map)
-      delete atom_colour_map;
+   
+   if (locally_created_atom_colour_map)
+      delete atom_colour_map_p;
 }
 
 

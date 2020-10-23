@@ -166,3 +166,35 @@ Perhaps even search against the PDB?
 Try the API from the PDB.
 
 
+---
+Tue 29 Sep 18:06:53 BST 2020
+
+    read this paper: https://onlinelibrary.wiley.com/doi/pdf/10.1002/prot.340200307
+
+    Polar and nonpolar atomic environments in the protein core: Implications for folding and binding
+
+    Abstract
+
+    Hydrophobic interactions are believed to play an important role in
+    protein folding and stability. Semi‐empirical attempts to estimate
+    these interactions are usually based on a model of solvation,
+    whose contribution to the stability of proteins is assumed to be
+    proportional to the surface area buried upon folding. Here we
+    propose an extension of this idea by defining an environment free
+    energy that characterizes the environment of each atom of the
+    protein, including solvent, polar or nonpolar atoms of the same
+    protein or of another molecule that interacts with the protein. In
+    our model, the difference of this environment free energy between
+    the folded state and the unfolded (extended) state of a protein is
+    shown to be proportional to the area buried by nonpolar atoms upon
+    folding. General properties of this environment free energy are
+    derived from statistical studies on a database of 82 well‐refined
+    protein structures. This free energy is shown to be able to
+    discriminate misfolded from correct structural models, to provide
+    an estimate of the stabilization due to oligomerization, and to
+    predict the stability of mutants in which hydrophobic residues
+    have been substituted by site‐directed mutagenesis, provided that
+    no large structural modifications occur.
+
+
+

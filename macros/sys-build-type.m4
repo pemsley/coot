@@ -127,14 +127,10 @@ else
    # echo setting python_tag to blank
    python_tag=
 fi
-  
-if test $coot_gtk2 = TRUE ; then
-   gtk2=-gtk2
-else
-   gtk2=
-fi
 
-COOT_SYS_BUILD_TYPE=${OS}-${systype}${python_tag}${gtk2}
+
+gtk_major_version=gtk3
+COOT_SYS_BUILD_TYPE=${OS}-${systype}${python_tag}${gtk_major_version}
 
 AC_MSG_RESULT([$COOT_SYS_BUILD_TYPE])
 AC_SUBST(COOT_SYS_BUILD_TYPE)

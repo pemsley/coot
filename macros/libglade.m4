@@ -29,7 +29,7 @@ LIBGLADE_PREFIX="$withval")
 
 # echo xxxxxxxxxxxxxxxxxxxxxxxxxx LIBGLADE_PREFIX is $LIBGLADE_PREFIX
 
-if test $coot_gtk2 = TRUE ; then
+if TRUE = TRUE ; then
 
    AC_MSG_CHECKING(libglade)
 

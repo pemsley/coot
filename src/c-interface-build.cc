@@ -1277,6 +1277,7 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 			 (alt_conf       == "-*-unset-*-:") ||
 			 (attribute_name == "-*-unset-*-:")) {
 
+                        std::string ss = myPyString_AsString(display_python(attribute_expression));
 			std::cout << "WARNING:: bad attribute expression: "
 				  << PyUnicode_AsUTF8String(attribute_expression)
 				  << std::endl;
@@ -1285,16 +1286,17 @@ int set_atom_attributes_py(PyObject *attribute_expression_list) {
 
 			coot::atom_attribute_setting_help_t att_val;
 			if (PyUnicode_Check(attribute_value_py)) {
-			   // std::cout << "a string value :" << att_val.s << ":" << std::endl;
-			   att_val = coot::atom_attribute_setting_help_t(PyBytes_AS_STRING(PyUnicode_AsUTF8String(attribute_value_py)));
+			   att_val = coot::atom_attribute_setting_help_t(myPyString_AsString(attribute_value_py));
 			} else {
 			   att_val = coot::atom_attribute_setting_help_t(float(PyFloat_AsDouble(attribute_value_py)));
-			   // std::cout << "a float value :" << att_val.val << ":" << std::endl;
+			   // std::cout << "debug:: a float value :" << att_val.val << ":" << std::endl;
 			}
-			v[imol].push_back(coot::atom_attribute_setting_t(chain_id, resno, inscode, atom_name, alt_conf, attribute_name, att_val));
-			//		     std::cout << "DEBUG:: Added attribute: "
-			//                        << scm_to_locale_string(display_scm(attribute_expression))
-			//        << std::endl;
+                        coot::atom_attribute_setting_t as(chain_id, resno, inscode, atom_name, alt_conf,
+                                                          attribute_name, att_val);
+			v[imol].push_back(as);
+
+                        std::cout << "DEBUG:: Added attribute: "
+                                  << myPyString_AsString(display_python(attribute_expression));
 		     }
 		  }
 	       }

@@ -2433,8 +2433,9 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                                       residue_spec_to_ins_code(new_res_spec),
                                       resno, "")
                 if not (new_chain_id == chain_id_in):
-                    change_chain_id(imol, new_chain_id, chain_id_in, 0, resno,
-                                    resno)
+                    change_chain_id(imol, new_chain_id, chain_id_in, 1,
+                                    residue_spec_to_res_no(new_res_spec),
+                                    residue_spec_to_res_no(new_res_spec))
 
                 replacement_state = refinement_immediate_replacement_state()
                 imol_map = imol_refinement_map()

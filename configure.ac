@@ -318,6 +318,8 @@ else
    ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
 
+echo ENHANCED_LIGAND_TOOLS_CFLAGS $ENHANCED_LIGAND_TOOLS_CFLAGS
+
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
  lidia_only=="no")

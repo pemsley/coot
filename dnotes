@@ -3979,7 +3979,7 @@ INFO::
    o Artists acknowledged in glade/aboutdialog?
    o Use glade-2
         Change the splash screen
-        Fix the release name in the About dialog (aboutdialog)
+        Fix the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
         To correct the transparency, duplicate layer, bucket fill with white
         the bottom layer, merge and bevel 6.
@@ -8866,7 +8866,7 @@ vulkan and cuda:
 
 https://github.com/NVIDIA/cuda-samples/tree/master/Samples/simpleVulkan
 
-So can I do marching cudes with cuda and display them with vulkan?
+So can I do marching cubes with CUDA and display them with vulkan?
 
 Does that mean moving everything to vulkan?
 
@@ -8890,6 +8890,7 @@ Sun 10 Mar 2019 12:39:28 GMT
 
    https://raw.githubusercontent.com/ebi-wp/webservice-clients/master/python/muscle.py
 
+* Forget that, clustalw2 can be installed as part of the build. Now there's an interface for that.
 
 ---
 Tue 12 Mar 2019 17:34:23 GMT
@@ -9543,7 +9544,6 @@ Fri 21 Aug 15:46:31 BST 2020
 
     https://github.com/bombela/backward-cpp
 
-
 ---
 Fri  4 Sep 15:13:15 BST 2020
 
@@ -9582,4 +9582,24 @@ Tue 29 Sep 14:55:03 BST 2020
 
    https://stackoverflow.com/questions/169511/how-do-i-iterate-over-a-range-of-numbers-defined-by-variables-in-bash
 
+---
+Mon 12 Oct 15:28:53 BST 2020
 
+
+   o microtubule - massive structure: code: 6u42
+
+---
+Tue 20 Oct 15:01:34 BST 2020
+
+   Merging vertices:
+
+   std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > vi1 = pumpkin();
+   std::pair<std::vector<position_normal_vertex>, std::vector<g_triangle> > vi2 = pumpkin_stalk();
+
+   unsigned int idx_base = vi1.first.size();
+   unsigned int tri_base = vi1.second.size();
+
+    vi1.first.insert(vi1.first.end(), vi2.first.begin(), vi2.first.end());
+    vi1.second.insert(vi1.second.end(), vi2.second.begin(), vi2.second.end());
+    for (unsigned int i=tri_base; i<vi1.second.size(); i++)
+       vi1.second[i].rebase(idx_base);

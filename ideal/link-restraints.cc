@@ -959,7 +959,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 			     // SSBONDs in the molecule before
 			     // assigning pyranose or disulphides etc.
 
-   bool debug = false; // TMI.
+   bool debug = true; // TMI.
 
    std::string link_type = "";
    bool order_switch_flag = false;

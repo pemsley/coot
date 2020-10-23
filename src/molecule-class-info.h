@@ -2752,6 +2752,7 @@ public:        //                      public
 
    // return the number of new hetatoms
    int assign_hetatms();
+   bool is_het_residue(mmdb::Residue *residue_p) const;
 
    // move waters so that they are around H-bonders (non-C) in protein.
    // return the number of moved atoms

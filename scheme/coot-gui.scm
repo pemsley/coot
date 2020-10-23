@@ -2851,7 +2851,7 @@
 
 ;; Wrapper in that we test if there have been sequence(s) assigned to
 ;; imol before we look for the sequence mismatches
-
+;; 
 (define (wrapper-alignment-mismatches-gui imol)
   
   (let ((seq-info (sequence-info imol)))
@@ -2861,6 +2861,97 @@
 	    (associate-pir-with-molecule-gui #t)
 	    (alignment-mismatches-gui imol))
 	(associate-pir-with-molecule-gui #t))))
+
+
+;; Use clustalw to do the alignment. Then mutate using that alignement.
+;; 
+(define (run-clustalw-alignment imol chain-id target-sequence-pir-file)
+
+  (define (get-clustalw2-command)
+    (let ((clustalw2-command "clustalw2"))
+      (if (command-in-path-or-absolute? clustalw2-command)
+          clustalw2-command
+          (let ((s (getenv "CCP4")))
+            (if (not (string? s))
+                #f
+                (let ((file-path (append-dir-file (append-dir-dir s "libexec") "clustalw2")))
+                  (print-var file-path)
+                  (if (command-in-path-or-absolute? file-path)
+                      file-path
+                      #f)))))))
+  
+
+  ;; write out the current sequence
+  (let ((current-sequence-pir-file "current-sequence.pir")
+        (aligned-sequence-pir-file "aligned-sequence.pir")
+        (clustalw2-output-file-name "clustalw2-output-file.log")
+        (clustalw2-command (get-clustalw2-command)))
+
+    (if (not clustalw2-command)
+        (begin
+          (format #t "No clustalw2 command~%~!")
+          #f)
+        (begin
+
+          ;; if these files are not deleted/renamed then the input to clustalw2
+          ;; goes wonky.
+
+          (if (file-exists? aligned-sequence-pir-file)
+              (let ((new-file-name (string-append aligned-sequence-pir-file ".old")))
+                (rename-file aligned-sequence-pir-file new-file-name)))
+
+          (if (file-exists? "current-sequence.dnd")
+              (let ((new-file-name (string-append "current-sequence.dnd" ".old")))
+                (rename-file "current-sequence.dnd" new-file-name)))
+
+          (if (file-exists? "current-sequence.aln")
+              (let ((new-file-name (string-append "current-sequence.aln" ".old")))
+                (rename-file "current-sequence.aln" new-file-name)))
+
+          (print-sequence-chain-general imol chain-id 1 1 current-sequence-pir-file)
+          (goosh-command
+           clustalw2-command
+           '()
+           (list
+            "3"
+            "1"
+            target-sequence-pir-file
+            "2"
+            current-sequence-pir-file
+            "9"
+            "2"
+            ""
+            "4"
+            ""
+            aligned-sequence-pir-file
+            ""
+            "x"
+            ""
+            "x")
+           clustalw2-output-file-name
+           #t)
+
+          (associate-pir-alignment-from-file imol chain-id aligned-sequence-pir-file)
+          (apply-pir-alignment imol chain-id)
+          (simple-fill-partial-residues imol)
+          (resolve-clashing-sidechains-by-deletion imol)))))
+
+
+(if (defined? 'coot-main-menubar)
+    (let ((menu (coot-menubar-menu "Calculate")))
+
+      (add-simple-coot-menu-menuitem
+       menu "Use Clustalw for Alignment, then Mutate"
+       (lambda ()
+         ;; gui with molecule number chain-id and file-name
+         (generic-chooser-entry-and-file-selector "Target PIR file: " valid-model-molecule?
+                                                  "Chain-ID" "A" "PIR file for target sequence"
+                                                  (lambda (imol chain-id target-pir-file-name)
+                                                    (run-clustalw-alignment imol chain-id target-pir-file-name)
+                                                    (associate-pir-file imol chain-id target-pir-file-name)
+                                                    (alignment-mismatches-gui imol)
+                                                    ""))))))
+
 
 
 ;; Multiple residue ranges gui

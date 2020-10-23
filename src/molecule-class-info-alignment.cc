@@ -40,8 +40,8 @@ molecule_class_info_t::apply_pir_alignment(const std::string &chain_id) {
 
    it = pir_alignments.find(chain_id);
    if (it == pir_alignments.end()) {
-      std::cout << "WARNING:: No chain " << chain_id << " found in " << pir_alignments.size() << " alignments"
-                << std::endl;
+      std::cout << "WARNING:: apply_pir_alignment() No chain \"" << chain_id << "\" found in "
+                << pir_alignments.size() << " alignments" << std::endl;
    } else {
 
       // Happy path

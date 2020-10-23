@@ -66,7 +66,15 @@ namespace coot {
 			COLOUR_BY_RAINBOW=5,
 			COLOUR_BY_OCCUPANCY=6,
 			COLOUR_BY_B_FACTOR=7,
-			COLOUR_BY_USER_DEFINED_COLOURS=8 };
+			COLOUR_BY_USER_DEFINED_COLOURS=8,
+                        COLOUR_BY_HYDROPHOBIC_SIDE_CHAIN=9 };
+
+   enum hydrophobic_side_chain_t {
+                                  HYDROPHOBIC_TYPE_MAIN_CHAIN,
+                                  HYDROPHOBIC_TYPE_HYDROPHOBIC,
+                                  HYDROPHOBIC_TYPE_HYDROPHILIC };
+
+   hydrophobic_side_chain_t get_type(mmdb::Residue *residue_p);
 
    class my_atom_colour_map_t {
    public:
@@ -232,7 +240,8 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom);
-   void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
+   void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type,
+                         coot::my_atom_colour_map_t *atom_colour_map = 0);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
 			mmdb::PPAtom ligand_atoms_selection, int n_ligand_atoms);
    std::vector<rotamer_markup_container_t> dodecs;
@@ -480,6 +489,12 @@ class Bond_lines_container {
    bool add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_1,
 				     mmdb::Atom *atom_p_2,
 				     std::vector<std::pair<bool, mmdb::Residue *> > *het_residues);
+
+
+   void do_colour_by_hydrophobic_side_chains(const atom_selection_container_t &asc,
+                                             int imol,
+                                             bool draw_missing_loops_flag,
+                                             int draw_hydrogens_flag);
 
    std::vector<coot::util::cis_peptide_quad_info_t> cis_peptide_quads;
 
