@@ -77,7 +77,7 @@ enum bond_colours { CARBON_BOND, YELLOW_BOND, RED_BOND, BLUE_BOND, GREEN_BOND, M
 
 float max_bond_length(const std::string &element);
 
-int atom_colour(const std::string &element); 
+int get_atom_colour_from_element(const std::string &element); 
 
 // CCP4 symmetry library checking:
 int check_ccp4_symm(); 

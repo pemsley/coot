@@ -7418,8 +7418,6 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
    atom_centres.clear();
    atom_centres_colour.clear();
 
-   std::cout << "debug:: in add_atom_centres() atom_colour_map_p was " << atom_colour_map_p << std::endl;
-
    // coot::my_atom_colour_map_t *atom_colour_map = 0;
    bool locally_created_atom_colour_map = false;
    if (atom_colour_map_p == 0) {

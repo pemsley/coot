@@ -673,7 +673,8 @@ molecule_class_info_t::draw_anisotropic_atoms() {
 
 	       if (atom_sel.atom_selection[i]->u11 > 0) {
 
-		  std::string ele = atom_sel.atom_selection[i]->element;
+                  mmdb::Atom *at = atom_sel.atom_selection[i];
+		  std::string ele(at->element);
 
 		  // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
 		  if (draw_hydrogens_flag || ele != " H") {
@@ -695,7 +696,7 @@ molecule_class_info_t::draw_anisotropic_atoms() {
 		     //
 		     if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
 
-			c = atom_colour(atom_sel.atom_selection[i]->element);
+			c = get_atom_colour_from_element(ele);
 			set_bond_colour_by_mol_no(c, is_bb);
 
 			GL_matrix mat(atom_sel.atom_selection[i]->u11,
@@ -752,10 +753,11 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
       // rotation_size typically then: 2*32/360 = 0.178
 
       if (colour_index >= 50) {
-         int ii = colour_index - 50;
-         rgb[0] = 0.7; rgb[1] = 0.6; rgb[2] = 0.5;
-         if (ii > 0)
-	    rgb.rotate(float(ii*73.0/360.0));
+         float ii_f = colour_index - 50;
+         ii_f += 1.2 * static_cast<float>(imol_no);
+         rgb[0] = 0.75; rgb[1] = 0.6; rgb[2] = 0.5;
+         if (ii_f > 0)
+	    rgb.rotate(ii_f*73.0/360.0);
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;
       } else {
@@ -2136,7 +2138,9 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 	 glLineWidth(ghost_bond_width);
 	 int c;
 	 for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
-	    c = atom_colour(atom_sel.atom_selection[i]->element);
+            mmdb::Atom *at = atom_sel.atom_selection[i];
+            std::string ele(at->element);
+            c = get_atom_colour_from_element(ele);
 	    if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
 	       set_bond_colour_by_mol_no(ighost, against_a_dark_background);
 	    glBegin(GL_LINES);

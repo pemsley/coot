@@ -5175,7 +5175,7 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
       rotation_size -= 1.0;
    }
    int i_element;
-   i_element = atom_colour(element);
+   i_element = get_atom_colour_from_element(element);
    switch (i_element) {
    case YELLOW_BOND: 
       rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;

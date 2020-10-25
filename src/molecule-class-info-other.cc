@@ -606,7 +606,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 	    int nSelAtoms;
 	    mmdb::PPAtom SelAtoms;
 	    atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
-	    // 	    std::cout << "DEBUG:: considering " << v[iv].atom_spec << " nSelAtoms: " << nSelAtoms << std::endl;
+
 	    if (nSelAtoms > 0) {
 	       mmdb::Atom *at = SelAtoms[0];
 // 	       std::cout << "DEBUG:: "
