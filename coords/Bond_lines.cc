@@ -108,7 +108,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    b_factor_scale = 1.0;
    have_dictionary = 0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    if (tables_p)
       rotamer_probability_tables_p = tables_p;
@@ -165,7 +165,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    b_factor_scale = 1.0;
    have_dictionary = 0;
    init();
@@ -203,7 +203,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
    have_dictionary = 0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    init();
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    int model_number = 0; // all models
@@ -222,7 +222,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
    have_dictionary = 0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    init();
    // 0 is is_from_symmetry_flag
    int model_number = 0; // all models
@@ -268,16 +268,13 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   int imol,
 					   Bond_lines_container::bond_representation_type by_occ) {
 
-   std::cout << "######################## Bond_lines_container::Bond_lines_container() B "
-             << std::endl;
-
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
    udd_has_ca_handle = -1;
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
    have_dictionary = 0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    init();
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
    float max_dist = 1.71;
@@ -2523,7 +2520,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
    b_factor_scale = 1.0;
    have_dictionary = 0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
 
    int ncontacts;
@@ -2775,7 +2772,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // std::cout << "Environment distances with symm" << std::endl;
 
    do_bonds_to_hydrogens = 1;  // added 20070629
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    have_dictionary = 0;
    init();
    n_atoms_in_atom_selection = SelAtom.n_selected_atoms;
@@ -3873,7 +3870,7 @@ Bond_lines_container::Bond_lines_container(symm_keys key) {
 
    do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    init();
    have_dictionary = 0;
 
@@ -4110,7 +4107,7 @@ Bond_lines_container::Bond_lines_container(int col) {
    have_dictionary = 0;
    init();
    b_factor_scale = 1.0;
-   for_GL_solid_model_rendering = 0;
+   for_GL_solid_model_rendering = 1;
    std::cout << "Strange Bond_lines_container(int col)" << std::endl;
    Bond_lines a;
    bonds.push_back(a);
