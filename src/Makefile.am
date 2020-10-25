@@ -687,6 +687,9 @@ coot_bin_LDFLAGS =
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
 #
+# the -lblas here is a bandaid - the GSL usage of BLAS needs to be
+# fixed in configure.
+#
 coot_bin_LDADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
@@ -703,7 +706,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
       $(EPOXY_LIBS)           \
 		$(GLUT_LIBS) -lGL	\
 		$(CANVAS_LIBS) 		\
-		$(GSL_LIBS)		\
+		$(GSL_LIBS) -lblas      \
 		$(MYSQL_LIBS)		\
 		$(CURL_LIBS)		\
 	  	$(RDKIT_LIBS)	        \
