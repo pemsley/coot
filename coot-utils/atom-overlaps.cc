@@ -1022,6 +1022,8 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) { // or residue
 
+   bool add_vdw_dots = false; // pass this
+
    atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
 
@@ -1030,7 +1032,6 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
    if (mol) {
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
-      float min_dist = 0.01;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
       mmdb::SymOps symm;
@@ -1067,7 +1068,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
 	 if (pscontact) {
 
             int   atom_n_sphere_dots = static_cast<int>(450 * dot_density_in);
-            int H_atom_n_sphere_dots = static_cast<int>(270 * dot_density_in);  // less than above
+            int H_atom_n_sphere_dots = static_cast<int>(200 * dot_density_in);  // less than above
             std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(atom_n_sphere_dots);
             std::vector<clipper::Coord_orth> H_sphere_points = fibonacci_sphere(H_atom_n_sphere_dots);
 
@@ -1108,7 +1109,11 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
 
 	       double r_1 = get_vdw_radius_ligand_atom(cr_at);
 
-               for (unsigned int j=0; j<sphere_points.size(); j++) {
+               std::vector<clipper::Coord_orth> &sphere_points_for_atom = sphere_points;
+               if (std::string(cr_at->element) == " H")
+                  sphere_points_for_atom = H_sphere_points;
+
+               for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
                   
                   const clipper::Coord_orth &pt(sphere_points[j]);
                   clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
@@ -1188,13 +1193,18 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                         bool is_h_bond = false;
                         if (hbi.is_h_bond_H_and_acceptor)
                            is_h_bond = true;
+
                         std::pair<std::string, std::string> c_type_col =
                            overlap_delta_to_contact_type(overlap_delta, is_h_bond);
                         const std::string &c_type = c_type_col.first;
                         const std::string &col    = c_type_col.second;
 
                         if (false)
-                           std::cout << "spike "
+                           std::cout << "............ here with is_h_bond " << is_h_bond
+                                     << " " <<  c_type << " " << col << std::endl;
+
+                        if (false)
+                           std::cout << "spike check "
                                      << c_type << " "
                                      << pt_at_surface.x() << " "
                                      << pt_at_surface.y() << " "
@@ -1232,8 +1242,10 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                                      << pt_at_surface.y() << " "
                                      << pt_at_surface.z() << std::endl;
 
-                        atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
-                        ao.dots["vdw-surface"].push_back(dot);
+                        if (add_vdw_dots) {
+                           atom_overlaps_dots_container_t::dot_t dot(0, "grey", pt_at_surface);
+                           ao.dots["vdw-surface"].push_back(dot);
+                        }
                      }
                   }
                }
