@@ -33,7 +33,9 @@ key_bindings_t::run() const {
             if (PyErr_Occurred())
                PyErr_PrintEx(0);
          } else {
-            const char *mess = "object: %s\n";
+            // if function_py is not a callable variable then we still end up here
+            // (with a None result)
+            const char *mess = "run(): object: %s\n";
             PyObject *dest = PyUnicode_FromString(mess);
             PyObject *d_py = PyUnicode_Format(dest, result_py);
             if (PyUnicode_Check(d_py)) {

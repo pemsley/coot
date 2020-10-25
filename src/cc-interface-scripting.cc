@@ -44,8 +44,13 @@ void add_key_binding_gtk3_py(PyObject *key_py, int ctrl_key, PyObject *func, con
    }
    if (key != 0) {
       keyboard_key_t k(key, ctrl_key);
-      key_bindings_t kb(func, description);
-      graphics_info_t::add_key_binding(k, kb);
+      bool func_is_valid = true;
+      if (! PyCallable_Check(func))
+         func_is_valid = false;
+      if (func_is_valid) {
+         key_bindings_t kb(func, description);
+         graphics_info_t::add_key_binding(k, kb);
+      }
    } else {
       // use display on this
       std::cout << "WARNGING:: add_key_binding_gtk3_py() failed to interpet "
