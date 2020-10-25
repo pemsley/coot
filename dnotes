@@ -3990,6 +3990,9 @@ INFO::
    o git commit -a
    o git tag Release-0.x.y
    o git commit
+   o make dist to make a tar-ball
+        Use this to untar and make a build - this will test that the tarball has
+        all the files before commit.
    o git push [maybe here? not sure]
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
