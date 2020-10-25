@@ -3330,14 +3330,13 @@ if [ "$build_rdkit" = true ] ; then
       # http://www.inchi-trust.org/download/105/INCHI-1-SRC.zip
 
       # now libboost_python comes with an extended name: libboost_python27
-      libboost_pthon_ext=3.6m
-      libboost_pthon_ext=
+      python_version_extention=3.6m
+      libboost_python_ext=3.6m
+      libboost_python_ext=
       extension_type=so
 
       if [ $(uname) = Darwin ] ; then
          extension_type=dylib
-      else
-         extension_type=so
       fi
 
       echo will configure with cmake like this:
