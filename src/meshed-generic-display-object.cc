@@ -434,9 +434,9 @@ colour_values_from_colour_name(const std::string &c) {
                colour.blue = 0.3;
             } else {
                if (c == "darkpurple") { // new Hydrogen-bond colour
-                  colour.red   = 0.38;
+                  colour.red   = 0.48;
                   colour.green = 0.05;
-                  colour.blue  = 0.4;
+                  colour.blue  = 0.5;
                } else {
                   if (c == "sea") {
                      colour.red = 0.1;

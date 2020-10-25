@@ -5387,6 +5387,12 @@ coot::old_generic_display_object_t::colour_values_from_colour_name(const std::st
                                                                colour.red   = 0.25;
                                                                colour.green = 0.41;
                                                                colour.blue  = 0.88;
+                                                            } else {
+                                                               if (c == "darkpurple") {
+                                                                  colour.red   = 0.5;
+                                                                  colour.green = 0.0;
+                                                                  colour.blue  = 0.5;
+                                                               }
                                                             }
                                                          }
                                                       }
