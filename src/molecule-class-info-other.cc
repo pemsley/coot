@@ -445,10 +445,10 @@ molecule_class_info_t::bonds_sec_struct_representation() {
 void
 molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_geometry *pg) {
 
-   //
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7,
-                                                    draw_hydrogens_flag, graphics_info_t::draw_missing_loops_flag);
+                                                    draw_hydrogens_flag,
+                                                    graphics_info_t::draw_missing_loops_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
 }
@@ -483,10 +483,11 @@ molecule_class_info_t::b_factor_representation_as_cas() {
 
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_B_FACTOR;
-   std::cout << "molecule_class_info_t::b_factor_representation_as_cas with "
-	     << "bond type " << bond_type << std::endl;
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, NULL, 2.4, 4.7, bond_type, draw_hydrogens_flag); // pass a dictionary
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, NULL, 2.4, 4.7,
+                                  graphics_info_t::draw_missing_loops_flag,
+                                  Bond_lines_container::COLOUR_BY_B_FACTOR,
+                                  draw_hydrogens_flag); // pass a dictionary
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
 }

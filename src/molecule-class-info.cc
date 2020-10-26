@@ -9005,7 +9005,7 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
 	 if (udd_b_factor_handle > 0) {
 	    mmdb::realtype scale;
 	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
-// 	       std::cout << " test got b factor scale: " << scale << std::endl;
+               // 	       std::cout << " test got b factor scale: " << scale << std::endl;
 	    } else {
  	       std::cout << "ERROR:: bad get b factor scale " << std::endl;
 	    }

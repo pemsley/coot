@@ -4522,13 +4522,19 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
                                                 int bond_colour_type) {
+
    graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+
+    if (false)
+       std::cout << "---- in do_Ca_or_P_bonds_internal() with bond_colour_type "
+                 << bond_colour_type << std::endl;
 
    int atom_colours_udd = -1; // unset/bad
    int udd_handle_for_user_defined_colours = -1;
    int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
 
-   int udd_fixed_during_refinement_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
+   int udd_fixed_during_refinement_handle =
+      SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
    // that might fail, a return value of 0 represents failure to find that handle name
    // positive means that it was OK!
 
@@ -4621,7 +4627,6 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					     if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 						coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
 						col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
-						graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
 						addBond(col, ca_1, bond_mid_point, cc, imod, iat_1, iat_2);
 						col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
 						addBond(col, bond_mid_point, ca_2, cc, imod, iat_1, iat_2);
@@ -5156,6 +5161,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       geom = pg;
       have_dictionary = true;
    }
+
    if (model_p) {
       int istat;
       // udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
@@ -5164,13 +5170,11 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       }
 
       int nchains = model_p->GetNumberOfChains();
-      mmdb::Residue *residue_p;
-      mmdb::Chain   *chain_p;
       for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 for (int ires=0; ires<nres; ires++) {
-	    residue_p = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) {
 	       istat = residue_p->PutUDData(udd_has_ca_handle, 0);
 	       if (istat == mmdb::UDDATA_WrongUDRType) {
@@ -5183,7 +5187,8 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       }
 
       coot::my_atom_colour_map_t acm;
-      do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, draw_missing_loops_flag, atom_colour_type);
+      do_Ca_or_P_bonds_internal(SelAtom, " CA ", acm, min_dist, max_dist, draw_missing_loops_flag,
+                                atom_colour_type);
 
       // do_Ca_plus_ligands_bonds has set udd_has_ca_handle on
       // residues that have CAs.  Now let's run through the residues
@@ -5198,11 +5203,11 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       std::vector<mmdb::Atom *> ligand_atoms;
       std::vector<std::pair<bool, mmdb::Residue *> > het_residues;
       for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 int ic;
 	 for (int ires=0; ires<nres; ires++) {
-	    residue_p = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) {
 	       if (residue_p->GetUDData(udd_has_ca_handle, ic) == mmdb::UDDATA_Ok) {
 		  if (ic == 0) {
