@@ -1592,7 +1592,7 @@ fi
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
 
 ####################################################
-exit
+# exit
 ####################################################
 
 
