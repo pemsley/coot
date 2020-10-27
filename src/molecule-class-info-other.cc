@@ -488,7 +488,7 @@ molecule_class_info_t::b_factor_representation_as_cas() {
                                   graphics_info_t::draw_missing_loops_flag,
                                   Bond_lines_container::COLOUR_BY_B_FACTOR,
                                   draw_hydrogens_flag); // pass a dictionary
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
 }
 

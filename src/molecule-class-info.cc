@@ -953,6 +953,23 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
       }
       offset=2; // blue starts at 2.
    }
+
+   if (false)
+      std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
+                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS<< std::endl;
+
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+      rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
+      const unsigned int n_b_factor_colours = 48; // matches index_for_b_factor() in my_atom_colour_map_t
+      float f = static_cast<float>(i)/static_cast<float>(n_b_factor_colours);
+      // f is in the range 0 to 1
+      const float pi = 3.1415926535;
+      float rotation_size = -0.11 * f * 2.0  * pi;
+      if (rotation_size < -0.6666) rotation_size = -0.66666; // otherwise black bonds
+      // std::cout << "rotation_size: " << rotation_size << std::endl;
+      rgb = rotate_rgb(rgb, rotation_size);
+      done = true;
+   }
    if (! done) {
       float max_colour = 30;
 
@@ -2204,7 +2221,9 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
       if (false)
          std::cout << "----------- in display_bonds() here with i "
-                   << i << " num_lines " << bonds_box.bonds_[i].num_lines << std::endl;
+                   << i
+                   << " bonds_box_type " << bonds_box_type
+                   << " num_lines " << bonds_box.bonds_[i].num_lines << std::endl;
 
       graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
@@ -2220,21 +2239,25 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    glLineWidth(p_bond_width);
       }
 
-      if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
-	 // if test suggested by Ezra Peisach.
-	 if (bonds_box.bonds_[i].num_lines > 0) {
-	    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
-	       set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
-	    } else {
-	       if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
-		  set_bond_colour_for_goodsell_mode(i, against_a_dark_background);
-	       } else {
-		  set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
-	       }
-	    }
-	 }
-      } else {
+      if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS) {
 	 set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+      } else {
+         if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+            set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+         } else {
+            // if test suggested by Ezra Peisach.
+            if (bonds_box.bonds_[i].num_lines > 0) {
+               if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+                  set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+               } else {
+                  if (bonds_box_type == coot::COLOUR_BY_CHAIN_GOODSELL) {
+                     set_bond_colour_for_goodsell_mode(i, against_a_dark_background);
+                  } else {
+                     set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+                  }
+               }
+            }
+         }
       }
       int linesdrawn = 0;
 
