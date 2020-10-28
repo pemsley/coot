@@ -3903,7 +3903,10 @@ void graphics_info_t::bonds_colour_rotation_adjustment_changed(GtkAdjustment *ad
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(adj), "imol"));
 
    if (molecules[imol].has_model()) {
-      molecules[imol].bonds_colour_map_rotation = gtk_adjustment_get_value(adj);
+      float f =  gtk_adjustment_get_value(adj);
+      std::cout << "changing bonds colour for imol " << imol << " " << f << std::endl;
+      //molecules[imol].bonds_colour_map_rotation = f;
+      molecules[imol].update_bonds_colour_using_map_rotation(f);
    }
    graphics_draw();
 

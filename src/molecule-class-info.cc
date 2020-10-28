@@ -2918,92 +2918,92 @@ coot::atom_selection_info_t::name () const {
 
 
 // return the atom selection and the number of atoms
-int
-coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
+ int
+    coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
 
-   int SelHnd = -1;
-   const char *alt_conf_str = "*";
-   if (alt_conf_is_set)
-      alt_conf_str = altconf.c_str();
-   if (type == BY_ATTRIBUTES) {
-      SelHnd = mol->NewSelection();
-      mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
-          resno_start, // starting resno, an int
-          ins_code.c_str(), // any insertion code
-          resno_start, // ending resno
-          ins_code.c_str(), // ending insertion code
-          "*", // any residue name
-          "*", // atom name
-          "*", // elements
-          alt_conf_str  // alt loc.
-          );
-   }
-   if (type == BY_STRING) {
-      SelHnd = mol->NewSelection();
-      mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
-   }
-   return SelHnd;
-}
-
-
-std::string
-coot::atom_selection_info_t::mmdb_string() const {
-
-   std::string s = atom_selection_str;
-   if (type == BY_ATTRIBUTES) {
-      s = "//";
-      s += chain_id;
-      s += "/";
-      s += coot::util::int_to_string(resno_start);
-      if (resno_end != resno_start) {
-    s += "-";
-    s += coot::util::int_to_string(resno_end);
-      } else {
-    if (!ins_code.empty()) {
-       s += ".";
-       s += ins_code;
+    int SelHnd = -1;
+    const char *alt_conf_str = "*";
+    if (alt_conf_is_set)
+       alt_conf_str = altconf.c_str();
+    if (type == BY_ATTRIBUTES) {
+       SelHnd = mol->NewSelection();
+       mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
+                        resno_start, // starting resno, an int
+                        ins_code.c_str(), // any insertion code
+                        resno_start, // ending resno
+                        ins_code.c_str(), // ending insertion code
+                        "*", // any residue name
+                        "*", // atom name
+                        "*", // elements
+                        alt_conf_str  // alt loc.
+                        );
     }
-      }
-   }
-   return s;
-}
+    if (type == BY_STRING) {
+       SelHnd = mol->NewSelection();
+       mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
+    }
+    return SelHnd;
+ }
 
 
-void
-coot::additional_representations_t::fill_bonds_box() {
+ std::string
+    coot::atom_selection_info_t::mmdb_string() const {
 
-   if (representation_type != coot::BALL_AND_STICK) {
-      atom_selection_container_t atom_sel;
+    std::string s = atom_selection_str;
+    if (type == BY_ATTRIBUTES) {
+       s = "//";
+       s += chain_id;
+       s += "/";
+       s += coot::util::int_to_string(resno_start);
+       if (resno_end != resno_start) {
+          s += "-";
+          s += coot::util::int_to_string(resno_end);
+       } else {
+          if (!ins_code.empty()) {
+             s += ".";
+             s += ins_code;
+          }
+       }
+    }
+    return s;
+ }
 
-      atom_sel.mol = mol;
-      atom_sel.SelectionHandle = mol->NewSelection();
 
-      if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+ void
+    coot::additional_representations_t::fill_bonds_box() {
 
-    mol->SelectAtoms(atom_sel.SelectionHandle,
-     0, atom_sel_info.chain_id.c_str(),
-     atom_sel_info.resno_start, atom_sel_info.ins_code.c_str(),
-     atom_sel_info.resno_end,   atom_sel_info.ins_code.c_str(),
-     "*", "*", "*", "*");
-      }
-      if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
-    mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM,
-        atom_sel_info.atom_selection_str.c_str(),
-        mmdb::SKEY_NEW);
+    if (representation_type != coot::BALL_AND_STICK) {
+       atom_selection_container_t atom_sel;
 
-      }
-      mol->GetSelIndex(atom_sel.SelectionHandle,
-          atom_sel.atom_selection,
-          atom_sel.n_selected_atoms);
+       atom_sel.mol = mol;
+       atom_sel.SelectionHandle = mol->NewSelection();
 
-      if (bonds_box_type == coot::NORMAL_BONDS) {
-    Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
-    bonds_box.clear_up();
-    bonds_box = bonds.make_graphical_bonds();
-      }
-      mol->DeleteSelection(atom_sel.SelectionHandle);
-   }
-}
+       if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
+
+          mol->SelectAtoms(atom_sel.SelectionHandle,
+                           0, atom_sel_info.chain_id.c_str(),
+                           atom_sel_info.resno_start, atom_sel_info.ins_code.c_str(),
+                           atom_sel_info.resno_end,   atom_sel_info.ins_code.c_str(),
+                           "*", "*", "*", "*");
+       }
+       if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
+          mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM,
+                      atom_sel_info.atom_selection_str.c_str(),
+                      mmdb::SKEY_NEW);
+
+       }
+       mol->GetSelIndex(atom_sel.SelectionHandle,
+                        atom_sel.atom_selection,
+                        atom_sel.n_selected_atoms);
+
+       if (bonds_box_type == coot::NORMAL_BONDS) {
+          Bond_lines_container bonds(atom_sel, 1, draw_hydrogens_flag);
+          bonds_box.clear_up();
+          bonds_box = bonds.make_graphical_bonds();
+       }
+       mol->DeleteSelection(atom_sel.SelectionHandle);
+    }
+ }
 
 std::string
 coot::additional_representations_t::info_string() const {
@@ -3036,13 +3036,13 @@ coot::additional_representations_t::info_string() const {
 
 int
 molecule_class_info_t::add_additional_representation(int representation_type,
-        const int &bonds_box_type,
-        float bonds_width,
-        bool draw_hydrogens_flag,
-        const coot::atom_selection_info_t &info,
-        GtkWidget *display_control_window,
-        const gl_context_info_t &glci,
-        const coot::protein_geometry *geom) {
+                                                     const int &bonds_box_type,
+                                                     float bonds_width,
+                                                     bool draw_hydrogens_flag,
+                                                     const coot::atom_selection_info_t &info,
+                                                     GtkWidget *display_control_window,
+                                                     const gl_context_info_t &glci,
+                                                     const coot::protein_geometry *geom) {
 
 /*   representation_types:
 
@@ -3077,15 +3077,15 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
       int display_list_handle_index = make_ball_and_stick(info.mmdb_string(),
-     bonds_width, sphere_size, do_spheres,
-     glci, geom);
+                                                          bonds_width, sphere_size, do_spheres,
+                                                          glci, geom);
       int n_display_list_tags = display_list_tags.size();
       if ((display_list_handle_index >= 0) &&
-     (display_list_handle_index < n_display_list_tags)) {
-    add_reps[n_rep].add_display_list_handle(display_list_handle_index);
+          (display_list_handle_index < n_display_list_tags)) {
+         add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       }
    }
-
+   
    return n_rep;
 }
 
@@ -3093,11 +3093,11 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 // representation_number should be an unsigned int.
 int
 molecule_class_info_t::adjust_additional_representation(int represenation_number,
-   const int &bonds_box_type_in,
-   float bonds_width,
-   bool draw_hydrogens_flag,
-   const coot::atom_selection_info_t &info,
-   bool show_it_flag_in) {
+                                                        const int &bonds_box_type_in,
+                                                        float bonds_width,
+                                                        bool draw_hydrogens_flag,
+                                                        const coot::atom_selection_info_t &info,
+                                                        bool show_it_flag_in) {
    return -1;
 }
 
@@ -3225,72 +3225,71 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
 
 
 
-void
-molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
-       const float &reso_low,
-       const float &reso_high) const {
+ void
+    molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata,
+                                                const float &reso_low,
+                                                const float &reso_high) const {
 
-   float inv_low  = 1.0/(reso_low*reso_low);
-   float inv_high = 1.0/(reso_high*reso_high);
-   int n_data = 0;
-   int n_reset = 0;
+    float inv_low  = 1.0/(reso_low*reso_low);
+    float inv_high = 1.0/(reso_high*reso_high);
+    int n_data = 0;
+    int n_reset = 0;
 
+    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
+       //        std::cout << "high: " << inv_high << " low: " << inv_low
+       //  		<< " data: " << hri.invresolsq() << std::endl;
+       n_data++;
 
-   for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
-//        std::cout << "high: " << inv_high << " low: " << inv_low
-//  		<< " data: " << hri.invresolsq() << std::endl;
-      n_data++;
-
-      if ( hri.invresolsq() > inv_low &&
-      hri.invresolsq() < inv_high) {
-      } else {
-    (*fphidata)[hri].f() = 0.0;
-    n_reset++;
-      }
-   }
-   std::cout << "Chopped " << n_reset << " data out of " << n_data << std::endl;
-}
-
-
-void
-molecule_class_info_t::label_symmetry_atom(int i) {
-   //
-
-   // same test as has_model():
-   if (has_model()) {
-
-      unsigned int i_unsigned(i);
-
-      if (i_unsigned < labelled_symm_atom_index_list.size()) {
-
-         int iatom_index = labelled_symm_atom_index_list[i];
-
-         if (iatom_index < atom_sel.n_selected_atoms) {
-
-            // look at translate_atom_with_pre_shift(), it translate
-            // the negative of the passed translation, so print the
-            // negative.
-            //
-            std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
-            std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
-            std::string label = make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
-
-	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
-	    glColor3fv(blueish);
-	    coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
-
-// 	    glRasterPos3f(symm_point.get_x(),
-// 			  symm_point.get_y()+0.02,
-// 			  symm_point.get_z()+0.02);
-
-            graphics_info_t::printString(label,
-                                         symm_point.get_x(),
-                                         symm_point.get_y()+0.02,
-                                         symm_point.get_z()+0.02);
+       if ( hri.invresolsq() > inv_low &&
+            hri.invresolsq() < inv_high) {
+       } else {
+          (*fphidata)[hri].f() = 0.0;
+          n_reset++;
+       }
     }
-      }
-   }
-}
+    std::cout << "Chopped " << n_reset << " data out of " << n_data << std::endl;
+ }
+
+
+ void
+    molecule_class_info_t::label_symmetry_atom(int i) {
+    //
+
+    // same test as has_model():
+    if (has_model()) {
+
+       unsigned int i_unsigned(i);
+
+       if (i_unsigned < labelled_symm_atom_index_list.size()) {
+
+          int iatom_index = labelled_symm_atom_index_list[i];
+
+          if (iatom_index < atom_sel.n_selected_atoms) {
+
+             // look at translate_atom_with_pre_shift(), it translate
+             // the negative of the passed translation, so print the
+             // negative.
+             //
+             std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
+             std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
+             std::string label = make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
+
+             GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
+             glColor3fv(blueish);
+             coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
+
+             // 	    glRasterPos3f(symm_point.get_x(),
+             // 			  symm_point.get_y()+0.02,
+             // 			  symm_point.get_z()+0.02);
+
+             graphics_info_t::printString(label,
+                                          symm_point.get_x(),
+                                          symm_point.get_y()+0.02,
+                                          symm_point.get_z()+0.02);
+          }
+       }
+    }
+ }
 
 std::pair<std::string, clipper::Coord_orth>
 molecule_class_info_t::make_atom_label_string(unsigned int ith_labelled_atom,
@@ -3343,23 +3342,30 @@ molecule_class_info_t::draw_atom_label(int atom_index,
 }
 
 
+ void
+    molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag) {
+
+    // mmdb::CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
+
+    mmdb::mat44 my_matt;
+
+    int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
+
+    if (err != 0) {
+       have_unit_cell = 0;
+       if (warn_about_missing_symmetry_flag)
+          std::cout << "WARNING:: No Symmetry for this model" << std::endl;
+    } else {
+       have_unit_cell = 1;
+    }
+ }
+
 void
-molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag) {
+   molecule_class_info_t::update_bonds_colour_using_map_rotation(float f) {
 
-   // mmdb::CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
-
-   mmdb::mat44 my_matt;
-
-   int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-
-   if (err != 0) {
-      have_unit_cell = 0;
-      if (warn_about_missing_symmetry_flag)
-    std::cout << "WARNING:: No Symmetry for this model" << std::endl;
-   } else {
-      have_unit_cell = 1;
-   }
+   bonds_colour_map_rotation = f;
 }
+
 
 // ------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------

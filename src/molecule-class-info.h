@@ -1576,7 +1576,8 @@ public:        //                      public
    void bond_representation(const coot::protein_geometry *geom_p);
    //
 
-   float bonds_colour_map_rotation;
+   float bonds_colour_map_rotation; // OpenGL1
+   void update_bonds_colour_using_map_rotation(float f); // modern OpenGL
    short int bonds_rotate_colour_map_flag;
    int Bonds_box_type() const { return bonds_box_type; }
 
