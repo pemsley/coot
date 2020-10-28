@@ -863,7 +863,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 void
 molecule_class_info_t::draw_anisotropic_atoms() {
-
+#if 0
    int c; // atom colour
 
    if (has_model()) {
@@ -871,87 +871,88 @@ molecule_class_info_t::draw_anisotropic_atoms() {
       bool is_bb = g.background_is_black_p(); //
 
       if (draw_it) {
-    if (g.show_aniso_atoms_flag == 1 ) {
-       glPushMatrix();
+         if (g.show_aniso_atoms_flag == 1 ) {
+            glPushMatrix();
 
-       float rx = g.X();
-       float ry = g.Y();
-       float rz = g.Z();
+            float rx = g.X();
+            float ry = g.Y();
+            float rz = g.Z();
 
-       float x1, y1, z1;
-       float x_diff, y_diff, z_diff;
-       float d2, mc_r2 = g.show_aniso_atoms_radius*g.show_aniso_atoms_radius;
-       float rad_50, r;
+            float x1, y1, z1;
+            float x_diff, y_diff, z_diff;
+            float d2, mc_r2 = g.show_aniso_atoms_radius*g.show_aniso_atoms_radius;
+            float rad_50, r;
 
-       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+            for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 
-          // put a wiresphere at the atom positions
+               // put a wiresphere at the atom positions
 
-          if (atom_sel.atom_selection[i]->u11 > 0) {
+               if (atom_sel.atom_selection[i]->u11 > 0) {
 
-     std::string ele = atom_sel.atom_selection[i]->element;
-     // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
-     if (draw_hydrogens_flag || ele != " H") {
+                  std::string ele = atom_sel.atom_selection[i]->element;
+                  // if (draw_hydrogens_flag || ! mmdb_utils::is_hydrogen(ele))
+                  if (draw_hydrogens_flag || ele != " H") {
 
-        glLineWidth(1.0);
-        glPushMatrix();
+                     glLineWidth(1.0);
+                     glPushMatrix();
 
-        x1 = atom_sel.atom_selection[i]->x;
-        y1 = atom_sel.atom_selection[i]->y;
-        z1 = atom_sel.atom_selection[i]->z;
+                     x1 = atom_sel.atom_selection[i]->x;
+                     y1 = atom_sel.atom_selection[i]->y;
+                     z1 = atom_sel.atom_selection[i]->z;
 
-        x_diff = x1 - rx;
-        y_diff = y1 - ry;
-        z_diff = z1 - rz;
+                     x_diff = x1 - rx;
+                     y_diff = y1 - ry;
+                     z_diff = z1 - rz;
 
-        d2 = x_diff*x_diff + y_diff*y_diff + z_diff*z_diff;
+                     d2 = x_diff*x_diff + y_diff*y_diff + z_diff*z_diff;
 
-        // are we either inside the distance or there is no distance set?
-        //
-        if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
+                     // are we either inside the distance or there is no distance set?
+                     //
+                     if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
 
-   c = get_atom_colour_from_element(atom_sel.atom_selection[i]->element);
-   set_bond_colour_by_mol_no(c, is_bb);
+                        c = get_atom_colour_from_element(atom_sel.atom_selection[i]->element);
+                        set_bond_colour_by_mol_no(c, is_bb);
 
-   GL_matrix mat(atom_sel.atom_selection[i]->u11,
-         atom_sel.atom_selection[i]->u12,
-         atom_sel.atom_selection[i]->u13,
-         atom_sel.atom_selection[i]->u12,
-         atom_sel.atom_selection[i]->u22,
-         atom_sel.atom_selection[i]->u23,
-         atom_sel.atom_selection[i]->u13,
-         atom_sel.atom_selection[i]->u23,
-         atom_sel.atom_selection[i]->u33);
+                        GL_matrix mat(atom_sel.atom_selection[i]->u11,
+                                      atom_sel.atom_selection[i]->u12,
+                                      atom_sel.atom_selection[i]->u13,
+                                      atom_sel.atom_selection[i]->u12,
+                                      atom_sel.atom_selection[i]->u22,
+                                      atom_sel.atom_selection[i]->u23,
+                                      atom_sel.atom_selection[i]->u13,
+                                      atom_sel.atom_selection[i]->u23,
+                                      atom_sel.atom_selection[i]->u33);
 
-   glTranslatef(x1, y1, z1);
-   // glMultMatrixf(mat.get());
-   // std::cout << "Atom Us " << std::endl;
-   // mat.print_matrix();
-   // std::cout << "Choleskied: " << std::endl;
-   // mat.cholesky().print_matrix();
-   std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
-   if (chol_pair.first) {
-      glMultMatrixf(chol_pair.second.get());
-      rad_50 = r_50(atom_sel.atom_selection[i]->element);
-      r = rad_50_and_prob_to_radius(rad_50,
-    g.show_aniso_atoms_probability);
-      // note: g.show_aniso_atoms_probability is in the range
-      // 0.0 -> 100.0
-      // glutWireSphere(r, 10, 10);
-    std::cout << "Fix wire sphere\n";
-   } else {
-      std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
-        << std::endl;
-   }
-        }
-        glPopMatrix();
-     }
-          }
-       }
-       glPopMatrix();
-    }
+                        glTranslatef(x1, y1, z1);
+                        // glMultMatrixf(mat.get());
+                        // std::cout << "Atom Us " << std::endl;
+                        // mat.print_matrix();
+                        // std::cout << "Choleskied: " << std::endl;
+                        // mat.cholesky().print_matrix();
+                        std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+                        if (chol_pair.first) {
+                           glMultMatrixf(chol_pair.second.get());
+                           rad_50 = r_50(atom_sel.atom_selection[i]->element);
+                           r = rad_50_and_prob_to_radius(rad_50,
+                                                         g.show_aniso_atoms_probability);
+                           // note: g.show_aniso_atoms_probability is in the range
+                           // 0.0 -> 100.0
+                           // glutWireSphere(r, 10, 10);
+                           std::cout << "Fix wire sphere\n";
+                        } else {
+                           std::cout << "Bad Anistropic Us for " << atom_sel.atom_selection[i]
+                                     << std::endl;
+                        }
+                     }
+                     glPopMatrix();
+                  }
+               }
+            }
+            glPopMatrix();
+         }
       }
    }
+#endif
 }
 
 coot::colour_t
