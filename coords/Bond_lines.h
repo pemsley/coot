@@ -92,8 +92,9 @@ namespace coot {
       int index_for_occupancy(float wheel_colour) {
          return int(5.0*wheel_colour);
       }
-      int index_for_b_factor(float wheel_colour) {
-         return int(30.0*wheel_colour);
+      int index_for_b_factor(float fraction) {
+         const unsigned n_b_factor_colours = 48;
+         return static_cast<int>(static_cast<float>(n_b_factor_colours) * fraction); // 48 so that we don't overlap with CA colours
       }
    };
 
@@ -349,6 +350,8 @@ class Bond_lines_container {
 
    // return the UDD handle
    int set_rainbow_colours(mmdb::Manager *mol);
+   int set_b_factor_colours(mmdb::Manager *mol);
+
    void do_colour_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
 					      int imol,
                                               bool draw_missing_loops_flag,
@@ -508,7 +511,12 @@ class Bond_lines_container {
    
 
 public:
-   enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR, COLOUR_BY_USER_DEFINED_COLOURS}; 
+
+   enum bond_representation_type { COLOUR_BY_REGULAR_ATOM_MODE=601,
+                                   COLOUR_BY_OCCUPANCY=602,
+                                   COLOUR_BY_B_FACTOR=603,
+                                   COLOUR_BY_USER_DEFINED_COLOURS=604
+   };
 
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>

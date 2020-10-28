@@ -910,7 +910,7 @@ molecule_class_info_t::draw_anisotropic_atoms() {
         //
         if ( (d2 <= mc_r2) || (g.show_aniso_atoms_radius_flag == 0) ) {
 
-   c = atom_colour(atom_sel.atom_selection[i]->element);
+   c = get_atom_colour_from_element(atom_sel.atom_selection[i]->element);
    set_bond_colour_by_mol_no(c, is_bb);
 
    GL_matrix mat(atom_sel.atom_selection[i]->u11,
@@ -1024,10 +1024,11 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
       err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1a " << colour_index << std::endl;
 
       if (colour_index >= 50) {
-         int ii = colour_index - 50;
-         rgb[0] = 0.7; rgb[1] = 0.6; rgb[2] = 0.5;
-         if (ii > 0)
-	    rgb.rotate(float(ii*73.0/360.0));
+         float ii_f = colour_index - 50;
+         ii_f += 1.2 * static_cast<float>(imol_no);
+         rgb[0] = 0.75; rgb[1] = 0.6; rgb[2] = 0.5;
+         if (ii_f > 0)
+	    rgb.rotate(ii_f*73.0/360.0);
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;
          err = glGetError(); if (err) std::cout << "GL error in get_bond_colour_by_mol_no() 1b " << colour_index << std::endl;
@@ -1244,6 +1245,23 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
     done = true;
       }
       offset=2; // blue starts at 2.
+   }
+
+   if (false)
+      std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
+                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS<< std::endl;
+
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+      rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
+      const unsigned int n_b_factor_colours = 48; // matches index_for_b_factor() in my_atom_colour_map_t
+      float f = static_cast<float>(i)/static_cast<float>(n_b_factor_colours);
+      // f is in the range 0 to 1
+      const float pi = 3.1415926535;
+      float rotation_size = -0.11 * f * 2.0  * pi;
+      if (rotation_size < -0.6666) rotation_size = -0.66666; // otherwise black bonds
+      // std::cout << "rotation_size: " << rotation_size << std::endl;
+      rgb = rotate_rgb(rgb, rotation_size);
+      done = true;
    }
    if (! done) {
       float max_colour = 30;
@@ -2299,23 +2317,25 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
-    glLineWidth(ghost_bond_width);
-    int c;
-    for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
-       c = atom_colour(atom_sel.atom_selection[i]->element);
-       if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
-          set_bond_colour_by_mol_no(ighost, against_a_dark_background);
-       glBegin(GL_LINES);
-       for (int j=0; j< ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines; j++) {
-          glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
-          glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
-     ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
-       }
-       glEnd();
-    }
+	 glLineWidth(ghost_bond_width);
+	 int c;
+	 for (int i=0; i<ncs_ghosts[ighost].bonds_box.num_colours; i++) {
+            mmdb::Atom *at = atom_sel.atom_selection[i];
+            std::string ele(at->element);
+            c = get_atom_colour_from_element(ele);
+	    if (ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines > 0)
+	       set_bond_colour_by_mol_no(ighost, against_a_dark_background);
+	    glBegin(GL_LINES);
+	    for (int j=0; j< ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines; j++) {
+	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
+	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
+	    }
+	    glEnd();
+	 }
       }
    }
 }
@@ -9538,17 +9558,17 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
     atom_sel.mol->RegisterUDReal(mmdb::UDR_HIERARCHY,
          coot::b_factor_bonds_scale_handle_name.c_str());
       if (udd_handle > 0) {
-    atom_sel.mol->PutUDData(udd_handle, f);
+	 atom_sel.mol->PutUDData(udd_handle, f);
 
-    // test getting the uddata:
-    int udd_b_factor_handle =
-       atom_sel.mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
-          coot::b_factor_bonds_scale_handle_name.c_str());
-    if (udd_b_factor_handle > 0) {
-       mmdb::realtype scale;
-       if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
-// 	       std::cout << " test got b factor scale: " << scale << std::endl;
-       } else {
+	 // test getting the uddata:
+	 int udd_b_factor_handle =
+	    atom_sel.mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
+				       coot::b_factor_bonds_scale_handle_name.c_str());
+	 if (udd_b_factor_handle > 0) {
+	    mmdb::realtype scale;
+	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
+               // 	       std::cout << " test got b factor scale: " << scale << std::endl;
+	    } else {
  	       std::cout << "ERROR:: bad get b factor scale " << std::endl;
        }
     }

@@ -45,7 +45,7 @@ float max_bond_length(const std::string &element) {
 };
 
 int
-atom_colour(const std::string &element) {
+get_atom_colour_from_element(const std::string &element) {
 
    if (element == " C") {
       return YELLOW_BOND;
