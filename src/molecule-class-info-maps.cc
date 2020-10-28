@@ -1249,17 +1249,39 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
          // why is this needed? Is it needed? Done by caller? (or should be?)
          gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+         bool a_VAO_was_assigned = false;
 
          if (map_mesh_first_time) {
             glGenVertexArrays(1, &m_VertexArrayID_for_map);
+            if (false)
+               std::cout << "debug:: glGenVertexArrays for m_VertexArrayID_for_map "
+                         << m_VertexArrayID_for_map << std::endl;
             GLenum err = glGetError();
-            if (err) std::cout << "############## in setup_glsl_map_rendering() error trying to bind vertex array "
-                               << m_VertexArrayID_for_map << std::endl;
+            if (err)
+               std::cout << "### in setup_glsl_map_rendering() error on binding vertex array "
+                         << m_VertexArrayID_for_map << std::endl;
+            a_VAO_was_assigned =  true;
+         } else {
+            //std::cout << "debug:: glGenVertexArrays for m_VertexArrayID_for_map skip (not first time)"
+            //                       << std::endl;
          }
+
+         // valgrind says: Conditional jump or move depends on uninitialised value(s) for this line
+         // when we try to read weird/massive/gemmi map.
+         if (m_VertexArrayID_for_map == VAO_NOT_SET) {
+            std::cout << "ERROR:: You didn't set this map mesh VAO! " << std::endl;
+            // what shader are we using here? Print its name?
+         }
+
          glBindVertexArray(m_VertexArrayID_for_map);
          GLenum err = glGetError();
-         if (err) std::cout << "############## in setup_glsl_map_rendering() error glBindVertexArray() "
-                            << m_VertexArrayID_for_map << std::endl;
+         if (err)
+            std::cout << "############## in setup_glsl_map_rendering() error glBindVertexArray() "
+                      << m_VertexArrayID_for_map << std::endl;
+         if (err) {
+            std::cout << "Catastrophic failure - exit setup_glsl_map_rendering() now" << std::endl;
+            return;
+         }
 
          // positions
          if (map_mesh_first_time) {
@@ -1394,13 +1416,19 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          delete [] indices_for_triangles;
          delete [] colours;
 
+         // if a VAO was not assigned (because the contour level was too high for the map)
+         // then we don't get to do anything in this function, so we want to only assign
+         // map_mesh_first_time if a VAO for the map *was* assigned.
+         if (a_VAO_was_assigned)
+            map_mesh_first_time = false;
+
       }
-      auto tp_1 = std::chrono::high_resolution_clock::now();
-      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+
+      // auto tp_1 = std::chrono::high_resolution_clock::now();
+      // auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
       // std::cout << "INFO:: Map triangle generation time " << d10 << " milliseconds" << std::endl;
    }
 
-   map_mesh_first_time = false;
 
    if (false)
       std::cout << "------------------ setup_glsl_map_rendering() here -end- ------------ "

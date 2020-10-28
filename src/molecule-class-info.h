@@ -305,6 +305,8 @@ class molecule_class_info_t {
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
+   const unsigned int VAO_NOT_SET = 999999;
+
    // display flags:
    //
    int bonds_box_type; // public accessable via Bonds_box_type();

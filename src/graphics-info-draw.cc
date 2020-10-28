@@ -528,9 +528,14 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 
                glBindVertexArray(m.m_VertexArrayID_for_map);
                err = glGetError();
-               if (err) std::cout << "   draw_map_molecules() glBindVertexArray() "
+               if (err) std::cout << "ERROR:: draw_map_molecules() glBindVertexArray() "
                                   << m.m_VertexArrayID_for_map
                                   << " with GL err " << err << std::endl;
+               if (err) {
+                  // no point in continuing
+                  std::cout << "### Catastrophic failure in draw_map_molecules() returning now " << std::endl;
+                  return;
+               }
 
                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m.m_IndexBuffer_for_map_lines_ID);
 
@@ -2259,7 +2264,6 @@ graphics_info_t::render_scene_to_base_framebuffer() {
    glClearColor(bg[0], bg[1], bg[2], 1.0); // this can be seen
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-   GLuint pid = shader_for_screen.get_program_id();
    glActiveTexture(GL_TEXTURE0 + 0);
    glBindTexture(GL_TEXTURE_2D, screen_framebuffer.get_texture_colour());
    glActiveTexture(GL_TEXTURE0 + 1);

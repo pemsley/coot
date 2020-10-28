@@ -233,6 +233,7 @@ molecule_class_info_t::setup_internal() {
    theSurface = 0;
    transparent_molecular_surface_flag = 0;
 
+   m_VertexArrayID_for_map = VAO_NOT_SET;
    //
    theMapContours.first = 0;
    theMapContours.second = 0;
