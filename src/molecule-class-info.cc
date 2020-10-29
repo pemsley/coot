@@ -1010,6 +1010,7 @@ molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_da
 coot::colour_t
 molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_a_dark_background) {
 
+   // std::cout << "get_bond_colour_by_mol_no() " << colour_index << std::endl;
 
    GLenum err = glGetError(); if (err) std::cout << "GL status in get_bond_colour_by_mol_no() --start-- " << err << std::endl;
    coot::colour_t rgb;
@@ -1026,7 +1027,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
 
       if (colour_index >= 50) {
          float ii_f = colour_index - 50;
-         ii_f += 1.2 * static_cast<float>(imol_no);
+         ii_f += 4.4 * bonds_colour_map_rotation/360.0;
          rgb[0] = 0.75; rgb[1] = 0.6; rgb[2] = 0.5;
          if (ii_f > 0)
 	    rgb.rotate(ii_f*73.0/360.0);
@@ -1238,12 +1239,12 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
       if (i == 0) {
-    rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
-    done = true;
+         rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
+         done = true;
       }
       if (i == 1) {
-    rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.3f; // dark-grey
-    done = true;
+         rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.3f; // dark-grey
+         done = true;
       }
       offset=2; // blue starts at 2.
    }
@@ -1269,7 +1270,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
       // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
 
-      float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour;
+      float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour + bonds_colour_map_rotation/360.0;
       rgb = rotate_rgb(rgb, rotation_size);
    }
 
@@ -1281,9 +1282,9 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
    //
    if (false)
       std::cout << "set_bond_colour_by_colour_wheel_position "  << i << " " << " "
-   << rgb[0] << " " << rgb[1] << " " << rgb[2] << " " << std::endl;
+                << rgb[0] << " " << rgb[1] << " " << rgb[2] << " " << std::endl;
    bond_colour_internal = rgb;
-   glColor3f(rgb[0], rgb[1], rgb[2]);
+   // glColor3f(rgb[0], rgb[1], rgb[2]); old.
 }
 
 
@@ -1569,7 +1570,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule(std::string
 //
 void
 molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(std::string molecule_name,
-         short int is_undo_or_redo) {
+                                                                              short int is_undo_or_redo) {
 
    //
    name_ = molecule_name;
@@ -1581,7 +1582,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
    if (! is_undo_or_redo) {
       bonds_colour_map_rotation = (imol_no + 1) * graphics_info_t::rotate_colour_map_on_read_pdb;
       while (bonds_colour_map_rotation > 360.0)
-    bonds_colour_map_rotation -= 360.0;
+         bonds_colour_map_rotation -= 360.0;
       bonds_rotate_colour_map_flag = graphics_info_t::rotate_colour_map_on_read_pdb_flag;
 //       std::cout << "::::::: in initialization setting bonds_colour_map_rotation "
 // 		<< bonds_colour_map_rotation << " for imol no " << imol_no << std::endl;
@@ -1597,31 +1598,31 @@ void
 molecule_class_info_t::set_symm_bond_colour_mol(int icol) {
 
    switch (icol) {
-      case GREEN_BOND:
-    glColor3f (combine_colour(0.1,0),
-       combine_colour(0.8,1),
-       combine_colour(0.1,2));
-    break;
-      case BLUE_BOND:
-    glColor3f (combine_colour(0.2,0),
-       combine_colour(0.2,1),
-       combine_colour(0.8,2));
-    break;
-      case RED_BOND:
-    glColor3f (combine_colour(0.8,0),
-       combine_colour(0.1,1),
-       combine_colour(0.1,2));
-    break;
-      case YELLOW_BOND:
-    glColor3f (combine_colour(0.7,0),
-       combine_colour(0.7,1),
-       combine_colour(0.0,2));
-    break;
-
-      default:
-    glColor3f (combine_colour(0.7, 0),
-       combine_colour(0.8, 1),
-       combine_colour(0.8, 2));
+   case GREEN_BOND:
+      glColor3f (combine_colour(0.1,0),
+                 combine_colour(0.8,1),
+                 combine_colour(0.1,2));
+      break;
+   case BLUE_BOND:
+      glColor3f (combine_colour(0.2,0),
+                 combine_colour(0.2,1),
+                 combine_colour(0.8,2));
+      break;
+   case RED_BOND:
+      glColor3f (combine_colour(0.8,0),
+                 combine_colour(0.1,1),
+                 combine_colour(0.1,2));
+      break;
+   case YELLOW_BOND:
+      glColor3f (combine_colour(0.7,0),
+                 combine_colour(0.7,1),
+                 combine_colour(0.0,2));
+      break;
+      
+   default:
+      glColor3f (combine_colour(0.7, 0),
+                 combine_colour(0.8, 1),
+                 combine_colour(0.8, 2));
    }
 }
 
@@ -3364,6 +3365,7 @@ void
    molecule_class_info_t::update_bonds_colour_using_map_rotation(float f) {
 
    bonds_colour_map_rotation = f;
+   make_glsl_bonds_type_checked(__FUNCTION__);
 }
 
 
@@ -3556,14 +3558,14 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
                 << caller << "()" << std::endl;
    if (debug)
       std::cout << "--- make_bonds_type_checked() called with bonds_box_type "
-   << bonds_box_type << " vs "
-   << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
-   << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
-   << "COLOUR_BY_CHAIN_BONDS " << coot::COLOUR_BY_CHAIN_BONDS << " "
-   << "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
-   << "CA_BONDS " << coot::CA_BONDS << " "
-   << "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
-   << std::endl;
+                << bonds_box_type << " vs "
+                << "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
+                << "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
+                << "COLOUR_BY_CHAIN_BONDS " << coot::COLOUR_BY_CHAIN_BONDS << " "
+                << "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
+                << "CA_BONDS " << coot::CA_BONDS << " "
+                << "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
+                << std::endl;
 
    // Delete this in due course
    graphics_info_t g; // urgh!  (But the best solution?)

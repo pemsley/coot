@@ -3904,8 +3904,6 @@ void graphics_info_t::bonds_colour_rotation_adjustment_changed(GtkAdjustment *ad
 
    if (molecules[imol].has_model()) {
       float f =  gtk_adjustment_get_value(adj);
-      std::cout << "changing bonds colour for imol " << imol << " " << f << std::endl;
-      //molecules[imol].bonds_colour_map_rotation = f;
       molecules[imol].update_bonds_colour_using_map_rotation(f);
    }
    graphics_draw();
