@@ -5104,6 +5104,16 @@ void graphics_to_ca_representation(int imol) {
    add_to_history(command_strings);
 }
 
+/*! \brief draw molecule number imol coloured by chain */
+void graphics_to_colour_by_chain(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].make_colour_by_chain_bonds();
+      graphics_draw();
+   }
+}
+
+
 void graphics_to_ca_plus_ligands_representation   (int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;

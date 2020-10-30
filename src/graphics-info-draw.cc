@@ -518,6 +518,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
             shader.set_float_for_uniform("fresnel_bias",  m.fresnel_settings.bias);
             shader.set_float_for_uniform("fresnel_scale", m.fresnel_settings.scale);
             shader.set_float_for_uniform("fresnel_power", m.fresnel_settings.power);
+            shader.set_vec4_for_uniform("fresnel_colour", m.fresnel_settings.colour);
 
             // --- draw ---
 

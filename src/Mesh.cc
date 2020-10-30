@@ -1217,25 +1217,34 @@ Mesh::draw(Shader *shader_p,
    glEnableVertexAttribArray(2);
    if (is_instanced_colours) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst col "
+      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst col "
                                              << err << std::endl;
    }
 
    if (is_instanced)
       glEnableVertexAttribArray(3);
 
+   err = glGetError();
+   if (err) std::cout << "error draw() glBindBuffer() Mesh::draw() post-vertex arrays "
+                      << "shader " << shader_p->name << " error " << err << std::endl;
+
+#if 0 //using a VAO means we don't need to do this (so delete it)
    if (is_instanced_with_rts_matrix) {
       glEnableVertexAttribArray(4);
       glEnableVertexAttribArray(5);
       glEnableVertexAttribArray(6);
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst rts "
+      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst rts "
                                              << err << std::endl;
    } else {
       glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst trans "
-                                             << err << std::endl;
+      err = glGetError(); if (err) std::cout << "error draw() glBindBuffer() inst model translation buffer "
+                                             << " inst_model_translation_buffer_id "
+                                             << inst_model_translation_buffer_id
+                                             << " shader " << shader_p->name
+                                             << " error " << err << std::endl;
    }
+#endif
 
    err = glGetError();
    if (err) std::cout << "   error draw() " << name << " pre-draw " << err << std::endl;

@@ -991,6 +991,7 @@ public:        //                      public
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
    void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
+   void make_colour_by_chain_bonds(); // simple/usual interfce to below function
    void make_colour_by_chain_bonds(const std::set<int> &no_bonds_to_these_atoms, bool c_only_flag, bool goodsell_mode);
    void make_colour_by_molecule_bonds();
    void bonds_no_waters_representation();
@@ -1923,6 +1924,7 @@ public:        //                      public
       colour_map_using_other_map_flag = false;
    }
    fresnel_settings_t fresnel_settings;
+   void set_fresnel_colour(const glm::vec4 &col_in);
 
    // save yourself and update have_unsaved_changes_flag status
    //

@@ -1618,7 +1618,7 @@ molecule_class_info_t::set_symm_bond_colour_mol(int icol) {
                  combine_colour(0.7,1),
                  combine_colour(0.0,2));
       break;
-      
+
    default:
       glColor3f (combine_colour(0.7, 0),
                  combine_colour(0.8, 1),
@@ -3498,6 +3498,12 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
    make_glsl_bonds_type_checked();
 
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
+}
+
+void
+   molecule_class_info_t::make_colour_by_chain_bonds() {
+   std::set<int> no_bonds_to_these_atom_indices;
+   make_colour_by_chain_bonds(no_bonds_to_these_atom_indices, true, false);
 }
 
 void

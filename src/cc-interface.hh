@@ -1409,6 +1409,8 @@ void reload_model_shader();
 
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
+void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Pisa internal                                           */
 /*  ----------------------------------------------------------------------- */

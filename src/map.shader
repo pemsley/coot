@@ -70,6 +70,7 @@ uniform bool do_fresnel;
 uniform float fresnel_bias;
 uniform float fresnel_scale;
 uniform float fresnel_power;
+uniform vec4  fresnel_colour;
 
 float get_fog_amount(float depth_in) {
 
@@ -126,11 +127,12 @@ void main() {
          // shininess = 55;
          float spec = pow(dp_view_reflect, shininess);
          vec4 col_specular = specular_strength * spec * specular_light_colour;
+         float shine_opacity = 1.0 - clamp(specular_strength * spec, 0.0, 1.0);
 
          vec4 colour_local = colour_transfer;
 
          vec4 col_1 = colour_local;  // ambient
-         float ambient_strength = 0.5; // was 0.2 for apoferritin
+         float ambient_strength = 0.7; // was 0.2 for apoferritin
          vec4 col_2 = colour_local * dp;
          vec4 col_3 = col_1 * ambient_strength + 0.8 * col_2 + col_specular;
 
@@ -144,7 +146,7 @@ void main() {
 
          col_4 = col_3;
 
-         col_4.a = map_opacity;
+         col_4.a = map_opacity * shine_opacity;
 
          if (false) {
             // float a = 1.0 + 2.0 * dp_view_reflect;
@@ -173,12 +175,13 @@ void main() {
          // I_dot_N = clamp(I_dot_N, 0.0, 1.0); // should not be needed.
          float R0 = fresnel_bias + fresnel_scale * pow((1.0 + I_dot_N), fresnel_power);
          float R = clamp(R0, 0.0, 1.0);
-         float g = 0.8; // grey
-         vec4 fresnel_colour = R * vec4(g,g,g,1.0);
-         // fresnel_colour = mix(colour_transfer, fresnel_colour, 0.5);
+         float gr = 0.8; // grey
+         // vec4 fresnel_light_colour = vec4(gr, gr, gr, 1.0);
+         vec4 fresnel_light_colour = fresnel_colour;
 
-         // out_col = mix(fresnel_colour, out_col, 0.00125 * R);
-         out_col += fresnel_colour;
+         vec4 colour_from_fresnel = R * fresnel_light_colour;
+
+         out_col += colour_from_fresnel;
       }
    }
 

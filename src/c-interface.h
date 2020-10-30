@@ -4748,6 +4748,8 @@ void set_draw_missing_residues_loops(short int state);
 
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);
+/*! \brief draw molecule number imol coloured by chain */
+void graphics_to_colour_by_chain(int imol);
 /*! \brief draw molecule number imol as CA + ligands */
 void graphics_to_ca_plus_ligands_representation   (int imol);
 /*! \brief draw molecule number imol as CA + ligands + sidechains*/

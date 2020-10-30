@@ -4982,3 +4982,12 @@ molecule_class_info_t::export_map_molecule_as_obj(const std::string &file_name) 
    return status;
 
 }
+
+void
+molecule_class_info_t::set_fresnel_colour(const glm::vec4 &col_in) {
+
+   std::cout << "debug:: set fresnel colour for map " << imol_no << " "
+             << glm::to_string(col_in) << std::endl;
+   fresnel_settings.colour = col_in;
+
+}

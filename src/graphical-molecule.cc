@@ -80,13 +80,16 @@ graphical_molecule::draw(Shader *shader_p,
    glEnableVertexAttribArray(1);
    glEnableVertexAttribArray(2);
    if (is_instanced) {
-      glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst col "
+      err = glGetError(); if (err) std::cout << "error draw() pre-glBindBuffer() inst colour buffer "
                                              << err << std::endl;
+      glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+      err = glGetError();
+      if (err) std::cout << "error draw() glBindBuffer() inst colour " << err << std::endl;
       glEnableVertexAttribArray(3);
       glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-      err = glGetError(); if (err) std::cout << "   error draw() glBindBuffer() inst trans "
-                                             << err << std::endl;
+      err = glGetError();
+      if (err) std::cout << "error draw() post glBindBuffer() inst translation buffer "
+                         << err << std::endl;
    }
 
    unsigned int n_triangles = triangle_vertex_indices.size();

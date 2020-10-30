@@ -106,8 +106,7 @@ void screendump_tga(const std::string &file_name) {
 
    graphics_info_t g;
    bool do_screendump = true;
-   g.render(do_screendump);
-
+   g.render(do_screendump, file_name);
 
 }
 
@@ -192,7 +191,7 @@ void set_map_fresnel_settings(int imol, short int state, float bias, float scale
 
    if (is_valid_map_molecule(imol)) {
       molecule_class_info_t &m = graphics_info_t::molecules[imol];
-      m.fresnel_settings = fresnel_settings_t(state, bias, scale, power);
+      m.fresnel_settings.update_settings(state, bias, scale, power);
       graphics_draw();
    }
 
@@ -274,6 +273,16 @@ void set_atom_radius_scale_factor(int imol, float scale_factor) {
    }
    graphics_draw();
 }
+
+void set_fresnel_colour(int imol, float red, float green, float blue, float opacity) {
+
+   if (is_valid_map_molecule(imol)) {
+      glm::vec4 col(red, green, blue, opacity);
+      graphics_info_t::molecules[imol].set_fresnel_colour(col);
+      graphics_draw();
+   }
+}
+
 
 
 
