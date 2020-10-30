@@ -84,6 +84,7 @@ void main() {
    vec4 sum_col = vec4(0,0,0,0);
 
    float specular_strength = material.specular_strength;
+   float shininess = material.shininess;
 
    for (int i=0; i<2; i++) {
       if (light_sources[i].is_on) {
@@ -100,7 +101,6 @@ void main() {
          vec4 diffuse = colour_transfer * lsd * dp * 0.8;
 
          // specular
-         float shininess = 150.0;
          vec3 eye_pos = eye_position;
          vec3 norm_2 = normalize(normal_transfer); // not needed, I think
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
