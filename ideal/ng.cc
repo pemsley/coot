@@ -1994,7 +1994,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 				pair_for_nothing_test) != tested_but_nothing.end())
 		     continue;
 
-		  if (true)
+		  if (false)
 		     std::cout << "------- considering " << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
 			       << std::endl;
 
@@ -2002,7 +2002,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 		  std::pair<std::string, bool> lt = find_link_type_complicado(res_1, res_2, geom);
 		  // Returns first (link_type) as "" if not found, second is order switch flag
 
-		  if (true)
+		  if (false)
 		     std::cout << "-------- find_link_type_complicado() returns \"" << lt.first << "\""
 			       << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
 			       << std::endl;

@@ -1288,6 +1288,7 @@ coot::restraints_container_t::setup_minimize() {
    //   hypersurface.
    //
    const gsl_multimin_fdfminimizer_type *T = gsl_multimin_fdfminimizer_conjugate_pr;
+   // T = gsl_multimin_fdfminimizer_vector_bfgs2;
 
    // setup before the first minimize (n_times_called == 1)
 
