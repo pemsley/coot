@@ -852,13 +852,14 @@ void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
    // 
    // So, we need to set graphics_info_t::accept_reject_dialog to NULL
    // when we get a WM delete event on the Accept/Reject box
-   
+
    if (acc_rej_dialog) { 
       gint upositionx, upositiony;
       if (acc_rej_dialog->window) {
 	 gdk_window_get_root_origin (acc_rej_dialog->window, &upositionx, &upositiony);
 	 graphics_info_t::accept_reject_dialog_x_position = upositionx;
 	 graphics_info_t::accept_reject_dialog_y_position = upositiony;
+
       } else {
 	 std::cout << "ERROR:: Trapped an error in save_accept_reject_dialog_window_position\n"
 		   << "        Report to Central Control!\n"

@@ -178,7 +178,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       // now set the position, if it was set:
 
       if (false)
-	 std::cout << "Here in do_accept_reject_dialog() ...... outer "
+	 std::cout << "###############################  Here in do_accept_reject_dialog() ...... outer "
 		   << graphics_info_t::accept_reject_dialog_x_position
 		   << " "
 		   << graphics_info_t::accept_reject_dialog_y_position
@@ -193,12 +193,6 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 		      << graphics_info_t::accept_reject_dialog_y_position
 		      << std::endl;
 
-         std::cout << "INFO:: gtk_widget_set_uposition() " << window << " "
-                   << graphics_info_t::accept_reject_dialog_x_position << " "
-                   << graphics_info_t::accept_reject_dialog_y_position << " "
-                   << std::endl;
-
-	 // gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_NONE);
 	 gtk_widget_set_uposition(window,
 				  graphics_info_t::accept_reject_dialog_x_position,
 				  graphics_info_t::accept_reject_dialog_y_position);

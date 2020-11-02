@@ -2644,6 +2644,7 @@ public:
    std::vector<std::string> save_state_data_and_models(short int lang_flag) const;
    std::vector<std::string> save_state_data_and_models(const std::string &filename,
 						       short int lang_flag) const;
+   void quick_save();
 
 
    static std::string save_state_file_name;

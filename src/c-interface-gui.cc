@@ -414,7 +414,7 @@ manage_column_selector(const char *filename) {
 
    std::string cmd = "manage-column-selector";
    std::vector<coot::command_arg_t> args;
-   args.push_back(filename);
+   args.push_back(single_quote(filename));
    add_to_history_typed(cmd, args);
 
 }
