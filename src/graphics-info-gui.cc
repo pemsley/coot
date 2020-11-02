@@ -192,16 +192,10 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 		      << graphics_info_t::accept_reject_dialog_y_position
 		      << std::endl;
 
-         std::cout << "INFO:: gtk_widget_set_uposition() " << window << " "
-                   << graphics_info_t::accept_reject_dialog_x_position << " "
-                   << graphics_info_t::accept_reject_dialog_y_position << " "
-                   << std::endl;
-
-	 // gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_NONE);
-	 // gtk_widget_set_uposition(window,
-	// 			  graphics_info_t::accept_reject_dialog_x_position,
-	// 			  graphics_info_t::accept_reject_dialog_y_position);
-	 gtk_window_move(GTK_WINDOW(window),
+	 gtk_widget_set_uposition(window,
+				  graphics_info_t::accept_reject_dialog_x_position,
+				  graphics_info_t::accept_reject_dialog_y_position);
+	 gtk_window_move(GTK_WINDOW(window), 
 			 graphics_info_t::accept_reject_dialog_x_position,
 			 graphics_info_t::accept_reject_dialog_y_position);
       }

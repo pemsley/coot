@@ -6222,5 +6222,26 @@ graphics_info_t::delete_pointers_to_map_in_other_molecules(int imol_map) {
          }
       }
    }
+}
+
+void
+graphics_info_t::quick_save() {
+
+   for (int imol=0; imol<n_molecules(); imol++) {
+      molecules[imol].quick_save();
+   }
+
+   short int il = coot::SCRIPT_UNSET;
+
+#ifdef USE_GUILE
+   il = coot::SCHEME_SCRIPT;
+   save_state_file(save_state_file_name.c_str(), il);
+#endif
+
+#ifdef USE_PYTHON
+   il = coot::PYTHON_SCRIPT;
+   save_state_file("0-coot.state.py", il);
+#endif
 
 }
+

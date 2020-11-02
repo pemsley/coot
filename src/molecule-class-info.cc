@@ -1207,6 +1207,8 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int colour_index, bool against_
 
    coot::colour_t col = get_bond_colour_by_mol_no(colour_index, against_a_dark_background);
    glColor3f(col.col[0], col.col[1], col.col[2]);
+   // std::vector<float> bond_colour_internal;
+   bond_colour_internal = {col.col[0], col.col[1], col.col[2]};
 }
 
 void
