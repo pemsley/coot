@@ -1027,7 +1027,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
 
       if (colour_index >= 50) {
          float ii_f = colour_index - 50;
-         ii_f += 4.4 * bonds_colour_map_rotation/360.0;
+         ii_f += 4.5 * bonds_colour_map_rotation/360.0;
          rgb[0] = 0.75; rgb[1] = 0.6; rgb[2] = 0.5;
          if (ii_f > 0)
 	    rgb.rotate(ii_f*73.0/360.0);

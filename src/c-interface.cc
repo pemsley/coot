@@ -3182,7 +3182,9 @@ void set_bond_thickness_intermediate_atoms(float t) {
 
 void set_bond_colour_rotation_for_molecule(int imol, float value) {
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].bonds_colour_map_rotation = value;
+      // graphics_info_t::molecules[imol].bonds_colour_map_rotation = value;
+      graphics_info_t::molecules[imol].update_bonds_colour_using_map_rotation(value);
+      graphics_draw();
    }
 }
 
