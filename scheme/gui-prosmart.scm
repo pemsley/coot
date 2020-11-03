@@ -144,10 +144,10 @@
 
         ;; note to self: make this a loop next time
 	(add-simple-coot-menu-menuitem
-	 menu "Generate Self Restraints 6 for Chain"
+	 menu "Generate Self Restraints 5 for Chain"
 	 (lambda ()
 	   (using-active-atom
-	    (generate-local-self-restraints aa-imol aa-chain-id 6))))
+	    (generate-local-self-restraints aa-imol aa-chain-id 5))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Generate All-Molecule Self Restraints 4.3"
