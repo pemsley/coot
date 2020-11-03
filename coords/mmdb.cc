@@ -97,7 +97,7 @@ std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom) {
 std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom) {
 
    //
-   if (atom) { 
+   if (atom) {
       s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
 	<< atom->GetSeqNum()   << atom->GetInsCode() << " {"
 	<< atom->GetResName() << "}/"

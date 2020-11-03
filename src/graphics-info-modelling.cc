@@ -37,6 +37,8 @@
 #include <vector>
 #endif
 
+// was used for debugging - not needed now.
+// #include <iomanip> // extern char *dcgettext (const char *__domainname, if placed later
 #include <algorithm>
 
 #include <iostream>
@@ -400,7 +402,6 @@ bool graphics_info_t::continue_threaded_refinement_loop = false; // also for Esc
 int  graphics_info_t::threaded_refinement_redraw_timeout_fn_id = -1;
 bool graphics_info_t::refinement_of_last_restraints_needs_reset_flag = false;
 
-
 // put this in graphics-info-intermediate-atoms?
 //
 // static
@@ -528,6 +529,7 @@ void graphics_info_t::thread_for_refinement_loop_threaded() {
       std::thread r(refinement_loop_threaded);
       r.detach();
    }
+
 }
 
 // static

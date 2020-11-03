@@ -1513,11 +1513,14 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
+   while (continue_threaded_refinement_loop)
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
    if (false) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
-	        << std::endl;
+                << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
-	        << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+                << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
    }
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!
@@ -1525,29 +1528,29 @@ graphics_info_t::accept_moving_atoms() {
    } else {
       bool mzo = refinement_move_atoms_with_zero_occupancy_flag;
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) {
-	 molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
-	 update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+         molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 1, mzo); // doesn't dealloc moving_atoms_asc
+         update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
       } else {
-	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
+         if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 
-	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
-	    // debug
-	    // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
-	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	 } else {
-	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
-	       molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
-	    } else {
-	       if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
-		  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
-	       } else {
-		  std::cout << "------------ ERROR! -------------------" << std::endl;
-		  std::cout << "       moving_atoms_asc_type not known: ";
-		  std::cout << moving_atoms_asc_type << std::endl;
-		  std::cout << "------------ ERROR! -------------------" << std::endl;
-	       }
-	    }
-	 }
+            molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
+            // debug
+            // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
+            update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
+         } else {
+            if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
+               molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
+            } else {
+               if  (moving_atoms_asc_type == coot::NEW_COORDS_INSERT_CHANGE_ALTCONF) {
+                  molecules[imol_moving_atoms].insert_coords_change_altconf(*moving_atoms_asc);
+               } else {
+                  std::cout << "------------ ERROR! -------------------" << std::endl;
+                  std::cout << "       moving_atoms_asc_type not known: ";
+                  std::cout << moving_atoms_asc_type << std::endl;
+                  std::cout << "------------ ERROR! -------------------" << std::endl;
+               }
+            }
+         }
       }
    }
 
@@ -1564,7 +1567,7 @@ graphics_info_t::accept_moving_atoms() {
    GtkWidget *w = coot::get_validation_graph(imol_moving_atoms, coot::RAMACHANDRAN_PLOT);
    if (w) {
       coot::rama_plot *plot = (coot::rama_plot *)
-	 gtk_object_get_user_data(GTK_OBJECT(w));
+         gtk_object_get_user_data(GTK_OBJECT(w));
       // std::cout << "updating rama plot for " << imol_moving_atoms << std::endl;
       handle_rama_plot_update(plot);
       update_ramachandran_plot_point_maybe(imol_moving_atoms, *moving_atoms_asc);

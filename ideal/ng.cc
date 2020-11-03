@@ -1914,7 +1914,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
 
    std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > tested_but_nothing;
 
-   bool debug_vcontacts = true;
+   bool debug_vcontacts = false;
    if (debug_vcontacts) {
       for (std::size_t i=0; i<vcontacts.size(); i++) {
          const std::set<unsigned int> &n_set = vcontacts[i];
