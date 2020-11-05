@@ -4,7 +4,7 @@ title:  "Nature Front Cover Image"
 date: Thu 5 Nov 04:03:11 GMT 2020
 ---
 
-My colleagues recent published a paper (Nakane et al. (2020) "Single Particle cryo-EM at atomic resolution") and asked
+My colleagues recently published a paper (Nakane et al. (2020) "Single Particle cryo-EM at atomic resolution") and asked
 me to make a figure. I did so and it is this week's front cover image.
 
 [https://www.nature.com/nature/volumes/587/issues/7832](https://www.nature.com/nature/volumes/587/issues/7832)
