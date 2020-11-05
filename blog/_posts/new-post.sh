@@ -16,7 +16,7 @@ title:  "x"
 !
 
 echo date: $(date) >> $f
-echo categories: x >> $f
+# echo categories: x >> $f
 echo --- >> $f
 
 

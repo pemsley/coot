@@ -2,7 +2,6 @@
 layout: post
 title:  "Coot Cryo-EM Tutorial 2: Fitting and Mutating"
 date: Tue 20 Oct 16:53:52 BST 2020
-categories: x
 ---
 
 <div style="text-align: right"> By Ana Casa&ntilde;al &amp; Paul Emsley</div>

@@ -2,7 +2,6 @@
 layout: post
 title:  "Coot Cryo-EM Tutorial 1: Basics"
 date: Tue 20 Oct 16:40:39 BST 2020
-categories: x
 ---
 <div style="text-align: right"> By Ana Casa&ntilde;al &amp; Paul Emsley</div>
 This tutorial is designed for 0.9.1
