@@ -31,4 +31,57 @@ You can see Takanori's version on twitter (he is [@biochem\_fan](https://twitter
 The source code for "gtk3" Coot is updated/released every day or so, but
 the binaries are not (that's too much of a time sink at the moment).
 
+Here's the script to make that second image:
 
+{% highlight python %}
+
+import coot
+
+b_factor = 1
+resample_factor =  1.9
+
+f1 = 0.0
+coot.set_background_colour(f1,f1,f1)
+coot.set_use_perspective_projection(1)
+
+imol = read_pdb("ref1_n1_hydr_aniso_p-chainAL-HOH302.pdb")
+coot.set_rotation_centre(65, 26, 32)
+coot.set_bond_thickness(imol, 4)
+
+imol_map      = coot.handle_read_ccp4_map('apoF/aroundW302-normal.ccp4', 0)
+imol_diff_map = coot.handle_read_ccp4_map('apoF/aroundW302-diff.ccp4',   0) # naughty
+
+imol_map      = coot.sharpen_blur_map_with_resampling(imol_map,      b_factor, resample_factor);
+imol_diff_map = coot.sharpen_blur_map_with_resampling(imol_diff_map, b_factor, resample_factor);
+
+coot.set_draw_solid_density_surface(imol_map, 1)
+coot.set_draw_solid_density_surface(imol_diff_map, 1)
+
+coot.set_solid_density_surface_opacity(imol_map,      0.5);
+coot.set_solid_density_surface_opacity(imol_diff_map, 0.5);
+
+imol_map_copy      = coot.copy_molecule(imol_map)
+imol_diff_map_copy = coot.copy_molecule(imol_diff_map)
+
+coot.set_map_colour(imol_map,      0.1, 0.1, 0.5)
+coot.set_map_colour(imol_diff_map, 0.2, 0.4, 0.2)
+coot.set_map_colour(imol_map_copy,      0.4, 0.4, 0.9)
+coot.set_map_colour(imol_diff_map_copy, 0.4, 0.7, 0.4)
+
+coot.set_draw_solid_density_surface(imol_map_copy, 1)
+coot.set_draw_solid_density_surface(imol_diff_map_copy, 1)
+
+coot.set_solid_density_surface_opacity(imol_map_copy,      0.15);
+coot.set_solid_density_surface_opacity(imol_diff_map_copy, 0.15);
+
+coot.set_map_material_specular(imol_map, 10, 100)
+coot.set_map_material_specular(imol_diff_map, 10, 100)
+
+coot.set_contour_level_absolute(imol_map, 0.135)
+coot.set_contour_level_absolute(imol_map_copy, 0.208)
+coot.set_contour_level_absolute(imol_diff_map, 0.155)
+coot.set_contour_level_absolute(imol_diff_map_copy, 0.26)
+
+{% endhighlight %}
+
+I applied the blur using the GIMP because Coot's blur filter is not very good at the moment.
