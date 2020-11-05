@@ -15,6 +15,16 @@ This was made with the "gtk3" branch of Coot.
 
 [High resolution version:](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin-s9-hemi.png)
 
+For radial colouring I used something like:
+{% highlight python %}
+coot.set_draw_solid_density_surface(imol_map, 1)
+coot.set_radial_map_colouring_min_radius(imol_map, 20)
+coot.set_radial_map_colouring_max_radius(imol_map, 80)
+coot.set_radial_map_colouring_invert(imol_map, 1)
+coot.set_radial_map_colouring_enabled(imol_map, 1)
+{% endhighlight %}
+
+
 Takanori himself made a front cover image too in PyMOL and seeing that I tried to make a version in a similar style using Coot.
 I didn't copy it exactly, you can see that my version is not volumetric and is smoother and more gem-like.
 
