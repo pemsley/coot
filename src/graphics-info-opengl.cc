@@ -273,6 +273,18 @@ graphics_info_t::adjust_clipping(float d) {
    }
 }
 
+void
+graphics_info_t::set_view_quaternion(float i, float j, float k, float l) {
+
+   // currently sets glm_quat (that's not a good name)
+   // change it it view_quaternion
+
+   // maybe the order will be wrong
+   glm::quat q(i, j, k, l);
+   glm_quat = q;
+}
+
+
 //static
 void
 graphics_info_t::update_view_quaternion(int area_width, int area_height) {

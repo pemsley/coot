@@ -4146,18 +4146,22 @@ void
 handle_map_colour_change(int imol, GdkRGBA map_col) {
 
    graphics_info_t::molecules[imol].handle_map_colour_change(map_col,
-							    graphics_info_t::swap_difference_map_colours,
-							    graphics_info_t::GL_CONTEXT_MAIN);
+                                                             graphics_info_t::swap_difference_map_colours,
+                                                             graphics_info_t::GL_CONTEXT_MAIN,
+                                                             graphics_info_t::get_rotation_centre_co(),
+                                                             graphics_info_t::box_radius_xray);
 
    if (false) { // for the moment
-   if (graphics_info_t::display_mode_use_secondary_p()) {
-      graphics_info_t g;
-      g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
-      g.molecules[imol].handle_map_colour_change(map_col,
-						 g.swap_difference_map_colours,
-						 graphics_info_t::GL_CONTEXT_SECONDARY);
-      g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
-   }
+      if (graphics_info_t::display_mode_use_secondary_p()) {
+         graphics_info_t g;
+         g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
+         g.molecules[imol].handle_map_colour_change(map_col,
+                                                    g.swap_difference_map_colours,
+                                                    graphics_info_t::GL_CONTEXT_SECONDARY,
+                                                    graphics_info_t::get_rotation_centre_co(),
+                                                    graphics_info_t::box_radius_xray);
+         g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+      }
    }
 
    //cout << "using map colours:   "
@@ -4180,13 +4184,17 @@ void set_map_colour(int imol, float red, float green, float blue) {
       colour.blue   = blue * 65535.0;
       short int swap_col = graphics_info_t::swap_difference_map_colours;
       graphics_info_t::molecules[imol].handle_map_colour_change(colour, swap_col,
-                                                                graphics_info_t::GL_CONTEXT_MAIN);
+                                                                graphics_info_t::GL_CONTEXT_MAIN,
+                                                                graphics_info_t::get_rotation_centre_co(),
+                                                                graphics_info_t::box_radius_xray);
       if (graphics_info_t::display_mode_use_secondary_p()) {
          graphics_info_t g;
          g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
          graphics_info_t::molecules[imol].handle_map_colour_change(colour, swap_col,
-                                                                   graphics_info_t::GL_CONTEXT_SECONDARY);
-	      g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
+                                                                   graphics_info_t::GL_CONTEXT_SECONDARY,
+                                                                   graphics_info_t::get_rotation_centre_co(),
+                                                                   graphics_info_t::box_radius_xray);
+         g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
       }
    }
 }
@@ -4204,29 +4212,29 @@ void add_on_map_colour_choices(GtkWidget *menu) {
       std::cout << "ERROR: sub menu not found in add_on_map_colour_choices\n";
    } else {
       gtk_container_foreach(GTK_CONTAINER(sub_menu),
-			    my_delete_menu_items,
-			    (gpointer) sub_menu);
+                            my_delete_menu_items,
+                            (gpointer) sub_menu);
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_xmap() ||
-	     graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME
-	    std::string name;
-	    name = graphics_info_t::molecules[imol].dotted_chopped_name();
-	    add_map_colour_mol_menu_item(imol, name, sub_menu, callback);
-	 }
+         if (graphics_info_t::molecules[imol].has_xmap() ||
+             graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME
+            std::string name;
+            name = graphics_info_t::molecules[imol].dotted_chopped_name();
+            add_map_colour_mol_menu_item(imol, name, sub_menu, callback);
+         }
       }
    }
 }
 
 void
 add_map_colour_mol_menu_item(int imol, const std::string &name,
-			     GtkWidget *menu, GCallback callback) {
+                             GtkWidget *menu, GCallback callback) {
 
    int *imol_data = new int;
    *imol_data = imol;
    GtkWidget *menu_item = gtk_menu_item_new_with_label(name.c_str());
    gtk_container_add(GTK_CONTAINER(menu), menu_item);
    g_signal_connect(G_OBJECT(menu_item), "activate",
-		    callback, (gpointer) imol_data);
+                    callback, (gpointer) imol_data);
    gtk_widget_show(menu_item);
 
 }

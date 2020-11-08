@@ -4961,11 +4961,15 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 
       if (use_graphics_interface_flag) {
          molecules[imap].handle_map_colour_change(colour, swap_difference_map_colours,
-                                                  GL_CONTEXT_MAIN);
+                                                  GL_CONTEXT_MAIN,
+                                                  get_rotation_centre_co(),
+                                                  box_radius_xray);
          if (display_mode_use_secondary_p()) {
             make_gl_context_current(GL_CONTEXT_SECONDARY);
             molecules[imap].handle_map_colour_change(colour, swap_difference_map_colours,
-                                             GL_CONTEXT_SECONDARY);
+                                                     GL_CONTEXT_SECONDARY,
+                                                     get_rotation_centre_co(),
+                                                     box_radius_xray);
             make_gl_context_current(GL_CONTEXT_MAIN);
          }
       }

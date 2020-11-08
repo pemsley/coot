@@ -72,7 +72,9 @@ molecule_class_info_t::handle_map_colour_change_rotate_difference_map(bool swap_
 void
 molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                                                 bool swap_difference_map_colours_flag,
-                                                bool main_or_secondary) {
+                                                bool main_or_secondary,
+                                                clipper::Coord_orth centre,
+                                                float radius) {
 
    if (true)
       std::cout << "debug:: handle_map_colour_change() handle change to colour "
@@ -89,7 +91,10 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
       handle_map_colour_change_rotate_difference_map(swap_difference_map_colours_flag);
 
    // ideally, just change the colour buffer, but this will do for now.
-   setup_glsl_map_rendering();
+
+   // clipper::Coord_orth centre = graphics_info_t::get_rotation_centre_co();
+   // float radius = graphics_info_t::box_radius_xray;
+   setup_glsl_map_rendering(centre, radius);
 
    // main 0: secondary: 1
    // compile_density_map_display_list(main_or_secondary);

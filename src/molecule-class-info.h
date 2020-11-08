@@ -1339,7 +1339,9 @@ public:        //                      public
    void update_map_colour_menu_maybe(int imol);
    void handle_map_colour_change(GdkRGBA map_col,
                                  bool swap_difference_map_colours_flag,
-                                 bool main_or_secondary);
+                                 bool main_or_secondary,
+                                 clipper::Coord_orth centre,
+                                 float radius);
    void handle_map_colour_change_rotate_difference_map(bool swap_difference_map_colours_flag);
 
    int next_free_map();
@@ -2966,7 +2968,7 @@ public:        //                      public
 
    // new
    void post_process_map_triangles();
-   void setup_glsl_map_rendering();
+   void setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius);
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >
    make_generic_vertices_for_atoms(const std::vector<glm::vec4> &index_to_colour, float atom_radius_scale_factor=1.0) const;
    std::pair<std::vector<vertex_with_rotation_translation>, std::vector<g_triangle> >

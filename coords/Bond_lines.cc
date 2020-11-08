@@ -1050,9 +1050,7 @@ Bond_lines_container::add_double_bond(int imol, int imodel, int iat_1, int iat_2
 	    perp_n = -perp_n;
       // std::cout << "now perp_n " << perp_n.format() << std::endl;
       int col = atom_colour(residue_atoms[iat_1], atom_colour_type, atom_colour_map_p);
-      double offset = 0.08;
-      if (for_GL_solid_model_rendering)
-	 offset = 0.13;
+      double offset = 0.13;
       clipper::Coord_orth pt_1_1 = pos_at_1 - offset * perp_n;
       clipper::Coord_orth pt_1_2 = pos_at_1 + offset * perp_n;
       clipper::Coord_orth pt_2_1 = pos_at_2 - offset * perp_n;

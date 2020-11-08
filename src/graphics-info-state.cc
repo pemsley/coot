@@ -621,17 +621,19 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
    // the orientation
    //
-#if 0 // we don't use quat in gtk3/OpenGL3.3 version
    if (use_graphics_interface_flag) {
       command_strings.clear();
+      float i = glm_quat[0];
+      float j = glm_quat[1];
+      float k = glm_quat[2];
+      float l = glm_quat[3];
       command_strings.push_back("set-view-quaternion");
-      command_strings.push_back(float_to_string_using_dec_pl(quat[0], 5));
-      command_strings.push_back(float_to_string_using_dec_pl(quat[1], 5));
-      command_strings.push_back(float_to_string_using_dec_pl(quat[2], 5));
-      command_strings.push_back(float_to_string_using_dec_pl(quat[3], 5));
+      command_strings.push_back(float_to_string_using_dec_pl(i, 5));
+      command_strings.push_back(float_to_string_using_dec_pl(j, 5));
+      command_strings.push_back(float_to_string_using_dec_pl(k, 5));
+      command_strings.push_back(float_to_string_using_dec_pl(l, 5));
       commands.push_back(state_command(command_strings, il));
    }
-#endif
 
    // stereo mode
    //

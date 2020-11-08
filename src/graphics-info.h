@@ -4056,9 +4056,10 @@ string   static std::string sessionid;
 
    /* model-view-projection matrix */
    static float *mvp; // needed?
-   static int mvp_location;
-   static int view_rotation_location;
+   static int mvp_location;            // GLSL
+   static int view_rotation_location;  // GLSL
    static glm::quat glm_quat;
+   void set_view_quaternion(float i, float j, float k, float l);
    static glm::vec3 get_rotation_centre() {
      return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
    }

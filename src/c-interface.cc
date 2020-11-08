@@ -4031,12 +4031,8 @@ void set_view_quaternion(float i, float j, float k, float l) {
    double mag=sqrt(mag2);
 
    if (fabs(mag) > 0.5) {
-#if 0 // use glm::quat glm_quat if you want to do this
-      graphics_info_t::quat[0] = i/mag;
-      graphics_info_t::quat[1] = j/mag;
-      graphics_info_t::quat[2] = k/mag;
-      graphics_info_t::quat[3] = l/mag;
-#endif
+      graphics_info_t g;
+      g.set_view_quaternion(l,i,j,k); // weird.
       graphics_draw();
    } else {
       std::cout << "Bad view quaternion" << std::endl;
@@ -6178,10 +6174,9 @@ void set_zoom_adjustment(GtkWidget *w) {
    graphics_info_t::set_zoom_adjustment(w);
 }
 
-// BL says:: I like a function to change the zoom externally
-// havent found one anywhere
 void set_zoom(float f) {
    graphics_info_t::zoom = f;
+   graphics_draw();
 }
 
 

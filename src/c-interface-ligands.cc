@@ -3504,7 +3504,6 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
       float cdd = graphics_info_t::contact_dots_density;
-      cdd = 1.9;
 
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
 
@@ -3514,6 +3513,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
       molecule_name_stub += ": ";
 
       float ball_size = 0.11;
+      ball_size = 0.07;
 
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); ++it) {

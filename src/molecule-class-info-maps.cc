@@ -564,7 +564,8 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
          }
       }
 
-      setup_glsl_map_rendering(); // turn tri_con into buffers.
+      clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
+      setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
 
       std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp =
          make_map_mesh();
@@ -868,9 +869,10 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
 }
 
 
+#include "coot-utils/3d-texture.hh"
 
 void
-molecule_class_info_t::setup_glsl_map_rendering() {
+molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius) {
 
    // This is called from update_map_triangles().
 
@@ -878,12 +880,21 @@ molecule_class_info_t::setup_glsl_map_rendering() {
 
    if (true) { // real map
 
+      if (false) { // 3d texture for ambient occlusion
+         three_d_texture_t tdt(draw_vector_sets, centre, radius);
+         std::vector<coot::density_contour_triangles_container_t>::iterator it_nc; // not const
+         for (it_nc=draw_vector_sets.begin(); it_nc!=draw_vector_sets.end(); it_nc++) {
+            coot::density_contour_triangles_container_t &tri_con(*it_nc);
+            tdt.fill_occlusions(tri_con);
+         }
+      }
+
       unsigned int sum_tri_con_points = 0;
       unsigned int sum_tri_con_normals = 0;
       unsigned int sum_tri_con_triangles = 0;
-      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
 
       auto tp_0 = std::chrono::high_resolution_clock::now();
+      std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); it++) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
 
@@ -1207,18 +1218,20 @@ molecule_class_info_t::setup_glsl_map_rendering() {
                   } else {
                      // basic/standard single colour map
 
-                     if (false) {// baked-in ambient occlusion
-                        if (j < tri_con.occlusion_factor.size())
-                           std::cout << "occlusion factor " << tri_con.occlusion_factor[j] << std::endl;
-                        else
-                           std::cout << "occlusion factor index error " << j << " vs " <<  tri_con.occlusion_factor.size() << std::endl;
-                     }
-
                      if ((4*idx_for_colours) < (4 * n_colours)) {
                         colours[4*idx_for_colours  ] = map_colour.red;
                         colours[4*idx_for_colours+1] = map_colour.green;
                         colours[4*idx_for_colours+2] = map_colour.blue;
                         colours[4*idx_for_colours+3] = 1.0;
+
+                        if (false) {// baked-in ambient occlusion
+                           float occlusion_factor = tri_con.occlusion_factor[j];
+                           float f = 0.9 * (1.0 - occlusion_factor);
+                           colours[4*idx_for_colours  ] *= f;
+                           colours[4*idx_for_colours+1] *= f;
+                           colours[4*idx_for_colours+2] *= f;
+                        }
+
                      } else {
                         std::cout << "oops indexing error for colours"
                                   << idx_for_colours << " " << n_colours << std::endl;
@@ -1230,7 +1243,6 @@ molecule_class_info_t::setup_glsl_map_rendering() {
          }
          if (xmap_is_diff_map) {
             for (unsigned int i0=0; i0<draw_diff_map_vector_sets.size(); i0++) {
-               unsigned int i = i0 + draw_vector_sets.size();
                const coot::density_contour_triangles_container_t &tri_con(draw_diff_map_vector_sets[i0]);
                for (std::size_t j=0; j<tri_con.points.size(); j++) {
                   if ((4*idx_for_colours) < (4 * n_colours)) {

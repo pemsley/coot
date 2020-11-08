@@ -98,19 +98,27 @@ void swap_map_colours(int imol1, int imol2) {
          short int main_or_secondary = 0; // main
          g.molecules[imol1].handle_map_colour_change(map_2_colours.first,
                                                      g.swap_difference_map_colours,
-                                                     main_or_secondary);
+                                                     main_or_secondary,
+                                                     g.get_rotation_centre_co(),
+                                                     g.box_radius_xray);
          g.molecules[imol2].handle_map_colour_change(map_1_colours.first,
                                                      g.swap_difference_map_colours,
-                                                     main_or_secondary);
+                                                     main_or_secondary,
+                                                     g.get_rotation_centre_co(),
+                                                     g.box_radius_xray);
          if (graphics_info_t::display_mode_use_secondary_p()) {
             g.make_gl_context_current(graphics_info_t::GL_CONTEXT_SECONDARY);
             main_or_secondary = 1; // secondary
             g.molecules[imol1].handle_map_colour_change(map_2_colours.second,
                                                         g.swap_difference_map_colours,
-                                                        main_or_secondary);
+                                                        main_or_secondary,
+                                                        g.get_rotation_centre_co(),
+                                                        g.box_radius_xray);
             g.molecules[imol2].handle_map_colour_change(map_1_colours.second,
                                                         g.swap_difference_map_colours,
-                                                        main_or_secondary);
+                                                        main_or_secondary,
+                                                        g.get_rotation_centre_co(),
+                                                        g.box_radius_xray);
             g.make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
          }
       }
