@@ -34,51 +34,41 @@ Start _Coot_:
 
 Let's see more of the map
 
-  - **Edit** &rarr; **Map Parameters** &rarr; **Map Radius** &rarr; `70`
+  - **Edit** &rarr; **Map Parameters** &rarr; **Map Radius EM** &rarr; `70`
   - **OK**
 
-Let's use smoother maps
+Let's use a smoother map
 
-  - **Calculate** &rarr; **Modules** &rarr; **Cryo-EM**
-  - **Cryo-EM** &rarr; **Multi-sharpen...**
-  - Use 10 levels to 200
-  - **OK**
-  - _{wait}_
-  - On reading the new mtz file:
-	  -- In Amplitudes: choose FoutBlur_20.0
-	  -- **OK**
-  - Re-read the mtz file, but this time:
-	  -- In Amplitudes: choose FoutBlur_200.0
-	  -- Use **Expert Mode?** to cut the high resolution limit to 4.0 &Aring;
+   - **Cryo-EM** &rarr; **Sharpen/Blur...**
+   - activate the "Resample" checkbutton
+   - **Make Map**
+   - **Close**
 
-Compare these maps and then delete the 1st (mrc) map.
+You should now have an extra map ("emd_3908.map Blur 20.00").
+Compare this maps with the original and then delete the 1st (mrc) map. You should find that the
+new (smooth) map is easier to understand.
 
-Choose the FoutBlur\_200.0 map for fitting (at the moment):
+Choose the Blur\_200.0 map for fitting (at the moment):
 
-  - **Map** &rarr; {Select the FoutBlur\_200.0} &rarr; **OK**
+  - **Map** &rarr; {Select the Blur\_200.0} &rarr; **OK**
 
 Change the contour Step for the new Maps:
 
 **Display Manager** &rarr; **Properties** &rarr; **Change by rmsd** `0.33` &rarr; **OK**
 
-As a rule of thumb, a good contour level is 5.5 rmsd, but for the blurred map we should use about 0.03 V (9.4 rmsd).
+As a rule of thumb, a good contour level is 5.5 rmsd.
 
 ### 1.3 Get the Homolog:
 
   - **File** &rarr; **Fetch Model using Accession Code...** `6f9n`
 
-Move back to the middle of the map with Undo Navigation:
+Move back to the middle of the molecule map
 
-  - "U"
+  - **Cryo-EM** &rarr; **Go To Map Molecule Middle**
 
-Unless you've moved the view around, you should be at the centre of the map: (112, 112, 112).
-If the centre has moved, you might need a bit of manual assistance:
-
-  - Pan the view so that the middle of the map is at the middle of the screen
   - Now move the homolog to the centre of the map:
   - **Calculate** &rarr; **Move Molecule Here**
-  - Check "**Allow Big Molecules to Move**"
-  - Choose the Atom Selection/Fragment molecule
+  - Choose the "6f9n" molecule
   - **Move It**
 
 2: Jiggle
@@ -86,9 +76,8 @@ If the centre has moved, you might need a bit of manual assistance:
 
   - **Morph** &rarr; **Jiggle Fit This Molecule with Fourier Filter** 
 
-It should roughly fit now. If it doesn't, try jiggling again once, twice or perhaps several times.
-
-In this case, you should be looking for a fit score of over 1000.
+It should roughly fit now. If it doesn't, try jiggling again once or twice more. In this case,
+you should be looking for a fit score of over 1000.
 
 
 3: Extract Our Fragment
@@ -96,8 +85,9 @@ In this case, you should be looking for a fit score of over 1000.
 
 Extract the worst-fitting (WD40) domain:
 
-  - Using **Jones' Rainbow**, find the domain start and end residues numbers
-  - Let's imagine that you think that they are 517 and 1011:
+  - Using **Jones' Rainbow**, find the domain start and end residues numbers (you are trying to find a
+    doughnut-shaped molecule that fits this doughnut-shaped density)
+  - Let's imagine that you think that the residues at the ends of the domain are 517 and 1011:
   - **Edit** &rarr; **Copy Fragment** &rarr; [Use Atom Selection:] `//A/517-1011` &rarr; **OK**
 
 Let's work on this fragment:
@@ -125,10 +115,10 @@ Let's add some local distance restraints:
 
   - **Calculate** &rarr; **Modules** &rarr; **Restraints**
 
-    Usually 5.0 is a fine is for models with no sidechains
+    Usually 5.0 works well for models with no sidechains
   - **Restaints** &rarr; **Generate All Molecule Self Restraints 5.0**
   - Review them, then undisplay them:
-  - **Restiants** &rarr; **Undisplay Extra Distance Restraints**
+  - **Restaints** &rarr; **Undisplay Extra Distance Restraints**
   - **Refine** &rarr; **Set Geman-McClure alpha 0.01**
 
 
@@ -138,7 +128,9 @@ Let's add some local distance restraints:
   - **Refine** &rarr; **Chain Refine**
   - {wait and watch, you can turn the view if you wish}
 
-When the refinement dialog says "Success," examine the model, being careful not to inadvertently pull on an atom. Maybe you will see that there is a domain that doesn't fit, if so, yank on the worst fitting CA and pull it to where you think it should go.
+When the refinement dialog says "Success," examine the model, being careful not to inadvertently
+pull on an atom. Maybe you will see that there is a domain that doesn't fit, if so, yank
+on the worst fitting CA and pull it to where you think it should go.
 
    - Double-clicking on an atom will release the pull restraint
 
@@ -154,7 +146,7 @@ modifications and refining again for practice.
 This time perhaps without drawing the restraints:
 
   - Undo
-  - `set_draw_moving_atom_restraints(0)`
+  - `set_draw_moving_atoms_restraints(0)`
   - **Refine** &rarr; **Chain Refine**
   - _yank as needed_
   - **OK**
@@ -174,12 +166,11 @@ Reset Geman-McClure alpha to 1.
 
 Upon review, you will notice that there are parts of the model that
 don't fit the map. Try yanking them around with Tandem Refine. Other
-parts of the model don't have density - so delete the residue range - this will help the alignment we are about to do.
+parts of the model don't have density - so delete the residue range - this may help the alignment we are about to do.
 
 Maybe the density fit validation dialog will be useful? You will need
-to reset the weight:
+to reset the weight: `0.3` seems like a good number
 
-  - **Edit** &rarr; **Settings** &rarr; **Set Density Fit Graph Weight** `0.3` &rarr; **OK**
   - **Validate** &rarr; **Density Fit Analysis**
 
 
@@ -188,7 +179,7 @@ to reset the weight:
 
   - **Calculate &rarr; Use ClustalW for Alignment, Then Mutate**
     
-    The chain for mutatation is the A chain the target sequence is in the file CPF-X-domain.seq
+    The chain for mutatation is the A chain the target sequence is in the file `CPF-X-domain.seq`
   - _{wait}_
   - **Refine** &rarr; **Chain Refine**
   - **OK**

@@ -4,7 +4,7 @@ title:  "Coot Cryo-EM Tutorial 1: Basics"
 date: Tue 20 Oct 16:40:39 BST 2020
 ---
 <div style="text-align: right"> By Ana Casa&ntilde;al &amp; Paul Emsley</div>
-This tutorial is designed for 0.9.1
+This tutorial is designed for 0.9.1 or later
 
 1: Start
 --------
@@ -12,22 +12,26 @@ This tutorial is designed for 0.9.1
 Download this file:
 [https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot-cryo-em-tutorial-basics-files.tar.gz](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot-cryo-em-tutorial-basics-files.tar.gz)
 
-Untar it and start Coot from that directory.
-
-  - Open Coot
-  - Keep the terminal window where Coot is running always visible. You will see that as many of the algorithms run they will be writing useful information. 
+Untar it and start Coot from that directory:
+  - `tar xf coot-cryo-em-tutorial-basics-files.tar.gz`
+  - if you have an NVIDIA graphics card:
+  - `export __GL_FSAA_MODE=5`
+  - Start Coot
+  - `coot`
+  - Keep the terminal window where Coot is running always visible. You will see that as many of the algorithms
+    run they will be writing useful information.
 
 ### 1.1 Load the Tutorial Data
 
   - **Calculate** &rarr; **Load Tutorial Model and Data**
   - Open the **Display Manager**
-  - Delete the difference map
+  - **Delete Map** for the difference map (the one with labels "DELFWT PHDELWT")
 
 ### 1.2 Representation
 
   - **Edit** &rarr; **Map Parameters...**
   - A Map Radius of 70&Aring;  is a lot of map, useful for a cryo-EM reconstruction, but for now we are focussing on details:
-  - **Map Radius** &rarr; `16` _{sensible for crystallographic map}_
+  - **Map Radius x-ray** &rarr; `16` _{sensible for crystallographic map}_
   - **Edit** &rarr; **Map Colour...**
   - Change the map colour _{see that dark pastel colours are the best}_
   - **Display Manager** &rarr; **Properties**  &rarr; **Solid/Transparent**
@@ -43,7 +47,7 @@ Now let's try with a white background:
   - To "highlight" a residue:
   - **Draw** &rarr; **Additional Representation...**
   - **Ball & Stick** &rarr; **Add Representation**
-  - Use the Display manager's check buttons to undisplay the ligand when done.
+  - Use the Display Manager's check buttons to undisplay the ligand when done.
 
 
 2: Navigation
@@ -54,6 +58,8 @@ Moving around the molecule:
   - Double-click to toggle the atom label
   - "Space" is forwards
   - "Shift Space" is backwards
+  - (to make Coot understand that it is from _this_ residue from which we wish to move forwards (or backwards),
+    press the "P" key)
   - Middle-mouse click and drag to "pan" the view _{just like PyMOL}_
 
 To change the "residue to residue" speed:
@@ -77,14 +83,15 @@ Go To Residue:
   - "Ctrl G" _{see the little dialog?}_
   - Type the residue number (and the chain id, if needed)
   - Press Enter _{Coot recentres on the specified residue}_
-  - The recentering also works with 3 single-letter-code letters, e.g.``HEY``
+  - The recentering also works with 3 single-letter-code letters, e.g.``HEY`` (it only works for the first one)
 
 You can toggle spin and rock the view with:
-	- "I", "Ctrl R"
+	- "I" (as in "indigo"), "Ctrl R" {note that "I" is distict from "Shift I" - that's something else}
 
 ### 3.1 Install a Few Buttons
 
   - Right-mouse click on the right-hand side of the horizontal tool-button bar
+  - Select "Manage Buttons (add, delete Buttons)"
   - Add "**Sphere Refine +**", "**Tandem Refine**" and "**Backrub Rotamers**"
   - Toggle on the "**Backrub Rotamers**" button _{the button will turn pink}_
 
@@ -96,7 +103,8 @@ You can toggle spin and rock the view with:
 ### 3.3 Install a Few Extensions
 
   - **File** &rarr; **Curlew**
-  - From there, select and install "**Black Box Morph and Fit**", "**Chain Refine**" and "**Morph**"
+  - From there, select and install "**Black Box Morph and Fit**", "**Chain Refine**", "**Morph**"
+    and "**Refinement Tools**"
 
 ### 3.4 Try it out
 
@@ -121,6 +129,9 @@ The new version of coot is a lot more advanced and a bit more crashy than the st
   
   Quick Save as will save all models that have not been saved and will save the session too.
 
+  (_This is for your notes, don't act on this:_ if you wish to run/execute/evaluate your saved session file
+   then you can do that using Calculate &rarr;& Run Script...)
+
 
 4: Model-Building
 -------------------
@@ -131,6 +142,9 @@ The new version of coot is a lot more advanced and a bit more crashy than the st
 - Click on the bar for residue A89
 
 Fix the Rotamer, First the Traditional usage
+   - the vertical toolbar can display labels also (if you like):
+   - Click on the green triangle arrow at the bottom of the vertical toolbar:
+   - Click **Icons and Text**
    - click on **Auto-Fit Rotamer** in the vertical tool-bar
 
 But let's use the Key-bindings to speeds up, so undo the previous fit:
@@ -152,7 +166,9 @@ Note: Peptide Flags:
     - Red: _cis_-peptide in front of a non-PRO
 
 When it comes to fixing up model-building/validation problems,
-often times "Neighbour Refine" is the first tool to try. If we try that, we see that it doesn't work in this case. We have to look and think. We see that the one of the peptides is facing the wrong way and we need to flip it:
+often times "Neighbour Refine" is the first tool to try. If we try that, we see that it doesn't work
+in this case. We need to look and
+think. We see that the one of the peptides is facing the wrong way and we need to flip it:
 
 So, let's fix this with Real Space Refine and flipping:
   - "H" _{does a neighbour Refine}_
@@ -162,32 +178,49 @@ So, let's fix this with Real Space Refine and flipping:
 5: Now To the Demo Box!
 ----------------------------
 
-The point of this exercise is for you to see/learn how Coot behaves with lower resolution data.
+The point of this exercise is for you to see/learn how _Coot_ behaves with lower resolution data.
 
-For these refinements, it might be useful to use the Coot atom interaction dots:
+Use the Display Manager to delete all the Maps and Models.
 
-**Calculate** &rarr; **Scripting** &rarr; **Python**
-   - `set_do_coot_probe_dots_during_refine(1)`
+For these refinements, it might be useful to use the _Coot_ atom interaction dots:
+
+**Refine** &rarr; **Contact Dots On**
 
 OK, let's find the script and run it:
    - **Calculate** &rarr; **Run Script** &rarr; `demo-box-of-buttons-madrid.scm`
    - **Crankshaft Peptide**  _{brings the problem to the centre of the screen}_
    - Take a look at the problem...
 	   - _{Yikes!}_
-   - **Morph** &rarr; **Crankshaft**
+   - **Morph** &rarr; **Crankshaft Peptide Optimizer**
    - Does it fit better now?
    - **Sphere Refine**
      - _{things improve, balls are green}_
      - **OK**
+
+Now let's try something more tricky:
+
+Use the Display Manager (again) to delete all the Maps and Models.
+
+In the Demo Box dialog:
+
    - **Wonky N-terminus**
    - **Rotamer Markup On**
    - Centre on Residue A4
    - **Tandem Refine**
    - _{Play with it}_ - make the balls go green and remove the clashes
 
+Note: the colour of the balls and the dodecahedra represent the
+probability of the Ramachandran Plot and the Rotamer for each residues
+respectively. Rich green is high probability and rich red is very
+low. Generally speaking you should be aiming for various shades of
+green but have the expectation that you won't always get there
+(especially for rotamers).
+
 Now try that with a blurred map:
 
  - Undo
+ - _{the first "Undo" gives us a dialog to select the molecule, we need to "Undo" again
+     to actually activate the Undo (this is a bad interface, sorry)}_
  - **Calculate** &rarr; **Map Sharpen and Blur...**
  - Blur to about 60 or 70&Aring;&sup2;  _{to resemble cryo-EM map}_
  - **Tandem Refine** again
