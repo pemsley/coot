@@ -130,7 +130,7 @@ The new version of coot is a lot more advanced and a bit more crashy than the st
   Quick Save as will save all models that have not been saved and will save the session too.
 
   (_This is for your notes, don't act on this:_ if you wish to run/execute/evaluate your saved session file
-   then you can do that using Calculate &rarr;& Run Script...)
+   then you can do that using Calculate &rarr; Run Script...)
 
 
 4: Model-Building

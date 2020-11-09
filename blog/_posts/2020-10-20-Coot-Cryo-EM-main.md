@@ -60,7 +60,7 @@ As a rule of thumb, a good contour level is 5.5 rmsd.
 
 ### 1.3 Get the Homolog:
 
-  - **File** &rarr; **Fetch Model using Accession Code...** `6f9n`
+  - **File** &rarr; **Open Coordinates...** `coot_tutorial_2/6f9n.pdb`
 
 Move back to the middle of the molecule map
 
@@ -71,13 +71,20 @@ Move back to the middle of the molecule map
   - Choose the "6f9n" molecule
   - **Move It**
 
+You can now change the colo(u)rs if you wish:
+  - **Display Manager** &rarr; **Properties** &arr; **Colour**
+  - **Edit** &rarr; **Bond Colours** [slide the slider]
+
+I like to work with a blue map and the model as orange or green (this is good colour scheme
+for working but not good for screenshots used in presentations).
+
 2: Jiggle
 ---------
 
   - **Morph** &rarr; **Jiggle Fit This Molecule with Fourier Filter** 
 
 It should roughly fit now. If it doesn't, try jiggling again once or twice more. In this case,
-you should be looking for a fit score of over 1000.
+you should be looking for a fit score of over 5000.
 
 
 3: Extract Our Fragment
@@ -85,14 +92,15 @@ you should be looking for a fit score of over 1000.
 
 Extract the worst-fitting (WD40) domain:
 
-  - Using **Jones' Rainbow**, find the domain start and end residues numbers (you are trying to find a
-    doughnut-shaped molecule that fits this doughnut-shaped density)
+  - Using **Jones' Rainbow**, find the domain start and end residues numbers (you are trying
+    to find a doughnut-shaped molecule that fits this doughnut-shaped density)
   - Let's imagine that you think that the residues at the ends of the domain are 517 and 1011:
-  - **Edit** &rarr; **Copy Fragment** &rarr; [Use Atom Selection:] `//A/517-1011` &rarr; **OK**
+  - **Edit** &rarr; **Copy Fragment** &rarr; [Use 6f9n molecule:] `//A/517-1011` &rarr; **OK**
 
 Let's work on this fragment:
 
   - **Display Manager** &rarr; **Last Only**
+  - **Reset View**
 
 Let's delete the sidechains from the atom selection molecule (number 4 usually):
 
@@ -100,7 +108,7 @@ Let's delete the sidechains from the atom selection molecule (number 4 usually):
 
 For the most recent model, use
 
-  - **C-alphas/Backbone + Ligands**
+  - **C-alphas/Backbone**
   - **OK** [Dismiss the Display Manager]
 
 
@@ -109,7 +117,8 @@ For the most recent model, use
 
 We need to adjust the weighting of the map to the model:
 
-  - **R/RC** &rarr; **Estimate** &rarr; **OK**
+  - **R/RC** &rarr; **Refinement Weight** &rarr; `66` &arr; **OK**
+    (don't click "Estimate" we need tighter weights at the moment)
 
 Let's add some local distance restraints:
 
@@ -143,10 +152,10 @@ When you are happy, dismiss the Refinement dialog:
 It can be non-trivial to decide what needs to move and how to move it. It is worth undoing your
 modifications and refining again for practice.
 
-This time perhaps without drawing the restraints:
+This time perhaps with the distance restraints shown:
 
   - Undo
-  - `set_draw_moving_atoms_restraints(0)`
+  - `set_draw_moving_atoms_restraints(1)`
   - **Refine** &rarr; **Chain Refine**
   - _yank as needed_
   - **OK**
@@ -168,10 +177,11 @@ Upon review, you will notice that there are parts of the model that
 don't fit the map. Try yanking them around with Tandem Refine. Other
 parts of the model don't have density - so delete the residue range - this may help the alignment we are about to do.
 
-Maybe the density fit validation dialog will be useful? You will need
-to reset the weight: `0.3` seems like a good number
+Maybe the density fit validation dialog will be useful? You might need
+to reset the weight: `1.5` seems like a good number
 
-  - **Validate** &rarr; **Density Fit Analysis**
+  - **Validate** &rarr; **Density Fit Analysis** [Choose the "atom selection from pdb6f9n"
+    molecule]
 
 
 7: Mutate
@@ -179,7 +189,8 @@ to reset the weight: `0.3` seems like a good number
 
   - **Calculate &rarr; Use ClustalW for Alignment, Then Mutate**
     
-    The chain for mutatation is the A chain the target sequence is in the file `CPF-X-domain.seq`
+    The chain for mutation is the "atom selection from pdb6f9n.ent" and the
+    target sequence is in the file `CPF-X-domain.seq`
   - _{wait}_
   - **Refine** &rarr; **Chain Refine**
   - **OK**
@@ -205,3 +216,8 @@ There will be places where you need to close (or open) a loop by renumbering res
     or
   - **Validate &rarr; Overlaps, Peptides, CBeta, Rama and Rota Outliers**
 
+9: Done
+-------
+
+You can check how well you did by comparing against the reference model - the accession code
+for that is 6oej.
