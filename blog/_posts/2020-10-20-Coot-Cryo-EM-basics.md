@@ -9,14 +9,12 @@ This tutorial is designed for 0.9.1 or later
 1: Start
 --------
 
-Download this file:
-[https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot-cryo-em-tutorial-basics-files.tar.gz](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot-cryo-em-tutorial-basics-files.tar.gz)
-
-Untar it and start Coot from that directory:
-  - `tar xf coot-cryo-em-tutorial-basics-files.tar.gz`
+  - Open a Terminal
+  - `cd s2c2_ccpem_workshop`
+  - `cd coot_tutorial_1`
   - if you have an NVIDIA graphics card:
   - `export __GL_FSAA_MODE=5`
-  - Start Coot
+  - Start Coot:
   - `coot`
   - Keep the terminal window where Coot is running always visible. You will
     see that as many of the algorithms run they will be writing useful information.
