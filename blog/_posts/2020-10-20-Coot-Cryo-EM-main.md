@@ -39,6 +39,7 @@ Let's see more of the map
 
 Let's use a smoother map
 
+   - **Calculate** &rarr; **Modules** &rarr; **Cryo-EM**
    - **Cryo-EM** &rarr; **Sharpen/Blur...**
    - activate the "Resample" checkbutton
    - **Make Map**
