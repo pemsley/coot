@@ -3443,6 +3443,24 @@ public:        //                      public
                                          const clipper::HKL_data<clipper::data32::Flag> &free);
 
    // radial colouring
+   class radial_colouring_info_t {
+   public:
+      float radius; // from min_radius (0) to max_radius (1)
+      glm::vec4 colour;
+      radial_colouring_info_t(const float &r, const glm::vec4 &c) : radius(r), colour(c) {}
+      float fraction_of_range(float min_radius, float max_radius) const {
+         float delta = max_radius - min_radius;
+         float x = radius - min_radius;
+         return x/delta;
+      }
+   };
+
+   class radial_colouring_info_container_t {
+   public:
+      std::vector<radial_colouring_info_t> colour_stops;
+      void sort_colour_stops(); // smallest at the top
+   };
+
    void set_radial_map_colouring_centre(float x, float y, float z);
    void set_radial_map_colouring_min_radius(float r);
    void set_radial_map_colouring_max_radius(float r);
