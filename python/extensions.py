@@ -18,7 +18,8 @@
 # Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-import pygtk, gtk, pango
+# import pygtk, gtk, pango
+
 import time
 import numbers
 
@@ -29,7 +30,7 @@ def add_coot_menu_separator(menu):
   #   sep.props.sensitive = False
   sep.show()
    
-if (have_coot_python):
+if have_coot_python:
   if coot_python.main_menubar():
 
      # --------------------------------------------------
