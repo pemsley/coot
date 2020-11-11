@@ -19,8 +19,9 @@ Particle::update() {
    colour.r -= colour_change_rate * 0.02;
    colour.b += colour_change_rate * 0.001;
    life -= 0.18;
-   float r = 0.5 * (1.0 + random());
-   rotation += 0.01 * r; // currently a uniform is used, not this (which means they all spin at the same rate)
+   // float r = 0.5 * (1.0 + random());
+   // rotation += 0.01 * r; // currently a uniform is used, not this (which means they all spin at the same rate)
+   rotation = 0.0;
 }
 
 void
