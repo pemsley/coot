@@ -90,13 +90,41 @@ glarea_tick_func(GtkWidget *widget,
       }
    }
 
+   if (false)
+      std::cout << "### in the glarea_tick_func() "
+                << graphics_info_t::do_tick_happy_face_residue_markers << "  "
+                << graphics_info_t::draw_count_for_happy_face_residue_markers << std::endl;
+   if (graphics_info_t::do_tick_happy_face_residue_markers) {
+      if (graphics_info_t::tmesh_for_happy_face_residues_markers.draw_this_mesh) {
+         graphics_info_t::draw_count_for_happy_face_residue_markers += 1;
+         graphics_info_t g;
+         if (graphics_info_t::draw_count_for_happy_face_residue_markers >= g.draw_count_max_for_happy_face_residue_markers) {
+            graphics_info_t::do_tick_happy_face_residue_markers = false;
+            graphics_info_t::draw_count_for_happy_face_residue_markers = 0;
+
+            graphics_info_t::tmesh_for_happy_face_residues_markers.draw_this_mesh =  false;
+         }
+
+         // repeating code in setup_draw_for_happy_face_residue_markers()
+
+         const std::vector<glm::vec3> &positions = graphics_info_t::happy_face_residue_marker_starting_positions;
+         glm::vec3 up_uv = g.get_screen_y_uv();
+         unsigned int draw_count = g.draw_count_for_happy_face_residue_markers;
+         unsigned int draw_count_max = g.draw_count_max_for_happy_face_residue_markers;
+         g.tmesh_for_happy_face_residues_markers.update_instancing_buffer_data(positions, draw_count, draw_count_max, up_uv);
+      }
+   }
+
    gtk_widget_queue_draw(widget); // needed?
 
-   if (graphics_info_t::do_tick_particles || graphics_info_t::do_tick_spin ||
-       graphics_info_t::do_tick_boids || graphics_info_t::do_tick_hydrogen_bonds_mesh)
-      return TRUE;
+   if (graphics_info_t::do_tick_particles ||
+       graphics_info_t::do_tick_spin      ||
+       graphics_info_t::do_tick_boids     ||
+       graphics_info_t::do_tick_hydrogen_bonds_mesh ||
+       graphics_info_t::do_tick_happy_face_residue_markers)
+      return gboolean(TRUE);
    else
-      return FALSE;
+      return gboolean(FALSE);
 }
 
 
@@ -182,14 +210,18 @@ on_glarea_realize(GtkGLArea *glarea) {
 
    g.setup_lights();
 
-   g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels);
+   float x_scale = 4.4;  // what are these numbers!?
+   float y_scale = 1.2;
+   g.tmesh_for_labels.setup_camera_facing_quad(&g.shader_for_atom_labels, x_scale, y_scale);
 
    g.setup_hud_geometry_bars();
 
    g.setup_rama_balls();
 
    g.setup_key_bindings();
-   
+
+   g.setup_draw_for_happy_face_residue_markers_init();
+
    err = glGetError();
    if (err) std::cout << "################ GL ERROR on_glarea_realize() --end-- with err "
                       << err << std::endl;

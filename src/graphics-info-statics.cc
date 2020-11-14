@@ -74,6 +74,7 @@ Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
+Shader graphics_info_t::shader_for_happy_face_residue_markers;
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
 std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
@@ -83,6 +84,7 @@ std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t:
 std::set<mmdb::Residue *> graphics_info_t::moving_atoms_visited_residues;
 mmdb::Atom *graphics_info_t::active_atom_for_hud_geometry_bar = 0;
 
+unsigned int graphics_info_t::draw_count_for_happy_face_residue_markers = 0;
 
 glm::vec3 graphics_info_t::eye_position = glm::vec3(0,0,95);
 float graphics_info_t::screen_z_near_perspective =  76.0; // was 83
@@ -159,6 +161,7 @@ bool graphics_info_t::do_tick_particles = false;
 bool graphics_info_t::do_tick_spin = false;
 bool graphics_info_t::do_tick_boids = false;
 bool graphics_info_t::do_tick_hydrogen_bonds_mesh = false;
+bool graphics_info_t::do_tick_happy_face_residue_markers = false;
 int graphics_info_t::n_particles = 600;
 Mesh graphics_info_t::mesh_for_particles = Mesh("mesh for particles");
 particle_container_t graphics_info_t::particles;
@@ -186,6 +189,11 @@ std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
 std::vector<atom_label_info_t> graphics_info_t::labels;
 TextureMesh graphics_info_t::tmesh_for_labels = TextureMesh("tmesh-for-labels");
 HUDMesh graphics_info_t::mesh_for_hud_geometry = HUDMesh("hud-geometry");
+
+TextureMesh graphics_info_t::tmesh_for_happy_face_residues_markers =
+   TextureMesh("tmesh-for-happy-faces");
+Texture graphics_info_t::texture_for_happy_face_residue_marker;
+std::vector<glm::vec3> graphics_info_t::happy_face_residue_marker_starting_positions;
 
 HUDTextureMesh graphics_info_t::tmesh_for_hud_geometry_tooltip_label =
    HUDTextureMesh("tmesh-for-hud-geometry-tooltip-labels");

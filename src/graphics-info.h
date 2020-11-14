@@ -3068,6 +3068,7 @@ public:
    static void draw_generic_text();
    static void draw_particles();
    static void draw_boids();
+   static void draw_happy_face_residue_markers();
    static void draw_hydrogen_bonds_mesh(); // like boids
    void setup_draw_for_particles();
    void clear_simple_distances();
@@ -3079,6 +3080,18 @@ public:
    void unset_geometry_dialog_dynamic_distance_togglebutton();
    static bool setup_draw_for_particles_semaphore;
    static bool particles_have_been_shown_already_for_this_round_flag;
+
+   static std::vector<glm::vec3> happy_face_residue_marker_starting_positions; // based on residues
+                                                                               // and filled by
+                                                                               // setup_draw_for_happy_face_residue_markers()
+                                                                               // which is called once per refinement.
+   static bool do_tick_happy_face_residue_markers;
+   static unsigned int draw_count_for_happy_face_residue_markers;
+   const unsigned int draw_count_max_for_happy_face_residue_markers = 160;
+   void setup_draw_for_happy_face_residue_markers_init(); // run this once to setup instancing buffer
+   void setup_draw_for_happy_face_residue_markers(); // run this every time we want to see faces,
+                                                     // it sets the start position of the faces.
+   static Texture texture_for_happy_face_residue_marker;
 
    static bool find_hydrogen_torsions_flag;
 
@@ -4112,6 +4125,7 @@ string   static std::string sessionid;
    static Shader shader_for_hud_geometry_bars;
    static Shader shader_for_hud_geometry_labels; // for labels image
    static Shader shader_for_lines_pulse; // "you are here" pulse
+   static Shader shader_for_happy_face_residue_markers;
    static long frame_counter;
    static long frame_counter_at_last_display;
    static bool perspective_projection_flag;
@@ -4144,6 +4158,8 @@ string   static std::string sessionid;
    static glm::vec4 unproject(float z);
    static glm::vec4 unproject(float x, float y, float z);
    static glm::vec3 unproject_to_world_coordinates(const glm::vec3 &projected_coords);
+   static glm::vec3 get_screen_y_uv();
+
    static glm::mat4 get_view_rotation();
    static void setup_map_uniforms(Shader *shader_p, // in the draw loop
                                   const glm::mat4 &mvp,
@@ -4297,6 +4313,9 @@ string   static std::string sessionid;
    static int n_particles;
    static particle_container_t particles;
    static std::vector<glm::vec3> get_particle_centre_positions();
+
+   static TextureMesh tmesh_for_happy_face_residues_markers; // in 3d, like atom labels
+   std::vector<glm::vec3> get_happy_face_residue_marker_positions();
 
    // these are "setup" by the function that starts them
    static LinesMesh lines_mesh_for_identification_pulse;

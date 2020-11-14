@@ -672,7 +672,7 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles
 
    setup_camera_facing_polygon(5, 0.3); // calls setup_buffers() for the vertices and sets the VAO
 
-   glBindVertexArray (vao);
+   glBindVertexArray(vao);
    GLenum err = glGetError();
    if (err) std::cout << "GL error ####"
                       << " setup_vertex_and_instancing_buffers_for_particles() B "

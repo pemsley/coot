@@ -1276,8 +1276,39 @@ graphics_info_t::draw_particles() {
          mesh_for_particles.draw_particles(&shader_for_particles, mvp, view_rotation);
       }
    }
-
 }
+
+// static
+void
+graphics_info_t::draw_happy_face_residue_markers() {
+
+   // make it work (somewhat) like particles, but we are using a screen-facing
+   // texture, not a bespoke screen-facing n-triangle polygon.
+   // So it's somewhat like the atom labels (a texture in 3D), in perspective
+   // happy faces at the back are smaller.
+   // But unlike labels, happy faces should be scaled by distance eye to rotation
+   // centre, so that they always appear at a constant size (constant n-pixels wide
+   // on the screen).
+
+   if (tmesh_for_happy_face_residues_markers.draw_this_mesh) {
+      
+      if (tmesh_for_happy_face_residues_markers.have_instances()) {
+
+         // the update of the instanced positions is done in the tick function
+
+         graphics_info_t g; // needed for draw_count_max_for_happy_face_residue_markers. Use a better way?
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 view_rotation = get_view_rotation();
+         texture_for_happy_face_residue_marker.Bind(0);
+         unsigned int draw_count = draw_count_for_happy_face_residue_markers;
+         unsigned int draw_count_max = g.draw_count_max_for_happy_face_residue_markers;
+         tmesh_for_happy_face_residues_markers.draw_instances(&shader_for_happy_face_residue_markers,
+                                                              mvp, view_rotation,
+                                                              draw_count, draw_count_max);
+      }
+   }
+}
+
 
 void
 graphics_info_t::draw_molecules() {
@@ -1307,6 +1338,8 @@ graphics_info_t::draw_molecules() {
    draw_boids();
 
    draw_particles();
+
+   draw_happy_face_residue_markers();
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
@@ -1364,10 +1397,12 @@ graphics_info_t::draw_environment_graphics_object() {
                   const std::string &label  = labels[i].label;
                   const glm::vec3 &position = labels[i].position;
                   const glm::vec4 &colour   = labels[i].colour;
-                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
-                                                    mvp, view_rotation, lights, eye_position,
-                                                    bg_col, do_depth_fog,
-                                                    perspective_projection_flag);
+                  // caches these textures in a map std::map<std::string, thing> where
+                  // the key is the label.
+                  tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
+                                                   mvp, view_rotation, lights, eye_position,
+                                                   bg_col, do_depth_fog,
+                                                   perspective_projection_flag);
                }
             }
 
@@ -2210,7 +2245,7 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
       draw_origin_cube(gl_area);
       err = glGetError(); if (err) std::cout << "render()  pre-draw-text err " << err << std::endl;
 
-      draw_molecules();
+      draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
 
       draw_hud_geometry_bars();
 
@@ -2305,7 +2340,7 @@ graphics_info_t::try_label_unlabel_active_atom() {
       mmdb::Atom *at = aa.second;
       if (at) {
          int atom_index;
-         // this is a bit convoluteed :-)
+         // this is a bit convoluted :-)
          int ierr = at->GetUDData(molecules[im].atom_sel.UDDAtomIndexHandle, atom_index);
 	 if (ierr == mmdb::UDDATA_Ok) {
             molecules[im].add_to_labelled_atom_list(atom_index);
@@ -2316,6 +2351,19 @@ graphics_info_t::try_label_unlabel_active_atom() {
       }
    }
 }
+
+
+// static
+glm::vec3
+graphics_info_t::get_screen_y_uv() {
+
+   glm::vec3 minus_y = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f, -1.0f, 0.0f));
+   glm::vec3  plus_y = graphics_info_t::unproject_to_world_coordinates(glm::vec3(0.0f,  1.0f, 0.0f));
+   glm::vec3 delta = plus_y - minus_y;
+   glm::vec3 d_uv = glm::normalize(delta);
+   return d_uv;
+}
+
 
 void
 graphics_info_t::translate_in_screen_z(float step_size) {
@@ -2411,6 +2459,117 @@ graphics_info_t::setup_draw_for_particles() {
 
    // std::cout << "setup_draw_for_particles(): -- done -- " << std::endl;
 }
+
+void
+graphics_info_t::setup_draw_for_happy_face_residue_markers_init() {
+
+   // run this once - call from realize()
+
+   const unsigned int max_happy_faces = 200; // surely enough?
+   
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+   GLenum err = glGetError();
+   if (err) std::cout << "GL Error - setup_draw_for_happy_face_residue_markers_init() "
+                      << "Post attach buffers err is " << err << std::endl;
+
+   // If not found in this directory, then try default directory.
+   texture_for_happy_face_residue_marker.set_default_directory(coot::package_data_dir());
+   texture_for_happy_face_residue_marker.init("happy-face-marker.png");
+
+   shader_for_happy_face_residue_markers.Use();
+   tmesh_for_happy_face_residues_markers.setup_camera_facing_quad(&shader_for_happy_face_residue_markers, 1.0, 1.0);
+   tmesh_for_happy_face_residues_markers.setup_instancing_buffers(max_happy_faces);
+   tmesh_for_happy_face_residues_markers.draw_this_mesh = false;
+
+
+}
+
+void
+graphics_info_t::setup_draw_for_happy_face_residue_markers() {
+
+   // run this at the start of a "show animated happy faces"
+
+   std::vector<glm::vec3> positions = get_happy_face_residue_marker_positions();
+   happy_face_residue_marker_starting_positions = positions;
+   
+   glm::vec3 up_uv = get_screen_y_uv();
+   gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0])); // needed?
+
+   if (false)
+      std::cout << "setup_draw_for_happy_face_residue_markers() calling update_instancing_buffer_data()"
+                << " with draw_count_for_happy_face_residue_markers "
+                << draw_count_for_happy_face_residue_markers << std::endl;
+   unsigned int n_max = draw_count_max_for_happy_face_residue_markers;
+   tmesh_for_happy_face_residues_markers.update_instancing_buffer_data(positions, 0, n_max, up_uv);
+   tmesh_for_happy_face_residues_markers.draw_this_mesh = true;
+   do_tick_happy_face_residue_markers = true;
+   draw_count_for_happy_face_residue_markers = 0;
+   gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+
+}
+
+#include "coot-utils/fib-sphere.hh"
+
+std::vector<glm::vec3>
+graphics_info_t::get_happy_face_residue_marker_positions() {
+
+   const unsigned int max_happy_faces = 200; // surely enough? - If changed, change above
+   std::vector<glm::vec3> v;
+   bool make_fake_points = false;
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &co) {
+                            return glm::vec3(co.x(), co.y(), co.z());
+                         };
+
+   if (make_fake_points) {
+      glm::vec3 sc = get_rotation_centre();
+      std::vector<clipper::Coord_orth> cv = coot::fibonacci_sphere(80);
+      for (auto p : cv)
+         v.push_back(sc + 5.0 * clipper_to_glm(p));
+   } else {
+
+      // This is just a bit of fun... actually, I will need to ask something like
+      // last_restraints->get_improved_residues();
+      // last_restraints->get_damaged_residues();
+
+      if (moving_atoms_asc) {
+         if (moving_atoms_asc->mol) {
+            std::vector<mmdb::Residue *> residues;
+            int imod = 1;
+            mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int nres = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<nres; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        // I need to not add this if it's a fixed residue. How can I know that?
+                        residues.push_back(residue_p);
+                     }
+                  }
+               }
+            }
+
+            for (auto r : residues) {
+               std::pair<bool, clipper::Coord_orth> rc = coot::util::get_residue_centre(r);
+               if (rc.first) {
+                  glm::vec3 p = clipper_to_glm(rc.second);
+                  v.push_back(p);
+               }
+            }
+         }
+      }
+   }
+
+   
+   if (v.size() > max_happy_faces)
+      std::cout << "error:: ------------------ too many happy faces" << std::endl;
+
+   return v;
+}
+
 
 //static
 gboolean

@@ -17,16 +17,9 @@
 #include "graphics-info.h"
 #endif
 
+// for the moment make the scales explict, when fixed make the scales default
 void
-TextureMesh::setup_camera_facing_quad(Shader *shader_p) {
-
-   float scale_x = 4.4; // pass?
-   float scale_y = 1.2;
-
-   // I don't understand why these don't affect the size of the atom label;
-
-   // scale_x = 0.00001;
-   // scale_y = 0.00001;
+TextureMesh::setup_camera_facing_quad(Shader *shader_p, float scale_x, float scale_y) {
 
    shader_p->Use();
 
@@ -356,9 +349,6 @@ TextureMesh::draw(Shader *shader_p,
    err = glGetError();
    if (err) std::cout << "   error draw() " << shader_name << " post-set eye position "
                       << " with GL err " << err << std::endl;
-   err = glGetError();
-   if (err) std::cout << "   error draw() " << shader_name << " pre-glBindVertexArray() vao " << vao
-                      << " with GL err " << err << std::endl;
 
    // this lights block can be in it's own function (same as Mesh)
    std::map<unsigned int, lights_info_t>::const_iterator it;
@@ -483,4 +473,147 @@ TextureMesh::import(const IndexedModel &ind_model, float scale) {
 
    setup_buffers();
 
+}
+
+// for happy faces that drift up the screen
+void
+TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positions_in, // original positions
+                                           unsigned int draw_count_in,
+                                           unsigned int draw_count_max,
+                                           const glm::vec3 &screen_y_uv) {
+
+   glBindVertexArray(vao);
+   draw_count = draw_count_in; // do I need this to be a class data item?
+   std::vector<glm::vec3> positions(positions_in);
+   int n_positions = positions.size();
+   if (n_positions > n_instances_allocated) {
+      std::cout << "Too many TextureMesh instances " << n_positions << " " << n_instances_allocated
+                << std::endl;
+   } else {
+
+      // Use the screen centre to generate tp.
+      // Use the index of the position to change the phaase of the wiggle.
+
+      auto get_position_delta = [draw_count_max] (const glm::vec3 &screen_y_uv,
+                                                  unsigned int draw_count_in,
+                                                  unsigned int index) {
+                                   float f1 = static_cast<float>(draw_count_in)/static_cast<float>(draw_count_max);
+                                   float f2 = f1 * f1 * 2.5f;
+                                   glm::vec3 f_uv = f2 * screen_y_uv;
+                                   glm::vec3 tp = glm::normalize(glm::vec3(0.1, 0.2, 0.3));
+                                   glm::vec3 cp_1 = glm::cross(screen_y_uv, tp);
+                                   glm::vec3 cp_2 = glm::cross(screen_y_uv, cp_1);
+                                   float phase = 0.1 * static_cast<float>(index);
+                                   f_uv += 1.2 * sinf(9.0 * f1 + phase) * cp_2;
+                                   return f_uv;
+                                };
+
+      n_instances = positions.size();
+
+      // now update the positions
+      for (unsigned int i=0; i<positions.size(); i++)
+         positions[i] += get_position_delta(screen_y_uv, draw_count_in, i);
+
+      glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_positions * sizeof(glm::vec3), &(positions[0]));
+   }
+}
+
+void
+TextureMesh::setup_instancing_buffers(unsigned int n_happy_faces_max) {
+
+   n_instances = 0;
+   n_instances_allocated = n_happy_faces_max;
+   is_instanced = true;
+
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "GL error ####"
+                      << " TextureMesh::setup_instancing_buffers() A " << err << std::endl;
+   unsigned int n_bytes = n_happy_faces_max * sizeof(glm::vec3);
+
+   glGenBuffers(1, &inst_positions_id);
+   std::cout << "setup_instancing_buffers: glGenBuffers inst_positions_id " << inst_positions_id << std::endl;
+   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   glBufferData(GL_ARRAY_BUFFER, n_bytes, nullptr, GL_DYNAMIC_DRAW);
+   // prevous attributes are position, normal, colour, texCoords
+   glEnableVertexAttribArray(4);
+
+   void *step_over_previous_attrib_bytes = 0; // for instanced attributes, we don't need to step
+                                              // over the standard vertex attributes.
+
+   glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), step_over_previous_attrib_bytes);
+   glVertexAttribDivisor(4, 1);
+   err = glGetError();
+   if (err) std::cout << "GL error #####"
+                      << " TextureMesh::setup_instancing_buffers() B " << err << std::endl;
+}
+
+
+void
+TextureMesh::draw_instances(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation,
+                            unsigned int draw_count, unsigned int draw_count_max) {
+
+   // std::cout << "TextureMesh::draw_instances() A " << n_instances << " " << triangles.size()
+   // <<std::endl;
+
+   if (! draw_this_mesh) return;
+   // this can happen when all the particles have life 0 - and have been removed.
+   if (n_instances == 0) return;
+   if (triangles.empty()) return;
+
+   const float pi = 3.1415926f;
+   float draw_count_frac = static_cast<float>(draw_count)/static_cast<float>(draw_count_max);
+   const float &f = draw_count_frac;  // shorthand
+   float opacity = sinf(sqrt(f) * pi); // maybe this goes negative?
+   // std::cout << "opacity: f " << f << " opacity " << opacity << std::endl;
+
+   shader_p->Use();
+   glBindVertexArray(vao);
+   GLenum err = glGetError();
+   if (err) std::cout << "error draw_instances() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glEnableVertexAttribArray(0); // vertex positions
+   glEnableVertexAttribArray(1); // vertex normal
+   glEnableVertexAttribArray(2); // vertex colours
+   glEnableVertexAttribArray(3); // texture coords
+   glEnableVertexAttribArray(4); // instanced position
+
+   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
+                      << " draw_instances() post mvp uniform " << err << std::endl;
+
+   glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation[0][0]);
+   err = glGetError();
+   if (err) std::cout << "error:: TextureMesh::draw_instances() " << shader_p->name
+                      << " draw_instances() post view_rotation uniform " << err << std::endl;
+
+   shader_p->set_float_for_uniform("opacity", opacity);
+
+   glActiveTexture(GL_TEXTURE0);
+   err = glGetError(); if (err) std::cout << "error:: TextureMesh::draw_instances() activetexture "
+                                          << err << std::endl;
+
+   glEnable(GL_DEPTH_TEST); // not the problem
+   glEnable(GL_BLEND);
+   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+   unsigned int n_verts = 6;
+   // std::cout << "TextureMesh::draw_instances() C " << n_verts << " " << n_instances << std::endl;
+   glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
+
+   err = glGetError();
+   if (err) std::cout << "error draw_instances() on glDrawElementsInstanced() " << shader_p->name
+                      << " glBindVertexArray() vao " << vao
+                      << " with GL err " << err << std::endl;
+
+   glDisableVertexAttribArray(0);
+   glDisableVertexAttribArray(1);
+   glDisableVertexAttribArray(2);
+   glDisableVertexAttribArray(3);
+   glDisableVertexAttribArray(4);
+   
 }

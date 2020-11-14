@@ -170,6 +170,11 @@ int test_function(int i, int j) {
    // Is this the function you are really looking for (these days)?
 
    if (true) {
+      graphics_info_t g;
+      g.setup_draw_for_happy_face_residue_markers();
+   }
+
+   if (false) {
 
       std::cout << "Hydrogen bonds mesh test" << std::endl;
       Material material;
