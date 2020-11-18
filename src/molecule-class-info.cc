@@ -745,7 +745,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
    coot::colour_t rgb;
 
    if (bonds_rotate_colour_map_flag == 0) {
-      set_bond_colour(colour_index); // really?
+      // set_bond_colour(colour_index); // really?
    } else {
 
       float rotation_size = bonds_colour_map_rotation/360.0;
@@ -755,9 +755,12 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
       if (colour_index >= 50) {
          float ii_f = colour_index - 50;
          ii_f += 1.2 * static_cast<float>(imol_no);
-         rgb[0] = 0.75; rgb[1] = 0.6; rgb[2] = 0.5;
-         if (ii_f > 0)
-	    rgb.rotate(ii_f*73.0/360.0);
+         rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45;
+         float ra = ii_f*79.0/360.0;
+         while (ra > 1.0) ra -= 1.0;
+         if (ii_f > 0) {
+	    rgb.rotate(ra);
+         }
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;
       } else {
@@ -6899,7 +6902,7 @@ molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) cons
 int
 molecule_class_info_t::make_backup() { // changes history details
 
-  graphics_info_t g;
+   graphics_info_t g;
    if (backup_this_molecule) {
       std::string backup_dir("coot-backup");
 
@@ -6967,7 +6970,9 @@ molecule_class_info_t::make_backup() { // changes history details
 	       bool write_as_cif = false;
 	       if (coot::is_mmcif_filename(name_))
 		  write_as_cif = true;
-	       istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
+
+               istat = write_atom_selection_file(atom_sel, backup_file_name, write_as_cif, gz);
+
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
 	       if (istat) {
 		  std::string warn;
@@ -7020,6 +7025,7 @@ void
 molecule_class_info_t::restore_from_backup(int history_offset,
 					   const std::string &cwd) {
 
+
    // consider passing this:
    bool v2_convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
    bool allow_duplseqnum = graphics_info_t::allow_duplseqnum;
@@ -7042,6 +7048,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 	 // don't want that either:
 	 std::vector<std::string> save_save_state = save_state_command_strings_;
 	 short int is_undo_or_redo = 1;
+
 	 handle_read_draw_molecule(imol_no, filename, cwd,
 				   graphics_info_t::Geom_p(),
 				   reset_rotation_centre,
