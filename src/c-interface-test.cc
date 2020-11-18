@@ -409,6 +409,8 @@ int test_function(int i, int j) {
 #include "coot-utils/cablam-markup.hh"
 #include "coot-utils/pepflip-using-difference-map.hh"
 
+#include "coot-utils/atom-tools.hh"
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
@@ -416,6 +418,22 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+
+      int imol_1 = read_pdb("good-test-for-out-of-register-errors-em-tutorial-partial.pdb");
+      int imol_2 = read_pdb("EMD-3908/fittedModels/PDB/6eoj.ent");
+
+      // imol_1 = read_pdb("6eoj-fragment-RSR-in-coot.pdb");
+
+      if (is_valid_model_molecule(imol_1)) {
+         if (is_valid_model_molecule(imol_2)) {
+            mmdb::Manager *mol_1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
+            mmdb::Manager *mol_2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
+            coot::find_out_of_register_errors(mol_1, mol_2);
+         }
+      }
+   }
+
+   if (false) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
          int imol = pp.second.first;
