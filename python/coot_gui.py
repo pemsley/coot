@@ -3528,7 +3528,7 @@ def cootaneer_gui_bl():
 
       do_it = assign_sequences_to_mol(imol)
 
-      if (do_it):
+      if do_it:
          # now cootaneer it
          chain_ls = chain_ids(imol)
          for chain_id in chain_ls:
@@ -3564,29 +3564,33 @@ def cootaneer_gui_bl():
       seq_file_name = selector_entry.get_text()
       if (seq_file_name):
          # get and set sequence info
-         assign_sequence_from_file(imol, str(seq_file_name))
-         seq_info_ls = sequence_info(imol)
-         no_of_sequences = len(seq_info_ls)
+         try:
+             assign_sequence_from_file(imol, str(seq_file_name))
+             seq_info_ls = sequence_info(imol)
+             no_of_sequences = len(seq_info_ls)
 
-         # remove children if new file
-         if not imported_sequence_file_qm:
-            table_children = seq_table.get_children()
-            for child in table_children:
-               seq_table.remove(child)
-            widget_range = range(no_of_sequences)
-         else:
-            # we update the number of sequences
-            spin_len = int(spin_button.get_value())
-            widget_range = range(spin_len, no_of_sequences)
+             # remove children if new file
+             if not imported_sequence_file_qm:
+                table_children = seq_table.get_children()
+                for child in table_children:
+                   seq_table.remove(child)
+                widget_range = range(no_of_sequences)
+             else:
+                # we update the number of sequences
+                spin_len = int(spin_button.get_value())
+                widget_range = range(spin_len, no_of_sequences)
 
-         # make new table
-         imported_sequence_file_flags = [True, no_of_sequences]
-         spin_button.set_value(no_of_sequences)
-         seq_table.resize(no_of_sequences, 1)
-         for i in widget_range:
-            seq_widget = entry_text_pair_frame_with_button(seq_info_ls[i])
-            seq_table.attach(seq_widget[0], 0, 1, i, i+1)
-            seq_widget[0].show_all()
+             # make new table
+             imported_sequence_file_flags = [True, no_of_sequences]
+             spin_button.set_value(no_of_sequences)
+             seq_table.resize(no_of_sequences, 1)
+             for i in widget_range:
+                seq_widget = entry_text_pair_frame_with_button(seq_info_ls[i])
+                seq_table.attach(seq_widget[0], 0, 1, i, i+1)
+                seq_widget[0].show_all()
+         except TypeError as e:
+            print(e)
+            print("DEBUG:: seq_info_ls: ", seq_info_ls)
       else:
          print "BL WARNING:: no filename"
 
