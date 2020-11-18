@@ -4107,7 +4107,10 @@ molecule_class_info_t::assign_sequence_from_file(const std::string &filename) {
 
    if (! atom_sel.mol) return;
 
-   if (coot::file_exists(filename)) {
+   if (! coot::file_exists(filename)) {
+      std::cout << "Sequence file not found: " << filename << std::endl;
+   } else {
+
       clipper::SEQfile seq_file;
       clipper::MMoleculeSequence molecule_sequence;
       seq_file.read_file(filename);
