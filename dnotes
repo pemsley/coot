@@ -3972,6 +3972,7 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o Run the damn tests - don't be lazy
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release

@@ -4049,13 +4049,12 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
    mmdb::PPAtom atoms;
    int n_selected_atoms;
 
-#if 0
-   // the short version from Eugene. Is it going wrong? Maybe - so #ifdef it out for now.
+   // the short version from Eugene. Is it going wrong for cifs? Maybe.
    orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
    for (int iatom=0; iatom<n_selected_atoms; iatom++)
       atoms_mol->PutAtom(0, atoms[iatom], iatom+1);
-#endif
 
+#if 0
    orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
    for (int iatom=0; iatom<n_selected_atoms; iatom++) {
       mmdb::Atom *at = atoms[iatom];
@@ -4170,9 +4169,11 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
          }
       }
    }
+   pdbcleanup_serial_residue_numbers(atoms_mol);
+#endif
 
 
-   
+
    /*   mmdb::Model *model = new mmdb::Model;
    atoms_mol->AddModel(model);
 
