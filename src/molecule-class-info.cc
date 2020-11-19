@@ -757,8 +757,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          ii_f += 1.2 * static_cast<float>(imol_no);
          rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45;
          float ra = ii_f*79.0/360.0;
+         ra += rotation_size;
          while (ra > 1.0) ra -= 1.0;
-         if (ii_f > 0) {
+         if (ra > 0) {
 	    rgb.rotate(ra);
          }
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
@@ -961,7 +962,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
-                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS<< std::endl;
+                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
       rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
