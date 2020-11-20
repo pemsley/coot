@@ -477,7 +477,7 @@ TextureMesh::import(const IndexedModel &ind_model, float scale) {
 
 // for happy faces that drift up the screen
 void
-TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positions_in, // original positions
+TextureMesh::update_instancing_buffer_data_for_happy_faces(const std::vector<glm::vec3> &positions_in, // original positions
                                            unsigned int draw_count_in,
                                            unsigned int draw_count_max,
                                            const glm::vec3 &screen_y_uv) {
@@ -504,7 +504,7 @@ TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positio
                                    glm::vec3 cp_1 = glm::cross(screen_y_uv, tp);
                                    glm::vec3 cp_2 = glm::cross(screen_y_uv, cp_1);
                                    float phase = 0.1 * static_cast<float>(index);
-                                   f_uv += 1.2 * sinf(9.0 * f1 + phase) * cp_2;
+                                   f_uv += 0.9 * sinf(9.0 * f1 + phase) * cp_2;
                                    return f_uv;
                                 };
 

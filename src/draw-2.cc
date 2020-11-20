@@ -111,7 +111,7 @@ glarea_tick_func(GtkWidget *widget,
          glm::vec3 up_uv = g.get_screen_y_uv();
          unsigned int draw_count = g.draw_count_for_happy_face_residue_markers;
          unsigned int draw_count_max = g.draw_count_max_for_happy_face_residue_markers;
-         g.tmesh_for_happy_face_residues_markers.update_instancing_buffer_data(positions, draw_count, draw_count_max, up_uv);
+         g.tmesh_for_happy_face_residues_markers.update_instancing_buffer_data_for_happy_faces(positions, draw_count, draw_count_max, up_uv);
       }
    }
 

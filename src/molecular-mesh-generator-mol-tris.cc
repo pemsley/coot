@@ -115,48 +115,6 @@ molecular_mesh_generator_t::get_max_resno_for_polymer(mmdb::Chain *chain_p) cons
 }
 
 
-std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
-                                                         mmdb::Chain *chain_p,
-                                                         const std::string &colour_scheme,
-                                                         const std::string &style) {
-
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
-
-   if (! mol) {
-      std::cout << "ERROR:: null mol " << __FUNCTION__ << "()" << std::endl;
-      return vp;
-   }
-
-   auto my_mol = std::make_shared<MyMolecule>(mol);
-   auto ss_cs = ColorScheme::colorBySecondaryScheme();
-   auto ribbon_ramp_cs = ColorScheme::colorRampChainsScheme();
-   auto chain_cs = ColorScheme::colorChainsScheme();
-   auto this_cs = chain_cs;
-
-   if (colour_scheme == "colorRampChainsScheme" || colour_scheme == "Ramp") {
-      this_cs = ribbon_ramp_cs;
-      std::cout << "here with colorRampChainsScheme" << std::endl;
-      int nres = chain_p->GetNumberOfResidues();
-      if (nres > 0) {
-         std::string atom_selection_str = "//" + std::string(chain_p->GetChainID());
-         int min_resno = chain_p->GetResidue(0)->GetSeqNum();
-         int max_resno = get_max_resno_for_polymer(chain_p);
-         if (max_resno > 0) {
-            AtomPropertyRampColorRule apcrr;
-            apcrr.setStartValue(min_resno);
-            apcrr.setEndValue(max_resno);
-            auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
-            ribbon_ramp_cs->addRule(apcrr_p);
-            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-            vp = molecular_representation_instance_to_mesh(molrepinst);
-         }
-      }
-   }
-   return vp;
-}
-
 std::vector<molecular_triangles_mesh_t>
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &selection_string, // mmdb-format
@@ -164,8 +122,6 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &style) {
 
    std::vector<molecular_triangles_mesh_t> mtm;
-
-   // std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
    if (! mol) {
       std::cout << "ERROR:: null mol " << __FUNCTION__ << "()" << std::endl;
@@ -275,10 +231,10 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
             for (unsigned int iVertex=0; iVertex < surface.nVertices(); iVertex++){
                s_generic_vertex &gv = vertices[iVertex];
                VertexColorNormalPrimitive::VertexColorNormal &vcn = vcnArray[iVertex];
-               for (int i=0; i<3; i++) {
-                  gv.pos[i] = vcn.vertex[i];
-                  gv.normal[i] = vcn.normal[i];
-                  gv.color[i]  = 0.0037f * vcn.color[i];
+               for (int ii=0; ii<3; ii++) {
+                  gv.pos[ii]    = vcn.vertex[ii];
+                  gv.normal[ii] = vcn.normal[ii];
+                  gv.color[ii]  = 0.0037f * vcn.color[ii];
                }
                gv.color[3] = 1.0;
             }

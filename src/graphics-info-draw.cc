@@ -2500,7 +2500,7 @@ graphics_info_t::setup_draw_for_happy_face_residue_markers() {
                 << " with draw_count_for_happy_face_residue_markers "
                 << draw_count_for_happy_face_residue_markers << std::endl;
    unsigned int n_max = draw_count_max_for_happy_face_residue_markers;
-   tmesh_for_happy_face_residues_markers.update_instancing_buffer_data(positions, 0, n_max, up_uv);
+   tmesh_for_happy_face_residues_markers.update_instancing_buffer_data_for_happy_faces(positions, 0, n_max, up_uv);
    tmesh_for_happy_face_residues_markers.draw_this_mesh = true;
    do_tick_happy_face_residue_markers = true;
    draw_count_for_happy_face_residue_markers = 0;
@@ -2532,8 +2532,12 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
       // last_restraints->get_improved_residues();
       // last_restraints->get_damaged_residues();
 
+      // How about the set-fixed-during-refinement udd?
+      // see set_fixed_during_refinement_udd()
+
       if (moving_atoms_asc) {
          if (moving_atoms_asc->mol) {
+            int uddHnd = moving_atoms_asc->mol->GetUDDHandle(mmdb::UDR_ATOM , "FixedDuringRefinement");
             std::vector<mmdb::Residue *> residues;
             int imod = 1;
             mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(imod);
@@ -2546,7 +2550,23 @@ graphics_info_t::get_happy_face_residue_marker_positions() {
                      mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                      if (residue_p) {
                         // I need to not add this if it's a fixed residue. How can I know that?
-                        residues.push_back(residue_p);
+                        bool is_fixed = false;
+                        mmdb::Atom **residue_atoms = 0;
+                        int n_residue_atoms = 0;
+                        residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                        for(int iat=0; iat<n_residue_atoms; iat++) {
+                           mmdb::Atom *at = residue_atoms[iat];
+                           int is_fixed_status = 0;
+                           int ierr = at->GetUDData(uddHnd, is_fixed_status);
+                           if (ierr == mmdb::Error_Ok) {
+                              if (is_fixed_status == 1) {
+                                 is_fixed = true;
+                                 break;
+                              }
+                           }
+                        }
+                        if (! is_fixed)
+                           residues.push_back(residue_p);
                      }
                   }
                }
