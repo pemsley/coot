@@ -122,6 +122,9 @@ if use_gui_qm:
     # some test that sets have_coot_python
     have_coot_python = False
 
+# we can't import the gui (coot_gui and extenstions) here
+# because realize() hasn't been called yet
+
 import redefine_functions
 import ncs
 import coot_utils
@@ -143,4 +146,3 @@ import generic_objects
 import parse_pisa_xml
 import cns2coot
 import clear_backup
-

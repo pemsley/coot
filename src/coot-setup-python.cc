@@ -52,7 +52,7 @@ void setup_python(int argc, char **argv) {
 
 
 #ifdef USE_PYTHON
-#ifdef USE_PYMAC_INIT 
+#ifdef USE_PYMAC_INIT
 
   //  (on Mac OS, call PyMac_Initialize() instead)
   //http://www.python.org/doc/current/ext/embedding.html
@@ -76,11 +76,19 @@ void setup_python(int argc, char **argv) {
 
    std::cout << "debug:: in setup_python() pydirectory is " << pydirectory << std::endl;
 
+
+
    int err = import_python_module("coot", 0);
    if (err == -1) {
       std::cout << "ERROR:: could not import coot.py" << std::endl;
    } else {
       std::cout << "INFO:: coot.py imported" << std::endl;
+
+
+      initcoot_python_gobject(); // this is not a good name for this function. We need to say
+                          // this this is the module that wraps the glue to get
+                          // the status-bar, menu-bar etc.
+      
       std::string coot_load_modules_dot_py = "coot_load_modules.py";
       std::string coot_py_file_name = coot::util::append_dir_file(pydirectory, coot_load_modules_dot_py);
       if (coot::file_exists(coot_py_file_name)) {
@@ -95,15 +103,6 @@ void setup_python(int argc, char **argv) {
       }
    }
 
-
-#if 1 // Add a test for PyGObject (the new Python GTK interface)
-
-   initcoot_python_gobject(); // this is not a good name for this function. We need to say
-                      // this this is the module that wraps the glue to get
-                      // the status-bar, menu-bar etc.
-                      // Done.
-
-#endif // GObject
 #endif // USE_PYTHON
 
 }

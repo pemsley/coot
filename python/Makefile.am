@@ -40,5 +40,6 @@ dist_pkgpython_PYTHON = \
    enhanced_ligand.py	gui_ligand_sliders.py sharpen_blur.py    \
    acedrg_link.py coot_toolbuttons.py rcrane_loader.py add_linked_cho.py find_baddies.py \
    chemical_feature_clusters.py res_spec_utils.py coot_output_to_window.py \
+   populate_python_menus.py \
    $(TEXI_FILE)
 

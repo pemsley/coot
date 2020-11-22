@@ -20,40 +20,72 @@
 
 # import pygtk, gtk, pango
 
+import coot
+import gi
+gi.require_version('Gtk', '3.0') 
+from gi.repository import Gtk
+import coot_gui_api
 import time
 import numbers
+import coot_utils
+import coot_gui
 
 
 def add_coot_menu_separator(menu):
-  sep = gtk.MenuItem()
-  menu.add(sep)
-  #   sep.props.sensitive = False
-  sep.show()
+    sep = Gtk.MenuItem()
+    menu.add(sep)
+    #   sep.props.sensitive = False
+    sep.show()
    
-if have_coot_python:
-  if coot_python.main_menubar():
+# if have_coot_python: # how do I get to have_coot_python now?
+#    if coot_python.main_menubar():
 
-     # --------------------------------------------------
-     #           coot news dialog and updates dialog
-     # --------------------------------------------------
-#   comment these out for now     
-#      menu = coot_gui.coot_menubar_menu("About")
-#      if (menu):
-#        coot_gui.add_simple_coot_menu_menuitem(menu, "Coot News...",
-#                                      lambda func: coot_gui.whats_new_dialog())
+if True:
 
-#        os_type = os.name
-#        if not os_type == 'mac':
-#          coot_gui.add_simple_coot_menu_menuitem(menu, "Check for Updates...",
-#                                        lambda func: (printf("checking for updates..."),
-#                                                      check_for_updates.check_for_updates_gui()))
+  if coot_gui_api.main_menubar():
 
+     def coot_menubar_menu_simple(s):
+       menu = Gtk.Menu()
+       menuitem = Gtk.MenuItem(s)
+       menuitem.set_submenu(menu)
+       main_menubar = coot_gui_api.main_menubar()
+       main_menubar.append(menuitem)
+       menuitem.show()
+       return menu
 
+     def coot_menubar_menu(menu_label_string):
+
+       def get_menu_bar_label_dict():
+         label_dict = {}
+         for menu_child in coot_gui_api.main_menubar().get_children():
+           label_dict[menu_child.get_children()[0].get_text()] = menu_child
+         return label_dict
+
+       try:
+         menu_label_dict = get_menu_bar_label_dict()
+         return menu_label_dict[menu_label_string].get_submenu()
+       except KeyError as e:
+         return coot_menubar_menu_simple(menu_label_string)
+
+     def get_existing_submenu(menu, submenu_label):
+       label_dict = {}
+       for menu_child in menu.get_children():
+         for c in menu_child.get_children():
+           try:
+             t = c.get_text()
+             print("########### get_existing_submenu get_text on c:", t)
+             if t == submenu_label:
+               return menu_child
+           except KeyError as e:
+             pass
+           
+       return False
+       
      # --------------------------------------------------
      #           coordinated water validation dialog
      # --------------------------------------------------
 
-     menu = coot_gui.coot_menubar_menu("Validate")
+     menu = coot_menubar_menu("Validate")
      if menu:
        coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: coot_gui.water_coordination_gui())
@@ -78,78 +110,99 @@ if have_coot_python:
      # --------------------------------------------------
 
      def add_module_user_defined_restraints():
-       menu = coot_gui.coot_menubar_menu("Restraints")
+       menu = coot_menubar_menu("Restraints")
        load_from_search_load_path("user_define_restraints.py")
      
-
      
      # ---------------------------------------------
      #           extensions
      # ---------------------------------------------
 
-     menu = coot_gui.coot_menubar_menu("E_xtensions")
+     menu = coot_menubar_menu("Extensions")
+
+     calculate_menu = coot_menubar_menu("Calculate")
+     draw_menu      = coot_menubar_menu("Draw")
+     edit_menu      = coot_menubar_menu("Edit")
+     edit_settings_menu = get_existing_submenu(edit_menu, "Settings...")
+     print("###### debug edit_settings_menu", edit_settings_menu)
+     print("###### debug dir on edit_settings_menu", dir(edit_settings_menu))
+
+     calculate_menu = menu
+     draw_menu = menu
+     edit_menu = menu
 
      # make submenus:
-     submenu_all_molecule = gtk.Menu()
-     menuitem_2 = gtk.MenuItem("All Molecule...")
-     submenu_maps = gtk.Menu()
-     menuitem_3 = gtk.MenuItem("Maps...")
-     submenu_models = gtk.Menu()
-     menuitem_4 = gtk.MenuItem("Modelling...")
-     submenu_refine = gtk.Menu()
-     menuitem_5 = gtk.MenuItem("Refine...")
-     submenu_representation = gtk.Menu()
-     menuitem_6 = gtk.MenuItem("Representations")
-     submenu_settings = gtk.Menu()
-     menuitem_7 = gtk.MenuItem("Settings...")
-     submenu_pisa = gtk.Menu()
-     menuitem_pisa = gtk.MenuItem("PISA...")
-     submenu_pdbe = gtk.Menu()
-     menuitem_pdbe = gtk.MenuItem("PDBe...")
-     submenu_modules = gtk.Menu()
-     menuitem_modules = gtk.MenuItem("Modules...")
-     submenu_ncs = gtk.Menu()
-     menuitem_ncs = gtk.MenuItem("NCS...")
+     submenu_all_molecule = Gtk.Menu()
+     menuitem_2 = Gtk.MenuItem("All Molecule...")
+     submenu_maps = Gtk.Menu()
+     menuitem_3 = Gtk.MenuItem("Maps...")
+     submenu_models = Gtk.Menu()
+     menuitem_4 = Gtk.MenuItem("Modelling...")
+     submenu_refine = Gtk.Menu()
+     menuitem_5 = Gtk.MenuItem("Refine...")
+     submenu_representation = Gtk.Menu()
+     menuitem_6 = Gtk.MenuItem("Representations")
+     submenu_settings = Gtk.Menu()
+     menuitem_7 = Gtk.MenuItem("Settings...")
+     submenu_pisa = Gtk.Menu()
+     menuitem_pisa = Gtk.MenuItem("PISA...")
+     submenu_pdbe = Gtk.Menu()
+     menuitem_pdbe = Gtk.MenuItem("PDBe...")
+     submenu_modules = Gtk.Menu()
+     menuitem_modules = Gtk.MenuItem("Modules...")
+     submenu_ncs = Gtk.Menu()
+     menuitem_ncs = Gtk.MenuItem("NCS...")
 
      menuitem_2.set_submenu(submenu_all_molecule)
-     menu.append(menuitem_2)
+     calculate_menu.append(menuitem_2)
      menuitem_2.show()
-     
+
      menuitem_3.set_submenu(submenu_maps)
-     menu.append(menuitem_3)
+     calculate_menu.append(menuitem_3)
      menuitem_3.show()
-     
+
      menuitem_4.set_submenu(submenu_models)
-     menu.append(menuitem_4)
+     calculate_menu.append(menuitem_4)
      menuitem_4.show()
-     
+
      menuitem_ncs.set_submenu(submenu_ncs)
-     menu.append(menuitem_ncs)
+     calculate_menu.append(menuitem_ncs)
      menuitem_ncs.show()
-     
-     menuitem_5.set_submenu(submenu_refine)
-     menu.append(menuitem_5)
-     menuitem_5.show()
-     
+
      menuitem_6.set_submenu(submenu_representation)
-     menu.append(menuitem_6)
+     draw_menu.append(menuitem_6)
      menuitem_6.show()
-     
+
      menuitem_pisa.set_submenu(submenu_pisa)
-     menu.append(menuitem_pisa)
+     draw_menu.append(menuitem_pisa)
      menuitem_pisa.show()
-     
-     menuitem_7.set_submenu(submenu_settings)
-     menu.append(menuitem_7)
-     menuitem_7.show()
 
      menuitem_modules.set_submenu(submenu_modules)
-     menu.append(menuitem_modules)
+     calculate_menu.append(menuitem_modules)
      menuitem_modules.show()
 
-     menuitem_pdbe.set_submenu(submenu_pdbe)
-     menu.append(menuitem_pdbe)
-     menuitem_pdbe.show()
+     menuitem_7.set_submenu(submenu_settings)
+     edit_menu.append(menuitem_7)
+     menuitem_7.show()
+
+     # where does the Refine submenu go? In Edit -> Settings
+     edit_settings_submenu = menuitem_7
+     menuitem_5.set_submenu(submenu_refine)
+     edit_settings_submenu.append(menuitem_5)
+     menuitem_5.show()
+
+     # give edit_settings_menu a submenu
+     # submenu_settings = Gtk.Menu()
+     # edit_settings_menu.set_submenu(submenu_settings)
+     # submenu_settings.show()
+     # edit_settings_submenu = edit_settings_menu.get_submenu()
+     # print("###### debug edit_settings_submenu", edit_settings_submenu)
+
+
+     
+     # menuitem_pdbe.set_submenu(submenu_pdbe)
+     # menu.append(menuitem_pdbe)
+     # menuitem_pdbe.show()
      
      
 
@@ -505,32 +558,31 @@ if have_coot_python:
 ##       lambda func: coot_gui.click_protein_db_loop_gui())
 
      
-     # errr... move this...(??)
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Dock Sequence...")
-
-     menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
-     menuitem2.show()
+     # errr... move this...(??) . OK, but comment it out for now.
+     # submenu = Gtk.Menu()
+     # menuitem2 = Gtk.MenuItem("Dock Sequence...")
+     # menuitem2.set_submenu(submenu)
+     # menu.append(menuitem2)
+     # menuitem2.show()
      
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Dock Sequence...", 
-       lambda func: coot_gui.cootaneer_gui_bl())
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu,
+     #  "Dock Sequence...", 
+     #  lambda func: coot_gui.cootaneer_gui_bl())
 
 
-     def associate_seq_func(imol, chain_id, pir_file):
-       import os, re
-       chain_count = 0
-       reg_chain = re.compile("chain", re.IGNORECASE)
-       print("assoc seq:", imol, chain_id, pir_file)
-       if (os.path.isfile(pir_file)):
-         fin = open(pir_file, 'r')
-         seq_text = fin.read()
-         fin.close()
-         assign_pir_sequence(imol, chain_id, seq_text)
-       else:
-         print("BL WARNING:: could not find", pir_file)
+     # def associate_seq_func(imol, chain_id, pir_file):
+     #   import os, re
+     #   chain_count = 0
+     #   reg_chain = re.compile("chain", re.IGNORECASE)
+     #   print("assoc seq:", imol, chain_id, pir_file)
+     #   if (os.path.isfile(pir_file)):
+     #     fin = open(pir_file, 'r')
+     #     seq_text = fin.read()
+     #     fin.close()
+     #     assign_pir_sequence(imol, chain_id, seq_text)
+     #   else:
+     #     print("BL WARNING:: could not find", pir_file)
 
      # old
      #add_simple_coot_menu_menuitem(
@@ -562,10 +614,10 @@ if have_coot_python:
      #                                            sequence_file_name)
      #  ))
      
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Associate Sequence to Chain...",
-       lambda func: coot_gui.associate_sequence_with_chain_gui()) # no alignment on OK press
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #   submenu,
+     #   "Associate Sequence to Chain...",
+     #   lambda func: coot_gui.associate_sequence_with_chain_gui()) # no alignment on OK press
 
 
      coot_gui.add_simple_coot_menu_menuitem(
@@ -576,23 +628,22 @@ if have_coot_python:
      # ---- F ---------
 
      # doublication to entry in main gtk code!
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Find Secondary Structure...")
+     # submenu = gtk.Menu()
+     # menuitem2 = gtk.MenuItem("Find Secondary Structure...")
 
-     menuitem2.set_submenu(submenu)
-     submenu_models.append(menuitem2)
-     menuitem2.show()
+     # menuitem2.set_submenu(submenu)
+     # submenu_models.append(menuitem2)
+     # menuitem2.show()
      
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Find Helices", 
-       lambda func: find_helices())
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #   submenu,
+     #  "Find Helices", 
+     #   lambda func: find_helices())
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Find Strands", 
-       lambda func: find_strands())
-
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu,
+     #  "Find Strands", 
+     #  lambda func: find_strands())
 
      def get_smiles_pdbe_func():
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -769,13 +820,13 @@ if have_coot_python:
        lambda func: coot_utils.phosphorylate_active_residue())
 
 
-     # FIXME:: for now only when prodrg in path
-     if (command_in_path_qm("cprodrg")):
-       coot_gui.add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Prodrg-ify this residue (generate restraints)",
-       lambda func: coot_utils.using_active_atom(prodrg_ify,
-                                      "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
+     # # FIXME:: for now only when prodrg in path
+     # if (command_in_path_qm("cprodrg")):
+     #   coot_gui.add_simple_coot_menu_menuitem(
+     #   submenu_models,
+     #   "Prodrg-ify this residue (generate restraints)",
+     #   lambda func: coot_utils.using_active_atom(prodrg_ify,
+     #                                  "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
      
 
      # ---- R ---------
@@ -891,31 +942,31 @@ if have_coot_python:
      
      # ---- U ---------
      
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Rotamer Search...")
+     # submenu = gtk.Menu()
+     # menuitem2 = gtk.MenuItem("Rotamer Search...")
      
-     menuitem2.set_submenu(submenu)
-     submenu_models.append(menuitem2)
-     menuitem2.show()
+     # menuitem2.set_submenu(submenu)
+     # submenu_models.append(menuitem2)
+     # menuitem2.show()
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Use \"Backrub\" Rotamers",
-       lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-       )
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu,
+     #  "Use \"Backrub\" Rotamers",
+     # lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+     #  )
      
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "DONT use \"Backrub\" Rotamers",
-       lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-       )
+     #coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu,
+     #  "DONT use \"Backrub\" Rotamers",
+     #  lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+     #  )
 
 
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Use SEGIDs...",
-       lambda func: coot_gui.molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
-		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
+     # coot_gui.add_simple_coot_menu_menuitem(
+     #  submenu_models,
+     #  "Use SEGIDs...",
+     #  lambda func: coot_gui.molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
+     #  lambda imol: exchange_chain_ids_for_seg_ids(imol)))
 
      
      # ---- W ---------
@@ -1074,16 +1125,11 @@ if have_coot_python:
        "NCS ligands...",
        lambda func: coot_gui.ncs_ligand_gui())
 
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("NCS matrix type...")
+     submenu = Gtk.Menu()
+     menuitem2 = Gtk.MenuItem("NCS matrix type...")
      
      menuitem2.set_submenu(submenu)
      submenu_ncs.append(menuitem2)
-     #tooltip = gtk.Tooltips()
-     if gtk.pygtk_version >= (2,12):
-       menuitem2.set_tooltip_text("use to change the way the NCS matrix is calculated")
-     else:
-       coot_tooltips.set_tip(menuitem2, "use to change the way the NCS matrix is calculated")
      menuitem2.show()
 
      coot_gui.add_simple_coot_menu_menuitem(
@@ -1114,8 +1160,8 @@ if have_coot_python:
        "Set Refinement Options...",
        lambda func: coot_gui.refinement_options_gui())
  
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Peptide Restraints...")
+     submenu = Gtk.Menu()
+     menuitem2 = Gtk.MenuItem("Peptide Restraints...")
 
      menuitem2.set_submenu(submenu)
      submenu_refine.append(menuitem2)
@@ -1141,14 +1187,14 @@ if have_coot_python:
 
 
      def shelx_ref_func():
-       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-       vbox = gtk.VBox(False, 0)
-       hbox = gtk.HBox(False, 0)
-       go_button = gtk.Button("  Refine  ")
-       cancel_button = gtk.Button("  Cancel  ")
+       window = Gtk.Window(gtk.WINDOW_TOPLEVEL)
+       vbox = Gtk.VBox(False, 0)
+       hbox = Gtk.HBox(False, 0)
+       go_button = Gtk.Button("  Refine  ")
+       cancel_button = Gtk.Button("  Cancel  ")
        entry_hint_text = "HKL data filename \n(leave blank for default)"
        chooser_hint_text = " Choose molecule for SHELX refinement  "
-       h_sep = gtk.HSeparator()
+       h_sep = Gtk.HSeparator()
 
        window.add(vbox)
        option_menu_mol_list_pair = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text)
@@ -1200,41 +1246,6 @@ if have_coot_python:
                        "refmac_extra_params.txt",
                        lambda imol, text: refmac.restraints_for_occupancy_refinement(imol, text)))
        
-
-     # An example with a submenu:
-     #
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Refinement Speed...")
-     menuitem2.set_submenu(submenu)
-     submenu_refine.append(menuitem2)
-     menuitem2.show()
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Molasses Refinement mode", 
-       lambda func: (printf("Molasses..."),
-                     set_dragged_refinement_steps_per_frame(4)))
-
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Smooth Refinement mode",
-       lambda func: (set_dragged_refinement_steps_per_frame(42)))
-
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Crocodile Refinement mode", 
-       lambda func: (printf("Crock..."),
-                     set_dragged_refinement_steps_per_frame(220)))
-
-
-     coot_gui.add_simple_coot_menu_menuitem(
-       submenu,
-       "Normal Refinement mode (1 Emsley)", 
-       lambda func: (printf("Default Speed (1 Emsley)..."),
-                     set_dragged_refinement_steps_per_frame(140)))
-
 
      coot_gui.add_simple_coot_menu_menuitem(
        submenu_refine,
@@ -1516,11 +1527,11 @@ if have_coot_python:
                                          lambda imol: coot_utils.label_all_CAs(imol)))
  
      # Views submenu
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Views")
+     submenu = Gtk.Menu()
+     menuitem2 = Gtk.MenuItem("Views")
  
      menuitem2.set_submenu(submenu)
-     menu.append(menuitem2)
+     draw_menu.append(menuitem2)
      menuitem2.show()
 
      coot_gui.add_simple_coot_menu_menuitem(
@@ -1568,8 +1579,8 @@ if have_coot_python:
      #     3D annotations
      #---------------------------------------------------------------------
 
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("3D Annotations...")
+     submenu = Gtk.Menu()
+     menuitem2 = Gtk.MenuItem("3D Annotations...")
  
      menuitem2.set_submenu(submenu)
      submenu_representation.append(menuitem2)
@@ -1699,8 +1710,8 @@ if have_coot_python:
      #     Settings
      # ---------------------------------------------------------------------
 
-     submenu = gtk.Menu()
-     menuitem2 = gtk.MenuItem("Rotate Translate Zone Mode...")
+     submenu = Gtk.Menu()
+     menuitem2 = Gtk.MenuItem("Rotate Translate Zone Mode...")
  
      menuitem2.set_submenu(submenu)
      submenu_settings.append(menuitem2)
@@ -1766,14 +1777,14 @@ if have_coot_python:
          window.destroy()
          return False
        
-       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+       window = Gtk.Window(gtk.WINDOW_TOPLEVEL)
        label_text = "   When happy, press \"Save\" to save   \n" + "   dialog positions"
-       label = gtk.Label(label_text)
-       h_sep = gtk.HSeparator()
-       cancel_button = gtk.Button("  Cancel  ")
-       go_button = gtk.Button("  Save  ")
-       vbox = gtk.VBox(False, 4)
-       hbox = gtk.HBox(False, 4)
+       label = Gtk.Label(label_text)
+       h_sep = Gtk.HSeparator()
+       cancel_button = Gtk.Button("  Cancel  ")
+       go_button = Gtk.Button("  Save  ")
+       vbox = Gtk.VBox(False, 4)
+       hbox = Gtk.HBox(False, 4)
 
        hbox.pack_start(go_button,     False, False, 6)
        hbox.pack_start(cancel_button, False, False, 6)
@@ -1826,7 +1837,7 @@ if have_coot_python:
 
      # Doesnt seem to be working right currently, so comment out?! Not any more?!
      # add to validate menu
-     menu = coot_gui.coot_menubar_menu("Validate")
+     menu = coot_menubar_menu("Validate")
 
      coot_gui.add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
                                    lambda func: coot_gui.molecule_chooser_gui(

@@ -29,7 +29,14 @@
 # type functions in to start with.
 #
 
-import pygtk, gtk, pango
+# import pygtk, gtk, pango
+
+import coot
+import coot_utils
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
 try:
    import gobject
 except:
@@ -48,14 +55,14 @@ history = ['']
 # type functions in to start with.
 #
 def coot_gui(own_gtk_main=False):
-   
+
    global coot_listener_socket
    import sys, string
    import re
 
    if (coot_listener_socket):
       own_gtk_main = True
-   
+
    def delete_event(*args):
        window.destroy()
        if (own_gtk_main):
@@ -84,24 +91,24 @@ def coot_gui(own_gtk_main=False):
           histpos = histpos - 1
           entry.set_text(history[histpos])
 #       print "BL DEBUG:: hist and pos", history, histpos
-                        
-   def historyDown():
-       global histpos
-       if histpos < len(history) - 1:
+
+def historyDown():
+   global histpos
+   if histpos < len(history) - 1:
           l = entry.get_text()
           if len(l) > 0 and l[0] == '\n': l = l[1:]
           if len(l) > 0 and l[-1] == '\n': l = l[:-1]
           history[histpos] = l
           histpos = histpos + 1
           entry.set_text(history[histpos])
-#       print "BL DEBUG:: hist and pos", history, histpos
+          #       print "BL DEBUG:: hist and pos", history, histpos
 
    def scroll_to_end():
        end = textbuffer.get_end_iter()
        textbuffer.place_cursor(end)
        text.scroll_mark_onscreen(textbuffer.get_insert())
        return gtk.FALSE
-       
+
    def insert_normal_text(s):
        end = textbuffer.get_end_iter()
        textbuffer.insert_with_tags(end,str(s),textbuffer.create_tag(foreground="black"))
@@ -264,7 +271,7 @@ def coot_gui(own_gtk_main=False):
 
                 histpos += 1
                 history.append('')
-       
+
        entry.set_text("")
        entry_text = ""
        insert_prompt()
@@ -1030,6 +1037,36 @@ def get_option_menu_active_item(option_menu, item_list):
        print("Failed children length test : ",children, item_list)
        return False
 
+
+def make_store_for_map_molecule_combobox():
+   mol_store = Gtk.ListStore(int, str)
+   for imol in coot_utils.molecule_number_list():
+      if coot.is_valid_map_molecule(imol) == 1:
+         label_str = coot.molecule_name(imol)
+         m_label_str = str(imol) + ' ' + label_str
+         mol_store.append([imol, m_label_str])
+   return mol_store
+
+def make_store_for_model_molecule_combobox():
+   mol_store = Gtk.ListStore(int, str)
+   for imol in coot_utils.molecule_number_list():
+      if coot.is_valid_model_molecule(imol) == 1:
+         label_str = coot.molecule_name(imol)
+         m_label_str = str(imol) + ' ' + label_str
+         mol_store.append([imol, m_label_str])
+   return mol_store
+
+def fill_combobox_with_mol_options(combobox, filter_function):
+   mols_ls = []
+   name_store = Gtk.ListStore(int, str)
+   for imol in coot_utils.molecule_number_list():
+      if filter_function(imol):
+         label_str = molecule_name(imol)
+         m_label_str = str(imol) + ' ' + label_str
+         name_store.append([imol, m_label_str])
+         
+   return mols_ls
+
 # Typically option_menu_fill_function is
 # fill_option_menu_with_coordinates_mol_options
 #
@@ -1043,42 +1080,61 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
         # what is the molecule number of the option menu?
         active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
         try:
-           active_mol_no = int(active_mol_no)
-           print("INFO: operating on molecule number ", active_mol_no)
-           try:
-              callback_function(active_mol_no)
-           except:
-              print("BL INFO:: problem in callback_function", callback_function.__name__)
-           delete_event()
+            active_mol_no = int(active_mol_no)
+            print("INFO: operating on molecule number ", active_mol_no)
+            try:
+                callback_function(active_mol_no)
+            except:
+                print("BL INFO:: problem in callback_function", callback_function.__name__)
+            delete_event()
         except:
            print("Failed to get a (molecule) number")
 
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window(title="Molecule Chooser")
     window.set_title('Coot')
-    label = gtk.Label(chooser_label)
-    vbox = gtk.VBox(False,6)
-    hbox_buttons = gtk.HBox(False,5)
-# BL says:: option menu is depricated, so we use combox instead, maybe!?!
-    option_menu = gtk.combo_box_new_text()
-    ok_button = gtk.Button("  OK  ")
-    cancel_button = gtk.Button(" Cancel ")
-    h_sep = gtk.HSeparator()
-    model_mol_list = option_menu_fill_function(option_menu)
+    label = Gtk.Label(chooser_label)
+    vbox = Gtk.VBox(False,6)
+    hbox_buttons = Gtk.HBox(False,5)
+
+
+    def on_mol_combobox_changed(combobox):
+        # this function is not useful. For this dialog, we want to do things when
+        # the "OK" button is pressed
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            print("Selected: imol=%s" % it)
+
+    # option_menu = Gtk.combo_box_new_text()
+    combobox_items = make_store_for_model_molecule_combobox()
+    combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    combobox.connect("changed", on_mol_combobox_changed)
+
+    ok_button = Gtk.Button("  OK  ")
+    cancel_button = Gtk.Button(" Cancel ")
+    h_sep = Gtk.HSeparator()
+    # model_mol_list = option_menu_fill_function(option_menu)
 
     window.set_default_size(370,100)
     window.add(vbox)
-    vbox.pack_start(label,False,False,5)
-    vbox.pack_start(option_menu,True,True,0)
-    vbox.pack_start(h_sep,True,False,2)
-    vbox.pack_start(hbox_buttons,False,False,5)
-    hbox_buttons.pack_start(ok_button,True,False,5)
-    hbox_buttons.pack_start(cancel_button,True,False,5)
+    vbox.pack_start(label, False, False, 5)
+    vbox.pack_start(combobox, True, True, 0)
+    vbox.pack_start(h_sep, True, False, 2)
+    vbox.pack_start(hbox_buttons, False, False, 5)
+    hbox_buttons.pack_start(ok_button, True, False, 5)
+    hbox_buttons.pack_start(cancel_button, True, False, 5)
 
     # button callbacks:
-    ok_button.connect("clicked",on_ok_clicked,option_menu,model_mol_list)
-    cancel_button.connect("clicked",delete_event)
+    ok_button.connect("clicked", on_ok_clicked, combobox, model_mol_list)
+    cancel_button.connect("clicked", delete_event)
 
     window.show_all()
+
+
+
+
+
 #molecule_chooser_gui("test-gui",print_sequence_chain(0,"A"))
 
 # Fire up a coordinates/model molecule chooser dialog, with a given
@@ -1379,8 +1435,8 @@ def coot_menubar_menu(menu_label):
     if found_menu:
        return found_menu
     else:
-       menu = gtk.Menu()
-       menuitem = gtk.MenuItem(menu_label)
+       menu = Gtk.Menu()
+       menuitem = Gtk.MenuItem(menu_label)
        menuitem.set_submenu(menu)
        coot_main_menubar.append(menuitem)
        menuitem.show()
@@ -1396,8 +1452,8 @@ def coot_menubar_menu(menu_label):
 #
 def add_simple_coot_menu_menuitem(menu, menu_item_label, activate_function):
 
-    submenu = gtk.Menu()
-    sub_menuitem = gtk.MenuItem(menu_item_label)
+    submenu = Gtk.Menu() # what this for?
+    sub_menuitem = Gtk.MenuItem(menu_item_label)
 
     menu.append(sub_menuitem)
     sub_menuitem.show()
@@ -1845,7 +1901,7 @@ def entry_do_button(vbox, hint_text,
 # return the option-menu and model molecule list:
 def generic_molecule_chooser(hbox, hint_text):
 
-    menu = gtk.Menu()
+    menu = Gtk.Menu()
     # BL says:: option menu is depricated, so we use combox instead, maybe!?!
     option_menu = gtk.combo_box_new_text()
     label = gtk.Label(hint_text)
@@ -5746,4 +5802,4 @@ def yes_no_dialog(label_text, title_text=None):
 
 # print "From coot_gui.py calling set_found_coot_python_gui()" - called from rcrane loader
 # too (I think)
-set_found_coot_python_gui()
+coot.set_found_coot_python_gui()

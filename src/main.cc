@@ -290,6 +290,10 @@ void do_main_window(const command_line_data &cld) {
 							 "gln_and_asn_b_factor_outliers_submenu");
 	 create_initial_validation_graph_submenu_generic(window1 , "ncs_differences1", "ncs_diffs_submenu");
 
+         // OK, now we can import the python coot_gui and extensions
+         import_python_module("coot_gui",   0);
+         import_python_module("populate_python_menus", 0);
+
       } else {
 	 std::cout << "CATASTROPHIC ERROR:: failed to create Gtk GL widget"
 		   << "  (Check that your X11 server is working and has (at least)"
