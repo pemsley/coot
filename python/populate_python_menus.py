@@ -29,6 +29,7 @@ import time
 import numbers
 import coot_utils
 import coot_gui
+import fitting
 
 # rename this file populate_python_menus.py
 
@@ -305,38 +306,60 @@ if coot_gui_api.main_menubar():
                                                        lambda txt:
                                                        quick_save_func(txt)))
 
+        def fit_protein_func1(imol):
+            if coot.imol_refinement_map() == -1:
+                add_status_bar_text("oops. Must set a map to fit")
+            else:
+                global continue_multi_refine
+                continue_multi_refine = True
+                fitting.interruptible_fit_protein(imol, fitting.fit_protein_fit_function)
+
+        def fit_protein_func2(imol):
+            if coot.imol_refinement_map() == -1:
+                add_status_bar_text("oops. Must set a map to fit")
+            else:
+                global continue_multi_refine
+                continue_multi_refine = True
+                fitting.interruptible_fit_protein(imol, fitting.fit_protein_stepped_refine_function)
+
+        def fit_protein_func3(imol):
+            if coot.imol_refinement_map() == -1:
+                add_status_bar_text("oops. Must set a map to fit")
+            else:
+                global continue_multi_refine
+                continue_multi_refine = True
+                fitting.interruptible_fit_protein(imol, fitting.fit_protein_rama_fit_function)
 
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_all_molecule,
             "[Post MR] Fill Partial Residues...",
             lambda func: coot_gui.molecule_chooser_gui("Find and Fill residues with missing atoms",
-                                                       lambda imol: fill_partial_residues(imol)))
+                                                       lambda imol: coot.fill_partial_residues(imol)))
 
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_all_molecule,
             "Fit Protein...",
             lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Rotamer Search",
-                                                       lambda imol: fitting.fit_protein_func1(imol)))
+                                                       lambda imol: fit_protein_func1(imol)))
 
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_all_molecule,
             "Stepped Refine...",
             lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Real-Space Refinement",
-                                                       lambda imol: fitting.fit_protein_func2(imol)))
+                                                       lambda imol: fit_protein_func2(imol)))
 
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_all_molecule,
             "Refine/Improve Ramachandran Plot...",
             lambda func: coot_gui.molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
-                                                       lambda imol: fitting.fit_protein_func3(imol)))
+                                                       lambda imol: fit_protein_func3(imol)))
 
         # --- add_edit_settings_menu() ends here
 
     def add_calculate_maps_menu(submenu_maps):
 
         #---------------------------------------------------------------------
-        #     Map Tools...
-        #
+        # ----    Map Tools...
         #---------------------------------------------------------------------
 
         coot_gui.add_simple_coot_menu_menuitem(
@@ -484,10 +507,24 @@ if coot_gui_api.main_menubar():
                 "Which molecule to check for Atoms with zero occupancies?",
                 lambda imol: coot_gui.zero_occ_atoms_gui(imol)))
 
+        # --- D --------
+
+        def delete_sidechains_for_active_chain():
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+                coot.delete_sidechains_for_chain(aa_imol, aa_chain_id)
+
+        coot_gui.add_simple_coot_menu_menuitem(
+            submenu_modelling,
+            "Delete Side-chain Atoms for Active Chain",
+            lambda x: delete_sidechains_for_active_chain())
+
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_modelling,
             "Duplicate range (pick atoms)",
             lambda func: coot_gui.duplicate_range_by_atom_pick())
+
+
+        # --- F --------
 
         def get_smiles_pdbe_func():
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -500,7 +537,6 @@ if coot_gui_api.main_menubar():
             "Fetch PDBe description for this ligand",
             lambda func: get_smiles_pdbe_func())
 
-
         def get_pdbe_ligand_func(comp_id):
             status = coot_utils.get_SMILES_for_comp_id_from_pdbe(comp_id)
             get_monomer(comp_id)
@@ -510,7 +546,6 @@ if coot_gui_api.main_menubar():
             "Fetch PDBe Ligand Description",
             lambda func: coot_gui.generic_single_entry("Fetch PDBe Ligand Desciption for comp_id:",
                                                        "", " Fetch ", lambda comp_id: get_pdbe_ligand_func(comp_id)))
-
 
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_modelling,

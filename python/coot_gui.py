@@ -36,6 +36,7 @@ import coot_utils
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+import coot_gui_api
 
 try:
    import gobject
@@ -1064,38 +1065,36 @@ def fill_combobox_with_mol_options(combobox, filter_function):
          label_str = molecule_name(imol)
          m_label_str = str(imol) + ' ' + label_str
          name_store.append([imol, m_label_str])
-         
+         mols_ls.append(imol)
+
    return mols_ls
+
+def fill_combobox_with_model_molecule_options(combobox):
+   name_store = Gtk.ListStore(int, str)
+   for imol in coot_utils.molecule_number_list():
+      if coot.is_valid_model_molecule(imol):
+         label_str = coot.molecule_name(imol)
+         m_label_str = str(imol) + ' ' + label_str
+         name_store.append([imol, m_label_str])
+
+   return name_store
 
 # Typically option_menu_fill_function is
 # fill_option_menu_with_coordinates_mol_options
 #
 def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
- 
+
     def delete_event(*args):
        window.destroy()
        return False
 
-    def on_ok_clicked(*args):
-        # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
-        try:
-            active_mol_no = int(active_mol_no)
-            print("INFO: operating on molecule number ", active_mol_no)
-            try:
-                callback_function(active_mol_no)
-            except:
-                print("BL INFO:: problem in callback_function", callback_function.__name__)
-            delete_event()
-        except:
-           print("Failed to get a (molecule) number")
-
-    window = Gtk.Window(title="Molecule Chooser")
-    window.set_title('Coot')
-    label = Gtk.Label(chooser_label)
-    vbox = Gtk.VBox(False,6)
-    hbox_buttons = Gtk.HBox(False,5)
-
+    def on_ok_button_clicked(*args):
+       tree_iter = combobox.get_active_iter()
+       if tree_iter is not None:
+          model = combobox.get_model()
+          it = model[tree_iter]
+          imol_model = it[0]
+          callback_function(imol_model)
 
     def on_mol_combobox_changed(combobox):
         # this function is not useful. For this dialog, we want to do things when
@@ -1106,18 +1105,31 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
             it = model[tree_iter]
             print("Selected: imol=%s" % it)
 
+
+    window = Gtk.Window(title="Molecule Chooser")
+    window.set_title('Coot: Molecule Chooser')
+    label = Gtk.Label(chooser_label)
+    vbox = Gtk.VBox(False,6)
+    hbox_buttons = Gtk.HBox(False,5)
+
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_model_molecule_combobox()
+    print("################## debug: combobox_items:", combobox_items)
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_items) > 0:
+        combobox.set_active(0)
+    combobox.set_entry_text_column(1) # what does this do?
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
     combobox.connect("changed", on_mol_combobox_changed)
+
+    name_store = fill_combobox_with_model_molecule_options(combobox)
 
     ok_button = Gtk.Button("  OK  ")
     cancel_button = Gtk.Button(" Cancel ")
     h_sep = Gtk.HSeparator()
-    # model_mol_list = option_menu_fill_function(option_menu)
 
-    window.set_default_size(370,100)
-    window.add(vbox)
     vbox.pack_start(label, False, False, 5)
     vbox.pack_start(combobox, True, True, 0)
     vbox.pack_start(h_sep, True, False, 2)
@@ -1125,8 +1137,11 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
     hbox_buttons.pack_start(ok_button, True, False, 5)
     hbox_buttons.pack_start(cancel_button, True, False, 5)
 
+    window.add(vbox)
+
+    model_mol_list = coot_utils.model_molecule_list()
     # button callbacks:
-    ok_button.connect("clicked", on_ok_clicked, combobox, model_mol_list)
+    ok_button.connect("clicked", on_ok_button_clicked, combobox, model_mol_list)
     cancel_button.connect("clicked", delete_event)
 
     window.show_all()
@@ -1441,7 +1456,7 @@ def coot_menubar_menu(menu_label):
        coot_main_menubar.append(menuitem)
        menuitem.show()
        return menu
-   except: print("""BL WARNING:: could not import coot_python module!!\n
+   except: print("""BL WARNING:: A could not import coot_python module!!\n
                     Some things, esp. extensions, may be crippled!""")
 
 
@@ -1549,25 +1564,13 @@ def coot_toolbar_button(button_label, cb_function,
                         icon_name=False, tooltip=False,
                         toggle_button=False, use_button=False):
 
-   import types
-   # we do not exclusively use strings any more...
-   #print "BL DEBUG:: create toolbutton with args!", args
-   #if (not type(cb_function) is StringType):
-   #   print "BL WARNING:: callback function wasn't a string! Cannot create toolbarbutton!"
-   #   return False
-   
-   try:
-      import coot_python
-   except:
-      print("""BL WARNING:: could not import coot_python module!!
-      So we cannot make toolbar_buttons!""")
-      return False
-   
-   coot_main_toolbar = coot_python.main_toolbar()
+   coot_main_toolbar = coot_gui_api.main_toolbar()
 
    # main body
    #
    found_button = False
+   for f in toolbar_label_list():
+      print("#### debug coot_toolbar_button", f)
    for f in toolbar_label_list():
       if button_label in f: 
          found_button = f[1]
@@ -1579,23 +1582,13 @@ def coot_toolbar_button(button_label, cb_function,
          toolbutton = gtk.ToggleToolButton()
          toolbutton.set_label(button_label)
       else:
-         toolbutton = gtk.ToolButton(icon_widget=None,
-                                     label=button_label)
+         toolbutton = Gtk.ToolButton(icon_widget=None, label=button_label)
       coot_main_toolbar.insert(toolbutton, -1)       # insert at the end
       toolbutton.set_is_important(True)              # to display the text,
                                                      # otherwise only icon
-      # tooltips?
-      if tooltip:
-         if gtk.pygtk_version >= (2,12):
-            toolbutton.set_tooltip_text(tooltip)
-         else:
-            coot_tooltips.set_tip(toolbutton, tooltip)
 
       def cb_wrapper(widget, callback_function):
-         if (type(callback_function) is bytes):
-            # old style with string as function
-            eval(callback_function)
-         else:
+         if True:
             # have function as callable and maybe extra args (all in one list)
             args = []
             function = callback_function
@@ -1614,7 +1607,7 @@ def coot_toolbar_button(button_label, cb_function,
       toolbutton.connect("clicked", cb_wrapper, cb_function)
       toolbutton.show()
 
-   if (icon_name):
+   if icon_name:
       # try to add a stock item
       try:
          toolbutton.set_stock_id(icon_name)
@@ -1645,11 +1638,11 @@ def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
    try:
       import coot_python
    except:
-      print("""BL WARNING:: could not import coot_python module!!
+      print("""BL WARNING:: C: could not import coot_python module!!
       So we cannot make a toolbar combobox!""")
       return False
    
-   coot_main_toolbar = coot_python.main_toolbar()
+   coot_main_toolbar = coot_gui_api.main_toolbar()
 
    # main body
    #
@@ -1663,16 +1656,16 @@ def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
       info_dialog(s)
       return False
    else:
-      toolitem = gtk.ToolItem()
+      toolitem = Gtk.ToolItem()
       toolitem.set_name(label)
-      combobox = gtk.combo_box_new_text()
+      combobox = Gtk.combo_box_new_text()
       for text in entry_list:
          combobox.append_text(text)
       combobox.set_active(0)
 
       # tooltips?
       if tooltip:
-         if gtk.pygtk_version >= (2,12):
+         if Gtk.pygtk_version >= (2,12):
             combobox.set_tooltip_text(tooltip)
          else:
             coot_tooltips.set_tip(combobox, tooltip)
@@ -1713,12 +1706,8 @@ def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
 # or False if coot_python is not available
 #
 def toolbar_label_list():
-   try:
-      import coot_python
-   except:
-      return False
    
-   coot_main_toolbar = coot_python.main_toolbar()
+   coot_main_toolbar = coot_gui_api.main_toolbar()
    button_label_ls = []
    for toolbar_child in coot_main_toolbar.get_children():
       ls = []
@@ -1756,10 +1745,10 @@ def generic_button_dialog(dialog_name, button_list):
 		return False
 
 	# main body
-	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-	scrolled_win = gtk.ScrolledWindow()
-	outside_vbox = gtk.VBox(False, 2)
-	inside_vbox = gtk.VBox(False, 0)
+	window = Gtk.Window(gtk.WINDOW_TOPLEVEL)
+	scrolled_win = Gtk.ScrolledWindow()
+	outside_vbox = Gtk.VBox(False, 2)
+	inside_vbox = Gtk.VBox(False, 0)
 
 	window.set_default_size(250,250)
 	window.set_title(dialog_name)
@@ -1768,20 +1757,20 @@ def generic_button_dialog(dialog_name, button_list):
 	window.add(outside_vbox)
 	outside_vbox.add(scrolled_win)
 	scrolled_win.add_with_viewport(inside_vbox)
-	scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+	scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
 
 	for button_item in button_list:
 		if button_item and len(button_item)==2:
 			button_label = button_item[0]
 			action = button_item[1]
 
-			button = gtk.Button(button_label)
+			button = Gtk.Button(button_label)
 			inside_vbox.pack_start(button, False, False, 2)
 			button.connect("clicked", action)
 			button.show()
 
 	outside_vbox.set_border_width(4)
-	ok_button = gtk.Button("  OK  ")
+	ok_button = Gtk.Button("  OK  ")
 	outside_vbox.pack_start(ok_button, False, False, 6)
 	ok_button.connect("clicked", delete_event)
 
@@ -1838,16 +1827,16 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
         delete_event()
 
 
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    vbox = gtk.VBox(False, 0)
-    hbox1 = gtk.HBox(False, 0)
-    hbox2 = gtk.HBox(True, 0)      # for Go and Cancel
-    function_label = gtk.Label(hint_text)
-    h_sep = gtk.HSeparator()
-    go_button = gtk.Button(go_button_label)
-    cancel_button = gtk.Button("  Cancel  ")
+    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    vbox = Gtk.VBox(False, 0)
+    hbox1 = Gtk.HBox(False, 0)
+    hbox2 = Gtk.HBox(True, 0)      # for Go and Cancel
+    function_label = Gtk.Label(hint_text)
+    h_sep = Gtk.HSeparator()
+    go_button = Gtk.Button(go_button_label)
+    cancel_button = Gtk.Button("  Cancel  ")
 # BL says:: option menu is depricated, so we use combox instead, maybe!?!
-    option_menu = gtk.combo_box_new_text()
+    option_menu = Gtk.combo_box_new_text()
 
     fill_option_menu_with_number_options(option_menu, coot_utils.number_list, default_option_value)
 
@@ -1877,10 +1866,10 @@ def entry_do_button(vbox, hint_text,
                     button_label, button_press_func,
                     entry_text=False):
 
-   hbox = gtk.HBox(False, 0)
-   entry = gtk.Entry()
-   button = gtk.Button(button_label)
-   label = gtk.Label(hint_text)
+   hbox = Gtk.HBox(False, 0)
+   entry = Gtk.Entry()
+   button = Gtk.Button(button_label)
+   label = Gtk.Label(hint_text)
 
    hbox.pack_start(label, False, False, 2)
    hbox.pack_start(entry, True, False, 2)
@@ -1903,8 +1892,8 @@ def generic_molecule_chooser(hbox, hint_text):
 
     menu = Gtk.Menu()
     # BL says:: option menu is depricated, so we use combox instead, maybe!?!
-    option_menu = gtk.combo_box_new_text()
-    label = gtk.Label(hint_text)
+    option_menu = Gtk.combo_box_new_text()
+    label = Gtk.Label(hint_text)
     model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
 
     hbox.pack_start(label, False, False, 2)
@@ -1916,9 +1905,9 @@ def generic_molecule_chooser(hbox, hint_text):
 #
 def file_selector_entry(hbox, hint_text, default_file_name = False):
 
-   if (file_chooser_selector_state() == 0 or gtk.pygtk_version < (2,3,90)):
+   if (file_chooser_selector_state() == 0 or Gtk.pygtk_version < (2,3,90)):
 
-        vbox = gtk.VBox(False, 0)
+        vbox = Gtk.VBox(False, 0)
 
         def file_func1(*args):
                 def file_ok_sel(*args):
@@ -1927,7 +1916,7 @@ def file_selector_entry(hbox, hint_text, default_file_name = False):
                         entry.set_text(t)
                         fs_window.destroy()
 
-                fs_window = gtk.FileSelection("file selection")
+                fs_window = Gtk.FileSelection("file selection")
                 fs_window.ok_button.connect("clicked", file_ok_sel)
                 fs_window.cancel_button.connect("clicked",
                                 lambda w: fs_window.destroy())
@@ -1950,9 +1939,9 @@ def file_selector_entry(hbox, hint_text, default_file_name = False):
 #
 def file_chooser_entry(hbox, hint_text, default_file_name = False):
 
-   if gtk.pygtk_version > (2,3,90):
+   if Gtk.pygtk_version > (2,3,90):
 
-        vbox = gtk.VBox(False, 0)
+        vbox = Gtk.VBox(False, 0)
 
         def file_func1(*args):
                 def file_ok_sel(*args):
@@ -1961,15 +1950,15 @@ def file_chooser_entry(hbox, hint_text, default_file_name = False):
                         entry.set_text(t)
                         fc_window.destroy()
 
-                fc_window = gtk.FileChooserDialog("file selection",
+                fc_window = Gtk.FileChooserDialog("file selection",
                                                   None,
-                                                  gtk.FILE_CHOOSER_ACTION_OPEN,
-                                                  (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                                   gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+                                                  Gtk.FILE_CHOOSER_ACTION_OPEN,
+                                                  (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL,
+                                                   Gtk.STOCK_OPEN, Gtk.RESPONSE_OK))
                 response = fc_window.run()
-                if response == gtk.RESPONSE_OK:
+                if response == Gtk.RESPONSE_OK:
                    file_ok_sel(fc_window, entry)
-                elif response == gtk.RESPONSE_CANCEL:
+                elif response == Gtk.RESPONSE_CANCEL:
                    fc_window.destroy()
 
         entry = entry_do_button(vbox, hint_text, "  File...  ",
@@ -2041,14 +2030,14 @@ def cootaneer_gui(imol):
                 #
     def entry_text_pair_frame(seq_info):
 
-                frame = gtk.Frame()
-                vbox = gtk.VBox(False, 3)
-                entry = gtk.Entry()
-                textview = gtk.TextView()
-                textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
+                frame = Gtk.Frame()
+                vbox = Gtk.VBox(False, 3)
+                entry = Gtk.Entry()
+                textview = Gtk.TextView()
+                textview.set_wrap_mode(Gtk.WRAP_WORD_CHAR)
                 text_box = textview.get_buffer()
-                chain_id_label = gtk.Label("Chain ID")
-                sequence_label = gtk.Label("Sequence")
+                chain_id_label = Gtk.Label("Chain ID")
+                sequence_label = Gtk.Label("Sequence")
 
                 frame.add(vbox)
                 vbox.pack_start(chain_id_label, False, False, 2)
@@ -2065,13 +2054,13 @@ def cootaneer_gui(imol):
            show_select_map_dialog()
            print("BL DEBUG:: probably should wait here for input!?")
 
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    outside_vbox = gtk.VBox(False, 2)
-    inside_vbox = gtk.VBox(False, 2)
-    h_sep = gtk.HSeparator()
-    buttons_hbox = gtk.HBox(True, 2)
-    go_button = gtk.Button("  Cootaneer!  ")
-    cancel_button = gtk.Button("  Cancel  ")
+    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    outside_vbox = Gtk.VBox(False, 2)
+    inside_vbox = Gtk.VBox(False, 2)
+    h_sep = Gtk.HSeparator()
+    buttons_hbox = Gtk.HBox(True, 2)
+    go_button = Gtk.Button("  Cootaneer!  ")
+    cancel_button = Gtk.Button("  Cancel  ")
 
     seq_info_ls = sequence_info(imol)
     # print "BL DEBUG:: sequence_list and imol is", seq_info_ls, imol
@@ -2132,7 +2121,7 @@ def view_saver_gui():
 def add_view_to_views_panel(view_name, view_number):
    global views_dialog_vbox
    if (views_dialog_vbox):
-      button = gtk.Button(view_name)
+      button = Gtk.Button(view_name)
       button.connect("clicked", lambda func: go_to_view_number(view_number, 0))
       views_dialog_vbox.pack_start(button, False, False, 2)
       button.show()
@@ -2185,11 +2174,11 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
       window.destroy()
 
    # main line
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   scrolled_win = gtk.ScrolledWindow()
-   outside_vbox = gtk.VBox(False, 2)
-   h_sep = gtk.HSeparator()
-   inside_vbox = gtk.VBox(False, 0)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   scrolled_win = Gtk.ScrolledWindow()
+   outside_vbox = Gtk.VBox(False, 2)
+   h_sep = Gtk.HSeparator()
+   inside_vbox = Gtk.VBox(False, 0)
    
    window.set_default_size(geometry[0], geometry[1])
    window.set_title(window_name)
@@ -2197,7 +2186,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
    window.add(outside_vbox)
 
    if check_button_label:
-      check_button = gtk.CheckButton(check_button_label)
+      check_button = Gtk.CheckButton(check_button_label)
       # somehow need to execute the function before we can use it in the
       # callback. This is odd to say the least. FIXME
       check_button_func(check_button, inside_vbox)
@@ -2209,14 +2198,14 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
    
    outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
    scrolled_win.add_with_viewport(inside_vbox)
-   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
    
    for button_info in buttons:
       add_button_info_to_box_of_buttons_vbox(button_info, inside_vbox)
       
    outside_vbox.set_border_width(2)
    outside_vbox.pack_start(h_sep, False, False, 2)
-   ok_button = gtk.Button(close_button_label)
+   ok_button = Gtk.Button(close_button_label)
    outside_vbox.pack_end(ok_button, False, False, 0)
    ok_button.connect("clicked", close_cb_func, window, post_close_hook)
 	
@@ -2238,14 +2227,14 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
    button_label = button_info[0]
    if ((button_label == "HSep") and (len(button_info) == 1)):
       # insert a HSeparator rather than a button
-      button = gtk.HSeparator()
+      button = Gtk.HSeparator()
    else:
       callback = button_info[1]
       if (len(button_info) == 2):
          description = False
       else:
          description = button_info[2]
-      button = gtk.Button(button_label)
+      button = Gtk.Button(button_label)
 
       # BL says:: in python we should pass the callback as a string
       if type(callback) is StringType:
@@ -2271,7 +2260,7 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
          button.connect("clicked", callback)
 
       if (description):
-         text_view = gtk.TextView()
+         text_view = Gtk.TextView()
          text_view.set_editable(False)
          buff = text_view.get_buffer()
          add_text_to_text_buffer(buff, description)
@@ -2289,10 +2278,10 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
 # 
 def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_button_label):
 
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        scrolled_win = gtk.ScrolledWindow()
-        outside_vbox = gtk.VBox(False, 2)
-        inside_vbox = gtk.VBox(False, 0)
+        window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+        scrolled_win = Gtk.ScrolledWindow()
+        outside_vbox = Gtk.VBox(False, 2)
+        inside_vbox = Gtk.VBox(False, 0)
 
         window.set_default_size(geometry[0], geometry[1])
         window.set_title(window_name)
@@ -2300,7 +2289,7 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
         window.add(outside_vbox)
         outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
         scrolled_win.add_with_viewport(inside_vbox)
-        scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+        scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
 
         for button_info in buttons:
            #print "button_info ", button_info
@@ -2311,8 +2300,8 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
               button_label_2 = button_info[1][0]
               callback_2 = button_info[1][1]
 
-              button_1 = gtk.Button(button_label_1)
-              h_box = gtk.HBox(False, 2)
+              button_1 = Gtk.Button(button_label_1)
+              h_box = Gtk.HBox(False, 2)
 
               #print "button_label_1 ", button_label_1
               #print "callback_1 ", callback_1
@@ -2325,13 +2314,13 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
               h_box.pack_start(button_1, False, False, 2)
 
               if callback_2:
-                 button_2 = gtk.Button(button_label_2)
+                 button_2 = Gtk.Button(button_label_2)
                  button_2.connect("clicked", callback_func, callback_2)
                  h_box.pack_start(button_2, False, False, 2)
               inside_vbox.pack_start(h_box, False, False, 2)
 
         outside_vbox.set_border_width(2)
-        ok_button = gtk.Button(close_button_label)
+        ok_button = Gtk.Button(close_button_label)
         outside_vbox.pack_end(ok_button, False, False, 2)
         ok_button.connect("clicked", lambda w: window.destroy())
         window.show_all()
@@ -2350,11 +2339,11 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
                 textbuffer.insert_with_tags_by_name(start, description, "tag")
 
         # main line
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        scrolled_win = gtk.ScrolledWindow()
-        outside_vbox = gtk.VBox(False, 2)
-        inside_vbox = gtk.VBox(False, 0)
-        h_sep = gtk.HSeparator()
+        window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+        scrolled_win = Gtk.ScrolledWindow()
+        outside_vbox = Gtk.VBox(False, 2)
+        inside_vbox = Gtk.VBox(False, 0)
+        h_sep = Gtk.HSeparator()
 
         window.set_default_size(geometry[0], geometry[1])
         window.set_title(window_name)
@@ -2362,7 +2351,7 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
         window.add(outside_vbox)
         outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
         scrolled_win.add_with_viewport(inside_vbox)
-        scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+        scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
 
         for button_info in buttons:
                 button_label = button_info[0]
@@ -2371,7 +2360,7 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
                         description = False
                 else:
                         description = button_info[2]
-                button = gtk.Button(button_label)
+                button = Gtk.Button(button_label)
 
 # BL says:: in python we should pass the callback as a string
                 if type(callback) is StringType:
@@ -2387,7 +2376,7 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
                         button.connect("clicked", callback)
 
                 if type(description) is StringType:
-                        text_box = gtk.TextView()
+                        text_box = Gtk.TextView()
                         text_box.set_editable(False)
                         add_text_to_text_widget(text_box, description)
                         inside_vbox.pack_start(text_box, False, False, 2)
@@ -2402,7 +2391,7 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
         inside_vbox.pack_start(extra_widget, False, False, 2)
         
         outside_vbox.set_border_width(2)
-        ok_button = gtk.Button(close_button_label)
+        ok_button = Gtk.Button(close_button_label)
         outside_vbox.pack_end(ok_button, False, False, 0)
         ok_button.connect("clicked", lambda w: window.destroy())
         
@@ -2438,11 +2427,11 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
       return False
 	
    # main line
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   scrolled_win = gtk.ScrolledWindow()
-   outside_vbox = gtk.VBox(False, 2)
-   inside_vbox = gtk.VBox(False, 0)
-   button_hbox = gtk.HBox(False, 0)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   scrolled_win = Gtk.ScrolledWindow()
+   outside_vbox = Gtk.VBox(False, 2)
+   inside_vbox = Gtk.VBox(False, 0)
+   button_hbox = Gtk.HBox(False, 0)
 
    window.set_default_size(geometry[0], geometry[1])
    window.set_title(window_name)
@@ -2450,14 +2439,14 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
    window.add(outside_vbox)
    outside_vbox.pack_start(scrolled_win, True, True, 0) # expand fill padding
    scrolled_win.add_with_viewport(inside_vbox)
-   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
 
    button = None
    button_ls = []
    for button_info in buttons:
       button_label = button_info[0]
       callback = button_info[1]
-      button = gtk.RadioButton(button, button_label)
+      button = Gtk.RadioButton(button, button_label)
 
       # BL says:: in python we should pass the callback as a string
       if type(callback) is StringType:
@@ -2471,12 +2460,12 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
       button_ls.append(button)
 
    outside_vbox.set_border_width(2)
-   go_button     = gtk.Button(go_button_label)
+   go_button     = Gtk.Button(go_button_label)
    outside_vbox.pack_start(button_hbox, False, False, 2)
    button_hbox.pack_start(go_button, True, True, 6)
    go_button.connect("clicked", go_function_event, button_ls)
    if (cancel_button_label):
-      cancel_button = gtk.Button(cancel_button_label)
+      cancel_button = Gtk.Button(cancel_button_label)
       button_hbox.pack_start(cancel_button, True, True, 6)
       cancel_button.connect("clicked", cancel_function_cb)
 	
@@ -2619,7 +2608,7 @@ def nudge_screen_centre_extra_gui():
         ]
 
    # and this is for the clipping and zooming
-   vbox = gtk.VBox(False, 0)
+   vbox = Gtk.VBox(False, 0)
 
    def change_clipp(*args):
         set_clipping_front(clipp_adj.value)
@@ -2630,9 +2619,9 @@ def nudge_screen_centre_extra_gui():
         graphics_draw()
 
    # for clipping
-   clipp_label = gtk.Label("Clipping")
-   clipp_adj = gtk.Adjustment(0.0, -10.0, 20.0, 0.05, 4.0, 10.1)
-   clipp_scale = gtk.HScale(clipp_adj)
+   clipp_label = Gtk.Label("Clipping")
+   clipp_adj = Gtk.Adjustment(0.0, -10.0, 20.0, 0.05, 4.0, 10.1)
+   clipp_scale = Gtk.HScale(clipp_adj)
    vbox.pack_start(clipp_label, False, False, 0)
    vbox.pack_start(clipp_scale, False, False, 0)
    clipp_label.show()
@@ -2640,14 +2629,14 @@ def nudge_screen_centre_extra_gui():
 
    clipp_adj.connect("value_changed", change_clipp)
    
-   h_sep = gtk.HSeparator()
+   h_sep = Gtk.HSeparator()
    vbox.pack_start(h_sep, False, False, 5)
 
    # for zooming
    zoom = zoom_factor()
-   zoom_label = gtk.Label("Zoom")
-   zoom_adj = gtk.Adjustment(zoom, zoom*0.125, zoom*8, 0.01, 0.5, zoom)
-   zoom_scale = gtk.HScale(zoom_adj)
+   zoom_label = Gtk.Label("Zoom")
+   zoom_adj = Gtk.Adjustment(zoom, zoom*0.125, zoom*8, 0.01, 0.5, zoom)
+   zoom_scale = Gtk.HScale(zoom_adj)
    vbox.pack_start(zoom_label, False, False, 0)
    vbox.pack_start(zoom_scale, False, False, 0)
    zoom_label.show()
@@ -2683,20 +2672,20 @@ def make_difference_map_gui():
       delete_event()
 
       
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   diff_map_vbox = gtk.VBox(False, 2)
-   h_sep = gtk.HSeparator()
-   title = gtk.Label("Make a Difference Map")
-   ref_label = gtk.Label("Reference Map:")
-   sec_label = gtk.Label("Substract this map:")
-   second_map_hbox = gtk.HBox(False, 2)
-   buttons_hbox = gtk.HBox(True, 6)
-   option_menu_ref_mol = gtk.combo_box_new_text()
-   option_menu_sec_mol = gtk.combo_box_new_text()
-   scale_label = gtk.Label("Scale")
-   scale_entry = gtk.Entry()
-   ok_button = gtk.Button("   OK   ")
-   cancel_button = gtk.Button(" Cancel ")
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   diff_map_vbox = Gtk.VBox(False, 2)
+   h_sep = Gtk.HSeparator()
+   title = Gtk.Label("Make a Difference Map")
+   ref_label = Gtk.Label("Reference Map:")
+   sec_label = Gtk.Label("Substract this map:")
+   second_map_hbox = Gtk.HBox(False, 2)
+   buttons_hbox = Gtk.HBox(True, 6)
+   option_menu_ref_mol = Gtk.combo_box_new_text()
+   option_menu_sec_mol = Gtk.combo_box_new_text()
+   scale_label = Gtk.Label("Scale")
+   scale_entry = Gtk.Entry()
+   ok_button = Gtk.Button("   OK   ")
+   cancel_button = Gtk.Button(" Cancel ")
 
    coot_utils.map_molecule_list_ref = fill_option_menu_with_map_mol_options(option_menu_ref_mol)
    coot_utils.map_molecule_list_sec = fill_option_menu_with_map_mol_options(option_menu_sec_mol)
@@ -2845,18 +2834,18 @@ def transform_map_using_lsq_matrix_gui():
   # 
   # return the list [frame, option_menu, model_mol_list, entries...]
   def atom_sel_frame(atom_sel_type):
-     frame = gtk.Frame(atom_sel_type)
+     frame = Gtk.Frame(atom_sel_type)
      # option_menu == combobox
-     option_menu = gtk.combo_box_new_text()
+     option_menu = Gtk.combo_box_new_text()
      model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
-     atom_sel_vbox = gtk.VBox(False, 2)
-     atom_sel_hbox = gtk.HBox(False, 2)
-     chain_id_label = gtk.Label(" Chain ID ")
-     resno_1_label = gtk.Label(" Resno Start ")
-     resno_2_label = gtk.Label(" Resno End ")
-     chain_id_entry = gtk.Entry()
-     resno_1_entry = gtk.Entry()
-     resno_2_entry = gtk.Entry()
+     atom_sel_vbox = Gtk.VBox(False, 2)
+     atom_sel_hbox = Gtk.HBox(False, 2)
+     chain_id_label = Gtk.Label(" Chain ID ")
+     resno_1_label = Gtk.Label(" Resno Start ")
+     resno_2_label = Gtk.Label(" Resno End ")
+     chain_id_entry = Gtk.Entry()
+     resno_1_entry = Gtk.Entry()
+     resno_2_entry = Gtk.Entry()
 
      frame.add(atom_sel_vbox)
      atom_sel_vbox.pack_start(option_menu,    False, False, 2)
@@ -2870,21 +2859,21 @@ def transform_map_using_lsq_matrix_gui():
 
      return [frame, option_menu, model_mol_list, chain_id_entry, resno_1_entry, resno_2_entry]
   
-  window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+  window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
   dialog_name = "Map Transformation"
-  main_vbox = gtk.VBox(False, 2)
-  buttons_hbox = gtk.HBox(False, 2)
-  cancel_button = gtk.Button("  Cancel  ")
-  ok_button = gtk.Button("  Transform  ")
+  main_vbox = Gtk.VBox(False, 2)
+  buttons_hbox = Gtk.HBox(False, 2)
+  cancel_button = Gtk.Button("  Cancel  ")
+  ok_button = Gtk.Button("  Transform  ")
   usage = "Note that this will transform the current refinement map " + \
           "to around the screen centre"
-  usage_label = gtk.Label(usage)
-  h_sep = gtk.HSeparator()
+  usage_label = Gtk.Label(usage)
+  h_sep = Gtk.HSeparator()
   frame_info_ref = atom_sel_frame("Reference")
   frame_info_mov = atom_sel_frame("Moving")
-  radius_hbox = gtk.HBox(False, 2)
-  radius_label = gtk.Label("  Radius ")
-  radius_entry = gtk.Entry()
+  radius_hbox = Gtk.HBox(False, 2)
+  radius_label = Gtk.Label("  Radius ")
+  radius_entry = Gtk.Entry()
   window.set_title(dialog_name)
 
 
@@ -2961,27 +2950,27 @@ def ncs_ligand_gui():
 
       delete_event()
       
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   ncs.ncs_ligands_vbox = gtk.VBox(False, 2)
-   title = gtk.Label("Find NCS-Related Ligands")
-   ref_label = gtk.Label("Protein with NCS:")
-   ref_chain_hbox = gtk.HBox(False, 2)
-   chain_id_ref_label = gtk.Label("NCS Master Chain")
-   chain_id_ref_entry = gtk.Entry()
-   lig_label = gtk.Label("Molecule containing ligand")
-   specs_hbox = gtk.HBox(False, 2)
-   h_sep = gtk.HSeparator()
-   buttons_hbox = gtk.HBox(True, 6)
-   chain_id_lig_label= gtk.Label("Chain ID: ")
-   resno_start_label = gtk.Label(" Residue Number ")
-   to_label = gtk.Label("  to  ")
-   chain_id_lig_entry = gtk.Entry()
-   resno_start_entry = gtk.Entry()
-   resno_end_entry = gtk.Entry()
-   ok_button = gtk.Button("   Find Candidate Positions  ")
-   cancel_button = gtk.Button("    Cancel    ")
-   option_menu_ref_mol = gtk.combo_box_new_text()
-   option_menu_lig_mol = gtk.combo_box_new_text()
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   ncs.ncs_ligands_vbox = Gtk.VBox(False, 2)
+   title = Gtk.Label("Find NCS-Related Ligands")
+   ref_label = Gtk.Label("Protein with NCS:")
+   ref_chain_hbox = Gtk.HBox(False, 2)
+   chain_id_ref_label = Gtk.Label("NCS Master Chain")
+   chain_id_ref_entry = Gtk.Entry()
+   lig_label = Gtk.Label("Molecule containing ligand")
+   specs_hbox = Gtk.HBox(False, 2)
+   h_sep = Gtk.HSeparator()
+   buttons_hbox = Gtk.HBox(True, 6)
+   chain_id_lig_label= Gtk.Label("Chain ID: ")
+   resno_start_label = Gtk.Label(" Residue Number ")
+   to_label = Gtk.Label("  to  ")
+   chain_id_lig_entry = Gtk.Entry()
+   resno_start_entry = Gtk.Entry()
+   resno_end_entry = Gtk.Entry()
+   ok_button = Gtk.Button("   Find Candidate Positions  ")
+   cancel_button = Gtk.Button("    Cancel    ")
+   option_menu_ref_mol = Gtk.combo_box_new_text()
+   option_menu_lig_mol = Gtk.combo_box_new_text()
 
    molecule_list_ref = fill_option_menu_with_coordinates_mol_options(option_menu_ref_mol)
    molecule_list_lig = fill_option_menu_with_coordinates_mol_options(option_menu_lig_mol)
@@ -3009,7 +2998,7 @@ def ncs_ligand_gui():
    specs_hbox.pack_start(resno_start_entry, False, False, 2)
    specs_hbox.pack_start(to_label, False, False, 2)
    specs_hbox.pack_start(resno_end_entry, False, False, 2)
-   specs_hbox.pack_start(gtk.Label(" "), False, False, 2) # neatness ?!
+   specs_hbox.pack_start(Gtk.Label(" "), False, False, 2) # neatness ?!
 
    chain_id_lig_entry.set_size_request(32, -1)
    chain_id_ref_entry.set_size_request(32, -1)
@@ -3019,14 +3008,14 @@ def ncs_ligand_gui():
    chain_id_lig_entry.set_text("A")
    resno_start_entry.set_text("1")
 
-   #tooltips = gtk.Tooltips()
+   #tooltips = Gtk.Tooltips()
    chain_tip = "'A' is a reasonable guess at the NCS master chain id.  " + \
                "If your ligand (specified below) is NOT bound to the protein's " + \
                "'A' chain, then you will need to change this chain and also " + \
                "make sure that the master molecule is specified appropriately " + \
                "in the Draw->NCS Ghost Control window."
    resno_tip = "Leave blank for a single residue"
-   if gtk.pygtk_version >= (2,12):
+   if Gtk.pygtk_version >= (2,12):
       chain_id_ref_entry.set_tooltip_text(chain_tip)
       resno_end_entry.set_tooltip_text(resno_tip)
    else:
@@ -3085,14 +3074,14 @@ def ncs_jumping_gui():
       timeout_function_token = False      
 
    # main body
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   outside_vbox = gtk.VBox(False, 2)
-   inside_hbox = gtk.HBox(False, 2)
-   cancel_hbox = gtk.HBox(False, 2) # paul says VBox?!?!
-   h_sep = gtk.HSeparator()
-   jump_start_button = gtk.Button("NCS Jump Start")
-   jump_stop_button = gtk.Button("Stop")
-   cancel_button = gtk.Button("Cancel")
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   outside_vbox = Gtk.VBox(False, 2)
+   inside_hbox = Gtk.HBox(False, 2)
+   cancel_hbox = Gtk.HBox(False, 2) # paul says VBox?!?!
+   h_sep = Gtk.HSeparator()
+   jump_start_button = Gtk.Button("NCS Jump Start")
+   jump_stop_button = Gtk.Button("Stop")
+   cancel_button = Gtk.Button("Cancel")
    ms_step = ncs_jumping_time_step
    timeout_function_token = False
 
@@ -3146,27 +3135,27 @@ def superpose_ligand_gui():
 
       delete_event()
       
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   title = gtk.Label("Superpose Ligands")
-   ligands_vbox = gtk.VBox(False, 2)
-   ref_chain_hbox = gtk.HBox(False, 2)
-   chain_id_ref_label = gtk.Label("Ligand Chain ID: ")
-   chain_id_ref_entry = gtk.Entry()
-   resno_ref_label    = gtk.Label(" Residue Number ") 
-   resno_ref_entry = gtk.Entry()
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   title = Gtk.Label("Superpose Ligands")
+   ligands_vbox = Gtk.VBox(False, 2)
+   ref_chain_hbox = Gtk.HBox(False, 2)
+   chain_id_ref_label = Gtk.Label("Ligand Chain ID: ")
+   chain_id_ref_entry = Gtk.Entry()
+   resno_ref_label    = Gtk.Label(" Residue Number ") 
+   resno_ref_entry = Gtk.Entry()
    
-   mov_chain_hbox = gtk.HBox(False, 2)
-   chain_id_mov_label= gtk.Label("Ligand Chain ID: ")
-   chain_id_mov_entry = gtk.Entry()
-   resno_mov_label = gtk.Label(" Residue Number ")
-   resno_mov_entry = gtk.Entry()
+   mov_chain_hbox = Gtk.HBox(False, 2)
+   chain_id_mov_label= Gtk.Label("Ligand Chain ID: ")
+   chain_id_mov_entry = Gtk.Entry()
+   resno_mov_label = Gtk.Label(" Residue Number ")
+   resno_mov_entry = Gtk.Entry()
 
-   h_sep = gtk.HSeparator()
+   h_sep = Gtk.HSeparator()
 
-   buttons_hbox = gtk.HBox(True, 6)
+   buttons_hbox = Gtk.HBox(True, 6)
 
-   ok_button = gtk.Button("   Superpose 'em  ")
-   cancel_button = gtk.Button("    Cancel    ")
+   ok_button = Gtk.Button("   Superpose 'em  ")
+   cancel_button = Gtk.Button("    Cancel    ")
 
    window.add(ligands_vbox)
    ligands_vbox.pack_start(title, False, False, 6)
@@ -3200,7 +3189,7 @@ def superpose_ligand_gui():
 #   chain_id_lig_entry.set_text("A")
 #   resno_start_entry.set_text("1")
 
-#   tooltips = gtk.Tooltips()
+#   tooltips = Gtk.Tooltips()
 #   tooltips.set_tip(chain_id_ref_entry, "'A' is a reasonable guess at the NCS master chain id.  " +
 #                    "If your ligand (specified below) is NOT bound to the protein's " +
 #                    "'A' chain, then you will need to change this chain and also " +
@@ -3267,16 +3256,16 @@ def key_bindings_gui():
 
    def box_for_binding(item, inside_vbox, buttonize_flag):
       
-      binding_hbox = gtk.HBox(False, 2)
+      binding_hbox = Gtk.HBox(False, 2)
       txt = str(item[1])
-      key_label = gtk.Label("   " + txt + "   ")
-      name_label = gtk.Label(item[2])
+      key_label = Gtk.Label("   " + txt + "   ")
+      name_label = Gtk.Label(item[2])
 
       if (buttonize_flag):
          button_label = "   " + txt + "   " + item[2]
-         button = gtk.Button(button_label)
-         #al = gtk.Alignment(0, 0, 0, 0)
-         #label = gtk.Label(button_label)
+         button = Gtk.Button(button_label)
+         #al = Gtk.Alignment(0, 0, 0, 0)
+         #label = Gtk.Label(button_label)
          #button.add(al)
          #al.add(label)
          binding_hbox.pack_start(button, True, True, 0)
@@ -3299,17 +3288,17 @@ def key_bindings_gui():
       
    # main line
    #
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   scrolled_win = gtk.ScrolledWindow()
-   outside_vbox = gtk.VBox(False, 2)
-   inside_vbox = gtk.VBox(False, 0)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   scrolled_win = Gtk.ScrolledWindow()
+   outside_vbox = Gtk.VBox(False, 2)
+   inside_vbox = Gtk.VBox(False, 0)
    dialog_name = "Key Bindings"
-   buttons_hbox = gtk.HBox(False, 2)
-   close_button = gtk.Button("  Close  ")
-   std_frame = gtk.Frame("Standard Key Bindings:")
-   usr_frame = gtk.Frame("User-defined Key Bindings:")
-   std_frame_vbox = gtk.VBox(False, 2)
-   usr_frame_vbox = gtk.VBox(False, 2)
+   buttons_hbox = Gtk.HBox(False, 2)
+   close_button = Gtk.Button("  Close  ")
+   std_frame = Gtk.Frame("Standard Key Bindings:")
+   usr_frame = Gtk.Frame("User-defined Key Bindings:")
+   std_frame_vbox = Gtk.VBox(False, 2)
+   usr_frame_vbox = Gtk.VBox(False, 2)
    close_button.connect("clicked", delete_event)
 
    window.set_default_size(250, 350)
@@ -3319,7 +3308,7 @@ def key_bindings_gui():
    window.add(outside_vbox)
    outside_vbox.add(scrolled_win)
    scrolled_win.add_with_viewport(inside_vbox)
-   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+   scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
    inside_vbox.pack_start(std_frame, False, False, 2)
    inside_vbox.pack_start(usr_frame, False, False, 2)
@@ -3501,24 +3490,24 @@ def whats_new_dialog():
             return False
          return True
 
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   vbox = gtk.VBox(False, 2)
-   inside_vbox = gtk.VBox(False, 2)
-   scrolled_win_1 = gtk.ScrolledWindow()
-   scrolled_win_2 = gtk.ScrolledWindow()
-   label = gtk.Label("Lastest Coot Release Info")
-   text_view_1 = gtk.TextView()
-   text_view_2 = gtk.TextView()
-   text_view_1.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
-   text_view_2.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   vbox = Gtk.VBox(False, 2)
+   inside_vbox = Gtk.VBox(False, 2)
+   scrolled_win_1 = Gtk.ScrolledWindow()
+   scrolled_win_2 = Gtk.ScrolledWindow()
+   label = Gtk.Label("Lastest Coot Release Info")
+   text_view_1 = Gtk.TextView()
+   text_view_2 = Gtk.TextView()
+   text_view_1.modify_base(Gtk.STATE_NORMAL, Gtk.gdk.color_parse("#bfe6bf"))
+   text_view_2.modify_base(Gtk.STATE_NORMAL, Gtk.gdk.color_parse("#bfe6bf"))
    text_1 = text_view_1.get_buffer()
    text_2 = text_view_2.get_buffer()
-   h_sep = gtk.HSeparator()
-   close_button = gtk.Button("   Close   ")
-   notebook = gtk.Notebook()
-   notebook_label_pre = gtk.Label("Pre-release")
-   notebook_label_std = gtk.Label("Release")
-   timer_label = gtk.Label("0.0s")
+   h_sep = Gtk.HSeparator()
+   close_button = Gtk.Button("   Close   ")
+   notebook = Gtk.Notebook()
+   notebook_label_pre = Gtk.Label("Pre-release")
+   notebook_label_std = Gtk.Label("Release")
+   timer_label = Gtk.Label("0.0s")
 
    window.set_default_size(540, 400)
    vbox.pack_start(label, False, False, 10)
@@ -3535,8 +3524,8 @@ def whats_new_dialog():
 
    scrolled_win_1.add(text_view_1)
    scrolled_win_2.add(text_view_2)
-   scrolled_win_1.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-   scrolled_win_2.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
+   scrolled_win_1.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
+   scrolled_win_2.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
    close_button.connect("clicked", on_close_button_clicked)
 
@@ -3747,21 +3736,21 @@ def cootaneer_gui_bl():
          else:
             print("BL INFO:: do not assign chain_id")
 
-      frame = gtk.Frame()
-      vbox = gtk.VBox(False, 3)
-      hbox = gtk.HBox(False, 3)
-      entry = gtk.Entry()
-      textview = gtk.TextView()
-      textview.set_wrap_mode(gtk.WRAP_WORD_CHAR)
+      frame = Gtk.Frame()
+      vbox = Gtk.VBox(False, 3)
+      hbox = Gtk.HBox(False, 3)
+      entry = Gtk.Entry()
+      textview = Gtk.TextView()
+      textview.set_wrap_mode(Gtk.WRAP_WORD_CHAR)
       textview.set_editable(True)
       textview.set_size_request(300, -1)
       textview.modify_font(pango.FontDescription("Courier 11"))
       text_buffer = textview.get_buffer()
-      chain_id_label = gtk.Label("Chain ID")
-      sequence_label = gtk.Label("Sequence")
-      vbox_for_buttons = gtk.VBox(False, 3)
-      fragment_button = gtk.Button("  Sequence closest fragment  ")
-      chain_check_button = gtk.CheckButton("Assign Chain ID as well?")
+      chain_id_label = Gtk.Label("Chain ID")
+      sequence_label = Gtk.Label("Sequence")
+      vbox_for_buttons = Gtk.VBox(False, 3)
+      fragment_button = Gtk.Button("  Sequence closest fragment  ")
+      chain_check_button = Gtk.CheckButton("Assign Chain ID as well?")
 
       frame.add(hbox)
       vbox.pack_start(chain_id_label, False, False, 2)
@@ -3899,31 +3888,31 @@ def cootaneer_gui_bl():
    if (imol_map == -1):
       show_select_map_dialog()
 
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
    window.set_title("Sequencing GUI")
-   #tooltips = gtk.Tooltips()
-   label = gtk.Label("Molecule to be sequenced")
-   vbox = gtk.VBox(False, 2)
-   option_menu = gtk.combo_box_new_text()
+   #tooltips = Gtk.Tooltips()
+   label = Gtk.Label("Molecule to be sequenced")
+   vbox = Gtk.VBox(False, 2)
+   option_menu = Gtk.combo_box_new_text()
    model_mol_list = fill_option_menu_with_mol_options(option_menu, coot_utils.valid_model_molecule_qm)
-   inside_vbox = gtk.VBox(False, 2)
-   seq_table = gtk.Table(1, 1, True)
-   hbox_for_spin = gtk.HBox(False, 0)
-   spin_label = gtk.Label("Number of Sequences:")
-   spin_adj = gtk.Adjustment(1, 1, 10, 1, 4, 0)
-   spin_button = gtk.SpinButton(spin_adj, 0, 0)
-   refine_check_button = gtk.CheckButton("Auto-fit-refine after sequencing?")
-   h_sep = gtk.HSeparator()
-   h_sep2 = gtk.HSeparator()
-   buttons_hbox = gtk.HBox(False, 2)
-   import_button = gtk.Button("  Import and associate sequence from file  ")
-   go_button = gtk.Button("  Sequence all fragments!  ")
-   if gtk.pygtk_version >= (2,12):
+   inside_vbox = Gtk.VBox(False, 2)
+   seq_table = Gtk.Table(1, 1, True)
+   hbox_for_spin = Gtk.HBox(False, 0)
+   spin_label = Gtk.Label("Number of Sequences:")
+   spin_adj = Gtk.Adjustment(1, 1, 10, 1, 4, 0)
+   spin_button = Gtk.SpinButton(spin_adj, 0, 0)
+   refine_check_button = Gtk.CheckButton("Auto-fit-refine after sequencing?")
+   h_sep = Gtk.HSeparator()
+   h_sep2 = Gtk.HSeparator()
+   buttons_hbox = Gtk.HBox(False, 2)
+   import_button = Gtk.Button("  Import and associate sequence from file  ")
+   go_button = Gtk.Button("  Sequence all fragments!  ")
+   if Gtk.pygtk_version >= (2,12):
       go_button.set_tooltip_text("This currently ignores all chain IDs")
    else:
       coot_tooltips.set_tip(go_button, "This currently ignores all chain IDs")
-   cancel_button = gtk.Button("  Cancel  ")
-   clear_button = gtk.Button("  Clear all  ")
+   cancel_button = Gtk.Button("  Cancel  ")
+   clear_button = Gtk.Button("  Clear all  ")
 
    window.set_default_size(400, 200)
    window.add(vbox)
@@ -3974,13 +3963,13 @@ def cootaneer_gui_bl():
 def run_with_gtk_threading(function, *args):
    import gobject
    def idle_func():
-      gtk.gdk.threads_enter()
+      Gtk.gdk.threads_enter()
       try:
          # function(*args, **kw)
          function(*args)
          return False
       finally:
-         gtk.gdk.threads_leave()
+         Gtk.gdk.threads_leave()
    gobject.idle_add(idle_func)
 
 
@@ -3991,7 +3980,7 @@ def generic_check_button(vbox, label_text, handle_check_button_function):
       if (active_state):
          set_state = 1
       handle_check_button_function(set_state)
-   check_button = gtk.CheckButton(label_text)
+   check_button = Gtk.CheckButton(label_text)
    vbox.pack_start(check_button, False, False, 2)
    check_button.connect("toggled", check_callback)
    return check_button
@@ -4019,14 +4008,14 @@ def refinement_options_gui():
       window.destroy()
       return False
 
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   vbox = gtk.VBox(False, 0)
-   hbox = gtk.HBox(False, 0)
-   h_sep = gtk.HSeparator()
-   h_sep2 = gtk.HSeparator()
-   h_sep3 = gtk.HSeparator()
-   go_button = gtk.Button("   Ok   ")
-   cancel_button = gtk.Button("  Cancel  ")
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   vbox = Gtk.VBox(False, 0)
+   hbox = Gtk.HBox(False, 0)
+   h_sep = Gtk.HSeparator()
+   h_sep2 = Gtk.HSeparator()
+   h_sep3 = Gtk.HSeparator()
+   go_button = Gtk.Button("   Ok   ")
+   cancel_button = Gtk.Button("  Cancel  ")
 
    window.add(vbox)
    # add the matrix entry
@@ -4115,7 +4104,7 @@ def refinement_options_gui():
 #
 def show_progressbar(text):
 
-   gtk.gdk.threads_init()
+   Gtk.gdk.threads_init()
    def progress_run(pbar):
       pbar.pulse()
       return True
@@ -4123,19 +4112,19 @@ def show_progressbar(text):
    def destroy_cb(widget, timer):
       gobject.source_remove(timer)
       timer = 0
-      gtk.main_quit()
+      Gtk.main_quit()
       return False
    
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
    window.set_title("External Program Progress")
    window.set_border_width(0)
    window.set_default_size(300, 50)
 
-   vbox = gtk.VBox(False, 5)
+   vbox = Gtk.VBox(False, 5)
    vbox.set_border_width(10)
    window.add(vbox)
 
-   pbar = gtk.ProgressBar()
+   pbar = Gtk.ProgressBar()
    pbar.pulse()
    pbar.set_text(text)
    vbox.pack_start(pbar, False, False, 5)
@@ -4147,7 +4136,7 @@ def show_progressbar(text):
    window.show_all()
    global python_return
    python_return = window
-   gtk.main()
+   Gtk.main()
 
 import threading
 # helper function to push the python threads
@@ -4199,13 +4188,13 @@ def run_python_thread(function, args, sleep_time=20):
 
 def map_sharpening_gui(imol):
 
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   vbox = gtk.VBox(False, 2)
-   hbox = gtk.HBox(False, 2)
-   adj = gtk.Adjustment(0.0, -30, 60, 0.05, 2, 30.1)
-   slider = gtk.HScale(adj)
-   label = gtk.Label("\nSharpen Map:")
-   lab2  = gtk.Label("Add B-factor: ")
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   vbox = Gtk.VBox(False, 2)
+   hbox = Gtk.HBox(False, 2)
+   adj = Gtk.Adjustment(0.0, -30, 60, 0.05, 2, 30.1)
+   slider = Gtk.HScale(adj)
+   label = Gtk.Label("\nSharpen Map:")
+   lab2  = Gtk.Label("Add B-factor: ")
 
    vbox.pack_start(label,  False, False, 2)
    vbox.pack_start(hbox,   False, False, 2)
@@ -4437,17 +4426,17 @@ def residue_range_gui(func, function_text, go_button_label):
             remove_from_residue_range_widget(outside_hbox)
             outside_hbox.destroy()
       
-      frame = gtk.Frame()
-      outside_hbox = gtk.HBox(False, 2)
-      hbox = gtk.HBox(False, 2)
-      text_1 = gtk.Label("  Chain-ID:")
-      text_2 = gtk.Label("  Resno Start:")
-      text_3 = gtk.Label("  Resno End:")
-      entry_1 = gtk.Entry()
-      entry_2 = gtk.Entry()
-      entry_3 = gtk.Entry()
-      plus_button  = gtk.Button("+")
-      minus_button = gtk.Button(" - ")
+      frame = Gtk.Frame()
+      outside_hbox = Gtk.HBox(False, 2)
+      hbox = Gtk.HBox(False, 2)
+      text_1 = Gtk.Label("  Chain-ID:")
+      text_2 = Gtk.Label("  Resno Start:")
+      text_3 = Gtk.Label("  Resno End:")
+      entry_1 = Gtk.Entry()
+      entry_2 = Gtk.Entry()
+      entry_3 = Gtk.Entry()
+      plus_button  = Gtk.Button("+")
+      minus_button = Gtk.Button(" - ")
 
       hbox.pack_start(text_1,  False, False, 0)
       hbox.pack_start(entry_1, False, False, 0)
@@ -4555,15 +4544,15 @@ def residue_range_gui(func, function_text, go_button_label):
       window.destroy()
       return False
       
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   vbox = gtk.VBox(False, 0)
-   residue_range_vbox = gtk.VBox(True, 2)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   vbox = Gtk.VBox(False, 0)
+   residue_range_vbox = Gtk.VBox(True, 2)
    residue_range_widget_info = make_residue_range_frame(residue_range_vbox)
-   hbox_buttons = gtk.HBox(False, 0)
-   function_label = gtk.Label(function_text)
-   cancel_button = gtk.Button("  Cancel  ")
-   go_button = gtk.Button(go_button_label)
-   h_sep = gtk.HSeparator()
+   hbox_buttons = Gtk.HBox(False, 0)
+   function_label = Gtk.Label(function_text)
+   cancel_button = Gtk.Button("  Cancel  ")
+   go_button = Gtk.Button(go_button_label)
+   h_sep = Gtk.HSeparator()
    # the first residue range
    outside_vbox_residue_range = residue_range_widget_info[0]
 
@@ -4678,7 +4667,7 @@ def solvent_ligands_gui():
                                                 model_list)
          add_ligand_func(imol, comp_id)
 
-      button = gtk.Button(button_label)
+      button = Gtk.Button(button_label)
       inside_vbox.pack_start(button, False, False, 1)
       button.show()
       button.connect("clicked", button_cb)
@@ -4707,18 +4696,18 @@ def solvent_ligands_gui():
       return ret
       
    # main
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   scrolled_win = gtk.ScrolledWindow()
-   outside_vbox = gtk.VBox(False, 2)
-   inside_vbox  = gtk.VBox(False, 2)
-   label = gtk.Label("\nSolvent molecules added to molecule: ")
-   frame_for_option_menu = gtk.Frame(" Choose Molecule ")
-   vbox_for_option_menu = gtk.VBox(False, 6)
-   molecule_option_menu = gtk.combo_box_new_text()
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   scrolled_win = Gtk.ScrolledWindow()
+   outside_vbox = Gtk.VBox(False, 2)
+   inside_vbox  = Gtk.VBox(False, 2)
+   label = Gtk.Label("\nSolvent molecules added to molecule: ")
+   frame_for_option_menu = Gtk.Frame(" Choose Molecule ")
+   vbox_for_option_menu = Gtk.VBox(False, 6)
+   molecule_option_menu = Gtk.combo_box_new_text()
    model_list = fill_option_menu_with_coordinates_mol_options(molecule_option_menu)
-   add_new_button = gtk.Button("  Add a new Residue Type...")
-   h_sep = gtk.HSeparator()
-   close_button = gtk.Button("  Close  ")
+   add_new_button = Gtk.Button("  Add a new Residue Type...")
+   h_sep = Gtk.HSeparator()
+   close_button = Gtk.Button("  Close  ")
 
    window.set_default_size(250, 500)
    window.set_title("Solvent Ligands")
@@ -4731,7 +4720,7 @@ def solvent_ligands_gui():
    outside_vbox.pack_start(frame_for_option_menu, False, False, 2)
    outside_vbox.pack_start(scrolled_win, True, True, 0)
    scrolled_win.add_with_viewport(inside_vbox)
-   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
    outside_vbox.pack_start(add_new_button, False, False, 6)
    outside_vbox.pack_start(h_sep, False, False, 2)
    outside_vbox.pack_start(close_button, False, False, 2)
@@ -4913,14 +4902,14 @@ def average_map_gui():
                self.remove_from_mav_widgets(hbox)
                hbox.destroy()
             
-         frame = gtk.Frame(False)
-         hbox = gtk.HBox(False, 2)
-         label = gtk.Label("Weight:  ")
-         entry = gtk.Entry()
-         optionmenu = gtk.combo_box_new_text()
+         frame = Gtk.Frame(False)
+         hbox = Gtk.HBox(False, 2)
+         label = Gtk.Label("Weight:  ")
+         entry = Gtk.Entry()
+         optionmenu = Gtk.combo_box_new_text()
          map_mol_list = fill_option_menu_with_map_mol_options(optionmenu)
-         plus_button  = gtk.Button("+")
-         minus_button = gtk.Button(" - ")
+         plus_button  = Gtk.Button("+")
+         minus_button = Gtk.Button(" - ")
          hbox.pack_start(optionmenu, False, False, 2)
          hbox.pack_start(label, False, False, 2)
          hbox.pack_start(entry, False, False, 2)
@@ -4971,15 +4960,15 @@ def average_map_gui():
             window.destroy()
             return False
             
-         window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-         outer_vbox = gtk.VBox(False, 0)
-         inner_vbox = gtk.VBox(False, 0)
-         title = gtk.Label("Average Maps")
-         h_sep = gtk.HSeparator()
-         buttons_hbox = gtk.HBox(False, 2)
+         window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+         outer_vbox = Gtk.VBox(False, 0)
+         inner_vbox = Gtk.VBox(False, 0)
+         title = Gtk.Label("Average Maps")
+         h_sep = Gtk.HSeparator()
+         buttons_hbox = Gtk.HBox(False, 2)
          mav_widget = self.add_average_molecule_widget(inner_vbox)
-         cancel_button = gtk.Button("  Cancel  ")
-         ok_button = gtk.Button("  Average Maps  ")
+         cancel_button = Gtk.Button("  Cancel  ")
+         ok_button = Gtk.Button("  Average Maps  ")
 
          window.add(outer_vbox)
          outer_vbox.pack_start(title, False, False, 2)
@@ -5098,30 +5087,30 @@ def water_coordination_gui():
       # print "   checking if %s is in %s... result: %s" %(atom_spec, metal_results, atom_spec in metal_results)
       return atom_spec in metal_results
 
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-   vbox = gtk.VBox(False, 0)
-   results_vbox = gtk.VBox(False, 0)
-   water_results_label = gtk.Label("Other Coordinated Waters")
-   metal_results_vbox = gtk.VBox(False, 0)
-   metal_results_label = gtk.Label("Potential Metals: ")
-   h_sep = gtk.HSeparator()
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+   vbox = Gtk.VBox(False, 0)
+   results_vbox = Gtk.VBox(False, 0)
+   water_results_label = Gtk.Label("Other Coordinated Waters")
+   metal_results_vbox = Gtk.VBox(False, 0)
+   metal_results_label = Gtk.Label("Potential Metals: ")
+   h_sep = Gtk.HSeparator()
    hint_text = "Molecule: "
-   hbox_chooser = gtk.HBox(False, 0)
-   hbox_max_dist = gtk.HBox(False, 0)
-   hbox_number_chooser = gtk.HBox(False, 0)
-   number_text = gtk.Label("Coordination Number: ")
+   hbox_chooser = Gtk.HBox(False, 0)
+   hbox_max_dist = Gtk.HBox(False, 0)
+   hbox_number_chooser = Gtk.HBox(False, 0)
+   number_text = Gtk.Label("Coordination Number: ")
    molecule_chooser_option_menu_and_model_list = generic_molecule_chooser(hbox_chooser, hint_text)
    molecule_chooser_option_menu = molecule_chooser_option_menu_and_model_list[0]
    model_list = molecule_chooser_option_menu_and_model_list[1]
-   scrolled_win = gtk.ScrolledWindow()
-   metal_results_scrolled_win = gtk.ScrolledWindow()
-   number_menu = gtk.combo_box_new_text()
+   scrolled_win = Gtk.ScrolledWindow()
+   metal_results_scrolled_win = Gtk.ScrolledWindow()
+   number_menu = Gtk.combo_box_new_text()
    coot_utils.number_list = list(range(3, 10))
-   dist_label = gtk.Label("Max Dist: ")
-   dist_entry = gtk.Entry()
-   close_button = gtk.Button("  Close  ")
-   apply_button = gtk.Button("  Apply  ")
-   hbox_buttons = gtk.HBox(False, 6)
+   dist_label = Gtk.Label("Max Dist: ")
+   dist_entry = Gtk.Entry()
+   close_button = Gtk.Button("  Close  ")
+   apply_button = Gtk.Button("  Apply  ")
+   hbox_buttons = Gtk.HBox(False, 6)
 
    def get_molecule():
       return get_option_menu_active_molecule(molecule_chooser_option_menu,
@@ -5161,7 +5150,7 @@ def water_coordination_gui():
             atom_spec = water_info[0]
             t = atom_spec_to_text(atom_spec)
             bump_text = make_bump_text(imol, water_info)
-            button = gtk.Button(t + bump_text)
+            button = Gtk.Button(t + bump_text)
             if not is_a_metal_site_too_qm(atom_spec, metal_results):
                results_vbox.pack_start(button, False, False, 1)
                button.show()
@@ -5179,7 +5168,7 @@ def water_coordination_gui():
             metal_text = metal_site[1]
             t = atom_spec_to_text(metal_site[0])
             button_text = t + " Potential " + metal_text
-            button = gtk.Button(button_text)
+            button = Gtk.Button(button_text)
             metal_results_vbox.pack_start(button, False, False, 1)
             button.show()
             def metal_func(widget, imol, metal_site):
@@ -5196,10 +5185,10 @@ def water_coordination_gui():
    fill_option_menu_with_number_options(number_menu, coot_utils.number_list, 5)
    
    scrolled_win.add_with_viewport(results_vbox)
-   scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
    
    metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
-   metal_results_scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+   metal_results_scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC,Gtk.POLICY_ALWAYS)
 
    hbox_max_dist.pack_start(dist_label, False, False, 2)
    hbox_max_dist.pack_start(dist_entry, False, False, 2)
@@ -5408,26 +5397,26 @@ def refmac_multi_sharpen_gui():
          delete_event(widget)
 
    print("BL DEBUG:: now make a windwo")
-   window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+   window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
    # boxes
-   vbox = gtk.VBox(False, 0)
-   hbox_1 = gtk.HBox(False, 0)
-   hbox_2 = gtk.HBox(False, 0)
-   hbox_3 = gtk.HBox(False, 0)
+   vbox = Gtk.VBox(False, 0)
+   hbox_1 = Gtk.HBox(False, 0)
+   hbox_2 = Gtk.HBox(False, 0)
+   hbox_3 = Gtk.HBox(False, 0)
    # menus
-   option_menu_map = gtk.combo_box_new_text()
-   option_menu_b_factor = gtk.combo_box_new_text()
-   option_menu_n_levels = gtk.combo_box_new_text()
+   option_menu_map = Gtk.combo_box_new_text()
+   option_menu_b_factor = Gtk.combo_box_new_text()
+   option_menu_n_levels = Gtk.combo_box_new_text()
    #labels
-   map_label = gtk.Label("Map ")
-   sb_label = gtk.Label("Sharpen & Blur in ")
-   levels_label = gtk.Label(" levels up to ")
-   A_label = gtk.Label(" A*A")
+   map_label = Gtk.Label("Map ")
+   sb_label = Gtk.Label("Sharpen & Blur in ")
+   levels_label = Gtk.Label(" levels up to ")
+   A_label = Gtk.Label(" A*A")
    # separate
-   h_sep = gtk.HSeparator()
+   h_sep = Gtk.HSeparator()
    # buttons
-   ok_button = gtk.Button("   OK   ")
-   cancel_button = gtk.Button(" Cancel ")
+   ok_button = Gtk.Button("   OK   ")
+   cancel_button = Gtk.Button(" Cancel ")
    n_levels_list = [1, 2, 3, 4, 5, 6]
    b_factor_list = [50, 100, 200, 400, 800, 2000]
 
@@ -5540,14 +5529,14 @@ def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
             # print "change occ slider?!"
             pass
 
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        title = gtk.Label("Adjust alt conf occupancies")
-        occ_label = gtk.Label("Occupancy")
-        alt_conf_label = gtk.Label("Alt Conf: " + alt_conf)
-        occ_adj = gtk.Adjustment(occ_start, 0.1, 0.99, 0.01, 0.1, 0.1)
-        occ_scale = gtk.HScale(occ_adj)
-        vbox = gtk.VBox(False, 0)
-        scale_hbox = gtk.HBox(False, 0)
+        window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+        title = Gtk.Label("Adjust alt conf occupancies")
+        occ_label = Gtk.Label("Occupancy")
+        alt_conf_label = Gtk.Label("Alt Conf: " + alt_conf)
+        occ_adj = Gtk.Adjustment(occ_start, 0.1, 0.99, 0.01, 0.1, 0.1)
+        occ_scale = Gtk.HScale(occ_adj)
+        vbox = Gtk.VBox(False, 0)
+        scale_hbox = Gtk.HBox(False, 0)
         scale_hbox.pack_start(alt_conf_label, False, False, 2)
         scale_hbox.pack_start(occ_scale, True, True, 2)
         vbox.pack_start(occ_label, False, False, 0)
@@ -5557,10 +5546,10 @@ def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
 
         window.add(vbox)
 
-        h_sep = gtk.HSeparator()
-        buttons_hbox = gtk.HBox(True, 6)
-        ok_button = gtk.Button("   OK   ")
-        cancel_button = gtk.Button(" Cancel ")
+        h_sep = Gtk.HSeparator()
+        buttons_hbox = Gtk.HBox(True, 6)
+        ok_button = Gtk.Button("   OK   ")
+        cancel_button = Gtk.Button(" Cancel ")
 
         buttons_hbox.pack_start(ok_button, True, False, 2)
         buttons_hbox.pack_start(cancel_button, True, False, 2)
@@ -5620,7 +5609,7 @@ def toggle_backrub_rotamers(widget=None):
       # need to be able to get the state of search mode.
       # easily added. FIXME
       print("BL WARNING:: no widget")
-   
+
 def toggle_hydrogen_display(widget=None):
       """Toggle function to display all hydrogens or not.
 
@@ -5717,7 +5706,7 @@ def duplicate_range_by_atom_pick():
       res_no_2 = coot_utils.atom_specs[1][3]
 
       # some sanity check
-      if (not imol_1 == imol_2):
+      if not (imol_1 == imol_2):
          msg = (
             "BL WARNING:: not the same imols. \n"
             "imol %i and %i were selected"
@@ -5780,16 +5769,16 @@ def yes_no_dialog(label_text, title_text=None):
       bool of answer.
    """
    
-   dialog = gtk.Dialog(title_text, None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
-                       (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
-                        gtk.STOCK_NO, gtk.RESPONSE_REJECT))
-   ifont = gtk.gdk.Font("fixed")
-   label = gtk.Label(label_text)
+   dialog = Gtk.Dialog(title_text, None,
+                       Gtk.DIALOG_MODAL | Gtk.DIALOG_NO_SEPARATOR,
+                       (Gtk.STOCK_YES, Gtk.RESPONSE_ACCEPT,
+                        Gtk.STOCK_NO, Gtk.RESPONSE_REJECT))
+   ifont = Gtk.gdk.Font("fixed")
+   label = Gtk.Label(label_text)
    dialog.vbox.pack_end(label, True, True, 0)
    dialog.show_all()
    result = dialog.run()
-   if result == gtk.RESPONSE_ACCEPT:
+   if result == Gtk.RESPONSE_ACCEPT:
       ret = True
    else:
       ret = False

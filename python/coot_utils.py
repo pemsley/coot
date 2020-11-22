@@ -679,7 +679,7 @@ def map_molecule_list():
 def model_molecule_list():
 
     model_list = []
-    for i in range(graphics_n_molecules()):
+    for i in range(coot.graphics_n_molecules()):
        if coot.is_valid_model_molecule(i) == 1:
           model_list.append(i)
     return model_list
@@ -1397,7 +1397,7 @@ def python_representation(imol, chains=[]):
         if not chains:
             # use all
             chains = chain_ids(imol)
-        ls = [[[chain_id, [r_info(imol, chain_id, serial_number) for serial_number in range(chain_n_residues(chain_id, imol))]] for chain_id in chains]]
+        ls = [[[chain_id, [r_info(imol, chain_id, serial_number) for serial_number in range(coot.chain_n_residues(chain_id, imol))]] for chain_id in chains]]
         return ls
 
 # reorder chains
@@ -1563,7 +1563,7 @@ def darken_maps():
 def chain_ids(imol):
 
    # if this fails, check that you have not set chain_id to override coot's chain_id()
-   return [chain_id(imol, ic) for ic in range(n_chains(imol))]
+   return [chain_id(imol, ic) for ic in range(coot.n_chains(imol))]
 
 # convert from interface name to schemisch name to be equivalent to Paul's naming
 #
@@ -2081,7 +2081,7 @@ def atoms_with_zero_occ(imol):
 
     r = []
     for chain_id in chain_ids(imol):
-        n_residues = chain_n_residues(chain_id, imol)
+        n_residues = coot.chain_n_residues(chain_id, imol)
         for serial_number in range(n_residues):
 
             res_name = resname_from_serial_number(imol, chain_id, serial_number)
@@ -2386,10 +2386,10 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
         have_tlc_molecule = False
         for imol in model_molecule_list():
-            nc = n_chains(imol)
+            nc = coot.n_chains(imol)
             if (nc == 1):
                 ch_id = chain_id(imol, 0)
-                nr = chain_n_residues(ch_id, imol)
+                nr = coot.chain_n_residues(ch_id, imol)
                 if (nr == 1):
                     rn = resname_from_serial_number(imol, ch_id, 0)
                     if (rn == tlc):
@@ -2535,7 +2535,7 @@ def label_all_CAs(imol):
 
     for chain_id in chain_ids(imol):
         if not (is_solvent_chain_qm(imol, chain_id)):
-            n_residues = chain_n_residues(chain_id, imol)
+            n_residues = coot.chain_n_residues(chain_id, imol)
             for serial_number in number_list(0, n_residues):
                 res_name = resname_from_serial_number(imol, chain_id, serial_number)
                 res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
@@ -2901,7 +2901,7 @@ def pukka_puckers_qm(imol):
     # main line
     for chain_id in chain_ids(imol):
         if (not is_solvent_chain_qm(imol, chain_id)):
-            n_residues = chain_n_residues(chain_id, imol)
+            n_residues = coot.chain_n_residues(chain_id, imol)
 
             for serial_number in range(n_residues):
 
@@ -3533,7 +3533,7 @@ def set_b_factor_molecule(imol, bval):
 
     for chain_id in chain_ids(imol):
         start_res = seqnum_from_serial_number(imol, chain_id, 0)
-        end_res   = seqnum_from_serial_number(imol, chain_id, chain_n_residues(chain_id, imol) - 1)
+        end_res   = seqnum_from_serial_number(imol, chain_id, coot.chain_n_residues(chain_id, imol) - 1)
         set_b_factor_residue_range(imol, chain_id, start_res, end_res, bval)
 
 # reset B-factor for molecule imol to default value
@@ -3542,7 +3542,7 @@ def reset_b_factor_molecule(imol):
 
     for chain_id in chain_ids(imol):
         start_res = seqnum_from_serial_number(imol, chain_id, 0)
-        end_res   = seqnum_from_serial_number(imol, chain_id, chain_n_residues(chain_id, imol) - 1)
+        end_res   = seqnum_from_serial_number(imol, chain_id, coot.chain_n_residues(chain_id, imol) - 1)
         set_b_factor_residue_range(imol, chain_id, start_res, end_res, default_new_atoms_b_factor())
 
 # reset B-factor for active residue to default value
@@ -3941,9 +3941,9 @@ def merge_solvent_chains(imol):
     # now merge and renumber
     if (len(solvent_chains) > 1):
         master_chain = solvent_chains[0]
-        last_prev_water = chain_n_residues(master_chain, imol)
+        last_prev_water = coot.chain_n_residues(master_chain, imol)
         for chain_id in solvent_chains[1:]:
-            n_residues = chain_n_residues(chain_id, imol)
+            n_residues = coot.chain_n_residues(chain_id, imol)
             renumber_residue_range(imol, chain_id, 1,
                                    n_residues, last_prev_water)
             new_start = last_prev_water + 1
