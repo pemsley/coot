@@ -53,7 +53,7 @@ def povray_image():
     import webbrowser
     import sys
 
-    povray(coot_povray_file_name)
+    coot.povray(coot_povray_file_name)
     print("calling povray with args: ", raster3d.povray_args())
     extra_args = "-UV +H600 +W600"
     if (os.name == 'nt'):

@@ -179,8 +179,8 @@ def cns2coot(twofofc_coeffs, fofc_coeffs, model_pdb):
 
        # now load them in Coot
        #
-       read_pdb(model_pdb)
-       make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "FWT", "PHWT", "", 0, 0, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
-       make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "DELFWT", "DELPHWT", "", 0, 1, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
+       coot.read_pdb(model_pdb)
+       coot.make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "FWT", "PHWT", "", 0, 0, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
+       coot.make_and_draw_map_with_reso_with_refmac_params(map_coot_mtz, "DELFWT", "DELPHWT", "", 0, 1, 0, "Fobs:None-specified", "SigF:None-specified", "RFree:None-specified", 0, 0, 0, -1.00, -1.00)
 
 #cns_coot("2fo-fc_Fum480.coeff","fo-fc_Fum480.coeff","bindividual_Fum480.pdb")

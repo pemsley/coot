@@ -7,7 +7,7 @@ def get_stable_release_from_server_string(stri):
 
 # needs testing!
 def get_stable_release_from_coot_version():
-    s = coot_version()
+    s = coot.coot_version()
     ls = s.split(" ")
     return ls[0]
 
@@ -22,7 +22,7 @@ def new_version_on_server(stri, is_pre_release):
         #
         server_rev = coot_utils.get_revision_from_string(stri)
         if server_rev:
-            return server_rev > svn_revision()
+            return server_rev > coot.svn_revision()
         else:
             return None
 
@@ -102,7 +102,7 @@ def download_binary_dialog(version_string, use_curl=False):
             # 
             global pending_install_in_place
             if file_name_for_progress_bar:
-                stop_curl_download(file_name_for_progress_bar)
+                coot.stop_curl_download(file_name_for_progress_bar)
             pending_install_in_place = "cancelled"  # not fail!
             return False
 
@@ -113,7 +113,7 @@ def download_binary_dialog(version_string, use_curl=False):
             # only start when ok button is pressed
             gobject.timeout_add(500, idle_func) # update every 500ms is god enough?!
             if not isinstance(revision, numbers.Number):
-                info_dialog("Failed to communicate with server")
+                coot.info_dialog("Failed to communicate with server")
             else:
                 # BL says:: check if we have a download available already?! (from before)
                 if (version_string in get_latest_pending_version()):
@@ -145,7 +145,7 @@ def download_binary_dialog(version_string, use_curl=False):
             global pending_install_in_place
             if (pending_install_in_place == "fail"):
                 window.destroy()
-                info_dialog("Failure to download and install binary")
+                coot.info_dialog("Failure to download and install binary")
                 return False  # stop idle func
             if (pending_install_in_place == "cancelled"):
                 window.destroy()
@@ -216,9 +216,9 @@ def download_binary_dialog(version_string, use_curl=False):
     coot_prefix = os.path.normpath(coot_prefix) # needed for WinCoot?! FIXME
     if not coot_utils.directory_is_modifiable_qm(coot_prefix):
         if not coot_prefix:
-            info_dialog("COOT_PREFIX is not set.  Download not started.")
+            coot.info_dialog("COOT_PREFIX is not set.  Download not started.")
         else:
-            info_dialog("Directory " + coot_prefix + \
+            coot.info_dialog("Directory " + coot_prefix + \
                         " is not modifiable.\n" + \
                         "Download/install not started.")
     else:
@@ -248,7 +248,7 @@ def restart_dialog(extra_text=""):
         coot_utils.run_concurrently(coot_command, coot_args)
             
         window.destroy()
-        coot_real_exit(0)
+        coot.coot_real_exit(0)
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     dialog_name = "Restart Required to complete installation"
@@ -312,7 +312,7 @@ def check_for_updates_gui(use_curl=False):
             try:
                 latest_version_server_response = urllib.request.urlopen(url).read()
             except:
-                info_dialog("Could not establish connection to get latest version on server")
+                coot.info_dialog("Could not establish connection to get latest version on server")
                 return
         try:
             handle_latest_version_server_response(latest_version_server_response)
@@ -341,21 +341,21 @@ def check_for_updates_gui(use_curl=False):
                 " binary for this system (" + \
                 coot_sys_build_type() + \
                 ") on the binary server."
-            info_dialog(s)
+            coot.info_dialog(s)
             return False  # stop running idle function
         elif (server_info_status == ""):
             # BL says:: supposedly - havent checked
             # this happens when coot can't get past the proxy
             # 
-            info_dialog("Can't communicate with server")
+            coot.info_dialog("Can't communicate with server")
         elif server_info_status:
             if (new_version_on_server(server_info_status, is_pre_release)):
                 notify_of_new_version(server_info_status, use_curl)
             else:
                 s = "No version newer than this revision (" + \
-                    str(svn_revision())                     + \
+                    str(coot.svn_revision())                     + \
                     ")."
-                info_dialog(s)
+                coot.info_dialog(s)
             return False # stop running idle function
         else:
             time.sleep(0.010)

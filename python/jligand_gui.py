@@ -20,7 +20,7 @@ def launch_jligand_function():
         # not set if it is not set.
         env_message = "Environment variable JLIGAND_HOME not set\n\n" \
                       if not jligand_home_env else ""
-        info_dialog(env_message + s)
+        coot.info_dialog(env_message + s)
 
     else:
         # OK, it does exist - run it!
@@ -39,7 +39,7 @@ def launch_jligand_function():
                 message = "Sorry, your JLigand:\n\n " + jligand_jar + "\n\n" + \
                           "is not new enough to work with Coot!\n" + \
                           "Please download a new one!"
-                info_dialog(message)
+                coot.info_dialog(message)
             else:
                 coot_utils.run_concurrently(java_exe, jligand_args)
                 # beam in a new menu to the menu bar:
@@ -68,11 +68,11 @@ def click_select_residues_for_jligand():
             print("click_2:", click_2)
             if ((len(click_1) == 7)
                 and (len(click_2) ==7)):
-                resname_1 = residue_name(click_1[1],
+                resname_1 = coot.residue_name(click_1[1],
                                          click_1[2],
                                          click_1[3],
                                          click_1[4])
-                resname_2 = residue_name(click_2[1],
+                resname_2 = coot.residue_name(click_2[1],
                                          click_2[2],
                                          click_2[3],
                                          click_2[4])
@@ -90,14 +90,14 @@ def click_select_residues_for_jligand():
                         msg = "Two different molecules %s and %s selected.\n" \
                               %(imol_click_1, imol_click_2) + \
                               "Make sure to select residues in the same molecule."
-                        info_dialog(msg)
+                        coot.info_dialog(msg)
                         imol_jligand_link = False
                     elif (chain_click_1 == chain_click_2 and
                           resno_click_1 == resno_click_2):
                         msg = "Same residue %s %s selected.\n" \
                               %(chain_click_1, resno_click_1) + \
                               "Make sure to select different residues."
-                        info_dialog(msg)
+                        coot.info_dialog(msg)
                         imol_jligand_link = False
                     else:
                         # happy path

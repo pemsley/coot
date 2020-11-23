@@ -9,7 +9,7 @@ def hole_ify():
                                                        position[0],
                                                        position[1],
                                                        position[2])
-        add_status_bar_text(s)
+        coot.add_status_bar_text(s)
 
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     vbox = gtk.VBox(False, 0)
@@ -68,10 +68,10 @@ def hole_ify():
         if isinstance(imol, int):
             print(start_pos, end_pos)
             if not isinstance(start_pos, list):
-                add_status_bar_text("Start position not set")
+                coot.add_status_bar_text("Start position not set")
             else:
                 if not isinstance(end_pos, list):
-                    add_status_bar_text("End position not set")
+                    coot.add_status_bar_text("End position not set")
                 else:
                     # main?
                     print("hole", imol, start_pos, end_pos)
@@ -83,7 +83,7 @@ def hole_ify():
                                 [colour_map_multiplier, colour_map_offset, 1,
                                  True, export_dots_file_name]
                     print("BL DEBUG:: hole_args", hole_args)
-                    hole(*hole_args)
+                    coot.hole(*hole_args)
                     delete_event()
                     
     calculate_button.connect("clicked", calculate_button_cb)

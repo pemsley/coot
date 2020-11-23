@@ -42,7 +42,7 @@ def connection_proc(port, hostname):
     time.sleep(5)
     # more!?
     print("BL DEBUG:: read PIN")
-    request.send("imol = read_pdb('monomer-PIN.pdb')\n")
+    request.send("imol = coot.read_pdb('monomer-PIN.pdb')\n")
     request.send("set_rotation_centre(5, 5, 5)\n")
     request.send("move_molecule_to_screen_centre(imol)\n")
     end_transmission()

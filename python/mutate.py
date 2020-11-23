@@ -27,7 +27,7 @@ import coot_utils
 def mutate_chain(imol, chain_id, sequence):
 
     if (len(sequence) != chain_n_iresidues(chain_id, imol)):
-        print("sequence mismatch: molecule", chain_n_residues(
+        print("sequence mismatch: molecule", coot.chain_n_residues(
             chain_id, imol), "new sequences:", len(sequence))
     else:
         coot.make_backup(imol)  # do backup first
@@ -192,7 +192,7 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
     # main line
     if (type(sequence) is not StringType):
         s = "sequence must be a string"
-        info_dialog(s)
+        coot.info_dialog(s)
         print(s)
     else:
         residue_range_length = resno_end - resno_start + 1
@@ -200,7 +200,7 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
 
         if not (residue_range_length == seq_length):
             s = "residue range must equal sequence length"
-            info_dialog(s)
+            coot.info_dialog(s)
             print(s)
         else:
             residue_types = list(map(nucleotide_letter2three_letter_code,
@@ -209,7 +209,7 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
                                         list(range(resno_start, resno_end + 1)),
                                         residue_types):
                 if res_type:
-                    mutate_base(imol, chain_id, res_no, "", res_type)
+                    coot.mutate_base(imol, chain_id, res_no, "", res_type)
 
 # a wrapper for mutate_single_residue_by_seqno (which uses slightly
 # inconvenient single letter code)
@@ -235,7 +235,7 @@ def mutate_residue_redundant(residue_number, chain_id, imol,
     else:
         # if not standard aa then set it to Ala
         res_type_1lc = "A"
-    mutate(imol, chain_id, residue_number, "", res_type_1lc)
+    coot.mutate(imol, chain_id, residue_number, "", res_type_1lc)
 
 # Prompted by Tim Gruene's email to CCP4bb 20060201.
 # Turn all residues (including GLY) of imol to ALA.
@@ -254,12 +254,12 @@ def mutate_residue_redundant(residue_number, chain_id, imol,
 
 def poly_ala(imol, res_type=False):
 
-    if is_valid_model_molecule(imol):
+    if coot.is_valid_model_molecule(imol):
         coot.make_backup(imol)
         backup_mode = coot.backup_state(imol)
         imol_map = coot.imol_refinement_map()
 
-        turn_off_backup(imol)
+        coot.turn_off_backup(imol)
         dic_sg = {"SER": "S", "Ser": "S", "GLY": "G", "Gly": "G"}
         if (res_type):
             # residue name given!
@@ -275,14 +275,14 @@ def poly_ala(imol, res_type=False):
             single_letter_code = "A"
 
         for chain_id in coot_utils.chain_ids(imol):
-            n_residues = chain_n_residues(chain_id, imol)
+            n_residues = coot.chain_n_residues(chain_id, imol)
             for serial_number in range(n_residues):
-                mutate_single_residue_by_serial_number(serial_number,
+                coot.mutate_single_residue_by_serial_number(serial_number,
                                                        chain_id,
                                                        imol,
                                                        single_letter_code)
         if (backup_mode == 1):
-            turn_on_backup(imol)
+            coot.turn_on_backup(imol)
 
     else:
         print("BL WARNING:: no valid model molecule", imol)

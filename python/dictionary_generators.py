@@ -4,8 +4,8 @@
 #
 def generate_molecule_from_mmcif(comp_id, mmcif_file_name):
 
-   read_cif_dictionary(mmcif_file_name)
-   get_monomer(comp_id)
+   coot.read_cif_dictionary(mmcif_file_name)
+   coot.get_monomer(comp_id)
 
 # return a molecule number. Return -1 on fail.
 #
@@ -29,14 +29,14 @@ def generate_molecule_from_mmcif_by_dict_gen(comp_id, mmcif_file_name):
             pdb_name = os.path.join(working_dir, stub + ".pdb")
             cif_name = os.path.join(working_dir, stub + ".cif")
 
-            imol = read_pdb(pdb_name)
-            read_cif_dictionary(cif_name)
+            imol = coot.read_pdb(pdb_name)
+            coot.read_cif_dictionary(cif_name)
             return imol
 
     if not os.path.isfile(mmcif_file_name):
         return -1 # fail
     
-    if enhanced_ligand_coot_p():
+    if coot.enhanced_ligand_coot_p():
         # Use pyrogen if we have mogul
         #
         if use_mogul:

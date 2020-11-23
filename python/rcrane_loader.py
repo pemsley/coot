@@ -34,7 +34,7 @@ def import_rcrane_wrapper():
                rcraneSettings.close()
                break
        else:
-           #the rcrane.py file exists, but it doesn't have a run_python_script( line,
+           #the rcrane.py file exists, but it doesn't have a coot.run_python_script( line,
            #so the user doesn't have an old version of RCrane installed
            rcraneSettings.close()
            return False

@@ -40,7 +40,7 @@ def render_image():
     else:
         coot_image_file_name = "coot.png"
         image_format = " -png "
-    raster3d(coot_r3d_file_name)
+    coot.raster3d(coot_r3d_file_name)
     r3d_exe = coot_utils.find_exe("render", "PATH")
     if (r3d_exe):
        r3d_dir = os.path.dirname(r3d_exe)

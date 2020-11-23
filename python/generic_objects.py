@@ -48,9 +48,9 @@ is_closed_generic_object_qm = coot.is_closed_generic_object_p
 # 
 def generic_object_with_name(obj_name):
 
-  t = generic_object_index(obj_name)
+  t = coot.generic_object_index(obj_name)
   if (t == -1):
-    t = new_generic_object_number(obj_name)
+    t = coot.new_generic_object_number(obj_name)
   return t
 
 
@@ -73,7 +73,7 @@ def generic_objects_gui():
         # BL says: first we shall close the generic objects
         # or not
         #for generic_object_number in range(n_objects):
-        # set_display_generic_object(generic_object_number, 0)
+        # coot.set_display_generic_object(generic_object_number, 0)
         gen_window.destroy()
         return False
 
@@ -82,9 +82,9 @@ def generic_objects_gui():
         button_state = widget.get_active()
         object_state = generic_object_is_displayed_qm(generic_object_number)
         if ((button_state == True) and (object_state == 0)):
-          set_display_generic_object(generic_object_number,1)
+          coot.set_display_generic_object(generic_object_number,1)
         if ((button_state == False) and (object_state == 1)):
-          set_display_generic_object(generic_object_number,0)
+          coot.set_display_generic_object(generic_object_number,0)
 
       def all_check_button_callback(widget):
         show_all = widget.get_active()
@@ -94,7 +94,7 @@ def generic_objects_gui():
           else:
             check_button.set_active(False)
 
-      n_objects = number_of_generic_objects()
+      n_objects = coot.number_of_generic_objects()
 
       if (n_objects > 0):
         gen_window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -227,18 +227,18 @@ def probe(imol):
   global reduce_command, probe_command
   global old_pdb_style
     
-  if is_valid_model_molecule(imol):
+  if coot.is_valid_model_molecule(imol):
 
     if not (os.path.isfile(reduce_command)):
       reduce_command = coot_utils.find_exe("reduce", "PATH", "CBIN", "CCP4_BIN")
     # we need to check if probe_command is defined too
     if not(os.path.isfile(probe_command)):
       probe_command = coot_utils.find_exe("probe", "PATH", "CBIN", "CCP4_BIN")
-    make_directory_maybe("coot-molprobity")
+    coot.make_directory_maybe("coot-molprobity")
     mol_pdb_file = "coot-molprobity/for-reduce.pdb"
     reduce_out_pdb_file = "coot-molprobity/reduced.pdb"
     reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict.txt"
-    write_pdb_file(imol, mol_pdb_file)
+    coot.write_pdb_file(imol, mol_pdb_file)
     write_reduce_het_dict(imol, reduce_het_dict_file_name)
     if not reduce_command:
       # couldnt find reduce
@@ -272,7 +272,7 @@ def probe(imol):
         # couldnt find probe
         print("BL WARNING:: Could not locate the program probe!! Please check if installed!")
       else:
-        probe_name_stub = coot_utils.strip_extension(coot_utils.strip_path(molecule_name(imol)))
+        probe_name_stub = coot_utils.strip_extension(coot_utils.strip_path(coot.molecule_name(imol)))
         probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
         probe_out = "coot-molprobity/probe-dots.out"
 
@@ -288,17 +288,17 @@ def probe(imol):
         else:
           # by default, we don't want to click on the
           # imol-probe molecule (I think :-)
-          recentre_status = recentre_on_read_pdb()
-          novalue = set_recentre_on_read_pdb(0)
+          recentre_status = coot.recentre_on_read_pdb()
+          novalue = coot.set_recentre_on_read_pdb(0)
           if (reduce_molecule_updates_current):
             print("======= update molecule =======")
-            imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
+            imol_probe = coot.clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
           else:
             print("======= read new pdb file =======")
-            imol_probe = read_pdb(probe_pdb_in)
+            imol_probe = coot.read_pdb(probe_pdb_in)
 
           if recentre_status == 1:
-            set_recentre_on_read_pdb(1)
+            coot.set_recentre_on_read_pdb(1)
 
           # show the GUI for USER MODS
           if coot_utils.using_gui():
@@ -313,9 +313,9 @@ def probe(imol):
           # several probes, the wrong molecule is
           # getting refined).
 
-          handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
+          coot.handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
           generic_objects_gui()
-          graphics_draw()
+          coot.graphics_draw()
 
 
 # Write the connectivity for the non-standard (non-water) residues in
@@ -329,7 +329,7 @@ def write_reduce_het_dict(imol, reduce_het_dict_file_name):
   con_file_names = []
   for res_name in non_standard_residue_names(imol):
     f_name = "coot-molprobity/conn-" + res_name + ".txt"
-    status = write_connectivity(res_name, f_name)
+    status = coot.write_connectivity(res_name, f_name)
     if (status == 1):
       con_file_names.append(f_name)
   if con_file_names:
@@ -412,8 +412,8 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
 			      probe_out)
 
        # don't show the gui, so the imol is not needed/dummy.
-       handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
-       graphics_draw()
+       coot.handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
+       coot.graphics_draw()
 
 #
 #
@@ -451,8 +451,8 @@ def get_probe_dots_from(pdb_file_name, point, radius):
             pdb_file_name]
     print("popen_comand on", probe_command, args)
     coot_utils.popen_command(probe_command, args, [], probe_out, False)
-    handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
-    graphics_draw()
+    coot.handle_read_draw_probe_dots_unformatted(probe_out, 0, 0)
+    coot.graphics_draw()
 
 # Update the generic objects probe dots from residues within radius
 # of the screen centre.
@@ -470,16 +470,16 @@ def probe_local_sphere(imol, radius):
   # in a bond angle and therefore clashes.
 
   pt = coot_utils.rotation_centre()
-  imol_new = new_molecule_by_sphere_selection(imol, pt[0], pt[1], pt[2],
+  imol_new = coot.new_molecule_by_sphere_selection(imol, pt[0], pt[1], pt[2],
                                               radius, 0)
-  set_mol_displayed(imol_new, 0)
+  coot.set_mol_displayed(imol_new, 0)
   set_mol_active   (imol_new, 0)
   pdb_name = "molprobity-tmp-reference-file.pdb"
-  make_directory_maybe("coot-molprobity")
+  coot.make_directory_maybe("coot-molprobity")
   write_pdb_file_for_molprobity(imol_new, pdb_name)
 
   get_probe_dots_from(pdb_name, pt, radius)
-  close_molecule(imol_new)
+  coot.close_molecule(imol_new)
 
 
 def probe_local_sphere_active_atom(radius=5.0):
@@ -495,7 +495,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
 
   tmp_pdb_name = coot_utils.file_name_sans_extension(pdb_name) + "-tmp.pdb"
 
-  write_pdb_file(imol, tmp_pdb_name)
+  coot.write_pdb_file(imol, tmp_pdb_name)
 
   # Let's add on the connectivity cards of the residues that
   # molprobity doesn't know about (which I presume are all
@@ -505,7 +505,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
   conn_file_names = []
   for res_name in non_standard_residue_names(imol):
     f_name = os.path.join("coot-molprobity", "conn-" + res_name + ".txt")
-    status = write_connectivity(res_name, f_name)
+    status = coot.write_connectivity(res_name, f_name)
     if (status == 1):
       conn_file_names.append(f_name)
 
@@ -541,11 +541,11 @@ def toggle_interactive_probe_dots(widget=None):
   if widget:
     if widget.get_active():
       # the button is toggled on
-      set_do_probe_dots_on_rotamers_and_chis(1)
-      set_do_probe_dots_post_refine(1)
+      coot.set_do_probe_dots_on_rotamers_and_chis(1)
+      coot.set_do_probe_dots_post_refine(1)
     else:
-      set_do_probe_dots_on_rotamers_and_chis(0)
-      set_do_probe_dots_post_refine(0)
+      coot.set_do_probe_dots_on_rotamers_and_chis(0)
+      coot.set_do_probe_dots_post_refine(0)
   else:
     # no alternative for now (could just go by state and change back and forth)
     print("BL WARNING:: no widget")

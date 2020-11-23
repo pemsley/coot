@@ -1,6 +1,6 @@
 def res_name_from_atom_spec(atom_spec):
   imol = atom_spec[1]
-  res_name = residue_name(imol,
+  res_name = coot.residue_name(imol,
                           atom_spec[2],
                           atom_spec[3],
                           atom_spec[4])
@@ -8,13 +8,13 @@ def res_name_from_atom_spec(atom_spec):
 
 def user_defined_add_single_bond_restraint():
   
-  add_status_bar_text("Click on 2 atoms to define the additional bond restraint")
+  coot.add_status_bar_text("Click on 2 atoms to define the additional bond restraint")
   def make_restr(*args):
     atom_spec_1 = args[0]
     atom_spec_2 = args[1]
     imol = atom_spec_1[1]
     print("BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2))
-    add_extra_bond_restraint(imol,
+    coot.add_extra_bond_restraint(imol,
                              atom_spec_1[2],
                              atom_spec_1[3],
                              atom_spec_1[4],
@@ -35,13 +35,13 @@ def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
   # maybe make a generic one....
   def make_restr(text_list, continue_qm):
     s = "Now click on 2 atoms to define the additional bond restraint"
-    add_status_bar_text(s)
+    coot.add_status_bar_text(s)
     dist = text_list[0]
     try:
       bl = float(dist)
     except:
       bl = False
-      add_status_bar_text("Must define a number for the bond length")
+      coot.add_status_bar_text("Must define a number for the bond length")
     if bl:
       # save distance for future use?!
       def make_restr_dist(*args):
@@ -49,7 +49,7 @@ def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
             atom_spec_2 = args[1]
             imol = atom_spec_1[1]
             print("BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2))
-            add_extra_bond_restraint(imol,
+            coot.add_extra_bond_restraint(imol,
                                      atom_spec_1[2],
                                      atom_spec_1[3],
                                      atom_spec_1[4],
@@ -88,7 +88,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
 
   print("add_base_restraint", imol, spec_1, spec_2, atom_name_1, atom_name_2, dist)
   
-  add_extra_bond_restraint(imol,
+  coot.add_extra_bond_restraint(imol,
                            spec_1[2],
                            spec_1[3],
                            spec_1[4],
@@ -209,12 +209,12 @@ def user_defined_add_helix_restraints():
         res_no_1 = res_no_2
         res_no_2 = tmp
       for rn in range(res_no_1, res_no_2 - 2):
-        add_extra_bond_restraint(imol,
+        coot.add_extra_bond_restraint(imol,
                                  chain_id_1, rn    , "", " O  ", "",
                                  chain_id_1, rn + 3, "", " N  ", "",
                                  3.18, 0.035)
         if (rn + 4 <= res_no_2):
-          add_extra_bond_restraint(imol,
+          coot.add_extra_bond_restraint(imol,
                                    chain_id_1, rn    , "", " O  ", "",
                                    chain_id_1, rn + 4, "", " N  ", "",
                                    2.91, 0.035)
@@ -275,7 +275,7 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
   """
 
   dir_stub = "coot-ccp4"
-  make_directory_maybe(dir_stub)
+  coot.make_directory_maybe(dir_stub)
   target_pdb_file_name = os.path.join(dir_stub,
                                       molecule_name_stub(imol_target, 0).replace(" ", "_") + \
                                       "-prosmart.pdb")
@@ -286,8 +286,8 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
                               molecule_name_stub(imol_target, 0).replace(" ", "_") + \
                               "-prosmart.txt")
 
-  write_pdb_file(imol_target, target_pdb_file_name)
-  write_pdb_file(imol_ref, reference_pdb_file_name)
+  coot.write_pdb_file(imol_target, target_pdb_file_name)
+  coot.write_pdb_file(imol_ref, reference_pdb_file_name)
   prosmart_exe = coot_utils.find_exe("prosmart")
   if prosmart_exe:
     l = ["-p1", target_pdb_file_name,
@@ -304,7 +304,7 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
       print("file not found", prosmart_out)
     else:
       print("Reading ProSMART restraints from", prosmart_out)
-      add_refmac_extra_restraints(imol_target, prosmart_out)
+      coot.add_refmac_extra_restraints(imol_target, prosmart_out)
 
 def res_name2plane_atom_name_list(res_name):
 
@@ -374,12 +374,12 @@ def add_parallel_planes_restraint(imol, rs_0, rs_1):
 
   write_refmac_parallel_plane_restraint("tmp.rst", rs_0, rs_1, atom_ls_0, atom_ls_1)
 
-  add_refmac_extra_restraints(imol, "tmp.rst")
+  coot.add_refmac_extra_restraints(imol, "tmp.rst")
 
 
 def user_defined_add_planes_restraint():
 
-  add_status_bar_text("Click on 2 atoms to define the additional parallel planes restraint")
+  coot.add_status_bar_text("Click on 2 atoms to define the additional parallel planes restraint")
   
   def make_restr(*args):
     atom_0 = args[0]
@@ -388,11 +388,11 @@ def user_defined_add_planes_restraint():
     rs_1 = coot_utils.atom_spec_to_residue_spec(atom_1)
     imol = coot_utils.atom_spec_to_imol(atom_0)
 
-    rn_0 = residue_name(imol,
+    rn_0 = coot.residue_name(imol,
                         res_spec_utils.residue_spec_to_chain_id(coot_utils.atom_spec_to_residue_spec(atom_0)),
                         res_spec_utils.residue_spec_to_res_no(coot_utils.atom_spec_to_residue_spec(atom_0)),
                         coot_utils.residue_spec_to_ins_code(coot_utils.atom_spec_to_residue_spec(atom_0)))
-    rn_1 = residue_name(imol,
+    rn_1 = coot.residue_name(imol,
                         res_spec_utils.residue_spec_to_chain_id(coot_utils.atom_spec_to_residue_spec(atom_1)),
                         res_spec_utils.residue_spec_to_res_no(coot_utils.atom_spec_to_residue_spec(atom_1)),
                         coot_utils.residue_spec_to_ins_code(coot_utils.atom_spec_to_residue_spec(atom_1)))
@@ -406,7 +406,7 @@ def user_defined_add_planes_restraint():
     write_refmac_parallel_plane_restraint("tmp.rst",
                                           rs_0, rs_1,
                                           atom_ls_0, atom_ls_1)
-    add_refmac_extra_restraints(imol, "tmp.rst")
+    coot.add_refmac_extra_restraints(imol, "tmp.rst")
     
   user_defined_click(2, make_restr)
     
@@ -490,7 +490,7 @@ if True:
                                         coot_utils.valid_model_molecule_qm,
                                         "File:", "",
                                         lambda imol, file_name:
-                                        add_refmac_extra_restraints(imol, file_name)))
+                                        coot.add_refmac_extra_restraints(imol, file_name)))
 
     coot_gui.add_simple_coot_menu_menuitem(
       menu,
@@ -498,14 +498,14 @@ if True:
       lambda func:
       coot_gui.molecule_chooser_gui("Delete Extra Restraints for Molecule:",
                            lambda imol:
-                           delete_all_extra_restraints(imol)))
+                           coot.delete_all_extra_restraints(imol)))
       
 
     
     def set_prosmart_sigma_limit_func(low, high):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
-        set_extra_restraints_prosmart_sigma_limits(aa_imol, low, high)
+        coot.set_extra_restraints_prosmart_sigma_limits(aa_imol, low, high)
     
     coot_gui.add_simple_coot_menu_menuitem(
       menu,
@@ -523,7 +523,7 @@ if True:
     def set_prosmart_display_func(state):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
-        set_show_extra_restraints(aa_imol, state)
+        coot.set_show_extra_restraints(aa_imol, state)
     
     coot_gui.add_simple_coot_menu_menuitem(
       menu,
@@ -541,7 +541,7 @@ if True:
     def set_prosmart_display_CA_func(state):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
-        set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
+        coot.set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
       
     coot_gui.add_simple_coot_menu_menuitem(
       menu,
@@ -560,7 +560,7 @@ if True:
 
     def delete_restraints_func():
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
-        delete_extra_restraints_for_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+        coot.delete_extra_restraints_for_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
         
     coot_gui.add_simple_coot_menu_menuitem(
       menu,
@@ -572,7 +572,7 @@ if True:
       try:
         n = float(text)
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
-          delete_extra_restraints_worse_than(aa_imol, n)
+          coot.delete_extra_restraints_worse_than(aa_imol, n)
       except:
         print("BL WARNING:: no float given")
       

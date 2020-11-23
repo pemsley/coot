@@ -434,7 +434,7 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
         # if it was an ASP create a level-0 glyco-id for that (glyco-tree-residue-id doesn't
         # do that (not sure why)).
         if not glyco_id:
-            rn = residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+            rn = coot.residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
             if isinstance(rn, str):
                 if rn == "ASN":
                     glyco_id = [0, "unset", "ASN", "", "", aa_res_spec]
@@ -460,17 +460,17 @@ def glyco_validation_dialog_set_go_to_residue(imol, residue_spec):
                         res_spec_utils.residue_spec_to_chain_id(residue_spec),
                         res_spec_utils.residue_spec_to_res_no(residue_spec),
                         '')
-    set_rotation_centre(*rc)
+    coot.set_rotation_centre(*rc)
 
 def load_privateer_dictionary():
     if os.path.exists("privateer-lib.cif"):
-        read_cif_dictionary("privateer-lib.cif")
-        set_refine_with_torsion_restraints(1)
+        coot.read_cif_dictionary("privateer-lib.cif")
+        coot.set_refine_with_torsion_restraints(1)
     
 class glyco_validate:
 
     def run_privateer(self, imol, glyco_tree_residues, hklin_fn, fp_col, sigfp_col, pdbin_fn, privateer_log):
-        if is_valid_model_molecule(imol):
+        if coot.is_valid_model_molecule(imol):
             args = ['-mtzin', hklin_fn, '-colin-fo', fp_col+','+sigfp_col,
                     '-pdbin', pdbin_fn]
             # using'-mode', 'ccp4i2' makes a file with no residue nambers (afaics)
@@ -478,7 +478,7 @@ class glyco_validate:
 
     def make_privateer_validation_info(self, imol, fp_col, sigfp_col, glyco_tree_residues):
 
-        imol_map = imol_refinement_map()
+        imol_map = coot.imol_refinement_map()
 
         if len(glyco_tree_residues) > 0:
             d = coot_utils.get_directory("coot-ccp4")
@@ -487,8 +487,8 @@ class glyco_validate:
             fn_log = "coot-privateer-" + spid + ".log"
             privateer_pdb = os.path.join(d, fn_pdb)
             privateer_log = os.path.join(d, fn_log)
-            hklin_fn = mtz_file_name(imol_map);
-            write_pdb_file(imol, privateer_pdb)
+            hklin_fn = coot.mtz_file_name(imol_map);
+            coot.write_pdb_file(imol, privateer_pdb)
             self.run_privateer(imol, glyco_tree_residues, hklin_fn, fp_col, sigfp_col, privateer_pdb, privateer_log)
             pvi = self.parse_privateer_log(privateer_log, imol, glyco_tree_residues)
             return pvi
@@ -550,11 +550,11 @@ class glyco_validate:
 
     def validation_dialog(self):
         
-        active_atom = active_residue_py()
+        active_atom = coot.active_residue_py()
         try:
             imol = active_atom[0]
             active_residue = active_atom[:4]
-            glyco_tree_residues = glyco_tree_residues_py(imol, active_residue)
+            glyco_tree_residues = coot.glyco_tree_residues_py(imol, active_residue)
 
             print('imol', imol)
             print('active_residue', active_residue)
@@ -587,10 +587,10 @@ class glyco_validate:
 
     def auto_delete_residues(self):
         try:
-            active_atom = active_residue_py()
+            active_atom = coot.active_residue_py()
             imol = active_atom[0]
             active_residue = active_atom[:4]
-            glyco_tree_residues = glyco_tree_residues_py(imol, active_residue)
+            glyco_tree_residues = coot.glyco_tree_residues_py(imol, active_residue)
             self.auto_delete_residues_internal(imol, glyco_tree_residues)
         except TypeError as e:
             print(e)
@@ -623,13 +623,13 @@ def add_module_carbohydrate_gui():
                     residues = residues_near_residue(aa_imol, aa_res_spec, 10)
                     imol_region = new_molecule_by_residue_specs(aa_imol, residues)
                     # BL says:: why not do a new mol by sphere selection?!
-                    m = median_temperature_factor(imol_region)
-                    close_molecule(imol_region)
+                    m = coot.median_temperature_factor(imol_region)
+                    coot.close_molecule(imol_region)
                     if coot_utils.isNumber(m):
                         new_m = m* 1.55
-                        set_default_temperature_factor_for_new_atoms(new_m)
+                        coot.set_default_temperature_factor_for_new_atoms(new_m)
                         s = "New Temperature Factor set to " + str(new_m)
-                        info_dialog(s)
+                        coot.info_dialog(s)
                 
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Set Default N-linked CHO Atoms B-factor",
@@ -706,16 +706,16 @@ def add_module_carbohydrate_gui():
             # the mode in the function call now takes take of this
             # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Auto Fit & Refine On for Link Addition",
-            #     lambda func: set_add_linked_residue_do_fit_and_refine(1))
+            #     lambda func: coot.set_add_linked_residue_do_fit_and_refine(1))
 
             # coot_gui.add_simple_coot_menu_menuitem(
             #     menu, "Auto Fit & Refine Off for Link Addition",
-            #     lambda func: set_add_linked_residue_do_fit_and_refine(0))
+            #     lambda func: coot.set_add_linked_residue_do_fit_and_refine(0))
 
             def add_oligo_tree_func(oligo_tree):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    make_backup(aa_imol)
+                    coot.make_backup(aa_imol)
                     # switch backup off?!
                     add_linked_cho.add_linked_residue_tree(aa_imol,
                                             [aa_chain_id, aa_res_no, aa_ins_code],
@@ -750,7 +750,7 @@ def add_module_carbohydrate_gui():
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     centre_residue = [aa_chain_id,aa_res_no, aa_ins_code]
-                    multi_residue_torsion_fit(aa_imol,
+                    coot.multi_residue_torsion_fit(aa_imol,
                                               [centre_residue],
                                               30000)
                     if refine:
@@ -763,7 +763,7 @@ def add_module_carbohydrate_gui():
                     centre_residue = [aa_chain_id,aa_res_no, aa_ins_code]
                     residues = residues_near_residue(aa_imol, centre_residue, 1.9)
                     residues.append(centre_residue)
-                    multi_residue_torsion_fit(aa_imol, residues, 30000)
+                    coot.multi_residue_torsion_fit(aa_imol, residues, 30000)
                     if refine:
                         with AutoAccept():
                             refine_residues(aa_imol, [centre_residue])

@@ -23,7 +23,7 @@ def add_module_shelx():
     # we only have the menu if shelxl is in PATH (and if we have the
     # python menubar)
     if not coot_utils.find_exe("shelxl", "PATH"):
-        info_dialog("WARNING:: Cannot find shelxl.\n\nSome SHELX plugin functions may not be working")
+        coot.info_dialog("WARNING:: Cannot find shelxl.\n\nSome SHELX plugin functions may not be working")
     if have_coot_python:
         menu = coot_gui.coot_menubar_menu("SHELX")
 
@@ -119,12 +119,12 @@ def add_module_shelx():
             lambda func: coot_gui.generic_chooser_and_entry("Add new SHELXL command to model:",
                                                    "SHELX instruction:",
                                                    "",
-                                                   lambda imol, text: add_shelx_string_to_molecule(imol, text)))
+                                                   lambda imol, text: coot.add_shelx_string_to_molecule(imol, text)))
 
 def shelx_ins_strings(imol):
 
     ins_tmp_file = "coot-tmp.ins"
-    write_shelx_ins_file(imol, ins_tmp_file)
+    coot.write_shelx_ins_file(imol, ins_tmp_file)
     lines = []
     try:
         fin = open(ins_tmp_file, 'r')

@@ -122,7 +122,7 @@ def parse_check_db(imol, file_name, action):
     #
     global my_flip, my_rsr, my_delete_atom, my_rotamer_search
     def my_flip(imol_local, res_spec):
-        do_180_degree_side_chain_flip(imol_local,
+        coot.do_180_degree_side_chain_flip(imol_local,
                                       res_spec[0],
                                       res_spec[1],
                                       res_spec[2],
@@ -136,7 +136,7 @@ def parse_check_db(imol, file_name, action):
     def my_delete_atom(imol, atom_spec):
         ls = [imol] + atom_spec
         print "calling delete_atom with args", ls
-        delete_atom(*ls)
+        coot.delete_atom(*ls)
 
     #
     def my_rotamer_search(imol, res_spec):
@@ -145,13 +145,13 @@ def parse_check_db(imol, file_name, action):
         ins_code = res_spec[2]
         altloc   = ""
 
-        imol_map = imol_refinement_map()
+        imol_map = coot.imol_refinement_map()
         if (coot_utils.valid_map_molecule_qm(imol_map)):
             print "rotamer search with imol: %s chain: %s resno: %s inscode: %s" \
                   %(imol, chain_id, resno, ins_code)
-            auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
+            coot.auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
         else:
-            add_status_bar_text("No refinement map available, no rotamer fit")
+            coot.add_status_bar_text("No refinement map available, no rotamer fit")
 
     # return False or a residue spec:
     def line2residue_spec(line):

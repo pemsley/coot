@@ -173,7 +173,7 @@ def handle_read_from_jligand_file():
                 # from now a modification of .jligand-to-coot
                 # is means that we should read it?)
             if os.path.isfile(cif_dictionary):
-                read_cif_dictionary(cif_dictionary)
+                coot.read_cif_dictionary(cif_dictionary)
                 link_line = lines[1]
                 print("Now handle this link line", link_line)
                 if (len(link_line) > 72):
@@ -211,7 +211,7 @@ def handle_read_from_jligand_file():
                         if not dist:
                             print("bad dist %s from %s %s" %(dist, atom_spec_1, atom_spec_2))
                         else:
-                            make_link(imol_jligand_link, atom_spec_1,
+                            coot.make_link(imol_jligand_link, atom_spec_1,
                                       atom_spec_2, link_type, dist)
                         
                     

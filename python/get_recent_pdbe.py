@@ -335,15 +335,15 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
 
     coot_download_dir = coot_utils.get_directory("coot-download")
     if (not coot_download_dir):
-        info_dialog("Failed to make download directory")
+        coot.info_dialog("Failed to make download directory")
     else:
         # do it!
 
         # just a small bit of abstraction.
         #
         def make_and_draw_map_local(refmac_out_mtz_file_name):
-            make_and_draw_map(refmac_out_mtz_file_name, "FWT", "PHWT", "", 0, 0)
-            make_and_draw_map(refmac_out_mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
+            coot.make_and_draw_map(refmac_out_mtz_file_name, "FWT", "PHWT", "", 0, 0)
+            coot.make_and_draw_map(refmac_out_mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
 
         def get_sfs_run_refmac(sfs_cif_url, sfs_cif_file_name,
                                sfs_mtz_file_name, pdb_file_name,
@@ -361,7 +361,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 # OK, let's run convert to mtz and run refmac
                 #
                 download_thread_status = "converting-to-mtz"
-                convert_status = mmcif_sfs_to_mtz(sfs_cif_file_name,
+                convert_status = coot.mmcif_sfs_to_mtz(sfs_cif_file_name,
                                                   sfs_mtz_file_name)
                 if not (convert_status == 1):
                     # why cant we make a dialog?! (if this is threaded)
@@ -408,8 +408,8 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 # that doesn't exist and we can't make
                 # it, then give up.
                 #
-                if (not make_directory_maybe("coot_refmac") == 0):
-                    info_dialog("Can't make output directory coot-refmac")
+                if (not coot.make_directory_maybe("coot_refmac") == 0):
+                    coot.info_dialog("Can't make output directory coot-refmac")
                 else:
                     if (os.path.isfile(sfs_cif_file_name) and
                         os.stat(sfs_cif_file_name).st_size > 0):
@@ -699,16 +699,16 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
         def start_cif_download():
              global download_thread_status
              # read the pdb
-             imol = read_pdb(pdb_file_name)
+             imol = coot.read_pdb(pdb_file_name)
              if not coot_utils.valid_model_molecule_qm(imol):
                  s = "Oops - failed to correctly read " + pdb_file_name
-                 info_dialog(s)
+                 coot.info_dialog(s)
                  download_thread_status = "fail"
              if (include_get_sfs_flag != "include-sfs"):
                  # an NMR structure
                  #
                  # FIXME:: better later as timeout_add
-                 # read_pdb(pdb_file_name)
+                 # coot.read_pdb(pdb_file_name)
                  download_thread_status = "done"  #?
                  #print "BL DEBUG:: NMR structure!?"
              else:
@@ -728,8 +728,8 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                      # OK, files are here already.
                      #
                      # FIXME:: again for later
-                     # read_pdb(pdb_file_name) # already done above
-                     # auto_read_make_and_draw_maps(refmac_out_mtz_file_name) # done in the updater.
+                     # coot.read_pdb(pdb_file_name) # already done above
+                     # coot.auto_read_make_and_draw_maps(refmac_out_mtz_file_name) # done in the updater.
                      download_thread_status = "done"
 
         def check_pdb_download_thread():
@@ -838,7 +838,7 @@ def recent_structure_browser(t):
             return citation
 
         global coot_pdbe_image_cache_dir
-        make_directory_maybe(coot_pdbe_image_cache_dir)
+        coot.make_directory_maybe(coot_pdbe_image_cache_dir)
 
         # now make a button list (a label and what to do)
         # entry_id = str(dic["EntryID"])
@@ -946,7 +946,7 @@ def pdbe_latest_releases_gui():
     # url = "http://www.ebi.ac.uk/pdbe-apps/jsonizer/latest/released/"
     json_file_name = "latest-releases.json"
 
-    add_status_bar_text("Retrieving list of latest releases...")
+    coot.add_status_bar_text("Retrieving list of latest releases...")
     # FIXME:: progress bar!?
     progress_bars = recent_entries_progress_dialog()
 

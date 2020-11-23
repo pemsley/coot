@@ -68,15 +68,15 @@ user_defined_alert_smarts = []
 #
 def with_no_backups(imol, *funcs):
 
-    b_state = backup_state(imol)
-    turn_off_backup(imol)
+    b_state = coot.backup_state(imol)
+    coot.turn_off_backup(imol)
     for f in funcs:
         func = f[0]
         args = f[1:len(f)]
         # print "BL DEBUG:: func %s and args %s" %(func, args)
         func(*args)
     if backup_mode == 1:
-        turn_on_backup(imol)
+        coot.turn_on_backup(imol)
 
 
 # 'Macro' to tidy up a set of functions to be run with automatic
@@ -89,17 +89,17 @@ def with_no_backups(imol, *funcs):
 #
 def with_auto_accept(*funcs):
 
-    replace_state = refinement_immediate_replacement_state()
-    set_refinement_immediate_replacement(1)
+    replace_state = coot.refinement_immediate_replacement_state()
+    coot.set_refinement_immediate_replacement(1)
     for f in funcs:
         func = f[0]
         args = f[1:len(f)]
         # print "BL DEBUG:: func %s and args %s" %(func, args)
         ret = func(*args)
-        accept_regularizement()
+        coot.accept_regularizement()
 
     if (replace_state == 0):
-        set_refinement_immediate_replacement(0)
+        coot.set_refinement_immediate_replacement(0)
 
     return ret   # returns result of last functions!!!!
 
@@ -117,7 +117,7 @@ def using_active_atom(*funcs):
     from types import ListType
     active_atom = closest_atom_simple()
     if (not active_atom):
-        add_status_bar_text("No residue found")
+        coot.add_status_bar_text("No residue found")
     else:
 
         def arg_to_append(item):
@@ -174,8 +174,8 @@ def using_active_atom(*funcs):
 # use with 'with', e.g.:
 #
 # > with NoBackups(imol=0):
-#      refine_zone(imol, "A", 43, 45, "")
-#      accept_regularizement()
+#      coot.refine_zone(imol, "A", 43, 45, "")
+#      coot.accept_regularizement()
 #
 
 
@@ -186,20 +186,20 @@ class NoBackups:
     use with 'with', e.g.:
 
     > with WithNoBackups(imol=0):
-        refine_zone(imol, "A", 43, 45, "")
-        accept_regularizement()
+        coot.refine_zone(imol, "A", 43, 45, "")
+        coot.accept_regularizement()
     """
 
     def __init__(self, imol=0):
         self.imol = imol
 
     def __enter__(self):
-        self.b_state = backup_state(self.imol)
-        turn_off_backup(self.imol)
+        self.b_state = coot.backup_state(self.imol)
+        coot.turn_off_backup(self.imol)
 
     def __exit__(self, type, value, traceback):
         if (self.b_state == 1):
-            turn_on_backup(self.imol)
+            coot.turn_on_backup(self.imol)
 
 # Pythonic 'Macro' to tidy up a set of functions to be run with automatic
 # accepting of the refinement.
@@ -207,7 +207,7 @@ class NoBackups:
 #    use with 'with', e.g.:
 #
 #    >with AutoAccept():
-#        refine_zone(0, "A", 43, 45, "")
+#        coot.refine_zone(0, "A", 43, 45, "")
 #
 
 
@@ -219,7 +219,7 @@ class AutoAccept:
     use with 'with', e.g.:
 
     > with AutoAccept():
-         refine_zone(0, "A", 43, 45, "")
+         coot.refine_zone(0, "A", 43, 45, "")
 
     """
 
@@ -228,13 +228,13 @@ class AutoAccept:
         pass
 
     def __enter__(self):
-        self.replace_state = refinement_immediate_replacement_state()
-        set_refinement_immediate_replacement(1)
+        self.replace_state = coot.refinement_immediate_replacement_state()
+        coot.set_refinement_immediate_replacement(1)
 
     def __exit__(self, type, value, traceback):
-        accept_regularizement()
+        coot.accept_regularizement()
         if (self.replace_state == 0):
-            set_refinement_immediate_replacement(0)
+            coot.set_refinement_immediate_replacement(0)
 
 
 class UsingActiveAtom:
@@ -244,12 +244,12 @@ class UsingActiveAtom:
     use with 'with', e.g.:
 
     > with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
-          refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
+          coot.refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
 
     alternative usage to get res_spec as well
 
     > with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
-          refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
+          coot.refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
 
     """
 
@@ -261,7 +261,7 @@ class UsingActiveAtom:
     def __enter__(self):
         self.active_atom = active_residue()
         if (not self.active_atom):
-            add_status_bar_text("No (active) residue found")
+            coot.add_status_bar_text("No (active) residue found")
             self.no_residue = True
             #self.__exit__(None, "dummy", None)
         else:
@@ -317,7 +317,7 @@ def get_directory(dir_name):
     if os.path.isfile(dir_name):
         return False
     else:
-        status = make_directory_maybe(dir_name)
+        status = coot.make_directory_maybe(dir_name)
         if (status == 0):
             return dir_name
         else:
@@ -327,7 +327,7 @@ def get_directory(dir_name):
                 return False
             else:
                 new_dir = os.path.join(h, dir_name)
-                status = make_directory_maybe(new_dir)
+                status = coot.make_directory_maybe(new_dir)
                 if (status == 0):
                     return new_dir
                 else:
@@ -337,7 +337,7 @@ def get_directory(dir_name):
 # Pythonize function: return a python boolean.
 #
 def molecule_has_hydrogens(imol):
-    return (molecule_has_hydrogens_raw(imol) == 1)
+    return (coot.molecule_has_hydrogens_raw(imol) == 1)
 
 
 def add_hydrogens_using_refmac(imol):
@@ -345,8 +345,8 @@ def add_hydrogens_using_refmac(imol):
                                  molecule_name_stub(imol, 0) + '-needs-H.pdb')
     in_file_name = os.path.join("coot-refmac",
                                 molecule_name_stub(imol, 0) + '-with-H.pdb')
-    make_directory_maybe('coot-refmac')
-    write_pdb_file(imol, out_file_name)
+    coot.make_directory_maybe('coot-refmac')
+    coot.write_pdb_file(imol, out_file_name)
     return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
 
 
@@ -355,8 +355,8 @@ def add_hydrogens_to_chain_using_refmac(imol, chain_id):
                                  molecule_name_stub(imol, 0) + '-chain-' + chain_id + '-needs-H.pdb')
     in_file_name = os.path.join("coot-refmac",
                                 molecule_name_stub(imol, 0) + '-chain-' + chain_id + '-with-H.pdb')
-    make_directory_maybe('coot-refmac')
-    write_chain_to_pdb_file(imol, chain_id, out_file_name)
+    coot.make_directory_maybe('coot-refmac')
+    coot.write_chain_to_pdb_file(imol, chain_id, out_file_name)
     return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
 
 
@@ -369,7 +369,7 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
     try:
         if (status == 0):
             # all good
-            return add_hydrogens_from_file(imol, in_file_name)
+            return coot.add_hydrogens_from_file(imol, in_file_name)
     except:
         return False
 
@@ -405,7 +405,7 @@ post_set_rotation_centre_script = False
 
 
 def pre_release_qm():
-    return "-pre" in coot_version()
+    return "-pre" in coot.coot_version()
 
 
 # return a list of molecule numbers (closed and open)
@@ -457,7 +457,7 @@ def just_one_or_next_map():
 
     map_list = map_molecule_list()
     current_displayed_maps = [
-        imol for imol in map_list if map_is_displayed(imol) == 1]
+        imol for imol in map_list if coot.map_is_displayed(imol) == 1]
     n_displayed = len(current_displayed_maps)
 
     # if nothing is displayed, display the first map in map-list
@@ -664,12 +664,12 @@ def residue_spec_to_residue_name(imol, spec):
     if not isinstance(spec, list):
         return False
     if (len(spec) == 3):
-        return residue_name(imol,
+        return coot.residue_name(imol,
                             spec[0],
                             spec[1],
                             spec[2])
     elif (len(spec) == 4):
-        return residue_name(imol,
+        return coot.residue_name(imol,
                             spec[1],
                             spec[2],
                             spec[3])
@@ -731,7 +731,7 @@ def model_molecule_list():
 
 
 def shelx_molecule_qm(imol):
-    if (is_shelx_molecule(imol) == 1):
+    if (coot.is_shelx_molecule(imol) == 1):
         return True
     else:
         return False
@@ -747,7 +747,7 @@ is_protein_chain_qm = coot.is_protein_chain_p
 
 
 def is_nucleotide_chain_qm(imol, chain_id):
-    return is_nucleotide_chain_p(imol, chain_id) == 1
+    return coot.is_nucleotide_chain_p(imol, chain_id) == 1
 
 
 # Set the virtual trackball behaviour.
@@ -756,9 +756,9 @@ def is_nucleotide_chain_qm(imol, chain_id):
 #
 def set_virtual_trackball_type(type):
     if (type == "flat"):
-        vt_surface(1)
+        coot.vt_surface(1)
     elif (type == "spherical-surface"):
-        vt_surface(0)
+        coot.vt_surface(0)
     else:
         print("virtual trackball type", type, "not understood")
 
@@ -803,8 +803,8 @@ def string_append_with_spaces(ls):
 
 def rotation_centre():
     return [rotation_centre_position(0),
-            rotation_centre_position(1),
-            rotation_centre_position(2)]
+            coot.rotation_centre_position(1),
+            coot.rotation_centre_position(2)]
 
 # this is actually not essentail since python has these funtion(s)
 
@@ -1231,7 +1231,7 @@ def multi_read_pdb(glob_pattern, dir):
     all_files = glob.glob(patt)
     for file in all_files:
         print("BL INFO:: reading ", file)
-        read_pdb(file)
+        coot.read_pdb(file)
 
 # read_pdb_all reads all the "*.pdb" files in the current directory.
 #
@@ -1240,14 +1240,14 @@ def multi_read_pdb(glob_pattern, dir):
 def read_pdb_all():
     import glob
     import os
-    recentre_status = recentre_on_read_pdb()
-    set_recentre_on_read_pdb(0)
+    recentre_status = coot.recentre_on_read_pdb()
+    coot.set_recentre_on_read_pdb(0)
     patt = os.path.normpath(os.path.abspath(".")+'/*.pdb')
     all_files = glob.glob(patt)
     for file in all_files:
         print("BL INFO:: reading ", file)
-        read_pdb(file)
-    set_recentre_on_read_pdb(recentre_status)
+        coot.read_pdb(file)
+    coot.set_recentre_on_read_pdb(recentre_status)
 
 # return the dir-name on success.
 #
@@ -1309,7 +1309,7 @@ def add_view(position, quaternion, zoom, view_name):
     args = position + quaternion
     args.append(zoom)
     args.append(view_name)
-    ret = add_view_raw(*args)
+    ret = coot.add_view_raw(*args)
     return ret
 
 # Convert a view matrix to a view quaternion to set Coot view internals.
@@ -1370,7 +1370,7 @@ def matrix2quaternion(m00, m10, m20, m01, m11, m21, m02, m12, m22):
 
 def set_view_matrix(m00, m10, m20, m01, m11, m21, m02, m12, m22):
 
-    set_view_quaternion(matrix2quaternion(m00, m10, m20,
+    coot.set_view_quaternion(matrix2quaternion(m00, m10, m20,
                                           m01, m11, m21,
                                           m02, m12, m22))
 
@@ -1379,8 +1379,8 @@ def set_view_matrix(m00, m10, m20, m01, m11, m21, m02, m12, m22):
 
 
 def miguels_axes():
-    set_axis_orientation_matrix(*view_matrix())
-    set_axis_orientation_matrix_usage(1)
+    coot.set_axis_orientation_matrix(*view_matrix())
+    coot.set_axis_orientation_matrix_usage(1)
 
 # Return the molecule centre as a list of 3 numbers.
 #
@@ -1390,8 +1390,8 @@ def miguels_axes():
 
 def molecule_centre(imol):
     return [molecule_centre_internal(imol, 0),
-            molecule_centre_internal(imol, 1),
-            molecule_centre_internal(imol, 2)]
+            coot.molecule_centre_internal(imol, 1),
+            coot.molecule_centre_internal(imol, 2)]
 
 # Move the centre of molecule number imol to the current screen centre
 #
@@ -1400,7 +1400,7 @@ def molecule_centre(imol):
 def move_molecule_to_screen_centre(imol):
     if valid_model_molecule_qm(imol):
         rotate_centre = rotation_centre()
-        translate_molecule_by(imol, (rotate_centre[0]-molecule_centre(imol)[0]),
+        coot.translate_molecule_by(imol, (rotate_centre[0]-molecule_centre(imol)[0]),
                               (rotate_centre[1]-molecule_centre(imol)[1]),
                               (rotate_centre[2]-molecule_centre(imol)[2]))
 
@@ -1489,30 +1489,30 @@ def rotate_about_screen_axis(axis, degrees):
 # functions use the direct set_displayed functions).
 #
 def toggle_display_map(imol, idummy):
-    if (map_is_displayed(imol) == 0):
-        set_map_displayed(imol, 1)
+    if (coot.map_is_displayed(imol) == 0):
+        coot.set_map_displayed(imol, 1)
     else:
-        set_map_displayed(imol, 0)
+        coot.set_map_displayed(imol, 0)
 
 # toggle the display of imol
 #
 
 
 def toggle_display_mol(imol):
-    if (mol_is_displayed(imol) == 0):
-        set_mol_displayed(imol, 1)
+    if (coot.mol_is_displayed(imol) == 0):
+        coot.set_mol_displayed(imol, 1)
     else:
-        set_mol_displayed(imol, 0)
+        coot.set_mol_displayed(imol, 0)
 
 # toggle the active state (clickability) of imol
 #
 
 
 def toggle_active_mol(imol):
-    if (mol_is_active(imol) == 0):
-        set_mol_active(imol, 1)
+    if (coot.mol_is_active(imol) == 0):
+        coot.set_mol_active(imol, 1)
     else:
-        set_mol_active(imol, 0)
+        coot.set_mol_active(imol, 0)
 
 # return a python (list) representation of molecule imol, or False if we can't
 # do it (imol is a map, say)
@@ -1528,9 +1528,9 @@ def python_representation(imol, chains=[]):
         ls = []
 
         def r_info(imol, chain_id, n):
-            res_name = resname_from_serial_number(imol, chain_id, n)
-            res_no = seqnum_from_serial_number(imol, chain_id, n)
-            ins_code = insertion_code_from_serial_number(imol, chain_id, n)
+            res_name = coot.resname_from_serial_number(imol, chain_id, n)
+            res_no = coot.seqnum_from_serial_number(imol, chain_id, n)
+            ins_code = coot.insertion_code_from_serial_number(imol, chain_id, n)
             return [res_no, ins_code, res_name, residue_info(imol, chain_id, res_no, ins_code)]
 
         if not chains:
@@ -1570,7 +1570,7 @@ def transform_coords_molecule(imol, rtop):
         for j in i:
             ls.append(j)
 
-    transform_molecule_by(imol, *ls)
+    coot.transform_molecule_by(imol, *ls)
 
 # @code{transform_map(imol, mat, trans, about_pt, radius, space_group, cell)}
 #
@@ -1591,7 +1591,7 @@ def transform_map(*args):
     ret = None
 
     def tf(imol, mat, trans, about_pt, radius, space_group, cell):
-        return transform_map_raw(imol,
+        return coot.transform_map_raw(imol,
                                  mat[0], mat[1], mat[2],
                                  mat[3], mat[4], mat[5],
                                  mat[6], mat[7], mat[8],
@@ -1652,8 +1652,8 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
                                    imol_mov, mov_chain, mov_resno_start, mov_resno_end,
                                    imol_map, about_pt, radius):
 
-    clear_lsq_matches()
-    add_lsq_match(ref_resno_start, ref_resno_end, ref_chain,
+    coot.clear_lsq_matches()
+    coot.add_lsq_match(ref_resno_start, ref_resno_end, ref_chain,
                   mov_resno_start, mov_resno_end, mov_chain, 1)
     space_group = symmetry_operators_to_xHM(symmetry_operators(imol_ref))
     cell_params = cell(imol_ref)
@@ -1692,10 +1692,10 @@ def brighten_map(imol, scale_factor):
                     new_v[i] = 1.0
                 else:
                     pass
-            set_map_colour(imol, *new_v)
+            coot.set_map_colour(imol, *new_v)
         else:
             print("bad non-list current-colour ", current_colour)
-        graphics_draw()
+        coot.graphics_draw()
 
 # Make all maps brighter
 #
@@ -1780,7 +1780,7 @@ def valid_map_molecule_qm(imol):
 
 
 def valid_refinement_map_qm():
-    return valid_map_molecule_qm(imol_refinement_map())
+    return valid_map_molecule_qm(coot.imol_refinement_map())
 
 # python (schemeyish) interface to shelx molecule test
 #
@@ -1789,7 +1789,7 @@ def valid_refinement_map_qm():
 
 
 def shelx_molecule_qm(imol):
-    return is_shelx_molecule(imol) == 1
+    return coot.is_shelx_molecule(imol) == 1
 
 # python (schemeyish) interface to the function that returns whether or not a map
 # is a difference map.
@@ -1829,7 +1829,7 @@ def residue_has_hetatms_qm(imol, chain_id, res_no, ins_code):
 
 
 def centre_of_mass(imol):
-    centre = eval(centre_of_mass_string(imol))
+    centre = eval(coot.centre_of_mass_string(imol))
     if (centre == 0):
         print("molecule number", imol, "is not valid")
         return False
@@ -1887,7 +1887,7 @@ def guess_refinement_map():
         return -1       # failed to find a map
     else:
         for map_mol in map_list:
-            if map_is_difference_map(map_mol) == 0:
+            if coot.map_is_difference_map(map_mol) == 0:
                 return map_mol
         print("BL WARNING:: we couldnt find a non difference map for fitting!")
         return -1
@@ -1986,8 +1986,8 @@ def auto_weight_for_refinement():
         if (av_rms_d < (target_auto_weighting_value * 1.1) and
                 av_rms_d > (target_auto_weighting_value * 0.9)):
             # done
-            s = "Success: Set weight matrix to " + str(matrix_state())
-            add_status_bar_text(s)
+            s = "Success: Set weight matrix to " + str(coot.matrix_state())
+            coot.add_status_bar_text(s)
             break
         else:
             # more refinement required
@@ -1995,7 +1995,7 @@ def auto_weight_for_refinement():
             # squared causes ringing,
             # as does 1.5.
             # Simple is overdamped.
-            current_weight = matrix_state()
+            current_weight = coot.matrix_state()
             new_weight = (target_auto_weighting_value *
                           current_weight) / av_rms_d
             print("INFO:: setting refinement weight to %s from * %s / %s"
@@ -2003,7 +2003,7 @@ def auto_weight_for_refinement():
             if (new_weight < 2):
                 # weight refinement not converging
                 print("BL INFO:: not convering, weight to set was", new_weight)
-            set_matrix(new_weight)
+            coot.set_matrix(new_weight)
             results = refinement_func()
         n_trials += 1
 
@@ -2018,7 +2018,7 @@ def auto_weight_for_refinement():
 def print_sequence(imol):
 
     for chain in chain_ids(imol):
-        print_sequence_chain(imol, chain)
+        coot.print_sequence_chain(imol, chain)
 
 # simple utility function to return the contents of a file as a string.
 #
@@ -2044,7 +2044,7 @@ def pir_file_name2pir_sequence(pir_file_name):
 def associate_pir_file(imol, chain_id, pir_file_name):
     seq_text = pir_file_name2pir_sequence(pir_file_name)
     if seq_text:
-        assign_pir_sequence(imol, chain_id, seq_text)
+        coot.assign_pir_sequence(imol, chain_id, seq_text)
     else:
         print("WARNING:: associate-pir-file: bad text for", pir_file_name)
 
@@ -2055,7 +2055,7 @@ def associate_pir_file(imol, chain_id, pir_file_name):
 def associate_fasta_file(imol, chain_id, pir_file_name):
     seq_text = pir_file_name2pir_sequence(pir_file_name)
     if seq_text:
-        assign_fasta_sequence(imol, chain_id, seq_text)
+        coot.assign_fasta_sequence(imol, chain_id, seq_text)
     else:
         print("WARNING:: associate-fasta-file: bad text for", pir_file_name)
 
@@ -2071,7 +2071,7 @@ def graphics_dot_key_pressed_hook():
     pass
 
 # a list of [code, key, name, thunk]
-# e.g. [103, "g", "Goto Blob", blob_under_pointer_to_screen_centre()]
+# e.g. [103, "g", "Goto Blob", coot.blob_under_pointer_to_screen_centre()]
 
 
 global key_bindings
@@ -2153,8 +2153,8 @@ def graphics_general_key_press_hook(key, control_flag=0):
         # print "BL DEBUG:: index and executing:", index, func
         apply(func)
     else:
-        if coot_has_guile() and is_windows():
-            run_scheme_command("(graphics-general-key-press-hook " +
+        if coot.coot_has_guile() and is_windows():
+            coot.run_scheme_command("(graphics-general-key-press-hook " +
                                str(key) +
                                ")")
         print("Key %s not found in (python) key bindings" % key)
@@ -2187,7 +2187,7 @@ def read_vu_file(filename, obj_name):
             return "white"
 
     # main body
-    n = new_generic_object_number(obj_name)
+    n = coot.new_generic_object_number(obj_name)
     fin = open(filename, 'r')
     lines = fin.readlines()
     fin.close()
@@ -2201,9 +2201,9 @@ def read_vu_file(filename, obj_name):
                 print("BL WARNING:: cannot make float from cordinates",
                       current_line[0:-1])
                 return
-            to_generic_object_add_line(n, colour, 2,
+            coot.to_generic_object_add_line(n, colour, 2,
                                        *coords)
-    set_display_generic_object(n, 1)
+    coot.set_display_generic_object(n, 1)
 
 
 # residue_test_func is a function that takes 4 arguments, the
@@ -2243,7 +2243,7 @@ def all_residues(imol):
 
 def all_residues_sans_water(imol):
     return residues_matching_criteria(imol,
-                                      lambda chain_id, res_no, ins_code, serial: residue_name(imol, chain_id, res_no, ins_code) != "HOH")
+                                      lambda chain_id, res_no, ins_code, serial: coot.residue_name(imol, chain_id, res_no, ins_code) != "HOH")
 
 # Return a list of all the residues in the chain
 #
@@ -2303,10 +2303,10 @@ def atoms_with_zero_occ(imol):
         n_residues = coot.chain_n_residues(chain_id, imol)
         for serial_number in range(n_residues):
 
-            res_name = resname_from_serial_number(
+            res_name = coot.resname_from_serial_number(
                 imol, chain_id, serial_number)
-            res_no = seqnum_from_serial_number(imol, chain_id, serial_number)
-            ins_code = insertion_code_from_serial_number(
+            res_no = coot.seqnum_from_serial_number(imol, chain_id, serial_number)
+            ins_code = coot.insertion_code_from_serial_number(
                 imol, chain_id, serial_number)
             res_info = residue_info(imol, chain_id, res_no, ins_code)
             for atom_info in res_info:
@@ -2475,7 +2475,7 @@ def residue_spec_to_atom_for_centre(imol, chain_id, res_no, ins_code):
 
 
 def set_go_to_atom(res_spec):
-    set_go_to_atom_chain_residue_atom_name(
+    coot.set_go_to_atom_chain_residue_atom_name(
         res_spec_to_chain_id(res_spec),
         res_spec_to_res_no(res_spec),
         " CA ")
@@ -2491,11 +2491,11 @@ def update_go_to_atom_from_current_atom():
         ins_code = active_atom[3]
         atom_name = active_atom[4]
         alt_conf = active_atom[5]
-        go_to_atom_imol_current = go_to_atom_molecule_number()
-        set_go_to_atom_molecule(imol)
+        go_to_atom_imol_current = coot.go_to_atom_molecule_number()
+        coot.set_go_to_atom_molecule(imol)
         # if imol != goto_atom_imol_current
-        update_go_to_atom_window_on_other_molecule_chosen(imol)
-        set_go_to_atom_chain_residue_atom_name(chain_id, resno, atom_name)
+        coot.update_go_to_atom_window_on_other_molecule_chosen(imol)
+        coot.set_go_to_atom_chain_residue_atom_name(chain_id, resno, atom_name)
 
 
 def flip_active_ligand():
@@ -2506,7 +2506,7 @@ def flip_active_ligand():
     ins_code = active_atom[3]
     atom_name = active_atom[4]
     alt_conf = active_atom[5]
-    flip_ligand(imol, chain_id, resno)
+    coot.flip_ligand(imol, chain_id, resno)
 
 # Typically one might want to use this on a water, but it deletes the
 # nearest CA currently...  Needs a re-think.  Should active-atom just
@@ -2518,7 +2518,7 @@ def delete_atom_by_active_residue():
 
     active_atom = active_residue()
     if active_atom:
-        delete_atom(active_atom)
+        coot.delete_atom(active_atom)
 
 # general mutate
 #
@@ -2549,7 +2549,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         aa_list = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLY", "GLU", "GLN",
                    "PHE", "HIS", "ILE", "LEU", "LYS", "MET", "PRO", "SER",
                    "TYR", "THR", "VAL", "TRP", "SEP", "PTR", "TPO"]
-        rn = residue_name(imol, ch_id, res_no, "")
+        rn = coot.residue_name(imol, ch_id, res_no, "")
         if not isinstance(rn, str):
             return False
         else:
@@ -2559,7 +2559,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
     def is_nucleotide(imol, ch_id, res_no):
         type_list = ["G", "A", "T", "U", "C", "DA", "DG", "DT", "DC"]
-        rn = residue_name(imol, ch_id, res_no, "")
+        rn = coot.residue_name(imol, ch_id, res_no, "")
         return rn in type_list
 
     #
@@ -2568,7 +2568,7 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 
         print("BL DEBUG:: in overlap_by_main_chain : ---------------- imol-mov: %s imol-ref: %s" %
               (imol_mov, imol_ref))
-        clear_lsq_matches()
+        coot.clear_lsq_matches()
         list(map(lambda atom_name:
                  add_lsq_atom_pair([chain_id_ref, res_no_ref, ins_code_ref, atom_name, ""],
                                    [chain_id_mov, res_no_mov, ins_code_mov, atom_name, ""]), [" CA ", " N  ", " C  "]))
@@ -2585,9 +2585,9 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     def overlap_by_base(imol_mov, chain_id_mov, res_no_mov, ins_code_mov,
                         imol_ref, chain_id_ref, res_no_ref, ins_code_ref):
 
-        clear_lsq_matches()
-        rn_1 = residue_name(imol_mov, chain_id_mov, res_no_mov, ins_code_mov)
-        rn_2 = residue_name(imol_ref, chain_id_ref, res_no_ref, ins_code_ref)
+        coot.clear_lsq_matches()
+        rn_1 = coot.residue_name(imol_mov, chain_id_mov, res_no_mov, ins_code_mov)
+        rn_2 = coot.residue_name(imol_ref, chain_id_ref, res_no_ref, ins_code_ref)
         purine_set = [" N9 ", " N7 ", " C5 ", " N1 ", " N3 "]
         pyrimidine_set = [" N1 ", " C5 ", " N3 "]
         purine_to_pyrimidine_set = [" N1 ", " C2 ", " N3 "]
@@ -2629,13 +2629,13 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 ch_id = chain_id(imol, 0)
                 nr = coot.chain_n_residues(ch_id, imol)
                 if (nr == 1):
-                    rn = resname_from_serial_number(imol, ch_id, 0)
+                    rn = coot.resname_from_serial_number(imol, ch_id, 0)
                     if (rn == tlc):
                         have_tlc_molecule = imol
                         break
         have_dict_for_tlc = monomer_restraints(tlc)
         if ((not have_tlc_molecule) or (not have_dict_for_tlc)):
-            return get_monomer(tlc)
+            return coot.get_monomer(tlc)
         else:
             print("we have dict and model for tlc already")
             return have_tlc_molecule
@@ -2645,10 +2645,10 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
         imol_ligand = get_monomer_and_dictionary(tlc)
         if not valid_model_molecule_qm(imol_ligand):
             s = " Oops.  Failed to get monomer " + str(tlc)
-            add_status_bar_text(s)
+            coot.add_status_bar_text(s)
         else:
-            delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
-            delete_atom(imol_ligand, "A", 1, "", " OXT", "")
+            coot.delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
+            coot.delete_atom(imol_ligand, "A", 1, "", " OXT", "")
             if (is_amino_acid(imol_ligand, "A", 1) and
                     is_amino_acid(imol, chain_id_in, resno)):
                 overlap_by_main_chain(imol_ligand, "A", 1, "",
@@ -2657,8 +2657,8 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 overlap_ligands(imol_ligand, imol, chain_id_in, resno)
 
             if (not is_nucleotide(imol_ligand, "A", 1)):
-                match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
-            delete_residue(imol, chain_id_in, resno, "")
+                coot.match_ligand_torsions(imol_ligand, imol, chain_id_in, resno)
+            coot.delete_residue(imol, chain_id_in, resno, "")
             new_chain_id_info = merge_molecules([imol_ligand], imol)
             print("BL DEBUG:: new_chain_id_info: ", new_chain_id_info)
             merge_status = new_chain_id_info[0]
@@ -2666,20 +2666,20 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                 new_res_spec = new_chain_id_info[1]
                 new_chain_id = residue_spec_to_chain_id(new_res_spec)
                 print("BL DEBUG:: new res spec", new_res_spec)
-                change_residue_number(imol, new_chain_id,
+                coot.change_residue_number(imol, new_chain_id,
                                       residue_spec_to_res_no(new_res_spec),
                                       residue_spec_to_ins_code(new_res_spec),
                                       resno, "")
                 if not (new_chain_id == chain_id_in):
-                    change_chain_id(imol, new_chain_id, chain_id_in, 1,
+                    coot.change_chain_id(imol, new_chain_id, chain_id_in, 1,
                                     residue_spec_to_res_no(new_res_spec),
                                     residue_spec_to_res_no(new_res_spec))
 
-                replacement_state = refinement_immediate_replacement_state()
-                imol_map = imol_refinement_map()
-                set_refinement_immediate_replacement(1)
+                replacement_state = coot.refinement_immediate_replacement_state()
+                imol_map = coot.imol_refinement_map()
+                coot.set_refinement_immediate_replacement(1)
                 if imol_map == -1:
-                    regularize_zone(imol, chain_id_in, resno, resno, "")
+                    coot.regularize_zone(imol, chain_id_in, resno, resno, "")
                 else:
                     spin_atoms = [" P  ", " O1P", " O2P", " O3P"]
                     phos_dir = {
@@ -2690,16 +2690,16 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
                         dir_atoms = phos_dir[tlc]
                     else:
                         dir_atoms = False
-                    refine_zone(imol, chain_id_in, resno, resno, "")
+                    coot.refine_zone(imol, chain_id_in, resno, resno, "")
                     if dir_atoms:
                         spin_search(imol_map, imol, chain_id_in,
                                     resno, "", dir_atoms, spin_atoms)
-                        refine_zone(imol, chain_id_in, resno, resno, "")
-                accept_regularizement()
-                set_refinement_immediate_replacement(replacement_state)
+                        coot.refine_zone(imol, chain_id_in, resno, resno, "")
+                coot.accept_regularizement()
+                coot.set_refinement_immediate_replacement(replacement_state)
 
-                set_mol_displayed(imol_ligand, 0)
-                set_mol_active(imol_ligand, 0)
+                coot.set_mol_displayed(imol_ligand, 0)
+                coot.set_mol_active(imol_ligand, 0)
 
             else:
                 # guess merge failed!?!
@@ -2710,11 +2710,11 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
     # First, if there are multiple maps, force the user to choose one,
     # rather than continuing.
     #
-    imol_map = imol_refinement_map()
+    imol_map = coot.imol_refinement_map()
     if (imol_map == -1):
         map_mols = map_molecule_list()
         if len(map_mols) > 1:
-            show_select_map_dialog()
+            coot.show_select_map_dialog()
             mutate_it()
         else:
             mutate_it()
@@ -2730,7 +2730,7 @@ def phosphorylate_active_residue():
     def n_active_models():
         n = 0
         for i in model_molecule_list():
-            if (mol_is_active(i)):
+            if (coot.mol_is_active(i)):
                 n += 1
                 return n
 
@@ -2740,7 +2740,7 @@ def phosphorylate_active_residue():
         chain_id = active_atom[1]
         resno = active_atom[2]
         inscode = active_atom[3]
-        res_name = residue_name(imol, chain_id, resno, inscode)
+        res_name = coot.residue_name(imol, chain_id, resno, inscode)
 
         if res_name == 'TYR':
             mutate_by_overlap(imol, chain_id, resno, "PTR")
@@ -2750,14 +2750,14 @@ def phosphorylate_active_residue():
             mutate_by_overlap(imol, chain_id, resno, "TPO")
         else:
             s = "Can't Phosphorylate residue of type " + res_name
-            info_dialog(s)
+            coot.info_dialog(s)
     except TypeError as e:
         print(e)
         n_active = n_active_models()
         s = 'WARNING:: unable to get active atom\n'
         s += 'Is your molecule active?                  \n'
         s += 'There are ' + str(n_active) + ' active model molecules.'
-        info_dialog(s)
+        coot.info_dialog(s)
 
 # A function for Overlaying ligands.  The transformation is applied
 # to all the atoms of the molecule that contains the moving ligand.
@@ -2767,11 +2767,11 @@ def phosphorylate_active_residue():
 def overlay_my_ligands(imol_mov, chain_id_mov, resno_mov,
                        imol_ref, chain_id_ref, resno_ref):
 
-    imol_frag = new_molecule_by_atom_selection(imol_mov,
+    imol_frag = coot.new_molecule_by_atom_selection(imol_mov,
                                                "//" + chain_id_mov +
                                                "/" + str(resno_mov))
     rtop_i = overlap_ligands(imol_frag, imol_ref, chain_id_ref, resno_ref)
-    set_mol_displayed(imol_frag, 0)
+    coot.set_mol_displayed(imol_frag, 0)
     transform_coords_molecule(imol_mov, rtop_i[0])
 
 
@@ -2781,14 +2781,14 @@ def label_all_CAs(imol):
         if not (is_solvent_chain_qm(imol, chain_id)):
             n_residues = coot.chain_n_residues(chain_id, imol)
             for serial_number in number_list(0, n_residues):
-                res_name = resname_from_serial_number(
+                res_name = coot.resname_from_serial_number(
                     imol, chain_id, serial_number)
-                res_no = seqnum_from_serial_number(
+                res_no = coot.seqnum_from_serial_number(
                     imol, chain_id, serial_number)
-                ins_code = insertion_code_from_serial_number(
+                ins_code = coot.insertion_code_from_serial_number(
                     imol, chain_id, serial_number)
-                add_atom_label(imol, chain_id, res_no, " CA ")
-    graphics_draw()
+                coot.add_atom_label(imol, chain_id, res_no, " CA ")
+    coot.graphics_draw()
 
 
 def label_all_atoms_in_residue(imol, chain_id, resno, inscode):
@@ -2798,8 +2798,8 @@ def label_all_atoms_in_residue(imol, chain_id, resno, inscode):
     atom_list = residue_info(imol, chain_id, resno, inscode)
     if type(atom_list) is ListType:
         for atom_info in atom_list:
-            add_atom_label(imol, chain_id, resno, atom_info[0][0])
-        graphics_draw()
+            coot.add_atom_label(imol, chain_id, resno, atom_info[0][0])
+        coot.graphics_draw()
 
 
 def label_all_active_residue_atoms():
@@ -2813,8 +2813,8 @@ def label_all_active_residue_atoms():
     atom_list = residue_info(imol, chain_id, resno, inscode)
     if type(atom_list) is ListType:
         for atom_info in atom_list:
-            add_atom_label(imol, chain_id, resno, atom_info[0][0])
-        graphics_draw()
+            coot.add_atom_label(imol, chain_id, resno, atom_info[0][0])
+        coot.graphics_draw()
 
 # Resets alt confs and occupancies of atoms in residue that have
 # orphan alt-loc attributes
@@ -2862,7 +2862,7 @@ def sanitise_alt_confs(atom_info, atom_ls):
     if (atom_attribute_settings != []):
         set_atom_attributes(atom_attribute_settings)
         if (residue_info_dialog_displayed_qm()):
-            residue_info_dialog(imol, chain_id, resno, inscode)
+            coot.residue_info_dialog(imol, chain_id, resno, inscode)
 
 #
 
@@ -2894,7 +2894,7 @@ def sanitise_alt_confs_active_residue():
 
 def print_molecule_names():
 
-    list(map(lambda molecule_number: printf("    %s    %s\n" % (molecule_number, molecule_name(molecule_number))),
+    list(map(lambda molecule_number: printf("    %s    %s\n" % (molecule_number, coot.molecule_name(molecule_number))),
              molecule_number_list()))
 
 # save the dialog positions to the coot_dialog_positions.py file in ./coot-preferences
@@ -2945,12 +2945,12 @@ def save_dialog_positions_to_init_file():
             print("BL ERROR:: no valid port to write to!")
 
     # main line
-    save_state()
+    coot.save_state()
 
     # FYI, the graphics window is set using
     #
-    # set_graphics_window_size(643, 500)
-    # set_graphics_window_position(0, 1)
+    # coot.set_graphics_window_size(643, 500)
+    # coot.set_graphics_window_position(0, 1)
     # They are not dialogs
 
     state_file = "0-coot.state.py"
@@ -3069,11 +3069,11 @@ def multi_chicken(imol, n_colours=False):
         print("range n_col returns: ", list(range(n_col)))
 
         for icol in range(n_col):
-            new_map = copy_molecule(imol)
+            new_map = coot.copy_molecule(imol)
             frac = icol / float(n_col)   # need a float!!
             contour_level_sigma = start + (stop - start) * frac
-            set_last_map_contour_level(sigma * contour_level_sigma)
-            set_last_map_colour(
+            coot.set_last_map_contour_level(sigma * contour_level_sigma)
+            coot.set_last_map_colour(
                 *rotate_colour_map(initial_colour, colour_range * frac))
     else:
         print("BL INFO:: %s is not valid map" % imol)
@@ -3097,14 +3097,14 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
         atom_sel_str = residue_spec_to_atom_selection_string(
             centre_residue_spec)
 
-        imol_new = new_molecule_by_atom_selection(imol, atom_sel_str)
+        imol_new = coot.new_molecule_by_atom_selection(imol, atom_sel_str)
         bb_type = 1
-        draw_hydrogens_flag = draw_hydrogens_state(imol)
+        draw_hydrogens_flag = coot.draw_hydrogens_state(imol)
 
-        set_mol_active(imol_new, 0)
-        set_show_environment_distances(1)
-        set_molecule_bonds_colour_map_rotation(imol_new, hilight_colour)
-        additional_representation_by_attributes(imol_new,
+        coot.set_mol_active(imol_new, 0)
+        coot.set_show_environment_distances(1)
+        coot.set_molecule_bonds_colour_map_rotation(imol_new, hilight_colour)
+        coot.additional_representation_by_attributes(imol_new,
                                                 centre_residue_spec[0],
                                                 centre_residue_spec[1],
                                                 centre_residue_spec[1],
@@ -3113,7 +3113,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
                                                 bb_type, 0.14,
                                                 draw_hydrogens_flag)
 
-        list(map(lambda spec: additional_representation_by_attributes(imol,
+        list(map(lambda spec: coot.additional_representation_by_attributes(imol,
                                                                       spec[0],
                                                                       spec[1],
                                                                       spec[1],
@@ -3179,11 +3179,11 @@ def pukka_puckers_qm(imol):
 
             for serial_number in range(n_residues):
 
-                res_name = resname_from_serial_number(
+                res_name = coot.resname_from_serial_number(
                     imol, chain_id, serial_number)
-                res_no = seqnum_from_serial_number(
+                res_no = coot.seqnum_from_serial_number(
                     imol, chain_id, serial_number)
-                ins_code = insertion_code_from_serial_number(
+                ins_code = coot.insertion_code_from_serial_number(
                     imol, chain_id, serial_number)
 
                 if (not res_name == "HOH"):
@@ -3208,7 +3208,7 @@ def pukka_puckers_qm(imol):
                                                       "puckered atom:" + pucker_atom])
 
     if (len(residue_list) == 0):
-        info_dialog("No bad puckers.")
+        coot.info_dialog("No bad puckers.")
     else:
         buttons = []
         for residue in residue_list:
@@ -3237,30 +3237,30 @@ def pukka_puckers_qm(imol):
 #
 def prodrg_ify(imol, chain_id, res_no, ins_code):
 
-    new_mol = new_molecule_by_atom_selection(imol,
+    new_mol = coot.new_molecule_by_atom_selection(imol,
                                              "//" + chain_id + "/" + str(res_no))
 
-    set_mol_active(new_mol, 0)
-    set_mol_displayed(new_mol, 0)
+    coot.set_mol_active(new_mol, 0)
+    coot.set_mol_displayed(new_mol, 0)
 
     prodrg_dir = "coot-ccp4"
-    res_name = residue_name(imol, chain_id, res_no, ins_code)
+    res_name = coot.residue_name(imol, chain_id, res_no, ins_code)
 
     if res_name:
-        make_directory_maybe(prodrg_dir)
+        coot.make_directory_maybe(prodrg_dir)
         prodrg_xyzin = os.path.join(prodrg_dir, "prodrg-in.pdb")
         prodrg_xyzout = os.path.join(prodrg_dir, "prodrg-" + res_name + ".pdb")
         prodrg_cif = os.path.join(prodrg_dir, "prodrg-" + res_name + ".cif")
         prodrg_log = os.path.join(prodrg_dir, "prodrg.log")
 
-        delete_residue_hydrogens(new_mol, chain_id, res_no, ins_code, "")
-        delete_residue_hydrogens(
+        coot.delete_residue_hydrogens(new_mol, chain_id, res_no, ins_code, "")
+        coot.delete_residue_hydrogens(
             imol,    chain_id, res_no, ins_code, "")  # otherwise they fly
-        write_pdb_file(new_mol, prodrg_xyzin)
-        close_molecule(new_mol)
+        coot.write_pdb_file(new_mol, prodrg_xyzin)
+        coot.close_molecule(new_mol)
         prodrg_exe = find_exe("cprodrg", "CBIN", "CCP4_BIN", "PATH")
         if not prodrg_exe:
-            info_dialog(
+            coot.info_dialog(
                 "Cannot find cprodrg, so no prodrg-ifying of ligand possible")
         else:
             print("BL DEBUG:: now run prodrg with", prodrg_exe,
@@ -3275,20 +3275,20 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                                    prodrg_log,
                                    True)
             if status == 0:
-                read_cif_dictionary(prodrg_cif)
-                imol_new = handle_read_draw_molecule_with_recentre(
+                coot.read_cif_dictionary(prodrg_cif)
+                imol_new = coot.handle_read_draw_molecule_with_recentre(
                     prodrg_xyzout, 0)
-                rn = residue_name(imol, chain_id, res_no, ins_code)
+                rn = coot.residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
                 overlap_ligands(imol_new, imol, chain_id, res_no)
-                match_ligand_torsions(
+                coot.match_ligand_torsions(
                     imol_new, imol, chain_id, res_no)  # broken?
                 overlap_ligands(imol_new, imol, chain_id, res_no)
-                set_residue_name(imol_new, "", 1, "", rn)
-                change_chain_id(imol_new, "", chain_id, 1, 1, 1)
-                renumber_residue_range(imol_new, chain_id, 1, 1, res_no - 1)
-                set_mol_displayed(imol_new, 0)
-                set_mol_active(imol_new, 0)
+                coot.set_residue_name(imol_new, "", 1, "", rn)
+                coot.change_chain_id(imol_new, "", chain_id, 1, 1, 1)
+                coot.renumber_residue_range(imol_new, chain_id, 1, 1, res_no - 1)
+                coot.set_mol_displayed(imol_new, 0)
+                coot.set_mol_active(imol_new, 0)
                 #set_mol_displayed(imol, 0)
                 #set_mol_active   (imol, 0)
 
@@ -3296,17 +3296,17 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 # function because that does not copy across the hydrogen
                 # atoms - and we want those, probably
 
-                # replace_fragment(imol, imol_new,
+                # coot.replace_fragment(imol, imol_new,
                 #                 "//" + chain_id + "/" + str(res_no))
 
-                imol_replacing = add_ligand_delete_residue_copy_molecule(
+                imol_replacing = coot.add_ligand_delete_residue_copy_molecule(
                     imol_new, chain_id, res_no, imol, chain_id, res_no)
-                col = get_molecule_bonds_colour_map_rotation(imol)
+                col = coot.get_molecule_bonds_colour_map_rotation(imol)
                 new_col = col + 5
-                set_molecule_bonds_colour_map_rotation(imol_replacing, new_col)
-                set_mol_displayed(imol_replacing, 0)
-                set_mol_active(imol_replacing, 0)
-                graphics_draw()
+                coot.set_molecule_bonds_colour_map_rotation(imol_replacing, new_col)
+                coot.set_mol_displayed(imol_replacing, 0)
+                coot.set_mol_active(imol_replacing, 0)
+                coot.graphics_draw()
 
 
 # ---------- annotations ---------------------
@@ -3317,8 +3317,8 @@ def add_annotation_here(text):
     ann = [text] + rc
 
     annotations.append(ann)
-    place_text(*(ann + [0]))
-    graphics_draw()
+    coot.place_text(*(ann + [0]))
+    coot.graphics_draw()
 
 
 def add_annotation_at_click(text):
@@ -3335,8 +3335,8 @@ def add_annotation_at_click(text):
         atom_spec = atom_specs(*args[0][1:7])
         ann = [text] + atom_spec[3:]
         annotations.append(ann)
-        place_text(*(ann + [0]))
-        graphics_draw()
+        coot.place_text(*(ann + [0]))
+        coot.graphics_draw()
     user_defined_click(1, add_here)
 
 
@@ -3362,15 +3362,15 @@ def load_annotations(file_name):
             global annotations
             annotations = ls
             for ann in annotations:
-                place_text(*(ann + [0]))
-            graphics_draw()
+                coot.place_text(*(ann + [0]))
+            coot.graphics_draw()
 
 
 def remove_annotation_here(rad=1.5):
     args = rotation_centre() + [rad]
-    handle = text_index_near_position(*args)
+    handle = coot.text_index_near_position(*args)
     if handle > -1:
-        remove_text(handle)
+        coot.remove_text(handle)
 
 
 def remove_annotation_at_click(rad=1.5):
@@ -3380,9 +3380,9 @@ def remove_annotation_at_click(rad=1.5):
         # maybe there should be a atom_spec including model no!?
         atom_spec = atom_specs(*args[0][1:7])
         coords = atom_spec[3:]
-        handle = text_index_near_position(*(coords + [rad]))
+        handle = coot.text_index_near_position(*(coords + [rad]))
         if handle > -1:
-            remove_text(handle)
+            coot.remove_text(handle)
     user_defined_click(1, remove_here)
 
 # ---------- updating ---------------------
@@ -3497,7 +3497,7 @@ def load_default_sequence():
     default_seq = "default.seq"
     if os.path.isfile(default_seq):
         s = file2string(default_seq)
-        align_to_closest_chain(s, 0.95)
+        coot.align_to_closest_chain(s, 0.95)
 
 
 def use_curl_status():
@@ -3525,7 +3525,7 @@ def set_use_curl(status):
 # not needed any more
 # def chiral_centre_inverter():
 # just to do something. Wait until this is in c++ code...
-##    info_dialog("BL waiting for PE to put in C++ code.\n")
+##    coot.info_dialog("BL waiting for PE to put in C++ code.\n")
 # return False
 
 def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
@@ -3625,7 +3625,7 @@ def get_drug_via_wikipedia(drug_name_in):
                                      id + ".mol"
                         file_name = "drugbank-" + id + ".mol"
                         print("BL DEBUG:: DrugBank path: getting url:", db_mol_uri)
-                        coot_get_url(db_mol_uri, file_name)
+                        coot.coot_get_url(db_mol_uri, file_name)
                         # check that filename is good here
                         if file_seems_good_qm(file_name):
                             print(
@@ -3638,7 +3638,7 @@ def get_drug_via_wikipedia(drug_name_in):
                                      "cs-" + id + ".mol"
                         file_name = "cs-" + id + ".mol"
                         print("BL DEBUG:: DrugBank path: getting url:", cs_mol_ur)
-                        coot_get_url(cs_mol_url, file_name)
+                        coot.coot_get_url(cs_mol_url, file_name)
                         # check that filename is good here
                         if file_seems_good_qm(file_name):
                             print(
@@ -3650,7 +3650,7 @@ def get_drug_via_wikipedia(drug_name_in):
                             id + ".sdf"
                         file_name = "chembl-" + id + ".sdf"
                         print("BL DEBUG:: ChEMBL path: getting url:", mol_url)
-                        coot_get_url(mol_url, file_name)
+                        coot.coot_get_url(mol_url, file_name)
                         # check that filename is good here
                         if file_seems_good_qm(file_name):
                             print(
@@ -3662,7 +3662,7 @@ def get_drug_via_wikipedia(drug_name_in):
                                      id + "/record/SDF/?record_type=2d&response_type=display"
                         file_name = "pc-" + id + ".mol"
                         print("BL DEBUG:: pubchem path: getting url:", pc_mol_url)
-                        coot_get_url(pc_mol_url, file_name)
+                        coot.coot_get_url(pc_mol_url, file_name)
                         # check that filename is good here
                         if file_seems_good_qm(file_name):
                             print(
@@ -3680,14 +3680,14 @@ def get_SMILES_for_comp_id_from_pdbe(comp_id):
     if not isinstance(comp_id, str):
         return False
     else:
-        s = SMILES_for_comp_id(comp_id)
+        s = coot.SMILES_for_comp_id(comp_id)
         if isinstance(s, str):
             return s
         else:
             cif_file_name = get_pdbe_cif_for_comp_id(comp_id)
             if isinstance(cif_file_name, str):
-                read_cif_dictionary(cif_file_name)
-                s = SMILES_for_comp_id(comp_id)
+                coot.read_cif_dictionary(cif_file_name)
+                s = coot.SMILES_for_comp_id(comp_id)
                 return s
 
 # return False or a file_name
@@ -3716,17 +3716,17 @@ def get_pdbe_cif_for_comp_id(comp_id):
             msg = cif_file_name + \
                 " exists but is empty." + \
                 "\nNot overwriting."
-            info_dialog(msg)
+            coot.info_dialog(msg)
             return False
     # use network then
     print("BL INFO:: getting url:", url)
-    state = coot_get_url(url, cif_file_name)
+    state = coot.coot_get_url(url, cif_file_name)
     if (state != 0):
         msg = "Problem downloading\n" + \
               url + "\n to file \n" + \
               cif_file_name + \
               "."
-        info_dialog(msg)
+        coot.info_dialog(msg)
         return False
     else:
         # it worked!?!
@@ -3764,12 +3764,12 @@ def file_to_preferences(filename):
                 sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
 
     if not os.path.isdir(coot_python_dir):
-        add_status_bar_text("Missing COO_PYTHON_DIR")
+        coot.add_status_bar_text("Missing COO_PYTHON_DIR")
     else:
         ref_py = os.path.join(coot_python_dir, filename)
 
         if not os.path.exists(ref_py):
-            add_status_bar_text("Missing reference template key bindings.")
+            coot.add_status_bar_text("Missing reference template key bindings.")
         else:
             # happy path
             home = os.getenv("HOME")
@@ -3778,9 +3778,9 @@ def file_to_preferences(filename):
             if isinstance(home, str):
                 pref_dir = os.path.join(home, ".coot-preferences")
                 if not os.path.isdir(pref_dir):
-                    make_directory_maybe(pref_dir)
+                    coot.make_directory_maybe(pref_dir)
                 if not os.path.isdir(pref_dir):
-                    add_status_bar_text(
+                    coot.add_status_bar_text(
                         "No preferences dir, no keybindings. Sorry")
                 else:
                     pref_file = os.path.join(pref_dir, filename)
@@ -3788,11 +3788,11 @@ def file_to_preferences(filename):
                     if os.path.isfile(pref_file):
                         s = "keybinding file " + pref_file + \
                             " already exists. Not overwritten."
-                        add_status_bar_text(s)
+                        coot.add_status_bar_text(s)
                     else:
                         # check the directory first
                         if not os.path.isdir(pref_dir):
-                            make_directory_maybe(pref_dir)
+                            coot.make_directory_maybe(pref_dir)
                         shutil.copyfile(ref_py, pref_file)
                         if os.path.isfile(pref_file):
                             exec(compile(open(pref_file, "rb").read(),
@@ -3810,8 +3810,8 @@ find_aligned_residue_type = find_terminal_residue_type
 def using_gui():
     # we shall see if coot_main_menubar is defined in guile or python
     ret = False
-    if coot_has_guile():
-        ret = run_scheme_command("(defined? 'coot-main-menubar)")
+    if coot.coot_has_guile():
+        ret = coot.run_scheme_command("(defined? 'coot-main-menubar)")
     if not ret:
         ret = "coot_python" in globals()  # coot_main_menubar is not a global var
     return ret
@@ -3830,16 +3830,16 @@ def using_gui():
 
 
 def GL_light_on():
-    set_do_GL_lighting(1)
-    do_GL_lighting_state()
+    coot.set_do_GL_lighting(1)
+    coot.do_GL_lighting_state()
 
 # and to turn it off
 #
 
 
 def GL_light_off():
-    set_do_GL_lighting(0)
-    do_GL_lighting_state()
+    coot.set_do_GL_lighting(0)
+    coot.do_GL_lighting_state()
 
 
 # Helper functions to set B-Factors
@@ -3849,10 +3849,10 @@ def GL_light_off():
 def set_b_factor_molecule(imol, bval):
 
     for chain_id in chain_ids(imol):
-        start_res = seqnum_from_serial_number(imol, chain_id, 0)
-        end_res = seqnum_from_serial_number(
+        start_res = coot.seqnum_from_serial_number(imol, chain_id, 0)
+        end_res = coot.seqnum_from_serial_number(
             imol, chain_id, coot.chain_n_residues(chain_id, imol) - 1)
-        set_b_factor_residue_range(imol, chain_id, start_res, end_res, bval)
+        coot.set_b_factor_residue_range(imol, chain_id, start_res, end_res, bval)
 
 # reset B-factor for molecule imol to default value
 #
@@ -3861,11 +3861,11 @@ def set_b_factor_molecule(imol, bval):
 def reset_b_factor_molecule(imol):
 
     for chain_id in chain_ids(imol):
-        start_res = seqnum_from_serial_number(imol, chain_id, 0)
-        end_res = seqnum_from_serial_number(
+        start_res = coot.seqnum_from_serial_number(imol, chain_id, 0)
+        end_res = coot.seqnum_from_serial_number(
             imol, chain_id, coot.chain_n_residues(chain_id, imol) - 1)
-        set_b_factor_residue_range(
-            imol, chain_id, start_res, end_res, default_new_atoms_b_factor())
+        coot.set_b_factor_residue_range(
+            imol, chain_id, start_res, end_res, coot.default_new_atoms_b_factor())
 
 # reset B-factor for active residue to default value
 #
@@ -3885,8 +3885,8 @@ def reset_b_factor_active_residue():
         atom_name = active_atom[4]
         alt_conf = active_atom[5]
 
-        set_b_factor_residue_range(
-            imol, chain_id, res_no, res_no, default_new_atoms_b_factor())
+        coot.set_b_factor_residue_range(
+            imol, chain_id, res_no, res_no, coot.default_new_atoms_b_factor())
 
 
 # BL module to find exe files
@@ -4190,32 +4190,32 @@ def kill_process(pid):
 # some example function for the toolbutton
 # maybe should go in coot_gui.coot_gui!?
 def stereo_mono_toggle():
-    display_state = stereo_mode_state()
+    display_state = coot.stereo_mode_state()
     if (display_state == 0):
-        hardware_stereo_mode()
+        coot.hardware_stereo_mode()
     else:
-        mono_mode()
+        coot.mono_mode()
 
 
 def side_by_side_stereo_mono_toggle():
-    display_state = stereo_mode_state()
+    display_state = coot.stereo_mode_state()
     if (display_state == 0):
-        side_by_side_stereo_mode(0)
+        coot.side_by_side_stereo_mode(0)
     else:
-        mono_mode()
+        coot.mono_mode()
 
 
 def zalman_stereo_mono_toggle():
-    display_state = stereo_mode_state()
+    display_state = coot.stereo_mode_state()
     if (display_state == 0):
-        zalman_stereo_mode()
+        coot.zalman_stereo_mode()
     else:
-        mono_mode()
+        coot.mono_mode()
 
 
 def switch_stereo_sides():
-    factor = -1. * hardware_stereo_angle_factor_state()
-    set_hardware_stereo_angle_factor(factor)
+    factor = -1. * coot.hardware_stereo_angle_factor_state()
+    coot.set_hardware_stereo_angle_factor(factor)
 
 
 def toggle_full_screen(widget=None):
@@ -4228,9 +4228,9 @@ def toggle_full_screen(widget=None):
     if widget:
         if widget.get_active():
             # the button is toggled on
-            full_screen(1)
+            coot.full_screen(1)
         else:
-            full_screen(0)
+            coot.full_screen(0)
     else:
         # no alternative for now (could just go by state and change back and forth)
         print("BL WARNING:: no widget")
@@ -4238,7 +4238,7 @@ def toggle_full_screen(widget=None):
 
 def split_active_water():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
-        split_water(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+        coot.split_water(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 
 # helper function to test for a number
 # returns True if number, otherwise False
@@ -4263,7 +4263,7 @@ def isNumber(num):
 def merge_solvent_chains(imol):
 
     # first renumber all water chains
-    renumber_waters(imol)
+    coot.renumber_waters(imol)
     # collect all solvent chains
     solvent_chains = []
     for chain_id in chain_ids(imol):
@@ -4285,7 +4285,7 @@ def merge_solvent_chains(imol):
                         delete_residue_by_spec(imol, del_res)
 
     # renumber chains after removal:
-    renumber_waters(imol)
+    coot.renumber_waters(imol)
 
     # now merge and renumber
     if (len(solvent_chains) > 1):
@@ -4293,11 +4293,11 @@ def merge_solvent_chains(imol):
         last_prev_water = coot.chain_n_residues(master_chain, imol)
         for chain_id in solvent_chains[1:]:
             n_residues = coot.chain_n_residues(chain_id, imol)
-            renumber_residue_range(imol, chain_id, 1,
+            coot.renumber_residue_range(imol, chain_id, 1,
                                    n_residues, last_prev_water)
             new_start = last_prev_water + 1
             new_end = last_prev_water + n_residues
-            change_chain_id(imol, chain_id, master_chain, 1,
+            coot.change_chain_id(imol, chain_id, master_chain, 1,
                             new_start, new_end)
             last_prev_water = new_end
 
@@ -4391,11 +4391,11 @@ def clean_pdb(imol):
     a wrapper for fix_nomenclature errors, sort chains, residues, merge
     solvent chains, renumber waters, etc."""
 
-    fix_nomenclature_errors(imol)
+    coot.fix_nomenclature_errors(imol)
     merge_solvent_chains(imol)
-    renumber_waters(imol)
-    sort_chains(imol)
-    sort_residues(imol)
+    coot.renumber_waters(imol)
+    coot.sort_chains(imol)
+    coot.sort_residues(imol)
 
 
 # acronym
@@ -4440,7 +4440,7 @@ def hide_all_hydrogens():
     """This will hide all hydrogens. They are not deleted."""
 
     for imol in model_molecule_number_list():
-        set_draw_hydrogens(imol, 0)
+        coot.set_draw_hydrogens(imol, 0)
 
 # Function to show all available hydrogens. No generation.
 #
@@ -4450,7 +4450,7 @@ def show_all_hydrogens():
     """This will show hydrogens on all models, if available. It wont generate any."""
 
     for imol in model_molecule_number_list():
-        set_draw_hydrogens(imol, 1)
+        coot.set_draw_hydrogens(imol, 1)
 
 # Duplication of a given residue range (in alt conf of course)
 #
@@ -4473,32 +4473,32 @@ def duplicate_residue_range(imol, chain_id, res_no_start, res_no_end,
     """
 
     # backup current state and turn off backup
-    occ_backup = get_add_alt_conf_new_atoms_occupancy()
-    split_type_backup = alt_conf_split_type_number()
-    inter_state = show_alt_conf_intermediate_atoms_state()
-    make_backup(imol)  # do a backup first
-    backup_mode = backup_state(imol)
-    turn_off_backup(imol)
+    occ_backup = coot.get_add_alt_conf_new_atoms_occupancy()
+    split_type_backup = coot.alt_conf_split_type_number()
+    inter_state = coot.show_alt_conf_intermediate_atoms_state()
+    coot.make_backup(imol)  # do a backup first
+    backup_mode = coot.backup_state(imol)
+    coot.turn_off_backup(imol)
 
     # set new state
     occ_a = (1 - occ_split) if (occ_split < 1 and occ_split > 0) else 0.5
-    set_add_alt_conf_new_atoms_occupancy(1 - occ_split)
-    set_add_alt_conf_split_type_number(1)  # better 2 for range?!
-    set_show_alt_conf_intermediate_atoms(1)
+    coot.set_add_alt_conf_new_atoms_occupancy(1 - occ_split)
+    coot.set_add_alt_conf_split_type_number(1)  # better 2 for range?!
+    coot.set_show_alt_conf_intermediate_atoms(1)
 
     ins_code = ""
     alt_conf = ""  # maybe this and above should be arg!?
     rot_no = 0  # ignored currently anyway
     for res_no in range(res_no_start, res_no_end + 1):
         add_alt_conf(imol, chain_id, res_no, ins_code, alt_conf, rot_no)
-        accept_regularizement()
+        coot.accept_regularizement()
 
     # set things back
-    set_add_alt_conf_new_atoms_occupancy(occ_backup)
-    set_add_alt_conf_split_type_number(split_type_backup)
-    set_show_alt_conf_intermediate_atoms(inter_state)
+    coot.set_add_alt_conf_new_atoms_occupancy(occ_backup)
+    coot.set_add_alt_conf_split_type_number(split_type_backup)
+    coot.set_show_alt_conf_intermediate_atoms(inter_state)
     if (backup_mode == 1):
-        turn_on_backup(imol)
+        coot.turn_on_backup(imol)
 
 # Necessary for jligand to find libcheck. Mmmh. Was this required before?!
 # does similar things to the ccp4 console batch. Win only
@@ -4568,7 +4568,7 @@ def setup_ccp4():
 
 
 def delete_residue_by_spec(imol, spec):
-    delete_residue(imol,
+    coot.delete_residue(imol,
                    residue_spec_to_chain_id(spec),
                    residue_spec_to_res_no(spec),
                    residue_spec_to_ins_code(spec))
@@ -4663,7 +4663,7 @@ def rename_alt_confs_active_residue():
 
 
 def write_current_sequence_as_pir(imol, ch_id, file_name):
-    print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
+    coot.print_sequence_chain_general(imol, ch_id, 1, 1, file_name)
 
 
 def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
@@ -4684,9 +4684,9 @@ def run_clustalw_alignment(imol, ch_id, target_sequence_pir_file):
     data_lines = ["3", "1", target_sequence_pir_file, "2", current_sequence_pir_file,
                   "9", "2", "", "4", "", aligned_sequence_pir_file, "", "x", "", "x"]
     popen_command("clustalw2", [], data_lines, clustalw2_output_file_name, 0)
-    associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
-    apply_pir_alignment(imol, ch_id)
-    simple_fill_partial_residues(imol)
+    coot.associate_pir_alignment_from_file(imol, ch_id, aligned_sequence_pir_file)
+    coot.apply_pir_alignment(imol, ch_id)
+    coot.simple_fill_partial_residues(imol)
 
 
 # Back to Paul's scripting.

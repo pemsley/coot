@@ -50,7 +50,7 @@ def open_coot_listener_socket(port_number, host_adress = "127.0.0.1"):
     soc.send("Coot listener socket ready!\n")
     coot_listener_socket = soc
     if soc:
-        set_coot_listener_socket_state_internal(1)
+        coot.set_coot_listener_socket_state_internal(1)
 
     # threads? Needed?
     status = coot_gui.run_python_thread(coot_listener_idle_function_proc,())
@@ -100,7 +100,7 @@ def coot_socket_timeout_func():
         while (1):
             continue_qm = listen_coot_listener_socket(coot_listener_socket)
             if (not continue_qm):
-                set_coot_listener_socket_state_internal(0)
+                coot.set_coot_listener_socket_state_internal(0)
                 try:
                     coot_listener_socket.shutdown(2)
                 except:
@@ -152,7 +152,7 @@ def coot_listener_idle_function_proc():
         while (1):
             continue_qm = listen_coot_listener_socket(coot_listener_socket)
             if (not continue_qm):
-                set_coot_listener_socket_state_internal(0)
+                coot.set_coot_listener_socket_state_internal(0)
                 try:
                     coot_listener_socket.shutdown(2)
                 except:

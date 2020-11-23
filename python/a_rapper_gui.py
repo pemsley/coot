@@ -47,7 +47,7 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
     else:
         single_letter_code_list = []
         for resno in range(resno_start, resno_end + 1):
-            res_name = residue_name(imol, chain_id, resno, "")
+            res_name = coot.residue_name(imol, chain_id, resno, "")
             single_letter_code_list.append(mutate.three_letter_code2single_letter(res_name))
         if (not all_chars_qm):
             print "bad sequence chars ", single_letter_code_list
@@ -57,13 +57,13 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
 
 def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models):
 
-    imol_map = imol_refinement_map()
+    imol_map = coot.imol_refinement_map()
     if (not coot_utils.valid_map_molecule_qm(imol_map)):
         print "No valid map molecule given (possibly ambiguous)"
     else:
         str = "//" + chain_id + "/" + str(start_no) + \
               "-" + str(end_resno)
-        frag_mol = new_molecule_by_atom_selection(imol, str)
+        frag_mol = coot.new_molecule_by_atom_selection(imol, str)
         fragment_pdb = "coot-rapper-fragment-in.pdb"
         rapper_out_pdb = "rapper_out.pdb"
         rapper_mode = "model-loops-benchmark" # maybe "ca-trace" perhaps
@@ -75,10 +75,10 @@ def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models
             sequence_string = "AAA"
         map_file = "coot-rapper.map"
         whole_pdb_file_name = "rapper-all-atoms.pdb"
-        write_pdb_file(frag_mol, fragment_pdb)
-        write_pdb_file(imol, whole_pdb_file_name)
-        close_molecule(frag_mol)
-        export_map(imol_map, map_file)
+        coot.write_pdb_file(frag_mol, fragment_pdb)
+        coot.write_pdb_file(imol, whole_pdb_file_name)
+        coot.close_molecule(frag_mol)
+        coot.export_map(imol_map, map_file)
         print "running rapper: ", imol, chain_id, start_resno, end_resno, \
               sequence, number_of_models
 
@@ -114,9 +114,9 @@ def rapper_it(imol, chain_id, start_resno, end_resno, sequence, number_of_models
             new_dir_name = rename_dir_by_date("TESTRUNS")
             result_pdb_file_name = os.path.join(new_dir_name, "looptest-best.pdb")
             if (os.path.isfile(result_pdb_file_name)):
-                read_pdb(result_pdb_file_name)
+                coot.read_pdb(result_pdb_file_name)
             else:
-                info_dialog("RAPPER failed - no results")
+                coot.info_dialog("RAPPER failed - no results")
 
         # run rapper, not decided yet how
 

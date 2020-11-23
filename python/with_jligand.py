@@ -31,7 +31,7 @@ if True:
       def launch_jligand():
           if not os.path.isfile(jligand_jar):
               s = "jligand java jar file: " + jligand_jar + " not found"
-              info_dialog(s)
+              coot.info_dialog(s)
           else:
               java_exe = coot_utils.find_exe(java_command)
               if java_exe:
@@ -53,11 +53,11 @@ if True:
                   click_2 = args[1]
                   if ((len(click_1) == 7)
                       and (len(click_2) ==7)):
-                      resname_1 = residue_name(click_1[1],
+                      resname_1 = coot.residue_name(click_1[1],
                                                click_1[2],
                                                click_1[3],
                                                click_1[4])
-                      resname_2 = residue_name(click_2[1],
+                      resname_2 = coot.residue_name(click_2[1],
                                                click_2[2],
                                                click_2[3],
                                                click_2[4])
@@ -77,7 +77,7 @@ if True:
 def handle_read_from_jligand_file():
     global from_jligand_secret_file_name
     if (os.path.isfile(from_jligand_secret_file_name)):
-        read_cif_dictionary(from_jligand_secret_file_name)
+        coot.read_cif_dictionary(from_jligand_secret_file_name)
 
 global startup_mtime
 startup_mtime = prodrg_import.get_file_latest_time(from_jligand_secret_file_name)

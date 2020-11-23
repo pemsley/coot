@@ -149,7 +149,7 @@ def cluster_and_display_waters(site_number, w_positions_np):
        else:
            print(("reject prediction", i, "for cluster", cluster_assignments[i]))
 
-   # set_display_generic_object(obj, 1)
+   # coot.set_display_generic_object(obj, 1)
 
    obj = coot.new_generic_object_number("CFC Site " + str(site_number) + " water cluster means")
 
@@ -557,7 +557,7 @@ class cfc_ligand_sites:
           print((fn, residue_specs))
 
           for spec in residue_specs:
-              # centre = residue_centre_from_spec_py(imol, spec)
+              # centre = coot.residue_centre_from_spec_py(imol, spec)
               chain_id = rsu.residue_spec_to_chain_id(spec)
               res_no   = rsu.residue_spec_to_res_no(spec)
               ins_code = ''

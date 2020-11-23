@@ -147,8 +147,8 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
             print("BL DEBUG:: click_2", click_2)
             if ((len(click_1) == 7) and
                 (len(click_2) == 7)):
-                resname_1 = residue_name(*click_1[1:5])
-                resname_2 = residue_name(*click_2[1:5])
+                resname_1 = coot.residue_name(*click_1[1:5])
+                resname_2 = coot.residue_name(*click_2[1:5])
                 at_name_1 = click_1[5]
                 at_name_2 = click_2[5]
                 spec_1 = click_1[1:]
@@ -165,7 +165,7 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                     return False # just in case
                 else:
                     if not (imol_click_1 == imol_click_2):
-                        add_status_bar_text("These residues are not in the same molecule")
+                        coot.add_status_bar_text("These residues are not in the same molecule")
                     else:
                         imol = imol_click_1
                         delete_stripped_1 = delete_atom_text.replace(" ", "")
@@ -246,15 +246,15 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
 
                         if not status == 0:
                             m = "WARNING:: acedrg failed.\nSee " + log_file_name
-                            info_dialog(m)
+                            coot.info_dialog(m)
                         else:
                             # happy path
                             link_file_name = st_1 + "_link.cif" # acedrg name
                             hack_link_file_name = hack_link(link_file_name)
-                            dict_read_status = read_cif_dictionary(hack_link_file_name)
+                            dict_read_status = coot.read_cif_dictionary(hack_link_file_name)
                             # dict_read_status is the number of bonds read
                             if (dict_read_status > -2):
-                                make_link(imol_click_1, spec_1, spec_2, "dummy-name", 1.0)
+                                coot.make_link(imol_click_1, spec_1, spec_2, "dummy-name", 1.0)
                     window.destroy()  # when?
                     
     user_defined_click(2, make_acedrg_bond)

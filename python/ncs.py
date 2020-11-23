@@ -93,7 +93,7 @@ def skip_to_next_ncs_chain(direction):
       msg_txt = "BL WARNING:: somehow there are no chains in mol " + str(imol)
       msg_txt+= "\n Try \"p\" to update the Go To Atom molecule and then\n"
       msg_txt+= "skip again. Good luck skipping!\n"
-      info_dialog(msg_txt)
+      coot.info_dialog(msg_txt)
       # what shall we do now? Bail out I guess. But this should never happen!
       return
   next_chain = skip_to_chain(imol, this_chain_id, chains)
@@ -107,7 +107,7 @@ def skip_to_next_ncs_chain(direction):
       # "C" is ligand]
       #
       if (not try_next_chain):
-          add_status_bar_text("No 'NCS Next Chain' found")
+          coot.add_status_bar_text("No 'NCS Next Chain' found")
           break
       else:
           if (not (try_next_chain == this_chain_id)):
@@ -146,7 +146,7 @@ def skip_to_next_ncs_chain(direction):
 # 
 def single_manual_ncs_ghosts(imol, resno_start, resno_end, ref_chain, peer_chain):
 
-	imol_copy = copy_molecule(imol)
+	imol_copy = coot.copy_molecule(imol)
 	clear_lsq_matches()
 	add_lsq_match(resno_start, resno_end, ref_chain, 
                       resno_start, resno_end, peer_chain, 0) # ref mov - all atoms
@@ -155,10 +155,10 @@ def single_manual_ncs_ghosts(imol, resno_start, resno_end, ref_chain, peer_chain
 	if (not rtop):
             print("Failed to get matching matrix")
 	else:
-            clear_ncs_ghost_matrices(imol)
-            set_draw_ncs_ghosts(imol, 1)
+            coot.clear_ncs_ghost_matrices(imol)
+            coot.set_draw_ncs_ghosts(imol, 1)
             args = [imol, peer_chain, ref_chain] + rtop[0] + rtop[1]
-            add_ncs_matrix(*args)
+            coot.add_ncs_matrix(*args)
 
 # chain-id-list is ["A", "B", "C", "D"], i.e. the
 # reference/target/master chain-id first and then the peers.  This
@@ -173,11 +173,11 @@ def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
         if (len(chain_id_list) > 1):
             # OK, OK, to the standard SSM-based NCS matrices are bad for this
             # molecule, lets use LSQ.
-            clear_ncs_ghost_matrices(imol)
-            imol_copy = copy_molecule(imol)
+            coot.clear_ncs_ghost_matrices(imol)
+            imol_copy = coot.copy_molecule(imol)
             for chain_id in chain_id_list[1:]:       # I dont think we need to superpose A onto A?!
-                clear_lsq_matches()
-                add_lsq_match(resno_start, resno_end, chain_id_list[0],
+                coot.clear_lsq_matches()
+                coot.add_lsq_match(resno_start, resno_end, chain_id_list[0],
                               resno_start, resno_end, chain_id, 1)
                 rtop = apply_lsq_matches(imol, imol_copy)
                 if (not rtop):
@@ -187,9 +187,9 @@ def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
                     print("chain_id %s master %s rtop: %s" %(chain_id, master, rtop))
                     if master:  # should be string or False, so ok I belive
                         args = [imol, chain_id, master] + rtop[0] + rtop[1]
-                        add_ncs_matrix(*args)
-            close_molecule(imol_copy)
-            set_draw_ncs_ghosts(imol, 1)
+                        coot.add_ncs_matrix(*args)
+            coot.close_molecule(imol_copy)
+            coot.set_draw_ncs_ghosts(imol, 1)
 
 # Update NCS ghosts based on local environment (residues within 6A of
 # (and including) the active residue).
@@ -204,17 +204,17 @@ def update_ncs_ghosts_by_local_sphere():
 
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                aa_atom_name, aa_alt_conf]:
-        # clear_ncs_ghost_matrices(aa_imol)
+        # coot.clear_ncs_ghost_matrices(aa_imol)
         ghost_ncs_chain_ids = ncs_chain_ids(aa_imol)
         if (isinstance(ghost_ncs_chain_ids, list)):
             ghost_chain_id_list = ghost_ncs_chain_ids[0]
             if (isinstance(ghost_chain_id_list, list)):
-                clear_ncs_ghost_matrices(aa_imol)
+                coot.clear_ncs_ghost_matrices(aa_imol)
                 for chain_id in ghost_chain_id_list[1]:
-                    imol_copy = copy_molecule(aa_imol)
-                    set_mol_displayed(imol_copy, 0)
-                    set_mol_active(imol_copy, 0)
-                    clear_lsq_matches()
+                    imol_copy = coot.copy_molecule(aa_imol)
+                    coot.set_mol_displayed(imol_copy, 0)
+                    coot.set_mol_active(imol_copy, 0)
+                    coot.clear_lsq_matches()
                     active_residue_spec = [aa_chain_id, aa_res_no, aa_ins_code]
                     near_residues = residues_near_residue(aa_imol,
                                                           active_residue_spec,
@@ -222,18 +222,18 @@ def update_ncs_ghosts_by_local_sphere():
                     sphere_residues = [active_residue_spec, near_residues]
                     for residue_spec in sphere_residues:
                         res_no = res_spec_utils.residue_spec_to_res_no(residue_spec)
-                        add_lsq_match(res_no, res_no, ghost_chain_id_list[0],
+                        coot.add_lsq_match(res_no, res_no, ghost_chain_id_list[0],
                                       res_no, res_no, chain_id, 1)
 
                     rtop = apply_lsq_matches(aa_imol, imol_copy)
-                    close_molecule(imol_copy)
+                    coot.close_molecule(imol_copy)
                     if not rtop:
                         print("Failed to get LSQ matching matrix", chain_id)
                     else:
                         master = ghost_chain_id_list[0]
                         if (isinstance(master, str)):
                             args = [aa_imol, chain_id, master] + rtop[0] + rtop[1]
-                            add_ncs_matrix(*args)
+                            coot.add_ncs_matrix(*args)
 
             
 # Return the first master chain id (usually there is only one of course) or False
@@ -277,7 +277,7 @@ def ncs_ligand(imol_protein, ncs_master_chain_id,
     if coot_utils.chain_ids_from_ncs:
         ligand_selection_string = "//" + chain_id_ligand + "/" + str(resno_ligand_start) + \
                                   "-" + str(resno_ligand_stop)
-        imol_ligand_fragment = new_molecule_by_atom_selection(imol_ligand, ligand_selection_string)
+        imol_ligand_fragment = coot.new_molecule_by_atom_selection(imol_ligand, ligand_selection_string)
         ghosts = ncs_ghosts(imol_protein)
         for coot_utils.chain_ids in chain_ids_from_ncs:
             if (chain_ids[0] == ncs_master_chain_id):
@@ -287,11 +287,11 @@ def ncs_ligand(imol_protein, ncs_master_chain_id,
                     rtop = rtop_from_ghost_with_chain_id(ghosts, chain_id_protein)
                     if (not rtop):
                         print("Opps - ncs-ligand: Missing ghost rt-op!")
-                        info_dialog("Opps - ncs-ligand: Missing ghost rt-op!")
+                        coot.info_dialog("Opps - ncs-ligand: Missing ghost rt-op!")
                     else:
-                        new_lig_mol = copy_molecule(imol_ligand_fragment)
+                        new_lig_mol = coot.copy_molecule(imol_ligand_fragment)
                         coot_utils.transform_coords_molecule(new_lig_mol, inverse_rtop(rtop))
-                        set_molecule_name(new_lig_mol,
+                        coot.set_molecule_name(new_lig_mol,
                                           str(new_lig_mol) +
                                           ": " +
                                           candidate_name +
@@ -302,7 +302,7 @@ def ncs_ligand(imol_protein, ncs_master_chain_id,
             if (not coot_utils.valid_model_molecule_qm(imol)):
                 return False
             else:
-                name = molecule_name(imol)
+                name = coot.molecule_name(imol)
                 if (candidate_name in name):
                     ls = [name]
                     for i in coot_utils.molecule_centre(imol):

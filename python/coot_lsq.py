@@ -53,7 +53,7 @@ def set_match_element(m):
 
     if (len(m)==7):
         match_type=lsq_match_type_symbol(m[6])
-        add_lsq_match(m[0],m[1],m[2],m[3],m[4],m[5],match_type)
+        coot.add_lsq_match(m[0],m[1],m[2],m[3],m[4],m[5],match_type)
     else:
         print("Wrong number of elements in match (was",len(m)," should be 7)")
 
@@ -64,7 +64,7 @@ def set_match_element(m):
 #
 def lsq_match(imol_ref,imol_moving,match_list):
 
-    clear_lsq_matches()
+    coot.clear_lsq_matches()
     set_match_element(match_list)
 
     apply_lsq_matches(imol_ref,imol_moving)
@@ -77,8 +77,8 @@ def lsq_match(imol_ref,imol_moving,match_list):
 def simple_lsq_match (ref_start_resno, ref_end_resno, ref_chain_id, imol_ref, mov_start_resno, mov_end_resno, mov_chain_id, imol_mov, match_type):
 
       internal_match_type=lsq_match_type_symbol(match_type)
-      clear_lsq_matches()
-      add_lsq_match(ref_start_resno,ref_end_resno,ref_chain_id,
+      coot.clear_lsq_matches()
+      coot.add_lsq_match(ref_start_resno,ref_end_resno,ref_chain_id,
 		    mov_start_resno,mov_end_resno,mov_chain_id,
 		    internal_match_type)
       apply_lsq_matches(imol_ref,imol_mov)

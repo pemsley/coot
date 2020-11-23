@@ -12,13 +12,13 @@ def sharpen_blur_map_gui():
         if check_button.get_active():
             t2 = entry_2.get_text()
             resample_factor = float(t2)
-            imol_new = sharpen_blur_map_with_resampling(imol_map, blur_factor, resample_factor)
+            imol_new = coot.sharpen_blur_map_with_resampling(imol_map, blur_factor, resample_factor)
         else:
-            imol_new = sharpen_blur_map(imol_map, blur_factor)
+            imol_new = coot.sharpen_blur_map(imol_map, blur_factor)
         print("check_button_for_refinement_map active", check_button_for_refinement_map.get_active())
         if check_button_for_refinement_map.get_active():
             print("set_imol_refinement_map() with ", imol_new)
-            set_imol_refinement_map(imol_new)
+            coot.set_imol_refinement_map(imol_new)
         window.destroy()
 
     def on_check_button_toggled(check_button, entry_2, label_2):

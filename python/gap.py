@@ -34,7 +34,7 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
 
     imol_map = coot.imol_refinement_map()
     if (imol_map == -1):
-        info_dialog("Need to set a map to fit a loop")
+        coot.info_dialog("Need to set a map to fit a loop")
     else:
         # normal execution
         backup_mode = coot.backup_state(imol)
@@ -52,15 +52,15 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
 
         if all([coot_utils.residue_exists_qm(imol, chain_id, resno, "") for resno in res_limits]):
             # build both ways
-            imol_backwards = copy_molecule(imol)
+            imol_backwards = coot.copy_molecule(imol)
             loop_len = abs(start_resno - stop_resno) + 1
             if (loop_len >= 6):
-                imol_both = copy_molecule(imol)
+                imol_both = coot.copy_molecule(imol)
 
             # make a backup copy of the original terminal residues
             atom_selection = "//" + chain_id + "/" + str(min(start_resno, stop_resno) - 1) + \
                              "-" + str(max(start_resno, stop_resno) + 1)
-            imol_fragment_backup = new_molecule_by_atom_selection(
+            imol_fragment_backup = coot.new_molecule_by_atom_selection(
                 imol, atom_selection)
             coot.set_mol_displayed(imol_fragment_backup, 0)
 
@@ -90,12 +90,12 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                 fit_gap_generic(imol_both, chain_id,
                                 stop_resno2, start_resno2, sequence2)
                 # finally refine the 'gap'; check refinement immediate status
-                immediate_refinement_mode = refinement_immediate_replacement_state()
-                set_refinement_immediate_replacement(1)
-                refine_zone(imol_both, chain_id, stop_resno1 - loop_len//3,
+                immediate_refinement_mode = coot.refinement_immediate_replacement_state()
+                coot.set_refinement_immediate_replacement(1)
+                coot.refine_zone(imol_both, chain_id, stop_resno1 - loop_len//3,
                             start_resno2 + loop_len//3, "")
-                accept_regularizement()
-                set_refinement_immediate_replacement(immediate_refinement_mode)
+                coot.accept_regularizement()
+                coot.set_refinement_immediate_replacement(immediate_refinement_mode)
                 result_c = low_density_average(
                     imol_map, imol_both, chain_id, start_resno, stop_resno)
                 loop_list.append([imol_both, result_c])
@@ -109,7 +109,7 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                 while j < len(loop_list):
                     if (min(loop_list[i][1], loop_list[j][1]) / max(loop_list[i][1], loop_list[j][1]) > cut_off):
                         # solutions are identical?! (cut-off 90%)
-                        close_molecule(loop_list[j][0])
+                        coot.close_molecule(loop_list[j][0])
                         loop_list.pop(j)
                     j += 1
                 i += 1
@@ -121,13 +121,13 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                 # we make a fragment for each loop
                 fragment_list = []
                 for i, (imol_loop, result) in enumerate(loop_list):
-                    imol_fragment = new_molecule_by_atom_selection(
+                    imol_fragment = coot.new_molecule_by_atom_selection(
                         imol_loop, atom_selection)
                     fragment_list.append([imol_fragment, result])
-                    set_mol_displayed(imol_fragment, 0)
+                    coot.set_mol_displayed(imol_fragment, 0)
                     # we close all mols and work with the fragments (except the original one)
                     if (i > 0):
-                        close_molecule(imol_loop)
+                        coot.close_molecule(imol_loop)
 
                 buttons = []
                 selected_button = 0
@@ -151,10 +151,10 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
                 close_ls = [
                     "close_molecule(" + str(x_y[0]) + ")" for x_y in fragment_list]
                 go_function = "(" + ', '.join(close_ls) + ")"
-                cancel_function = "(delete_residue_range(" + str(imol) + ", \"" + str(chain_id) + \
+                cancel_function = "(coot.delete_residue_range(" + str(imol) + ", \"" + str(chain_id) + \
                                   "\", " + str(min(start_resno, stop_resno)) + \
                                   ", " + str(max(start_resno, stop_resno)) + \
-                                  "), replace_fragment(" + str(imol) + ", " + \
+                                  "), coot.replace_fragment(" + str(imol) + ", " + \
                                   str(imol_fragment_backup) + ", \"" + atom_selection + "\"), " + \
                                   ', '.join(close_ls) + ")"
 
@@ -168,10 +168,10 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
             else:
                 # no pygtk take best one
                 if (result_a > result_b):
-                    close_molecule(imol_copy)
+                    coot.close_molecule(imol_copy)
                 else:
-                    replace_fragment(imol, imol_copy, atom_selection)
-                    close_molecule(imol_copy)
+                    coot.replace_fragment(imol, imol_copy, atom_selection)
+                    coot.close_molecule(imol_copy)
 
         else:
             # either end residue is missing -> single build
@@ -328,7 +328,7 @@ def low_density_average(imol_map, imol, chain_id, start_resno, stop_resno):
                 map_coords.append(atom[2])
 
     for [x, y, z] in map_coords:
-        map_density.append(density_at_point(imol_map, x, y,  z))
+        map_density.append(coot.density_at_point(imol_map, x, y,  z))
 
     map_density.sort()  # sort ascending
 

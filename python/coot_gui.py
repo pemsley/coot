@@ -398,7 +398,7 @@ def smiles_gui():
         tlc_entry.set_text("")
         smiles_label = gtk.Label("SMILES string ")
         smiles_entry = gtk.Entry()
-        if enhanced_ligand_coot_p():
+        if coot.enhanced_ligand_coot_p():
             text = gtk.Label("  [SMILES interface works by using Pyrogen]  ")
         else:
             text = gtk.Label(
@@ -425,13 +425,13 @@ def smiles_gui():
 
     # first check that libcheck is available... if not put up and info
     # dialog.
-    if enhanced_ligand_coot_p():
+    if coot.enhanced_ligand_coot_p():
         smiles_gui_internal()
     else:
         if (coot_utils.find_exe(libcheck_exe, "CCP4_BIN", "PATH")):
             smiles_gui_internal()
         else:
-            info_dialog(
+            coot.info_dialog(
                 "You need to setup CCP4 (specifically LIBCHECK) first.")
 
 
@@ -701,8 +701,8 @@ def molecule_centres_gui():
 
     def callback_func(widget, molecule_number, label):
         s = "Centred on " + label
-        add_status_bar_text(s)
-        set_rotation_centre(*molecule_centre(molecule_number))
+        coot.add_status_bar_text(s)
+        coot.set_rotation_centre(*molecule_centre(molecule_number))
 
     # first, we create a window and a frame to be put into it.
     #
@@ -733,8 +733,8 @@ def molecule_centres_gui():
     # pixels.
     #
     for molecule_number in coot_utils.molecule_number_list():
-        if (is_valid_model_molecule(molecule_number)):
-            name = molecule_name(molecule_number)
+        if (coot.is_valid_model_molecule(molecule_number)):
+            name = coot.molecule_name(molecule_number)
             label = str(molecule_number) + " " + name
             button = gtk.Button(label)
             button.connect("clicked", callback_func, molecule_number, label)
@@ -791,9 +791,9 @@ def old_coot_qm():
                 s = "(Nothing says \"patriotism\" like an Ireland shirt...)\n"
             else:
                 s = "You've got an Old Coot!\n\nIt's time to upgrade."
-        info_dialog(s)
+        coot.info_dialog(s)
 
-# if (not coot_has_guile()):
+# if (not coot.coot_has_guile()):
 #   old_coot_qm()
 
 # We can either go to a place (in which case the element is a list of
@@ -888,7 +888,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
         return False
 
     def callback_func1(widget, coords):
-        set_rotation_centre(*coords)
+        coot.set_rotation_centre(*coords)
 
     def callback_func2(widget, mol_no, atom_info):
         print("Attempt to go to chain: %s resno: %s atom-name: %s" %
@@ -896,7 +896,7 @@ def interesting_things_with_fix_maybe(title, baddie_list):
         coot_utils.set_go_to_atom_molecule(mol_no)
         success = coot_utils.set_go_to_atom_chain_residue_atom_name(*atom_info)
         if success == 0:           # failed?!
-            new_name = unmangle_hydrogen_name(atom_info[2])
+            new_name = coot.unmangle_hydrogen_name(atom_info[2])
             success2 = coot_utils.set_go_to_atom_chain_residue_atom_name(
                 atom_info[0], atom_info[1], new_name)
             if success2 == 0:
@@ -993,7 +993,7 @@ def fill_option_menu_with_mol_options(menu, filter_function):
 
     for mol_no in coot_utils.molecule_number_list():
         if filter_function(mol_no):
-            label_str = molecule_name(mol_no)
+            label_str = coot.molecule_name(mol_no)
             if (isinstance(label_str, (str,))):
                 mlabel_str = str(mol_no) + " " + label_str
                 menu.append_text(mlabel_str)
@@ -1140,7 +1140,7 @@ def fill_combobox_with_mol_options(combobox, filter_function):
     name_store = Gtk.ListStore(int, str)
     for imol in coot_utils.molecule_number_list():
         if filter_function(imol):
-            label_str = molecule_name(imol)
+            label_str = coot.molecule_name(imol)
             m_label_str = str(imol) + ' ' + label_str
             name_store.append([imol, m_label_str])
             mols_ls.append(imol)
@@ -1601,7 +1601,7 @@ def zero_occ_atoms_gui(imol):
         s = "No atoms with zero occupancy found\n"
         s += "in molecule "
         s += str(imol)
-        info_dialog(s)
+        coot.info_dialog(s)
 
 
 # Make an interesting things GUI for residues of molecule number
@@ -1747,7 +1747,7 @@ def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
     if found_combobox:
         s = "BL WARNING:: already have a comboxbox with name %s. Please " +\
             "try again!" % found_combobox
-        info_dialog(s)
+        coot.info_dialog(s)
         return False
     else:
         toolitem = Gtk.ToolItem()
@@ -2026,7 +2026,7 @@ def generic_molecule_chooser(hbox, hint_text):
 
 def file_selector_entry(hbox, hint_text, default_file_name=False):
 
-    if (file_chooser_selector_state() == 0 or Gtk.pygtk_version < (2, 3, 90)):
+    if (coot.file_chooser_selector_state() == 0 or Gtk.pygtk_version < (2, 3, 90)):
 
         vbox = Gtk.VBox(False, 0)
 
@@ -2103,7 +2103,7 @@ def place_strand_here_gui():
     generic_number_chooser(coot_utils.number_list(4, 12), 7,
                            " Estimated number of residues in strand",
                            "  Go  ",
-                           lambda n: place_strand_here(n, 15))
+                           lambda n: coot.place_strand_here(n, 15))
 
 # Cootaneer gui
 #
@@ -2141,7 +2141,7 @@ def cootaneer_gui(imol):
                     "\n" + \
                     "Perhaps you could improve or extend this fragment."
                 window.destroy()
-                info_dialog(s)
+                coot.info_dialog(s)
         else:
             print("BL WARNING:: no close atom found!")
             window.destroy()
@@ -2175,9 +2175,9 @@ def cootaneer_gui(imol):
         return [frame, entry, text_box]
 
         # main body
-    imol_map = imol_refinement_map()
+    imol_map = coot.imol_refinement_map()
     if (imol_map == -1):
-        show_select_map_dialog()
+        coot.show_select_map_dialog()
         print("BL DEBUG:: probably should wait here for input!?")
 
     window = Gtk.Window()
@@ -2194,7 +2194,7 @@ def cootaneer_gui(imol):
     if not seq_info_ls:
         s = "No sequence assigned for molecule number " + str(imol)
         print(s)
-        info_dialog(s)
+        coot.info_dialog(s)
     else:
 
         for seq_info in seq_info_ls:
@@ -2229,7 +2229,7 @@ def view_saver_gui():
             jview = 0
             while jview or jview == 0:
                 jview_name = view_name(jview)
-                if jview >= n_views():
+                if jview >= coot.n_views():
                     return strr
                 elif jview_name == False:
                     return strr
@@ -2252,7 +2252,7 @@ def add_view_to_views_panel(view_name, view_number):
     if (views_dialog_vbox):
         button = Gtk.Button(view_name)
         button.connect(
-            "clicked", lambda func: go_to_view_number(view_number, 0))
+            "clicked", lambda func: coot.go_to_view_number(view_number, 0))
         views_dialog_vbox.pack_start(button, False, False, 2)
         button.show()
 
@@ -2625,7 +2625,7 @@ views_dialog_vbox = False
 def views_panel_gui():
 
     global views_dialog_vbox
-    number_of_views = n_views()
+    number_of_views = coot.n_views()
     buttons = []
 
     for button_number in range(number_of_views):
@@ -2638,9 +2638,9 @@ def views_panel_gui():
     if len(buttons) > 1:
         def view_button_func():
             import time
-            go_to_first_view(1)
+            coot.go_to_first_view(1)
             time.sleep(1)
-            play_views()
+            coot.play_views()
         view_button = ["  Play Views ", lambda func: view_button_func()]
         buttons.insert(0, view_button)
 
@@ -2662,7 +2662,7 @@ def nudge_screen_centre_paule_gui():
 # axis 0-2 = x,y,z and 0=+ and 1=-
 
     def nudge_screen_func(axis, operand):
-        nudge = zsc * zoom_factor()
+        nudge = zsc * coot.zoom_factor()
         rc = coot_utils.rotation_centre()
         if operand == 0:
             rc[axis] += nudge
@@ -2671,7 +2671,7 @@ def nudge_screen_centre_paule_gui():
         else:
             # We should never be here
             print("BL WARNING:: something went wrong!!!")
-        set_rotation_centre(*rc)
+        coot.set_rotation_centre(*rc)
 
     buttons = [
         ["Nudge +X", lambda func: nudge_screen_func(0, 0)],
@@ -2698,7 +2698,7 @@ def nudge_screen_centre_gui():
 # axis 0-2 = x,y,z and 0=+ and 1=-
 
     def nudge_screen_func(axis, operand):
-        nudge_factor = zsc * zoom_factor()
+        nudge_factor = zsc * coot.zoom_factor()
         rc = coot_utils.rotation_centre()
         mat = coot_utils.view_matrix_transp()
         nudge_vector = []
@@ -2711,7 +2711,7 @@ def nudge_screen_centre_gui():
         else:
             # We should never be here
             print("BL WARNING:: something went wrong!!!")
-        set_rotation_centre(*rc)
+        coot.set_rotation_centre(*rc)
 
     buttons = [
         ["Nudge +X", lambda func: nudge_screen_func(0, 0)],
@@ -2736,7 +2736,7 @@ def nudge_screen_centre_extra_gui():
 # axis 0-2 = x,y,z and 0=+ and 1=-
 
     def nudge_screen_func(axis, operand):
-        nudge_factor = zsc * zoom_factor()
+        nudge_factor = zsc * coot.zoom_factor()
         rc = coot_utils.rotation_centre()
         mat = coot_utils.view_matrix_transp()
         nudge_vector = []
@@ -2749,7 +2749,7 @@ def nudge_screen_centre_extra_gui():
         else:
             # We should never be here
             print("BL WARNING:: something went wrong!!!")
-        set_rotation_centre(*rc)
+        coot.set_rotation_centre(*rc)
 
     buttons = [
         ["Nudge +X", lambda func: nudge_screen_func(0, 0)],
@@ -2764,12 +2764,12 @@ def nudge_screen_centre_extra_gui():
     vbox = Gtk.VBox(False, 0)
 
     def change_clipp(*args):
-        set_clipping_front(clipp_adj.value)
-        set_clipping_back(clipp_adj.value)
+        coot.set_clipping_front(clipp_adj.value)
+        coot.set_clipping_back(clipp_adj.value)
 
     def change_zoom(*args):
-        set_zoom(zoom_adj.value)
-        graphics_draw()
+        coot.set_zoom(zoom_adj.value)
+        coot.graphics_draw()
 
     # for clipping
     clipp_label = Gtk.Label("Clipping")
@@ -2786,7 +2786,7 @@ def nudge_screen_centre_extra_gui():
     vbox.pack_start(h_sep, False, False, 5)
 
     # for zooming
-    zoom = zoom_factor()
+    zoom = coot.zoom_factor()
     zoom_label = Gtk.Label("Zoom")
     zoom_adj = Gtk.Adjustment(zoom, zoom*0.125, zoom*8, 0.01, 0.5, zoom)
     zoom_scale = Gtk.HScale(zoom_adj)
@@ -2823,7 +2823,7 @@ def make_difference_map_gui():
         except:
             print("can't decode scale", scale_text)
         if (scale):
-            difference_map(active_mol_no_ref, active_mol_no_sec, scale)
+            coot.difference_map(active_mol_no_ref, active_mol_no_sec, scale)
         delete_event()
 
     window = Gtk.Window()
@@ -2912,9 +2912,9 @@ def cis_peptides_gui(imol):
                     tors_string = tors_s1[0:6]
                 mess = ("Cis Pep: " + chain_id + " " +
                         str(r1[2]) + " " +
-                        residue_name(imol, *r1[1:4]) + " - " +
+                        coot.residue_name(imol, *r1[1:4]) + " - " +
                         str(r2[2]) + " " +
-                        residue_name(imol, *r2[1:4]) + "   " +
+                        coot.residue_name(imol, *r2[1:4]) + "   " +
                         tors_string)
                 ls = pos
                 ls.insert(0, mess)
@@ -2924,7 +2924,7 @@ def cis_peptides_gui(imol):
     cis_peps = cis_peptides(imol)
 
     if (cis_peps == []):
-        info_dialog("No Cis Peptides found")
+        coot.info_dialog("No Cis Peptides found")
     else:
         list_of_cis_peptides = make_list_of_cis_peps(imol, cis_peps)
         interesting_things_gui("Cis Peptides:", list_of_cis_peptides)
@@ -2954,7 +2954,7 @@ def transform_map_using_lsq_matrix_gui():
 
         radius_text = radius_entry.get_text()
 
-        imol_map = imol_refinement_map()
+        imol_map = coot.imol_refinement_map()
         cont = False
         try:
             resno_1_ref = int(resno_1_ref_text)
@@ -2970,23 +2970,23 @@ def transform_map_using_lsq_matrix_gui():
             if (not coot_utils.valid_map_molecule_qm(imol_map)):
                 print("Must set the refinement map")
             else:
-                imol_copy = copy_molecule(active_mol_mov)
+                imol_copy = coot.copy_molecule(active_mol_mov)
                 new_map_number = coot_utils.transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref,
                                                                            resno_1_ref, resno_2_ref,
                                                                            imol_copy, chain_id_mov,
                                                                            resno_1_mov, resno_2_mov,
                                                                            imol_map, coot_utils.rotation_centre(), radius)
-                set_molecule_name(imol_copy,
-                                  "Transformed copy of " + coot_utils.strip_path(molecule_name(active_mol_mov)))
+                coot.set_molecule_name(imol_copy,
+                                  "Transformed copy of " + coot_utils.strip_path(coot.molecule_name(active_mol_mov)))
 
                 s = "Transformed map: from map " + str(imol_map) + \
                     " by matrix that created coords " + str(imol_copy)
-                set_molecule_name(new_map_number,
+                coot.set_molecule_name(new_map_number,
                                   "Transformed map: from map " + str(imol_map) +
                                   " by matrix that created coords " + str(imol_copy))
 
-                set_mol_active(imol_copy, 0)
-                set_mol_displayed(imol_copy, 0)
+                coot.set_mol_active(imol_copy, 0)
+                coot.set_mol_displayed(imol_copy, 0)
 
         window.destroy()
 
@@ -3064,8 +3064,8 @@ def transform_map_using_lsq_matrix_gui():
     ok_button.connect("clicked", on_ok_button_clicked)
 
     window.show_all()
-    if (not coot_utils.valid_map_molecule_qm(imol_refinement_map())):
-        show_select_map_dialog()
+    if (not coot_utils.valid_map_molecule_qm(coot.imol_refinement_map())):
+        coot.show_select_map_dialog()
 
 
 def ncs_ligand_gui():
@@ -3099,7 +3099,7 @@ def ncs_ligand_gui():
                 print("can't decode resno_end", resno_end_t)
 
         if (resno_end and resno_start):
-            make_ncs_ghosts_maybe(active_mol_no_ref)
+            coot.make_ncs_ghosts_maybe(active_mol_no_ref)
             print("ncs ligand with", active_mol_no_ref,
                   chain_id_ref, active_mol_no_lig, chain_id_lig,
                   resno_start, resno_end)
@@ -3376,7 +3376,7 @@ def gui_overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref):
     # we don't want to overlap-ligands if there is no dictionary
     # for the residue to be matched to.
     #
-    res_name = residue_name(imol_ref, chain_id_ref, res_no_ref, "")
+    res_name = coot.residue_name(imol_ref, chain_id_ref, res_no_ref, "")
     restraints = monomer_restraints(res_name)
     if (not restraints):
         return False
@@ -3387,7 +3387,7 @@ def gui_overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref):
             print("----------- overlap-ligands %s %s %s %s ------------"
                   % (imol_ligand, imol_ref, chain_id_ref, res_no_ref))
             # this can return the rtop operator or the False (for fail of course).
-            match_ligand_torsions(imol_ligand, imol_ref,
+            coot.match_ligand_torsions(imol_ligand, imol_ref,
                                   chain_id_ref, res_no_ref)
             ret = overlap_ligands(imol_ligand, imol_ref,
                                   chain_id_ref, res_no_ref)
@@ -3448,7 +3448,7 @@ def key_bindings_gui():
                 s += "The shortcut should still work though."
 
                 def binding_func():
-                    info_dialog(s)
+                    coot.info_dialog(s)
                     print("INFO::", s)
 
             button.connect("clicked", lambda func: apply(binding_func))
@@ -3489,8 +3489,8 @@ def key_bindings_gui():
     usr_frame.add(usr_frame_vbox)
 
     py_and_scm_keybindings = key_bindings
-    if (coot_has_guile()):
-        scm_key_bindings = run_scheme_command("*key-bindings*")
+    if (coot.coot_has_guile()):
+        scm_key_bindings = coot.run_scheme_command("*key-bindings*")
         # check for list
         if isinstance(scm_key_bindings, list):
             # filter out doublicates
@@ -3571,7 +3571,7 @@ def cootaneer_gui_bl():
         active_mol_no = get_option_menu_active_molecule(
             option_menu, model_mol_list)
         imol = int(active_mol_no)
-        imol_map = imol_refinement_map()
+        imol_map = coot.imol_refinement_map()
 
         do_it = assign_sequences_to_mol(imol)
 
@@ -3579,9 +3579,9 @@ def cootaneer_gui_bl():
             # now cootaneer it
             chain_ls = coot_utils.chain_ids(imol)
             for chain_id in chain_ls:
-                res_name = resname_from_serial_number(imol, chain_id, 0)
-                res_no = seqnum_from_serial_number(imol, chain_id, 0)
-                ins_code = insertion_code_from_serial_number(imol, chain_id, 0)
+                res_name = coot.resname_from_serial_number(imol, chain_id, 0)
+                res_no = coot.seqnum_from_serial_number(imol, chain_id, 0)
+                ins_code = coot.insertion_code_from_serial_number(imol, chain_id, 0)
                 alt_conf = ""
                 at_name = coot_utils.residue_spec_to_atom_for_centre(
                     imol, chain_id, res_no, ins_code)[0]
@@ -3591,7 +3591,7 @@ def cootaneer_gui_bl():
                     s = "Insufficiently confident in alignment to make a fit." + \
                         "\n" + \
                         "Perhaps you could improve or extend this fragment."
-                    info_dialog(s)
+                    coot.info_dialog(s)
                 refine_qm = refine_check_button.get_active()
             # refine?
             window.hide()
@@ -3612,7 +3612,7 @@ def cootaneer_gui_bl():
         seq_file_name = selector_entry.get_text()
         if (seq_file_name):
             # get and set sequence info
-            assign_sequence_from_file(imol, str(seq_file_name))
+            coot.assign_sequence_from_file(imol, str(seq_file_name))
             seq_info_ls = sequence_info(imol)
             no_of_sequences = len(seq_info_ls)
 
@@ -3679,7 +3679,7 @@ def cootaneer_gui_bl():
             active_mol_no = get_option_menu_active_molecule(
                 option_menu, model_mol_list)
             imol = int(active_mol_no)
-            imol_map = imol_refinement_map()
+            imol_map = coot.imol_refinement_map()
             print("apply the sequence info here\n")
             print("then cootaneer\n")
 
@@ -3706,18 +3706,18 @@ def cootaneer_gui_bl():
                         s = "Insufficiently confident in alignment to make a fit." + \
                             "\n" + \
                             "Perhaps you could improve or extend this fragment."
-                        info_dialog(s)
+                        coot.info_dialog(s)
                     else:
                         refine_qm = refine_check_button.get_active()
                         if (chain_check_button.get_active()):
                             # we try to change the chain
                             from_chain_id = chain_id
                             to_chain_id = entry.get_text()
-                            start_resno = seqnum_from_serial_number(
+                            start_resno = coot.seqnum_from_serial_number(
                                 imol, from_chain_id, 0)
-                            end_resno = seqnum_from_serial_number(
-                                imol, from_chain_id, (chain_n_residues(from_chain_id, imol) - 1))
-                            [istat, message] = change_chain_id_with_result_py(
+                            end_resno = coot.seqnum_from_serial_number(
+                                imol, from_chain_id, (coot.chain_n_residues(from_chain_id, imol) - 1))
+                            [istat, message] = coot.change_chain_id_with_result_py(
                                 imol, from_chain_id, to_chain_id, 1, start_resno, end_resno)
                             if (istat == 1):
                                 # renaming ok
@@ -3727,7 +3727,7 @@ def cootaneer_gui_bl():
                                 if (refine_qm):
                                     message += "\nRefinement proceeded with old=new chain "
                                     message += chain_id
-                                info_dialog(message)
+                                coot.info_dialog(message)
 
                         if (refine_qm):
                             fitting.fit_chain(imol, chain_id)
@@ -3878,23 +3878,23 @@ def cootaneer_gui_bl():
                     for info in seq_info:
                         chain_id_old = info[0]
                         if (chain_id_new == chain_id_old):
-                            delete_sequence_by_chain_id(imol, chain_id_old)
+                            coot.delete_sequence_by_chain_id(imol, chain_id_old)
 
                 # replace space, eol etc in sequence first
                 seq = seq.replace(" ", "")
                 seq = seq.replace("\r", "")       # mac?
                 seq = seq.replace("\r\n", "")     # win?
                 seq = seq.replace("\n", "")       # unix?
-                assign_sequence_from_string(imol, chain_id_new, seq)
+                coot.assign_sequence_from_string(imol, chain_id_new, seq)
             return True
         else:
-            add_status_bar_text("Invalid chain_id and/or sequence provided")
+            coot.add_status_bar_text("Invalid chain_id and/or sequence provided")
             return False
 
     # main body
-    imol_map = imol_refinement_map()
+    imol_map = coot.imol_refinement_map()
     if (imol_map == -1):
-        show_select_map_dialog()
+        coot.show_select_map_dialog()
 
     window = Gtk.Window()
     window.set_title("Sequencing GUI")
@@ -3991,10 +3991,10 @@ def refinement_options_gui():
         try:
             t = float(text)
             s = "Matrix set to " + text
-            set_matrix(t)
-            add_status_bar_text(s)
+            coot.set_matrix(t)
+            coot.add_status_bar_text(s)
         except:
-            add_status_bar_text("Failed to read a number")
+            coot.add_status_bar_text("Failed to read a number")
 
     def delete_event(*rags):
         window.destroy()
@@ -4018,15 +4018,15 @@ def refinement_options_gui():
     # add the matrix entry
     matrix_entry = entry_do_button(vbox, "set matrix: (smaller means better geometry)",
                                    "Set", set_matrix_func)
-    matrix_entry.set_text(str(matrix_state()))
+    matrix_entry.set_text(str(coot.matrix_state()))
 
     vbox.pack_start(h_sep2, False, False, 2)
 
     # use torsion restrains?
     torsion_restraints_button = generic_check_button(vbox,
                                                      "Use Torsion Restraints?",
-                                                     lambda state: set_refine_with_torsion_restraints(state))
-    if (refine_with_torsion_restraints_state() == 1):
+                                                     lambda state: coot.set_refine_with_torsion_restraints(state))
+    if (coot.refine_with_torsion_restraints_state() == 1):
         torsion_restraints_button.set_active(True)
     else:
         torsion_restraints_button.set_active(False)
@@ -4034,8 +4034,8 @@ def refinement_options_gui():
     # planar peptide restrains?
     planar_restraints_button = generic_check_button(vbox,
                                                     "Use Planar Peptide Restraints?",
-                                                    lambda state: remove_planar_peptide_restraints() if state == 0 else add_planar_peptide_restraints())
-    if (planar_peptide_restraints_state() == 1):
+                                                    lambda state: coot.remove_planar_peptide_restraints() if state == 0 else coot.add_planar_peptide_restraints())
+    if (coot.planar_peptide_restraints_state() == 1):
         planar_restraints_button.set_active(True)
     else:
         planar_restraints_button.set_active(False)
@@ -4043,8 +4043,8 @@ def refinement_options_gui():
     # use ramachandran restrains?
     rama_restraints_button = generic_check_button(vbox,
                                                   "Use Ramachandran Restraints?",
-                                                  lambda state: set_refine_ramachandran_angles(state))
-    if (refine_ramachandran_angles_state() == 1):
+                                                  lambda state: coot.set_refine_ramachandran_angles(state))
+    if (coot.refine_ramachandran_angles_state() == 1):
         rama_restraints_button.set_active(True)
     else:
         rama_restraints_button.set_active(False)
@@ -4054,8 +4054,8 @@ def refinement_options_gui():
     # add rotamer check button
     rotamer_autofit_button = generic_check_button(vbox,
                                                   "Real Space Refine after Auto-fit Rotamer?",
-                                                  lambda state: set_rotamer_auto_fit_do_post_refine(state))
-    if (rotamer_auto_fit_do_post_refine_state() == 1):
+                                                  lambda state: coot.set_rotamer_auto_fit_do_post_refine(state))
+    if (coot.rotamer_auto_fit_do_post_refine_state() == 1):
         rotamer_autofit_button.set_active(True)
     else:
         rotamer_autofit_button.set_active(False)
@@ -4063,8 +4063,8 @@ def refinement_options_gui():
     # add mutate check button
     mutate_autofit_button = generic_check_button(vbox,
                                                  "Real Space Refine after Mutate and Auto-fit?",
-                                                 lambda state: set_mutate_auto_fit_do_post_refine(state))
-    if (mutate_auto_fit_do_post_refine_state() == 1):
+                                                 lambda state: coot.set_mutate_auto_fit_do_post_refine(state))
+    if (coot.mutate_auto_fit_do_post_refine_state() == 1):
         mutate_autofit_button.set_active(True)
     else:
         mutate_autofit_button.set_active(False)
@@ -4072,8 +4072,8 @@ def refinement_options_gui():
     # add terminal residue check button
     terminal_autofit_button = generic_check_button(vbox,
                                                    "Real Space Refine after Add Terminal Residue?",
-                                                   lambda state: set_add_terminal_residue_do_post_refine(state))
-    if (add_terminal_residue_do_post_refine_state() == 1):
+                                                   lambda state: coot.set_add_terminal_residue_do_post_refine(state))
+    if (coot.add_terminal_residue_do_post_refine_state() == 1):
         terminal_autofit_button.set_active(True)
     else:
         terminal_autofit_button.set_active(False)
@@ -4081,8 +4081,8 @@ def refinement_options_gui():
     # add a b-factor button
     reset_b_factor_button = generic_check_button(vbox,
                                                  "Reset B-Factors to Default Value after Refinement/Move?",
-                                                 lambda state: set_reset_b_factor_moved_atoms(state))
-    if (get_reset_b_factor_moved_atoms_state() == 1):
+                                                 lambda state: coot.set_reset_b_factor_moved_atoms(state))
+    if (coot.get_reset_b_factor_moved_atoms_state() == 1):
         reset_b_factor_button.set_active(True)
     else:
         reset_b_factor_button.set_active(False)
@@ -4115,7 +4115,7 @@ def map_sharpening_gui(imol):
     window.set_size_request(500, 100)
     # slider.add_mark(-30, -30, 0) # not yet, needs updated pygtk
 
-    adj.connect("value_changed", lambda func: sharpen(imol, adj.value))
+    adj.connect("value_changed", lambda func: coot.sharpen(imol, adj.value))
 
     window.show_all()
 
@@ -4142,7 +4142,7 @@ def associate_sequence_with_chain_gui(sequence_format="FASTA",
             elif (sequence_format == "PIR"):
                 coot_utils.associate_pir_file(imol, chain_id, pir_file_name)
             else:
-                info_dialog("BL INFO:: wrong sequence input format.")
+                coot.info_dialog("BL INFO:: wrong sequence input format.")
                 return
         if do_alignment:
             alignment_mismatches_gui(imol)
@@ -4189,10 +4189,10 @@ def alignment_mismatches_gui(imol):
     am = alignment_mismatches(imol)
 
     if (am == []):
-        info_dialog("No sequence mismatches")
+        coot.info_dialog("No sequence mismatches")
     else:
         if not am:
-            info_dialog("Sequence not associated - no alignment")
+            coot.info_dialog("Sequence not associated - no alignment")
         else:
             # print "mutations", am[0]
             # print "deletions", am[1]
@@ -4207,7 +4207,7 @@ def alignment_mismatches_gui(imol):
                     ins_code = res_info[4]
                     button_1_label = "Mutate " + chain_id + \
                                      " " + str(res_no) + \
-                                     " " + residue_name(imol, chain_id, res_no, ins_code) + \
+                                     " " + coot.residue_name(imol, chain_id, res_no, ins_code) + \
                                      " to " + res_info[0]
                     button_1_action = ["set_go_to_atom_molecule(" + str(imol) + ")",
                                        "set_go_to_atom_chain_residue_atom_name(\'" +
@@ -4537,14 +4537,14 @@ def solvent_ligands_gui():
 
     def add_ligand_func(imol, tlc):
         print("Add a %s to molecule %s here" % (tlc, imol))
-        imol_ligand = get_monomer(tlc)
+        imol_ligand = coot.get_monomer(tlc)
         if (coot_utils.valid_model_molecule_qm(imol_ligand)):
             # delete hydrogens from the ligand if the master molecule
             # does not have hydrogens.
             if (coot_utils.valid_model_molecule_qm(imol)):
                 if (not coot_utils.molecule_has_hydrogens(imol)):
-                    delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
-            if (coot_utils.valid_map_molecule_qm(imol_refinement_map())):
+                    coot.delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
+            if (coot_utils.valid_map_molecule_qm(coot.imol_refinement_map())):
                 print("========  jiggling!  ======== ")
 
                 merge_molecules([imol_ligand], imol)
@@ -4552,7 +4552,7 @@ def solvent_ligands_gui():
                 # We no longer do this: because we now mask the map by the neighbours
                 # of the jiggling ligand and for that we need to use molecule imol
                 #
-                # fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "",
+                # coot.fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "",
                 #                             random_jiggle_n_trials, 1.0)
                 # coot_utils.with_auto_accept([refine_zone, imol_ligand, "A", 1, 1, ""])
 
@@ -4563,7 +4563,7 @@ def solvent_ligands_gui():
                 active_atom = active_residue()
                 aa_chain_id = active_atom[1]
                 aa_res_no = active_atom[2]
-                fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "",
+                coot.fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "",
                                             random_jiggle_n_trials, 1.0)
 
                 # if we use refine_residues, that will take note of residues
@@ -4577,8 +4577,8 @@ def solvent_ligands_gui():
             else:
                 print("======== not jiggling - no map ======== ")
             if coot_utils.valid_model_molecule_qm(imol):
-                set_mol_active(imol_ligand, 0)
-                set_mol_displayed(imol_ligand, 0)
+                coot.set_mol_active(imol_ligand, 0)
+                coot.set_mol_displayed(imol_ligand, 0)
 
     # add a button for a 3-letter-code to the scrolled vbox that runs
     # add-ligand-func when clicked.
@@ -4614,7 +4614,7 @@ def solvent_ligands_gui():
                              add_button_func(txt))
 
     def comp_id2button_label(comp_id):
-        auto_load_dictionary(comp_id)
+        coot.auto_load_dictionary(comp_id)
         comp_id_name = comp_id2name(comp_id)
         ret = (comp_id + ": " + comp_id_name) if comp_id_name else comp_id
         return ret
@@ -4779,7 +4779,7 @@ def user_mods_gui(imol, pdb_file_name):
 def rename_residue_gui_simple():
     active_atom = active_residue()
     if (not active_atom):
-        info_dialog("No Residue Here")
+        coot.info_dialog("No Residue Here")
     else:
         print(active_atom)
         generic_single_entry("Rename this residue", "ALA", "Rename",
@@ -4931,7 +4931,7 @@ def average_map_gui():
 def rename_residue_gui():
     active_atom = active_residue()
     if not active_atom:
-        info_dialog("No Residue Here")
+        coot.info_dialog("No Residue Here")
     else:
         aa_imol = active_atom[0]
         aa_chain_id = active_atom[1]
@@ -4945,7 +4945,7 @@ def rename_residue_gui():
                 aa_ins_code + \
                 " to: "
         generic_single_entry(label, "ALA", "Rename Residue",
-                             lambda text: set_residue_name(aa_imol, aa_chain_id,
+                             lambda text: coot.set_residue_name(aa_imol, aa_chain_id,
                                                            aa_res_no, aa_ins_code,
                                                            text))
 
@@ -5224,10 +5224,10 @@ def click_protein_db_loop_gui():
             min_max_and_chain_id = min_max_residues_from_atom_specs(atom_specs)
 
             if not isinstance(min_max_and_chain_id, list):
-                info_dialog("Picked atoms not in same molecule and chain")
+                coot.info_dialog("Picked atoms not in same molecule and chain")
             else:
-                loop_mols = protein_db_loops(imol, residue_specs,
-                                             imol_refinement_map(),
+                loop_mols = coot.protein_db_loops(imol, residue_specs,
+                                             coot.imol_refinement_map(),
                                              10, db_loop_preserve_residue_names)
                 imol_loop_orig = loop_mols[0][0]
                 imol_loops_consolidated = loop_mols[0][1]
@@ -5235,12 +5235,12 @@ def click_protein_db_loop_gui():
                 min_resno = min_max_and_chain_id[0]
                 max_resno = min_max_and_chain_id[1]
                 chain_id = min_max_and_chain_id[2]
-                set_mol_active(imol_loops_consolidated, 1)
+                coot.set_mol_active(imol_loops_consolidated, 1)
 
                 if coot_utils.valid_model_molecule_qm(imol_loop_orig):
                     if len(loop_mols) > 0:
-                        buttons = [[str(loop_mol) + " " + molecule_name(loop_mol),
-                                    lambda func: copy_residue_range(imol, chain_id,
+                        buttons = [[str(loop_mol) + " " + coot.molecule_name(loop_mol),
+                                    lambda func: coot.copy_residue_range(imol, chain_id,
                                                                     loop_mol, chain_id,
                                                                     min_resno, max_resno)] for loop_mol in loop_mols]
 
@@ -5253,7 +5253,7 @@ def click_protein_db_loop_gui():
                         dialog_box_of_buttons("Loop Candidates",
                                               [360, 200],
                                               [["Original loop", lambda func:
-                                                copy_residue_range(imol, chain_id,
+                                                coot.copy_residue_range(imol, chain_id,
                                                                    imol_loop_orig, chain_id,
                                                                    min_resno, max_resno)
                                                 ],
@@ -5261,7 +5261,7 @@ def click_protein_db_loop_gui():
                                                 toggle_func(imol_loops_consolidated)]
                                                ] + buttons,
                                               " Close ",
-                                              lambda: [(set_mol_displayed(im, 0), set_mol_active(im, 0)) for im in loop_mols])
+                                              lambda: [(coot.set_mol_displayed(im, 0), coot.set_mol_active(im, 0)) for im in loop_mols])
 
         coot.user_defined_click_py(n, pick_func)
 
@@ -5289,7 +5289,7 @@ def refmac_multi_sharpen_gui():
                                                            coot_utils.map_molecule_list)
         # There is no function to get a map file name from a molecule
         # It is not stored. So we make/guess it...
-        map_file_name = molecule_name(active_item_imol)
+        map_file_name = coot.molecule_name(active_item_imol)
         if (map_file_name.find(" ") > 0):
             # we have map coeffs - but then sharpen as here wont work anyway
             map_file_name = map_file_name[:map_file_name.find(" ")]
@@ -5298,11 +5298,11 @@ def refmac_multi_sharpen_gui():
         refmac_output_mtz_file_name = "starting_map-" + map_file_name_stub + ".mtz"
         log_file_name = "refmac-multisharp-" + map_file_name_stub + ".log"
         if not os.path.isfile(map_file_name):
-            info_dialog("WARNING:: file not found %s" % map_file_name)
+            coot.info_dialog("WARNING:: file not found %s" % map_file_name)
         else:
             if not coot_utils.directory_is_modifiable_qm(os.getcwd()):
                 m = "ERROR:: Current directory " + os.getcwd() + " is not writable"
-                info_dialog(m)
+                coot.info_dialog(m)
                 return
             print("active_item_imol", active_item_imol)
             step_size = max_b/n_levels
@@ -5317,7 +5317,7 @@ def refmac_multi_sharpen_gui():
                           "END"]
             this_dir = os.getcwd()
             if not coot_utils.directory_is_modifiable_qm(this_dir):
-                info_dialog("WARNING:: Current directory is not writable")
+                coot.info_dialog("WARNING:: Current directory is not writable")
             else:
                 refmac_execfile = coot_utils.find_exe(
                     "refmac5", "CBIN", "CCP4_BIN", "PATH")
@@ -5329,7 +5329,7 @@ def refmac_multi_sharpen_gui():
 
                 try:
                     if s != 0:
-                        info_dialog("WARNING:: refmac5 failed")
+                        coot.info_dialog("WARNING:: refmac5 failed")
                     else:
                         # Happy path
                         print("BL DEBUG:: s", s)
@@ -5337,7 +5337,7 @@ def refmac_multi_sharpen_gui():
                             os.rename("starting_map.mtz",
                                       refmac_output_mtz_file_name)
                             # offer a read-mtz dialog
-                            manage_column_selector(refmac_output_mtz_file_name)
+                            coot.manage_column_selector(refmac_output_mtz_file_name)
 
                 except:
                     print("BL DEBUG:: tried to rename starting-map.mtz but failed.")
@@ -5543,21 +5543,21 @@ def toggle_backrub_rotamers(widget=None):
     if widget:
         if widget.get_active():
             # the button is toggled on
-            set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+            coot.set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
             print("BL INFO:: Using Backrub rotamers now!")
         else:
-            set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+            coot.set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
             print("BL INFO:: NOT using Backrub rotamers any more!")
 
     else:
         # non graphical - but wont be able to run if this is not loaded.
-        mode = rotamer_search_mode_state()
+        mode = coot.rotamer_search_mode_state()
         if (mode == ROTAMERSEARCHLOWRES):
-            set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+            coot.set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
             print("BL INFO:: NOT using Backrub rotamers any more!")
         if (mode == ROTAMERSEARCHHIGHRES or
                 mode == ROTAMERSEARCHAUTOMATIC):
-            set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+            coot.set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
             print("BL INFO:: Using Backrub rotamers now!")
 
         # no alternative for now
@@ -5709,7 +5709,7 @@ def duplicate_range_by_atom_pick():
                 coot_utils.duplicate_residue_range(
                     imol_1, chain_id1, res_no_1, res_no_2)
 
-    add_status_bar_text("Pick two atoms")
+    coot.add_status_bar_text("Pick two atoms")
     coot.user_defined_click_py(2, pick_range_func)
 
 # A simple modal dialog to accept or reject something. Pass a question
@@ -5751,6 +5751,6 @@ def yes_no_dialog(label_text, title_text=None):
 
 # let the c++ part of mapview know that this file was loaded:
 
-# print "From coot_gui.py calling set_found_coot_python_gui()" - called from rcrane loader
+# print "From coot_gui.py calling coot.set_found_coot_python_gui()" - called from rcrane loader
 # too (I think)
 coot.set_found_coot_python_gui()

@@ -54,7 +54,7 @@ def validation_outliers_dialog(imol, imol_map):
 
         residues = coot_utils.all_residues_sans_water(imol)
         ret = map(lambda residue_spec: [residue_spec,
-                                        rotamer_score(imol,
+                                        coot.rotamer_score(imol,
                                                       res_spec_utils.residue_spec_to_chain_id(residue_spec),
                                                       res_spec_utils.residue_spec_to_res_no(residue_spec),
                                                       coot_utils.residue_spec_to_ins_code(residue_spec),
@@ -70,7 +70,7 @@ def validation_outliers_dialog(imol, imol_map):
 
         for baddie in baddies:
             spec, score = baddie
-            res_name = residue_name(imol,
+            res_name = coot.residue_name(imol,
                                     res_spec_utils.residue_spec_to_chain_id(spec),
                                     res_spec_utils.residue_spec_to_res_no(spec),
                                     coot_utils.residue_spec_to_ins_code(spec))

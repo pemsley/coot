@@ -5,7 +5,7 @@ cache_ligand_metrics = False
 #
 def mtz_file_name2refinement_column_labels(file_name):
 
-    columns = get_mtz_columns(file_name)
+    columns = coot.get_mtz_columns(file_name)
     read_success = columns.read_success
 
     if (not read_success == 1):
@@ -77,20 +77,20 @@ def ligand_validation_metrics_gui_list_wrapper_pre(
             #
             if (isinstance(mwz, list)):
                 mogul_out_file_name = mwz[1]
-                mogul_markup(imol, chain_id, res_no, ins_code,
+                coot.mogul_markup(imol, chain_id, res_no, ins_code,
                              mogul_out_file_name)
                 mwz = mwz[0]
 
-            percentile_d = get_ligand_percentile("density_correlation", d, high_id_good)
-            percentile_diff_d = get_ligand_percentile("coot_diff_map_correlation", diff_d, low_is_good)
-            percentile_mwz = get_ligand_percentile("mogul_z_worst", mwz, low_is_good)
-            percentile_bc = get_ligand_percentile("bumps_1", bc, low_is_good)
+            percentile_d = coot.get_ligand_percentile("density_correlation", d, high_id_good)
+            percentile_diff_d = coot.get_ligand_percentile("coot_diff_map_correlation", diff_d, low_is_good)
+            percentile_mwz = coot.get_ligand_percentile("mogul_z_worst", mwz, low_is_good)
+            percentile_bc = coot.get_ligand_percentile("bumps_1", bc, low_is_good)
 
             if (percentile_d < 0):
                 # just an example, but means we do not have ligands-2016.db
                 txt = "BL INFO:: we dont have ligands-2016.db, so \n" + \
                       "percentiles are no available and graph meaningless!"
-                info_dialog(txt)
+                coot.info_dialog(txt)
             input_to_sliders = [["Direct map density correl.", percentile_d, d],
                                 [" Diff map density correl.", percentile_diff_d, diff_d],
                                 ["            Mogul Z-worst", percentile_mwz, mwz],
@@ -108,16 +108,16 @@ if (0):
 
     def ligand_metric_slider_func():
         
-        imol_map = imol_refinement_map()
+        imol_map = coot.imol_refinement_map()
 
         if (not coot_utils.valid_map_molecule_qm(imol_map)):
-            add_status_bar_text("No valid refinement map molecule")
+            coot.add_status_bar_text("No valid refinement map molecule")
         else:
             l = refmac_parameters(imol_map)
             if l:
                 refmac_input_mtz_file_name = l[0]
             else:
-                refmac_input_mtz_file_name = mtz_file_name(imol_map)
+                refmac_input_coot.mtz_file_name = mtz_file_name(imol_map)
             refmac_dir = coot_utils.get_directory("coot-refmac")
 
             f_col_label, sigf_col_label, r_free_col_label = \

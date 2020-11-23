@@ -148,14 +148,14 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
 
         log_text = log_file2text(log_file_name, dir_prefix)
         if (isinstance(log_text, str)):
-          simple_text_dialog("Libcheck log", log_text, 200, 400)
+          coot.simple_text_dialog("Libcheck log", log_text, 200, 400)
           return -1
       else:
         if (libstatus != 0):
 
           log_text = log_file2text(log_file_name, dir_prefix)
           if isinstance(log_text, str):
-            simple_text_dialog("Libcheck log", log_text, 400, 400)
+            coot.simple_text_dialog("Libcheck log", log_text, 400, 400)
             return -1
 
         else:
@@ -172,7 +172,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
             print("libcheck failed to write the output cif file", cif_file_name)
             log_text = log_file2text(log_file_name, dir_prefix)
             if isinstance(log_text, str):
-              simple_text_dialog("Libcheck log", log_text, 400, 400)
+              coot.simple_text_dialog("Libcheck log", log_text, 400, 400)
             return -1
           else:
             # OK, now let's run refmac:
@@ -207,12 +207,12 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
     #print "================= coot_utils.debug:: handle-libcheck-cif-and-pdb: cif-file-name: %s pdb-file-name: %s post-refmac-pdb-file-name: %s" %(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
     if (os.path.isfile(post_refmac_pdb_file_name) and
         os.path.isfile(cif_file_name)):
-      pdb_status = handle_read_draw_molecule_with_recentre(
+      pdb_status = coot.handle_read_draw_molecule_with_recentre(
         post_refmac_pdb_file_name, 0)
       if (coot_utils.valid_model_molecule_qm(pdb_status)):
-        assign_hetatms(pdb_status)
+        coot.assign_hetatms(pdb_status)
         move_molecule_here(pdb_status)
-        read_cif_dictionary(cif_file_name)
+        coot.read_cif_dictionary(cif_file_name)
         return pdb_status  # return imol of the ligand
     return -1 # on fail
 
@@ -246,7 +246,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
     else:
       libcheck_exe_file = coot_utils.find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
       if (not libcheck_exe_file):
-        info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
+        coot.info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
         return -2
       else:
         v = libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,

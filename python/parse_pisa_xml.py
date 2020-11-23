@@ -10,7 +10,7 @@ def pisa_assemblies(imol):
     if not pisa_exe:
         msg = "Your pisa version it too old.  Need at least " + \
               pisa_min_version + "."
-        info_dialog(msg)
+        coot.info_dialog(msg)
     else:
         #
         # main line
@@ -21,7 +21,7 @@ def pisa_assemblies(imol):
                                  [], "pisa.log", False)
 
         if (status_1 != 0):
-            info_dialog("Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
+            coot.info_dialog("Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
         else:
             # good
             # used to be print "BL DEBUG:: 2nd pisa args", [pisa_project_name, "-xml", pisa_config]
@@ -257,14 +257,14 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
         else:
             mat = [sym[1] for sym in ass_rtop_symbols]
             #print "== atom-selection string %s   mat:::: %s" %(atom_selection_string, mat)
-            #print "currently %s molecules" %(graphics_n_molecules())
+            #print "currently %s molecules" %(coot.graphics_n_molecules())
             new_molecule_name = "Symmetry copy of " + \
                                 str(imol) +\
                                 " using " + symm_name_part
             # new-molecule-by-symop-with-atom-selection,
             # perhaps? (20100222 doesn't seem needed because
             # the transformation is contained in mat.)
-            new_mol_no = new_molecule_by_symmetry_with_atom_selection(
+            new_mol_no = coot.new_molecule_by_symmetry_with_atom_selection(
                 imol,
                 new_molecule_name,
                 atom_selection_string,
@@ -350,13 +350,13 @@ def parse_pisa_assemblies(imol, entity):
         if not assembly_set_molecule_numbers:
             return False
         else:
-            first_copy = copy_molecule(assembly_set_molecule_numbers[0])
+            first_copy = coot.copy_molecule(assembly_set_molecule_numbers[0])
             if not coot_utils.valid_model_molecule_qm(first_copy):
                 return False
             else:
                 rest = assembly_set_molecule_numbers[1:]
                 merge_molecules(rest, first_copy)
-                set_molecule_name(first_copy, "Assembly Set " + assembly_set_number)
+                coot.set_molecule_name(first_copy, "Assembly Set " + assembly_set_number)
                 return first_copy
 
     ( STRING,
@@ -416,7 +416,7 @@ def parse_pisa_assemblies(imol, entity):
         assembly_dic["molecule"] = assembly_molecule_numbers
         for mol_no in assembly_molecule_numbers:
             if (coot_utils.valid_model_molecule_qm(mol_no)):
-                set_mol_displayed(mol_no, 0)
+                coot.set_mol_displayed(mol_no, 0)
         return assembly_dic
 
 
@@ -449,7 +449,7 @@ def parse_pisa_assemblies(imol, entity):
             # make a string out of the dictionary
             top_assembly_set = print_assembly(assembly_record_set, STRING)
         if first_assembly_set_is_displayed_already_qm:
-            set_mol_displayed(molecule_number, 0)
+            coot.set_mol_displayed(molecule_number, 0)
         else:
             first_assembly_set_is_displayed_already_qm = True
 
@@ -459,7 +459,7 @@ def parse_pisa_assemblies(imol, entity):
         s = "top assembly-set: \n\n" + top_assembly_set
     else:
         s = "no assembly-sets found"
-    info_dialog(s)
+    coot.info_dialog(s)
             
 
 def make_pisa_config(pisa_coot_dir, config_file_name):
@@ -501,7 +501,7 @@ def prep_for_pisa(mode, imol):
 
     #
     def make_stubbed_name(imol):
-        return coot_utils.strip_extension(os.path.basename(molecule_name(imol)))
+        return coot_utils.strip_extension(os.path.basename(coot.molecule_name(imol)))
 
     if coot_utils.valid_model_molecule_qm(imol):
         pisa_coot_dir = "coot-pisa"
@@ -511,9 +511,9 @@ def prep_for_pisa(mode, imol):
         pisa_xml_file_name = os.path.join(pisa_coot_dir, stubbed_name + "-" + str(mode) + ".xml")
         #pisa_project_name  = os.path.join(stubbed_name)
 
-        make_directory_maybe(pisa_coot_dir)
+        coot.make_directory_maybe(pisa_coot_dir)
         make_pisa_config(pisa_coot_dir, pisa_config)
-        write_pdb_file(imol, pdb_file_name)
+        coot.write_pdb_file(imol, pdb_file_name)
         if (os.path.isfile(pdb_file_name)):
             return pdb_file_name, pisa_config, pisa_xml_file_name
         else:
@@ -562,7 +562,7 @@ def pisa_interfaces(imol):
     if not pisa_exe:
         msg = "Your pisa version it too old.  Need at least" \
               + pisa_min_version + "."
-        info_dialog(msg)
+        coot.info_dialog(msg)
     else:
         pdb_file_name, pisa_config, pisa_xml_file_name = prep_for_pisa("interfaces", imol)
 

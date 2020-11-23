@@ -101,7 +101,7 @@ def generic_object_from_bones(bones_file):
         print("length atom_xyz_list: %s length bone_list: %s length conn_list: %s" \
               %(len(atom_xyz_list), len(bone_list), len(conn_list)))
 
-        lines_obj = new_generic_object_number("Lines")
+        lines_obj = coot.new_generic_object_number("Lines")
 
         current_position = False
         for connections in conn_list:
@@ -121,7 +121,7 @@ def generic_object_from_bones(bones_file):
                     #print "(from %s) line: %s %s" %(connections,
                     #                                current_position,
                     #                                xyz_index)
-                    to_generic_object_add_line(lines_obj, "green", 3,
+                    coot.to_generic_object_add_line(lines_obj, "green", 3,
                                                atom_xyz_list[current_position][0],
                                                atom_xyz_list[current_position][1],
                                                atom_xyz_list[current_position][2],
@@ -130,7 +130,7 @@ def generic_object_from_bones(bones_file):
                                                atom_xyz_list[xyz_index][2])
                     current_position = my_indexer(connections)
 
-        set_display_generic_object(lines_obj, 1)
+        coot.set_display_generic_object(lines_obj, 1)
             
     else:
         print("BL INFO:: no bones file %s found" %bones_file)
@@ -155,7 +155,7 @@ menu = coot_gui.coot_menubar_menu("Mapman")
 
 def bonesing_func(imol):
     print("bonesing", imol)
-    export_map(imol, "tmp.map")
+    coot.export_map(imol, "tmp.map")
     bones_it("tmp.map")
     # remove tmp map?
     if (os.path.isfile("tmp.map")):
