@@ -428,7 +428,7 @@ def fle_view(imol, chain_id, res_no, ins_code):
         # all not neede any more...
         # BL says:: just keep in case I need to touch anything again!!!
         #
-        #if (is_windows()):
+        #if (coot_utils.is_windows()):
         #    import subprocess
         #    lbg_ready = os.path.abspath(os.path.join("coot-ccp4",
         #                                              ".coot-to-lbg-mol-ready"))

@@ -44,7 +44,7 @@ def notify_of_new_version(stri, use_curl=False):
     #print "notify_of_new_version given string:", stri
 
     # Maybe protect from being called again (download is running)
-    download_binary_dialog(coot_split_version_string(stri), use_curl)
+    download_binary_dialog(coot_utils.coot_split_version_string(stri), use_curl)
 
 # version_string is something like: "coot-0.6-pre-1-revision-2060"
 def download_binary_dialog(version_string, use_curl=False):

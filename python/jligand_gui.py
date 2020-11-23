@@ -102,7 +102,7 @@ def click_select_residues_for_jligand():
                     else:
                         # happy path
                         imol_jligand_link = imol_click_1
-                        jligand.write_file_for_jligand(click2res_spec(click_1), resname_1,
+                        jligand.write_file_for_jligand(jligand.click2res_spec(click_1), resname_1,
                                                jligand.click2res_spec(click_2), resname_2)
 
     user_defined_click(2, link_em)

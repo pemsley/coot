@@ -65,7 +65,7 @@ def skip_to_next_ncs_chain(direction):
 
       if ((not type(chain_guess) is bytes)):
           return chain_guess
-      elif (is_solvent_chain_qm(imol, chain_guess)):
+      elif (coot_utils.is_solvent_chain_qm(imol, chain_guess)):
           skip_to_chain(imol, chain_guess, chain_id_list)
       else:
           return chain_guess

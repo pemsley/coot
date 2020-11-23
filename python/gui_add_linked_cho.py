@@ -515,7 +515,7 @@ class glyco_validate:
                             rn = residue_name_by_spec(imol, r)
                             try:
                                 res_id = rn + "-" + res_spec_utils.residue_spec_to_chain_id(r) + \
-                                         '-' + str(residue_spec_to_res_no(r))
+                                         '-' + str(coot_utils.residue_spec_to_res_no(r))
                                 # print "res_id", res_id
                                 if words[1] == res_id:
                                     # print words[12] , yes or check
@@ -723,24 +723,24 @@ def add_module_carbohydrate_gui():
                 
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add High Mannose",
-                lambda func: add_oligo_tree_func(oligomannose_tree()))
+                lambda func: add_oligo_tree_func(add_linked_cho.oligomannose_tree()))
 
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add Hybrid (Mammal)",
-                lambda func: add_oligo_tree_func(hybrid_mammal_tree()))
+                lambda func: add_oligo_tree_func(add_linked_cho.hybrid_mammal_tree()))
             
 #            in practice, no one will be doing this. 
 #            coot_gui.add_simple_coot_menu_menuitem(
 #                menu, "Add Hybrid (Plant)",
-#                lambda func: add_oligo_tree_func(hybrid_plant_derived_tree()))
+#                lambda func: add_oligo_tree_func(add_linked_cho.hybrid_plant_derived_tree()))
 
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add Complex (Mammal)",
-                lambda func: add_oligo_tree_func(complex_mammal_tree()))
+                lambda func: add_oligo_tree_func(add_linked_cho.complex_mammal_tree()))
 
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Add Complex (Plant)",
-                lambda func: add_oligo_tree_func(complex_plant_tree()))
+                lambda func: add_oligo_tree_func(add_linked_cho.complex_plant_tree()))
 
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Delete All Carbohydrate",

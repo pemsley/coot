@@ -415,7 +415,7 @@ def parse_pisa_assemblies(imol, entity):
             assembly_molecule_numbers.append(mol_no)
         assembly_dic["molecule"] = assembly_molecule_numbers
         for mol_no in assembly_molecule_numbers:
-            if (valid_model_molecule_qm(mol_no)):
+            if (coot_utils.valid_model_molecule_qm(mol_no)):
                 set_mol_displayed(mol_no, 0)
         return assembly_dic
 

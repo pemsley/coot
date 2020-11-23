@@ -272,7 +272,7 @@ def probe(imol):
         # couldnt find probe
         print("BL WARNING:: Could not locate the program probe!! Please check if installed!")
       else:
-        probe_name_stub = coot_utils.strip_extension(strip_path(molecule_name(imol)))
+        probe_name_stub = coot_utils.strip_extension(coot_utils.strip_path(molecule_name(imol)))
         probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
         probe_out = "coot-molprobity/probe-dots.out"
 
@@ -398,7 +398,7 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
 
     # if unset, then set it.
     if (interactive_probe_is_OK_qm == 'unset'):
-      if (command_in_path_qm(probe_command)):
+      if (coot_utils.command_in_path_qm(probe_command)):
         interactive_probe_is_OK_qm = 'yes'
       else:
         interactive_probe_is_OK_qm = 'no'

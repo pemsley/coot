@@ -209,7 +209,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
         os.path.isfile(cif_file_name)):
       pdb_status = handle_read_draw_molecule_with_recentre(
         post_refmac_pdb_file_name, 0)
-      if (valid_model_molecule_qm(pdb_status)):
+      if (coot_utils.valid_model_molecule_qm(pdb_status)):
         assign_hetatms(pdb_status)
         move_molecule_here(pdb_status)
         read_cif_dictionary(cif_file_name)

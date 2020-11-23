@@ -440,7 +440,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         # BL says:: may have to find pyrogen first?! FIXME
         status = coot_utils.popen_command("pyrogen", args, [], log_file_name, True)
 
-        if (ok_popen_status_qm(status)):
+        if (coot_utils.ok_popen_status_qm(status)):
             pdb_file_name = comp_id + "-pyrogen.pdb"
             cif_file_name = comp_id + "-pyrogen.cif"
             sc = coot_utils.rotation_centre()
@@ -497,7 +497,7 @@ def new_molecule_by_smiles_string_by_acedrg(tlc_str, smiles_str):
     if coot_utils.command_in_path_qm("acedrg"):
         status = coot_utils.popen_command("acedrg", args, [], log_file_name, True,
                                local_env=acedrg_env())
-        if (ok_popen_status_qm(status)):
+        if (coot_utils.ok_popen_status_qm(status)):
             handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
             read_cif_dictionary(cif_out_file_name)
         else:
@@ -691,7 +691,7 @@ def fle_view(imol, chain_id, res_no, ins_code):
         # all not neede any more...
         # BL says:: just keep in case I need to touch anything again!!!
         #
-        #if (is_windows()):
+        #if (coot_utils.is_windows()):
         #    import subprocess
         #    lbg_ready = os.path.abspath(os.path.join("coot-ccp4",
         #                                              ".coot-to-lbg-mol-ready"))

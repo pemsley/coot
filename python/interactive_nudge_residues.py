@@ -21,7 +21,7 @@ def new_molecule_with_nudged_residues(imol, residue_spec,
     if (status == 0):
         # fail
         s = "Failed to nudge around " + chain_id + " " + \
-            str(residue_spec_to_res_no(residue_spec))
+            str(coot_utils.residue_spec_to_res_no(residue_spec))
         add_status_bar_text(s)
         close_molecule(imol_new)
         return -1  # return a bad new molecule id
@@ -60,7 +60,7 @@ def nudge_residues_gui(imol, residue_spec):
     label_n = gtk.Label(" Nudge ")
     res_lab = " residues up and down from " + \
               res_spec_utils.residue_spec_to_chain_id(residue_spec) + " " + \
-              str(residue_spec_to_res_no(residue_spec))
+              str(coot_utils.residue_spec_to_res_no(residue_spec))
     label_a = gtk.Label(res_lab)
     m_lab = " Nudging residues from Molecule:\n   " + \
             str(imol) + ": " + \

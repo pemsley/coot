@@ -85,7 +85,7 @@ if True:
      #           coordinated water validation dialog
      # --------------------------------------------------
 
-     menu = coot_menubar_menu("Validate")
+     menu = coot_gui.coot_menubar_menu("Validate")
      if menu:
        coot_gui.add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: coot_gui.water_coordination_gui())
@@ -110,7 +110,7 @@ if True:
      # --------------------------------------------------
 
      def add_module_user_defined_restraints():
-       menu = coot_menubar_menu("Restraints")
+       menu = coot_gui.coot_menubar_menu("Restraints")
        load_from_search_load_path("user_define_restraints.py")
      
      
@@ -118,11 +118,11 @@ if True:
      #           extensions
      # ---------------------------------------------
 
-     menu = coot_menubar_menu("Extensions")
+     menu = coot_gui.coot_menubar_menu("Extensions")
 
-     calculate_menu = coot_menubar_menu("Calculate")
-     draw_menu      = coot_menubar_menu("Draw")
-     edit_menu      = coot_menubar_menu("Edit")
+     calculate_menu = coot_gui.coot_menubar_menu("Calculate")
+     draw_menu      = coot_gui.coot_menubar_menu("Draw")
+     edit_menu      = coot_gui.coot_menubar_menu("Edit")
      edit_settings_menu = get_existing_submenu(edit_menu, "Settings...")
      print("###### debug edit_settings_menu", edit_settings_menu)
      print("###### debug dir on edit_settings_menu", dir(edit_settings_menu))
@@ -821,7 +821,7 @@ if True:
 
 
      # # FIXME:: for now only when prodrg in path
-     # if (command_in_path_qm("cprodrg")):
+     # if (coot_utils.command_in_path_qm("cprodrg")):
      #   coot_gui.add_simple_coot_menu_menuitem(
      #   submenu_models,
      #   "Prodrg-ify this residue (generate restraints)",
@@ -1013,7 +1013,7 @@ if True:
            # different given master to current master
            # ask what to do.
            txt = "Current master chain is %s, but you asked to copy from %s.\n" \
-                 %(ncs_master_chain_id(imol), chain_id)
+                 %(ncs.ncs_master_chain_id(imol), chain_id)
            txt += "Apply this master change?\n\n"
            txt += "N.B. if no, then nothing is copied."
            r = coot_gui.yes_no_dialog(txt, "Change Master")
@@ -1050,7 +1050,7 @@ if True:
            # different given master to current master
            # ask what to do.
            txt = "Current master chain is %s, but you asked to copy from %s.\n" \
-                 %(ncs_master_chain_id(imol), chain_id)
+                 %(ncs.ncs_master_chain_id(imol), chain_id)
            txt += "Apply this master change?\n\n"
            txt += "N.B. if no, then nothing is copied."
            r = coot_gui.yes_no_dialog(txt, "Change Master")
@@ -1837,7 +1837,7 @@ if True:
 
      # Doesnt seem to be working right currently, so comment out?! Not any more?!
      # add to validate menu
-     menu = coot_menubar_menu("Validate")
+     menu = coot_gui.coot_menubar_menu("Validate")
 
      coot_gui.add_simple_coot_menu_menuitem(menu, "Pukka Puckers...?",
                                    lambda func: coot_gui.molecule_chooser_gui(

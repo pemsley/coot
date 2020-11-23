@@ -204,7 +204,7 @@ def get_eds_pdb_and_mtz(id):
                 imol = read_pdb(pdb_file_name)
                 imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
                 imol_map_d = make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
-                if not (valid_model_molecule_qm(imol) and
+                if not (coot_utils.valid_model_molecule_qm(imol) and
                         coot_utils.valid_map_molecule_qm(imol_map) and
                         coot_utils.valid_map_molecule_qm(imol_map_d)):
                     close_molecule(imol)

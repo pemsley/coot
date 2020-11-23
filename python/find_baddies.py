@@ -213,7 +213,7 @@ def validation_outliers_dialog(imol, imol_map):
             button_label = "Ramachandran Outlier " + \
                            res_spec_utils.residue_spec_to_chain_id(spec) + \
                            " " + \
-                           str(residue_spec_to_res_no(spec)) + \
+                           str(coot_utils.residue_spec_to_res_no(spec)) + \
                            coot_utils.residue_spec_to_ins_code(spec) + \
                            " " + \
                            coot_utils.residue_spec_to_residue_name(imol, spec) + \

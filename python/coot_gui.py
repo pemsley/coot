@@ -428,7 +428,7 @@ def smiles_gui():
     if enhanced_ligand_coot_p():
         smiles_gui_internal()
     else:
-        if (find_exe(libcheck_exe, "CCP4_BIN", "PATH")):
+        if (coot_utils.find_exe(libcheck_exe, "CCP4_BIN", "PATH")):
             smiles_gui_internal()
         else:
             info_dialog(
@@ -1622,7 +1622,7 @@ def interesting_residues_gui(imol, title, interesting_residues):
         for spec in residues:
             if (type(spec) is ListType):
                 centre_atoms.append(
-                    residue_spec_to_atom_for_centre(imol, *spec))
+                    coot_utils.residue_spec_to_atom_for_centre(imol, *spec))
             else:
                 centre_atoms.append([False])
 
@@ -2100,7 +2100,7 @@ def file_chooser_entry(hbox, hint_text, default_file_name=False):
 
 def place_strand_here_gui():
 
-    generic_number_chooser(number_list(4, 12), 7,
+    generic_number_chooser(coot_utils.number_list(4, 12), 7,
                            " Estimated number of residues in strand",
                            "  Go  ",
                            lambda n: place_strand_here(n, 15))
@@ -4538,13 +4538,13 @@ def solvent_ligands_gui():
     def add_ligand_func(imol, tlc):
         print("Add a %s to molecule %s here" % (tlc, imol))
         imol_ligand = get_monomer(tlc)
-        if (valid_model_molecule_qm(imol_ligand)):
+        if (coot_utils.valid_model_molecule_qm(imol_ligand)):
             # delete hydrogens from the ligand if the master molecule
             # does not have hydrogens.
-            if (valid_model_molecule_qm(imol)):
+            if (coot_utils.valid_model_molecule_qm(imol)):
                 if (not coot_utils.molecule_has_hydrogens(imol)):
                     delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
-            if (valid_map_molecule_qm(imol_refinement_map())):
+            if (coot_utils.valid_map_molecule_qm(imol_refinement_map())):
                 print("========  jiggling!  ======== ")
 
                 merge_molecules([imol_ligand], imol)
@@ -5294,7 +5294,7 @@ def refmac_multi_sharpen_gui():
             # we have map coeffs - but then sharpen as here wont work anyway
             map_file_name = map_file_name[:map_file_name.find(" ")]
         map_file_name_stub = coot_utils.strip_path(
-            file_name_sans_extension(map_file_name))
+            coot_utils.file_name_sans_extension(map_file_name))
         refmac_output_mtz_file_name = "starting_map-" + map_file_name_stub + ".mtz"
         log_file_name = "refmac-multisharp-" + map_file_name_stub + ".log"
         if not os.path.isfile(map_file_name):

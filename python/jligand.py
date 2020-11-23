@@ -69,12 +69,12 @@ def write_file_for_jligand(res_spec_1, resname_1, res_spec_2, resname_2):
     chain_id_2 = coot_utils.res_spec_to_chain_id(res_spec_2)
 
     fin.write("CODE " + resname_1 + " " + chain_id_1 + " " + \
-              str(res_spec_to_res_no(res_spec_1)))
+              str(coot_utils.res_spec_to_res_no(res_spec_1)))
     fin.write("\n")
     if refmac_new_enough:
         jligand_code_file_maybe(resname_1, fin)
     fin.write("CODE " + resname_2 + " " + chain_id_2 + " " + \
-              str(res_spec_to_res_no(res_spec_2)))
+              str(coot_utils.res_spec_to_res_no(res_spec_2)))
     fin.write("\n")
     if refmac_new_enough:
         jligand_code_file_maybe(resname_2, fin)
@@ -202,7 +202,7 @@ def handle_read_from_jligand_file():
 
                     # check res_no_1/2 as number? Shoudl be earlier as
                     # converted to int now... use try...
-                    if (valid_model_molecule_qm(imol_jligand_link)):
+                    if (coot_utils.valid_model_molecule_qm(imol_jligand_link)):
                         res_spec_1 = [chain_id_1, res_no_1, ins_code_1]
                         res_spec_2 = [chain_id_2, res_no_2, ins_code_2]
                         atom_spec_1 = res_spec_1 + [atom_name_1, alt_conf_1]

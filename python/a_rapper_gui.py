@@ -48,7 +48,7 @@ def sequence_string(imol, chain_id, resno_start, resno_end):
         single_letter_code_list = []
         for resno in range(resno_start, resno_end + 1):
             res_name = residue_name(imol, chain_id, resno, "")
-            single_letter_code_list.append(three_letter_code2single_letter(res_name))
+            single_letter_code_list.append(mutate.three_letter_code2single_letter(res_name))
         if (not all_chars_qm):
             print "bad sequence chars ", single_letter_code_list
             return False

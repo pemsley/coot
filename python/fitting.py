@@ -167,7 +167,7 @@ def fit_protein_fit_function(res_spec, imol_map):
                         with NoBackups(imol):
                             auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                                   imol_map, 1, 0.1)
-                    if (valid_map_molecule_qm(imol_map)):
+                    if (coot_utils.valid_map_molecule_qm(imol_map)):
                         with NoBackups(imol):
                             with AutoAccept():
                                 refine_zone(imol, chain_id, res_no, res_no, alt_conf)
@@ -410,7 +410,7 @@ def fit_waters(imol, animate_qm = False):
 
         # refine waters
         for chain_id in coot_utils.chain_ids(imol):
-            if (is_solvent_chain_qm(imol, chain_id)):
+            if (coot_utils.is_solvent_chain_qm(imol, chain_id)):
                 n_residues = coot.chain_n_residues(chain_id, imol)
                 print("There are %(a)i residues in chain %(b)s" % {"a":n_residues,"b":chain_id})
                 for serial_number in range(n_residues):
@@ -451,7 +451,7 @@ def fit_waters_range(imol, chain_id, start, end):
        turn_off_backup(imol)
        set_refinement_immediate_replacement(1)
 
-       if (is_solvent_chain_qm(imol,chain_id)):
+       if (coot_utils.is_solvent_chain_qm(imol,chain_id)):
           serial_number = start
           while serial_number <= end:
                 res_no = serial_number

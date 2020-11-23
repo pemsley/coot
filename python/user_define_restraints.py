@@ -343,18 +343,18 @@ def write_refmac_parallel_plane_restraint(file_name,
 
   fout = open(file_name, 'w')
   fout.write("EXTE STACK PLAN 1 FIRST RESIDUE ")
-  fout.write(str(residue_spec_to_res_no(res_spec_0)))
+  fout.write(str(coot_utils.residue_spec_to_res_no(res_spec_0)))
   fout.write(" INS . ") # hack
   fout.write(" CHAIN ")
-  fout.write(residue_spec_to_chain_id(res_spec_0))
+  fout.write(coot_utils.residue_spec_to_chain_id(res_spec_0))
   fout.write(" ATOMS { ")
   for atom_name in atom_list_0:
     fout.write(" " + atom_name + " ")
   fout.write(" } PLAN 2 FIRST RESIDUE ")
-  fout.write(str(residue_spec_to_res_no(res_spec_1)))
+  fout.write(str(coot_utils.residue_spec_to_res_no(res_spec_1)))
   fout.write(" INS . ") # hack
   fout.write(" CHAIN ")
-  fout.write(residue_spec_to_chain_id(res_spec_1))
+  fout.write(coot_utils.residue_spec_to_chain_id(res_spec_1))
   fout.write(" ATOMS { ")
   for atom_name in atom_list_1:
     fout.write(" " + atom_name + " ")
@@ -389,13 +389,13 @@ def user_defined_add_planes_restraint():
     imol = coot_utils.atom_spec_to_imol(atom_0)
 
     rn_0 = residue_name(imol,
-                        res_spec_utils.residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_0)),
-                        res_spec_utils.residue_spec_to_res_no(atom_spec_to_residue_spec(atom_0)),
-                        coot_utils.residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_0)))
+                        res_spec_utils.residue_spec_to_chain_id(coot_utils.atom_spec_to_residue_spec(atom_0)),
+                        res_spec_utils.residue_spec_to_res_no(coot_utils.atom_spec_to_residue_spec(atom_0)),
+                        coot_utils.residue_spec_to_ins_code(coot_utils.atom_spec_to_residue_spec(atom_0)))
     rn_1 = residue_name(imol,
-                        res_spec_utils.residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_1)),
-                        res_spec_utils.residue_spec_to_res_no(atom_spec_to_residue_spec(atom_1)),
-                        coot_utils.residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_1)))
+                        res_spec_utils.residue_spec_to_chain_id(coot_utils.atom_spec_to_residue_spec(atom_1)),
+                        res_spec_utils.residue_spec_to_res_no(coot_utils.atom_spec_to_residue_spec(atom_1)),
+                        coot_utils.residue_spec_to_ins_code(coot_utils.atom_spec_to_residue_spec(atom_1)))
 
     print("BL DEBUG:: got resname 0", rn_0)
     print("BL DEBUG:: got resname 1", rn_1)

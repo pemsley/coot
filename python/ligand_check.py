@@ -236,7 +236,7 @@ def get_metrics_for_ligand(imol, chain_id, res_no, ins_code,
     # add error checking to this
     #
     cor = get_correlation(stub_name)
-    if (isNumber(cor)):
+    if (coot_utils.isNumber(cor)):
         dms = get_ligand_difference_map_stats(stub_name)
         if (not isinstance(dms, list)):
             return False # error

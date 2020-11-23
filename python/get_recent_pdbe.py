@@ -268,7 +268,7 @@ def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
     global refmac_extra_params
     
     refmac_stub = os.path.join("coot-refmac",
-                               coot_utils.strip_path(file_name_sans_extension(pdb_in_file_name)))
+                               coot_utils.strip_path(coot_utils.file_name_sans_extension(pdb_in_file_name)))
     pdb_out_file_name = refmac_stub + "-refmaced.pdb"
     mtz_out_file_name = mtz_refmaced_file_name
     extra_cif_lib_filename = ""

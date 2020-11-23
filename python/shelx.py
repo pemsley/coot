@@ -234,7 +234,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
            print("Failed to make shelxl directory ", dir)
        else:
          # run shelx
-         stub = os.path.join(dir,(strip_path(strip_extension(molecule_name(imol))) + "-" + coot_utils.unique_date_time_str()))
+         stub = os.path.join(dir,(coot_utils.strip_path(coot_utils.strip_extension(molecule_name(imol))) + "-" + coot_utils.unique_date_time_str()))
          # BL says: shelxl only excepts filename <= 80 char, so check it before
          if (len(stub) > 80):
              print("BL WARNING:: filename %s too long! Has %s characters, only 80 are allowed!" %(stub, len(stub)))
@@ -282,7 +282,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
                    # BL nore: maybe we shoudl use coot_utils.slash_start_qm here too?!
                    symlink_target = orig_hkl_file
                else:
-                   if (slash_start_qm(orig_hkl_file)):
+                   if (coot_utils.slash_start_qm(orig_hkl_file)):
                        symlink_target = orig_hkl_file
                    else:
                        symlink_target = "../" + orig_hkl_file

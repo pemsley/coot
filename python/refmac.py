@@ -285,9 +285,9 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     data_lines.append(labin_string)
 
-    log_file_name_disambiguator = coot_utils.strip_path(file_name_sans_extension(pdb_in_filename))
+    log_file_name_disambiguator = coot_utils.strip_path(coot_utils.file_name_sans_extension(pdb_in_filename))
     # this should be a database filename:
-    refmac_log_file_name = os.path.join(get_directory("coot-refmac"),
+    refmac_log_file_name = os.path.join(coot_utils.get_directory("coot-refmac"),
                                         (ccp4i_project_dir if (len(ccp4i_project_dir) > 0) else "") + \
                                         "refmac-from-coot-" + \
                                         log_file_name_disambiguator + \
@@ -318,7 +318,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     data_lines += ["END"]
 
-    if (coot_has_gobject() and sys.version_info >= (2, 4)
+    if (coot_utils.coot_has_gobject() and sys.version_info >= (2, 4)
         and make_molecules_flag):
         # can spawn refmac and add button
 

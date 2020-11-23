@@ -146,7 +146,7 @@ def parse_check_db(imol, file_name, action):
         altloc   = ""
 
         imol_map = imol_refinement_map()
-        if (valid_map_molecule_qm(imol_map)):
+        if (coot_utils.valid_map_molecule_qm(imol_map)):
             print "rotamer search with imol: %s chain: %s resno: %s inscode: %s" \
                   %(imol, chain_id, resno, ins_code)
             auto_fit_best_rotamer(resno, altloc, ins_code, chain_id, imol, imol_map, 1, 0.01)
