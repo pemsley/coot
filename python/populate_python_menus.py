@@ -356,10 +356,66 @@ if coot_gui_api.main_menubar():
 
         # --- add_edit_settings_menu() ends here
 
+    def mask_map_func():
+        f = ""
+        molecule_list = coot_utils.molecule_number_list()
+        if not molecule_list == []:
+            for i in molecule_list:
+                if coot.is_valid_map_molecule(molecule_list[i]):
+                    print("%s is a valid map molecule" % molecule_list[i])
+                    f = str(molecule_list[i])
+                    break
+            else:
+                print("BL WARNING:: dunno what to do!? No map found")
+                f = False
+        return f
+
+    def mask_map_func1(active_state):
+        print("changed active_state to ", active_state)
+
+    def mask_map_func2(imol, texts_list, invert_mask_qm):
+        # map imol
+        text_1 = texts_list[0]
+        # atom selection
+        text_2 = texts_list[1]
+        # radius
+        text_3 = texts_list[2]
+
+        continue_qm = False
+        try:
+            n = int(text_1)
+            continue_qm = True
+        except:
+            print(
+                "BL WARNING:: input %s for Map molecule number is not an integer.\nBailing out" % n)
+
+        if (continue_qm):
+            if (invert_mask_qm):
+                invert = 1
+            else:
+                invert = 0
+            print("debug:: invert-mask? is", invert)
+            if (text_3 != "default"):
+                try:
+                    new_radius = float(text_3)
+                    coot.set_map_mask_atom_radius(new_radius)
+                except:
+                    print(
+                        "BL WARNING:: could not set map mask radius to %s. It's not a number" % text_3)
+            coot.mask_map_by_atom_selection(n, imol, text_2, invert)
+
+    def mask_map_radius_func():
+        rad = coot.map_mask_atom_radius()
+        if (rad > 0):
+            return str(rad)
+        else:
+            return "default"
+
+
     def add_calculate_maps_menu(submenu_maps):
 
         #---------------------------------------------------------------------
-        # ----    Map Tools...
+        #     Map Tools...
         #---------------------------------------------------------------------
 
         coot_gui.add_simple_coot_menu_menuitem(
@@ -367,9 +423,9 @@ if coot_gui_api.main_menubar():
             "Mask Map by Atom Selection...",
             lambda func: coot_gui.molecule_chooser_gui("Define the molecule that has atoms to mask the map",
                                                        lambda imol: coot_gui.generic_multiple_entries_with_check_button(
-                                                           [[" Map molecule number: ", mask_map_func()],
+                                                           [[" Map molecule number: ", mask_map_func],
                                                             [" Atom selection: ", "//A/1"],
-                                                            ["Radius around atoms: ", mask_map_radius_func()]],
+                                                            ["Radius around atoms: ", mask_map_radius_func]],
                                                            [" Invert Masking? ", lambda active_state: mask_map_func1(active_state)],
                                                            "  Mask Map  ", lambda text_list, invert: mask_map_func2(imol, text_list, invert))))
 
