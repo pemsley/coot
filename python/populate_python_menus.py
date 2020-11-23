@@ -456,12 +456,12 @@ if coot_gui_api.main_menubar():
         #---------------------------------------------------------------------
 
         def add_hydrogens_with_coot_reduce():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 coot.coot_reduce(aa_imol)
 
         def add_hydrogens_refmac_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 coot_utils.add_hydrogens_using_refmac(aa_imol)
 
@@ -527,7 +527,7 @@ if coot_gui_api.main_menubar():
         # --- F --------
 
         def get_smiles_pdbe_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
                 comp_id = coot.residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
                 coot_utils.get_SMILES_for_comp_id_from_pdbe(comp_id)
 
@@ -556,7 +556,7 @@ if coot_gui_api.main_menubar():
         # --- I --------
 
         def chiral_centre_inverter_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 coot.invert_chiral_centre(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name)
 

@@ -6,12 +6,12 @@ def add_module_prosmart():
             menu = coot_gui.coot_menubar_menu("ProSMART")
 
             def generate_self_restraint_func(sig):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.generate_local_self_restraints(aa_imol, aa_chain_id, sig)
 
             def generate_self_restraint_in_sphere_func():
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     centred_residue = [aa_chain_id, aa_res_no, aa_ins_code]
                     radius = 10
@@ -38,7 +38,7 @@ def add_module_prosmart():
                 lambda func: generate_self_restraint_in_sphere_func())
 
             def display_extra_restraints_func(state):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.set_show_extra_restraints(aa_imol, state)
 
@@ -52,7 +52,7 @@ def add_module_prosmart():
 
                         
             def prosmart_cut_to_func(sig_low, sig_high):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.set_extra_restraints_prosmart_sigma_limits(aa_imol,
                                                                sig_low, sig_high)
@@ -77,7 +77,7 @@ def add_module_prosmart():
                 lambda func: prosmart_cut_to_func(0, 0))
             
             def restraint_to_ca_func(state):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
 
@@ -92,7 +92,7 @@ def add_module_prosmart():
             ## extra
             
             # def delete_all_extra_restraints_func():
-            #     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            #     with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
             #                                aa_ins_code, aa_atom_name, aa_alt_conf]:
             #         coot.delete_all_extra_restraints(aa_imol)
 

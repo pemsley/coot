@@ -153,7 +153,7 @@ def test_get_cho_restraints(imol):
                             print("BL WARNING:: rl <=3", rl)
 
 def correlation_coefficient_of_this_tree():
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf,
                                    aa_res_spec]:
         residues = glyco_tree_residues(aa_imol, aa_res_spec)

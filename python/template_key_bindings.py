@@ -43,7 +43,7 @@ def key_binding_func_2():
 add_key_binding("Fill Partial", "k", lambda: key_binding_func_2())
 
 def delete_residue_sidechain_key():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.delete_residue_sidechain(aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, 0)
@@ -51,7 +51,7 @@ add_key_binding("Delete Residue Sidechain", "K",
                 lambda: delete_residue_sidechain_key())
 
 def rotamer_dialog_for_ar():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.show_rotamers_dialog(aa_imol, aa_chain_id, aa_res_no,
                              aa_ins_code, aa_alt_conf)
@@ -108,7 +108,7 @@ add_key_binding("Regularize Residues in sphere", "B",
                 lambda: fitting.sphere_regularize(refine_residue_sphere_radius_key))
 
 def edit_chi_angles_key_func():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.edit_chi_angles(aa_imol, aa_chain_id, aa_res_no,
                         aa_ins_code, aa_alt_conf)
@@ -121,7 +121,7 @@ add_key_binding("Edit Chi Angles", "X", lambda: edit_chi_angles_key_func())
 add_key_binding("Just One or Next Map", "Y", lambda: coot_utils.just_one_or_next_map())
 
 def jiggle_fit_residue_key():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, 100, 1.0)
@@ -141,7 +141,7 @@ add_key_binding("Step scrollable map number", "M",
                 lambda: step_scrollable_map_number())
 
 def delete_residue_hydrogens_key():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.delete_residue_hydrogens(aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_alt_conf)
@@ -149,7 +149,7 @@ add_key_binding("Delete Residue Hydrogens", "P",
                 lambda: delete_residue_hydrogens_key())
 
 def key_binding_func_9():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.additional_representation_by_attributes(aa_imol, aa_chain_id,
                                                 aa_res_no, aa_res_no, aa_ins_code,

@@ -503,7 +503,7 @@ if True:
 
     
     def set_prosmart_sigma_limit_func(low, high):
-      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+      with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.set_extra_restraints_prosmart_sigma_limits(aa_imol, low, high)
     
@@ -521,7 +521,7 @@ if True:
 
 
     def set_prosmart_display_func(state):
-      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+      with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.set_show_extra_restraints(aa_imol, state)
     
@@ -539,7 +539,7 @@ if True:
 
 
     def set_prosmart_display_CA_func(state):
-      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+      with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
       
@@ -559,7 +559,7 @@ if True:
       lambda func: user_defined_delete_restraint())
 
     def delete_restraints_func():
-      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+      with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.delete_extra_restraints_for_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
         
     coot_gui.add_simple_coot_menu_menuitem(
@@ -571,7 +571,7 @@ if True:
     def del_deviant_restr_func(text):
       try:
         n = float(text)
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
           coot.delete_extra_restraints_worse_than(aa_imol, n)
       except:
         print("BL WARNING:: no float given")

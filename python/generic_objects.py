@@ -484,7 +484,7 @@ def probe_local_sphere(imol, radius):
 
 def probe_local_sphere_active_atom(radius=5.0):
   
-  with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+  with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                              aa_ins_code, aa_atom_name, aa_alt_conf]:
     probe_local_sphere(aa_imol, radius)
 

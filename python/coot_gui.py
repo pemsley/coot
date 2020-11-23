@@ -5420,7 +5420,7 @@ def add_module_cryo_em_gui():
                                       lambda func: refmac_multi_sharpen_gui())
 
         def interactive_nudge_func():
-            with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name,
                                            aa_alt_conf, aa_res_spec]:
                 interactive_nudge_residues.nudge_residues_gui(

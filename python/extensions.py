@@ -91,7 +91,7 @@ if True:
                                      lambda func: coot_gui.water_coordination_gui())
 
        def validation_outliers_func():
-         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
            imol_map = coot.imol_refinement_map()
            if not coot_utils.valid_map_molecule_qm(imol_map):
@@ -476,12 +476,12 @@ if True:
      #---------------------------------------------------------------------
 
      def add_hydrogens_with_coot_reduce():
-       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+       with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          coot.coot_reduce(aa_imol)
 
      def add_hydrogens_refmac_func():
-       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+       with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          coot_utils.add_hydrogens_using_refmac(aa_imol)
      
@@ -646,7 +646,7 @@ if True:
      #  lambda func: coot.find_strands())
 
      def get_smiles_pdbe_func():
-       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+       with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
          comp_id = coot.residue_name(aa_imol, aa_chain_id,
                                 aa_res_no, aa_ins_code)
          # print "BL INFO:: here with residue name", comp_id
@@ -679,7 +679,7 @@ if True:
      # --- I --------
 
      def chiral_centre_inverter_func():
-         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
              coot.invert_chiral_centre(aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name)
@@ -744,7 +744,7 @@ if True:
                               
 
      def morph_fit_chain_func(radius):
-       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+       with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          coot.morph_fit_chain(aa_imol, aa_chain_id, radius)
          
@@ -762,7 +762,7 @@ if True:
 
 
      def morph_fit_ss_func(radius):
-       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+       with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          coot.morph_fit_by_secondary_structure_elements(aa_imol, aa_chain_id)
          

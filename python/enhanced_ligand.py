@@ -17,7 +17,7 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
     pass
 
 def jiggle_fit_active_residue():
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot.fit_to_map_by_random_jiggle(aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, 100, 1.0)
@@ -70,7 +70,7 @@ if (use_gui_qm != 2):
 
     if coot.enhanced_ligand_coot_p():
         def flev_rdkit_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 prodrg_import.fle_view_with_rdkit(aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, 4.2)
@@ -91,7 +91,7 @@ if (use_gui_qm != 2):
 
         def show_chem_func():
             set_display_generic_objects_as_solid(1) # there may be consequences...
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 coot.show_feats(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
             
@@ -102,7 +102,7 @@ if (use_gui_qm != 2):
             )
 
     def rename_atoms_to_reference(menuitem):
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
            # user chooses cif_dict_file_name_out (provide default)
            # reference_comp_id and new_comp_id
@@ -134,12 +134,12 @@ if (use_gui_qm != 2):
         
 
     def tab_ligand_distortions_func():
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
              coot.print_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 
     def display_ligand_distortions_func():
-         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                     aa_ins_code, aa_atom_name, aa_alt_conf]:
              set_display_generic_objects_as_solid(1)
              coot.display_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
@@ -157,7 +157,7 @@ if (use_gui_qm != 2):
 
 ##        # not interesting for the normal user!?
 ##        def density_ligand_score_func():
-##            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+##            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
 ##                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
 ##               spec = [aa_chain_id, aa_res_no, aa_ins_code]
 ##               r = coot.density_score_residue(aa_imol, spec, coot.imol_refinement_map())
@@ -172,7 +172,7 @@ if (use_gui_qm != 2):
 
 
 ##        def fetch_ligand_pdbe_func():
-##            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+##            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
 ##                               aa_ins_code, aa_atom_name, aa_alt_conf]:
 ##               comp_id = coot.residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 ##               print "here with residue name", comp_id
@@ -189,7 +189,7 @@ if (use_gui_qm != 2):
 
 
     def probe_ligand_func():
-         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                             aa_ins_code, aa_atom_name, aa_alt_conf]:
             ss = "//" + aa_chain_id + "/" + str(aa_res_no)
             imol_selection = coot.new_molecule_by_atom_selection(aa_imol, ss)

@@ -85,7 +85,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
 # return the new molecule number
 #
 def new_molecule_from_this_glyco_tree():
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
         tree_residues = glyco_tree_residues(aa_imol, aa_res_spec)
         imol = new_molecule_by_residue_specs(aa_imol, tree_residues)
@@ -293,7 +293,7 @@ def add_linked_residue_add_cho_function(imol, parent, res_pair):
     global add_linked_residue_tree_correlation_cut_off
 
     def well_fitting_qm(res_spec):
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
             neighbs = residues_near_residue(aa_imol, res_spec, 4)
             c = coot.map_to_model_correlation(imol, [res_spec], neighbs, 0,
@@ -414,7 +414,7 @@ def add_linked_residue_tree(imol, parent, tree):
             if not (len(glyco_tree) == 1):
                 return False
             else:
-                with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                                aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
                     res_spec = aa_res_spec
                     rn = coot.residue_name(imol,
@@ -448,7 +448,7 @@ def add_linked_residue_tree(imol, parent, tree):
     # prevent tree building if there is already a partial tree here
     # (only proceed with the one ASN)
     #
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
         start_tree = glyco_tree_residues(aa_imol, aa_res_spec)
         # print "::::::::::::::::: start-tree:", start_tree
@@ -493,7 +493,7 @@ def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
     coot.set_matrix(wm / 8.)
     coot.set_refine_with_torsion_restraints(1)
     coot.set_add_linked_residue_do_fit_and_refine(0)
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
         new_res_spec = coot.add_linked_residue(aa_imol, aa_chain_id, aa_res_no,
                                           aa_ins_code, new_res_type, link_type, 2)
@@ -507,7 +507,7 @@ def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
 
 def delete_all_cho():
     delete_cho_ls = []
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                aa_atom_name, aa_alt_conf]:
         if coot_utils.valid_model_molecule_qm(aa_imol):
             with NoBackups(aa_imol):

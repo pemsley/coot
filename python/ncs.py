@@ -202,7 +202,7 @@ def update_ncs_ghosts_by_local_sphere():
     
     Typically one would bind this function to a key."""
 
-    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+    with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                aa_atom_name, aa_alt_conf]:
         # coot.clear_ncs_ghost_matrices(aa_imol)
         ghost_ncs_chain_ids = ncs_chain_ids(aa_imol)

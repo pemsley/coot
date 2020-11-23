@@ -126,7 +126,7 @@ if (0):
             print(" sigf-col-label:", sigf_col_label)
             print("rfree-col-label:", r_free_col_label)
 
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+            with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 ligand_validation_sliders.ligand_validation_metrics_gui_list_wrapper_pre(
                     aa_imol, aa_chain_id, aa_res_no, aa_ins_code,

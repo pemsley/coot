@@ -2,7 +2,7 @@
 def interactive_add_cho_dialog():
 
     def refine_tree_func():
-        with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+        with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                        aa_atom_name, aa_alt_conf, aa_res_spec]:
             refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
 
@@ -427,7 +427,7 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
                                 tree_type = 'complex-plant'
         return tree_type
 
-    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+    with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf, aa_res_spec]:
         glyco_id = glyco_tree_residue_id(aa_imol, aa_res_spec)
         # Paule says:
@@ -609,7 +609,7 @@ def add_module_carbohydrate_gui():
                 interactive_add_cho_dialog())
             
             def add_multi_carbo_link_func(link_list):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     add_linked_cho.multi_add_linked_residue(aa_imol,
                                              [aa_chain_id, aa_res_no, aa_ins_code],
@@ -617,7 +617,7 @@ def add_module_carbohydrate_gui():
 
 
             def set_default_cho_b_factor_func():
-                with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
                                                aa_ins_code, aa_atom_name,
                                                aa_alt_conf, aa_res_spec]:
                     residues = residues_near_residue(aa_imol, aa_res_spec, 10)
@@ -713,7 +713,7 @@ def add_module_carbohydrate_gui():
             #     lambda func: coot.set_add_linked_residue_do_fit_and_refine(0))
 
             def add_oligo_tree_func(oligo_tree):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     coot.make_backup(aa_imol)
                     # switch backup off?!
@@ -747,7 +747,7 @@ def add_module_carbohydrate_gui():
                 lambda func: add_linked_cho.delete_all_cho())
 
             def torsion_fit_this_func(refine = False):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     centre_residue = [aa_chain_id,aa_res_no, aa_ins_code]
                     coot.multi_residue_torsion_fit(aa_imol,
@@ -758,7 +758,7 @@ def add_module_carbohydrate_gui():
                             refine_residues(aa_imol, [centre_residue])
 
             def torsion_fit_this_and_neighbours_func(refine = False):
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     centre_residue = [aa_chain_id,aa_res_no, aa_ins_code]
                     residues = residues_near_residue(aa_imol, centre_residue, 1.9)

@@ -257,7 +257,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
         # merge_molecules([active_atom[0]], imol)
     else:
         # we have an active residue to match to
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
                                    aa_atom_name, aa_alt_conf]:
             if not coot_utils.residue_is_close_to_screen_centre_qm(
                 aa_imol, aa_chain_id, aa_res_no, ""):
@@ -749,7 +749,7 @@ def get_ccp4srs_monomer_and_overlay(comp_id):
     """
 
     if (active_residue()):
-        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+        with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
             imol = coot.get_ccp4srs_monomer_and_dictionary(comp_id)
             overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
