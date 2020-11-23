@@ -23,9 +23,9 @@
 import time
 import coot_gui_api
 import coot
-from gi.repository import Gtk
 import gi
 gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 
 # put all coot svgs in the default icon set
 

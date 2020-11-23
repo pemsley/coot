@@ -32,12 +32,12 @@
 # import pygtk, gtk, pango
 
 import types
-import coot_gui_api
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import coot
 import coot_utils
-import gi
-gi.require_version('Gtk', '3.0')
+import coot_gui_api
 
 try:
     import gobject
