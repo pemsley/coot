@@ -224,7 +224,7 @@ to reset the weight: `1.5` seems like a good number
 7: Mutate
 ---------
 
-This is _Coot's_ version of "Homology Modelling" - execpt that the model geometry
+This is _Coot's_ version of "Homology Modelling" - except that the model geometry
 optimization occurs in the context of the experiemental data:
 
   - We have finished with the "Self Restraints" - let's delete them:
@@ -284,8 +284,8 @@ call them)
   - _{wait - this takes a lot longer than before - there are lots of interactions now}_
   - **Accept**
 
--{For your notes, don't act on this now, to delete the hydrogen atoms, use the Python
-  scripting function `delete_hydrogens(4)` (or whatever your model number is)}
+_{For your notes, don't act on this now, to delete the hydrogen atoms, use the Python
+  scripting function `delete_hydrogens(4)` (or whatever your model number is)}_
 
 ### 8.3 Ramachandran Outliers
 
