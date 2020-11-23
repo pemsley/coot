@@ -408,6 +408,15 @@ def pre_release_qm():
     return "-pre" in coot.coot_version()
 
 
+def molecule_list(molecule_filter_function):
+    ls = []
+    for mol_no in range(coot.graphics_n_molecules()):
+        print("######## debug molecule_list()", mol_no, molecule_filter_function(mol_no))
+        if molecule_filter_function(mol_no):
+            ls.append(mol_no)
+    print("######### debug molecule_list() returning ls", ls)
+    return ls
+
 # return a list of molecule numbers (closed and open)
 # The elements of the returned list need to be tested against
 # is_valid_model_molecule_qm
@@ -1768,7 +1777,7 @@ def valid_model_molecule_qm(imol):
 
 
 def valid_map_molecule_qm(imol):
-    if (coot.is_valid_map_molecule(imol) == 1):
+    if coot.is_valid_map_molecule(imol) == 1:
         return True
     else:
         return False

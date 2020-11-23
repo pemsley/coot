@@ -1114,6 +1114,14 @@ def get_option_menu_active_item(option_menu, item_list):
         print("Failed children length test : ", children, item_list)
         return False
 
+def make_store_for_molecule_combobox(filter_function):
+    mol_store = Gtk.ListStore(int, str)
+    for imol in coot_utils.molecule_number_list():
+        if filter_function(imol) == 1:
+            label_str = coot.molecule_name(imol)
+            m_label_str = str(imol) + ' ' + label_str
+            mol_store.append([imol, m_label_str])
+    return mol_store
 
 def make_store_for_map_molecule_combobox():
     mol_store = Gtk.ListStore(int, str)
@@ -1134,8 +1142,7 @@ def make_store_for_model_molecule_combobox():
             mol_store.append([imol, m_label_str])
     return mol_store
 
-
-def fill_combobox_with_mol_options(combobox, filter_function):
+def fill_combobox_with_molecule_options(combobox, filter_function):
     mols_ls = []
     name_store = Gtk.ListStore(int, str)
     for imol in coot_utils.molecule_number_list():
@@ -1145,7 +1152,8 @@ def fill_combobox_with_mol_options(combobox, filter_function):
             name_store.append([imol, m_label_str])
             mols_ls.append(imol)
 
-    return mols_ls
+    print("###### debug fill_combobox_with_molecule_options() returning name_store", name_store)
+    return name_store
 
 
 def fill_combobox_with_model_molecule_options(combobox):
@@ -1163,7 +1171,7 @@ def fill_combobox_with_model_molecule_options(combobox):
 #
 
 
-def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_fill_function):
+def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filter_function):
 
     def delete_event(*args):
         window.destroy()
@@ -1192,8 +1200,10 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
     vbox = Gtk.VBox(False, 6)
     hbox_buttons = Gtk.HBox(False, 5)
 
-    # option_menu = Gtk.combo_box_new_text()
-    combobox_items = make_store_for_model_molecule_combobox()
+    # -------- replacing an option menu of molecules: here's how to do it --------------
+
+    # option_menu = gtk.combo_box_new_text()
+    combobox_items = make_store_for_molecule_combobox(molecule_filter_function)
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
     renderer_text = Gtk.CellRendererText()
     if len(combobox_items) > 0:
@@ -1204,7 +1214,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
     combobox.add_attribute(renderer_text, "text", 1)
     combobox.connect("changed", on_mol_combobox_changed)
 
-    name_store = fill_combobox_with_model_molecule_options(combobox)
+    # ----------------------------------------------------------------------------------
 
     ok_button = Gtk.Button("  OK  ")
     cancel_button = Gtk.Button(" Cancel ")
@@ -1219,10 +1229,8 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
 
     window.add(vbox)
 
-    model_mol_list = coot_utils.model_molecule_list()
     # button callbacks:
-    ok_button.connect("clicked", on_ok_button_clicked,
-                      combobox, model_mol_list)
+    ok_button.connect("clicked", on_ok_button_clicked, combobox)
     cancel_button.connect("clicked", delete_event)
 
     window.show_all()
@@ -1239,10 +1247,8 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
 # callback_function is a function that takes a molecule number as an
 # argument.
 #
-def molecule_chooser_gui(chooser_label, callback_function):
-    molecule_chooser_gui_generic(chooser_label,
-                                 callback_function,
-                                 fill_option_menu_with_coordinates_mol_options)
+def molecule_chooser_gui(label, callback_fn):
+    molecule_chooser_gui_generic(label, callback_fn, coot.is_valid_model_molecule)
 
 # Fire up a map molecule chooser dialog, with a given label and on OK we
 # call the callback_fuction with an argument of the chosen molecule
@@ -1255,10 +1261,8 @@ def molecule_chooser_gui(chooser_label, callback_function):
 #
 
 
-def map_molecule_chooser_gui(chooser_label, callback_function):
-    molecule_chooser_gui_generic(chooser_label,
-                                 callback_function,
-                                 fill_option_menu_with_map_mol_options)
+def map_molecule_chooser_gui(label, callback_fn):
+    molecule_chooser_gui_generic(label, callback_fn, coot.is_valid_map_molecule)
 
 # A pair of widgets, a molecule chooser and an entry.  The
 # callback_function is a function that takes a molecule number and a
