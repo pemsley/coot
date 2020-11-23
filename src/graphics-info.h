@@ -1159,6 +1159,8 @@ public:
    static int mouse_just_cliked; // delete this?
    static float zoom;
    static short int quanta_like_zoom_flag;
+   static void mouse_zoom(double delta_x, double delta_y);
+   static void scroll_zoom(int direction);
 
    static float box_radius_xray;
    static float box_radius_em;

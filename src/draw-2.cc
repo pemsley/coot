@@ -254,6 +254,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.reset_frame_buffers(width, height);
 }
 
+
 gboolean
 on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
 
@@ -268,10 +269,9 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    bool   shift_is_pressed = false;
    if (event->state & GDK_CONTROL_MASK) control_is_pressed = true;
    if (event->state & GDK_SHIFT_MASK) shift_is_pressed = true;
-   
+
    if (control_is_pressed) {
       if (shift_is_pressed){
-
          if (direction == 1)
             change_model_molecule_representation_mode(-1);
          else
@@ -281,12 +281,21 @@ on_glarea_scroll(GtkWidget *widget, GdkEventScroll *event) {
    }
 
    if (! handled) {
-      // start the idle function - why is this needed? The contouring used to
-      // work (i.e. the idle function was added somewhere (else)).
-      if (graphics_info_t::glareas.size() > 0) {
-         g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
+
+      if (shift_is_pressed) {
+
+         // scroll density
+
+         // start the idle function - why is this needed? The contouring used to
+         // work (i.e. the idle function was added somewhere (else)).
+         if (graphics_info_t::glareas.size() > 0) {
+            g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
+         }
+         g.contour_level_scroll_scrollable_map(direction);
+
+      } else {
+         graphics_info_t::scroll_zoom(direction);
       }
-      g.contour_level_scroll_scrollable_map(direction);
    }
    return TRUE;
 }
@@ -485,52 +494,6 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
                                }
                             };
 
-   auto mouse_zoom = [] (double delta_x, double delta_y) {
-                        // Zooming
-                        double fx = 1.0 + delta_x/300.0;
-                        double fy = 1.0 + delta_y/300.0;
-                        if (fx > 0.0) graphics_info_t::zoom /= fx;
-                        if (fy > 0.0) graphics_info_t::zoom /= fy;
-                        if (false)
-                           std::cout << "zooming with perspective_projection_flag "
-                                     << graphics_info_t::perspective_projection_flag
-                                     << " " << graphics_info_t::zoom << std::endl;
-                        if (! graphics_info_t::perspective_projection_flag) {
-                           // std::cout << "now zoom: " << g.zoom << std::endl;
-                        } else {
-                           // Move the eye towards the rotation centre (don't move the rotation centre)
-                           if (fabs(delta_y) > fabs(delta_x))
-                              delta_x = delta_y;
-                           float sf = 1.0 - delta_x * 0.003;
-                           graphics_info_t::eye_position.z *= sf;
-
-                           { // own graphics_info_t function - c.f. adjust clipping
-                              double  l = graphics_info_t::eye_position.z;
-                              double zf = graphics_info_t::screen_z_far_perspective;
-                              double zn = graphics_info_t::screen_z_near_perspective;
-
-                              graphics_info_t::screen_z_near_perspective *= sf;
-                              graphics_info_t::screen_z_far_perspective  *= sf;
-
-                              float screen_z_near_perspective_limit = l * 0.95;
-                              float screen_z_far_perspective_limit  = l * 1.05;
-                              if (graphics_info_t::screen_z_near_perspective < 2.0)
-                                 graphics_info_t::screen_z_near_perspective = 2.0;
-                              if (graphics_info_t::screen_z_far_perspective > 1000.0)
-                                 graphics_info_t::screen_z_far_perspective = 1000.0;
-
-                              if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
-                                 graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
-                              if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
-                                 graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
-                              if (false)
-                                 std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
-                                           << graphics_info_t::screen_z_near_perspective << " "
-                                           << graphics_info_t::screen_z_far_perspective << std::endl;
-                           }
-                        }
-                     };
-
    if (event->state & GDK_BUTTON1_MASK) {
 
       if (g.in_moving_atoms_drag_atom_mode_flag) {
@@ -550,25 +513,10 @@ on_glarea_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
    }
 
    if (event->state & GDK_BUTTON2_MASK) {
-      // View Panning
-      do_drag_pan_gtk3(widget);
-   }
-
-   if (event->state & GDK_BUTTON3_MASK) {
-
-      if (event->state & GDK_BUTTON1_MASK) {
-         double delta_x = event->x - g.GetMouseBeginX();
-         double delta_y = event->y - g.GetMouseBeginY();
-         mouse_zoom(delta_x, delta_y);
+      if (shift_is_pressed) {
+         do_drag_pan_gtk3(widget);          // View Panning
       } else {
-         if (!shift_is_pressed) {
-            mouse_view_rotate(widget);
-         }
-         if (shift_is_pressed) {
-            double delta_x = event->x - g.GetMouseBeginX();
-            double delta_y = event->y - g.GetMouseBeginY();
-            mouse_zoom(delta_x, delta_y);
-         }
+         mouse_view_rotate(widget);
       }
    }
 

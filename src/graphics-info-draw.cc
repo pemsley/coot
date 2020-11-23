@@ -160,6 +160,110 @@ graphics_info_t::init_hud_text() {
 }
 
 // static
+void
+graphics_info_t::mouse_zoom(double delta_x, double delta_y) {
+
+   // Zooming
+   double fx = 1.0 + delta_x/300.0;
+   double fy = 1.0 + delta_y/300.0;
+   if (fx > 0.0) graphics_info_t::zoom /= fx;
+   if (fy > 0.0) graphics_info_t::zoom /= fy;
+   if (false)
+      std::cout << "zooming with perspective_projection_flag "
+                << graphics_info_t::perspective_projection_flag
+                << " " << graphics_info_t::zoom << std::endl;
+   if (! graphics_info_t::perspective_projection_flag) {
+      // std::cout << "now zoom: " << g.zoom << std::endl;
+   } else {
+      // Move the eye towards the rotation centre (don't move the rotation centre)
+      if (fabs(delta_y) > fabs(delta_x))
+         delta_x = delta_y;
+      float sf = 1.0 - delta_x * 0.003;
+      graphics_info_t::eye_position.z *= sf;
+
+      { // own graphics_info_t function - c.f. adjust clipping
+         double  l = graphics_info_t::eye_position.z;
+         double zf = graphics_info_t::screen_z_far_perspective;
+         double zn = graphics_info_t::screen_z_near_perspective;
+
+         graphics_info_t::screen_z_near_perspective *= sf;
+         graphics_info_t::screen_z_far_perspective  *= sf;
+
+         float screen_z_near_perspective_limit = l * 0.95;
+         float screen_z_far_perspective_limit  = l * 1.05;
+         if (graphics_info_t::screen_z_near_perspective < 2.0)
+            graphics_info_t::screen_z_near_perspective = 2.0;
+         if (graphics_info_t::screen_z_far_perspective > 1000.0)
+            graphics_info_t::screen_z_far_perspective = 1000.0;
+
+         if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
+            graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
+         if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
+            graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+         if (false)
+            std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+                      << graphics_info_t::screen_z_near_perspective << " "
+                      << graphics_info_t::screen_z_far_perspective << std::endl;
+      }
+   }
+   graphics_draw(); // or should this be called by the function that calls this function?
+}
+
+// static
+void
+graphics_info_t::scroll_zoom(int direction) {
+
+   // c.f. mouse_zoom() it was copied from there. I am not sure that I like this yet.
+   // and don't want to refactor if I'm going to dump either this or that later.
+
+   // scroll up mean direction -1
+
+   // Zooming
+   double delta_x = 15.0;
+   if (direction == 1) delta_x = -delta_x;
+   double fx = 1.0 + delta_x/300.0;
+   if (fx > 0.0) graphics_info_t::zoom /= fx;
+   if (false)
+      std::cout << "zooming with perspective_projection_flag "
+                << graphics_info_t::perspective_projection_flag
+                << " " << graphics_info_t::zoom << std::endl;
+   if (! graphics_info_t::perspective_projection_flag) {
+      // std::cout << "now zoom: " << g.zoom << std::endl;
+   } else {
+      // Move the eye towards the rotation centre (don't move the rotation centre)
+      float sf = 1.0 - delta_x * 0.003;
+      graphics_info_t::eye_position.z *= sf;
+
+      { // own graphics_info_t function - c.f. adjust clipping
+         double  l = graphics_info_t::eye_position.z;
+
+         graphics_info_t::screen_z_near_perspective *= sf;
+         graphics_info_t::screen_z_far_perspective  *= sf;
+
+         float screen_z_near_perspective_limit = l * 0.95;
+         float screen_z_far_perspective_limit  = l * 1.05;
+         if (graphics_info_t::screen_z_near_perspective < 2.0)
+            graphics_info_t::screen_z_near_perspective = 2.0;
+         if (graphics_info_t::screen_z_far_perspective > 1000.0)
+            graphics_info_t::screen_z_far_perspective = 1000.0;
+
+         if (graphics_info_t::screen_z_near_perspective > screen_z_near_perspective_limit)
+            graphics_info_t::screen_z_near_perspective = screen_z_near_perspective_limit;
+         if (graphics_info_t::screen_z_far_perspective < screen_z_far_perspective_limit)
+            graphics_info_t::screen_z_far_perspective = screen_z_far_perspective_limit;
+         if (false)
+            std::cout << "on_glarea_motion_notify(): debug l: " << l << " post-manip: "
+                      << graphics_info_t::screen_z_near_perspective << " "
+                      << graphics_info_t::screen_z_far_perspective << std::endl;
+      }
+   }
+   graphics_draw(); // or should this be called by the function that calls this function?
+}
+
+
+
+
+// static
 glm::mat4
 graphics_info_t::get_model_view_matrix() {
 
