@@ -1146,7 +1146,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rama_checkbutton)))
       use_rama_restraints = 1;
 
-   if (imol>= 0) { // redundant
+   if (imol >= 0) { // redundant
       if (is_valid_model_molecule(imol)) {
 
 	 // get the sequence:
@@ -1190,7 +1190,7 @@ void fit_loop_from_widget(GtkWidget *dialog) {
             }
 
 	    std::vector<std::string> cmd_strings;
-	    cmd_strings.push_back("fit-gap");
+	    cmd_strings.push_back("gap.fit_gap"); // was just "fit-gap" - safe_scheme_command will have to deal with that.
 	    cmd_strings.push_back(graphics_info_t::int_to_string(imol));
 	    cmd_strings.push_back(single_quote(chain_id));
 	    cmd_strings.push_back(graphics_info_t::int_to_string(res1));

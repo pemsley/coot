@@ -24,28 +24,32 @@
 # direction can be forwards or backwards
 #
 
+import coot
+import coot_utils
+import mutate
+
 def fit_gap(imol, chain_id, start_resno, stop_resno,
             sequence="", use_rama_restraints=1):
 
-   imol_map = imol_refinement_map()
+   imol_map = coot.imol_refinement_map()
    if (imol_map == -1):
       info_dialog("Need to set a map to fit a loop")
    else:
       # normal execution
-      backup_mode = backup_state(imol)
-      make_backup(imol)
-      turn_off_backup(imol)
+      backup_mode = coot.backup_state(imol)
+      coot.make_backup(imol)
+      coot.turn_off_backup(imol)
 
       # backup the rama_status
-      rama_status = refine_ramachandran_angles_state()
-      set_refine_ramachandran_angles(use_rama_restraints)
+      rama_status = coot.refine_ramachandran_angles_state()
+      coot.set_refine_ramachandran_angles(use_rama_restraints)
 
       if (stop_resno < start_resno):
          res_limits = [stop_resno - 1, start_resno + 1]
       else:
          res_limits = [start_resno - 1, stop_resno + 1]
 
-      if all([residue_exists_qm(imol, chain_id, resno,"") for resno in res_limits]):
+      if all([coot_utils.residue_exists_qm(imol, chain_id, resno,"") for resno in res_limits]):
          # build both ways
          imol_backwards = copy_molecule(imol)
          loop_len = abs(start_resno - stop_resno) + 1
@@ -56,7 +60,7 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
          atom_selection = "//" + chain_id + "/" + str(min(start_resno, stop_resno) - 1) + \
                           "-"  + str(max(start_resno, stop_resno) + 1)
          imol_fragment_backup = new_molecule_by_atom_selection(imol, atom_selection)
-         set_mol_displayed(imol_fragment_backup, 0)
+         coot.set_mol_displayed(imol_fragment_backup, 0)
 
          # build A:
          fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence)
@@ -165,9 +169,9 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
          # either end residue is missing -> single build
          fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence)
 
-      set_refine_ramachandran_angles(rama_status)
+      coot.set_refine_ramachandran_angles(rama_status)
       if (backup_mode==1):
-         turn_on_backup(imol)
+         coot.turn_on_backup(imol)
 
 
 
@@ -183,19 +187,18 @@ def fit_gap(imol, chain_id, start_resno, stop_resno,
 #
 def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
 
-   import string
-   sequence = string.upper(sequence)
+   sequence = sequence.upper()
 
-   if (valid_model_molecule_qm(imol) == 0):
+   if (coot_utils.valid_model_molecule_qm(imol) == 0):
       print("Molecule number %(a)i is not a valid model molecule" %{"a":imol})
    else:
 
       # -----------------------------------------------
       # Make poly ala
       # -----------------------------------------------
-      set_residue_selection_flash_frames_number(0)
+      coot.set_residue_selection_flash_frames_number(0)
 
-      immediate_refinement_mode = refinement_immediate_replacement_state()
+      immediate_refinement_mode = coot.refinement_immediate_replacement_state()
       #  print " BL DEBUG:: start_resno, stop_resno",start_resno,stop_resno
       if (stop_resno < start_resno):
          direction = "backwards"
@@ -204,7 +207,7 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
 
       print("direction is ", direction)
 
-      set_refinement_immediate_replacement(1)
+      coot.set_refinement_immediate_replacement(1)
 
       # recur over residues:
       if direction == "forwards":
@@ -215,11 +218,11 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
       for i in range(abs(start_resno - stop_resno) + 1):
 
          print("add-terminal-residue: residue number: ",resno)
-         status = add_terminal_residue(imol, chain_id, resno, "auto", 1)
+         status = coot.add_terminal_residue(imol, chain_id, resno, "auto", 1)
          if status:
             # first do a refinement of what we have
-            refine_auto_range(imol, chain_id, resno, "")
-            accept_regularizement()
+            coot.refine_auto_range(imol, chain_id, resno, "")
+            coot.accept_regularizement()
             if direction == "forwards":
                resno = resno + 1
             else:
@@ -270,24 +273,25 @@ def fit_gap_generic(imol, chain_id, start_resno, stop_resno, sequence=""):
       # we also need to check that start-resno-1 exists and
       # stop-resno+1 exists.
 
-      refine_zone(imol,chain_id,final_zone[0],final_zone[1],"")
+      coot.refine_zone(imol,chain_id,final_zone[0],final_zone[1],"")
       # set the refinement dialog flag back to what it was:
       if immediate_refinement_mode == 0:
-         set_refinement_immediate_replacement(0)
-         accept_regularizement()
+         coot.set_refinement_immediate_replacement(0)
+         coot.accept_regularizement()
 
 
 # helper function to see if a sequence has been assigned to a chain in imol
 # return True if sequence is there, False otherwise
 #
 def has_sequence_qm(imol, chain_id_ref):
-   if sequence_info(imol):
-      for item in sequence_info(imol):
-         chain_id = item[0]
-         sequence = item[1]
-         if (chain_id_ref == chain_id and len(sequence) > 0):
-            return True
-   return False
+    si = coot.sequence_info_py(imol)
+    if si:
+        for item in si:
+           chain_id = item[0]
+           sequence = item[1]
+           if (chain_id_ref == chain_id and len(sequence) > 0):
+              return True
+    return False
 
 
 # For Kay Diederichs, autofit without a map (find rotamer with best
@@ -298,8 +302,8 @@ def de_clash (imol,chain_id,resno_start,resno_end):
 
     resno = resno_start
     while resno <= resno_end:
-        auto_fit_best_rotamer(resno,"","",chain_id,imol,-1,1,0.1)
-        resno = resno + 1
+       coot.auto_fit_best_rotamer(resno,"","",chain_id,imol,-1,1,0.1)
+       resno = resno + 1
 
 # calculate the average of 20% lowest density at all atom_positions in fragment
 def low_density_average(imol_map, imol, chain_id, start_resno, stop_resno):

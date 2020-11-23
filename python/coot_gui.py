@@ -31,8 +31,6 @@
 
 # import pygtk, gtk, pango
 
-import threading
-from types import *
 import types
 import coot_gui_api
 from gi.repository import Gtk
@@ -1031,6 +1029,8 @@ def fill_option_menu_with_coordinates_mol_options(menu):
 
 def fill_option_menu_with_number_options(menu, number_list, default_option_value):
 
+    print("************************* Get Rid of this! **********************")
+
     for number in coot_utils.number_list:
         mlabel_str = str(number)
         menu.append_text(mlabel_str)
@@ -1038,6 +1038,27 @@ def fill_option_menu_with_number_options(menu, number_list, default_option_value
             count = coot_utils.number_list.index(number)
             menu.set_active(count)
             print("setting menu active ", default_option_value, count)
+
+def fill_combobox_with_number_options(combobox, number_list, active_value):
+
+    def make_store(number_list):
+        name_store = Gtk.ListStore(int, str)
+        for i in number_list:
+            label_str = str(i)
+            name_store.append([imol, label_str])
+        return name_store
+
+    combobox_items = make_store(number_list)
+    renderer_text = Gtk.CellRendererText()
+    combox.set_entry_text_column(1)
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+    for i in number_list:
+        print("debug: comparing", i, active_value)
+        if i == active_value:
+            combobox.set_active(i)
+    return combobox_items
+
 
 # Helper function for molecule chooser.  Not really for users.
 #
@@ -1173,12 +1194,12 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, option_menu_f
 
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_model_molecule_combobox()
-    print("################## debug: combobox_items:", combobox_items)
     combobox = Gtk.ComboBox.new_with_model(combobox_items)
     renderer_text = Gtk.CellRendererText()
     if len(combobox_items) > 0:
         combobox.set_active(0)
-    combobox.set_entry_text_column(1)  # what does this do?
+    combobox.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
     combobox.pack_start(renderer_text, True)
     combobox.add_attribute(renderer_text, "text", 1)
     combobox.connect("changed", on_mol_combobox_changed)
@@ -1901,18 +1922,18 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
         window.destroy()
         return False
 
-    def go_button_pressed(*args):
-        active_number = int(get_option_menu_active_item(
-            option_menu, coot_utils.number_list))
-        try:
-            #           print "BL DEBUG:: go_function is:", go_function
-            #           print "BL DEBUG:: active_number is:", active_number
-            go_function(active_number)
-        except:
-            print("Failed to get execute function")
+    def go_button_pressed(button, combobox, go_function):
+
+        print("########### go_button_pressed: button", button)
+        print("########### go_button_pressed: combobox", combobox)
+        print("########### go_button_pressed: go_function", go_function)
+        active_number = combobox.get_active()
+        print("########### go_button_pressed active_number", active_number)
+        go_function(active_number)
+        # print("Failed to get execute function")
         delete_event()
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     vbox = Gtk.VBox(False, 0)
     hbox1 = Gtk.HBox(False, 0)
     hbox2 = Gtk.HBox(True, 0)      # for Go and Cancel
@@ -1920,16 +1941,32 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
     h_sep = Gtk.HSeparator()
     go_button = Gtk.Button(go_button_label)
     cancel_button = Gtk.Button("  Cancel  ")
-# BL says:: option menu is depricated, so we use combox instead, maybe!?!
-    option_menu = Gtk.combo_box_new_text()
 
-    fill_option_menu_with_number_options(
-        option_menu, coot_utils.number_list, default_option_value)
+    # fill_option_menu_with_number_options(option_menu, number_list, default_option_value)
 
+    def make_store(number_list):
+        name_store = Gtk.ListStore(int, str)
+        for i in number_list:
+            label_str = str(i)
+            name_store.append([i, label_str])
+        return name_store
+
+    combobox_items = make_store(number_list)
+    combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    combobox.set_entry_text_column(1)
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+    for i in number_list:
+        if i == default_option_value:
+            combobox.set_active(i)
+
+
+            
     vbox.pack_start(hbox1, True, False, 0)
-    vbox.pack_start(function_label, False, 0)
-    vbox.pack_start(option_menu, True, 0)
-    vbox.pack_start(h_sep)
+    vbox.pack_start(function_label, True, False, 0)
+    vbox.pack_start(combobox, True, False, 0)
+    vbox.pack_start(h_sep, False, False, 0)
     vbox.pack_start(hbox2, False, False, 0)
     hbox2.pack_start(go_button, False, False, 6)
     hbox2.pack_start(cancel_button, False, False, 6)
@@ -1937,8 +1974,7 @@ def generic_number_chooser(number_list, default_option_value, hint_text,
     vbox.set_border_width(6)
     hbox1.set_border_width(6)
     hbox2.set_border_width(6)
-    go_button.connect("clicked", go_button_pressed, option_menu,
-                      coot_utils.number_list, go_function)
+    go_button.connect("clicked", go_button_pressed, combobox, go_function)
     cancel_button.connect("clicked", delete_event)
 
     window.show_all()
@@ -2152,7 +2188,7 @@ def cootaneer_gui(imol):
         show_select_map_dialog()
         print("BL DEBUG:: probably should wait here for input!?")
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     outside_vbox = Gtk.VBox(False, 2)
     inside_vbox = Gtk.VBox(False, 2)
     h_sep = Gtk.HSeparator()
@@ -2279,7 +2315,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
         window.destroy()
 
     # main line
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.VBox(False, 2)
     h_sep = Gtk.HSeparator()
@@ -2385,7 +2421,7 @@ def add_button_info_to_box_of_buttons_vbox(button_info, vbox):
 #
 def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_button_label):
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.VBox(False, 2)
     inside_vbox = Gtk.VBox(False, 0)
@@ -2448,7 +2484,7 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
         textbuffer.insert_with_tags_by_name(start, description, "tag")
 
     # main line
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.VBox(False, 2)
     inside_vbox = Gtk.VBox(False, 0)
@@ -2538,7 +2574,7 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
         return False
 
     # main line
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.VBox(False, 2)
     inside_vbox = Gtk.VBox(False, 0)
@@ -2798,7 +2834,7 @@ def make_difference_map_gui():
             difference_map(active_mol_no_ref, active_mol_no_sec, scale)
         delete_event()
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     diff_map_vbox = Gtk.VBox(False, 2)
     h_sep = Gtk.HSeparator()
     title = Gtk.Label("Make a Difference Map")
@@ -2992,7 +3028,7 @@ def transform_map_using_lsq_matrix_gui():
 
         return [frame, option_menu, model_mol_list, chain_id_entry, resno_1_entry, resno_2_entry]
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     dialog_name = "Map Transformation"
     main_vbox = Gtk.VBox(False, 2)
     buttons_hbox = Gtk.HBox(False, 2)
@@ -3084,7 +3120,7 @@ def ncs_ligand_gui():
 
         delete_event()
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     ncs.ncs_ligands_vbox = Gtk.VBox(False, 2)
     title = Gtk.Label("Find NCS-Related Ligands")
     ref_label = Gtk.Label("Protein with NCS:")
@@ -3210,7 +3246,7 @@ def ncs_jumping_gui():
         timeout_function_token = False
 
     # main body
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     outside_vbox = Gtk.VBox(False, 2)
     inside_hbox = Gtk.HBox(False, 2)
     cancel_hbox = Gtk.HBox(False, 2)  # paul says VBox?!?!
@@ -3272,7 +3308,7 @@ def superpose_ligand_gui():
 
         delete_event()
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     title = Gtk.Label("Superpose Ligands")
     ligands_vbox = Gtk.VBox(False, 2)
     ref_chain_hbox = Gtk.HBox(False, 2)
@@ -3432,7 +3468,7 @@ def key_bindings_gui():
 
     # main line
     #
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.VBox(False, 2)
     inside_vbox = Gtk.VBox(False, 0)
@@ -3507,181 +3543,6 @@ global news_string_1
 global news_string_2
 news_string_1 = False
 news_string_2 = False
-
-
-def coot_news_info(*args):
-
-    import threading
-    import urllib.request
-    import urllib.parse
-    import urllib.error
-    global text_1, text_2
-    url = "http:" + \
-          "//www.biop.ox.ac.uk/coot/software" + \
-          "/binaries/pre-releases/PRE-RELEASE-NOTES"
-
-    def test_string():
-        import time
-        time.sleep(2)
-        ret = "assssssssssssssssssssssssssssssssssssssss\n\n" + \
-              "assssssssssssssssssssssssssssssssssssssss\n\n" + \
-              "assssssssssssssssssssssssssssssssssssssss\n\n" + \
-              "\n-----\n" + \
-              "bill asssssssssssssssssssssssssssssssssssss\n\n" + \
-              "fred asssssssssssssssssssssssssssssssssssss\n\n" + \
-              "george sssssssssssssssssssssssssssssssssssss\n\n" + \
-              "\n-----\n"
-        return ret
-
-    def stop():
-        return
-
-    # return [pre_release_news_string, std_release_news_string]
-    def trim_news(s):
-        sm_pre = s.find("-----")
-        if (sm_pre == -1):
-            return ["nothing", "nothing"]
-        else:
-            pre_news = s[0:sm_pre]
-            post_pre = s[sm_pre:-1].lstrip("-")
-            sm_std = post_pre.find("-----")
-            if (sm_std == -1):
-                return [pre_news, "nothing"]
-            else:
-                return [pre_news, post_pre[0:sm_std]]
-
-    def get_news_thread():
-        global news_status
-        global news_string_1
-        global news_string_2
-        import urllib.request
-        import urllib.parse
-        import urllib.error
-        try:
-            s = urllib.request.urlopen(url).read()
-            both_news = trim_news(s)
-            news_string_1 = both_news[1]
-            news_string_2 = both_news[0]
-            news_status = NEWS_IS_READY
-        except:
-            pass
-
-    def coot_news_error_handle(key, *args):
-        # not used currently
-        print("error: news: error in %s with args %s" % (key, args))
-
-    def get_news():
-        # no threading for now. Doesnt do the right thing
-        run_python_thread(get_news_thread, ())
-
-    def insert_string(s, text):
-        background_colour = "#c0e6c0"
-        end = text.get_end_iter()
-        text.insert(end, str(s))
-
-    def insert_news():
-        global news_string_1
-        global news_string_2
-        insert_string(news_string_1, text_1)
-        insert_string(news_string_2, text_2)
-
-    def insert_no_news():
-        insert_string("  No news\n", text_1)
-        insert_string("  Yep - there really is no news\n", text_2)
-
-    if (len(args) == 1):
-        arg = args[0]
-        if (arg == STOP):
-            stop()
-        if (arg == STATUS):
-            return news_status
-        if (arg == INSERT_NEWS):
-            insert_news()
-        if (arg == INSERT_NO_NEWS):
-            insert_no_news()
-        if (arg == GET_NEWS):
-            get_news()
-    if (len(args) == 3):
-        if (args[0] == SET_TEXT):
-            text_1 = args[1]
-            text_2 = args[2]
-
-
-def whats_new_dialog():
-    global text_1, text_2
-    text_1 = False         # the text widget
-    text_2 = False
-    timer_label = False
-    global count
-    count = 0
-    ms_step = 200
-
-    def on_close_button_clicked(*args):
-        coot_news_info(STOP)
-        delete_event(*args)
-
-    def delete_event(*args):
-        window.destroy()
-        return False
-
-    def check_for_new_news():
-        global count
-        count += 1
-        timer_string = str(count * ms_step / 1000.) + "s"
-        timer_label.set_alignment(0.96, 0.5)
-        timer_label.set_text(timer_string)
-        if (count > 100):
-            timer_label.set_text("Timeout")
-            coot_news_info(INSERT_NO_NEWS)
-            return False  # turn off the gtk timeout function ?!
-        else:
-            if (coot_news_info(STATUS) == NEWS_IS_READY):
-                coot_news_info(INSERT_NEWS)
-                return False
-            return True
-
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
-    vbox = Gtk.VBox(False, 2)
-    inside_vbox = Gtk.VBox(False, 2)
-    scrolled_win_1 = Gtk.ScrolledWindow()
-    scrolled_win_2 = Gtk.ScrolledWindow()
-    label = Gtk.Label("Lastest Coot Release Info")
-    text_view_1 = Gtk.TextView()
-    text_view_2 = Gtk.TextView()
-    text_view_1.modify_base(Gtk.STATE_NORMAL, Gtk.gdk.color_parse("#bfe6bf"))
-    text_view_2.modify_base(Gtk.STATE_NORMAL, Gtk.gdk.color_parse("#bfe6bf"))
-    text_1 = text_view_1.get_buffer()
-    text_2 = text_view_2.get_buffer()
-    h_sep = Gtk.HSeparator()
-    close_button = Gtk.Button("   Close   ")
-    notebook = Gtk.Notebook()
-    notebook_label_pre = Gtk.Label("Pre-release")
-    notebook_label_std = Gtk.Label("Release")
-    timer_label = Gtk.Label("0.0s")
-
-    window.set_default_size(540, 400)
-    vbox.pack_start(label, False, False, 10)
-    vbox.pack_start(timer_label, False, False, 2)
-    vbox.pack_start(notebook, True, True, 4)
-    notebook.append_page(scrolled_win_1, notebook_label_std)
-    notebook.append_page(scrolled_win_2, notebook_label_pre)
-    vbox.pack_start(h_sep, False, False, 4)
-    vbox.pack_start(close_button, False, False, 2)
-    window.add(vbox)
-
-    coot_news_info(SET_TEXT, text_1, text_2)
-    coot_news_info(GET_NEWS)
-
-    scrolled_win_1.add(text_view_1)
-    scrolled_win_2.add(text_view_2)
-    scrolled_win_1.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
-    scrolled_win_2.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
-
-    close_button.connect("clicked", on_close_button_clicked)
-
-    gobject.timeout_add(ms_step, check_for_new_news)
-
-    window.show_all()
 
 
 # Cootaneer/sequencing gui modified by BL with ideas from KC
@@ -4043,7 +3904,7 @@ def cootaneer_gui_bl():
     if (imol_map == -1):
         show_select_map_dialog()
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     window.set_title("Sequencing GUI")
     #tooltips = Gtk.Tooltips()
     label = Gtk.Label("Molecule to be sequenced")
@@ -4114,23 +3975,6 @@ def cootaneer_gui_bl():
 #        window.add(vbox)
     window.show_all()
 
-# a function to run a pygtk widget in a function as a thread
-#
-
-
-def run_with_gtk_threading(function, *args):
-    import gobject
-
-    def idle_func():
-        Gtk.gdk.threads_enter()
-        try:
-            # function(*args, **kw)
-            function(*args)
-            return False
-        finally:
-            Gtk.gdk.threads_leave()
-    gobject.idle_add(idle_func)
-
 
 def generic_check_button(vbox, label_text, handle_check_button_function):
     def check_callback(*args):
@@ -4169,7 +4013,7 @@ def refinement_options_gui():
         window.destroy()
         return False
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     vbox = Gtk.VBox(False, 0)
     hbox = Gtk.HBox(False, 0)
     h_sep = Gtk.HSeparator()
@@ -4260,105 +4104,10 @@ def refinement_options_gui():
     cancel_button.connect("clicked", delete_event)
     window.show_all()
 
-# a simple window to show a progress bar
-# return the window (to be destroyed elsewhere)
-#
-
-
-def show_progressbar(text):
-
-    Gtk.gdk.threads_init()
-
-    def progress_run(pbar):
-        pbar.pulse()
-        return True
-
-    def destroy_cb(widget, timer):
-        gobject.source_remove(timer)
-        timer = 0
-        Gtk.main_quit()
-        return False
-
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
-    window.set_title("External Program Progress")
-    window.set_border_width(0)
-    window.set_default_size(300, 50)
-
-    vbox = Gtk.VBox(False, 5)
-    vbox.set_border_width(10)
-    window.add(vbox)
-
-    pbar = Gtk.ProgressBar()
-    pbar.pulse()
-    pbar.set_text(text)
-    vbox.pack_start(pbar, False, False, 5)
-
-    timer = gobject.timeout_add(100, progress_run, pbar)
-
-    window.connect("destroy", destroy_cb, timer)
-
-    window.show_all()
-    global python_return
-    python_return = window
-    Gtk.main()
-
-
-# helper function to push the python threads
-# this only runs python threads for 20ms every 50ms
-
-
-def python_thread_sleeper():
-    global python_thread_sleep
-    sleep_time = python_thread_sleep
-    time.sleep(sleep_time / 1000.)
-    if (threading.activeCount() == 1):
-        # print "BL DEBUG:: stopping timeout"
-        return False
-    return True
-
-
-# this has locked, so that no one else can use it
-global python_thread_return
-python_thread_return = False
-global python_thread_sleep
-python_thread_sleep = 20
-
-# function to run a python thread with function using
-# args which is a tuple
-# optionally pass sleep time in ms (default is 20) - usefull
-# for computationally expensive threads which may have run longer
-# N.B. requires gobject hence in coot_gui.py
-#
-
-
-def run_python_thread(function, args, sleep_time=20):
-
-    import gobject
-
-    class MyThread(threading.Thread):
-        def __init__(self):
-            threading.Thread.__init__(self)
-
-        def run(self):
-            global python_thread_return
-            python_return_lock = threading.Lock()
-            python_return_lock.acquire()
-            try:
-                python_thread_return = function(*args)
-            finally:
-                python_return_lock.release()
-
-    global python_thread_sleep
-    if (not sleep_time == 20):
-        python_thread_sleep = sleep_time
-    if (threading.activeCount() == 1):
-        gobject.timeout_add(50, python_thread_sleeper)
-    MyThread().start()
-
 
 def map_sharpening_gui(imol):
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     vbox = Gtk.VBox(False, 2)
     hbox = Gtk.HBox(False, 2)
     adj = Gtk.Adjustment(0.0, -30, 60, 0.05, 2, 30.1)
@@ -4722,7 +4471,7 @@ def residue_range_gui(func, function_text, go_button_label):
         window.destroy()
         return False
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     vbox = Gtk.VBox(False, 0)
     residue_range_vbox = Gtk.VBox(True, 2)
     residue_range_widget_info = make_residue_range_frame(residue_range_vbox)
@@ -4879,7 +4628,7 @@ def solvent_ligands_gui():
         return ret
 
     # main
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     scrolled_win = Gtk.ScrolledWindow()
     outside_vbox = Gtk.VBox(False, 2)
     inside_vbox = Gtk.VBox(False, 2)
@@ -5148,7 +4897,7 @@ def average_map_gui():
                 window.destroy()
                 return False
 
-            window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+            window = Gtk.Window()
             outer_vbox = Gtk.VBox(False, 0)
             inner_vbox = Gtk.VBox(False, 0)
             title = Gtk.Label("Average Maps")
@@ -5275,7 +5024,7 @@ def water_coordination_gui():
         # print "   checking if %s is in %s... result: %s" %(atom_spec, metal_results, atom_spec in metal_results)
         return atom_spec in metal_results
 
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     vbox = Gtk.VBox(False, 0)
     results_vbox = Gtk.VBox(False, 0)
     water_results_label = Gtk.Label("Other Coordinated Waters")
@@ -5478,8 +5227,8 @@ def click_protein_db_loop_gui():
     def pick_loop_func(n):
         def pick_func(*atom_specs):
             residue_specs = list(
-                map(atom_spec_to_residue_spec, coot_utils.atom_specs))
-            imol = coot_utils.atom_specs[0][1]
+                map(coot_utils.atom_spec_to_residue_spec, atom_specs))
+            imol = atom_specs[0][1]
             min_max_and_chain_id = min_max_residues_from_atom_specs(atom_specs)
 
             if not isinstance(min_max_and_chain_id, list):
@@ -5522,7 +5271,7 @@ def click_protein_db_loop_gui():
                                               " Close ",
                                               lambda: [(set_mol_displayed(im, 0), set_mol_active(im, 0)) for im in loop_mols])
 
-        user_defined_click(n, pick_func)
+        coot.user_defined_click_py(n, pick_func)
 
     generic_number_chooser(list(range(2, 10)), 4,
                            "Number of residues for basis",
@@ -5604,7 +5353,7 @@ def refmac_multi_sharpen_gui():
             delete_event(widget)
 
     print("BL DEBUG:: now make a windwo")
-    window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+    window = Gtk.Window()
     # boxes
     vbox = Gtk.VBox(False, 0)
     hbox_1 = Gtk.HBox(False, 0)
@@ -5744,7 +5493,7 @@ def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
             # print "change occ slider?!"
             pass
 
-        window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+        window = Gtk.Window()
         title = Gtk.Label("Adjust alt conf occupancies")
         occ_label = Gtk.Label("Occupancy")
         alt_conf_label = Gtk.Label("Alt Conf: " + alt_conf)
@@ -5788,7 +5537,7 @@ def select_atom_alt_conf_occ_gui():
         res_no = args[0][3]
         ins_code = args[0][4]
         scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code)
-    user_defined_click(1, helper_function)
+    coot.user_defined_click_py(1, helper_function)
 
 
 def toggle_backrub_rotamers(widget=None):
@@ -5929,7 +5678,7 @@ def duplicate_range_by_atom_pick():
                 "BL WARNING:: not the same imols. \n"
                 "imol %i and %i were selected"
                 % (imol_1, imol_2))
-            info_dialog_and_text(msg)
+            coot.info_dialog_and_text(msg)
             return
         else:
             # imol ok
@@ -5938,7 +5687,7 @@ def duplicate_range_by_atom_pick():
                     "BL WARNING:: not the same chains. \n"
                     "Chains %s and %s were selected"
                     % (chain_id1, chain_id2))
-                info_dialog_and_text(msg)
+                coot.info_dialog_and_text(msg)
                 return
             else:
                 # chain ok
@@ -5952,12 +5701,12 @@ def duplicate_range_by_atom_pick():
                         "BL WARNING:: too many residues. \n"
                         "%i residues deExceeds the limit of 30 residues"
                         % (abs(res_diff)))
-                    info_dialog_and_text(msg)
+                    coot.info_dialog_and_text(msg)
                     return
                 elif (abs(res_diff) < 0):
                     msg = (
                         "BL WARNING::  No residue selected.")
-                    info_dialog_and_text(msg)
+                    coot.info_dialog_and_text(msg)
                     return
                 if (res_no_1 > res_no_2):
                     # need to swap
@@ -5969,7 +5718,7 @@ def duplicate_range_by_atom_pick():
                     imol_1, chain_id1, res_no_1, res_no_2)
 
     add_status_bar_text("Pick two atoms")
-    user_defined_click(2, pick_range_func)
+    coot.user_defined_click_py(2, pick_range_func)
 
 # A simple modal dialog to accept or reject something. Pass a question
 # to be asked as string.

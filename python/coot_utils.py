@@ -1570,7 +1570,7 @@ def chain_ids(imol):
 # return True or False
 #
 def is_solvent_chain_qm(imol,chain_id):
-    if (is_solvent_chain_p(imol,chain_id)==1): return True
+    if coot.is_solvent_chain_p(imol,chain_id) == 1: return True
     else: return False
 
 # convert from interface name to schemisch name to be equivalent to Paul's naming
@@ -1578,14 +1578,14 @@ def is_solvent_chain_qm(imol,chain_id):
 # return True or False
 #
 def is_protein_chain_qm(imol, chain_id):
-    return is_protein_chain_p(imol, chain_id) == 1
+    return coot.is_protein_chain_p(imol, chain_id) == 1
 
 # convert from interface name to schemisch name to be equivalent to Paul's naming
 #
 # return True or False
 #
 def is_nucleotide_chain_qm(imol, chain_id):
-    return is_nucleotide_chain_p(imol, chain_id) == 1
+    return coot.is_nucleotide_chain_p(imol, chain_id) == 1
 
 # python (schemeyish) interface to eponymous scripting interface function!?
 # return True or False
@@ -1624,7 +1624,7 @@ def is_difference_map_qm(imol_map):
     if (not valid_map_molecule_qm(imol_map)):
         return False
     else:
-        return map_is_difference_map(imol_map) == 1
+        return coot.map_is_difference_map(imol_map) == 1
 
 # Does residue resno with insertion code ins_code of chain chain_id
 # and in molecule number imol exist?
@@ -1632,13 +1632,13 @@ def is_difference_map_qm(imol_map):
 # Return True or False
 #
 def residue_exists_qm(imol,chain_id,resno,ins_code):
-    return does_residue_exist_p(imol,chain_id,resno,ins_code) == 1
+    return coot.does_residue_exist_p(imol,chain_id,resno,ins_code) == 1
 
 # Does the residue contain hetatoms?
 # Return True or False.
 #
 def residue_has_hetatms_qm(imol, chain_id, res_no, ins_code):
-    return residue_has_hetatms(imol, chain_id, res_no, ins_code) == 1
+    return coot.residue_has_hetatms(imol, chain_id, res_no, ins_code) == 1
 
 # Return a list of 3 float for the centre of mas of molecule number imol.
 #
