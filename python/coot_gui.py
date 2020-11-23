@@ -1520,8 +1520,7 @@ def generic_chooser_and_file_selector(chooser_label,
 def coot_menubar_menu(menu_label):
 
     try:
-        import coot_python
-        coot_main_menubar = coot_python.main_menubar()
+        coot_main_menubar = coot_gui_api.main_menubar()
 
         def menu_bar_label_list():
             ac_lab_ls = []
@@ -1551,7 +1550,7 @@ def coot_menubar_menu(menu_label):
             menuitem.show()
             return menu
     except:
-        print("""BL WARNING:: A could not import coot_python module!!\n
+        print("""BL WARNING:: A could not import coot_gui_api module!!\n
                     Some things, esp. extensions, may be crippled!""")
 
 
@@ -1736,13 +1735,6 @@ def coot_toolbar_button(button_label, cb_function,
 
 
 def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
-
-    try:
-        import coot_python
-    except:
-        print("""BL WARNING:: C: could not import coot_python module!!
-      So we cannot make a toolbar combobox!""")
-        return False
 
     coot_main_toolbar = coot_gui_api.main_toolbar()
 
@@ -5408,17 +5400,17 @@ def refmac_multi_sharpen_gui():
 
 
 def add_module_cryo_em():
-    if coot_python.main_menubar():
+    if coot_gui_api.main_menubar():
         add_module_cryo_em_gui()
 
 
 def add_module_ccp4():
-    if coot_python.main_menubar():
+    if coot_gui_api.main_menubar():
         add_module_ccp4_gui()
 
 
 def add_module_cryo_em_gui():
-    if coot_python.main_menubar():
+    if coot_gui_api.main_menubar():
         menu = coot_menubar_menu("Cryo-EM")
 
         add_simple_coot_menu_menuitem(menu, "Sharpen/Blur...",
@@ -5438,7 +5430,7 @@ def add_module_cryo_em_gui():
 
 
 def add_module_ccp4_gui():
-    if coot_python.main_menubar():
+    if coot_gui_api.main_menubar():
         menu = coot_menubar_menu("CCP4")
 
         add_simple_coot_menu_menuitem(menu, "Make LINK via Acedrg",

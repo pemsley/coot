@@ -1,7 +1,9 @@
 
+import coot_gui_api
+
 if (have_coot_python):
 
-    if coot_python.main_menubar():
+    if coot_gui_api.main_menubar():
 
       add_simple_coot_menu_menuitem(coot_menubar_menu("Ligand"),
                         "Isolated Molprobity Dots for this Ligand",

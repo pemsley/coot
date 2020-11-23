@@ -410,8 +410,8 @@ def user_defined_add_planes_restraint():
     
   user_defined_click(2, make_restr)
     
-if (have_coot_python):
-  if coot_python.main_menubar():
+if True:
+  if coot_gui_api.main_menubar():
     
     menu = coot_gui.coot_menubar_menu("Restraints")
 

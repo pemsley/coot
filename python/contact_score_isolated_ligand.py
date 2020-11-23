@@ -1,3 +1,5 @@
+import coot
+import coot_utils
 
 # this function is not at startup?
 

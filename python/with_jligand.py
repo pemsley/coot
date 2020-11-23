@@ -23,8 +23,8 @@ def write_file_for_jligand(resname_1, resname_2):
     fin.write("TIME " + str(int_time) + "\n")
     fin.close()
 
-if (have_coot_python):
-  if coot_python.main_menubar():
+if True:
+  if coot_gui_api.main_menubar():
       
       menu = coot_gui.coot_menubar_menu("JLigand")
 

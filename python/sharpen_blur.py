@@ -91,8 +91,8 @@ def sharpen_blur_map_gui():
     window.show_all()
 
 if False:
-    if have_coot_python:
-        if coot_python.main_menubar():
+    if True:
+        if coot_gui_api.main_menubar():
             menu = coot_gui.coot_menubar_menu("Cryo-EM")
             if menu:
                 coot_gui.add_simple_coot_menu_menuitem(menu, "Sharpen/Blur Map",

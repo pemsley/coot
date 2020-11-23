@@ -43,8 +43,8 @@ def launch_jligand_function():
             else:
                 coot_utils.run_concurrently(java_exe, jligand_args)
                 # beam in a new menu to the menu bar:
-                if (have_coot_python):
-                    if coot_python.main_menubar():
+                if True:
+                    if coot_gui_api.main_menubar():
                         jligand_menu = coot_gui.coot_menubar_menu("JLigand")
                         coot_gui.add_simple_coot_menu_menuitem(
                             jligand_menu, "Send Link to JLigand (click 2 monomers)",

@@ -1,8 +1,8 @@
 
 def add_module_prosmart():
     
-    if (have_coot_python):
-        if coot_python.main_menubar():
+    if True:
+        if coot_gui_api.main_menubar():
             menu = coot_gui.coot_menubar_menu("ProSMART")
 
             def generate_self_restraint_func(sig):
