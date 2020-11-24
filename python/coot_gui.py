@@ -1208,6 +1208,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
                                       # should use to get strings from to be text_column
     combobox.pack_start(renderer_text, True)
     combobox.add_attribute(renderer_text, "text", 1)
+    # this line is often not needed in other cases.
     combobox.connect("changed", on_mol_combobox_changed)
 
     # ----------------------------------------------------------------------------------
@@ -4887,10 +4888,18 @@ def average_map_gui():
             entry = Gtk.Entry()
             combobox_items = make_store_for_molecule_combobox(coot.is_valid_map_molecule)
             combobox = Gtk.ComboBox.new_with_model(combobox_items)
+            renderer_text = Gtk.CellRendererText()
+            if len(combobox_items) > 0:
+                combobox.set_active(0)
+            combobox.set_entry_text_column(1) # Sets the model column which combo_box
+                                              # should use to get strings from to be text_column
+            combobox.pack_start(renderer_text, True)
+            combobox.add_attribute(renderer_text, "text", 1)
 
+            map_mol_list = coot_utils.map_molecule_list()
             plus_button = Gtk.Button("+")
             minus_button = Gtk.Button(" - ")
-            hbox.pack_start(optionmenu, False, False, 2)
+            hbox.pack_start(combobox, False, False, 2)
             hbox.pack_start(label, False, False, 2)
             hbox.pack_start(entry, False, False, 2)
             hbox.pack_start(plus_button, False, False, 2)
@@ -4907,11 +4916,10 @@ def average_map_gui():
 
             maps_vbox.pack_start(hbox, False, False, 2)
             # show everything we just created
-            list(map(lambda x: x.show(), [frame, hbox, label, entry, optionmenu,
-                                          plus_button, minus_button]))
+            list(map(lambda x: x.show(), [frame, hbox, label, entry, combobox, plus_button, minus_button]))
 
             # print "saving map_mol_list", map_mol_list
-            return [hbox, optionmenu, map_mol_list, entry]
+            return [hbox, combobox, map_mol_list, entry]
 
         # main line
         #
@@ -4927,17 +4935,23 @@ def average_map_gui():
             def ok_button_cb(*args):
                 maps_to_average_list = []
                 for mav_bits in self.mav_widgets:
-                    option_menu = mav_bits[1]
+                    combobox = mav_bits[1]
                     map_mol_list = mav_bits[2]
                     entry = mav_bits[3]
-                    print("map_mol_list", map_mol_list)
-                    map_selected = get_option_menu_active_molecule(
-                        option_menu, map_mol_list)
+                    # map_selected = get_option_menu_active_molecule(option_menu, map_mol_list)
+
+                    map_selected = -1
+                    tree_iter = combobox.get_active_iter()
+                    if tree_iter is not None:
+                        model = combobox.get_model()
+                        it = model[tree_iter]
+                        map_selected = it[0]
+
                     text = entry.get_text()
                     weight = float(text)   # try?! FIXME
                     maps_to_average_list.append([map_selected, weight])
                 print("maps to average", maps_to_average_list)
-                average_map(maps_to_average_list)
+                coot.average_map_py(maps_to_average_list)
                 window.destroy()
                 return False
 
