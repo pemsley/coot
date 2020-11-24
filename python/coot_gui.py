@@ -1196,6 +1196,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
     hbox_buttons = Gtk.HBox(False, 5)
 
     # -------- replacing an option menu of molecules: here's how to do it --------------
+    #          (also see the on_ok_button_clicked callback)
 
     # option_menu = Gtk.combo_box_new_text()
     combobox_items = make_store_for_molecule_combobox(molecule_filter_function)
@@ -2967,18 +2968,34 @@ def transform_map_using_lsq_matrix_gui():
         return False
 
     def on_ok_button_clicked(*args):
-        active_mol_ref = get_option_menu_active_molecule(
-            frame_info_ref[1], frame_info_ref[2])
-        active_mol_mov = get_option_menu_active_molecule(
-            frame_info_mov[1], frame_info_mov[2])
+        # active_mol_ref = get_option_menu_active_molecule(frame_info_ref[1], frame_info_ref[2])
+        # active_mol_mov = get_option_menu_active_molecule(frame_info_mov[1], frame_info_mov[2])
 
-        chain_id_ref = frame_info_ref[3].get_text()
-        resno_1_ref_text = frame_info_ref[4].get_text()
-        resno_2_ref_text = frame_info_ref[5].get_text()
+        combobox_ref = frame_info_ref[1]
+        combobox_mov = frame_info_mov[1]
 
-        chain_id_mov = frame_info_mov[3].get_text()
-        resno_1_mov_text = frame_info_mov[4].get_text()
-        resno_2_mov_text = frame_info_mov[5].get_text()
+        tree_iter = combobox_ref.get_active_iter()
+        if tree_iter is not None:
+            model = combobox_ref.get_model()
+            it = model[tree_iter]
+            imol_ref = it[0]
+
+        tree_iter = combobox_mov.get_active_iter()
+        if tree_iter is not None:
+            model = combobox_mov.get_model()
+            it = model[tree_iter]
+            imol_mov = it[0]
+
+        print("debug:: imol_ref", imol_ref)
+        print("debug:: imol_mov", imol_mov)
+
+        chain_id_ref     = frame_info_ref[2].get_text()
+        resno_1_ref_text = frame_info_ref[3].get_text()
+        resno_2_ref_text = frame_info_ref[4].get_text()
+
+        chain_id_mov     = frame_info_mov[2].get_text()
+        resno_1_mov_text = frame_info_mov[3].get_text()
+        resno_2_mov_text = frame_info_mov[4].get_text()
 
         radius_text = radius_entry.get_text()
 
@@ -2990,31 +3007,26 @@ def transform_map_using_lsq_matrix_gui():
             resno_1_mov = int(resno_1_mov_text)
             resno_2_mov = int(resno_2_mov_text)
             radius = float(radius_text)
-            cont = True
-        except:
-            print("BL ERROR:: conversion from input text to numbers failed")
 
-        if (cont):
-            if (not coot_utils.valid_map_molecule_qm(imol_map)):
-                print("Must set the refinement map")
+            if not coot_utils.valid_map_molecule_qm(imol_map):
+                coot.info_dialog("WARNING:: Must set the refinement map")
             else:
-                imol_copy = coot.copy_molecule(active_mol_mov)
-                new_map_number = coot_utils.transform_map_using_lsq_matrix(active_mol_ref, chain_id_ref,
+                imol_copy = coot.copy_molecule(imol_mov)
+                new_map_number = coot_utils.transform_map_using_lsq_matrix(imol_ref, chain_id_ref,
                                                                            resno_1_ref, resno_2_ref,
                                                                            imol_copy, chain_id_mov,
                                                                            resno_1_mov, resno_2_mov,
                                                                            imol_map, coot_utils.rotation_centre(), radius)
-                coot.set_molecule_name(imol_copy,
-                                  "Transformed copy of " + coot_utils.strip_path(coot.molecule_name(active_mol_mov)))
+                sp = coot_utils.strip_path(coot.molecule_name(imol_mov))
+                coot.set_molecule_name(imol_copy, "Transformed copy of " + sp)
 
-                s = "Transformed map: from map " + str(imol_map) + \
-                    " by matrix that created coords " + str(imol_copy)
-                coot.set_molecule_name(new_map_number,
-                                  "Transformed map: from map " + str(imol_map) +
-                                  " by matrix that created coords " + str(imol_copy))
-
+                s = "Transformed map: from map " + str(imol_map) + " by matrix that created coords " + str(imol_copy)
+                coot.set_molecule_name(new_map_number, s)
                 coot.set_mol_active(imol_copy, 0)
                 coot.set_mol_displayed(imol_copy, 0)
+
+        except KeyError as e:
+            coot.info_dialog("ERROR:: conversion from input text to numbers failed")
 
         window.destroy()
 
@@ -3023,10 +3035,21 @@ def transform_map_using_lsq_matrix_gui():
     # return the list [frame, option_menu, model_mol_list, entries...]
     def atom_sel_frame(atom_sel_type):
         frame = Gtk.Frame()
-        # option_menu == combobox
-        option_menu = Gtk.combo_box_new_text()
-        model_mol_list = fill_option_menu_with_coordinates_mol_options(
-            option_menu)
+
+        # ----------------- replacing option_menu ------------------------
+
+        # option_menu = Gtk.combo_box_new_text()
+        # model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
+
+        combobox_items = make_store_for_model_molecule_combobox()
+        combobox = Gtk.ComboBox.new_with_model(combobox_items)
+        renderer_text = Gtk.CellRendererText()
+        if len(combobox_items)> 0:
+            combobox.set_active(0)
+        combobox.set_entry_text_column(1)
+        combobox.pack_start(renderer_text, True)
+        combobox.add_attribute(renderer_text, "text", 1)
+
         atom_sel_vbox = Gtk.VBox(False, 2)
         atom_sel_hbox = Gtk.HBox(False, 2)
         chain_id_label = Gtk.Label(" Chain ID ")
@@ -3037,7 +3060,7 @@ def transform_map_using_lsq_matrix_gui():
         resno_2_entry = Gtk.Entry()
 
         frame.add(atom_sel_vbox)
-        atom_sel_vbox.pack_start(option_menu,    False, False, 2)
+        atom_sel_vbox.pack_start(combobox,       False, False, 2)
         atom_sel_vbox.pack_start(atom_sel_hbox,  False, False, 2)
         atom_sel_hbox.pack_start(chain_id_label, False, False, 2)
         atom_sel_hbox.pack_start(chain_id_entry, False, False, 2)
@@ -3046,7 +3069,7 @@ def transform_map_using_lsq_matrix_gui():
         atom_sel_hbox.pack_start(resno_2_label,  False, False, 2)
         atom_sel_hbox.pack_start(resno_2_entry,  False, False, 2)
 
-        return [frame, option_menu, model_mol_list, chain_id_entry, resno_1_entry, resno_2_entry]
+        return [frame, combobox, chain_id_entry, resno_1_entry, resno_2_entry]
 
     window = Gtk.Window()
     dialog_name = "Map Transformation"
@@ -3079,12 +3102,12 @@ def transform_map_using_lsq_matrix_gui():
     main_vbox.pack_start(h_sep, False, False, 2)
     main_vbox.pack_start(buttons_hbox, False, False, 6)
 
-    frame_info_ref[3].set_text("A")
-    frame_info_ref[4].set_text("1")
-    frame_info_ref[5].set_text("10")
-    frame_info_mov[3].set_text("B")
-    frame_info_mov[4].set_text("1")
-    frame_info_mov[5].set_text("10")
+    frame_info_ref[2].set_text("A")
+    frame_info_ref[3].set_text("1")
+    frame_info_ref[4].set_text("10")
+    frame_info_mov[2].set_text("B")
+    frame_info_mov[3].set_text("1")
+    frame_info_mov[4].set_text("10")
 
     radius_entry.set_text("8.0")
 

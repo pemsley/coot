@@ -811,7 +811,7 @@ def string_append_with_spaces(ls):
 
 
 def rotation_centre():
-    return [rotation_centre_position(0),
+    return [coot.rotation_centre_position(0),
             coot.rotation_centre_position(1),
             coot.rotation_centre_position(2)]
 
@@ -3068,8 +3068,8 @@ def multi_chicken(imol, n_colours=False):
     initial_colour = [0.2, 0.2, 0.8]
     colour_range = 360
 
-    if (valid_map_molecule_qm(imol)):
-        if (not n_colours):
+    if valid_map_molecule_qm(imol):
+        if not n_colours:
             n_col = 10
         else:
             n_col = n_colours
