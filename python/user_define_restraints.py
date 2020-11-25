@@ -440,10 +440,19 @@ if True:
       "DNA B form bond restraints...",
       lambda func: user_defined_DNA_B_form())
 
+    def combobox_to_molecule_number(combobox):
+      imol = -1
+      tree_iter = combobox.get_active_iter()
+      if tree_iter is not None:
+        model = combobox.get_model()
+        it = model[tree_iter]
+        imol = it[0]
+      return imol
+
     def launch_prosmart_gui():
       def go_button_cb(*args):
-        imol_tar = coot_gui.get_option_menu_active_molecule(*option_menu_mol_list_pair_tar)
-        imol_ref = coot_gui.get_option_menu_active_molecule(*option_menu_mol_list_pair_ref)
+        imol_tar = combobox_to_molecule_number(combobox_tar)
+        imol_ref = combobox_to_molecule_number(combobox_ref)
         do_side_chains = check_button.get_active()
         run_prosmart(imol_tar, imol_ref, do_side_chains)
         window.destroy()
@@ -457,10 +466,8 @@ if True:
       cancel_button = gtk.Button("  Cancel  ")
       check_button = gtk.CheckButton("Include Side-chains")
 
-      option_menu_mol_list_pair_tar = coot_gui.generic_molecule_chooser(vbox,
-                                                               chooser_hint_text_1)
-      option_menu_mol_list_pair_ref = coot_gui.generic_molecule_chooser(vbox,
-                                                               chooser_hint_text_2)
+      combobox_tar = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_1)
+      combobox_ref = coot_gui.generic_molecule_chooser(vbox, chooser_hint_text_2)
 
       vbox.pack_start(check_button, False, False, 2)
       vbox.pack_start(h_sep, False, False, 2)

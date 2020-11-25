@@ -24,8 +24,7 @@ def hole_ify():
     hole_export_entry = gtk.Entry()
     export_text = gtk.Label("Export surface dots to File: ")
     export_hbox = gtk.HBox(False, 0)
-    option_menu_and_model_mol_list = coot_gui.generic_molecule_chooser(hbox,
-                                                              "HOLE-ify molecule: ")
+    combobox = coot_gui.generic_molecule_chooser(hbox, "HOLE-ify molecule: ")
 
     window.add(vbox)
     hbox_pos_buttons.pack_start(start_button, False, False, 6)
@@ -64,7 +63,7 @@ def hole_ify():
     
     def calculate_button_cb(*args):
         global start_pos, end_pos
-        imol = coot_gui.get_option_menu_active_molecule(*option_menu_and_model_mol_list)
+        imol = combobox_to_molecule_number(combobox)
         if isinstance(imol, int):
             print(start_pos, end_pos)
             if not isinstance(start_pos, list):

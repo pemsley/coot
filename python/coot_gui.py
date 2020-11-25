@@ -327,7 +327,6 @@ def historyDown():
     vbox.pack_start(hbox, False, False, 5)
     scrolled_win.add(text)
     vbox.add(scrolled_win)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
     vbox.pack_end(close_button, False, False, 5)
 
     entry.set_text("")
@@ -915,7 +914,6 @@ def interesting_things_with_fix_maybe(title, baddie_list):
     window.add(outside_vbox)
     outside_vbox.add(scrolled_win)
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
     #tooltips = Gtk.Tooltips()
 
     for baddie_items in baddie_list:
@@ -1604,7 +1602,7 @@ def alt_confs_gui(imol):
 def missing_atoms_gui(imol):
 
     interesting_residues_gui(imol, "Residues with missing atoms",
-                             missing_atom_info(imol))
+                             coot.missing_atom_info_py(imol))
 
 # Make an interesting things GUI for residues with zero occupancy atoms
 #
@@ -1870,7 +1868,6 @@ def generic_button_dialog(dialog_name, button_list):
     window.add(outside_vbox)
     outside_vbox.add(scrolled_win)
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     for button_item in button_list:
         if button_item and len(button_item) == 2:
@@ -2029,14 +2026,25 @@ def entry_do_button(vbox, hint_text,
 def generic_molecule_chooser(hbox, hint_text):
 
     menu = Gtk.Menu()
-    # BL says:: option menu is depricated, so we use combox instead, maybe!?!
-    option_menu = Gtk.combo_box_new_text()
+    # option_menu = Gtk.combo_box_new_text()
+    combobox_items = make_store_for_model_molecule_combobox()
+    combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_items) > 0:
+        combobox.set_active(0)
+    combobox.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+
     label = Gtk.Label(hint_text)
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
 
     hbox.pack_start(label, False, False, 2)
-    hbox.pack_start(option_menu, True, True, 2)
-    return [option_menu, model_mol_list]
+    hbox.pack_start(combobox, True, True, 2)
+
+    # we used to return the molecule list here also, but the combo box can
+    # get its own active item using combobox_to_molecule_number()
+    return combobox
 
 # Return an entry, the widget is inserted into the hbox passed to
 # this function
@@ -2350,7 +2358,6 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
 
     outside_vbox.pack_start(scrolled_win, True, True, 0)  # expand fill padding
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     for button_info in buttons:
         add_button_info_to_box_of_buttons_vbox(button_info, inside_vbox)
@@ -2443,7 +2450,6 @@ def dialog_box_of_pairs_of_buttons(imol, window_name, geometry, buttons, close_b
     window.add(outside_vbox)
     outside_vbox.pack_start(scrolled_win, True, True, 0)  # expand fill padding
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     for button_info in buttons:
         # print "button_info ", button_info
@@ -2507,7 +2513,6 @@ def dialog_box_of_buttons_with_widget(window_name, geometry,
     window.add(outside_vbox)
     outside_vbox.pack_start(scrolled_win, True, True, 0)  # expand fill padding
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     for button_info in buttons:
         button_label = button_info[0]
@@ -2597,7 +2602,6 @@ def dialog_box_of_radiobuttons(window_name, geometry, buttons,
     window.add(outside_vbox)
     outside_vbox.pack_start(scrolled_win, True, True, 0)  # expand fill padding
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     button = None
     button_ls = []
@@ -2940,8 +2944,8 @@ def cis_peptides_gui(imol):
             r1 = cis_pep_spec[0]
             r2 = cis_pep_spec[1]
             omega = cis_pep_spec[2]
-            atom_list_r1 = residue_info(imol, *r1[1:4])
-            atom_list_r2 = residue_info(imol, *r2[1:4])
+            atom_list_r1 = coot.residue_info_py(imol, *r1[1:4])
+            atom_list_r2 = coot.residue_info_py(imol, *r2[1:4])
             ca_1 = get_ca(atom_list_r1)
             ca_2 = get_ca(atom_list_r2)
             chain_id = r1[1]
@@ -2969,7 +2973,7 @@ def cis_peptides_gui(imol):
                 ret.append(ls)
         return ret
 
-    cis_peps = cis_peptides(imol)
+    cis_peps = coot.cis_peptides_py(imol)
 
     if (cis_peps == []):
         coot.info_dialog("No Cis Peptides found")
@@ -3345,11 +3349,19 @@ def superpose_ligand_gui():
         window.destroy()
         return False
 
+    def combobox_to_molecule_number(combobox):
+      imol = -1
+      tree_iter = combobox.get_active_iter()
+      if tree_iter is not None:
+        model = combobox.get_model()
+        it = model[tree_iter]
+        imol = it[0]
+      return imol
+
     def go_button_function(widget):
-        active_mol_no_ref_lig = get_option_menu_active_molecule(
-            *option_menu_ref_mol_pair)
-        active_mol_no_mov_lig = get_option_menu_active_molecule(
-            *option_menu_mov_mol_pair)
+        active_mol_no_ref_lig = combobox_to_molecule_number(combobox_ref)
+        active_mol_no_mov_lig = combobox_to_molecule_number(combobox_mov)
+
         chain_id_ref = chain_id_ref_entry.get_text()
         chain_id_mov = chain_id_mov_entry.get_text()
         resno_ref = False
@@ -3394,12 +3406,10 @@ def superpose_ligand_gui():
 
     window.add(ligands_vbox)
     ligands_vbox.pack_start(title, False, False, 6)
-    option_menu_ref_mol_pair = generic_molecule_chooser(
-        ligands_vbox, "Model with reference ligand")
+    combobox_ref_mol = generic_molecule_chooser(ligands_vbox, "Model with reference ligand")
     ligands_vbox.pack_start(ref_chain_hbox, False, False, 2)
 
-    option_menu_mov_mol_pair = generic_molecule_chooser(
-        ligands_vbox, "Model with moving ligand")
+    combobox_mov_mol = generic_molecule_chooser(ligands_vbox, "Model with moving ligand")
     ligands_vbox.pack_start(mov_chain_hbox, False, False, 2)
 
     ligands_vbox.pack_start(h_sep, False, False, 2)
@@ -3550,7 +3560,6 @@ def key_bindings_gui():
     window.add(outside_vbox)
     outside_vbox.add(scrolled_win)
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     inside_vbox.pack_start(std_frame, False, False, 2)
     inside_vbox.pack_start(usr_frame, False, False, 2)
@@ -4521,15 +4530,25 @@ def residue_range_gui(func, function_text, go_button_label):
         window.destroy()
         return False
 
+    def combobox_to_molecule_number(combobox):
+        imol = -1
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
+
     def go_button_cb(*args):
-        from types import IntType
+
         save_ranges(residue_range_widgets)
         residue_ranges = make_residue_ranges()
-        imol = get_option_menu_active_molecule(*mc_opt_menu_model_list)
-        if (type(imol) is IntType):
+        imol = combobox_to_molecule_number(combobox)
+        try:
             func(imol, residue_ranges)
-        else:
-            print("BL INFO:: couldn't get valid imol!!")
+        except KeyError as e:
+            print("ERROR:: something was amiss")
+            print("ERROR::", e)
         window.destroy()
         return False
 
@@ -4561,8 +4580,7 @@ def residue_range_gui(func, function_text, go_button_label):
 
     # main vbox
     vbox.pack_start(function_label, False, False, 0)
-    mc_opt_menu_model_list = generic_molecule_chooser(vbox,
-                                                      "Molecule for Ranges:")
+    combobox = generic_molecule_chooser(vbox, "Molecule for Ranges:")
     vbox.pack_start(residue_range_vbox, False, False, 2)
     vbox.pack_start(h_sep, True, True, 6)
     vbox.pack_start(hbox_buttons, False, False, 0)
@@ -5025,25 +5043,19 @@ def average_map_gui():
 # simple rename residue GUI
 #
 def rename_residue_gui():
-    active_atom = active_residue()
+    active_atom = coot.active_residue_py()
     if not active_atom:
         coot.info_dialog("No Residue Here")
     else:
-        aa_imol = active_atom[0]
+        aa_imol     = active_atom[0]
         aa_chain_id = active_atom[1]
-        aa_res_no = active_atom[2]
+        aa_res_no   = active_atom[2]
         aa_ins_code = active_atom[3]
-        label = "Rename Residue [in molecule " + \
-                str(aa_imol) + \
-                "]: " + \
-                aa_chain_id + \
-                str(aa_res_no) + \
-                aa_ins_code + \
-                " to: "
+        label = "Rename Residue [in molecule " + str(aa_imol) + "]: " + \
+                aa_chain_id + str(aa_res_no) + aa_ins_code + " to: "
         generic_single_entry(label, "ALA", "Rename Residue",
                              lambda text: coot.set_residue_name(aa_imol, aa_chain_id,
-                                                           aa_res_no, aa_ins_code,
-                                                           text))
+                                                           aa_res_no, aa_ins_code, text))
 
 
 # molecule chooser
@@ -5218,11 +5230,8 @@ def water_coordination_gui():
         number_menu, coot_utils.number_list, 5)
 
     scrolled_win.add_with_viewport(results_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     metal_results_scrolled_win.add_with_viewport(metal_results_vbox)
-    metal_results_scrolled_win.set_policy(
-        Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
 
     hbox_max_dist.pack_start(dist_label, False, False, 2)
     hbox_max_dist.pack_start(dist_entry, False, False, 2)

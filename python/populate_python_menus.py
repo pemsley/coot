@@ -777,10 +777,10 @@ if coot_gui_api.main_menubar():
         # ---- W ---------
 
         def whats_this():
-            central_residue = coot.active_residue()
+            central_residue = coot.active_residue_py()
             res_name = coot.residue_name(*central_residue[0:4])
             mol_no = central_residue[0]
-            n = coot.comp_id_to_name_py(res_name) # bleugh.
+            n = coot.comp_id_to_name_py(res_name)
             s = "(mol. no: " + str(mol_no) + ")  " + \
                 res_name  + ":  " + \
                 n if isinstance(n, str) else " <no-name-found>"
