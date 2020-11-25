@@ -4593,13 +4593,13 @@ def solvent_ligands_gui():
         if (coot_utils.valid_model_molecule_qm(imol_ligand)):
             # delete hydrogens from the ligand if the master molecule
             # does not have hydrogens.
-            if (coot_utils.valid_model_molecule_qm(imol)):
-                if (not coot_utils.molecule_has_hydrogens(imol)):
+            if coot_utils.valid_model_molecule_qm(imol):
+                if not coot_utils.molecule_has_hydrogens(imol):
                     coot.delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
             if (coot_utils.valid_map_molecule_qm(coot.imol_refinement_map())):
                 print("========  jiggling!  ======== ")
 
-                merge_molecules([imol_ligand], imol)
+                coot.merge_molecules_py([imol_ligand], imol)
 
                 # We no longer do this: because we now mask the map by the neighbours
                 # of the jiggling ligand and for that we need to use molecule imol
@@ -4612,7 +4612,7 @@ def solvent_ligands_gui():
                 # (we'd like to know what imol_ligand: "A" 1 moves to on merging
                 # but we don't)
                 #
-                active_atom = active_residue()
+                active_atom = coot.active_residue_py()
                 aa_chain_id = active_atom[1]
                 aa_res_no = active_atom[2]
                 coot.fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "",
@@ -4624,7 +4624,7 @@ def solvent_ligands_gui():
                 #
                 # coot_utils.with_auto_accept([refine_zone, imol, aa_chain_id, aa_res_no, 1, ""])
                 coot_utils.with_auto_accept(
-                    [refine_residues, imol, [[aa_chain_id, aa_res_no, ""]]])
+                    [coot.refine_residues_py, imol, [[aa_chain_id, aa_res_no, ""]]])
 
             else:
                 print("======== not jiggling - no map ======== ")
@@ -4635,11 +4635,19 @@ def solvent_ligands_gui():
     # add a button for a 3-letter-code to the scrolled vbox that runs
     # add-ligand-func when clicked.
     #
-    def add_solvent_button(comp_id, button_label, inside_vbox,
-                           molecule_option_menu, model_list):
+    def add_solvent_button(comp_id, button_label, inside_vbox, combobox):
+
+        def combobox_to_molecule_number(combobox):
+            imol = -1
+            tree_iter = combobox.get_active_iter()
+            if tree_iter is not None:
+                model = combobox.get_model()
+                it = model[tree_iter]
+                imol = it[0]
+            return imol
+
         def button_cb(*args):
-            imol = get_option_menu_active_molecule(molecule_option_menu,
-                                                   model_list)
+            imol = combobox_to_molecule_number(combobox)
             add_ligand_func(imol, comp_id)
 
         button = Gtk.Button(button_label)
@@ -4656,20 +4664,16 @@ def solvent_ligands_gui():
 
         def add_button_func(txt):
             additional_solvent_ligands.append(txt)
-            add_solvent_button(txt,
-                               comp_id2button_label(txt), inside_vbox,
-                               molecule_option_menu,
-                               model_list)
-        generic_single_entry("Add new 3-letter-code/comp-id",
-                             "", "  Add  ",
+            add_solvent_button(txt, comp_id_to_button_label(txt), inside_vbox, combobox)
+        generic_single_entry("Add new 3-letter-code/comp-id", "", "  Add  ",
                              lambda txt:
                              add_button_func(txt))
 
-    def comp_id2button_label(comp_id):
+    def comp_id_to_button_label(comp_id):
         coot.auto_load_dictionary(comp_id)
-        comp_id_name = comp_id2name(comp_id)
-        ret = (comp_id + ": " + comp_id_name) if comp_id_name else comp_id
-        return ret
+        comp_id_name = coot.comp_id_to_name_py(comp_id)
+        label = (comp_id + ": " + comp_id_name) if comp_id_name else comp_id
+        return label
 
     # main
     window = Gtk.Window()
@@ -4678,10 +4682,19 @@ def solvent_ligands_gui():
     inside_vbox = Gtk.VBox(False, 2)
     label = Gtk.Label("\nSolvent molecules added to molecule: ")
     frame_for_option_menu = Gtk.Frame()
-    vbox_for_option_menu = Gtk.VBox(False, 6)
-    molecule_option_menu = Gtk.combo_box_new_text()
-    model_list = fill_option_menu_with_coordinates_mol_options(
-        molecule_option_menu)
+    vbox_for_combobox = Gtk.VBox(False, 6)
+    # molecule_option_menu = Gtk.combo_box_new_text()
+
+    combobox_items = make_store_for_model_molecule_combobox()
+    combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_items) > 0:
+        combobox.set_active(0)
+    combobox.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+
     add_new_button = Gtk.Button("  Add a new Residue Type...")
     h_sep = Gtk.HSeparator()
     close_button = Gtk.Button("  Close  ")
@@ -4691,21 +4704,20 @@ def solvent_ligands_gui():
     window.set_border_width(8)
     window.add(outside_vbox)
     outside_vbox.pack_start(label, False, False, 2)
-    frame_for_option_menu.add(vbox_for_option_menu)
-    vbox_for_option_menu.pack_start(molecule_option_menu, False, False, 8)
+    frame_for_option_menu.add(vbox_for_combobox)
+    vbox_for_combobox.pack_start(combobox, False, False, 8)
     frame_for_option_menu.set_border_width(6)
     outside_vbox.pack_start(frame_for_option_menu, False, False, 2)
     outside_vbox.pack_start(scrolled_win, True, True, 0)
     scrolled_win.add_with_viewport(inside_vbox)
-    scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
+    # scrolled_win.set_policy(Gtk.POLICY_AUTOMATIC, Gtk.POLICY_ALWAYS)
     outside_vbox.pack_start(add_new_button, False, False, 6)
     outside_vbox.pack_start(h_sep, False, False, 2)
     outside_vbox.pack_start(close_button, False, False, 2)
 
     for comp_id in solvent_ligand_list():
-        button_label = comp_id2button_label(comp_id)
-        add_solvent_button(comp_id, button_label, inside_vbox,
-                           molecule_option_menu, model_list)
+        button_label = comp_id_to_button_label(comp_id)
+        add_solvent_button(comp_id, button_label, inside_vbox, combobox)
 
     add_new_button.connect("clicked", add_new_button_cb)
     close_button.connect("clicked", delete_event)
@@ -4829,9 +4841,9 @@ def user_mods_gui(imol, pdb_file_name):
 
 
 def rename_residue_gui_simple():
-    active_atom = active_residue()
-    if (not active_atom):
-        coot.info_dialog("No Residue Here")
+    active_atom = coot.active_residue_py()
+    if not active_atom:
+        coot.info_dialog("INFO:: No Residue Here")
     else:
         print(active_atom)
         generic_single_entry("Rename this residue", "ALA", "Rename",

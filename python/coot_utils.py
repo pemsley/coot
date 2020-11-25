@@ -1687,11 +1687,9 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
 
 def brighten_map(imol, scale_factor):
 
-    from types import ListType
-
     if valid_map_molecule_qm(imol):
-        current_colour = map_colour_components(imol)
-        if type(current_colour) is ListType:
+        current_colour = coot.map_colour_components_py(imol)
+        try:
             new_v = []
             for i in range(len(current_colour)):
                 new_v.append(current_colour[i] * float(scale_factor))
@@ -1702,7 +1700,7 @@ def brighten_map(imol, scale_factor):
                 else:
                     pass
             coot.set_map_colour(imol, *new_v)
-        else:
+        except:
             print("bad non-list current-colour ", current_colour)
         coot.graphics_draw()
 
@@ -3082,8 +3080,10 @@ def multi_chicken(imol, n_colours=False):
             frac = icol / float(n_col)   # need a float!!
             contour_level_sigma = start + (stop - start) * frac
             coot.set_last_map_contour_level(sigma * contour_level_sigma)
-            coot.set_last_map_colour(
-                *rotate_colour_map(initial_colour, colour_range * frac))
+            rotated_colour = rotate_colour_map(initial_colour, colour_range * frac)
+            print("#### initial_colour", initial_colour)
+            print("#### rotated_colour", rotated_colour)
+            coot.set_last_map_colour(*rotated_colour)
     else:
         print("BL INFO:: %s is not valid map" % imol)
 

@@ -51,7 +51,6 @@ probe_available_p      = coot.probe_available_p_py
 # to be renamed later
 matching_compound_names_from_dictionary = coot.matching_compound_names_from_dictionary_py
 # keep for compatibility reasons
-comp_id2name           = coot.comp_id_to_name_py
 comp_id_to_name           = coot.comp_id_to_name_py
 refine_residues        = coot.refine_residues_py
 refine_residues_with_modes_with_alt_conf = coot.refine_residues_with_modes_with_alt_conf_py
