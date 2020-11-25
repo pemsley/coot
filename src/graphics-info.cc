@@ -4955,6 +4955,12 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
       std::cout << "No maps available for the setting of colour" << std::endl;
    } else {
       GdkRGBA colour;
+      if (f1 > 1.0) f1 = 1.0;
+      if (f2 > 1.0) f2 = 1.0;
+      if (f3 > 1.0) f3 = 1.0;
+      if (f1 < 0.0) f1 = 0.0;
+      if (f2 < 0.0) f2 = 0.0;
+      if (f3 < 0.0) f3 = 0.0;
       colour.red   = f1;
       colour.green = f2;
       colour.blue  = f3;

@@ -83,9 +83,11 @@ molecule_class_info_t::handle_map_colour_change(GdkRGBA map_col_in,
                 << map_col_in.blue << std::endl;
 
    map_colour = map_col_in;
-   map_colour.red   = map_col_in.red  /65535.0;
-   map_colour.green = map_col_in.green/65535.0;
-   map_colour.blue  = map_col_in.blue /65535.0;
+
+   // input map colours are now in the range 0 to 1
+   // map_colour.red   = map_col_in.red  /65535.0;
+   // map_colour.green = map_col_in.green/65535.0;
+   //map_colour.blue  = map_col_in.blue /65535.0;
 
    if (xmap_is_diff_map)
       handle_map_colour_change_rotate_difference_map(swap_difference_map_colours_flag);
