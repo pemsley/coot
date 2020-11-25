@@ -3,7 +3,7 @@
 
   o BUG-FIX: Colour-by-chain colours no longer run out [Huw Jenkins]
 
-  o BUG-FIX: undo-redo no longer created duplicate atoms when
+  o BUG-FIX: undo-redo no longer creates duplicate atoms when
              using cif files
 
 ----
