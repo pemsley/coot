@@ -1179,6 +1179,7 @@ def molecule_chooser_gui_generic(chooser_label, callback_function, molecule_filt
             it = model[tree_iter]
             imol_model = it[0]
             callback_function(imol_model)
+            window.destroy()
 
     def on_mol_combobox_changed(combobox):
         # this function is not useful. For this dialog, we want to do things when
@@ -1295,10 +1296,18 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
         window.destroy()
         return False
 
+    def combobox_to_molecule_number(combobox):
+        imol = -1
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
+
     def on_ok_button_clicked(*args):
-        # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(
-            option_menu, model_mol_list)
+        # active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
+        active_mol_no = combobox_to_molecule_number(combobox)
 
         try:
             active_mol_no = int(active_mol_no)
@@ -1306,8 +1315,7 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
             text = entry.get_text()
             if check_button:
                 check_button_state = check_button.get_active()
-                cbf_ret = callback_function(
-                    active_mol_no, text, check_button_state)
+                cbf_ret = callback_function(active_mol_no, text, check_button_state)
             else:
                 cbf_ret = callback_function(active_mol_no, text)
             if always_dismiss_on_ok_clicked:
@@ -1318,7 +1326,7 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
                 else:
                     return True
         except:
-            print("Failed to get a (molecule) number")
+            print("WARNING:: Failed to get a (molecule) number")
 
     window = Gtk.Window()
     window.set_title('Coot')
@@ -1328,16 +1336,26 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
     entry = Gtk.Entry()
     entry_label = Gtk.Label(entry_hint_text)
     hbox_buttons = Gtk.HBox(True, 2)
-    option_menu = Gtk.combo_box_new_text()
+    # option_menu = Gtk.combo_box_new_text()
+
+    combobox_items = make_store_for_model_molecule_combobox()
+    combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_items) > 0:
+        combobox.set_active(0)
+    combobox.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+
     ok_button = Gtk.Button("  OK  ")
     cancel_button = Gtk.Button(" Cancel ")
     h_sep = Gtk.HSeparator()
-    model_mol_list = fill_option_menu_with_coordinates_mol_options(option_menu)
 
     window.set_default_size(400, 100)
     window.add(vbox)
     vbox.pack_start(label, False, False, 5)
-    vbox.pack_start(option_menu, True, True, 0)
+    vbox.pack_start(combobox, True, True, 0)
     vbox.pack_start(hbox_for_entry, False, False, 5)
     if check_button_label:
         check_button = Gtk.CheckButton(check_button_label)
@@ -1354,7 +1372,7 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
 
     # button callbacks
     ok_button.connect("clicked", on_ok_button_clicked, entry,
-                      option_menu, callback_function, check_button)
+                      combobox, callback_function, check_button)
     cancel_button.connect("clicked", delete_event)
 
     window.show_all()
@@ -5703,7 +5721,7 @@ def duplicate_range_by_atom_pick():
     def pick_range_func(*atom_specs):
 
         residue_specs = list(
-            map(atom_spec_to_residue_spec, coot_utils.atom_specs))
+            map(coot_utils.atom_spec_to_residue_spec, coot_utils.atom_specs))
         imol_1 = coot_utils.atom_specs[0][1]
         imol_2 = coot_utils.atom_specs[1][1]
         chain_id1 = coot_utils.atom_specs[0][2]
@@ -5714,9 +5732,8 @@ def duplicate_range_by_atom_pick():
         # some sanity check
         if not (imol_1 == imol_2):
             msg = (
-                "BL WARNING:: not the same imols. \n"
-                "imol %i and %i were selected"
-                % (imol_1, imol_2))
+                "WARNING:: not the same imols. \n"
+                "imol %i and %i were selected" % (imol_1, imol_2))
             coot.info_dialog_and_text(msg)
             return
         else:
@@ -5724,8 +5741,7 @@ def duplicate_range_by_atom_pick():
             if (not chain_id1 == chain_id2):
                 msg = (
                     "BL WARNING:: not the same chains. \n"
-                    "Chains %s and %s were selected"
-                    % (chain_id1, chain_id2))
+                    "Chains %s and %s were selected" % (chain_id1, chain_id2))
                 coot.info_dialog_and_text(msg)
                 return
             else:

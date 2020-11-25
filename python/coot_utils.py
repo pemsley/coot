@@ -3346,7 +3346,7 @@ def add_annotation_at_click(text):
         annotations.append(ann)
         coot.place_text(*(ann + [0]))
         coot.graphics_draw()
-    user_defined_click(1, add_here)
+    coot.user_defined_click_py(1, add_here)
 
 
 def save_annotations(file_name):
@@ -3392,7 +3392,7 @@ def remove_annotation_at_click(rad=1.5):
         handle = coot.text_index_near_position(*(coords + [rad]))
         if handle > -1:
             coot.remove_text(handle)
-    user_defined_click(1, remove_here)
+    coot.user_defined_click_py(1, remove_here)
 
 # ---------- updating ---------------------
 

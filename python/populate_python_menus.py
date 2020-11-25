@@ -546,7 +546,7 @@ if coot_gui_api.main_menubar():
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_modelling,
             "Assign (force) HETATMs for this Residue",
-            lambda func: coot_utils.using_active_atom(hetify_residue,
+            lambda func: coot_utils.using_active_atom(coot.hetify_residue,
                                                       "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
 
 
@@ -590,7 +590,7 @@ if coot_gui_api.main_menubar():
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_modelling,
             "Fetch PDBe description for this ligand",
-            lambda func: get_smiles_pdbe_func())
+            lambda func: coot_utils.get_smiles_pdbe_func())
 
         def get_pdbe_ligand_func(comp_id):
             status = coot_utils.get_SMILES_for_comp_id_from_pdbe(comp_id)
@@ -613,22 +613,13 @@ if coot_gui_api.main_menubar():
 
         def chiral_centre_inverter_func():
             with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
+                                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
                 coot.invert_chiral_centre(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name)
 
-        coot_gui.add_simple_coot_menu_menuitem(
-            submenu_modelling,
-            "Invert This Chiral Centre",
-            lambda func:
-            chiral_centre_inverter_func())
-
-
-        # --- J --------
-
-        coot_gui.add_simple_coot_menu_menuitem(
-            submenu_modelling,
-            "JLigand launch",
-            lambda func: jligand_gui.launch_jligand_function())
+        coot_gui.add_simple_coot_menu_menuitem(submenu_modelling,
+                                               "Invert This Chiral Centre",
+                                               lambda func:
+                                               chiral_centre_inverter_func())
 
 
         # --- M ---
@@ -643,13 +634,13 @@ if coot_gui_api.main_menubar():
             if not (imol_1 == imol_2):
                 print("Mismatch molecules")
             else:
-                coot.make_link(imol_1, spec_1, spec_2, "dummy", 0.1)
+                coot.make_link_py(imol_1, spec_1, spec_2, "dummy", 0.1)
 
         coot_gui.add_simple_coot_menu_menuitem(
             submenu_modelling,
             "Make Link (click 2 atoms)...",
             lambda func:
-            coot.user_defined_click(2, make_link_ext_func))
+            coot.user_defined_click_py(2, make_link_ext_func))
 
 
         coot_gui.add_simple_coot_menu_menuitem(

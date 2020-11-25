@@ -257,5 +257,5 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                                 coot.make_link(imol_click_1, spec_1, spec_2, "dummy-name", 1.0)
                     window.destroy()  # when?
                     
-    user_defined_click(2, make_acedrg_bond)
+    coot.user_defined_click_py(2, make_acedrg_bond)
 
