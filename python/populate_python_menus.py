@@ -122,8 +122,9 @@ if coot_gui_api.main_menubar():
     submenu_modules        = Gtk.Menu()
     submenu_settings       = Gtk.Menu()
 
-    calculate_all_molecule_menu_item = get_existing_submenu(calculate_menu, "All Molecule...")
-    calculate_all_molecule_menu_item.set_submenu(submenu_all_molecule)
+    # get rid of "all molecule" function for now - maybe for ever
+    # calculate_all_molecule_menu_item = get_existing_submenu(calculate_menu, "All Molecule...")
+    # calculate_all_molecule_menu_item.set_submenu(submenu_all_molecule)
 
     calculate_maps_menu_item = get_existing_submenu(calculate_menu, "Map Tools...")
     calculate_maps_menu_item.set_submenu(submenu_maps)
@@ -329,30 +330,6 @@ if coot_gui_api.main_menubar():
                 global continue_multi_refine
                 continue_multi_refine = True
                 fitting.interruptible_fit_protein(imol, fitting.fit_protein_rama_fit_function)
-
-        coot_gui.add_simple_coot_menu_menuitem(
-            submenu_all_molecule,
-            "[Post MR] Fill Partial Residues...",
-            lambda func: coot_gui.molecule_chooser_gui("Find and Fill residues with missing atoms",
-                                                       lambda imol: coot.fill_partial_residues(imol)))
-
-        coot_gui.add_simple_coot_menu_menuitem(
-            submenu_all_molecule,
-            "Fit Protein...",
-            lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Rotamer Search",
-                                                       lambda imol: fit_protein_func1(imol)))
-
-        coot_gui.add_simple_coot_menu_menuitem(
-            submenu_all_molecule,
-            "Stepped Refine...",
-            lambda func: coot_gui.molecule_chooser_gui("Fit Protein using Real-Space Refinement",
-                                                       lambda imol: fit_protein_func2(imol)))
-
-        coot_gui.add_simple_coot_menu_menuitem(
-            submenu_all_molecule,
-            "Refine/Improve Ramachandran Plot...",
-            lambda func: coot_gui.molecule_chooser_gui("Refine Protein with Ramachanran Plot Optimization: ",
-                                                       lambda imol: fit_protein_func3(imol)))
 
         # --- add_edit_settings_menu() ends here
 
@@ -774,7 +751,7 @@ if coot_gui_api.main_menubar():
             submenu_modelling,
             "Rigid Body Fit Residue Ranges...",
             lambda func:
-            coot_gui.residue_range_gui(lambda imol, ls: rigid_body_refine_by_residue_ranges(imol, ls),
+            coot_gui.residue_range_gui(lambda imol, ls: coot.rigid_body_refine_by_residue_ranges_py(imol, ls),
                                        "Rigid Body Refine",
                                        "  Fit  "))
 
