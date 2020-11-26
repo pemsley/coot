@@ -39,6 +39,8 @@ import coot
 import coot_utils
 import coot_gui_api
 import acedrg_link
+import sharpen_blur
+import redefine_functions as rf
 
 try:
     import gobject
@@ -5073,12 +5075,11 @@ def refmac_multi_sharpen_gui():
     def sharpen_cb(widget, *args):
 
         # get max_band n_levels and map file name
-        max_b = int(get_option_menu_active_item(option_menu_b_factor,
-                                                b_factor_list))
-        n_levels = int(get_option_menu_active_item(option_menu_n_levels,
-                                                   n_levels_list))
-        active_item_imol = get_option_menu_active_molecule(option_menu_map,
-                                                           coot_utils.map_molecule_list)
+        max_b = int(get_option_menu_active_item(option_menu_b_factor, b_factor_list))
+        n_levels = int(get_option_menu_active_item(option_menu_n_levels, n_levels_list))
+        active_item_imol = get_option_menu_active_molecule(option_menu_map, coot_utils.map_molecule_list)
+
+
         # There is no function to get a map file name from a molecule
         # It is not stored. So we make/guess it...
         map_file_name = coot.molecule_name(active_item_imol)
@@ -5136,7 +5137,6 @@ def refmac_multi_sharpen_gui():
                     pass
             delete_event(widget)
 
-    print("BL DEBUG:: now make a windwo")
     window = Gtk.Window()
     # boxes
     vbox = Gtk.VBox(False, 0)
@@ -5144,9 +5144,11 @@ def refmac_multi_sharpen_gui():
     hbox_2 = Gtk.HBox(False, 0)
     hbox_3 = Gtk.HBox(False, 0)
     # menus
-    option_menu_map = Gtk.combo_box_new_text()
-    option_menu_b_factor = Gtk.combo_box_new_text()
-    option_menu_n_levels = Gtk.combo_box_new_text()
+    # option_menu_map = Gtk.combo_box_new_text()
+    # option_menu_b_factor = Gtk.combo_box_new_text()
+    # option_menu_n_levels = Gtk.combo_box_new_text()
+
+
     # labels
     map_label = Gtk.Label("Map ")
     sb_label = Gtk.Label("Sharpen & Blur in ")
@@ -5160,21 +5162,43 @@ def refmac_multi_sharpen_gui():
     n_levels_list = [1, 2, 3, 4, 5, 6]
     b_factor_list = [50, 100, 200, 400, 800, 2000]
 
-    coot_utils.map_molecule_list = fill_option_menu_with_map_mol_options(
-        option_menu_map)
-    fill_option_menu_with_number_options(
-        option_menu_n_levels, n_levels_list, 4)
-    fill_option_menu_with_number_options(
-        option_menu_b_factor, b_factor_list, 200)
+    combobox_map_items = make_store_for_map_molecule_combobox()
+    combobox_map = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_map_items) > 0:
+        combobox_map.set_active(0)
+    combobox_map.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox_map.pack_start(renderer_text, True)
+    combobox_map.add_attribute(renderer_text, "text", 1)
+
+    combobox_n_levels = Gtk.ComboBox.new_with_model(combobox_n_levels_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_map_items) > 0:
+        combobox_n_levels.set_active(0)
+    combobox_n_levels.set_entry_text_column(0)
+    combobox_n_levels.pack_start(renderer_text, True)
+    combobox_n_levels.add_attribute(renderer_text, "text", 0)
+
+    combobox_b_factor = Gtk.ComboBox.new_with_model(combobox_b_factor_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_map_items) > 0:
+        combobox_b_factor.set_active(0)
+    combobox_b_factor.set_entry_text_column(0)
+    combobox_b_factor.pack_start(renderer_text, True)
+    combobox_b_factor.add_attribute(renderer_text, "text", 0)
+
+    # fill_option_menu_with_number_options(option_menu_n_levels, n_levels_list, 4)
+    # fill_option_menu_with_number_options(option_menu_b_factor, b_factor_list, 200)
 
     window.set_title("Refmac for Sharpening & Blurring")
-    hbox_1.pack_start(map_label, False, False, 2)
-    hbox_1.pack_start(option_menu_map, False, False, 2)
-    hbox_2.pack_start(sb_label, False, False, 2)
-    hbox_2.pack_start(option_menu_n_levels, False, False, 2)
-    hbox_2.pack_start(levels_label, False, False, 2)
-    hbox_3.pack_end(cancel_button, False, False, 12)
-    hbox_3.pack_end(ok_button, False, False, 12)
+    hbox_1.pack_start(map_label,         False, False, 2)
+    hbox_1.pack_start(combobox_map,      False, False, 2)
+    hbox_2.pack_start(sb_label,          False, False, 2)
+    hbox_2.pack_start(combobox_n_levels, False, False, 2)
+    hbox_2.pack_start(levels_label,      False, False, 2)
+    hbox_3.pack_end(cancel_button,       False, False, 12)
+    hbox_3.pack_end(ok_button,           False, False, 12)
 
     vbox.pack_start(hbox_1)
     vbox.pack_start(hbox_2)
@@ -5183,9 +5207,9 @@ def refmac_multi_sharpen_gui():
 
     cancel_button.connect("clicked", delete_event)
 
-    ok_button.connect("clicked", sharpen_cb, option_menu_b_factor, b_factor_list,
-                      option_menu_n_levels, n_levels_list,
-                      option_menu_map, coot_utils.map_molecule_list)
+    ok_button.connect("clicked", sharpen_cb, combobox_b_factor, b_factor_list,
+                      combobox_n_levels, n_levels_list,
+                      combobox_map, coot_utils.map_molecule_list)
 
     window.add(vbox)
     window.show_all()
@@ -5215,7 +5239,7 @@ def add_module_cryo_em_gui():
             m_list = coot_utils.map_molecule_list()
             if len(m_list) > 0:
                 m = m_list[-1]
-                c = cell(m)
+                c = rf.cell(m)
                 coot.set_rotation_centre(0.5 * c[0], 0.5 * c[1], 0.5 * c[2])
 
         add_simple_coot_menu_menuitem(menu, "Multi-sharpen...",
