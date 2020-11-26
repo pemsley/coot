@@ -30,6 +30,7 @@ import numbers
 import coot_utils
 import coot_gui
 import fitting
+import shelx_extensions
 
 # rename this file populate_python_menus.py
 
@@ -156,6 +157,10 @@ if coot_gui_api.main_menubar():
     # ---------------------------------------------------------------------
     #     Modules
     # ---------------------------------------------------------------------
+
+    def add_module_user_defined_restraints():
+        menu = coot_gui.coot_menubar_menu("Restraints")
+        import user_define_restraints
 
     def add_calculate_modules_menu(submenu_modules):
 

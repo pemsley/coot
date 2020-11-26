@@ -1493,10 +1493,18 @@ def generic_chooser_and_file_selector(chooser_label,
         window.destroy()
         return False
 
+    def combobox_to_molecule_number(combobox):
+        imol = -1
+        tree_iter = combobox.get_active_iter()
+        if tree_iter is not None:
+            model = combobox.get_model()
+            it = model[tree_iter]
+            imol = it[0]
+        return imol
+
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
-        active_mol_no = get_option_menu_active_molecule(
-            option_menu, model_mol_list)
+        active_mol_no = combobox_to_molecule_number(combobox)
 
         try:
             active_mol_no = int(active_mol_no)
@@ -1511,29 +1519,34 @@ def generic_chooser_and_file_selector(chooser_label,
     vbox = Gtk.VBox(False, 2)
     hbox_for_entry = Gtk.HBox(False, 0)
     hbox_buttons = Gtk.HBox(True, 2)
-    option_menu = Gtk.combo_box_new_text()
+    # option_menu = Gtk.combo_box_new_text()
+    combobox_items = make_store_for_model_molecule_combobox()
+    combobox = Gtk.ComboBox.new_with_model(combobox_items)
+    renderer_text = Gtk.CellRendererText()
+    if len(combobox_items) > 0:
+        combobox.set_active(0)
+    combobox.set_entry_text_column(1) # Sets the model column which combo_box
+                                      # should use to get strings from to be text_column
+    combobox.pack_start(renderer_text, True)
+    combobox.add_attribute(renderer_text, "text", 1)
+
     ok_button = Gtk.Button("  OK  ")
     cancel_button = Gtk.Button(" Cancel ")
     h_sep = Gtk.HSeparator()
-    model_mol_list = fill_option_menu_with_mol_options(
-        option_menu, chooser_filter)
 
     window.set_default_size(400, 100)
     window.add(vbox)
     vbox.pack_start(label, False, False, 5)
-    vbox.pack_start(option_menu, True, True, 0)
+    vbox.pack_start(combobox, True, True, 0)
     hbox_buttons.pack_start(ok_button, True, False, 5)
     hbox_buttons.pack_start(cancel_button, False, False, 5)
 
-    file_sel_entry = file_selector_entry(vbox,
-                                         file_selector_hint,
-                                         default_file_name)
+    file_sel_entry = file_selector_entry(vbox, file_selector_hint, default_file_name)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
 
     # button callbacks
-    ok_button.connect("clicked", on_ok_button_clicked,
-                      option_menu, callback_function)
+    ok_button.connect("clicked", on_ok_button_clicked, option_menu, callback_function)
     cancel_button.connect("clicked", delete_event)
 
     window.show_all()
