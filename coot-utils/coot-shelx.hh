@@ -22,6 +22,7 @@
 #ifndef COOT_SHELX_HH
 #define COOT_SHELX_HH
 
+
 #ifndef HAVE_STRING
 #include <string>
 #define HAVE_STRING
@@ -30,6 +31,9 @@
 #include <vector>
 #define HAVE_VECTOR
 #endif
+
+#include <map>
+
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/cell.h"
@@ -93,7 +97,7 @@ namespace coot {
       int frac_trans[3];
       symm_card_composition_t() {};
       // e.g. "X,Y,Z-1/2"
-      symm_card_composition_t(const std::string &symm_card);
+      explicit symm_card_composition_t(const std::string &symm_card);
       // e.g for F or I centering
       void add_centering_frac(int x_element_in,
 			      int y_element_in,
@@ -303,7 +307,7 @@ namespace coot {
       ShelxIns() {init(); }
       // pair: status (0: bad), udd_afix_handle (-1 bad)
       shelx_read_file_info_t read_file(const std::string &filename);
-      ShelxIns(const std::string &filename);
+      explicit ShelxIns(const std::string &filename);
       // return status and message string
       std::pair<int, std::string> write_ins_file(mmdb::Manager *mol,
 						 const std::string &filename,
