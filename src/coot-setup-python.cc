@@ -72,11 +72,14 @@ void setup_python(int argc, char **argv) {
 #endif // USE_PYMAC_INIT
 
 
-   std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
+   std::string pkgpydirectory = PKGPYTHONDIR;
+   std::string pydirectory = PYTHONDIR;
 
    std::cout << "debug:: in setup_python() pydirectory is " << pydirectory << std::endl;
+   std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
 
-
+   PyObject *sys_path = PySys_GetObject("path");
+   PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
 
    int err = import_python_module("coot", 0);
    if (err == -1) {
@@ -86,11 +89,11 @@ void setup_python(int argc, char **argv) {
 
 
       initcoot_python_gobject(); // this is not a good name for this function. We need to say
-                          // this this is the module that wraps the glue to get
-                          // the status-bar, menu-bar etc.
+                                 // this this is the module that wraps the glue to get
+                                 // the status-bar, menu-bar etc.
       
       std::string coot_load_modules_dot_py = "coot_load_modules.py";
-      std::string coot_py_file_name = coot::util::append_dir_file(pydirectory, coot_load_modules_dot_py);
+      std::string coot_py_file_name = coot::util::append_dir_file(pkgpydirectory, coot_load_modules_dot_py);
       if (coot::file_exists(coot_py_file_name)) {
          PyRun_SimpleString("global use_gui_qm; use_gui_qm = False");
          FILE *fp = fopen(coot_py_file_name.c_str(), "r");
