@@ -6823,40 +6823,31 @@ void post_python_scripting_window() {
 
 #ifdef USE_PYTHON
 
-  if (graphics_info_t::python_gui_loaded_flag == TRUE) {
+   bool do_script_scripting_gui = false;
 
-     PyRun_SimpleString("coot_gui()");
+   if (graphics_info_t::python_gui_loaded_flag == TRUE)
+      do_script_scripting_gui = true;
 
-  } else {
+   do_script_scripting_gui = false; // for now, because coot_gui.coot_gui()
+                                    // all sorts of nasty old stuff in it.
 
-#if 0 // what does this block do? Is it relevant today?
+   if (do_script_scripting_gui) {
 
-     // we don't get a proper status from python_gui_loaded_flag so
-     // lets check again here whether MAPVIEW_GUI_DIR was defined.
-     char *t;
-     t = getenv("COOT_PYTHON_DIR"); // was #defined
-     if (t) {
-        std::cout << "COOT_PYTHON_DIR was defined to be " << t << std::endl
-                  << "  but no PyGtk and hence no coot_gui."
-                  << std::endl;
-     } else {
-        std::cout << "COOT_PYTHON_DIR  was not defined - cannot open ";
-        std::cout << "scripting window" << std::endl;
-     }
-#endif
+      PyRun_SimpleString("coot_gui.coot_gui()");
 
+   } else {
 
-     // so let's load the usual window!!
-     GtkWidget *window;
-     GtkWidget *python_entry;
-     window = create_python_window();
+     // let's load the simple window
 
-     python_entry = lookup_widget(window, "python_window_entry");
-     setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
-     gtk_widget_show(window);
-  }
+      GtkWidget *window;
+      GtkWidget *python_entry;
+      window = create_python_window();
+      python_entry = lookup_widget(window, "python_window_entry");
+      setup_python_window_entry(python_entry); // USE_PYTHON and USE_GUILE used here
+      gtk_widget_show(window);
 
-  // clear the entry here
+   }
+
 #else
   std::cout << "No python" << std::endl;
 #endif
