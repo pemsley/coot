@@ -1,14 +1,29 @@
 # 18/3/2018 version 2.3 (acedrg?)
 
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+import coot
+import coot_utils
+import coot_gui
+
+
 #this could be in coot_gui.coot_gui.py
-def fill_option_menu_with_string_options(menu, string_list,
-                                         default_option_value):
+def old_function_fill_option_menu_with_string_options(menu, string_list, default_option_value):
     for item in string_list:
         menu.append_text(item)
         if (default_option_value == item):
             count = string_list.index(item)
             menu.set_active(count)
             print("setting menu active ", default_option_value, count)
+
+def fill_combobox_with_string_options(combobox, string_list, default_string):
+    model = coot_gui.make_store_for_string_list_combobox(combobox, string_list, default_string)
+    combobox.set_model(model)
+    for i in range(len(string_list)):
+        if (string_list[i] == default_string):
+            combobox.set_active(i)
+    return model
 
 def acedrg_link_generation_control_window():
 
@@ -17,36 +32,56 @@ def acedrg_link_generation_control_window():
         return False
 
     # main body
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    vbox = gtk.VBox(False, 4)
-    inside_hbox_1 = gtk.HBox(False, 4)
-    inside_hbox_2 = gtk.HBox(False, 4)
-    inside_hbox_3 = gtk.HBox(False, 4)
-    inside_hbox_4 = gtk.HBox(False, 4)
-    cancel_hbox = gtk.HBox(False, 2)
-    order_label = gtk.Label("  Order: ")
-    delete_atom_label = gtk.Label("  Delete Atom: ")
-    change_bond_order_label = gtk.Label("  Change Bond Order of the Bond between Atoms")
-    delete_bond_label = gtk.Label("  Delete Bond: ")
-    other_label = gtk.Label(" from First Residue ")
-    to_order_label = gtk.Label(" to order")
-    right_space_label = gtk.Label(" ")  # PE hackey
-    option_menu_bond_order = gtk.combo_box_new_text()  # for the newly-formed bond
-    option_menu_change_bond_order = gtk.combo_box_new_text()  # for a bond already in the ligand
+    window = Gtk.Window()
+    vbox = Gtk.VBox(False, 4)
+    inside_hbox_1 = Gtk.HBox(False, 4)
+    inside_hbox_2 = Gtk.HBox(False, 4)
+    inside_hbox_3 = Gtk.HBox(False, 4)
+    inside_hbox_4 = Gtk.HBox(False, 4)
+    cancel_hbox = Gtk.HBox(False, 2)
+    order_label = Gtk.Label("  Order: ")
+    delete_atom_label = Gtk.Label("  Delete Atom: ")
+    change_bond_order_label = Gtk.Label("  Change Bond Order of the Bond between Atoms")
+    delete_bond_label = Gtk.Label("  Delete Bond: ")
+    other_label = Gtk.Label(" from First Residue ")
+    to_order_label = Gtk.Label(" to order")
+    right_space_label = Gtk.Label(" ")  # PE hackey
+
+    # option_menu_bond_order = Gtk.combo_box_new_text()
+    # option_menu_change_bond_order = Gtk.combo_box_new_text()  # for a bond already in the ligand
+
+
     bond_list = ["Single", "Double"]
-    fill_option_menu_with_string_options(option_menu_bond_order,
-                                         bond_list,
-                                         "Single")
-    fill_option_menu_with_string_options(option_menu_change_bond_order,
-                                         bond_list,
-                                         "Single")
-    tt = gtk.Tooltips()
-    delete_atom_entry = gtk.Entry()
-    delete_bond_entry = gtk.Entry()
-    change_bond_order_entry = gtk.Entry()
-    h_sep = gtk.HSeparator()
-    cancel_button = gtk.Button("  Cancel  ")
-    pick_button = gtk.Button("Start (Pick 2 Atoms)...")
+    # fill_option_menu_with_string_options(option_menu_bond_order, bond_list, "Single")
+    # fill_option_menu_with_string_options(option_menu_change_bond_order, bond_list, "Single")
+
+    combobox_bond_order = Gtk.ComboBox()
+    combobox_change_bond_order = Gtk.ComboBox()
+
+    combobox_bond_order_model = fill_combobox_with_string_options(combobox_bond_order, bond_list, "Single")
+    # maybe the default change bond order should be ""?
+    combobox_change_bond_order_model = fill_combobox_with_string_options(combobox_change_bond_order, bond_list, "Single")
+
+    combobox_bond_order.set_model(combobox_bond_order_model)
+    combobox_change_bond_order.set_model(combobox_change_bond_order_model)
+
+    renderer_text = Gtk.CellRendererText()
+    combobox_bond_order.set_entry_text_column(0)
+    combobox_bond_order.pack_start(renderer_text, True)
+    combobox_bond_order.add_attribute(renderer_text, "text", 0)
+
+    renderer_text = Gtk.CellRendererText()
+    combobox_change_bond_order.set_entry_text_column(0)
+    combobox_change_bond_order.pack_start(renderer_text, True)
+    combobox_change_bond_order.add_attribute(renderer_text, "text", 0)
+
+    # tt = Gtk.Tooltips()
+    delete_atom_entry = Gtk.Entry()
+    delete_bond_entry = Gtk.Entry()
+    change_bond_order_entry = Gtk.Entry()
+    h_sep = Gtk.HSeparator()
+    cancel_button = Gtk.Button("  Cancel  ")
+    pick_button = Gtk.Button("Start (Pick 2 Atoms)...")
 
     window.set_title("Make a Link using Acedrg and Atom Click Click")
     vbox.pack_start(inside_hbox_1, False, False, 2)
@@ -54,30 +89,26 @@ def acedrg_link_generation_control_window():
     vbox.pack_start(inside_hbox_3, False, False, 2)
     vbox.pack_start(inside_hbox_4, False, False, 2)
     inside_hbox_1.pack_start(order_label, False, False, 2)
-    inside_hbox_1.pack_start(option_menu_bond_order, False, False, 2)
+    inside_hbox_1.pack_start(combobox_bond_order, False, False, 2)
     inside_hbox_2.pack_start(delete_atom_label, False, False, 2)
     inside_hbox_2.pack_start(delete_atom_entry, False, False, 2)
     inside_hbox_2.pack_start(other_label, False, False, 2)
     inside_hbox_3.pack_start(change_bond_order_label, False, False, 2)
     inside_hbox_3.pack_start(change_bond_order_entry, False, False, 2)
     inside_hbox_3.pack_start(to_order_label, False, False, 2)
-    inside_hbox_3.pack_start(option_menu_change_bond_order, False, False, 2)
+    inside_hbox_3.pack_start(combobox_change_bond_order, False, False, 2)
     inside_hbox_3.pack_start(right_space_label, False, False, 2)
     inside_hbox_4.pack_start(delete_bond_label, False, False, 2)
     inside_hbox_4.pack_start(delete_bond_entry, False, False, 2)
-    vbox.pack_start(h_sep)
+    vbox.pack_start(h_sep, False, False, 1)
     vbox.pack_start(cancel_hbox, False, False, 6)
     cancel_hbox.pack_start(pick_button, False, False, 6)
     cancel_hbox.pack_start(cancel_button, False, False, 6)
-    delete_atom_entry.set_usize(80, -1)
-    delete_bond_entry.set_usize(80, -1)
-    change_bond_order_entry.set_usize(80, -1)
+    delete_atom_entry.set_size_request(80, -1)
+    delete_bond_entry.set_size_request(80, -1)
+    change_bond_order_entry.set_size_request(80, -1)
 
-    tt.set_tip(delete_atom_entry, "Type the atom name to be deleted (leave blank if unsure)")
-    tt.set_tip(option_menu_bond_order, "Like a cheeseburger - you can only have single or double")
-    tt.set_tip(pick_button, "Click on 2 atoms, Acedrg starts after the second click")
-    tt.set_tip(delete_bond_entry, "Delete a bond between atoms (leave blank if unsure)")
-    tt.set_tip(change_bond_order_entry, "Change the bond order of the bond between atoms (leave blank if unsure)")
+    # restore the tooltips one day
 
     cancel_button.connect("clicked", delete_event)
 

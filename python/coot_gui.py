@@ -38,6 +38,7 @@ from gi.repository import Gtk
 import coot
 import coot_utils
 import coot_gui_api
+import acedrg_link
 
 try:
     import gobject
@@ -516,8 +517,9 @@ def generic_double_entry(label_1, label_2,
 
     def go_function_event(*args):
         if check_button:
-            handle_go_function(tlc_entry.get_text(
-            ), smiles_entry.get_text(), check_button.get_active())
+            handle_go_function(tlc_entry.get_text(),
+                               smiles_entry.get_text(),
+                               check_button.get_active())
         else:
             handle_go_function(tlc_entry.get_text(), smiles_entry.get_text())
             delete_event()
@@ -555,7 +557,7 @@ def generic_double_entry(label_1, label_2,
     hbox2.pack_start(smiles_label, False, False, 0)
     hbox2.pack_start(smiles_entry, True, True, 0)
 
-    if type(check_button_label) is StringType:
+    try:
 
         def check_callback(*args):
             active_state = c_button.get_active()
@@ -565,7 +567,8 @@ def generic_double_entry(label_1, label_2,
         vbox.pack_start(c_button, False, False, 2)
         c_button.connect("toggled", check_callback)
         check_button = c_button
-    else:
+
+    except:
         check_button = False 	# the check-button when we don't want to see it
 
     vbox.pack_start(h_sep, True, False, 3)
@@ -1060,8 +1063,8 @@ def fill_combobox_with_number_options(combobox, number_list, active_value):
 #
 # BL says:: we do it for gtk_combobox instead! option_menu is deprecated
 #
-
-
+# Get rid of this. Search for references and replace them
+#
 def get_option_menu_active_molecule(option_menu, model_mol_list):
 
     model = option_menu.get_model()
@@ -1082,11 +1085,9 @@ def get_option_menu_active_molecule(option_menu, model_mol_list):
         print("Failed children length test : ", children, model_mol_list)
         return False
 
-# BL says:: we do it for gtk_combobox instead! option_menu is deprecated
-# Here we return the active item in an option menu of generic items
+
+# Get rid of this also
 #
-
-
 def get_option_menu_active_item(option_menu, item_list):
 
     model = option_menu.get_model()
@@ -1106,6 +1107,13 @@ def get_option_menu_active_item(option_menu, item_list):
     else:
         print("Failed children length test : ", children, item_list)
         return False
+
+# see acedrg_link for how this is used
+def make_store_for_string_list_combobox(combobox, string_list, default_string):
+    mol_store = Gtk.ListStore(str)
+    for item in string_list:
+        mol_store.append([item])
+    return mol_store
 
 def make_store_for_molecule_combobox(filter_function):
     mol_store = Gtk.ListStore(int, str)
@@ -1323,8 +1331,9 @@ def generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
                     delete_event()
                 else:
                     return True
-        except:
+        except KeyError as e:
             print("WARNING:: Failed to get a (molecule) number")
+            print("WARNING:: KeyError Failed to get a (molecule) number", e)
 
     window = Gtk.Window()
     window.set_title('Coot')
