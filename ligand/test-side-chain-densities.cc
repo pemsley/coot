@@ -276,6 +276,8 @@ int main(int argc, char **argv) {
    int n_steps = 5;
    float grid_box_radius = 5.0; // half the width/length of the box (not diagonal)
 
+   std::cout << "debug:: argc " << argc << std::endl;
+
    if (argc == 2) {
       // generate the stats from the sampled maps.
       std::string a1(argv[1]);
@@ -357,10 +359,7 @@ int main(int argc, char **argv) {
 	 }
 	 done = true;
       }
-   }
 
-   if (argc == 8) {
-      std::string a1(argv[1]);
       if (a1 == "find-probabilities-of-rotamers") {
 	 try {
 	    std::string pdb_file_name(argv[2]); // poly-ALA model
@@ -383,6 +382,7 @@ int main(int argc, char **argv) {
    if (argc == 9) {
       std::string a1(argv[1]);
       if (a1 == "test-sequence") {
+         std::cout << "test-sequence mode " << std::endl;
 	 try {
 	    std::string map_file_name(argv[2]);
 	    std::string pdb_file_name(argv[3]); // poly-ALA model
@@ -391,6 +391,7 @@ int main(int argc, char **argv) {
 	    int resno_end   = coot::util::string_to_int(argv[6]);
 	    std::string sequence_file_name(argv[7]);
 	    std::string useable_grid_points_file_name(argv[8]);
+            std::cout << "testing sequence..." << std::endl;
 	    test_sequence(n_steps, grid_box_radius, useable_grid_points_file_name,
 			  pdb_file_name, chain_id, resno_start, resno_end,
 			  map_file_name, sequence_file_name);

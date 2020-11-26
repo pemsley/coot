@@ -112,8 +112,11 @@ test_side_chain_densities_SOURCES = test-side-chain-densities.cc
 test_side_chain_densities_LDADD = \
   ./libcoot-ligand.la \
    $(top_builddir)/coot-utils/libcoot-map-utils.la \
-   $(top_builddir)/coords/libcoot-coords.la
-
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/coords/libcoot-coords.la        \
+   $(top_builddir)/geometry/libcoot-geometry.la \
+   $(top_builddir)/utils/libcoot-utils.la \
+   $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc
 #

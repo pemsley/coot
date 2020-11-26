@@ -1478,11 +1478,14 @@ graphics_info_t::set_refinement_map(int i) {
 void
 graphics_info_t::accept_moving_atoms() {
 
+   while (continue_threaded_refinement_loop)
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
    if (false) {
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms is " << imol_moving_atoms
-           << std::endl;
+                << std::endl;
       std::cout << ":::: INFO:: accept_moving_atoms() imol moving atoms type is "
-           << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
+                << moving_atoms_asc_type << " vs " << coot::NEW_COORDS_REPLACE << std::endl;
    }
 
    if (moving_atoms_asc_type == coot::NEW_COORDS_ADD) { // not used!

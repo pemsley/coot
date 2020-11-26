@@ -59,6 +59,18 @@ stereo_projection_setup_maybe(GtkWidget *widget, short int in_stereo_flag) {
          glMultMatrixf(view_skew_matrix);
          glTranslatef(-trans_fac, 0.0, 0.0);
       }
+
+      if (graphics_info_t::display_mode == coot::HARDWARE_STEREO_MODE) {
+         if (do_first) {
+            view_skew_matrix[8] = skew_factor; // 8 because this is the transpose
+            glMultMatrixf(view_skew_matrix);
+            glTranslatef(trans_fac, 0.0, 0.0);
+         } else {
+            view_skew_matrix[8] = -skew_factor;
+            glMultMatrixf(view_skew_matrix);
+            glTranslatef(-trans_fac, 0.0, 0.0);
+         }
+      }
    }
 }
 

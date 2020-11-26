@@ -4836,6 +4836,11 @@ void accept_regularizement() {
 void accept_moving_atoms() {
 
    graphics_info_t g;
+
+   while (g.continue_threaded_refinement_loop) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   }
+
    g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    g.clear_moving_atoms_object();
 }

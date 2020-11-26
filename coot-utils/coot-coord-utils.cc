@@ -3956,7 +3956,7 @@ bool
 coot::mol_is_anisotropic(mmdb::Manager *mol) {
 
    bool is_aniso = false;
-   
+
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
    mmdb::Chain *chain_p;
@@ -3966,12 +3966,12 @@ coot::mol_is_anisotropic(mmdb::Manager *mol) {
       int nres = chain_p->GetNumberOfResidues();
       mmdb::Residue *residue_p;
       mmdb::Atom *at;
-      for (int ires=0; ires<nres; ires++) { 
+      for (int ires=0; ires<nres; ires++) {
 	 residue_p = chain_p->GetResidue(ires);
 	 int n_atoms = residue_p->GetNumberOfAtoms();
 	 for (int iat=0; iat<n_atoms; iat++) {
 	    at = residue_p->GetAtom(iat);
-	    if (at->WhatIsSet & mmdb::ASET_Anis_tFac) { 
+	    if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
 	       is_aniso;
 	       break;
 	    }
@@ -3983,7 +3983,7 @@ coot::mol_is_anisotropic(mmdb::Manager *mol) {
 	 break;
    }
    return is_aniso;
-} 
+}
 
 
 
@@ -4004,26 +4004,26 @@ coot::util::create_mmdbmanager_from_mmdbmanager(mmdb::Manager *mol_in) {
    short int whole_res_flag = 1;
 
    for(int imod = 1; imod<=mol_in->GetNumberOfModels(); imod++) {
-     mmdb::Model *model_p = mol_in->GetModel(imod);
-     mmdb::Model *new_model_p = new mmdb::Model;
-     int nchains = model_p->GetNumberOfChains();
-     for (int ichain=0; ichain<nchains; ichain++) {
-       mmdb::Chain *chain_p = model_p->GetChain(ichain);
-       mmdb::Chain *new_chain_p = new mmdb::Chain;
-       new_chain_p->SetChainID(chain_p->GetChainID());
-       int nres = chain_p->GetNumberOfResidues();
-       for (int ires=0; ires<nres; ires++) { 
-	 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	 mmdb::Residue *r = coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(mol_in, residue_p, altconf, whole_res_flag, atom_index_handle, afix_handle_new_mol);
-	 new_chain_p->AddResidue(r);
-       }
-       new_model_p->AddChain(new_chain_p);
-     }
-     residues_mol->AddModel(new_model_p);
+      mmdb::Model *model_p = mol_in->GetModel(imod);
+      mmdb::Model *new_model_p = new mmdb::Model;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         mmdb::Chain *new_chain_p = new mmdb::Chain;
+         new_chain_p->SetChainID(chain_p->GetChainID());
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            mmdb::Residue *r = coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(mol_in, residue_p, altconf, whole_res_flag, atom_index_handle, afix_handle_new_mol);
+            new_chain_p->AddResidue(r);
+         }
+         new_model_p->AddChain(new_chain_p);
+      }
+      residues_mol->AddModel(new_model_p);
    }
 
    return std::pair<mmdb::Manager *, int> (residues_mol, atom_index_handle);
-} 
+}
 
 
 // ignore atom index transfer
@@ -4039,7 +4039,7 @@ coot::util::create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
       return coot::util::create_mmdbmanager_from_atom_selection_straight(orig_mol,
 									 SelectionHandle);
 }
-   
+
 // ignore atom index transfer
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
@@ -4049,10 +4049,130 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
    mmdb::PPAtom atoms;
    int n_selected_atoms;
 
-   // the short version from Eugene
+   // the short version from Eugene. Is it going wrong for cifs? Maybe.
    orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
    for (int iatom=0; iatom<n_selected_atoms; iatom++)
-     atoms_mol->PutAtom(0, atoms[iatom], iatom+1);
+      atoms_mol->PutAtom(0, atoms[iatom], iatom+1);
+
+#if 0
+   orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
+   for (int iatom=0; iatom<n_selected_atoms; iatom++) {
+      mmdb::Atom *at = atoms[iatom];
+      mmdb::Residue *res = at->residue;
+      std::string res_name(res->GetResName());
+      mmdb::Atom *at_new = new mmdb::Atom;
+      int imodel = at->GetModelNum();
+      std::string chain_id = res->GetChainID();
+      std::string ins_code = res->GetInsCode();
+      int seq_num = res->GetSeqNum();
+
+      bool added = false;
+      at_new->Copy(at);
+      for(int imod = 1; imod<=atoms_mol->GetNumberOfModels(); imod++) {
+         if (imod == imodel) {
+            mmdb::Model *model_p = atoms_mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  std::string chain_id_mol = chain_p->GetChainID();
+                  if (chain_id == chain_id_mol) {
+                     int nres = chain_p->GetNumberOfResidues();
+                     for (int ires=0; ires<nres; ires++) {
+                        mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                        int res_no_mol = residue_p->GetSeqNum();
+                        std::string ins_code_mol = residue_p->GetInsCode();
+                        if (res_no_mol == seq_num) {
+                           if (ins_code_mol == ins_code)  {
+                              residue_p->AddAtom(at_new);
+                              added = true;
+                           }
+                        }
+                        if (added) break;
+                     }
+                  }
+                  if (added) break;
+               }
+            }
+         }
+      }
+
+      if (! added) {
+         // OK, we need to make a new model, chain, residue
+         // or  new chain, residue
+         // or resdiue
+
+         mmdb::Model *this_model = 0;
+         mmdb::Chain *this_chain = 0;
+         mmdb::Residue *this_residue = 0;
+         bool found_chain = false;
+         bool found_model = false;
+         bool found_residue = false;
+         for (int imod = 1; imod<=atoms_mol->GetNumberOfModels(); imod++) {
+            if (imod == imodel) {
+               found_model = true;
+               this_model = atoms_mol->GetModel(imod);
+               break;
+            }
+         }
+
+         for (int imod = 1; imod<=atoms_mol->GetNumberOfModels(); imod++) {
+            if (imod == imodel) {
+               mmdb::Model *model_p = atoms_mol->GetModel(imod);
+               if (model_p) {
+                  int n_chains = model_p->GetNumberOfChains();
+                  for (int ichain=0; ichain<n_chains; ichain++) {
+                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                     std::string chain_id_mol = chain_p->GetChainID();
+                     if (chain_id_mol == chain_id) {
+                        found_chain = true;
+                        this_chain = chain_p;
+                     }
+                  }
+               }
+            }
+         }
+
+         if (false)
+            std::cout << "atom " << at << " found_model " << found_model
+                      << " found_chain " << found_chain
+                      << " found_residue " << found_residue << std::endl;
+
+         if (! found_model) {
+
+            mmdb::Model *new_model = new mmdb::Model;
+            mmdb::Chain *new_chain = new mmdb::Chain;
+            new_chain->SetChainID(chain_id.c_str());
+            new_model->AddChain(new_chain);
+            mmdb::Residue *new_residue = new mmdb::Residue;
+            new_residue->SetResID(res_name.c_str(), seq_num, ins_code.c_str());
+            new_chain->AddResidue(new_residue);
+            new_residue->AddAtom(at_new);
+            atoms_mol->AddModel(new_model);
+
+         } else {
+            // model was found but the chain was not
+            if (! found_chain) {
+               mmdb::Chain *new_chain = new mmdb::Chain;
+               new_chain->SetChainID(chain_id.c_str());
+               this_model->AddChain(new_chain);
+               mmdb::Residue *new_residue = new mmdb::Residue;
+               new_residue->SetResID(res_name.c_str(), seq_num, ins_code.c_str());
+               new_chain->AddResidue(new_residue);
+               new_residue->AddAtom(at_new);
+            } else {
+               mmdb::Residue *new_residue = new mmdb::Residue;
+               new_residue->SetResID(res_name.c_str(), seq_num, ins_code.c_str());
+               this_chain->AddResidue(new_residue);
+               new_residue->AddAtom(at_new);
+            }
+         }
+      }
+   }
+   pdbcleanup_serial_residue_numbers(atoms_mol);
+#endif
+
+
 
    /*   mmdb::Model *model = new mmdb::Model;
    atoms_mol->AddModel(model);

@@ -1505,7 +1505,7 @@ coot::side_chain_densities::get_log_likelihood_ratio(const unsigned int &grid_id
    if (diff > mn_log_likelihood_ratio_difference_max)
       diff = mn_log_likelihood_ratio_difference_max;
 
-   if (true) // debug/check the engine
+   if (false) // debug/check the engine
        /*
 		<< " e_part: " << std::setw(10) << e_part
 		<< " e_part_normal: " << std::setw(8) << e_part_normal
