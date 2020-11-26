@@ -1,3 +1,29 @@
+# gui_prosmart.py
+# Copyright 2007 by Paul Emsley
+# Copyright 2007 by The University of Oxford
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+import coot_utils
+import coot_gui_api
+from gi.repository import Gtk
+import coot
+import gi
+gi.require_version('Gtk', '3.0')
+import coot_gui
+
 
 def add_module_prosmart():
     
@@ -69,15 +95,15 @@ def add_module_prosmart():
 
 def add_module_prosmart():
     
-    if (have_coot_python):
-        if coot_python.main_menubar():
-            menu = coot_menubar_menu("ProSMART")
+    if True:
+        if coot_gui_api.main_menubar():
+            menu = coot_gui.coot_menubar_menu("ProSMART")
 
             def generate_self_restraint_func(sig):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     generate_local_self_restraints(aa_imol, aa_chain_id, sig)
-                        
+
             def prosmart_cut_to_func(sig_low, sig_high):
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -98,11 +124,11 @@ def add_module_prosmart():
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Show Only Deviant Distances Beyond 1.0",
                 lambda func: prosmart_cut_to_func(-1, 1))
-            
+
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Undisplay All Extra Distance Restraints",
                 lambda func: prosmart_cut_to_func(0, 0))
-            
+
             def restraint_to_ca_func(state):
                 with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -115,7 +141,7 @@ def add_module_prosmart():
             coot_gui.add_simple_coot_menu_menuitem(
                 menu, "Restraint Representation To Home Atom",
                 lambda func: restraint_to_ca_func(0))
-            
+
             ## extra
             
             # def delete_all_extra_restraints_func():

@@ -1278,9 +1278,6 @@ def generic_chooser_and_entry(chooser_label, entry_hint_text,
                               default_entry_text, callback_function,
                               always_dismiss_on_ok_clicked=True):
 
-    print("BL DEBUG:: --- deal with always_dissmiss...",
-          always_dismiss_on_ok_clicked)
-    # cf = lambda text, dummy: callback_function(text)
     generic_chooser_and_entry_and_check_button(chooser_label, entry_hint_text,
                                                default_entry_text, False,
                                                callback_function,
@@ -1459,7 +1456,7 @@ def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
         c_button = Gtk.CheckButton(check_button_label)
         vbox.pack_start(c_button, False, False, 2)
 
-    file_sel_entry = file_selector_entry(vbox, file_selector_hint)
+    file_sel_entry = file_chooser_entry(vbox, file_selector_hint)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
 
@@ -1541,7 +1538,7 @@ def generic_chooser_and_file_selector(chooser_label,
     hbox_buttons.pack_start(ok_button, True, False, 5)
     hbox_buttons.pack_start(cancel_button, False, False, 5)
 
-    file_sel_entry = file_selector_entry(vbox, file_selector_hint, default_file_name)
+    file_sel_entry = file_chooser_entry(vbox, file_selector_hint, default_file_name)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
 
@@ -2072,36 +2069,6 @@ def generic_molecule_chooser(hbox, hint_text):
 # this function
 #
 
-
-def file_selector_entry(hbox, hint_text, default_file_name=False):
-
-    if (coot.file_chooser_selector_state() == 0 or Gtk.pygtk_version < (2, 3, 90)):
-
-        vbox = Gtk.VBox(False, 0)
-
-        def file_func1(*args):
-            def file_ok_sel(*args):
-                t = fs_window.get_filename()
-                print(t)
-                entry.set_text(t)
-                fs_window.destroy()
-
-            fs_window = Gtk.FileSelection("file selection")
-            fs_window.ok_button.connect("clicked", file_ok_sel)
-            fs_window.cancel_button.connect("clicked",
-                                            lambda w: fs_window.destroy())
-            fs_window.show()
-
-        entry = entry_do_button(vbox, hint_text,
-                                "  File...  ", file_func1,
-                                default_file_name)
-
-        hbox.pack_start(vbox, False, False, 2)
-        vbox.show()
-        return entry
-
-    else:
-        return file_chooser_entry(hbox, hint_text, default_file_name)
 
 # This is the same as the file_selector_entry, but using the modern FileChooser
 # Return an entry, the widget is inserted into the hbox passed to
@@ -4041,7 +4008,7 @@ def cootaneer_gui_bl():
     fill_table_with_sequences()
 
     vbox.pack_start(h_sep, False, False, 2)
-    file_sel_entry = file_selector_entry(vbox, "Select PIR file")
+    file_sel_entry = file_chooser_entry(vbox, "Select PIR file")
     vbox.pack_start(import_button, False, False, 6)
 
     buttons_hbox.pack_start(go_button, False, False, 6)

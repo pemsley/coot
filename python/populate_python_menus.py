@@ -31,6 +31,7 @@ import coot_utils
 import coot_gui
 import fitting
 import shelx_extensions
+import gui_prosmart
 
 # rename this file populate_python_menus.py
 
