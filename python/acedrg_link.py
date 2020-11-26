@@ -114,11 +114,11 @@ def acedrg_link_generation_control_window():
 
     pick_button.connect("clicked", lambda func:
                         click_select_residues_for_acedrg(window,
-                                                         option_menu_bond_order,
+                                                         combobox_bond_order,
                                                          delete_atom_entry,
                                                          delete_bond_entry,
                                                          change_bond_order_entry,
-                                                         option_menu_change_bond_order))
+                                                         combobox_change_bond_order))
 
     window.add(vbox)
     window.show_all()
@@ -137,9 +137,9 @@ def hack_link(fn):
                 fout.write(line.replace("L-PEPTIDE", "L-peptide"))
     return new_file_name
 
-def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
+def click_select_residues_for_acedrg(window, combobox_bond_order, delete_atom_entry,
                                      delete_bond_entry, change_bond_order_entry,
-                                     change_bond_order_option_menu):
+                                     combobox_change_bond_order):
 
     # return a 3-member list: is-correct atom-name-1 atom-name-2)
     # is-correct can either be
@@ -164,20 +164,22 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                 return [True] + parts
 
     def make_acedrg_bond(*clicks):
-        print("BL DEBUG:: we received these clicks:", clicks)
+        print("DEBUG:: make_acedrg_bond(): we received these clicks:", clicks)
 
         bond_list = ['single', 'double']
-        bond_order = coot_gui.get_option_menu_active_item(option_menu,
-                                                 bond_list) # could be enums
-        change_bond_order = coot_gui.get_option_menu_active_item(change_bond_order_option_menu,
-                                                        bond_list)
-        if (len(clicks) == 2):
+        bond_order = combobox_bond_order.get_active()
+        change_bond_order = combobox_change_bond_order.get_active()
+
+        print("debug:: make_acedrg_bond(): bond_order", bond_order)
+        print("debug:: make_acedrg_bond(): change_bond_order", change_bond_order)
+
+        if len(clicks) == 2:
             click_1 = clicks[0]
             click_2 = clicks[1]
-            print("BL DEBUG:: click_1", click_1)
-            print("BL DEBUG:: click_2", click_2)
-            if ((len(click_1) == 7) and
-                (len(click_2) == 7)):
+            print("DEBUG:: make_acedrg_bond(): click_1", click_1)
+            print("DEBUG:: make_acedrg_bond(): click_2", click_2)
+            if len(click_1) == 7 and len(click_2) == 7:
+                print("DEBUG:: length of clicks was correct")
                 resname_1 = coot.residue_name(*click_1[1:5])
                 resname_2 = coot.residue_name(*click_2[1:5])
                 at_name_1 = click_1[5]
@@ -190,43 +192,53 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                 delete_bond_entry_text = delete_bond_entry.get_text()
                 change_bond_order_entry_text = change_bond_order_entry.get_text()
 
+                print("DEBUG:: make_acedrg_bond() resname_1", resname_1)
+                print("DEBUG:: make_acedrg_bond() resname_2", resname_2)
+
                 if not (isinstance(resname_1, str) and
                         isinstance(resname_2, str)):
                     print("Bad resnames: %s and %s " %(resname_1, resname_2))
                     return False # just in case
                 else:
-                    if not (imol_click_1 == imol_click_2):
+                    if not imol_click_1 == imol_click_2:
                         coot.add_status_bar_text("These residues are not in the same molecule")
                     else:
+                        print("got here A")
                         imol = imol_click_1
                         delete_stripped_1 = delete_atom_text.replace(" ", "")
                         delete_atom_txt = " DELETE ATOM " + delete_stripped_1  + " 1 " \
                                           if len(delete_stripped_1) > 0 else \
                                              ""
+                        print("got here B1")
                         delete_bond_info = extract_atom_names_from_string(delete_bond_entry_text)
+                        print("got here B2")
                         change_bond_order_info = extract_atom_names_from_string(change_bond_order_entry_text)
                         s = "LINK:" + \
                             " RES-NAME-1 " + resname_1 + " ATOM-NAME-1 " + at_name_1 + \
                             " RES-NAME-2 " + resname_2 + " ATOM-NAME-2 " + at_name_2
+                        print("got here B3")
                         # I need to check here if resname_1 or resname_2 came from a file that 
                         # was read into Coot from somewhere other than the refmac monomer library
                         # (that acedrg knows about).
 
-                        cif_fn_1 = cif_file_for_comp_id(resname_1)
-                        cif_fn_2 = cif_file_for_comp_id(resname_2)
-                        ns = non_standard_residue_names(imol)
-                        
+                        print("got here C")
+                        cif_fn_1 = coot.cif_file_for_comp_id_py(resname_1)
+                        cif_fn_2 = coot.cif_file_for_comp_id_py(resname_2)
+                        print("got here D1")
+                        ns = coot.non_standard_residue_names_py(imol)
+                        print("got here D2")
+
                         # if the resnames are not non-standard-residue-names
                         # then we don't need to specify the file - if they
                         # are not, then use cif_fn_1 (or cif_fn_2)
-                        
-                        print("BL DEBUG:: cif_fn_1:", cif_fn_1)
-                        print("BL DEBUG:: cif_fn_2:", cif_fn_2)
-                        print("BL DEBUG:: ns:      ", ns)
+
+                        print("DEBUG:: cif_fn_1:", cif_fn_1)
+                        print("DEBUG:: cif_fn_2:", cif_fn_2)
+                        print("DEBUG:: ns:      ", ns)
 
                         if (bond_order == 'double'):
                             s += " BOND-TYPE DOUBLE"
-                        
+
                         if (resname_1 in ns):
                             s += " FILE-1 " + cif_fn_1
                         if (resname_2 in ns):
@@ -285,8 +297,8 @@ def click_select_residues_for_acedrg(window, option_menu, delete_atom_entry,
                             dict_read_status = coot.read_cif_dictionary(hack_link_file_name)
                             # dict_read_status is the number of bonds read
                             if (dict_read_status > -2):
-                                coot.make_link(imol_click_1, spec_1, spec_2, "dummy-name", 1.0)
+                                coot.make_link_py(imol_click_1, spec_1, spec_2, "dummy-name", 1.0)
                     window.destroy()  # when?
-                    
+
     coot.user_defined_click_py(2, make_acedrg_bond)
 

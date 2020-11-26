@@ -50,7 +50,7 @@ def jligand_code_file_maybe(comp_id, port):
     # "CODE TLC FILE file.cif" (with a newline).
     #
     if not jligand_standard_amino_acid_qm(comp_id):
-        cif_file = cif_file_for_comp_id(comp_id)
+        cif_file = coot.cif_file_for_comp_id_py(comp_id)
         if (len(cif_file) > 0):
             port.write("CODE " + comp_id + " " + \
                        "FILE " + os.path.normpath(cif_file))
