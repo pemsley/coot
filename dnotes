@@ -3997,7 +3997,11 @@ INFO::
    o git push
    o git push origin Release-0.x.y  # publish the tag
    o Passes build (build-latest) on pc?
-        OK, disable the build-latest cron-job 
+        OK, disable the build-latest cron-job
+   o on charybdis: md: check that it builds
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-for-tarball # version?
+   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
+   o on charybdis: bash wrap-build-it-for-release.sh
    o clear out pre-releases
    o check for updates - needs consideration?
    o Build binaries on some hosts
@@ -9441,4 +9445,10 @@ Wed 18 Nov 06:46:15 GMT 2020
 Wed 18 Nov 19:12:26 GMT 2020
 
    2ddx is real non-pro cis peptide high res.
+
+
+--
+
+ 11203 map model correlation and unmodelled density - linoleic acid
+
 

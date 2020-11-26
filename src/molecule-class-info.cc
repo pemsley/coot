@@ -435,31 +435,36 @@ molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_fla
 
    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
       mmdb::Atom *at = atom_sel.atom_selection[iat];
-      std::string chain_id_from_at(at->GetChainID());
-      if ((chain_id_from_at == chain_id) || !use_this_chain_id) {
-	 float d2 = (at->x - pt.x()) * (at->x - pt.x());
-	 d2 += (at->y - pt.y()) * (at->y - pt.y());
-	 d2 += (at->z - pt.z()) * (at->z - pt.z());
-	 if (d2 < dist_best) {
-	    dist_best = d2;
-	    at_best = at;
-	    // Now, does this at belong to a residue that has a CA?  If
-	    // it does, reset at_best to be the CA of the residue, but
-	    // keep dist_best as it was, of course.
-	    if (ca_check_flag == 1) {
-	       mmdb::Residue *res = at->residue;
-	       int natoms;
-	       mmdb::PPAtom residue_atoms;
-	       res->GetAtomTable(residue_atoms, natoms);
-	       for (int iatom=0; iatom<natoms; iatom++) {
-		  if (! residue_atoms[iatom]->isTer()) {
-		     if (! strcmp(residue_atoms[iatom]->name, " CA ")) {
-			if (! strcmp(residue_atoms[iatom]->altLoc, at->altLoc)) {
-			   at_best = residue_atoms[iatom];
-			}
-		     }
-		  }
-	       }
+      if (! at->isTer()) {
+         std::string chain_id_from_at(at->GetChainID());
+         if ((chain_id_from_at == chain_id) || !use_this_chain_id) {
+            float d2 = (at->x - pt.x()) * (at->x - pt.x());
+            d2 += (at->y - pt.y()) * (at->y - pt.y());
+            d2 += (at->z - pt.z()) * (at->z - pt.z());
+            if (d2 < dist_best) {
+               dist_best = d2;
+               at_best = at;
+               // Now, does this at belong to a residue that has a CA?  If
+               // it does, reset at_best to be the CA of the residue, but
+               // keep dist_best as it was, of course.
+               if (ca_check_flag) {
+                  mmdb::Residue *res = at->residue;
+                  if (res) {
+                     int natoms = 0;
+                     mmdb::PPAtom residue_atoms = 0;
+                     res->GetAtomTable(residue_atoms, natoms);
+                     for (int iatom=0; iatom<natoms; iatom++) {
+                        mmdb::Atom *r_at = residue_atoms[iatom];
+                        if (! r_at->isTer()) {
+                           if (! strcmp(r_at->name, " CA ")) {
+                              if (! strcmp(r_at->altLoc, at->altLoc)) {
+                                 at_best = r_at;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
 	    }
 	 }
       }
@@ -757,8 +762,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          ii_f += 1.2 * static_cast<float>(imol_no);
          rgb[0] = 0.75; rgb[1] = 0.55; rgb[2] = 0.45;
          float ra = ii_f*79.0/360.0;
+         ra += rotation_size;
          while (ra > 1.0) ra -= 1.0;
-         if (ii_f > 0) {
+         if (ra > 0) {
 	    rgb.rotate(ra);
          }
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
@@ -961,7 +967,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
 
    if (false)
       std::cout << "debug set_bond_colour_by_colour_wheel_position() " << i
-                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS<< std::endl;
+                << " " << bonds_box_type << " " << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
 
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
       rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
