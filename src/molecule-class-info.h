@@ -45,6 +45,14 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include <glm/glm.hpp>
 
+#ifndef __NVCC__
+#ifdef HAVE_BOOST
+#define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
+#include "utils/ctpl.h"
+#endif // HAVE_CXX_THREAD
+#endif // __NVCC__
+
+
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
