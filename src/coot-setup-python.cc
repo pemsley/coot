@@ -71,39 +71,24 @@ void setup_python(int argc, char **argv) {
 
 #endif // USE_PYMAC_INIT
 
-
    std::string pkgpydirectory = PKGPYTHONDIR;
    std::string pydirectory = PYTHONDIR;
 
-   std::cout << "debug:: in setup_python() pydirectory is " << pydirectory << std::endl;
+   std::cout << "debug:: in setup_python()    pydirectory is " << pydirectory << std::endl;
    std::cout << "debug:: in setup_python() pkgpydirectory is " << pkgpydirectory << std::endl;
 
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
 
-   int err = import_python_module("coot", 0);
+   int err = PyRun_SimpleString("import coot");
    if (err == -1) {
-      std::cout << "ERROR:: could not import coot.py" << std::endl;
+      std::cout << "ERROR:: could not import coot module" << std::endl;
    } else {
-      std::cout << "INFO:: coot.py imported" << std::endl;
-
+      std::cout << "INFO:: coot module imported" << std::endl;
 
       initcoot_python_gobject(); // this is not a good name for this function. We need to say
                                  // this this is the module that wraps the glue to get
                                  // the status-bar, menu-bar etc.
-      
-      std::string coot_load_modules_dot_py = "coot_load_modules.py";
-      std::string coot_py_file_name = coot::util::append_dir_file(pkgpydirectory, coot_load_modules_dot_py);
-      if (coot::file_exists(coot_py_file_name)) {
-         PyRun_SimpleString("global use_gui_qm; use_gui_qm = False");
-         FILE *fp = fopen(coot_py_file_name.c_str(), "r");
-         PyRun_SimpleFile(fp, coot_py_file_name.c_str());
-         fclose(fp);
-         std::cout << "read " << coot_py_file_name << std::endl;
-      } else {
-         std::cout << "WARNING:: No coot modules found! Python scripting crippled. "
-                   << std::endl;
-      }
    }
 
 #endif // USE_PYTHON
@@ -114,25 +99,25 @@ void
 setup_python_classes() {
 #ifdef USE_PYTHON
 
-  init_pathology_data(); 
+  init_pathology_data();
 
 #endif
 
-} 
+}
 
 void try_load_dot_coot_py_and_preferences(const std::string &home_directory) {
 
    if (graphics_info_t::run_startup_scripts_flag) {
 
       short int use_graphics_flag = use_graphics_interface_state();
-   
+
       // load preferences file .coot_preferences.py
       std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
       struct stat buff;
       int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
-     
-      if (preferences_dir_status != 0) { 
-	 std::cout << "INFO:: preferences directory " << preferences_dir 
+
+      if (preferences_dir_status != 0) {
+	 std::cout << "INFO:: preferences directory " << preferences_dir
 		   << " does not exist. Won't read preferences." << std::endl;;
       } else {
 	 // load all .py files
