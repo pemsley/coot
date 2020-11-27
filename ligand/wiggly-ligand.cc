@@ -22,11 +22,12 @@
  */
 
 #include <stdexcept>
+
+#include "ideal/regularize-minimol.hh"
 #include "utils/coot-utils.hh"  // needed, it seems for the case where GSL
 			  // is not defined.
 
 #include "coot-utils/coot-coord-extras.hh"
-#include "ideal/regularize-minimol.hh"
 
 #include "wligand.hh"
 

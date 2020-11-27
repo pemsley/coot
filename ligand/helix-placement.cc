@@ -40,10 +40,10 @@
 
 #include <clipper/clipper.h>
 #include "clipper/ccp4/ccp4_map_io.h"
+#include "residue_by_phi_psi.hh"
 #include "helix-placement.hh"
 #include "utils/coot-utils.hh"
 #include "rigid-body.hh"
-#include "residue_by_phi_psi.hh"
 #include "mini-mol/mini-mol-utils.hh"
 #include "db-main/db-strands.hh"
 

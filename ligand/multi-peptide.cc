@@ -24,10 +24,10 @@
 #include <future>
 #endif // HAVE_CXX_THREAD
 
-#include "geometry/residue-and-atom-specs.hh"
-#include "mini-mol/mini-mol-utils.hh"
 #include "ideal/simple-restraint.hh"
 #include "multi-peptide.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "mini-mol/mini-mol-utils.hh"
 #include "residue_by_phi_psi.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "analysis/stats.hh"
