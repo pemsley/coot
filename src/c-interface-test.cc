@@ -170,6 +170,19 @@ int test_function(int i, int j) {
    // Is this the function you are really looking for (these days)?
 
    if (true) {
+      if (is_valid_model_molecule(i)) {
+         if (is_valid_map_molecule(j)) {
+            graphics_info_t g;
+            const clipper::Xmap<float> &xmap(g.molecules[j].xmap);
+            float scale_factor = 4;
+            float offset = 3;
+            g.molecules[i].recolour_ribbon_by_map(xmap, scale_factor, offset);
+            graphics_draw();
+         }
+      }
+   }
+
+   if (false) {
       graphics_info_t g;
       g.setup_draw_for_happy_face_residue_markers();
    }

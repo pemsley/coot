@@ -1306,6 +1306,17 @@ Mesh::draw(Shader *shader_p,
 }
 
 void
+Mesh::update_vertices() {
+
+   unsigned int vs = vertices.size();
+   if (vs > 0) {
+      glBindVertexArray(vao); // needed?
+      glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+      glBufferSubData(GL_ARRAY_BUFFER, 0, vs * sizeof(s_generic_vertex), &(vertices[0]));
+   }
+}
+
+void
 Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                     const std::vector<glm::vec4> &colours) {
 
@@ -1318,6 +1329,7 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
    unsigned int n_cols = colours.size();
 
    // No binding of the VAO?  !!!????
+   // glBindVertexArray(vao); // needed?
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);

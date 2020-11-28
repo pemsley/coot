@@ -3518,6 +3518,8 @@ public:        //                      public
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
    Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
 
+   // float scale_factor 4 , float offset 3
+   void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);
 
 };
 

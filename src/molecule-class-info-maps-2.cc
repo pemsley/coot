@@ -862,3 +862,43 @@ molecule_class_info_t::get_square_type(const unsigned int &i,
    }
    return square_type;
 }
+
+
+void
+molecule_class_info_t::recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset) {
+
+   // These should be Models after I reincorporate the hmt code
+
+   // sf 4
+   // offset 2.8
+
+   auto density_value_to_colour = [scale_factor, offset] (float f) {
+                                     // put f in range 0 to 1:
+                                     f *= scale_factor;
+                                     f -= offset;
+                                     if (f < 0.0) f = 0.0;
+                                     if (f > 1.0) f = 1.0;
+                                     // we want red (low) to green (high) colour scheme
+                                     f = 1.0f - f;
+                                     coot::colour_holder ch(f, 0.0, 1.0, false, "dummy");
+                                     return ch;
+                                  };
+
+   unsigned int n_sampled = 0;
+   for (unsigned int j=0; j<meshes.size(); j++) {
+      Mesh &m = meshes[j];
+      for (unsigned int i=0; i<m.vertices.size(); i++) {
+         const glm::vec3 &pos = m.vertices[i].pos;
+         clipper::Coord_orth pos_c(pos.x, pos.y, pos.z);
+         float f = coot::util::density_at_point(xmap, pos_c);
+         coot::colour_holder ch = density_value_to_colour(f);
+         glm::vec4 new_colour(ch.red, ch.green, ch.blue, 1.0);
+         m.vertices[i].color = new_colour; // hows that for consistency?
+         n_sampled++;
+      }
+      m.update_vertices();
+   }
+   std::cout << "sampling done: " << n_sampled << " points" << std::endl;
+
+
+}

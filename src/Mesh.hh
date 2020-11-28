@@ -122,6 +122,12 @@ public:
                               unsigned int n_instances_in,
                               const Material &material_in);
 
+   // update vertices
+   // the vertices have been updated (externally) (say by position and colour) so they need to
+   // be re-pushed to the graphics card
+   //
+   void update_vertices(); // push to graphics.
+
    // when the position, orientation and colour change:
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                       const std::vector<glm::vec4> &colours);
