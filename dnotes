@@ -9643,3 +9643,37 @@ Wed 18 Nov 19:12:26 GMT 2020
 --
 
  11203 map model correlation and unmodelled density - linoleic acid
+
+----
+Fri 27 Nov 20:36:14 GMT 2020
+
+Hateful python. Sigh... what the hell is going wrong? So difficult to diagnose...
+
+
+penelope coot-gtk3/build-into-release-dir/src> ./coot-bin --python --no-graphics
+debug:: in setup_python() pydirectory is /home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot
+INFO:: coot.py imported
+###debug require_version() available version: Gtk 3.0 []
+Traceback (most recent call last):
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/coot_load_modules.py", line 131, in <module>
+    import fitting
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/fitting.py", line 21, in <module>
+    import coot_gui
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/coot/coot_gui.py", line 35, in <module>
+    gi.require_version('Gtk', '3.0')
+  File "/home/paule/autobuild/Linux-penelope-gtk3/lib/python3.6/site-packages/gi/__init__.py", line 130, in require_version
+    raise ValueError('Namespace %s not available' % namespace)
+ValueError: Namespace Gtk not available
+
+# but
+
+penelope coot-gtk3/build-into-release-dir/src> which python3
+/home/paule/autobuild/Linux-penelope-gtk3/bin/python3
+penelope coot-gtk3/build-into-release-dir/src> python3
+Python 3.6.5 (default, Nov 26 2020, 23:50:25)
+[GCC 9.2.1 20191008] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import gi
+>>> gi.require_version('Gtk', '3.0')
+require_version() available version: Gtk 3.0 ['3.0', '2.0']
+>>>

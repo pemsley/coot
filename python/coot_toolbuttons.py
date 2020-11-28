@@ -20,12 +20,13 @@
 # import gtk
 #  import pango
 
-import time
-import coot_gui_api
-import coot
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+import coot_gui_api
+import coot
+import time
+import os
 
 # put all coot svgs in the default icon set
 
@@ -36,7 +37,7 @@ def register_coot_icons():
     stock_ids = Gtk.stock_list_ids()
     pixbuf_dir = os.getenv('COOT_PIXMAPS_DIR')
     if (not pixbuf_dir):
-        pixbuf_dir = os.path.join(get_pkgdatadir(), "pixmaps")
+        pixbuf_dir = os.path.join(coot.get_pkgdatadir_py(), "pixmaps")
     patt = os.path.normpath(pixbuf_dir + '/*.svg')
     coot_icon_filename_ls = glob.glob(patt)
     icon_info_ls = []
@@ -68,8 +69,7 @@ def add_coot_toolbar_separator():
     try:
         coot_main_toolbar = coot_gui_api.main_toolbar()
     except:
-        print("""BL ERROR:: coot_python module not available!!
-        So we cannot make toolbar_separator!""")
+        print("""ERROR:: coot_gui_api module not available""")
         return False
 
         # main body
@@ -217,8 +217,7 @@ if True:  # test for python
                             # check if the button is in the existing button list
                             for toolbar in coot_gui.toolbar_label_list():
                                 if (button_label == toolbar[0]):
-                                    coot_python.main_toolbar().remove(
-                                        toolbar[1])
+                                    coot_gui_api.main_toolbar().remove(toolbar[1])
                                     # remove from save
                                     remove_toolbar_from_init_file(button_label)
 
@@ -228,7 +227,7 @@ if True:  # test for python
             def save_function(*args):
                 print("Save me")
 
-            window = Gtk.Window(Gtk.WINDOW_TOPLEVEL)
+            window = Gtk.Window()
             window.set_title("Toolbar Selection")
             window.set_default_size(700, 450)
             scrolled_win = Gtk.ScrolledWindow()
@@ -562,7 +561,7 @@ if True:  # test for python
                                       ["Show Text", toolbar_show_text]],
                                      event)
 
-        coot_main_toolbar = coot_python.main_toolbar()
+        coot_main_toolbar = coot_gui_api.main_toolbar()
         coot_main_toolbar.connect("button-press-event", show_pop_up_menu)
 
 # save a toolbar button to ~/.coot-preferences/coot_toolbuttons.py
