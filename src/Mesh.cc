@@ -1475,12 +1475,12 @@ Mesh::smooth_triangles() {
 
    float cos_min = cosf(45.0 * 2.0 * M_PI);
    std::map<unsigned int, std::set<unsigned int> >::const_iterator it;
-   for (it=m.begin(); it!=m.end(); it++) {
+   for (it=m.begin(); it!=m.end(); ++it) {
       glm::vec3 sum = vertices[it->first].pos;
       glm::vec3 base_normal = vertices[it->first].normal;
       unsigned int count = 1;
       std::set<unsigned int>::const_iterator it_s;
-      for (it_s=it->second.begin(); it_s!=it->second.end(); it_s++) {
+      for (it_s=it->second.begin(); it_s!=it->second.end(); ++it_s) {
          float dp = glm::dot(base_normal, vertices[*it_s].normal);
          if (dp > cos_min) {
             sum += vertices[*it_s].pos;

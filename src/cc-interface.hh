@@ -325,11 +325,16 @@ PyObject *export_molecule_as_x3d(int imol);
 
 bool export_molecule_as_obj(int imol, const std::string &file_name);
 
-void
-colour_map_by_other_map_turn_off(int imol_map);
+//! \brief  turn of colour map by other map
+void colour_map_by_other_map_turn_off(int imol_map);
 
-void
-add_density_map_cap();
+//! \brief Add map caps
+void add_density_map_cap();
+
+//! \brief colour meshes (e.g. Ribbon diagrams) by map
+//!
+//! scale might be 2 and offset 1 (for example)
+void recolour_mesh_by_map(int imol_model, int imol_map, float scale, float offset);
 
 
 //! \name Multi-Residue Torsion

@@ -2686,3 +2686,19 @@ add_density_map_cap() {
 
    }
 }
+
+
+//! \brief colour meshes (e.g. Ribbon diagrams) by map
+//!
+//! scale might be 2 and offset 1 (for example)
+void recolour_mesh_by_map(int imol_model, int imol_map, float scale_factor, float offset) {
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         graphics_info_t g;
+         const clipper::Xmap<float> &xmap(g.molecules[imol_map].xmap);
+         g.molecules[imol_model].recolour_ribbon_by_map(xmap, scale_factor, offset);
+         graphics_draw();
+      }
+   }
+}
