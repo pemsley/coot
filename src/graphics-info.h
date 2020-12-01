@@ -4113,6 +4113,7 @@ string   static std::string sessionid;
    static Shader shader_for_maps;
    static Shader shader_for_map_caps;
    static Shader shader_for_models;
+   static Shader shader_for_model_as_meshes; // _as_Model in due course
    static Shader shader_for_moleculestotriangles;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;

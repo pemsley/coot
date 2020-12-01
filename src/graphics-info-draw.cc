@@ -725,6 +725,20 @@ graphics_info_t::draw_model_molecules() {
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 view_rotation = get_view_rotation();
 
+
+   if (true) {
+      Shader &shader_p = graphics_info_t::shader_for_model_as_meshes;
+      glm::vec4 bgc(background_colour, 1.0);
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+         if (! graphics_info_t::is_valid_model_molecule(ii)) continue;
+         molecule_class_info_t &m = graphics_info_t::molecules[ii];
+         if (! m.draw_it) continue;
+         m.draw_molecule_as_meshes(&shader_p, mvp, view_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      }
+   }
+
+   
+
    Shader &shader = graphics_info_t::shader_for_models;
    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 

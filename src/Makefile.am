@@ -123,7 +123,8 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     moleculestotriangles.shader \
                      instanced-objects.shader particles.shader lines.shader \
                      draw-map-cap.shader lines-pulse.shader rama-balls.shader \
-		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader
+		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader \
+		     model-as-mesh.shader
 
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
@@ -524,6 +525,7 @@ coot_bin_SOURCES = \
 	matrix-utils.cc          \
         map-statistics.hh        \
 	Mesh.cc Mesh.hh          \
+	Mesh-from-graphical-bonds.cc     \
 	meshed-generic-display-object.hh \
 	meshed-generic-display-object.cc \
 	merge-molecule-results-info-t.hh \

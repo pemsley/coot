@@ -530,9 +530,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
 				       bool done_h_bond = false; // set when we make a half-bond between H and O.
 				       if (element_1 == " O") {
-					  int bond_udd = NO_BOND;
+					  int bond_udd = graphical_bonds_container::NO_BOND;
 					  atom_p_1->GetUDData(udd_done_bond_handle, bond_udd);
-					  if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
+					  if (bond_udd == graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND) {
 					  } else {
 					     add_half_bonds(atom_1_pos, atom_2_pos,
 							    atom_selection_1[contact[i].id1],
@@ -545,9 +545,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				       }
 
 				       if (element_2 == " O") {
-					  int bond_udd = NO_BOND;
+					  int bond_udd = graphical_bonds_container::NO_BOND;
 					  atom_p_2->GetUDData(udd_done_bond_handle, bond_udd);
-					  if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
+					  if (bond_udd == graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND) {
 					  } else {
 					     add_half_bonds(atom_1_pos, atom_2_pos,
 							    atom_selection_1[contact[i].id1],
@@ -574,8 +574,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 					  }
 				       }
 				       done_bond_udd_handle = true;
-				       atom_p_1->PutUDData(udd_done_bond_handle, BONDED_WITH_BOND_TO_HYDROGEN);
-				       atom_p_2->PutUDData(udd_done_bond_handle, BONDED_WITH_BOND_TO_HYDROGEN);
+				       atom_p_1->PutUDData(udd_done_bond_handle, graphical_bonds_container::BONDED_WITH_BOND_TO_HYDROGEN);
+				       atom_p_2->PutUDData(udd_done_bond_handle, graphical_bonds_container::BONDED_WITH_BOND_TO_HYDROGEN);
 				    }
 				 } // not hydrogen test
 
@@ -713,7 +713,7 @@ Bond_lines_container::mark_atoms_as_bonded(mmdb::Atom *atom_p_1, mmdb::Atom *ato
 		(!strcmp(atom_p_1->element, "Cl")) ||
 		(!strcmp(atom_p_1->element, "Br")) ||
 		(!strcmp(atom_p_1->element, " P")))) {
-	    atom_p_1->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+	    atom_p_1->PutUDData(udd_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 	 }
 
 	 if (! ((!strcmp(atom_p_2->element, " S")) ||
@@ -723,7 +723,7 @@ Bond_lines_container::mark_atoms_as_bonded(mmdb::Atom *atom_p_1, mmdb::Atom *ato
 		(!strcmp(atom_p_2->element, "Cl")) ||
 		(!strcmp(atom_p_2->element, "Br")) ||
 		(!strcmp(atom_p_2->element, " P")))) {
-	    atom_p_2->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+	    atom_p_2->PutUDData(udd_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 	 }
       }
    }
@@ -1474,8 +1474,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 				 }
 
 				 if (have_udd_handle) {
-				    residue_atoms[iat]->PutUDData(udd_bond_handle, BONDED_WITH_HETATM_BOND);
-				    residue_atoms[jat]->PutUDData(udd_bond_handle, BONDED_WITH_HETATM_BOND);
+				    residue_atoms[iat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
+				    residue_atoms[jat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
 				 }
 				 added_bond = 1;
 				 // break; // nope! if this is in place: "" - "" is OK
@@ -2053,7 +2053,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       have_udd_atoms = 0;
    } else {
       for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-	 SelAtom.atom_selection[i]->PutUDData(udd_found_bond_handle, NO_BOND);
+	 SelAtom.atom_selection[i]->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
       }
    }
 
@@ -2165,10 +2165,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
 	    if (non_Hydrogen_atoms[i]->GetUDData(udd_found_bond_handle, ic) == mmdb::UDDATA_Ok) {
 	       if ((ic == 0) ||
-		   ((!strcmp(non_Hydrogen_atoms[i]->element, " S")) && (ic != BONDED_WITH_HETATM_BOND)) ||
-		   ((!strcmp(non_Hydrogen_atoms[i]->element, "SE")) && (ic != BONDED_WITH_HETATM_BOND)) ||
-		   ((!strcmp(non_Hydrogen_atoms[i]->element, "FE")) && (ic != BONDED_WITH_HETATM_BOND)) ||
-		   ((!strcmp(non_Hydrogen_atoms[i]->element, " P")) && (ic != BONDED_WITH_HETATM_BOND))) {
+		   ((!strcmp(non_Hydrogen_atoms[i]->element, " S")) && (ic != graphical_bonds_container::BONDED_WITH_HETATM_BOND)) ||
+		   ((!strcmp(non_Hydrogen_atoms[i]->element, "SE")) && (ic != graphical_bonds_container::BONDED_WITH_HETATM_BOND)) ||
+		   ((!strcmp(non_Hydrogen_atoms[i]->element, "FE")) && (ic != graphical_bonds_container::BONDED_WITH_HETATM_BOND)) ||
+		   ((!strcmp(non_Hydrogen_atoms[i]->element, " P")) && (ic != graphical_bonds_container::BONDED_WITH_HETATM_BOND))) {
 
 		  // std::cout << "::::  No contact for " << non_Hydrogen_atoms[i]
 		  //           << " with ic " << ic << std::endl;
@@ -2221,7 +2221,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 //
 	 for (int i=0; i<n_non_H; i++) {
 	    if (non_Hydrogen_atoms[i]->GetUDData(udd_found_bond_handle, ic) == mmdb::UDDATA_Ok) {
-	       if (ic == NO_BOND) {
+	       if (ic == graphical_bonds_container::NO_BOND) {
 		  // no contact found
 		  mmdb::Residue *residue_p = non_Hydrogen_atoms[i]->residue;
 
@@ -2250,7 +2250,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 if (do_bonds_to_hydrogens && (n_H > 0)) {
 	    for (int i=0; i<n_H; i++) {
 	       if (Hydrogen_atoms[i]->GetUDData(udd_found_bond_handle, ic) == mmdb::UDDATA_Ok) {
-		  if (ic == NO_BOND) {
+		  if (ic == graphical_bonds_container::NO_BOND) {
 
 		     // no contact found
 		     mmdb::Residue *residue_p = Hydrogen_atoms[i]->residue;
@@ -2342,8 +2342,8 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		     addBond(col,  cart_at1, bond_mid_point, cc, model_number, iat_1, iat_2); // The SE->mid_pt bond
 		     addBond(colc, bond_mid_point, cart_at2, cc, model_number, iat_1, iat_2); // The Cx->mid_pt bond
 		     // mark atom as bonded.
-		     residue_atoms[i]->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
-		     mse_atom->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
+		     residue_atoms[i]->PutUDData(udd_handle_bond, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+		     mse_atom->PutUDData(udd_handle_bond, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 		  }
 	       }
 	    }
@@ -2383,8 +2383,8 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 		     addBond(col,  cart_at1, bond_mid_point, cc, model_number, iat_1, iat_2);
 		     addBond(colc, bond_mid_point, cart_at2, cc, model_number, iat_1, iat_2);
 		     // mark atom as bonded.
-		     residue_atoms[i]->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
-		     mse_atom->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
+		     residue_atoms[i]->PutUDData(udd_handle_bond, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+		     mse_atom->PutUDData(udd_handle_bond, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 		  }
 	       }
 	    }
@@ -2468,8 +2468,8 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 		     addBond(colc, bond_mid_point, res_atom_pos, cc, model_number, iat_2, iat_2);
 		     bond_added_flag = 1;
 		     // mark the atom as bonded.
-		     atom->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
-		     residue_atoms[i]->PutUDData(udd_handle_bond, BONDED_WITH_STANDARD_ATOM_BOND);
+		     atom->PutUDData(udd_handle_bond, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+		     residue_atoms[i]->PutUDData(udd_handle_bond, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 		  }
 	       }
 	    }
@@ -4736,8 +4736,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					     at_1->PutUDData(udd_has_bond_handle, 1);
 					     at_2->PutUDData(udd_has_bond_handle, 1);
 					     // for use with Ca+ligand mode
-					     residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-					     residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+					     residue_this->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+					     residue_prev->PutUDData(udd_has_ca_handle, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 					  }
 				       }
 				    }
@@ -6158,8 +6158,8 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                            // I need to go back to a previous version to find
                            // how this is used.
                            if (have_udd_bond_handle) {
-                              residue_atoms[iat]->PutUDData(udd_bond_handle, BONDED_WITH_HETATM_BOND);
-                              residue_atoms[jat]->PutUDData(udd_bond_handle, BONDED_WITH_HETATM_BOND);
+                              residue_atoms[iat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
+                              residue_atoms[jat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
                            }
                         }
                      }
@@ -6229,7 +6229,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    for (int iat=0; iat<asc.n_selected_atoms; iat++) {
       mmdb::Atom *at = asc.atom_selection[iat];
       if (at->GetUDData(udd_found_bond_handle, ic) == mmdb::UDDATA_Ok) {
-         if (ic == NO_BOND) {
+         if (ic == graphical_bonds_container::NO_BOND) {
             mmdb::Residue *residue_p = at->residue;
             std::string res_name(residue_p->GetResName());
             if (res_name == "HOH") {
@@ -6564,7 +6564,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 std::cout << " atom bonding registration failed.\n";
       } else {
 	 for (int i=0; i<n_selected_atoms; i++)
-	    atom_selection[i]->PutUDData(uddHnd, NO_BOND);
+	    atom_selection[i]->PutUDData(uddHnd, graphical_bonds_container::NO_BOND);
       }
 
       if (ncontacts > 0) {
@@ -6614,8 +6614,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 			   addBond(col, atom_1, atom_2, cc, imodel, iat_1, iat_2);
 
 			   if (uddHnd>=0) {
-			      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			      at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+			      at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 			   }
 			}
 		     } else {
@@ -6623,8 +6623,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 			// Mark it as bonded (we don't want to see single
 			// unbonded (stared) hydorgens.
 			if (uddHnd>=0) {
-			   at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			   at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			   at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+			   at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 			}
 		     }
 		  }
@@ -6654,7 +6654,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	       std::cout << "ERROR:: do_colour_by_chain_bonds() failed to get ic bond info"
 			 << std::endl;
 	    } else {
-	       if ((ic == NO_BOND) ||
+	       if ((ic == graphical_bonds_container::NO_BOND) ||
 		   (!strcmp(atom_selection[i]->element, " S")) ||
 		   (!strcmp(atom_selection[i]->element, "SE")) ||
 		   (!strcmp(atom_selection[i]->element, " P"))) {
@@ -6694,7 +6694,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 //
 	 for (int i=0; i<n_selected_atoms; i++) {
 	    if (atom_selection[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
-	       if (ic == NO_BOND) {
+	       if (ic == graphical_bonds_container::NO_BOND) {
 		  // no contact found
 		  col = atom_colour(atom_selection[i], atom_colour_type);
 		  std::string ele = atom_selection[i]->element;
@@ -6795,7 +6795,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	 std::cout << " atom bonding registration failed.\n";
       } else {
 	 for (int i=0; i<n_selected_atoms; i++)
-	    atom_selection[i]->PutUDData(uddHnd, NO_BOND);
+	    atom_selection[i]->PutUDData(uddHnd, graphical_bonds_container::NO_BOND);
       }
 
       if (contact && ncontacts > 0) {
@@ -6871,8 +6871,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 			double d = (pt_1-pt_2).amplitude();
 			if (d < 1.5) {
 			   if (uddHnd>=0) {
-			      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			      at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+			      at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 			   }
 			}
 		     }
@@ -6904,7 +6904,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 
 	       // 20190921-PE no longer consider P for additional bonds. Stops bond flashing in Goodsell
 	       //             mode.
-	       if ((ic == NO_BOND) ||
+	       if ((ic == graphical_bonds_container::NO_BOND) ||
 		   (!strcmp(atom_selection[i]->element, " S")) ||
 		   (!strcmp(atom_selection[i]->element, "SE"))
 		   // (!strcmp(atom_selection[i]->element, " P")
@@ -6949,7 +6949,7 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
 	 //
 	 for (int i=0; i<n_selected_atoms; i++) {
 	    if (atom_selection[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
-	       if (ic == NO_BOND) {
+	       if (ic == graphical_bonds_container::NO_BOND) {
 		  // no contact found
 		  mmdb::Residue *residue_p = atom_selection[i]->residue;
 		  col = atom_colour(atom_selection[i], atom_colour_type);
@@ -7135,8 +7135,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only_internals(int imol, 
 
    // we drew a bond.  Mark it up.
    if (uddHnd>=0) {
-      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+      at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+      at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
    }
 
 }
@@ -7207,8 +7207,8 @@ Bond_lines_container::do_colour_by_chain_bonds_internals_goodsell_mode(int imol,
 	 }
 	 // we drew a bond.  Mark it up.
 	 if (uddHnd>=0) {
-	    at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-	    at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+	    at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+	    at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 	 }
       }
    }
@@ -7291,7 +7291,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	    std::cout << " atom bonding registration failed.\n";
 	 } else {
 	    for (int i=0; i<n_selected_atoms; i++)
-	       atom_selection[i]->PutUDData(uddHnd, NO_BOND);
+	       atom_selection[i]->PutUDData(uddHnd, graphical_bonds_container::NO_BOND);
 	 }
 
 	 if (contact && ncontacts > 0) {
@@ -7337,8 +7337,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 			   }
 
 			   if (uddHnd>=0) {
-			      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			      at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+			      at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 			   }
 			}
 		     } else {
@@ -7346,8 +7346,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 			// Mark it as bonded (we don't want to see single
 			// unbonded (stared) hydorgens).
 			if (uddHnd>=0) {
-			   at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			   at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			   at1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+			   at2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
 			}
 		     }
 		  }

@@ -155,10 +155,6 @@ enum symm_keys {NO_SYMMETRY_BONDS};
 
 class Bond_lines_container { 
 
-   enum { NO_BOND,
-	  BONDED_WITH_STANDARD_ATOM_BOND,
-	  BONDED_WITH_BOND_TO_HYDROGEN, 
-	  BONDED_WITH_HETATM_BOND /* by dictionary */ };
    bool verbose_reporting;
    bool do_disulfide_bonds_flag;
    bool do_bonds_to_hydrogens;

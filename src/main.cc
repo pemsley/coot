@@ -352,7 +352,7 @@ main (int argc, char *argv[]) {
 #endif
 
 #ifdef WITH_SOUND
-   test_sound(argc, argv);
+   // test_sound(argc, argv);
 #endif // WITH_SOUND
 
    if (cld.run_internal_tests_and_exit)

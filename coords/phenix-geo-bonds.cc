@@ -226,8 +226,8 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       mmdb::Atom *a2 = bonded_atom_pairs[i].second;
       coot::CartesianPair p(coot::Cartesian(a1->x, a1->y, a1->z),
 			    coot::Cartesian(a2->x, a2->y, a2->z));
-      a1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-      a2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+      a1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
+      a2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
       bonds[0].add_bond(p, cc, true, true, -1, -1, -1);
    }
@@ -265,7 +265,7 @@ Bond_lines_container::set_udd_unbonded(mmdb::Manager *mol, int uddHnd) {
 		     for (int iat=0; iat<n_atoms; iat++) {
 			at = residue_p->GetAtom(iat);
 			if (at) 
-			   at->PutUDData(uddHnd, NO_BOND);
+			   at->PutUDData(uddHnd, graphical_bonds_container::NO_BOND);
 		     }
 		  }
 	       }
@@ -313,7 +313,7 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 			at = residue_p->GetAtom(iat);
 			if (at) { 
 			   if (at->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
-			      if (ic == NO_BOND) {
+			      if (ic == graphical_bonds_container::NO_BOND) {
 				 coot::Cartesian atom_pos(at->x, at->y, at->z);
 				 addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x, cc, -1, -1, -1);
 				 addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y, cc, -1, -1, -1);

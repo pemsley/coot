@@ -8,6 +8,8 @@
 
 int test_sound(int argc, char **argv) {
 
+   std::cout << "################ playing sound" << std::endl;
+
    int status = 0;
    std::string fn("test.ogg");
    FILE *f = fopen(fn.c_str(), "r");
@@ -41,6 +43,7 @@ int test_sound(int argc, char **argv) {
 	       int current_section;
 
 	       while(!eof){
+                  std::cout << "################ really playing sound" << std::endl;
 		  long ret= ov_read(&ovf, pcmout, sizeof(pcmout), 0, 2, 1, &current_section);
 		  if (ret == 0) {
 		     /* EOF */
@@ -61,7 +64,7 @@ int test_sound(int argc, char **argv) {
       // close oggvorbisfile?
    }
 
-   return(0);
+   return(status);
 
 }
 

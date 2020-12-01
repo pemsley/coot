@@ -15,6 +15,7 @@ graphics_info_t::init_shaders() {
    std::vector<std::reference_wrapper<Shader> > shaders = {shader_for_maps,
                                                            shader_for_map_caps,
                                                            shader_for_models,
+                                                           shader_for_model_as_meshes,
                                                            shader_for_central_cube,
                                                            shader_for_origin_cube,
                                                            shader_for_hud_text,
@@ -55,6 +56,7 @@ graphics_info_t::init_shaders() {
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_happy_face_residue_markers.init("happy-face-residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
 
    // we use the above to make an image/texture in the framebuffer and use then
    // shader_for_screen to convert that framebuffer to the screen buffer.

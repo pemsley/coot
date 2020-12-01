@@ -3518,6 +3518,24 @@ public:        //                      public
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
    Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
 
+   // These meshes are the molecule, replacing the inital way of representing the molecule. Uses
+   // instances of cylinders and spheres and hemispheres. Put them in a Model at some stage.
+   void make_meshes_from_bonds_box(); // fills the below meshes.
+   Mesh molecule_as_mesh_atoms_1;
+   Mesh molecule_as_mesh_atoms_2;
+   Mesh molecule_as_mesh_bonds;
+   Mesh molecule_as_mesh_rama_balls;
+   Mesh molecule_as_mesh_rota_dodecs;
+   // pass this function to the Mesh so that we can determine the atom and bond colours
+   static glm::vec4 get_glm_colour_func(int idx_col, int bonds_box_type);
+   void draw_molecule_as_meshes(Shader *shader_p,
+                                const glm::mat4 &mvp,
+                                const glm::mat4 &view_rotation_matrix,
+                                const std::map<unsigned int, lights_info_t> &lights,
+                                const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                const glm::vec4 &background_colour,
+                                bool do_depth_fog);
+
    // float scale_factor 4 , float offset 3
    void recolour_ribbon_by_map(const clipper::Xmap<float> &xmap, float scale_factor, float offset);
 

@@ -15,6 +15,8 @@
 #include <assimp/scene.h>
 #endif
 
+#include "coords/graphical-bonds-container.hh"
+
 class Mesh {
    enum { VAO_NOT_SET = 99999999 };
    void setup_debugging_instancing_buffers(); // or buffers, when we add rotation
@@ -24,6 +26,9 @@ class Mesh {
    void setup_buffers();
    // rts rotation, translation & scale
    void setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
+   // this is when we learning/testing/playing - I don't want to delete it (yet) just in case I want
+   // to go back and test out previous example code.
+   void setup_matrix_and_colour_instancing_buffers_old(const std::vector<glm::mat4> &mats, const std::vector<glm::vec4> &colours);
    int n_instances; // instances to be drawn
    int n_instances_allocated; // that we made space for in glBufferData()
    bool normals_are_setup;
@@ -41,10 +46,11 @@ class Mesh {
 public:
    GLuint vao;
    GLuint buffer_id;
+   GLuint index_buffer_id;
    GLuint inst_rts_buffer_id;
    GLuint inst_model_translation_buffer_id;
    GLuint inst_colour_buffer_id;
-   GLuint index_buffer_id;
+   GLuint inst_scales_buffer_id;
    bool this_mesh_is_closed;
    bool draw_this_mesh;
    bool is_instanced;
@@ -90,6 +96,24 @@ public:
    void draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation);
    void draw_normals(const glm::mat4 &mvp, float normal_scaling); // debugging
 
+   // the current draw method is a mess with changing between colours and instancing adn idex of the attribute array
+   // the new system has this layout:
+   // 0 vertex position
+   // 1 vertex normal
+   // 2 vertex colour
+   // 3 instance colour
+   // 4 instance rot-trans-1  // these include the scale
+   // 5 instance rot-trans-2
+   // 6 instance rot-trans-3
+   // 7 instance rot-trans-4
+   void draw_instanced(Shader *shader,
+                       const glm::mat4 &mvp,
+                       const glm::mat4 &view_rotation_matrix,
+                       const std::map<unsigned int, lights_info_t> &lights,
+                       const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                       const glm::vec4 &background_colour,
+                       bool do_depth_fog);
+
    // testing/example functions
    void setup_rama_balls(Shader *shader_p, const Material &material_in); // call fill_rama_balls() and setup_buffers()
    void setup_simple_triangles(Shader *shader_p, const Material &material_in);
@@ -122,6 +146,32 @@ public:
                               unsigned int n_instances_in,
                               const Material &material_in);
 
+   // These are separated because they have different vertices
+   // They use a sphere, hemisphere or cylinder at the origin a the vertices and each bond and atom
+   // has a translation and rotation (so that the geometry of the bonds matches the geom of the
+   // hemisphere (octaballs)).
+   void make_graphical_bonds_spherical_atoms(Shader *shader_p,
+                                             const Material &material,
+                                             const graphical_bonds_container &gbc, int udd_handle_bonded_type,
+                                             float atom_radius,
+                                             float bond_radius,
+                                             unsigned int num_subdivisions,
+                                             glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+   void make_graphical_bonds_hemispherical_atoms(Shader *shader_p,
+                                                 const Material &material,
+                                                 const graphical_bonds_container &gbc, int udd_handle_bonded_type,
+                                                 float atom_radius,
+                                                 float bond_radius,
+                                                 unsigned int num_subdivisions,
+                                                 glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+   void make_graphical_bonds_bonds(Shader *shader_p,
+                                   const Material &material,
+                                   const graphical_bonds_container &gbc,
+                                   float bond_radius,
+                                   unsigned int n_slices,
+                                   unsigned int n_stacks,
+                                   glm::vec4 (*get_glm_colour_for_bonds) (int, int));
+
    // update vertices
    // the vertices have been updated (externally) (say by position and colour) so they need to
    // be re-pushed to the graphics card
@@ -129,6 +179,7 @@ public:
    void update_vertices(); // push to graphics.
 
    // when the position, orientation and colour change:
+   // transfer to the graphics_card with glBufferSubData
    void update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
                                       const std::vector<glm::vec4> &colours);
    // when the positions change:
@@ -137,6 +188,13 @@ public:
    // void setup_instancing_buffers(const particle_container_t &particles);
    void setup_vertex_and_instancing_buffers_for_particles(unsigned int n_particles); // setup the buffer, don't add data
    void update_instancing_buffer_data_for_particles(const particle_container_t &particles);
+
+
+   // make space
+   void setup_instancing_buffer_data(Shader *shader_p,
+                                     const Material &mat,
+                                     const std::vector<glm::mat4> &instanced_matrices,
+                                     const std::vector<glm::vec4> &instanced_colours);
 
    void fill_rama_balls(); // make up some balls
    void add_one_ball(float scale, const glm::vec3 &centre);

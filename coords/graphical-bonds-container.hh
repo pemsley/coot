@@ -158,8 +158,12 @@ class graphical_bonds_container {
 
  public:
    
+   enum { NO_BOND,
+	  BONDED_WITH_STANDARD_ATOM_BOND,
+	  BONDED_WITH_BOND_TO_HYDROGEN,
+	  BONDED_WITH_HETATM_BOND /* by dictionary */ };
    int num_colours;
-   graphical_bonds_lines_list<graphics_line_t> *bonds_; 
+   graphical_bonds_lines_list<graphics_line_t> *bonds_;
 
    int symmetry_has_been_created;
    graphical_bonds_lines_list<graphics_line_t> *symmetry_bonds_;

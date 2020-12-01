@@ -106,6 +106,12 @@ const double pi = M_PI;
 // for debugging
 #include "c-interface.h"
 
+#include "oct.hh"
+#include "molecular-mesh-generator.hh"
+#include "make-a-dodec.hh"
+ 
+
+
 glm::vec3
 cartesian_to_glm(const coot::Cartesian &c) {
    return glm::vec3(c.x(), c.y(), c.z());
@@ -259,6 +265,10 @@ molecule_class_info_t::setup_internal() {
 
    map_mesh_first_time = true;
    model_mesh_first_time = true;
+
+   molecule_as_mesh_atoms_1 = Mesh("molecule_as_mesh_atoms_1");
+   molecule_as_mesh_atoms_2 = Mesh("molecule_as_mesh_atoms_2");
+   molecule_as_mesh_bonds   = Mesh("molecule_as_mesh_bonds");
 
    // draw vectors
    draw_vector_sets.reserve(120); // more than enough
@@ -2685,11 +2695,11 @@ molecule_class_info_t::display_symmetry_bonds() {
           for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
 
      glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
-        ll.pair_list[j].positions.getStart().get_y(),
-        ll.pair_list[j].positions.getStart().get_z());
+                ll.pair_list[j].positions.getStart().get_y(),
+                ll.pair_list[j].positions.getStart().get_z());
      glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
-        ll.pair_list[j].positions.getFinish().get_y(),
-        ll.pair_list[j].positions.getFinish().get_z());
+                ll.pair_list[j].positions.getFinish().get_y(),
+                ll.pair_list[j].positions.getFinish().get_z());
      if ( (++linesdrawn & 60023) == 0) {
         glEnd();
         glBegin(GL_LINES);
@@ -3563,7 +3573,8 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 }
 
 
- #include "oct.hh"
+
+
 
 void
 molecule_class_info_t::make_bonds_type_checked(const char *caller) {
@@ -3662,17 +3673,51 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    }
 }
 
- #include "molecular-mesh-generator.hh"
-
  void
     molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
-
+    
     atom_radius_scale_factor = sf;
     make_glsl_bonds_type_checked();
  }
 
-#include "make-a-dodec.hh"
- 
+ void
+    molecule_class_info_t::make_meshes_from_bonds_box() {
+
+    if (atom_sel.mol) {
+       unsigned int num_subdivisions = 2;
+       float atom_radius = 0.4; // use atom_radius_scale_factor
+       float bond_radius = 0.4;
+       int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
+       Material material;
+       Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
+       molecule_as_mesh_atoms_1.make_graphical_bonds_spherical_atoms(shader_p, material, bonds_box, udd_handle_bonded_type,
+                                                                     atom_radius, bond_radius, num_subdivisions,
+                                                                     get_glm_colour_func);
+       molecule_as_mesh_atoms_2.make_graphical_bonds_hemispherical_atoms(shader_p, material, bonds_box, udd_handle_bonded_type,
+                                                                         atom_radius, bond_radius, num_subdivisions,
+                                                                         get_glm_colour_func);
+       unsigned int n_slices = 8;
+       unsigned int n_stacks = 2; // try 1
+       molecule_as_mesh_bonds.make_graphical_bonds_bonds(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
+                                                         get_glm_colour_func);
+       GLenum err = glGetError();
+       if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh_atoms::make_graphical_bonds spherical atoms\n";
+    } else {
+       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;
+    }
+
+    
+ }
+
+ // static
+ glm::vec4
+    molecule_class_info_t::get_glm_colour_func(int idx_col, int bonds_box_type) {
+    glm::vec4 col(0.55, 0.55, 0.5, 1.0);
+    if (idx_col == 1) col = glm::vec4(0.7, 0.7, 0.2, 1.0);
+    if (idx_col == 2) col = glm::vec4(0.7, 0.2, 0.2, 1.0);
+    if (idx_col == 3) col = glm::vec4(0.2, 0.3, 0.8, 1.0);
+    return col;
+ }
 
  void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 
@@ -3684,10 +3729,20 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
        if (! is_intermediate_atoms_molecule)
           std::cout << "--- make_glsl_bonds_type_checked() start " << std::endl;
 
+
     GLenum err = glGetError();
+    if (err) std::cout << "error in make_glsl_bonds_type_checked() -- start --\n";
+
+    err = glGetError();
     if (err) std::cout << "GL error in make_glsl_bonds_type_checked() -- start --\n";
 
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+    make_meshes_from_bonds_box();
+
+    // -----------------------------------------------------------------------------------------------
+
+    // -----------------------------------------------------------------------------------------------
 
     unsigned int n_slices = 16;
     unsigned int n_stacks = 2;
@@ -3933,6 +3988,24 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
     }
  }
 
+
+
+void
+   molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
+                                                  const glm::mat4 &mvp,
+                                                  const glm::mat4 &view_rotation_matrix,
+                                                  const std::map<unsigned int, lights_info_t> &lights,
+                                                  const glm::vec3 &eye_position, // eye position in view space (not molecule space)
+                                                  const glm::vec4 &background_colour,
+                                                  bool do_depth_fog) {
+
+   molecule_as_mesh_atoms_1.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+   molecule_as_mesh_atoms_2.draw_instanced(shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+   molecule_as_mesh_bonds.draw_instanced(  shader_p, mvp, view_rotation_matrix, lights, eye_position, background_colour, do_depth_fog);
+
+}
+
+ 
 void
 molecule_class_info_t::export_these_as_3d_object(const std::vector<vertex_with_rotation_translation> &vertices,
                                                  const std::vector<g_triangle> &triangles) {
