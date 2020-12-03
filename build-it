@@ -2001,17 +2001,6 @@ else
 fi
 
 
-
-
-else
-    if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-       echo installation has libgnomecanvas - you clever fellow
-    else
-       build_libgnomecanvas=1
-    fi
-fi
-
-
 # ========== guile etc ==========
 # FIXME indent
 
