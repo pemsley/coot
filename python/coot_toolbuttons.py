@@ -20,6 +20,7 @@ import pygtk
 import gtk
 import pango
 import time
+import os
 
   
 # put all coot svgs in the default icon set
