@@ -710,16 +710,39 @@
 		
 		(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol imol-map 1 0.1)))))))
 
-		  
-		  
+
+;; Backrub rotamers for chain. After alignment mutation we should run this.
+;;
+(define (backrub-rotamers-for-chain imol ch-id)
+
+  (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))
+  (make-backup imol)
+
+  (with-no-backups imol
+                   (let ((n-times 2))
+                     (let ((imol-map (imol-refinement-map)))
+                       (if (valid-map-molecule? imol-map)
+                           (let ((n-res (chain-n-residues ch-id imol)))
+                             (for-each (lambda (i-round)
+                                         (for-each
+                                          (lambda (serial-number)
+                                            (let ((res-name (resname-from-serial-number imol ch-id serial-number))
+                                                  (res-no   (seqnum-from-serial-number  imol ch-id serial-number))
+                                                  (ins-code (insertion-code-from-serial-number imol ch-id serial-number)))
+                                              (if ins-code ;; valid residue check :-)
+                                                  (if (not (string=? res-name "HOH"))
+                                                      ;; these arguments are backwards
+                                                      (auto-fit-best-rotamer res-no "" ins-code ch-id imol imol-map 1 0.1)))))
+                                          (range n-res)))
+                                       (range n-times))))))))
 
 ;; Restrain the atoms in imol (in give range selection) to
 ;; corresponding atoms in imol-ref.
-;; 
+;;
 ;; atom-sel-type is either 'all 'main-chain or 'ca
 ;; 
 (define (add-extra-restraints-to-other-molecule imol chain-id resno-range-start resno-range-end atom-sel-type imol-ref)
-  
+
   (for-each (lambda (res-no)
 
 	      'xx)
