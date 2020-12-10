@@ -1740,7 +1740,7 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_modules, "User-defined Restraints...",
-       lambda func: add_module_user_defined_restraints())
+       lambda func: add_module_restraints())
 
      add_simple_coot_menu_menuitem(
        submenu_modules, "PDBe...",
