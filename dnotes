@@ -9439,7 +9439,7 @@ Wed 18 Nov 06:39:54 GMT 2020
 ----
 Wed 18 Nov 06:46:15 GMT 2020
 
-    How do do better baked AO for Python 3 Coot?
+    How to do better baked AO for Python 3 Coot?
 
 ----
 Wed 18 Nov 19:12:26 GMT 2020
@@ -9449,6 +9449,34 @@ Wed 18 Nov 19:12:26 GMT 2020
 
 --
 
+
  11203 map model correlation and unmodelled density - linoleic acid
 
+
+----
+Fri 27 Nov 12:28:00 GMT 2020
+
+
+   https://aur.archlinux.org/packages/coot-git/
+
+
+----
+Fri 27 Nov 20:04:12 GMT 2020
+
+   How to use GEMMI for sfs calc using electron scattering factors?
+
+---
+Fri 27 Nov 20:12:15 GMT 2020
+
+  get rid of libGLU
+
+	libMoleculesToTrianglesCXXSurface.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/libMoleculesToTrianglesCXXSurface.so.0 
+	libGLU.so.1 => /lib/x86_64-linux-gnu/libGLU.so.1
+
+
+----
+Tue  8 Dec 15:05:10 GMT 2020
+
+
+recordmydesktop -x 800 -y 10 '--width=1600' --height='1080'
 

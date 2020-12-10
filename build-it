@@ -3864,6 +3864,10 @@ if test -n "$build_curl" ; then
    #
    # 20191211-PE on modern ubuntu: apt install libssl-dev, so that curl's configure finds it
    #             It's OK to depend on system libssl rather than build it myself.
+
+   # Make sure (here) that system has OpenSSL
+   # on Ubuntu: install it like this:
+   # apt-get install libssl-dev
    #
    echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
