@@ -5154,7 +5154,7 @@ void graphics_info_t::draw_pull_restraint_neighbour_displacement_max_radius_circ
             clipper::Coord_orth screen_y_co(screen_y.x(), screen_y.y(), screen_y.z());
       
             glColor3f(0.6, 0.6, 0.6);
-            glLineWidth(1.0);
+            glLineWidth(3.0);
             glBegin(GL_LINES); // call this after unproject_xyz().
             for (unsigned int i=0; i<50; i++) {
                float theta_this = 0.02 * static_cast<float>(i)   * M_PI * 2.0;
