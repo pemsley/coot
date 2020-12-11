@@ -2494,7 +2494,7 @@
               (string=? rn "DG")
               (string=? rn "DA")
               (string=? rn "DT")
-              (string=? rn "C")))))
+              (string=? rn "DC")))))
 
 
   ;;
@@ -2519,6 +2519,7 @@
     (or (string=? res-name "C")
         (string=? res-name "A")
         (string=? res-name "T")
+        (string=? res-name "U")
         (string=? res-name "DC")
         (string=? res-name "DT")))
 
@@ -2613,6 +2614,10 @@
 		     (is-amino-acid? imol chain-id-in resno))
 		(overlap-by-main-chain imol-ligand "A" 1 "" imol chain-id-in resno "")
 		(overlap-ligands imol-ligand imol chain-id-in resno))
+
+            (if (is-nucleotide? imol chain-id-in resno)
+                (if (residue-exists? imol chain-id-in (- resno 1))
+                    (delete-atom imol-ligand "A" 1 "" " OP3" "")))
 
             (if (and (is-nucleotide? imol-ligand "A" 1)
                      (is-nucleotide? imol chain-id-in resno))
