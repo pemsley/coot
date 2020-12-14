@@ -393,7 +393,8 @@
 # 5.36 20200415 Updates for Release 0.9 - a bit delayed
 # 5.37 20200514 redirect numpy output
 # 5.38 20200921 Add clustalw2
-script_version=5.38
+# 5.39 20201203 Add use_system_gnomecanvas_if_possible, default no.
+script_version=5.39
 
 
 
@@ -1975,14 +1976,27 @@ else
     echo libtool should be built
 fi
 
+# If this is unset, it means the same as "no"
+if test -z "$use_system_gnomecanvas_if_possible" ; then
+   use_system_gnomecanvas_if_possible=no
+fi
+
 # test for libgnomecanvas
-if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-    echo system has libgnomecanvas
+if test "$use_system_gnomecanvas_if_possible" = yes ; then
+    if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
+        echo system has libgnomecanvas
+    else
+        if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
+            echo installation has libgnomecanvas - you clever fellow
+        else
+            build_libgnomecanvas=1
+        fi
+    fi
 else
     if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-       echo installation has libgnomecanvas - you clever fellow
+        echo installation has libgnomecanvas - you clever fellow
     else
-       build_libgnomecanvas=1
+        build_libgnomecanvas=1
     fi
 fi
 
