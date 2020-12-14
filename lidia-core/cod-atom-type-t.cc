@@ -45,7 +45,7 @@
 // 					      const RDKit::ROMol &rdkm) {
 
 
-cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
+cod::atom_level_2_type::atom_level_2_type(const RDKit::Atom *base_atom_p,
 					  const RDKit::ROMol &rdkm) {
 
    //
@@ -62,10 +62,10 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
    boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(base_atom_p);
    while(nbrIdx != endNbrs) {
-      RDKit::ATOM_SPTR at_neighb = rdkm[*nbrIdx];
+      const RDKit::Atom *at_neighb = rdkm[*nbrIdx];
       unsigned int degree = at_neighb->getDegree();
       int n = at_neighb->getAtomicNum();
-      std::pair<int,std::string> ring_info = make_ring_info_string(at_neighb.get());
+      std::pair<int,std::string> ring_info = make_ring_info_string(at_neighb);
       
       std::string atom_ele = tbl->getElementSymbol(n);
 
@@ -73,7 +73,7 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
       // s += ring_info.second;
       // s += "-";
       
-      atom_level_2_component_type c(at_neighb.get(), rdkm);
+      atom_level_2_component_type c(at_neighb, rdkm);
       components.push_back(c);
       
       nbrIdx++;
@@ -392,7 +392,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 
 // return number_of_ring,atom_ring_string
 std::pair<int, std::string>
-cod::make_ring_info_string(RDKit::Atom *atom_p) {
+cod::make_ring_info_string(const RDKit::Atom *atom_p) {
 
    std::string atom_ring_string;
    
@@ -439,7 +439,7 @@ cod::make_ring_info_string(RDKit::Atom *atom_p) {
 }
 
 
-cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type(RDKit::Atom *at, const RDKit::ROMol &rdkm) {
+cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type(const RDKit::Atom *at, const RDKit::ROMol &rdkm) {
       
    // Version 147 atom types
    // s += coot::util::int_to_string(degree);
@@ -450,7 +450,7 @@ cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type
    RDKit::ROMol::ADJ_ITER nbrIdx_n, endNbrs_n;
    boost::tie(nbrIdx_n, endNbrs_n) = rdkm.getAtomNeighbors(at);
    while(nbrIdx_n != endNbrs_n) {
-      RDKit::ATOM_SPTR at_neighb_n = rdkm[*nbrIdx_n];
+      const RDKit::Atom *at_neighb_n = rdkm[*nbrIdx_n];
       hv.push_back(at_neighb_n->getHybridization());
       int n_extra_elect = at_neighb_n->getExplicitValence() - at_neighb_n->getDegree() + at_neighb_n->getFormalCharge();
       neighb_extra_elect.push_back(n_extra_elect);

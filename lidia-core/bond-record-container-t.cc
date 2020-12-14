@@ -53,7 +53,7 @@ cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
    
    unsigned int n_mol_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = mol[iat];
+      const RDKit::Atom *at_p = mol[iat];
       try {
 	 std::string name = "";
 	 at_p->getProp("name", name);
@@ -528,7 +528,7 @@ cod::bond_record_container_t::get_is_hydrogen_flags(const RDKit::RWMol &rdkm) co
    unsigned int n_mol_atoms = rdkm.getNumAtoms();
    std::vector<bool> flags(n_mol_atoms);
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-      RDKit::ATOM_SPTR at_p = rdkm[iat];
+      const RDKit::Atom *at_p = rdkm[iat];
       try {
 	 if (at_p->getAtomicNum() == 1) {
 	    flags[iat] = true;
@@ -571,7 +571,7 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 
 	       std::cout << "---- validate() types table ----- " << std::endl;
 	       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-		  RDKit::ATOM_SPTR at_p = rdkm[iat];
+		  RDKit::Atom *at_p = rdkm[iat];
 		  try {
 		     std::string name;
 		     at_p->getProp("name", name);
