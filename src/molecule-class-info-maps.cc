@@ -4683,7 +4683,14 @@ int
 molecule_class_info_t::sfcalc_genmap(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                                      const clipper::HKL_data<clipper::data32::Flag> &free,
                                      clipper::Xmap<float> *xmap_p) {
-   coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+
+   bool sane = sanity_check_atoms(atom_sel.mol);
+
+   if (sane) {
+      coot::util::sfcalc_genmap(atom_sel.mol, fobs, free, xmap_p);
+   } else {
+      std::cout << "ERROR:: coordinates were not sane" << std::endl;
+   }
    return 0;
 }
 
@@ -4892,6 +4899,44 @@ molecule_class_info_t::export_molecule_as_x3d() const {
                   tc.normals[idx_for_normals] = tri_con.normals[i];
                   idx_for_normals++;
                }
+
+bool
+molecule_class_info_t::sanity_check_atoms(mmdb::Manager *mol) {
+
+   bool sane = true;
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) {
+         std::cout << "ERROR:: Bad model " << imod << std::endl;
+         sane = false;
+      } else {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            if (! chain_p) {
+               std::cout << "ERROR:: Bad chain with index " << ichain << "  in model "
+                         << imod << std::endl;
+               sane = false;
+            } else {
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (! residue_p) {
+                     std::cout << "ERROR:: Bad residue with index " << ires << "  in chain "
+                               << chain_p->GetChainID() << std::endl;
+                     sane = false;
+                  } else {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at) {
+                           std::cout << "ERROR:: Bad atom with index " << iat << "  in residue "
+                                     << coot::residue_spec_t(residue_p) << std::endl;
+                           sane = false;
+                        }
+                     }
+                  }
+               }
             }
          }
       }
@@ -5001,5 +5046,6 @@ molecule_class_info_t::set_fresnel_colour(const glm::vec4 &col_in) {
    std::cout << "debug:: set fresnel colour for map " << imol_no << " "
              << glm::to_string(col_in) << std::endl;
    fresnel_settings.colour = col_in;
+   return sane;
 
 }

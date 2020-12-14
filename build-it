@@ -393,7 +393,8 @@
 # 5.36 20200415 Updates for Release 0.9 - a bit delayed
 # 5.37 20200514 redirect numpy output
 # 5.38 20200921 Add clustalw2
-script_version=5.38
+# 5.39 20201203 Add use_system_gnomecanvas_if_possible, default no.
+script_version=5.39
 
 
 
@@ -1975,14 +1976,27 @@ else
     echo libtool should be built
 fi
 
+# If this is unset, it means the same as "no"
+if test -z "$use_system_gnomecanvas_if_possible" ; then
+   use_system_gnomecanvas_if_possible=no
+fi
+
 # test for libgnomecanvas
-if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-    echo system has libgnomecanvas
+if test "$use_system_gnomecanvas_if_possible" = yes ; then
+    if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
+        echo system has libgnomecanvas
+    else
+        if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
+            echo installation has libgnomecanvas - you clever fellow
+        else
+            build_libgnomecanvas=1
+        fi
+    fi
 else
     if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
-       echo installation has libgnomecanvas - you clever fellow
+        echo installation has libgnomecanvas - you clever fellow
     else
-       build_libgnomecanvas=1
+        build_libgnomecanvas=1
     fi
 fi
 
@@ -2114,6 +2128,8 @@ fi #  ENABLE_GUILE_COOT
 python_version=python2.7
 pver=2.7.15
 numpy_version=1.7.1
+numpy_version=1.16.6
+# for an upgrade of numpy to work, the old numpy must be deleted from site-packages
 
 #
 # but more modern pythons do not compile (at least on my mac)
@@ -2137,7 +2153,7 @@ if [ $ENABLE_PYTHON_COOT = yes ] ; then
             echo installation has python, $python_version_installed
             which python
             build_python=
-	    build_pygtk=
+            build_pygtk=
             ;;
           *)
             echo python $python_version_installed installed but not up to date...
@@ -2203,12 +2219,12 @@ else
    echo build_gsl is $build_gsl
 
    if [ $build_gsl = 1 ] ; then
-	echo need to build GSL
+        echo need to build GSL
         build_gsl=1
    else
-	echo GSL is up to date
-	# set build_gsl to blank:
-	build_gsl=
+        echo GSL is up to date
+        # set build_gsl to blank:
+        build_gsl=
    fi
 fi
 
@@ -3175,7 +3191,7 @@ if [ "$build_boost" = true ] ; then
       fi
    fi
 
-   if [ $skip_this = false ] ;  then
+   if [ $skip_this = false ] ; then
       echo building ========================= boost $boost_version =========================
 
       boost_home_url=https://dl.bintray.com/boostorg/release/1.71.0/source
@@ -3191,7 +3207,7 @@ if [ "$build_boost" = true ] ; then
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
       cd -
    fi
-   ) > $HOSTLOGDIR/16-boost.log 2>&1
+   ) > $HOSTLOGDIR/16-boost.txt 2>&1
 fi
 
 
@@ -3252,7 +3268,7 @@ export PATH=$HOME/cmake/bin:$PATH
 build_rdkit=true
 rdkit_version=2017_09_3
 # rdkit_version=2019_09_1 # python 3
-# rdkit_version=2018_09_2 # Atom pointers gone, needs coot patch
+rdkit_version=2018_09_2 # Atom pointers gone, needs coot patch
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
@@ -3266,16 +3282,16 @@ if [ "$build_rdkit" = true ] ; then
       fi
    fi
 
-   # hack
+   # hack - force RDKit build
    # skip_this=false
 
    if [ $skip_this = false ] ;  then
 
-      echo building rdkit
+      echo building rdkit $rdkit_version
       (
       echo building ========================= rdkit ==============================
 
-      # at last we can compile rdkit
+      # at last we get to actually compile rdkit
       RDKIT=$install_top_dir
       RDBASE=$install_top_dir
       CMAKE_INSTALL_PREFIX=$install_top_dir
@@ -3416,10 +3432,23 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
-      ) > $HOSTLOGDIR/17-rdkit.log 2>&1
+      ) > $HOSTLOGDIR/17-rdkit.txt 2>&1
    fi
 fi
 
+# silicos-it's biscu-it
+if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
+   echo installation has biscu-it
+else
+   ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+   (date
+    pwd
+    tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
+    cd qed-1.0.1
+    $PYTHON setup.py install
+    cd -
+   ) > $HOSTLOGDIR/19-biscu-it.txt
+fi
 
 # Now we need:
 #  * guile
@@ -3864,6 +3893,10 @@ if test -n "$build_curl" ; then
    #
    # 20191211-PE on modern ubuntu: apt install libssl-dev, so that curl's configure finds it
    #             It's OK to depend on system libssl rather than build it myself.
+
+   # Make sure (here) that system has OpenSSL
+   # on Ubuntu: install it like this:
+   # apt-get install libssl-dev
    #
    echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
@@ -3932,23 +3965,26 @@ fi
 # Clustalw2
 #################################################################
 #
-${WGET} ftp://ftp.ebi.ac.uk/pub/software/clustalw2/2.1/clustalw-2.1.tar.gz
-if [ ! -e ${AUTOBUILD_SOURCES}/clustalw-2.1.tar.gz ] ; then
-   echo failed to download clustalw2
+if test -e $install_top_dir/bin/clustalw2 ; then
+   echo not building clustalw2
 else
-   # happy path
-   (
-   tar xf ${AUTOBUILD_SOURCES}/clustalw-2.1.tar.gz
-   cd clustalw-2.1/
-   ./configure --prefix=$install_top_dir
-   if ${MAKE} ; then
-       make install
+   ${WGET} ftp://ftp.ebi.ac.uk/pub/software/clustalw2/2.1/clustalw-2.1.tar.gz
+   if [ ! -e ${AUTOBUILD_SOURCES}/clustalw-2.1.tar.gz ] ; then
+      echo failed to download clustalw2
    else
-       echo make for clustalw-2.1 failed. Boo.
-   fi   
-   ) > $HOSTLOGDIR/18-clustalw.txt 2>&1
+      # happy path
+      (
+      tar xf ${AUTOBUILD_SOURCES}/clustalw-2.1.tar.gz
+      cd clustalw-2.1/
+      ./configure --prefix=$install_top_dir
+      if ${MAKE} ; then
+          make install
+      else
+          echo make for clustalw-2.1 failed. Boo.
+      fi
+      ) > $HOSTLOGDIR/18-clustalw.txt 2>&1
+   fi
 fi
-
 
 #################################################################
 # Raster3D
@@ -3984,7 +4020,7 @@ else
           echo checking for existance of $install_top_dir/include/gd.h
           if [ ! -e $install_top_dir/include/gd.h ] ; then
               echo get and build libgd...
-   	      # Amazon file names too long, so force output name with -O
+              # Amazon file names too long, so force output name with -O
               ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
 	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
    	      cd libgd-2.1.1
@@ -4263,7 +4299,7 @@ echo PATH: $PATH
 echo using this guile:
 which guile
 
-rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python27 -lpython2.7"
+rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_python27 -lpython2.7"
 rdkit_install_dir=$install_top_dir
 
 echo ./configure $coot_prefix \

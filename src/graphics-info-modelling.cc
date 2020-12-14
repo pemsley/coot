@@ -5238,10 +5238,11 @@ graphics_info_t::delete_sidechain_range(int imol,
       // faster is passing a blank asc, but to do that needs to check that
       // updating other geometry graphs will work (not crash) with residues/mol
       // unset.
+      // It seems that I have done that now.
       //
       // atom_selection_container_t asc = molecules[imol].atom_sel;
       atom_selection_container_t asc;
-      update_geometry_graphs(asc, imol);
+      update_geometry_graphs(imol);
    }
    graphics_draw();
 
@@ -5253,8 +5254,9 @@ graphics_info_t::delete_active_residue() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
    if (aa.first) {
       int imol = aa.second.first;
-      coot::residue_spec_t rs(aa.second.second);
-      molecules[imol].delete_residue(rs);
+      coot::residue_spec_t res_spec(aa.second.second);
+      molecules[imol].delete_residue(res_spec);
+      delete_residue_from_geometry_graphs(imol, res_spec);
    }
    graphics_draw();
 }

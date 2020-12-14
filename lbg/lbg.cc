@@ -3532,7 +3532,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 		  std::string lbg_atom_index_str;
 		  int lbg_atom_index = rdkmol_idx;
 		  try {
-		     RDKit::ATOM_SPTR at_p = rdkm[rdkmol_idx];
+		     const RDKit::Atom *at_p = rdkm[rdkmol_idx];
 		     at_p->getProp("lbg_atom_index", lbg_atom_index_str);
 		     int lbg_atom_index = coot::util::string_to_int(lbg_atom_index_str);
 		     lig_build::pos_t pos = mol.atoms[lbg_atom_index].atom_position;
@@ -4390,7 +4390,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       if (m) {
 	 unsigned int n_atoms = m->getNumAtoms();
 	 for (unsigned int iat=0; iat<n_atoms; iat++) {
-	    RDKit::ATOM_SPTR at_p = (*m)[iat];
+	    const RDKit::Atom *at_p = (*m)[iat];
 	    std::string name;
 	    try {
 	       at_p->getProp("molFileAlias", name);
@@ -4681,7 +4681,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       double sum_y = 0;
       double min_y = 9e9;
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 const RDKit::Atom *at_p = (*rdkm)[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 sum_x += r_pos.x;
 	 sum_y += r_pos.y;
@@ -4725,7 +4725,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
       }
 
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 const RDKit::Atom *at_p = (*rdkm)[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	 std::string name = "";
 	 try {

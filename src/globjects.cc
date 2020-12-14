@@ -4016,15 +4016,13 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 	    change_model_molecule_representation_mode(0);
 	 handled = true;
       } else {
-         // maybe we change the proportional editing (pull atom neighbour displacement) radiu
-         if (true) {
-            bool dir = true;
-            if (event->direction == GDK_SCROLL_DOWN)
-               dir = false;
-            info.pull_restraint_neighbour_displacement_change_max_radius(dir);
-            info.graphics_draw();
-            handled = true;
-         }
+         // maybe we change the proportional editing (pull atom neighbour displacement) radius
+         bool dir = true;
+         if (event->direction == GDK_SCROLL_DOWN)
+            dir = false;
+         info.pull_restraint_neighbour_displacement_change_max_radius(dir);
+         info.graphics_draw();
+         handled = true;
       }
    } else {
       // std::cout << "control is not pressed " << std::endl;

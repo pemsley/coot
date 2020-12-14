@@ -7,13 +7,13 @@
 namespace cod { 
    class third_neighbour_info_t {
    public:
-      RDKit::Atom *atom_p;
+      const RDKit::Atom *atom_p;
       std::string ele;
       unsigned int degree;
       third_neighbour_info_t() {
 	 degree = 0;
       }
-      third_neighbour_info_t(RDKit::Atom *atom_p_in,
+      third_neighbour_info_t(const RDKit::Atom *atom_p_in,
 			     const std::string &e,
 			     unsigned int d) {
 	 atom_p = atom_p_in;

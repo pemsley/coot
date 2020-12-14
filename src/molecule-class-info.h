@@ -1427,6 +1427,9 @@ public:        //                      public
                      const clipper::HKL_data<clipper::data32::Flag> &free,
                      clipper::Xmap<float> *xmap_p);
    void fill_fobs_sigfobs(); // caches
+   bool sanity_check_atoms(mmdb::Manager *mol); // sfcalc_genmap crashes after merge of ligand.
+                                                // Why? Something wrong with the atoms after merge?
+                                                // Let's diagnose.... Return false on non-sane.
 
 
    void update_map_in_display_control_widget() const;

@@ -1069,17 +1069,20 @@ void fill_partial_residues(int imol) {
 
 	 int refinement_replacement_state = refinement_immediate_replacement_state();
 	 set_refinement_immediate_replacement(1);
+
+         std::string alt_conf("");
+         std::vector<mmdb::Residue *> residues;
+
       	 for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
       	    int resno =  m_i_info.residues_with_missing_atoms[i]->GetSeqNum();
       	    std::string chain_id = m_i_info.residues_with_missing_atoms[i]->GetChainID();
       	    std::string residue_type = m_i_info.residues_with_missing_atoms[i]->GetResName();
       	    std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
-      	    std::string altconf("");
-	    short int is_water = 0;
-      	    g.refine_residue_range(imol, chain_id, chain_id, resno, inscode, resno, inscode,
-				   altconf, is_water);
-	    accept_regularizement();
+            residues.push_back(m_i_info.residues_with_missing_atoms[i]);
       	 }
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         coot::refinement_results_t rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
+         accept_moving_atoms();
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
 	 if (backup_mode)

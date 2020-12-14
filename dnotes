@@ -9633,7 +9633,7 @@ Wed 18 Nov 06:39:54 GMT 2020
 ----
 Wed 18 Nov 06:46:15 GMT 2020
 
-    How do do better baked AO for Python 3 Coot?
+    How to do better baked AO for Python 3 Coot?
 
 ----
 Wed 18 Nov 19:12:26 GMT 2020
@@ -9641,6 +9641,7 @@ Wed 18 Nov 19:12:26 GMT 2020
    2ddx is real non-pro cis peptide high res.
 
 --
+
 
  11203 map model correlation and unmodelled density - linoleic acid
 
@@ -9687,4 +9688,40 @@ $ for n in `seq 1 500`; do blender --background scene.blend -x 1 -f $n ; done
 
 -x n render n frames
 -f N starting at frame N
+
+----
+Fri 27 Nov 12:28:00 GMT 2020
+
+
+   https://aur.archlinux.org/packages/coot-git/
+
+
+----
+Fri 27 Nov 20:04:12 GMT 2020
+
+   How to use GEMMI for sfs calc using electron scattering factors?
+
+---
+Fri 27 Nov 20:12:15 GMT 2020
+
+  get rid of libGLU
+
+	libMoleculesToTrianglesCXXSurface.so.0 => /home/paule/autobuild/Linux-penelope-pre-release-gtk3-python/lib/libMoleculesToTrianglesCXXSurface.so.0 
+	libGLU.so.1 => /lib/x86_64-linux-gnu/libGLU.so.1
+
+
+----
+Tue  8 Dec 15:05:10 GMT 2020
+
+
+recordmydesktop -x 800 -y 10 '--width=1600' --height='1080'
+
+bluray resolution is 1920x1080
+
+---
+Mon 14 Dec 14:37:02 GMT 2020
+
+   NVidia stereo and monitors:
+
+   https://nvidia.custhelp.com/app/answers/detail/a_id/4845
 

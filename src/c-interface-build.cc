@@ -846,9 +846,9 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int model_number_ANY = mmdb::MinInt4;
-      short int istat =
-	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno,
-					  std::string(inscode));
+      std::string ic(inscode);
+      short int istat = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
+
       if (istat) {
 	 // now if the go to atom widget was being displayed, we need to
 	 // redraw the residue list and atom list (if the molecule of the
@@ -2064,8 +2064,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    // we can simply construct spec from chain_id, resno and inscode.
    // There are other places where we do this too (to delete a residue
    // from the geometry graphs).
-   mmdb::Residue *residue_p =
-      graphics_info_t::molecules[imol].get_residue(chain_id, resno, inscode);
+   mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, resno, inscode);
    if (residue_p) {
       coot::residue_spec_t spec(residue_p);
       g.delete_residue_from_geometry_graphs(imol, spec);

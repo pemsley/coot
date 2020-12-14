@@ -54,9 +54,9 @@
 	       (vector-ref rfree-list 0))))))))))
 
 
-(if (enhanced-ligand-coot?)
-    (format #t "----------------------------- with enhanced-ligand! -------------------~%~!")
-    (format #t "----------------------------- without enhanced-ligand! -------- -------~%~!"))
+;;(if (enhanced-ligand-coot?)
+;;    (format #t "----------------------------- with enhanced-ligand! -------------------~%~!")
+;;    (format #t "----------------------------- without enhanced-ligand! -------- -------~%~!"))
 
 
 (if (enhanced-ligand-coot?)

@@ -78,10 +78,10 @@ namespace coot {
    void mogulify_mol(RDKit::RWMol &mol);
    void charge_guanidinos(RDKit::RWMol *rdkm);
    void mogulify_nitro_groups(RDKit::RWMol *rdkm);
-   bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+   bool chiral_check_order_swap(RDKit::Atom *at_1, RDKit::Atom *at_2,
 				const std::vector<dict_chiral_restraint_t>  &chiral_restraints);
-   bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2);
-   bool chiral_check_order_swap_singleton(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+   bool chiral_check_order_swap(RDKit::Atom *at_1, RDKit::Atom *at_2);
+   bool chiral_check_order_swap_singleton(RDKit::Atom *at_1, RDKit::Atom *at_2,
 					  const dictionary_residue_restraints_t &restraints);
 
 
@@ -127,7 +127,7 @@ namespace coot {
 			    const dictionary_residue_restraints_t &restraints);
 
    std::string infer_H_name(int iat,
-			    RDKit::ATOM_SPTR atom_p,
+			    RDKit::Atom *atom_p,
 			    const RDKit::ROMol *mol,
 			    const dictionary_residue_restraints_t &restraints,
 			    const std::vector<std::string> &H_names_already_added);

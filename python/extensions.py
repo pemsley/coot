@@ -177,6 +177,10 @@ if True:
      draw_menu.append(menuitem_pisa)
      menuitem_pisa.show()
 
+     menuitem_7.set_submenu(submenu_settings)
+     menu.append(menuitem_7)
+     menuitem_7.show()
+
      menuitem_modules.set_submenu(submenu_modules)
      calculate_menu.append(menuitem_modules)
      menuitem_modules.show()
@@ -818,16 +822,6 @@ if True:
        submenu_models,
        "Phosphorylate this residue",
        lambda func: coot_utils.phosphorylate_active_residue())
-
-
-     # # FIXME:: for now only when prodrg in path
-     # if (coot_utils.command_in_path_qm("cprodrg")):
-     #   coot_gui.add_simple_coot_menu_menuitem(
-     #   submenu_models,
-     #   "Prodrg-ify this residue (generate restraints)",
-     #   lambda func: coot_utils.using_active_atom(prodrg_ify,
-     #                                  "aa_imol", "aa_chain_id", "aa_res_no", "aa_ins_code"))
-     
 
      # ---- R ---------
 
