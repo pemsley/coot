@@ -3193,7 +3193,7 @@ if [ "$build_boost" = true ] ; then
       ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
       cd -
    fi
-   ) > $HOSTLOGDIR/16-boost.log 2>&1
+   ) > $HOSTLOGDIR/16-boost.txt 2>&1
 fi
 
 
@@ -3269,7 +3269,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 
    # hack - force RDKit build
-   skip_this=false
+   # skip_this=false
 
    if [ $skip_this = false ] ;  then
 
@@ -3418,10 +3418,23 @@ if [ "$build_rdkit" = true ] ; then
       fi
       cd ..
       cd ..
-      ) > $HOSTLOGDIR/17-rdkit.log 2>&1
+      ) > $HOSTLOGDIR/17-rdkit.txt 2>&1
    fi
 fi
 
+# silicos-it's biscu-it
+if [ -e $install_top_dir/lib/python2.7/site-packages/silicos_it/descriptors/qed.py ] ; then
+   echo installation has biscu-it
+else
+   ${WGET} http://silicos-it.be.s3-website-eu-west-1.amazonaws.com/_downloads/qed-1.0.1.tar.gz
+   (date
+    pwd
+    tar xf ${AUTOBUILD_SOURCES}/qed-1.0.1.tar.gz
+    cd qed-1.0.1
+    $PYTHON setup.py install
+    cd -
+   ) > $HOSTLOGDIR/19-biscu-it.txt
+fi
 
 # Now we need:
 #  * guile
@@ -4272,7 +4285,7 @@ echo PATH: $PATH
 echo using this guile:
 which guile
 
-rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python27 -lpython2.7"
+rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitcoordgenlib -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitmaeparser -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitSubgraphs -lRDKitDataStructs -lRDKitPartialCharges -lRDKitRDGeneral -lboost_python27 -lpython2.7"
 rdkit_install_dir=$install_top_dir
 
 echo ./configure $coot_prefix \
