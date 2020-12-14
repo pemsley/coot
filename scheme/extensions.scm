@@ -524,7 +524,13 @@
 	 (lambda() 
 	   (molecule-chooser-gui "Assign HETATMs as per PDB definition"
 				 (lambda (imol)
-					  (assign-hetatms imol)))))
+                                   (assign-hetatms imol)))))
+
+        (add-simple-coot-menu-menuitem
+         submenu-models "Backrub Rotamers for Whole Chain"
+         (lambda ()
+           (using-active-atom
+            (backrub-rotamers-for-chain aa-imol aa-chain-id))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Copy Coordinates Molecule...."
