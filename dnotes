@@ -9677,3 +9677,14 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> gi.require_version('Gtk', '3.0')
 require_version() available version: Gtk 3.0 ['3.0', '2.0']
 >>>
+
+---
+Sat 12 Dec 03:15:07 GMT 2020
+
+   background mode for blender
+
+$ for n in `seq 1 500`; do blender --background scene.blend -x 1 -f $n ; done
+
+-x n render n frames
+-f N starting at frame N
+

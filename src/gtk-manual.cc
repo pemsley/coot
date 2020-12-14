@@ -62,9 +62,9 @@ on_map_color_changed(GtkWidget *w,
    GdkColor color;
    gtk_color_selection_get_current_color(t->color_selection, &color);
    GdkRGBA map_color;
-   map_color.red   = color.red;
-   map_color.green = color.green;
-   map_color.blue  = color.blue;
+   map_color.red   = color.red    /65535.0;;
+   map_color.green = color.green  /65535.0;;
+   map_color.blue  = color.blue   /65535.0;;
    handle_map_colour_change(t->imol, map_color);
 
 }

@@ -3675,7 +3675,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
  void
     molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
-    
+
     atom_radius_scale_factor = sf;
     make_glsl_bonds_type_checked();
  }
@@ -3685,8 +3685,16 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
     if (atom_sel.mol) {
        unsigned int num_subdivisions = 2;
-       float atom_radius = 0.4; // use atom_radius_scale_factor
-       float bond_radius = 0.4;
+       unsigned int n_slices = 8;
+       unsigned int n_stacks = 2; // try 1
+       float atom_radius = 0.04 * bond_width; // use atom_radius_scale_factor
+       float bond_radius = atom_radius;
+
+       // something like this
+       // float radius_scale = 0.2 * bond_width; // arbs
+       // if (is_intermediate_atoms_molecule) radius_scale *= 1.8f;
+       // radius_scale *= atom_radius_scale_factor;
+
        int udd_handle_bonded_type = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "found bond");
        Material material;
        Shader *shader_p = &graphics_info_t::shader_for_model_as_meshes;
@@ -3696,8 +3704,6 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
        molecule_as_mesh_atoms_2.make_graphical_bonds_hemispherical_atoms(shader_p, material, bonds_box, udd_handle_bonded_type,
                                                                          atom_radius, bond_radius, num_subdivisions,
                                                                          get_glm_colour_func);
-       unsigned int n_slices = 8;
-       unsigned int n_stacks = 2; // try 1
        molecule_as_mesh_bonds.make_graphical_bonds_bonds(shader_p, material, bonds_box, bond_radius, n_slices, n_stacks,
                                                          get_glm_colour_func);
        GLenum err = glGetError();
@@ -3738,7 +3744,7 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
     gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
 
-    make_meshes_from_bonds_box();
+    // make_meshes_from_bonds_box();        --- restore this
 
     // -----------------------------------------------------------------------------------------------
 

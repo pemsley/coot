@@ -240,7 +240,38 @@ Mesh::make_graphical_bonds_hemispherical_atoms(Shader *shader_p,
    std::vector<glm::mat4> instanced_matrices;
    std::vector<glm::vec4> instanced_colours;
 
+   // what is the other atom of the bond to this atom (if it has one). Just find the first one
+   // if there are many
+   //
+   // this is hideous. And will be slow on a big molecule. Replace it.
+   // When the bonds are calculated, the at_info should store
+   // a pointer to a bonded atom (mmdb::Atom *bonded_atom_other_atom)
+   //
+   std::map<int, int> bonded_atom_other_atom;
+   std::map<int, mmdb::Atom *> index_to_atom;
+   for (int icol_bond=0; icol_bond<gbc.num_colours; icol_bond++) {
+      graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol_bond];
+      for (int j=0; j<ll.num_lines; j++) {
+         int idx_1 = ll.pair_list[j].atom_index_1;
+         int idx_2 = ll.pair_list[j].atom_index_2;
+         std::map<int, int>::const_iterator it;
+         it = bonded_atom_other_atom.find(idx_1);
+         if (it == bonded_atom_other_atom.end())
+            bonded_atom_other_atom[idx_1] = idx_2;
+         it = bonded_atom_other_atom.find(idx_2);
+         if (it == bonded_atom_other_atom.end())
+            bonded_atom_other_atom[idx_2] = idx_1;
+      }
+   }
+   for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
+      for (unsigned int i=0; i<gbc.consolidated_atom_centres[icol].num_points; i++) {
+         const graphical_bonds_atom_info_t &at_info = gbc.consolidated_atom_centres[icol].points[i];
+         index_to_atom[at_info.atom_index] = at_info.atom_p;
+      }
+   }
+
    glBindVertexArray(vao); // setup_buffers() unbinds the vao
+
    glm::mat4 unit(1.0);
    for (int icol=0; icol<gbc.n_consolidated_atom_centres; icol++) {
       glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
@@ -262,6 +293,10 @@ Mesh::make_graphical_bonds_hemispherical_atoms(Shader *shader_p,
 
          // Oh dear! I need to know where the atom at the other end of the bond is!
          // Which bond? Any bond. The first one. We need to do some pre-processing to know that.
+         // That's done now.
+
+         // There is an opportunity for missing atoms here. Things that are not NO_BOND but have not correctly
+         // set the atom_index
 
          if (do_it) {
 
@@ -272,6 +307,20 @@ Mesh::make_graphical_bonds_hemispherical_atoms(Shader *shader_p,
             glm::vec3 sc(sar, sar, sar);
             instanced_matrices.push_back(glm::translate(glm::scale(unit, sc), t/sar));
             instanced_colours.push_back(col);
+
+            int atom_index = at_info.atom_index;
+            std::map<int, int>::const_iterator it = bonded_atom_other_atom.find(atom_index);
+            if (it != bonded_atom_other_atom.end()) {
+               // check the index before using it?
+               int other_atom_index = it->second;
+               mmdb::Atom *other_at = index_to_atom[other_atom_index];
+               glm::vec3 other_atom_pos(other_at->x, other_at->y, other_at->z);
+               glm::mat4 m = get_octahemi_matrix(t, other_atom_pos, bond_radius);
+               instanced_matrices.push_back(m);
+               instanced_colours.push_back(col);
+            } else {
+               std::cout << "ERROR:: oops in make_graphical_bonds_hemispherical_atoms() "<< atom_index << std::endl;
+            }
          }
       }
    }
@@ -348,7 +397,7 @@ Mesh::make_graphical_bonds_bonds(Shader *shader_p,
    for (int icol=0; icol<gbc.num_colours; icol++) {
       glm::vec4 col = get_glm_colour_for_bonds_func(icol, bonds_box_type); // do we need to send rainbow state and bg-colour state?
       graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
-      for (int j=0; j<gbc.bonds_[icol].num_lines; j++) {
+      for (int j=0; j<ll.num_lines; j++) {
          const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
          const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
          glm::vec3 pos_1(start.x(),   start.y(),  start.z());

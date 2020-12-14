@@ -23,7 +23,6 @@ molecule_class_info_t::make_generic_vertices_for_atoms(const std::vector<glm::ve
 
    radius_scale *= atom_radius_scale_factor;
 
-   bool against_a_dark_background = true;
    glm::vec3 origin(0,0,0);
    unsigned int num_subdivisions = 2; // 2 should be the default?
    if (is_intermediate_atoms_molecule)
