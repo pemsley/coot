@@ -29,17 +29,17 @@ pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 pkgincludedir = $(includedir)/coot/coords
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)                 \
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
-	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS)	\
+	-I$(top_srcdir)                     \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS)     \
+	$(RDKIT_CXXFLAGS) $(BOOST_CPPFLAGS) \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
-	-DDATADIR='"$(datadir)"'   	\
+	-DDATADIR='"$(datadir)"'       \
 	$(COOT_WINDOWS_CFLAGS)
 
-libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
+libcoot_coords_la_SOURCES = Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc phenix-geo-bonds.cc \
 		 rotamer-markup.cc \

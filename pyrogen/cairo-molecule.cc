@@ -1054,8 +1054,8 @@ coot::cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
 		  std::pair<bool, colour_holder> bg_col;
 		  bg_col.first = false;
 		  if (background_colour_py) {
-		     if  (PyString_Check(background_colour_py)) {
-			std::string s = PyString_AsString(background_colour_py);
+		     if  (PyUnicode_Check(background_colour_py)) {
+			std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(background_colour_py));
 			bg_col.second = colour_holder(s);
 			bg_col.first = true;
 		     } else {
@@ -1166,8 +1166,8 @@ coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
 	    if (l > 0) {
 	       for (std::size_t i=0; i<l; i++) {
 		  PyObject *obj_py = PyList_GetItem(highlight_atom_list, i);
-		  if PyInt_Check(obj_py) {
-		     long item = PyInt_AsLong(obj_py);
+		  if PyLong_Check(obj_py) {
+		     long item = PyLong_AsLong(obj_py);
 		     if (item >= 0) {
 			highlight_atom_indices.push_back(static_cast<unsigned int>(item));
 		     }
@@ -1180,8 +1180,8 @@ coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
 	       if (l > 0) {
 		  for (std::size_t i=0; i<l; i++) {
 		     PyObject *obj_py = PyTuple_GetItem(highlight_atom_list, i);
-		     if PyInt_Check(obj_py) {
-			long item = PyInt_AsLong(obj_py);
+		     if PyLong_Check(obj_py) {
+			long item = PyLong_AsLong(obj_py);
 			if (item >= 0) {
 			   highlight_atom_indices.push_back(static_cast<unsigned int>(item));
 			}
@@ -1199,8 +1199,8 @@ coot::cairo_image_string_from_mol(RDKit::ROMol *m, int iconf,
 	    if (l > 0) {
 	       for (std::size_t i=0; i<l; i++) {
 		  PyObject *obj_py = PyList_GetItem(highlight_bond_list, i);
-		  if PyInt_Check(obj_py) {
-		     long item = PyInt_AsLong(obj_py);
+		  if PyLong_Check(obj_py) {
+		     long item = PyLong_AsLong(obj_py);
 		     if (item >= 0) {
 			highlight_bond_indices.push_back(static_cast<unsigned int>(item));
 		     }

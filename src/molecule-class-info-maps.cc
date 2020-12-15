@@ -4899,6 +4899,12 @@ molecule_class_info_t::export_molecule_as_x3d() const {
                   tc.normals[idx_for_normals] = tri_con.normals[i];
                   idx_for_normals++;
                }
+            }
+         }
+      }
+   }
+   return tc;
+}
 
 bool
 molecule_class_info_t::sanity_check_atoms(mmdb::Manager *mol) {
@@ -4941,7 +4947,7 @@ molecule_class_info_t::sanity_check_atoms(mmdb::Manager *mol) {
          }
       }
    }
-   return tc;
+   return sane;
 }
 
 bool
@@ -5046,6 +5052,5 @@ molecule_class_info_t::set_fresnel_colour(const glm::vec4 &col_in) {
    std::cout << "debug:: set fresnel colour for map " << imol_no << " "
              << glm::to_string(col_in) << std::endl;
    fresnel_settings.colour = col_in;
-   return sane;
 
 }

@@ -188,8 +188,8 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    // default return value (failure)
    PyObject *o = PyTuple_New(3);
    PyTuple_SetItem(o, 0, PyBool_FromLong(0));
-   PyTuple_SetItem(o, 1, PyInt_FromLong(-1));
-   PyTuple_SetItem(o, 2, PyString_FromString(""));
+   PyTuple_SetItem(o, 1, PyLong_FromLong(-1));
+   PyTuple_SetItem(o, 2, PyUnicode_FromString(""));
 
    coot::dictionary_residue_restraints_t restraints = monomer_restraints_from_python(restraints_py);
    std::vector<std::string> comp_ids;
@@ -198,7 +198,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    if (PyList_Check(template_comp_id_list)) {
       Py_ssize_t len = PyObject_Length(template_comp_id_list);
       for (Py_ssize_t i=0; i<len; i++) {
-	 std::string s = PyString_AsString(PyList_GetItem(template_comp_id_list, i));
+	 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(template_comp_id_list, i)));
 	 if (! s.empty())
 	    comp_ids.push_back(s);
       }
@@ -207,7 +207,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    if (PyList_Check(template_cif_dict_file_names)) {
       Py_ssize_t len = PyObject_Length(template_cif_dict_file_names);
       for (Py_ssize_t i=0; i<len; i++) {
-	 std::string s = PyString_AsString(PyList_GetItem(template_cif_dict_file_names, i));
+	 std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyList_GetItem(template_cif_dict_file_names, i)));
 	 dictionary_file_names.push_back(s);
       }
    }
@@ -219,7 +219,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    if (md.filled()) {
       PyObject *name_list_py = PyList_New(md.dict.atom_info.size());
       for (unsigned int i=0; i<md.dict.atom_info.size(); i++)
-	 PyList_SetItem(name_list_py, i, PyString_FromString(md.dict.atom_info[i].atom_id_4c.c_str()));
+	 PyList_SetItem(name_list_py, i, PyUnicode_FromString(md.dict.atom_info[i].atom_id_4c.c_str()));
       PyTuple_SetItem(o, 0, PyBool_FromLong(true));
       PyTuple_SetItem(o, 1, monomer_restraints_to_python(md.dict));
       PyTuple_SetItem(o, 2, name_list_py); 
@@ -351,8 +351,8 @@ PyObject *
 coot::test_tuple() {
 
    PyObject *o = PyTuple_New(2);
-   PyTuple_SetItem(o, 0, PyInt_FromLong(-19));
-   PyTuple_SetItem(o, 1, PyString_FromString("this-is-part-of-a-tuple"));
+   PyTuple_SetItem(o, 0, PyLong_FromLong(-19));
+   PyTuple_SetItem(o, 1, PyUnicode_FromString("this-is-part-of-a-tuple"));
 
    return o;
 } 
@@ -370,7 +370,7 @@ coot::types_from_mmcif_dictionary(const std::string &file_name) {
 
    PyObject *l = PyList_New(types.size());
    for (unsigned int i=0; i<types.size(); i++) { 
-      PyObject *o = PyString_FromString(types[i].c_str());
+      PyObject *o = PyUnicode_FromString(types[i].c_str());
       PyList_SetItem(l, i, o);
    }
    return l;

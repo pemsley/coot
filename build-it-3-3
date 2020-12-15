@@ -2923,21 +2923,27 @@ if [ "$build_boost" = true ] ; then
       # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
 
       address_model=64
-      export PYTHON_PATH=$install_top_dir/bin/python
+      python_version_extention=3.6m # extract this
       # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
-      ./bootstrap.sh --prefix=$install_top_dir --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization --without-icu
+      pwd
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --includedir=$install_top_dir/include/python$python_version_extention --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --includedir=$install_top_dir/include/python$python_version_extention --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --includedir=$install_top_dir/include/python$python_version_extention --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
 
       # now edit the project-config.jam file using python line
 
       cp project-config.jam project-config.jam-orig
-      awk -v itd=$install_top_dir '
-         /using python : 3.6/ { print "   ",$1,$2,$3,$4,$5,"python3 :", itd "/include/python3.6m :", itd "/lib/libpython3.6m.so ;" }
-         $0 !~ "using python : 3.6 "
-      ' project-config.jam-orig > project-config.jam
+      # awk -v itd=$install_top_dir '
+      #    /using python : 3.6/ { print "   ",$1,$2,$3,$4,$5,"python3 :", itd "/include/python3.6m :", itd "/lib/libpython3.6m.so ;" }
+      #   $0 !~ "using python : 3.6 "
+      # ' project-config.jam-orig > project-config.jam
       # that was flipping hard work.
+      # 20201215-PE and now I've commented it out.
 
       # bjam no longer exists
-      ./b2 address-model=$address_model cflags=-fPIC -j2 cxxflags=-fPIC install
+      # use -Wno-deprecated-declarations
+      echo ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
+           ./b2 address-model=$address_model cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extention -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
    fi
    ) > $HOSTLOGDIR/16-boost.txt
@@ -3148,6 +3154,12 @@ if [ "$build_numpy" = true ] ; then
    fi
 fi
 
+# cython
+echo pip3 install --upgrade pip
+pip3 install --upgrade pip
+echo pip3 install cython
+pip3 install cython
+
 if [ true = true ] ; then
    skip_this=false
    if [ -e $install_top_dir/lib/python2.7/site-packages/numpy/lib/info.py ] ;  then
@@ -3158,14 +3170,21 @@ if [ true = true ] ; then
       (
       echo building ========================= numpy ==============================
       # this needs fortran compiler gfortran
+      numpy_version=1.19.4
 
       # maybe get numpy from github?
       # https://github.com/numpy/numpy/releases/download/v1.14.1/numpy-1.14.1.tar.gz
       # numpy needset setuptools
       # https://github.com/pypa/setuptools/archive/v41.5.1.tar.gz
-      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      # numpy source is now zip
+      # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
+      ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
       #
-      tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      if [ ! -e ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip ] ; then
+         exit
+      fi
+      # tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
+      unzip ${AUTOBUILD_SOURCES}/numpy-$numpy_version.zip
       cd numpy-$numpy_version/
       # we need to check that we have a fortran compiler, in this case gnu95
       #
@@ -3175,8 +3194,9 @@ if [ true = true ] ; then
         echo fortran compiler not found.
         exit 2
       fi
-      python setup.py build --fcompiler=gfortran
-      python setup.py install
+      which python3
+      python3 setup.py build --fcompiler=gfortran
+      python3 setup.py install
       if [ ! $? ] ; then
          echo something bad about numpy.
          exit 2
@@ -3189,18 +3209,23 @@ fi
 # this is a hack for charybdis   - we need cmake version 3.1 or later
 export PATH=$HOME/cmake/bin:$PATH
 
+# we need to set rdkit_tar_size because the WGET doesn't skip the download if the
+# file exists. Amazon.
+#
 build_rdkit=true
 rdkit_version=2017_09_3
-# rdkit_version=2019_09_1 # python 3
-# rdkit_version=2018_09_2 # Atom pointers gone, needs coot patch
+rdkit_version=2019_09_1 # python 3
+rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
 rdkit_tar_download_file_name=rdkit-Release_$rdkit_version.tar.gz
+rdkit_tar_size=54644792
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/rdkit/DistGeom/TriangleSmooth.h ] ;  then
+      # this file is in 2018_09 but not in 2017_09
+      if [ -e $install_top_dir/include/rdkit/GraphMol/StereoGroup.h ] ;  then
          echo rdkit is found, skip
          skip_this=true
       fi
@@ -3232,8 +3257,8 @@ if [ "$build_rdkit" = true ] ; then
          export LD_LIBRARY_PATH=
       fi
 
-      echo ==================== LD_LIBRARY_PATH is $LD_LIBRARY_PATH
-      echo ==================== PYTHONPATH is $PYTHONPATH
+      echo === LD_LIBRARY_PATH is $LD_LIBRARY_PATH
+      echo === PYTHONPATH is $PYTHONPATH
 
       if [ "$github_rdkit" = true ] ; then
          echo PATH A - pull
@@ -3264,12 +3289,21 @@ if [ "$build_rdkit" = true ] ; then
 
          if [ $get_the_rdkit_tar_file = true ] ; then
             # $WGET $rdkit_home/$rdkit_tar_host_file_name -O ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
-            echo $WGET $rdkit_home/$rdkit_tar_host_file_name 
-            $WGET $rdkit_home/$rdkit_tar_host_file_name
-            echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
+            do_rdkit_download=true
+            if [ -e ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name ] ; then
+                s=$(stat --format=%s ${AUTOBUILD_SOURCES}/$rdkit_tar_host_file_name)
+                if [ $s = $rdkit_tar_size ] ; then
+                   do_rdkit_download=false
+                fi
+            fi
+            if [ $do_rdkit_download = true ] ; then
+               echo $WGET $rdkit_home/$rdkit_tar_host_file_name
+               ${WGET} $rdkit_home/$rdkit_tar_host_file_name
+            fi
          fi
 
          pwd
+         echo tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          tar xf ${AUTOBUILD_SOURCES}/$rdkit_tar_download_file_name
          ls
          if [ ! -e rdkit-Release_$rdkit_version ] ; then
@@ -3340,31 +3374,29 @@ if [ "$build_rdkit" = true ] ; then
       fi
 
       echo will configure with cmake like this:
-      echo cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-         -DPYTHON_LIBRARY=$install_top_dir/lib/libpython3.6m.$extension_type \
-         -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
-         -DPYTHON_INSTDIR=$install_top_dir \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
-         -DRDK_BUILD_THREADSAFE_SSS=OFF  \
-         -DRDK_BUILD_INCHI_SUPPORT=OFF   \
-         $cmake_macosx_rpath \
-         -DCMAKE_INSTALL_PREFIX=$install_top_dir $tree_from_build
 
+      echo cmake -DBoost_NO_BOOST_CMAKE=ON \
+               -DBoost_INCLUDE_DIR=$install_top_dir/include \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
+               -DBoost_PYTHON36_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
+               $cmake_macosx_rpath \
+               -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_INSTALL_INTREE=OFF \
+                $tree_from_build
 
-      if cmake -DRDK_INSTALL_INTREE=0  \
-	 -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
-         -DPYTHON_LIBRARY=$install_top_dir/lib/libpython3.6m.$extension_type \
-         -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
-         -DPYTHON_INSTDIR=$install_top_dir \
-	 -DRDK_BUILD_CAIRO_SUPPORT=ON    \
-	 -DRDK_TEST_MULTITHREADED=OFF    \
-         -DRDK_BUILD_THREADSAFE_SSS=OFF  \
-         -DRDK_BUILD_INCHI_SUPPORT=OFF   \
-         $cmake_macosx_rpath \
-         -DCMAKE_INSTALL_PREFIX=$install_top_dir $tree_from_build ; then
+      if cmake -DBoost_NO_BOOST_CMAKE=ON \
+               -DBoost_INCLUDE_DIR=$install_top_dir/include \
+               -DPYTHON_INCLUDE_DIR=$install_top_dir/include/python3.6m \
+               -DBoost_PYTHON36_LIBRARY_RELEASE=$install_top_dir/lib/libpython3.so \
+               $cmake_macosx_rpath \
+               -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
+               -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_INSTALL_INTREE=OFF \
+                $tree_from_build ; then
 
+         # it seems that make -j n fails to compile (race condition?)
+         # so use just plain make? (currently not fixed)
          if $MAKE ; then
             make install
          else
@@ -3471,16 +3503,13 @@ echo CXXFLAGS: $CXXFLAGS
 echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
 echo PATH: $PATH
+echo PKG_CONFIG_PATH: $PKG_CONFIG_PATH
 
-# think about ligand extras at some stage
-
-# this is picking up my working repo at the moment.
-#
 # For external use, we need to have used git checkout for
 # the gtk3 branch, have run autogen.sh
 # and have placed that directory somewhere sensible relative to here
 
-rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python27 -lpython3.6m"
+rdkit_libs="-lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitMolChemicalFeatures -lRDKitFileParsers  -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitSmilesParse -lRDKitDataStructs -lRDKitRDGeneral -lboost_python36 -lpython3.6m"
 rdkit_install_dir=$install_top_dir
 
 echo ../coot/configure $coot_prefix \
