@@ -1016,11 +1016,28 @@ public:        //                      public
                                             bool all_atoms_mode,
                                             bool draw_missing_loops_flag);
 
-   void make_bonds_type_checked(const char *s = __builtin_FUNCTION());
 
-   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
-                                const char *s = __builtin_FUNCTION());
+
+   // This doesn't catch the case when__builtin_FUNCTION exists but __has_builtin does not
+   // (as seems to be the case in g++ 9.2.1)
+
+#if defined __has_builtin
+#if __has_builtin (__builtin_FUNCTION)
+   void make_bonds_type_checked(const char *s = __builtin_FUNCTION());
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices, const char *s = __builtin_FUNCTION());
    void make_glsl_bonds_type_checked(const char *s = __builtin_FUNCTION());
+#else
+   void make_bonds_type_checked(const char *s = 0);
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices, const char *s =0);
+   void make_glsl_bonds_type_checked(const char *s = 0);
+#endif
+#else // repeat above
+   void make_bonds_type_checked(const char *s = 0);
+   void make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices, const char *s =0);
+   void make_glsl_bonds_type_checked(const char *s = 0);
+#endif
+
+
    float atom_radius_scale_factor; // 3 is quite nice, 1 by default.
    void set_atom_radius_scale_factor(float sf); // regenerate
 

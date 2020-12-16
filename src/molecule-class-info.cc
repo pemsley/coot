@@ -3581,6 +3581,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    bool debug = false;
 
+   // Note caller can be 0 (e.g. with clang) - so be aware of that when debugging.
+
    if (debug)
       std::cout << "debug:: make_bonds_type_checked() --------start--------- called by "
                 << caller << "()" << std::endl;
