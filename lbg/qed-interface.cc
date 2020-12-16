@@ -22,7 +22,7 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    silicos_it_qed_default_func = NULL;
 
    // Build the name object
-   PyObject *pName = PyString_FromString("silicos_it.descriptors.qed");
+   PyObject *pName = PyUnicode_FromString("silicos_it.descriptors.qed");
    // Load the module object
    PyObject *pModule = PyImport_Import(pName);
    if (pModule == NULL) {
@@ -102,16 +102,16 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 	 PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;
 	 PyErr_Fetch(&type_ptr, &value_ptr, &traceback_ptr);
 
-	 PyObject *dest = PyString_FromString("object: %s\n");
+	 PyObject *dest = PyUnicode_FromString("object: %s\n");
 	 if (type_ptr)
 	    std::cout << "error: type "
-		      << PyString_AsString(PyString_Format(dest, type_ptr)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, type_ptr))) << std::endl;
 	 if (value_ptr)
 	    std::cout << "error: value "
-		      << PyString_AsString(PyString_Format(dest, value_ptr)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, value_ptr))) << std::endl;
 	 if (traceback_ptr)
 	    std::cout << "error: traceback_ptr "
-		      << PyString_AsString(PyString_Format(dest, traceback_ptr)) << std::endl;
+		      << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, traceback_ptr))) << std::endl;
 	    
       } 
       catch (...) {

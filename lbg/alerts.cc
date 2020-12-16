@@ -75,20 +75,20 @@ lbg_info_t::user_defined_alert_smarts() const {
 
 #ifdef USE_PYTHON
 
-   if (user_defined_alerts_smarts_py) { 
+   if (user_defined_alerts_smarts_py) {
       if (PyList_Check(user_defined_alerts_smarts_py)) {
 	 Py_ssize_t len = PyList_Size(user_defined_alerts_smarts_py);
-	 for (Py_ssize_t i=0; i<len; i++) { 
+	 for (Py_ssize_t i=0; i<len; i++) {
 	    PyObject *item_pair = PyList_GetItem(user_defined_alerts_smarts_py, i);
 	    if (PyList_Check(item_pair)) {
 	       int item_len = PyList_Size(item_pair);
 	       if (item_len == 2) {
 		  PyObject *alert = PyList_GetItem(item_pair, 0);
 		  PyObject *description = PyList_GetItem(item_pair, 1);
-		  if (PyString_Check(alert)) { 
-		     if (PyString_Check(description)) {
-			std::string a = PyString_AsString(alert);
-			std::string d = PyString_AsString(description);
+		  if (PyUnicode_Check(alert)) {
+		     if (PyUnicode_Check(description)) {
+			std::string a = PyBytes_AS_STRING(PyUnicode_AsUTF8String(alert));
+			std::string d = PyBytes_AS_STRING(PyUnicode_AsUTF8String(description));
 			std::pair<std::string, std::string> p(a,d);
 			v.push_back(p);
 		     }
@@ -97,10 +97,10 @@ lbg_info_t::user_defined_alert_smarts() const {
 	    }
 	 }
       }
-   } 
+   }
 #endif
    return v;
-} 
+}
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

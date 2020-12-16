@@ -68,8 +68,8 @@ get_qed_properties(PyObject *silicos_it_qed_properties_func,
 		  properties[i] = item_f;
 		  // std::cout << "setting float " << i << " " << item_f << std::endl;
 	       } else {
-		  if (PyInt_Check(item_py)) {
-		     long item_i = PyInt_AsLong(item_py);
+		  if (PyLong_Check(item_py)) {
+		     long item_i = PyLong_AsLong(item_py);
 		     properties[i] = item_i;
 		     // std::cout << "setting int " << i << " " << item_i << std::endl;
 		  }
@@ -91,16 +91,14 @@ get_qed_properties(PyObject *silicos_it_qed_properties_func,
 	 PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;
 	 PyErr_Fetch(&type_ptr, &value_ptr, &traceback_ptr);
 
-	 PyObject *dest = PyString_FromString("object: %s\n");
+	 PyObject *dest = PyUnicode_FromString("object: %s\n");
 	 if (type_ptr)
-	    std::cout << "error: type "
-		      << PyString_AsString(PyString_Format(dest, type_ptr)) << std::endl;
+	    std::cout << "error: type " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, type_ptr))) << std::endl;
 	 if (value_ptr)
-	    std::cout << "error: value "
-		      << PyString_AsString(PyString_Format(dest, value_ptr)) << std::endl;
+	    std::cout << "error: value " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, value_ptr))) << std::endl;
 	 if (traceback_ptr)
-	    std::cout << "error: traceback_ptr "
-		      << PyString_AsString(PyString_Format(dest, traceback_ptr)) << std::endl;
+	    std::cout << "error: traceback_ptr " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(PyUnicode_Format(dest, traceback_ptr)))
+                      << std::endl;
 	    
       }
       catch (...) {

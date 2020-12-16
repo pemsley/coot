@@ -131,7 +131,7 @@ public:
    void clear() { mesh.clear(); imol = UNDEFINED; }
    void close_yourself() { clear(); mesh.close(); }
    void add(const sphere_t &sphere) {
-      std::cout << "add a sphere here" << sphere.centre.format() << std::endl;
+      std::cout << "FIXME:: meshed-generic-display-object add a sphere here " << sphere.centre.format() << std::endl;
    }
    void add_line(const coot::colour_holder &colour, const std::string &colour_name, int line_width,
                  const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords);

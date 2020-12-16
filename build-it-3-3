@@ -2477,9 +2477,6 @@ fi
 #this should not be needed
 export PATH=$install_top_dir/bin:$PATH
 
-echo path pre-python - do we have the wrong pip qm
-echo $PATH
-
 # python
 #
 if test -n "$build_python" ; then 
@@ -2525,10 +2522,11 @@ else
 fi
 
 
+test_for_already_installed_dependencies=true
+
 
 if test -n "$build_pygobject" ; then
 
-   test_for_already_installed_dependencies=true
    sources_dir=${AUTOBUILD_SOURCES}
 
    # gobject-introspection needs libffi:
@@ -2556,6 +2554,15 @@ if test -n "$build_pygobject" ; then
       fi
    fi
    ) > $HOSTLOGDIR/07a-libffi.txt 2>&1
+fi
+
+
+build_gobject_introspection=true
+if [ -e $install_top_dir/include/gobject-introspection-1.0/girffi.h ] ; then
+   build_gobject_introspection=false
+fi
+
+if test -n "$build_gobject_introspection" ; then
 
    echo BUILDING gobject-introspection:
    echo BUILDING gobject-introspection: 2>&1
@@ -2926,9 +2933,9 @@ if [ "$build_boost" = true ] ; then
       python_version_extention=3.6m # extract this
       # ./bootstrap.sh --prefix=$install_top_dir --with-libraries=python,regex,serialization --without-icu
       pwd
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --includedir=$install_top_dir/include/python$python_version_extention --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --includedir=$install_top_dir/include/python$python_version_extention --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --includedir=$install_top_dir/include/python$python_version_extention --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams --without-icu
 
       # now edit the project-config.jam file using python line
 

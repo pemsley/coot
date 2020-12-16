@@ -3469,9 +3469,10 @@ lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > 
 					 s.c_str());
 
 	       // tooltips here?
-	       GtkTooltips *tooltips = gtk_tooltips_new();
+	       // GtkTooltips *tooltips = gtk_tooltips_new();
 	       std::string m = "Ideal: " + ideal_values[i];
-	       gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
+	       // gtk_tooltips_set_tip(tooltips, GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str(), NULL);
+	       gtk_widget_set_tooltip_text(GTK_WIDGET(lbg_qed_properties_progressbars[i]), m.c_str());
 	    }
 	 }
       }
@@ -4352,7 +4353,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       }
    }
    catch (const RDKit::BadFileException &e) {
-      std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      // std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
+      std::cout << "WARNING:: Bad file " << file_name << " " << e.what() << std::endl;
       try_as_mdl_mol = true;
    }
    catch (const std::runtime_error &rte) {
@@ -4974,13 +4976,13 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       // If we have failed so far, try again with lidia.fetch.
       // But import rdkit first so that import.fetch doesn't crash - !
       std::cout << "DEBUG:: --- start import rdkit/lidia.fetch --- " << std::endl;
-      PyObject *pName_rdkit = PyString_FromString("rdkit");
+      PyObject *pName_rdkit = PyUnicode_FromString("rdkit");
       std::cout << "DEBUG:: --- we have pName_rdkit --- " << pName_rdkit << std::endl;
       PyObject *pModule = PyImport_Import(pName_rdkit);
       if (! pModule) return;
       std::cout << "DEBUG:: --- we have imported rdkit --- " << pName_rdkit << std::endl;
 
-      PyObject *pName = PyString_FromString("lidia.fetch");
+      PyObject *pName = PyUnicode_FromString("lidia.fetch");
       std::cout << "DEBUG:: with lidia.fetch pName " << pName << std::endl;
       pModule = PyImport_Import(pName);
       if (pModule == NULL) {
@@ -4997,7 +4999,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
             if (PyCallable_Check(pFunc)) {
                std::cout << "DEBUG:: fetch_molecule is a callable function" << std::endl;
                PyObject *arg_list = PyTuple_New(1);
-               PyObject *drug_name_py = PyString_FromString(drug_name.c_str());
+               PyObject *drug_name_py = PyUnicode_FromString(drug_name.c_str());
                PyTuple_SetItem(arg_list, 0, drug_name_py);
                std::cout << "DEBUG:: fetch_molecule called with arg " << drug_name << std::endl;
                PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
@@ -5005,9 +5007,9 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
                if (result_py) {
 
-                  if (PyString_Check(result_py)) {
+                  if (PyUnicode_Check(result_py)) {
                      std::cout << "fetch_molecule result was a string " << std::endl;
-                     std::string file_name = PyString_AsString(result_py);
+                     std::string file_name = PyBytes_AS_STRING(PyUnicode_AsUTF8String(result_py));
                      std::cout << "fetch_molecule result was a file_name " << file_name << std::endl;
 
                      try {
@@ -5079,7 +5081,7 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 
    //
    // Build the name object
-   PyObject *pName = PyString_FromString(module_name.c_str());
+   PyObject *pName = PyUnicode_FromString(module_name.c_str());
    // Load the module object
    PyObject *pModule = PyImport_Import(pName);
    if (pModule == NULL) {

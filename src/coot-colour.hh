@@ -5,6 +5,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "utils/colour-holder.hh"  // funny old thing. Consolidate the colour class one day.
+
 namespace coot { 
    class colour_t {
       void init(float r, float g, float b) {
@@ -36,6 +38,9 @@ namespace coot {
       }
       glm::vec4 to_glm() const {
          return glm::vec4(col[0], col[1], col[2], 1.0f);
+      }
+      colour_holder to_colour_holder() const {
+         return colour_holder(col[0], col[1], col[2]);
       }
    };
    std::ostream& operator<<(std::ostream &s, colour_t col);
