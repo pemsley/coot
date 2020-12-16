@@ -12676,6 +12676,7 @@ on_map_radius_em_entry_key_press_event (GtkWidget       *widget,
   return FALSE;
 }
 
+void
 on_draw_molecular_ribbons_activate     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
