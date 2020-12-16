@@ -1619,6 +1619,8 @@ echo coot_version $coot_version
 # real_ssl_prefix=/usr  # for mac, for PC, libs go in /usr/lib64 and
 # sed -i -e "s?#SSL=.*?SSL=$real_ssl_prefix?" -e 's/^#_ssl/_ssl/' -e's/^#.*-DUSE_SSL/    -DUSE_SSL/' -e 's?^#.*-L$(SSL)/lib?    -L$(SSL)/lib?' Modules/Setup
 # also add --with-ensurepip=install
+# For ubuntu, you need system OpenSSL:
+# sudo apt-get install openssl-dev
 #
 if [ "$build_coot_prerelease" = 1 ] ; then
     if [ "$coot_prerelease_exists" = 1 ] ; then
@@ -2782,18 +2784,20 @@ if test -n "$build_libidn" ; then
 (
    # get libcurl from here:
    libidn_version=1.15
-   ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+   libidn_version=2.2.0
+   # ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn-$libidn_version.tar.gz
+   ${WGET}    https://www.mirrorservice.org/sites/ftp.gnu.org/gnu/libidn/libidn2-$libidn_version.tar.gz
 
-   gzip -dc ${AUTOBUILD_SOURCES}/libidn-$libidn_version.tar.gz | tar xf -
-   cd libidn-$libidn_version
+   gzip -dc ${AUTOBUILD_SOURCES}/libidn2-$libidn_version.tar.gz | tar xf -
+   cd libidn2-$libidn_version
 
    ./configure  $generic_prefix
    if $MAKE ; then
       $MAKE install
    fi
-) > $HOSTLOGDIR/15-a-libidn.txt
+) > $HOSTLOGDIR/15-a-libidn2.txt 2>&1
 else
-    echo not building libidn:
+    echo not building libidn2:
 fi
 
 #
@@ -2802,9 +2806,6 @@ fi
 ###############################################################################
 #
 
-# hack force
-build_curl=true
-
 if test -n "$build_curl" ; then
    echo BUILDING curl:
 (
@@ -2812,8 +2813,11 @@ if test -n "$build_curl" ; then
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
    # libcurl_version=7.27.0
-   libcurl_version=7.32.0
-   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   # libcurl_version=7.32.0
+   libcurl_version=7.65.3
+   libcurl_version_directory=7_65_3
+   # ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   ${WGET} https://github.com/curl/curl/releases/download/curl-$libcurl_version_directory/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
@@ -2827,8 +2831,17 @@ if test -n "$build_curl" ; then
    # we force the libidn libs at the front of LDFLAGS.  Problem found on RHEL4-64bit
    # (lemur).
    #
-   echo ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
-   ./configure  $generic_prefix --with-libidn=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   # this implicitly uses OpenSSL if it can be configured via pkg-config
+   #
+   # 20191211-PE on modern ubuntu: apt install libssl-dev, so that curl's configure finds it
+   #             It's OK to depend on system libssl rather than build it myself.
+
+   # Make sure (here) that system has OpenSSL
+   # on Ubuntu: install it like this:
+   # apt-get install libssl-dev
+   #
+   echo ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   ./configure  $generic_prefix --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then
          fixup_libcurl
@@ -2843,7 +2856,7 @@ if test -n "$build_curl" ; then
       fi
    fi
 
-) > $HOSTLOGDIR/15-b-curl.txt
+) > $HOSTLOGDIR/15-b-curl.txt 2>&1
 else
     echo not building curl:
 fi
@@ -3150,8 +3163,6 @@ fi
 ###############################################################################
 ##########         build numpy                                    #############
 ###############################################################################
-
-build_numpy=true
 
 # Let's stop at the beginning if we need a fortran compiler and don't have it.
 #
@@ -3751,8 +3762,8 @@ if [ "$run_tests" = true ] ; then
                   echo ========================
                   echo pass-2nd-test > $LOGS/test-status
 
-	          mv $holding_tar_file $bin_tar_file
-	          mv $holding_tar_file.md5sum $bin_tar_file.md5sum
+                  mv $holding_tar_file $bin_tar_file
+                  mv $holding_tar_file.md5sum $bin_tar_file.md5sum
 
                   # update the description of the latest binary tar file for
                   # this build-type.
@@ -3769,12 +3780,12 @@ if [ "$run_tests" = true ] ; then
                   cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
                   cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
 
-	          echo about to publish files:
-	          echo about to publish files: >&2
+                  echo about to publish files:
+                  echo about to publish files: >&2
 
-	          # only copy over the binary files if they are not there
-	          # already (checked by publish executable).
-	          #
+                  # only copy over the binary files if they are not there
+                  # already (checked by publish executable).
+                  #
                   # reading the git logs adding $BINARY_TAR_DEST_DIR seems to have fixed something.
                   # Now, the transfer-to-web-server.sh scripts take the second arg
                   # and munge it to be the correct directory for the binary (and .txt) files.
@@ -3789,8 +3800,8 @@ if [ "$run_tests" = true ] ; then
 	          echo $publish --no-server-check coot-README
 	          $publish --no-server-check coot-README
                   if [ -z "$build_coot_prerelease" ] ; then
-   	             echo $publish  --no-server-check RELEASE-NOTES
-	             $publish --no-server-check RELEASE-NOTES
+                  echo $publish  --no-server-check RELEASE-NOTES
+                  $publish --no-server-check RELEASE-NOTES
                   else
    	             echo $publish  --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
 	             $publish --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
