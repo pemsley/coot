@@ -1292,6 +1292,11 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
 }
 
 void
+Mesh::draw_hud_ligand(Shader *shader_p) {
+   
+}
+
+void
 Mesh::draw(Shader *shader_p,
            const glm::mat4 &mvp,
            const glm::mat4 &mouse_based_rotation_matrix,

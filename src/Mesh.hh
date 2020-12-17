@@ -95,6 +95,7 @@ public:
              bool do_depth_fog);
    void draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &view_rotation);
    void draw_normals(const glm::mat4 &mvp, float normal_scaling); // debugging
+   void draw_hud_ligand(Shader *shader_p);
 
    // the current draw method is a mess with changing between colours and instancing adn idex of the attribute array
    // the new system has this layout:

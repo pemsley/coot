@@ -3955,9 +3955,9 @@ lbg_info_t::render() {
 
       if (display_atom_names || display_atom_numbers) {
 
-	 lig_build::atom_id_info_t atom_id_info = mol.atoms[iat].atom_name;
+	 lig_build::atom_id_info_t atom_id_info(mol.atoms[iat].atom_name);
 	 if (display_atom_numbers)
-	    atom_id_info = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1); // mol file numbering, 1-indexed
+	    atom_id_info = lig_build::atom_id_info_t(mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1)); // mol file numbering, 1-indexed
 	 atom_id_info.size_hint = -1;
 	 const std::string &ele = mol.atoms[iat].element;
 	 std::string fc = font_colour(ele);

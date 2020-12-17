@@ -2,6 +2,7 @@
 #ifndef HUD_TEXTURE_MESH_HH
 #define HUD_TEXTURE_MESH_HH
 
+#include <vector>
 #include "g_triangle.hh"
 
 #include "lights-info.hh"
@@ -22,7 +23,7 @@ class XYMesh {
    bool this_mesh_is_closed;
 
 public:
-   XYMesh(const std::string &n) : name(n) { init(); }
+   explicit XYMesh(const std::string &n) : name(n) { init(); }
    std::string get_name() const { return name; }
    bool get_draw_status() const { return draw_this_mesh; }
    void setup_quad();
