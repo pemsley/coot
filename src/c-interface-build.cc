@@ -2199,7 +2199,7 @@ int move_molecule_to_screen_centre_internal(int imol) {
 	 std::cout << "           calling g.setup_graphics_ligand_view_aa() "
 		   << std::endl;
       }
-      g.setup_graphics_ligand_view_aa(imol);
+      g.setup_graphics_ligand_view_using_active_atom(imol); // only in imol
    }
    return imoved_stat;
 }

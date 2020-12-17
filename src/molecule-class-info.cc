@@ -141,6 +141,9 @@ molecule_class_info_t::setup_internal() {
 
    // initial bonds type (checked and reset in handle_read_draw_molecule)
    bonds_box_type = coot::UNSET_TYPE;
+   bonds_rotate_colour_map_flag = 0;
+
+
 
    save_time_string = "";
 
@@ -1048,7 +1051,7 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
          ra += rotation_size;
          while (ra > 1.0) ra -= 1.0;
          if (ra > 0) {
-	    rgb.rotate(ra);
+            rgb.rotate(ra);
          }
          // std::cout << "get_bond_colour_by_mol_no() get chain colour for colour_index "
          // << colour_index << " " << rgb << std::endl;

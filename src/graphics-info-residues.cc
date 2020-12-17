@@ -104,7 +104,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 // bottom left flat ligand view:
 //
 void
-graphics_info_t::setup_graphics_ligand_view_aa() {
+graphics_info_t::setup_graphics_ligand_view_using_active_atom() {
 
    if (show_graphics_ligand_view_flag) { // user control
       std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
@@ -122,10 +122,10 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
 // bottom left flat ligand view:
 //
 void
-graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
+graphics_info_t::setup_graphics_ligand_view_using_active_atom(int only_in_imol) {
 
    if (show_graphics_ligand_view_flag) { // user control
-      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec(imol);
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec(only_in_imol);
       if (active_atom.first) {
 	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
 	 if (0)
@@ -151,11 +151,13 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 	       graphics_ligand_view_flag = false;
 	    } else {
 	       if (residue_p->GetNumberOfAtoms() > 1) {
-		  if (0)
-		     std::cout << "   setup_graphics_ligand() on residue "
+		  if (false)
+		     std::cout << "debug:: setup_graphics_ligand() on residue "
 			       << coot::residue_spec_t(residue_p) << std::endl;
+
+                  gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
 		  graphics_ligand_view_flag =
-		     graphics_ligand_mol.setup_from(imol, residue_p, alt_conf, Geom_p(), background_is_black_p());
+		     graphics_ligand_mesh_molecule.setup_from(imol, residue_p, alt_conf, Geom_p());
 
 		  // This overwrites the atom info in the status bar - I don't like that.
 		  // There needs to be a different mechanism to report the residue type.
@@ -179,7 +181,7 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 }
 
 
-
+#if 0 // delete this function when new version works - keep this for reference for now.
 void
 graphics_info_t::graphics_ligand_view() {
 
@@ -310,6 +312,8 @@ graphics_info_t::graphics_ligand_view() {
       }
    }
 }
+
+#endif
 
 #include <glm/gtx/rotate_vector.hpp>
 #include "matrix-utils.hh"

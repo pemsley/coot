@@ -44,7 +44,6 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    // clear then go
    VertexSource.clear();
    FragmentSource.clear();
-   std::string::size_type pos = file_name.find_first_of(".shader");
    name = file_name;
    std::cout << "::: Shader compile " << file_name << std::endl;
 
@@ -307,10 +306,14 @@ void Shader::parse(const std::string &file_name_in) {
             if (line.find("fragment") != std::string::npos)
                type = ShaderType::FRAGMENT;
          } else {
-            if (type == ShaderType::VERTEX)
-               VertexSource += line + "\n";
-            if (type == ShaderType::FRAGMENT)
-               FragmentSource += line + "\n";
+            if (type == ShaderType::VERTEX) {
+               VertexSource += line;
+               VertexSource += "\n";
+            }
+            if (type == ShaderType::FRAGMENT) {
+               FragmentSource += line;
+               FragmentSource += "\n";
+            }
          }
       }
    } else {

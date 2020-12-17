@@ -30,6 +30,7 @@ graphics_info_t::init_shaders() {
                                                            shader_for_particles,
                                                            shader_for_instanced_objects,
                                                            shader_for_happy_face_residue_markers,
+                                                           shader_for_ligand_view,
                                                            shader_for_screen,
                                                            shader_for_blur};
    std::string p = coot::package_data_dir();
@@ -56,6 +57,7 @@ graphics_info_t::init_shaders() {
    shader_for_instanced_objects.init("instanced-objects.shader", Shader::Entity_t::INSTANCED_DISPLAY_OBJECT);
    shader_for_hud_geometry_tooltip_text.init("hud-geometry-tooltip-text.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_happy_face_residue_markers.init("happy-face-residue-markers.shader", Shader::Entity_t::GENERIC_DISPLAY_OBJECT);
+   shader_for_ligand_view.init("ligand-view.shader", Shader::Entity_t::NONE);
    shader_for_model_as_meshes.init("model-as-mesh.shader", Shader::Entity_t::MODEL);
 
    // we use the above to make an image/texture in the framebuffer and use then

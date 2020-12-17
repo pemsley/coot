@@ -31,6 +31,8 @@ std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
 std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
+graphics_ligand_mesh_molecule_t graphics_info_t::graphics_ligand_mesh_molecule;
+
 // --------------------------------------------------------------------------------------------
 
 float *graphics_info_t::mvp = new float[16];
@@ -73,6 +75,7 @@ Shader graphics_info_t::shader_for_blur;
 Shader graphics_info_t::shader_for_lines;
 Shader graphics_info_t::shader_for_lines_pulse;
 Shader graphics_info_t::shader_for_particles;
+Shader graphics_info_t::shader_for_ligand_view;
 Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also HOLE
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 Shader graphics_info_t::shader_for_happy_face_residue_markers;

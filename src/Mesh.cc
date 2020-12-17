@@ -17,7 +17,7 @@
 
 #include <epoxy/gl.h>
 #ifndef __APPLE__
-#include <epoxy/glx.h>
+#include <epoxy/glx.h> // what's this for? Try deleting it
 #endif
 #include "Mesh.hh"
 #include "Shader.hh"

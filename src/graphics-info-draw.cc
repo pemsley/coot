@@ -2375,6 +2375,8 @@ graphics_info_t::render(bool to_screendump_framebuffer, const std::string &outpu
 
       draw_invalid_residue_pulse();
 
+      draw_ligand_view();
+
       glBindVertexArray(0); // here is not the place to call this.
    }
 
@@ -2806,6 +2808,18 @@ graphics_info_t::setup_draw_for_boids() {
       lines_mesh_for_boids_box.setup(&shader_for_lines);
    }
 }
+
+void
+graphics_info_t::draw_ligand_view() {
+
+   GtkAllocation allocation;
+   gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+   float w = allocation.width;
+   float h = allocation.height;
+   float aspect_ratio = w/h;
+   graphics_ligand_mesh_molecule.draw(&shader_for_ligand_view, aspect_ratio);
+}
+
 
 
 void

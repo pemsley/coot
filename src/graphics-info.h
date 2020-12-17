@@ -120,7 +120,8 @@
 
 #include "boids.hh"
 
-#include "graphics-ligand-view.hh"
+// #include "graphics-ligand-view.hh"
+#include "graphics-ligand-mesh-molecule.hh"
 
 #include "restraints-editor.hh"
 
@@ -3921,19 +3922,33 @@ string   static std::string sessionid;
    static void on_multi_residue_torsion_button_clicked(GtkButton *button, gpointer user_data);
    void rotate_multi_residue_torsion(double x, double y);
 
+   // Old style OpenGL:
    // bottom left ligand view
-   void setup_graphics_ligand_view_aa();
-   void setup_graphics_ligand_view_aa(int imol); // only allow imol to be potential active residue.
-   void setup_graphics_ligand_view(int imol, mmdb::Residue *residue, const std::string &alt_conf);
+   // void setup_graphics_ligand_view_aa();
+   // void setup_graphics_ligand_view_aa(int imol); // only allow imol to be potential active residue.
+   // void setup_graphics_ligand_view(int imol, mmdb::Residue *residue, const std::string &alt_conf);
    // which stores in:
-   static graphics_ligand_molecule graphics_ligand_mol;
+   // static graphics_ligand_molecule graphics_ligand_mol;
+   //
+   // void close_graphics_ligand_view_for_mol(int imol_in) {
+   // if (graphics_ligand_mol.imol == imol_in)
+   // graphics_ligand_view_flag = false;
+   // }
+   // static void graphics_ligand_view();  // actually draw it
+
+   // replaced by
+   //
+   static graphics_ligand_mesh_molecule_t graphics_ligand_mesh_molecule;
+   void setup_draw_for_ligand_view();
+   void close_graphics_ligand_view_for_mol(int imol_in) {
+      if (graphics_ligand_mesh_molecule.imol == imol_in)
+         graphics_ligand_view_flag = false;
+   }
+   void setup_graphics_ligand_view_using_active_atom(int imol); // this function needs to be written
+   void setup_graphics_ligand_view_using_active_atom();         // this function needs to be written
+   void setup_graphics_ligand_view(int imol, mmdb::Residue *residue, const std::string &alt_conf);
 
    static int show_graphics_ligand_view_flag; // user control, default 1 (on).
-   void close_graphics_ligand_view_for_mol(int imol_in) {
-     if (graphics_ligand_mol.imol == imol_in)
-       graphics_ligand_view_flag = false;
-   }
-   static void graphics_ligand_view();  // actually draw it
 
    // don't redraw everything, just those that have a residue with name res_name
    //
@@ -4128,6 +4143,7 @@ string   static std::string sessionid;
    static Shader shader_for_hud_geometry_bars;
    static Shader shader_for_hud_geometry_labels; // for labels image
    static Shader shader_for_lines_pulse; // "you are here" pulse
+   static Shader shader_for_ligand_view;
    static Shader shader_for_happy_face_residue_markers;
    static long frame_counter;
    static long frame_counter_at_last_display;
@@ -4186,6 +4202,7 @@ string   static std::string sessionid;
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
    static void draw_central_cube(GtkGLArea *glarea);
    static void draw_origin_cube(GtkGLArea *glarea);
+   static void draw_ligand_view();
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
 
    void reset_frame_buffers(int width, int height);

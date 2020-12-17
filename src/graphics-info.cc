@@ -3480,7 +3480,7 @@ graphics_info_t::update_things_on_move() {
       molecules[ii].update_symmetry();
    }
    make_pointer_distance_objects();
-   setup_graphics_ligand_view_aa();
+   setup_graphics_ligand_view_using_active_atom();
 }
 
 // return the state whether to really show the baton.

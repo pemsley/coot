@@ -1364,7 +1364,7 @@ int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTE
 
 
 // Graphics ligand view
-graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
+// graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
 int                      graphics_info_t::show_graphics_ligand_view_flag = 1; // user control
 
 // FLEV

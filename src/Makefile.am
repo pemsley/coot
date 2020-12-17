@@ -124,7 +124,7 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
                      instanced-objects.shader particles.shader lines.shader \
                      draw-map-cap.shader lines-pulse.shader rama-balls.shader \
 		     hud-geometry-tooltip-text.shader happy-face-residue-markers.shader \
-		     model-as-mesh.shader
+		     model-as-mesh.shader ligand-view.shader
 
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
@@ -492,6 +492,8 @@ coot_bin_SOURCES = \
 	graphics-info-trackball.cc	\
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
+	graphics-ligand-mesh-molecule.cc \
+	graphics-ligand-mesh-molecule.hh \
 	gl-matrix.cc 		 \
 	gl-lights-info.hh	 \
 	graphics-info.h 	 \
@@ -515,6 +517,8 @@ coot_bin_SOURCES = \
 	key-bindings.hh		 \
         manipulation-modes.hh    \
 	LinesMesh.cc LinesMesh.hh \
+	LigandViewMesh.cc        \
+	LigandViewMesh.hh        \
 	lsq-dialog-values.hh     \
 	lbg-interface.hh 	 \
 	lbg-callbacks-outer.cc 	 \

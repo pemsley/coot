@@ -181,6 +181,7 @@ int get_monomer_from_dictionary(const std::string &comp_id,
       atom_selection_container_t asc = make_asc(mol);
       std::string name = comp_id;
       name += "_from_dict";
+      std::cout << "debug:: get_monomer_from_dictionary() installing " << name << " into model " << imol << std::endl;
       graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
       move_molecule_to_screen_centre_internal(imol);
       graphics_draw();
