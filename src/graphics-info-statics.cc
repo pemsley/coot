@@ -77,11 +77,11 @@ Shader graphics_info_t::shader_for_instanced_objects; // used for boids - also H
 Shader graphics_info_t::shader_for_hud_geometry_tooltip_text;
 Shader graphics_info_t::shader_for_happy_face_residue_markers;
 meshed_generic_display_object graphics_info_t::mesh_for_environment_distances;
-std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
-std::chrono::time_point<std::chrono::system_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
+std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::previous_frame_time = std::chrono::high_resolution_clock::now();
+std::chrono::time_point<std::chrono::high_resolution_clock> graphics_info_t::previous_frame_time_for_per_second_counter = std::chrono::high_resolution_clock::now();
 long graphics_info_t::frame_counter = 0;
 long graphics_info_t::frame_counter_at_last_display = 0;
-std::queue<std::chrono::time_point<std::chrono::system_clock> > graphics_info_t::frame_draw_queue;
+std::queue<std::chrono::time_point<std::chrono::high_resolution_clock> > graphics_info_t::frame_draw_queue;
 std::set<mmdb::Residue *> graphics_info_t::moving_atoms_visited_residues;
 mmdb::Atom *graphics_info_t::active_atom_for_hud_geometry_bar = 0;
 

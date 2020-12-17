@@ -567,7 +567,7 @@ view_spin_func(gpointer data) {
    graphics_info_t::glm_quat = glm::normalize(product);
    graphics_info_t::graphics_draw(); // queue
 
-   std::chrono::time_point<std::chrono::system_clock> tp_now = std::chrono::high_resolution_clock::now();
+   std::chrono::time_point<std::chrono::high_resolution_clock> tp_now = std::chrono::high_resolution_clock::now();
    std::chrono::duration<double> elapsed_seconds = tp_now - graphics_info_t::previous_frame_time_for_per_second_counter;
    if (elapsed_seconds.count() > 1.0) {
       float nf = graphics_info_t::frame_counter - graphics_info_t::frame_counter_at_last_display;
