@@ -12,7 +12,7 @@ HUDTextureMesh::init() {
    draw_this_mesh = true;
    position = glm::vec2(0,0);
    scales = glm::vec2(1,1);
-   vao = 99999999; // unset
+   vao = VAO_NOT_SET; // unset
    first_time = true;
 }
 
@@ -149,13 +149,14 @@ HUDTextureMesh::draw(Shader *shader_p) {
 
    shader_p->Use();
 
-   if (vao == 99999999)
+   if (vao == VAO_NOT_SET)
       std::cout << "error:: You forgot to setup this mesh " << name << " "
                 << shader_p->name << std::endl;
 
    glBindVertexArray(vao);
 
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id); // needed?
+   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id); // needed?
 
    glEnableVertexAttribArray(0);
    glEnableVertexAttribArray(1);
@@ -167,7 +168,6 @@ HUDTextureMesh::draw(Shader *shader_p) {
    shader_p->set_vec2_for_uniform("position", position);
    shader_p->set_vec2_for_uniform("scales", scales);
 
-   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id); // needed?
    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
    GLenum err = glGetError();
    if (err) std::cout << "error HUDMesh::draw() glDrawElementsInstanced()"
@@ -181,9 +181,8 @@ HUDTextureMesh::draw(Shader *shader_p) {
 
 }
 
-
 void
-HUDTextureMesh::draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p,
+HUDTextureMesh::draw_label(const std::string &label, glm::vec4 &text_colour, Shader *shader_p,
                            const std::map<GLchar, FT_character> &ft_characters) {
 
    if (! draw_this_mesh) return;
@@ -202,7 +201,7 @@ HUDTextureMesh::draw_label(const std::string &label, bool highlight_label_flag, 
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
 
-   if (vao == 99999999)
+   if (vao == VAO_NOT_SET)
       std::cout << "error:: draw_label(): You forgot to setup this mesh " << name << " "
                 << shader_p->name << std::endl;
    glBindVertexArray(vao);
@@ -213,8 +212,6 @@ HUDTextureMesh::draw_label(const std::string &label, bool highlight_label_flag, 
 
    shader_p->set_vec2_for_uniform("position", position);
    shader_p->set_vec2_for_uniform("scales", scales);
-   glm::vec4 text_colour(0.8, 0.8, 0.8, 1.0);
-   if (highlight_label_flag) text_colour = glm::vec4(1.0, 1.0, 0.6, 1.0);
    shader_p->set_vec4_for_uniform("text_colour", text_colour);
 
    glActiveTexture(GL_TEXTURE0);
@@ -242,7 +239,7 @@ HUDTextureMesh::draw_label(const std::string &label, bool highlight_label_flag, 
    for (it_c = label.begin(); it_c != label.end(); ++it_c) {
       std::map<GLchar, FT_character>::const_iterator it = ft_characters.find(*it_c);
       if (it == ft_characters.end()) {
-         std::cout << "Failed to lookup glyph for " << *it_c << std::endl;
+         std::cout << "ERROR:: HUDTextureMesh::draw_label() Failed to lookup glyph for " << *it_c << std::endl;
          continue;
       };
       const FT_character &ch = it->second;
@@ -312,5 +309,15 @@ HUDTextureMesh::draw_label(const std::string &label, bool highlight_label_flag, 
    glDisableVertexAttribArray(0);
    glDisableVertexAttribArray(1);
    glUseProgram (0);
+
+}
+
+
+void
+HUDTextureMesh::draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p,
+                           const std::map<GLchar, FT_character> &ft_characters) {
+   glm::vec4 text_colour(0.8, 0.8, 0.8, 1.0);
+   if (highlight_label_flag) text_colour = glm::vec4(1.0, 1.0, 0.6, 1.0);
+   draw_label(label, text_colour, shader_p, ft_characters);
 
 }

@@ -103,11 +103,12 @@ LigandViewMesh::draw(Shader *shader_p, float aspect_ratio) {
 
    if (vao_lines == VAO_NOT_SET) {
       // not an error necessarily
-      std::cout << "LigandViewMesh::draw() vao not set yet" << std::endl;
+      // std::cout << "LigandViewMesh::draw() vao not set yet" << std::endl;
       return;
    }
 
    shader_p->Use();
+   if (aspect_ratio < 1.0) aspect_ratio = 1.0;
    shader_p->set_float_for_uniform("aspect_ratio", aspect_ratio);
 
    // ----------------------------- lines --------------------------------------

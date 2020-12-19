@@ -6,12 +6,13 @@
 #include "coot-colour.hh"
 #include "Shader.hh"
 #include "LigandViewMesh.hh"
+#include "HUDTextureMesh.hh"
 
 class graphics_ligand_mesh_atom : public lig_build::atom_t {
 public:
    graphics_ligand_mesh_atom(const lig_build::pos_t &pos_in, const std::string &ele_in, int formal_charge_in) :
-      lig_build::atom_t(pos_in, ele_in, formal_charge_in), font_colour("") { }
-   std::string font_colour;
+      lig_build::atom_t(pos_in, ele_in, formal_charge_in) { }
+   coot::colour_t colour;
    coot::colour_t get_colour(bool against_a_dark_background) const;
 };
 
@@ -59,10 +60,12 @@ public:
    }
    ~graphics_ligand_mesh_molecule_t();
    LigandViewMesh mesh; // contains vectors for both lines and triangles. Don't use indexing to draw.
+   HUDTextureMesh hud_texture_tmesh; // for (non-Carbon) atoms (text)
    std::pair<bool, double> scale_correction;
    bool setup_from(int imol, mmdb::Residue *residue_p, const std::string &alt_conf, coot::protein_geometry *geom_p);
    int imol;
-   void draw(Shader *shader_p, float aspect_ratio);
+   void draw(Shader *lines_shader_p, Shader *hud_text_shader_p,
+             float aspect_ratio, const std::map<GLchar, FT_character> &ft_characters);
 
 };
 

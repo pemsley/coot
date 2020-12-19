@@ -20,6 +20,7 @@ public:
 };
 
 class HUDTextureMesh {
+   enum { VAO_NOT_SET = 99999999 };
    glm::vec2 position; // uniforms
    glm::vec2 scales;
    GLuint vao;
@@ -34,6 +35,7 @@ class HUDTextureMesh {
    bool draw_this_mesh;
 
 public:
+   HUDTextureMesh() { init(); }
    explicit HUDTextureMesh(const std::string &n) : name(n) { init(); }
    void setup_quad(); // camera-facing, of course
    // for the tooltip background, the position is dynamic (depending on the mouse position)
@@ -45,7 +47,10 @@ public:
    void setup_texture_coords_for_nbcs_only();
    void setup_texture_coords_for_nbcs_and_rama();
    void draw(Shader *shader_p);
-   void draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p, const std::map<GLchar, FT_character> &ft_characters);
+   void draw_label(const std::string &label, bool highlight_label_flag, Shader *shader_p,
+                   const std::map<GLchar, FT_character> &ft_characters);
+   void draw_label(const std::string &label, glm::vec4 &text_colour, Shader *shader_p,
+                   const std::map<GLchar, FT_character> &ft_characters);
    void close() { draw_this_mesh = false; }
 };
 

@@ -307,7 +307,8 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
       glColor3f(fc.col[0], fc.col[1], fc.col[2]);
 
       if (false)
-	 std::cout << "make_text_item() called for atom_id_info_in " << atom_id_info_in << std::endl;
+	 std::cout << "make_text_item() called for atom_id_info_in " << atom_id_info_in
+                   << std::endl;
 
       for (unsigned int i=0; i<atom_id_info_in.n_offsets(); i++) {
 	 double x_o = -0.25;

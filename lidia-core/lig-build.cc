@@ -162,6 +162,7 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1_in,
    // from p1 (first arg) to p2 (second arg).
    //
    double shorten_fraction = 0.74;
+   shorten_fraction = 0.8;
    if (shorten_first)
       pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
    if (shorten_second)
@@ -190,9 +191,9 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1_in,
 
    double inner_bond_bl = bond_length;
    if (shorten_first)
-      inner_bond_bl *= 0.67;
+      inner_bond_bl *= 0.85;
    if (shorten_second)
-      inner_bond_bl *= 0.67;
+      inner_bond_bl *= 0.85;
    lig_build::pos_t inner_end_point = inner_start_point + buv * inner_bond_bl;
 
    lig_build::pos_t cutened_inner_start_point =

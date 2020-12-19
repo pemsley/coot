@@ -110,7 +110,7 @@ graphics_ligand_mesh_molecule_t::init_from_molfile_molecule(const lig_build::mol
       graphics_ligand_mesh_atom at(lig_build::pos_t(at_in.atom_position.x(), at_in.atom_position.y()),
                                    at_in.element, at_in.formal_charge);
       at.atom_name = at_in.name;
-      at.aromatic = at_in.aromatic;
+      at.aromatic  = at_in.aromatic;
       // what about chiral here (a lig_build::atom_t does not have chiral information).
       atoms.push_back(at);
    }
@@ -125,6 +125,7 @@ graphics_ligand_mesh_molecule_t::init_from_molfile_molecule(const lig_build::mol
 
    fill_mesh();
 
+   hud_texture_tmesh.setup_quad();
 }
 
 void
@@ -133,7 +134,6 @@ graphics_ligand_mesh_molecule_t::fill_mesh() {
    gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
 
    std::pair<std::vector<glm::vec2>, std::vector<position_triple_t> > p = fill_mesh_bonds();
-   fill_mesh_atoms();
 
    std::vector<glm::vec2> triangle_vertices(3*p.second.size());
    for (unsigned int i=0; i<p.second.size(); i++) {
@@ -143,6 +143,8 @@ graphics_ligand_mesh_molecule_t::fill_mesh() {
    }
 
    mesh.import(p.first, triangle_vertices);
+
+   fill_mesh_atoms();
 }
 
 std::pair<std::vector<glm::vec2>, std::vector<graphics_ligand_mesh_molecule_t::position_triple_t> >
@@ -194,11 +196,11 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                            if (bond.have_centre_pos()) {
                               lig_build::pos_t pos_1_local = pos_1;
                               lig_build::pos_t pos_2_local = pos_2;
-                              double shorten_fraction = 0.78;
+                              double shorten_fraction_for_double = 0.82;
                               if (shorten_first)
-                                 pos_1 = lig_build::pos_t::fraction_point(pos_2_local, pos_1_local, shorten_fraction);
+                                 pos_1 = lig_build::pos_t::fraction_point(pos_2_local, pos_1_local, shorten_fraction_for_double);
                               if (shorten_second)
-                                 pos_2 = lig_build::pos_t::fraction_point(pos_1_local, pos_2_local, shorten_fraction);
+                                 pos_2 = lig_build::pos_t::fraction_point(pos_1_local, pos_2_local, shorten_fraction_for_double);
 
                               std::pair<lig_build::pos_t, lig_build::pos_t> p =
                                  bond.make_double_aromatic_short_stick(pos_1_local, pos_2_local, shorten_first, shorten_second);
@@ -268,7 +270,6 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
                         break;
                      case lig_build::bond_t::BOND_UNDEFINED:
                         break;
-                        
                      }
                   };
 
@@ -307,31 +308,118 @@ graphics_ligand_mesh_molecule_t::fill_mesh_bonds() {
 void
 graphics_ligand_mesh_molecule_t::fill_mesh_atoms() {
 
+   // this function should be called assign_atom_colours() we don't do anything with the mesh.
+   // All complexities happen at draw time.
+
    bool background_black_flag = true;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
-      std::string ele = atoms[iat].element;
+      const std::string &ele = atoms[iat].element;
       if (ele != "C") {
 	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
 	 bool gl_flag = true;
 	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
-	 if (false)
-	    std::cout << "in gl_bonds() atom_index " << iat << " with charge " << atoms[iat].charge
-		      << " made atom_id_info " << atom_id_info << std::endl;
 	 coot::colour_t col = atoms[iat].get_colour(background_black_flag); // using ele
+         atoms[iat].colour = col;
+	 if (true)
+	    std::cout << "in fill_mesh_atoms() atom_index " << iat << " with charge " << atoms[iat].charge
+		      << " made atom_id_info:\n" << atom_id_info << " assign colour " << col << std::endl;
       }
    }
+
+
 }
 
 coot::colour_t 
 graphics_ligand_mesh_atom::get_colour(bool dark_bg) const {
 
    coot::colour_t col;
+
+   if (element == "Br") {
+      col.col[0] = 0.66;
+      col.col[1] = 0.2;
+      col.col[2] = 0.2;
+   }
+   if (element == "I") {
+      col.col[0] = 0.42;
+      col.col[1] = 0.1;
+      col.col[2] = 0.8;
+   }
+   if ((element == "F") || (element == "Cl")) {
+      col.col[0] = 0.3;
+      col.col[1] = 0.7;
+      col.col[2] = 0.3;
+   }
+   if (element == "O") {
+      col.col[0] = 0.9;
+      col.col[1] = 0.3;
+      col.col[2] = 0.3;
+   }
+   if (element == "P")  {
+      col.col[0] = 0.7;
+      col.col[1] = 0.3;
+      col.col[2] = 0.9;
+   }
+   if ((element == "S") || (element == "Se")) {
+      col.col[0] = 0.76;
+      col.col[1] = 0.76;
+      col.col[2] = 0.2;
+   }
+   if (element == "N")  {
+      col.col[0] = 0.5;
+      col.col[1] = 0.5;
+      col.col[2] = 1.0;
+   }
    return col;
 }
 
 
 void
-graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, float aspect_ratio) {
+graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_p,
+                                      float aspect_ratio, const std::map<GLchar, FT_character> &ft_characters) {
 
+   auto pos_t_to_glm = [] (const lig_build::pos_t &p) {
+                          return glm::vec2(p.x, p.y);
+                       };
+
+   // draw line bonds and wedge bonds
+   //
    mesh.draw(shader_p, aspect_ratio);
+
+   // draw atoms (text)
+   //
+   float gl_flag = true;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+      graphics_ligand_mesh_atom &atom = atoms[iat];
+      const std::string &ele = atom.element;
+      if (ele != "C") {
+	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
+         lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
+         for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
+            const lig_build::offset_text_t &offset = atom_id_info.offsets[i];
+            std::string label = offset.text;
+            glm::vec2 pos(-0.61, -0.61);
+            pos += 0.05 * pos_t_to_glm(atom.atom_position);
+            if (offset.text_pos_offset == lig_build::offset_text_t::UP)
+               pos.y += 0.03;
+            if (offset.text_pos_offset == lig_build::offset_text_t::DOWN)
+               pos.y -= 0.03;
+            if (offset.subscript)
+               pos.y -= 0.012;
+            if (offset.superscript)
+               pos.y -= 0.012;
+            pos.x += 0.03 * 0.08 * offset.tweak.x;
+            pos.y += 0.03 * 0.08 * offset.tweak.y;
+            float sc = 0.0002;
+            if (offset.subscript)   sc *= 0.8;
+            if (offset.superscript) sc *= 0.8;
+            glm::vec2 scales(sc, sc);
+            hud_texture_tmesh.set_position_and_scales(pos, scales);
+            std::cout << "draw() calling draw_label(): iat " << iat << " ioff " << i
+                      << " \"" << offset << " " << offset.text << "\" "
+                      << offset.text.length() << " colour " << atom.colour << std::endl;
+            glm::vec4 colour = atom.colour.to_glm();
+            hud_texture_tmesh.draw_label(label, colour, hud_text_shader_p, ft_characters);
+         }
+      }
+   }
 }

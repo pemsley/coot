@@ -209,7 +209,7 @@ namespace lig_build {
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
-   
+
    class atom_id_info_t {
    public:
 
