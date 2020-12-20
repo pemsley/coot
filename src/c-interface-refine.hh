@@ -27,6 +27,9 @@ void use_unimodal_ring_torsion_restraints_for_residue(const std::string &res_nam
 //! \brief set the Geman-McClure distance alpha value (weight)
 void set_refinement_geman_mcclure_alpha(float alpha);
 
+//! \brief get the Geman-McClure distance alpha value (weight)
+float get_refinement_geman_mcclure_alpha();
+
 //! \brief set the Lennard Jones epsilon parameter
 void set_refinement_lennard_jones_epsilon(float epsilon);
 
