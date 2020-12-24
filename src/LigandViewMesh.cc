@@ -99,7 +99,7 @@ LigandViewMesh::import(const std::vector<glm::vec2> &lines_vertices_in, const st
 
 
 void
-LigandViewMesh::draw(Shader *shader_p, float aspect_ratio) {
+LigandViewMesh::draw(Shader *shader_p, float widget_height, float widget_width) {
 
    if (vao_lines == VAO_NOT_SET) {
       // not an error necessarily
@@ -108,6 +108,7 @@ LigandViewMesh::draw(Shader *shader_p, float aspect_ratio) {
    }
 
    shader_p->Use();
+   float aspect_ratio = widget_width/widget_height;
    if (aspect_ratio < 1.0) aspect_ratio = 1.0;
    shader_p->set_float_for_uniform("aspect_ratio", aspect_ratio);
 

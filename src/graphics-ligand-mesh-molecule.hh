@@ -65,7 +65,7 @@ public:
    bool setup_from(int imol, mmdb::Residue *residue_p, const std::string &alt_conf, coot::protein_geometry *geom_p);
    int imol;
    void draw(Shader *lines_shader_p, Shader *hud_text_shader_p,
-             float aspect_ratio, const std::map<GLchar, FT_character> &ft_characters);
+             float height, float width, const std::map<GLchar, FT_character> &ft_characters);
 
 };
 

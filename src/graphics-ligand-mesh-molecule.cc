@@ -375,7 +375,7 @@ graphics_ligand_mesh_atom::get_colour(bool dark_bg) const {
 
 void
 graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_p,
-                                      float aspect_ratio, const std::map<GLchar, FT_character> &ft_characters) {
+                                      float widget_height, float widget_width, const std::map<GLchar, FT_character> &ft_characters) {
 
    auto pos_t_to_glm = [] (const lig_build::pos_t &p) {
                           return glm::vec2(p.x, p.y);
@@ -383,7 +383,7 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
 
    // draw line bonds and wedge bonds
    //
-   mesh.draw(shader_p, aspect_ratio);
+   mesh.draw(shader_p, widget_height, widget_width);
 
    // draw atoms (text)
    //
@@ -409,7 +409,7 @@ graphics_ligand_mesh_molecule_t::draw(Shader *shader_p, Shader *hud_text_shader_
                pos.y -= 0.012;
             pos.x += 0.03 * 0.08 * offset.tweak.x;
             pos.y += 0.03 * 0.08 * offset.tweak.y;
-            float sc = 0.0002;
+            float sc = 0.000184;
             if (offset.subscript)   sc *= 0.8;
             if (offset.superscript) sc *= 0.8;
             glm::vec2 scales(sc, sc);

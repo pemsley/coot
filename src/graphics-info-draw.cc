@@ -2816,10 +2816,9 @@ graphics_info_t::draw_ligand_view() {
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
    float w = allocation.width;
    float h = allocation.height;
-   float aspect_ratio = w/h;
    graphics_ligand_mesh_molecule.draw(&shader_for_ligand_view,
                                       &shader_for_hud_geometry_tooltip_text,
-                                      aspect_ratio, ft_characters);
+                                      w, h, ft_characters);
 }
 
 
